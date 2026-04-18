@@ -1,0 +1,22 @@
+{
+  "id": "video_tutorial",
+  "name": "视频教程",
+  "description": "专业的视频教程模板，包含标题、章节和说明文字",
+  "category": "video_editing",
+  "author": "Voxplore",
+  "version": "1.0.0",
+  "created_at": "2024-01-01T00:00:00",
+  "updated_at": "2024-01-01T00:00:00",
+  "file_size": 10240,
+  "preview_image": null,
+  "tags": ["教程", "教育", "培训"],
+  "rating": 4.5,
+  "download_count": 0,
+  "is_builtin": true,
+  "project_type": "video_editing",
+  "requirements": {
+    "min_duration": 60,
+    "recommended_resolution": "1920x1080",
+    "requires_ai_features": false
+  }
+}

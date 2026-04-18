@@ -1,0 +1,109 @@
+# Voxplore (Voxplore) Docker Compose Configuration
+# AI-Powered Video Creation Desktop App
+
+version: '3.8'
+
+services:
+  # CPU Version
+  voxplore-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: voxplore-cpu
+    restart: unless-stopped
+    environment:
+      - APP_MODE=cpu
+      - APP_HOME=/app
+      - APP_CACHE=/app/cache
+      - APP_OUTPUT=/app/output
+    volumes:
+      - ./config:/app/config:ro
+      - voxplore-cache:/app/cache
+      - voxplore-output:/app/output
+      - voxplore-logs:/app/logs
+    ports:
+      - "7860:7860"  # Default Streamlit/Gradio port
+      - "8080:8080"  # Additional port
+    stdin_open: true
+    tty: true
+    networks:
+      - voxplore-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # GPU Version (requires NVIDIA Docker)
+  voxplore-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.cuda
+    container_name: voxplore-gpu
+    restart: unless-stopped
+    environment:
+      - APP_MODE=gpu
+      - APP_HOME=/app
+      - APP_CACHE=/app/cache
+      - APP_OUTPUT=/app/output
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./config:/app/config:ro
+      - voxplore-cache:/app/cache
+      - voxplore-output:/app/output
+      - voxplore-logs:/app/logs
+    ports:
+      - "7861:7860"  # Different port for GPU version
+      - "8081:8080"
+    stdin_open: true
+    tty: true
+    networks:
+      - voxplore-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development environment
+  voxplore-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: voxplore-dev
+    environment:
+      - APP_MODE=development
+      - APP_HOME=/app
+      - APP_CACHE=/app/cache
+      - APP_OUTPUT=/app/output
+    volumes:
+      - .:/app
+      - voxplore-cache:/app/cache
+      - voxplore-output:/app/output
+    ports:
+      - "7862:7860"
+      - "8082:8080"
+    stdin_open: true
+    tty: true
+    networks:
+      - voxplore-network
+    command: python -m pytest tests/ -v
+
+networks:
+  voxplore-network:
+    driver: bridge
+
+volumes:
+  voxplore-cache:
+    driver: local
+  voxplore-output:
+    driver: local
+  voxplore-logs:
+    driver: local

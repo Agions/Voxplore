@@ -1,0 +1,82 @@
+cache:
+  enabled: true
+  max_size: 100
+  ttl: 3600
+default_provider: qwen
+llm_providers:
+  qwen:
+    enabled: true
+    api_key: ""
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen-plus"
+    max_tokens: 8000
+    temperature: 0.7
+  deepseek:
+    enabled: false
+    api_key: ""
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-chat"
+    max_tokens: 16384
+    temperature: 0.7
+  kimi:
+    enabled: false
+    api_key: ""
+    base_url: "https://api.moonshot.cn/v1"
+    model: "moonshot-v1-128k"
+    max_tokens: 8000
+    temperature: 0.7
+  glm5:
+    enabled: false
+    api_key: ""
+    base_url: "https://open.bigmodel.cn/api/paas/v4/"
+    model: "glm-4-flash"
+    max_tokens: 8000
+    temperature: 0.7
+  openai:
+    enabled: false
+    api_key: ""
+    base_url: "https://api.openai.com/v1"
+    model: "gpt-4o"
+    max_tokens: 16384
+    temperature: 0.7
+  claude:
+    enabled: false
+    api_key: ""
+    base_url: "https://api.anthropic.com"
+    model: "claude-sonnet-4-20250514"
+    max_tokens: 2000
+    temperature: 0.7
+  gemini:
+    enabled: false
+    api_key: ""
+    base_url: "https://generativelanguage.googleapis.com"
+    model: "gemini-2.0-flash-exp"
+    max_tokens: 8000
+    temperature: 0.7
+  local:
+    enabled: false
+    api_key: ""
+    base_url: "http://localhost:11434"
+    model: ""
+    max_tokens: 4096
+    temperature: 0.7
+  doubao:
+    enabled: false
+    api_key: ""
+    base_url: "https://ark.cn-beijing.volces.com/api/v3"
+    model: "doubao-pro-128k"
+    max_tokens: 8000
+    temperature: 0.7
+  hunyuan:
+    enabled: false
+    api_key: ""
+    base_url: "https://hunyuan.tencentcloudapi.com"
+    model: "hunyuan-pro"
+    max_tokens: 8000
+    temperature: 0.7
+log_level: INFO
+retry:
+  backoff_factor: 2.0
+  base_delay: 1.0
+  max_delay: 60.0
+  max_retries: 3

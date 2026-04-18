@@ -1,0 +1,371 @@
+/* ClipFlowCut - Light Theme (Ant Design Inspired) */
+
+/* ==================== 全局样式 ==================== */
+QWidget {
+    background-color: #ffffff;
+    color: #262626;
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5715;
+}
+
+QMainWindow {
+    background-color: #f0f2f5;
+}
+
+/* ==================== 左侧导航面板 ==================== */
+QWidget[objectName="left_panel"] {
+    background-color: #ffffff;
+    border-right: 1px solid #f0f0f0;
+    min-width: 200px;
+    max-width: 250px;
+}
+
+/* 应用标题 */
+QLabel[objectName="app_title"] {
+    color: #1890ff;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px;
+    background-color: transparent;
+}
+
+/* 导航按钮 */
+QPushButton[objectName="nav_button"] {
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #262626;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 400;
+    min-height: 40px;
+    margin: 2px 8px;
+}
+
+QPushButton[objectName="nav_button"]:hover {
+    background-color: #f5f5f5;
+    color: #1890ff;
+}
+
+QPushButton[objectName="nav_button"]:checked {
+    background-color: #e6f7ff;
+    color: #1890ff;
+    font-weight: 600;
+    border-left: 3px solid #1890ff;
+}
+
+/* ==================== 按钮样式 ==================== */
+/* 主要按钮 */
+QPushButton[objectName="primary_button"] {
+    background-color: #1890ff;
+    border: 1px solid #1890ff;
+    border-radius: 6px;
+    color: #ffffff;
+    padding: 8px 16px;
+    font-weight: 400;
+    min-height: 32px;
+}
+
+QPushButton[objectName="primary_button"]:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+}
+
+QPushButton[objectName="primary_button"]:pressed {
+    background-color: #096dd9;
+    border-color: #096dd9;
+}
+
+QPushButton[objectName="primary_button"]:disabled {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+}
+
+/* 默认按钮 */
+QPushButton {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    color: #262626;
+    padding: 8px 16px;
+    font-weight: 400;
+    min-height: 32px;
+}
+
+QPushButton:hover {
+    border-color: #40a9ff;
+    color: #40a9ff;
+}
+
+QPushButton:pressed {
+    border-color: #096dd9;
+    color: #096dd9;
+}
+
+QPushButton:disabled {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: #bfbfbf;
+}
+
+/* 危险按钮 */
+QPushButton[objectName="danger_button"] {
+    background-color: #ff4d4f;
+    border: 1px solid #ff4d4f;
+    color: #ffffff;
+}
+
+QPushButton[objectName="danger_button"]:hover {
+    background-color: #ff7875;
+    border-color: #ff7875;
+}
+
+/* ==================== 输入控件 ==================== */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #262626;
+    min-height: 32px;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+    border-color: #40a9ff;
+    outline: none;
+}
+
+QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {
+    background-color: #f5f5f5;
+    color: #bfbfbf;
+}
+
+/* ==================== 下拉框 ==================== */
+QComboBox {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #262626;
+    min-height: 32px;
+}
+
+QComboBox:hover {
+    border-color: #40a9ff;
+}
+
+QComboBox:focus {
+    border-color: #40a9ff;
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMgNC41TDYgNy41TDkgNC41IiBzdHJva2U9IiM1OTU5NTkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+);
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    selection-background-color: #e6f7ff;
+    selection-color: #1890ff;
+}
+
+/* ==================== 选项卡 ==================== */
+QTabWidget::pane {
+    border: 1px solid #f0f0f0;
+    background-color: #ffffff;
+    border-radius: 6px;
+}
+
+QTabBar::tab {
+    background-color: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 8px 16px;
+    margin-right: 2px;
+    color: #595959;
+}
+
+QTabBar::tab:selected {
+    background-color: #ffffff;
+    color: #1890ff;
+    border-color: #1890ff;
+    border-bottom: 2px solid #1890ff;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: #f5f5f5;
+    color: #262626;
+}
+
+/* ==================== 列表和树形控件 ==================== */
+QListWidget, QTreeWidget {
+    background-color: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    alternate-background-color: #fafafa;
+}
+
+QListWidget::item, QTreeWidget::item {
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+QListWidget::item:selected, QTreeWidget::item:selected {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+QListWidget::item:hover, QTreeWidget::item:hover {
+    background-color: #f5f5f5;
+}
+
+/* ==================== 分组框 ==================== */
+QGroupBox {
+    font-weight: 600;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    background-color: #ffffff;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 8px;
+    padding: 0 8px 0 8px;
+    color: #262626;
+}
+
+/* ==================== 滚动条 ==================== */
+QScrollBar:vertical {
+    background-color: #fafafa;
+    width: 8px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #d9d9d9;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #bfbfbf;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: #fafafa;
+    height: 8px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #d9d9d9;
+    border-radius: 4px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #bfbfbf;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* ==================== 状态栏 ==================== */
+QStatusBar {
+    background-color: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    color: #595959;
+}
+
+/* ==================== 工具提示 ==================== */
+QToolTip {
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* ==================== 进度条 ==================== */
+QProgressBar {
+    background-color: #f5f5f5;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    text-align: center;
+    color: #262626;
+}
+
+QProgressBar::chunk {
+    background-color: #1890ff;
+    border-radius: 6px;
+}
+
+/* ==================== 复选框和单选框 ==================== */
+QCheckBox, QRadioButton {
+    color: #262626;
+    spacing: 8px;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 1px solid #d9d9d9;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+QCheckBox::indicator:checked {
+    border: 1px solid #1890ff;
+    background-color: #1890ff;
+    border-radius: 2px;
+}
+
+QRadioButton::indicator:unchecked {
+    border: 1px solid #d9d9d9;
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+QRadioButton::indicator:checked {
+    border: 1px solid #1890ff;
+    background-color: #1890ff;
+    border-radius: 8px;
+}
+
+/* ==================== 分隔器 ==================== */
+QSplitter::handle {
+    background-color: #f0f0f0;
+}
+
+QSplitter::handle:horizontal {
+    width: 2px;
+}
+
+QSplitter::handle:vertical {
+    height: 2px;
+}
+
+QSplitter::handle:pressed {
+    background-color: #1890ff;
+}

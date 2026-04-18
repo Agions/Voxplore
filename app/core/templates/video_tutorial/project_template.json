@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "name": "${project_name}",
+    "description": "基于视频教程模板创建的项目",
+    "created_at": "2024-01-01T00:00:00",
+    "modified_at": "2024-01-01T00:00:00",
+    "version": "1.0.0",
+    "author": "${instructor_name}",
+    "tags": ["教程", "教育"],
+    "project_type": "video_editing",
+    "status": "active"
+  },
+  "settings": {
+    "video_resolution": "1920x1080",
+    "video_fps": 30,
+    "video_bitrate": "8000k",
+    "audio_sample_rate": 44100,
+    "audio_bitrate": "192k",
+    "auto_save_interval": 300,
+    "backup_enabled": true,
+    "backup_count": 10,
+    "ai_settings": {
+      "default_model": "gpt-3.5-turbo",
+      "max_tokens": 2000,
+      "temperature": 0.7
+    },
+    "export_settings": {
+      "default_format": "mp4",
+      "quality": "high"
+    },
+    "custom_settings": {
+      "tutorial_specific": {
+        "intro_duration": 10,
+        "outro_duration": 5,
+        "chapter_transition_duration": 2
+      }
+    }
+  },
+  "media_files": {},
+  "timeline": {
+    "tracks": [
+      {
+        "id": "video_track_1",
+        "type": "video",
+        "clips": [],
+        "effects": []
+      },
+      {
+        "id": "audio_track_1",
+        "type": "audio",
+        "clips": [],
+        "effects": []
+      },
+      {
+        "id": "text_track_1",
+        "type": "text",
+        "clips": [],
+        "effects": []
+      }
+    ],
+    "duration": 0.0,
+    "markers": [
+      {
+        "id": "marker_intro",
+        "time": 0.0,
+        "name": "开始",
+        "description": "视频开始位置",
+        "color": "#4CAF50"
+      },
+      {
+        "id": "marker_outro",
+        "time": 600.0,
+        "name": "结束",
+        "description": "视频结束位置",
+        "color": "#F44336"
+      }
+    ],
+    "effects": []
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "metadata": {
+    "name": "${project_name}",
+    "description": "使用${enhancement_type}技术增强视频质量",
+    "created_at": "2024-01-01T00:00:00",
+    "modified_at": "2024-01-01T00:00:00",
+    "version": "1.0.0",
+    "author": "Voxplore",
+    "tags": ["AI", "增强", "智能"],
+    "project_type": "ai_enhancement",
+    "status": "active"
+  },
+  "settings": {
+    "video_resolution": "1920x1080",
+    "video_fps": 30,
+    "video_bitrate": "12000k",
+    "audio_sample_rate": 48000,
+    "audio_bitrate": "256k",
+    "auto_save_interval": 180,
+    "backup_enabled": true,
+    "backup_count": 5,
+    "ai_settings": {
+      "default_model": "gpt-4",
+      "max_tokens": 4000,
+      "temperature": 0.3,
+      "enhancement_models": {
+        "super_resolution": "ESRGAN",
+        "denoising": "BM3D",
+        "color_grading": "AI_ColorNet"
+      },
+      "processing_settings": {
+        "gpu_acceleration": true,
+        "batch_processing": true,
+        "preview_quality": "medium"
+      }
+    },
+    "export_settings": {
+      "default_format": "mp4",
+      "quality": "ultra",
+      "ai_enhanced": true
+    },
+    "custom_settings": {
+      "ai_enhancement": {
+        "target_scale": 2,
+        "denoise_strength": 0.5,
+        "sharpness_amount": 0.7,
+        "color_enhancement": true
+      }
+    }
+  },
+  "media_files": {},
+  "timeline": {
+    "tracks": [
+      {
+        "id": "source_video",
+        "type": "video",
+        "clips": [],
+        "effects": [
+          {
+            "id": "ai_enhancement_effect",
+            "type": "ai_enhancement",
+            "name": "AI增强效果",
+            "enabled": true,
+            "settings": {
+              "enhancement_type": "${enhancement_type}",
+              "target_quality": "${target_quality}"
+            }
+          }
+        ]
+      },
+      {
+        "id": "enhanced_video",
+        "type": "video",
+        "clips": [],
+        "effects": []
+      },
+      {
+        "id": "audio_track_1",
+        "type": "audio",
+        "clips": [],
+        "effects": []
+      }
+    ],
+    "duration": 0.0,
+    "markers": [
+      {
+        "id": "marker_source",
+        "time": 0.0,
+        "name": "源视频",
+        "description": "原始视频素材",
+        "color": "#2196F3"
+      },
+      {
+        "id": "marker_enhanced",
+        "time": 0.0,
+        "name": "增强后",
+        "description": "AI增强后的视频",
+        "color": "#4CAF50"
+      }
+    ],
+    "effects": []
+  }
+}

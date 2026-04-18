@@ -1,0 +1,15 @@
+{
+  "name": "AI视频增强",
+  "description": "使用AI技术增强视频质量的模板",
+  "author": "Voxplore",
+  "version": "1.0.0",
+  "category": "ai_enhancement",
+  "tags": ["AI", "增强", "智能"],
+  "requirements": {},
+  "dependencies": [],
+  "variables": {
+    "project_name": "AI增强项目",
+    "enhancement_type": "超分辨率",
+    "target_quality": "高质量"
+  }
+}

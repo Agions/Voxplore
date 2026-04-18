@@ -1,0 +1,22 @@
+{
+  "id": "ai_enhancement",
+  "name": "AI视频增强",
+  "description": "使用AI技术增强视频质量的模板",
+  "category": "ai_enhancement",
+  "author": "Voxplore",
+  "version": "1.0.0",
+  "created_at": "2024-01-01T00:00:00",
+  "updated_at": "2024-01-01T00:00:00",
+  "file_size": 8192,
+  "preview_image": null,
+  "tags": ["AI", "增强", "智能"],
+  "rating": 4.8,
+  "download_count": 0,
+  "is_builtin": true,
+  "project_type": "ai_enhancement",
+  "requirements": {
+    "requires_ai_features": true,
+    "min_gpu_memory": 2048,
+    "recommended_resolution": "1920x1080"
+  }
+}

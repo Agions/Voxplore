@@ -1,0 +1,131 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "narrafiilm"
+version = "3.8.1"
+description = "Voxplore - AI-Powered Video Creation Desktop App"
+license = {text = "MIT"}
+authors = [
+    {name = "Agions", email = "agions@qq.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: Qt",
+    "Environment :: MacOS X",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Multimedia :: Video :: Non-Linear Editor",
+]
+keywords = ["video", "editing", "AI", "multimedia", "PySide6"]
+requires-python = ">=3.10"
+dependencies = [
+    # Core UI
+    "PySide6>=6.9.0",
+    "Shiboken6>=6.9.0",
+    # Video/Audio Processing
+    "opencv-python>=4.8.1",
+    "numpy>=1.26.0",
+    "pillow>=10.1.0",
+    # ffmpeg-python==0.2.0  # 废弃: subprocess 直接调用 ffmpeg CLI
+    "pydub>=0.25.0",
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    # Speech Recognition (Faster-Whisper)
+    "faster-whisper>=1.0.0",
+    # GPU Support (optional, for faster-whisper)
+    "torch>=2.0.0",
+    # SenseVoice (optional, for emotion detection/speaker diarization)
+    # Note: sensevoice requires manual model download
+    # "sensevoice>=0.1.0",
+    # Speech Synthesis
+    "edge-tts>=6.1.0",
+    # Scene Detection
+    "scenedetect>=0.6.0",
+    # Translation (optional)
+    "deepl>=1.18.0",
+    # Network
+    "requests>=2.31.0",
+    "httpx>=0.25.0",
+    # Config
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
+    # System
+    "psutil>=5.9.6",
+    # Security
+    "cryptography>=41.0.0",
+    "keyring>=24.0.0",
+    # LLM
+    "openai>=1.0.0",
+    "google-generativeai>=0.8.0",
+    # Video Editing
+    "moviepy>=1.0.3",
+    # Packaging
+    "packaging>=21.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-timeout>=2.1.0",
+    "black>=23.11.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.0",
+    "types-requests>=2.31.0",
+    "types-PyYAML>=6.0.0",
+    "types-PySide6>=6.6.0",
+]
+all = [
+    "deepl>=1.18.0",
+    "moviepy>=1.0.3",
+]
+
+[project.scripts]
+narrafiilm = "app.main:main"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+files = ["app", "tests"]
+
+[[tool.mypy.overrides]]
+module = "PySide6.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "psutil.*"
+ignore_missing_imports = true
+

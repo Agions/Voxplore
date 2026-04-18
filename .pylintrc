@@ -1,0 +1,35 @@
+[MASTER]
+init-hook='import sys; sys.path.append(".")'
+
+[MESSAGES CONTROL]
+disable=
+    C0103,  # 无效常量名
+    C0111,  # 缺少文档字符串
+    C0114,  # 缺少模块文档字符串
+    C0115,  # 缺少类文档字符串
+    C0116,  # 缺少函数文档字符串
+    C0301,  # 行太长
+    C0411,  # 导入不在文件顶部
+    C0414,  # 导入的模块未使用
+    R0903,  # 类的方法太少
+    R0913,  # 参数太多
+    W0212,  # 访问受保护成员
+    W0613,  # 未使用的参数
+    W1113,  # 关键字参数重复
+
+[FORMAT]
+max-line-length=88
+
+[BASIC]
+good-names=_,i,j,k,x,y,z,e,f,ex,Run,_
+
+[TYPECHECK]
+ignored-modules=PyQt6
+
+[VARIABLES]
+dummy-variables-rgx=^_
+
+[DESIGN]
+max-attributes=15
+max-public-methods=30
+max-args=10

@@ -1,0 +1,83 @@
+# Voxplore 依赖包
+
+## 核心依赖 (PySide6 - LGPL 授权，商业友好)
+PySide6>=6.6.0
+Shiboken6>=6.6.0
+
+## UI 组件库 (如果使用 Qt-Fluent-Widgets)
+# PySide6-Fluent-Widgets>=1.11.0  # 暂不支持 PySide6
+
+## 图像/视频处理
+opencv-python>=4.8.1
+numpy>=1.26.0
+pillow>=10.1.0
+# ffmpeg-python==0.2.0  # 废弃：已无人维护，代码使用 subprocess 直接调用 ffmpeg CLI
+
+## 音频分析
+librosa>=0.10.0
+soundfile>=0.12.0
+edge-tts>=6.1.0
+pydub>=0.25.0
+
+## 场景检测（推荐使用 PySceneDetect）
+scenedetect>=0.6.0
+
+## Whisper 语音识别（本地模式需要）
+# openai-whisper>=20231117  # 已废弃，使用 faster-whisper
+faster-whisper>=1.0.0       # CPU 推理速度提升 3-4x
+torch>=2.0.0                 # GPU 加速支持（可选，无 CUDA 时自动回退 CPU）
+
+## 翻译功能（可选）
+deepl>=1.18.0           # DeepL 翻译（高质量）
+googletrans>=4.0.0     # Google 翻译（备用）
+
+## 网络请求
+requests>=2.31.0
+httpx>=0.25.0
+
+## 配置管理
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+## 系统工具
+psutil>=5.9.6
+
+## 安全/加密
+cryptography>=41.0.0
+keyring>=24.0.0
+
+## 视频编辑（可选）
+moviepy>=1.0.3
+
+## LLM 相关
+openai>=1.0.0
+google-generativeai>=0.8.0
+
+## Web/API 服务
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.0.0
+
+## 版本兼容
+packaging>=21.0
+
+# =======================
+# 开发与测试依赖
+# =======================
+
+## 测试框架
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+
+## 代码质量
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.0
+isort>=5.12.0
+
+## 类型支持
+types-requests>=2.31.0
+types-PyYAML>=6.0.0
+types-PySide6>=6.6.0

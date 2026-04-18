@@ -1,0 +1,16 @@
+{
+  "name": "视频教程",
+  "description": "专业的视频教程模板",
+  "author": "Voxplore",
+  "version": "1.0.0",
+  "category": "video_editing",
+  "tags": ["教程", "教育", "培训"],
+  "requirements": {},
+  "dependencies": [],
+  "variables": {
+    "project_name": "我的教程",
+    "instructor_name": "讲师姓名",
+    "course_title": "课程标题",
+    "chapter_count": 5
+  }
+}

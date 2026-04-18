@@ -1,0 +1,807 @@
+/* ============================================================
+   Voxplore Dark Theme — OKLCH Design Token System
+   frontend-design-pro 规范 · 2026-04-10
+   ============================================================ */
+
+/* ── 全局 Tokens ─────────────────────────────────────────── */
+QWidget {
+    background-color: oklch(0.13 0.01 250);
+    color: oklch(0.93 0.01 250);
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 0px;
+}
+
+QMainWindow {
+    background-color: oklch(0.12 0.01 250);
+}
+
+/* ── Focus / Accessibility ─────────────────────────────── */
+/* Focus — 键盘和鼠标焦点均显示焦点环 */
+*:focus {
+    outline: 2px solid oklch(0.65 0.20 250);
+    outline-offset: 2px;
+}
+
+/* Focus visible — 明确键盘导航焦点（增强可访问性） */
+*:focus-visible {
+    outline: 2px solid oklch(0.65 0.20 250);
+    outline-offset: 2px;
+}
+
+/* ── 左侧导航面板 ──────────────────────────────────────── */
+QWidget[objectName="left_panel"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.16 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border-right: 1px solid oklch(0.24 0.01 250);
+    min-width: 220px;
+    max-width: 280px;
+}
+
+QLabel[objectName="app_title"] {
+    color: oklch(0.65 0.20 250);
+    font-size: 20px;
+    font-weight: 700;
+    padding: 20px 20px 16px;
+    background-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+/* 导航按钮 */
+QPushButton[objectName="nav_button"] {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: oklch(0.55 0.01 250);
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 500;
+    min-height: 44px;
+    margin: 4px 12px;
+}
+
+QPushButton[objectName="nav_button"]:hover {
+    background: oklch(0.70 0.12 250 / 0.10);
+    color: oklch(0.65 0.20 250);
+}
+
+QPushButton[objectName="nav_button"]:checked {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 oklch(0.20 0.04 250),
+        stop:1 oklch(0.16 0.03 250));
+    color: oklch(0.65 0.20 250);
+    font-weight: 600;
+    border-left: 4px solid oklch(0.65 0.20 250);
+}
+
+/* ── 导航图标按钮 ──────────────────────────────────────── */
+QPushButton[objectName="nav_icon_btn"] {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+QPushButton[objectName="nav_icon_btn"]:hover {
+    background: oklch(0.19 0.01 250);
+}
+
+QPushButton[objectName="nav_icon_btn"]:checked {
+    background: oklch(0.16 0.03 250);
+}
+
+/* ── 按钮 ──────────────────────────────────────────────── */
+/* 主按钮 Primary */
+QPushButton[objectName="primary_button"] {
+    background: oklch(0.65 0.20 250);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-weight: 600;
+    min-height: 36px;
+    font-size: 14px;
+}
+
+QPushButton[objectName="primary_button"]:hover {
+    background: oklch(0.70 0.24 250);
+}
+
+QPushButton[objectName="primary_button"]:pressed {
+    background: oklch(0.55 0.18 250);
+}
+
+QPushButton[objectName="primary_button"]:disabled {
+    background: oklch(0.24 0.01 250);
+    color: oklch(0.40 0.01 250);
+    opacity: 0.6;
+}
+
+/* 次要按钮 Secondary */
+QPushButton[objectName="secondary_button"] {
+    background: transparent;
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.75 0.01 250);
+    padding: 10px 20px;
+    font-weight: 500;
+    min-height: 36px;
+    font-size: 14px;
+}
+
+QPushButton[objectName="secondary_button"]:hover {
+    background: oklch(0.19 0.01 250);
+    border-color: oklch(0.32 0.01 250);
+    color: oklch(0.93 0.01 250);
+}
+
+QPushButton[objectName="secondary_button"]:pressed {
+    background: oklch(0.16 0.01 250);
+}
+
+QPushButton[objectName="secondary_button"]:disabled {
+    background: transparent;
+    color: oklch(0.40 0.01 250);
+    border-color: oklch(0.19 0.01 250);
+    opacity: 0.6;
+}
+
+/* 危险按钮 Danger */
+QPushButton[objectName="danger_button"] {
+    background: oklch(0.63 0.24 25);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-weight: 600;
+    min-height: 36px;
+    font-size: 14px;
+}
+
+QPushButton[objectName="danger_button"]:hover {
+    background: oklch(0.67 0.26 25);
+}
+
+QPushButton[objectName="danger_button"]:pressed {
+    background: oklch(0.58 0.22 25);
+}
+
+/* 幽灵按钮 Ghost */
+QPushButton[objectName="ghost_button"] {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: oklch(0.55 0.01 250);
+    padding: 10px 20px;
+    font-weight: 500;
+    min-height: 36px;
+    font-size: 14px;
+}
+
+QPushButton[objectName="ghost_button"]:hover {
+    background: oklch(0.75 0.01 250 / 0.08);
+    color: oklch(0.93 0.01 250);
+}
+
+/* 默认按钮（无 objectName）— 降级处理 */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.93 0.01 250);
+    padding: 10px 20px;
+    font-weight: 500;
+    min-height: 36px;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.22 0.01 250),
+        stop:1 oklch(0.19 0.01 250));
+    border-color: oklch(0.65 0.20 250);
+    color: oklch(0.65 0.20 250);
+}
+
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.13 0.01 250),
+        stop:1 oklch(0.12 0.01 250));
+}
+
+QPushButton:disabled {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.16 0.01 250));
+    color: oklch(0.40 0.01 250);
+    border-color: oklch(0.19 0.01 250);
+    opacity: 0.6;
+}
+
+/* ── 输入控件 ──────────────────────────────────────────── */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background: oklch(0.13 0.01 250);
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: oklch(0.93 0.01 250);
+    min-height: 36px;
+    font-size: 14px;
+}
+
+QLineEdit:hover, QTextEdit:hover, QPlainTextEdit:hover {
+    border-color: oklch(0.32 0.01 250);
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
+    border-color: oklch(0.65 0.20 250);
+    background-color: oklch(0.16 0.01 250);
+}
+
+QLineEdit::placeholder, QTextEdit::placeholder, QPlainTextEdit::placeholder {
+    color: oklch(0.40 0.01 250);
+    font-style: italic;
+}
+
+QLineEdit:disabled, QTextEdit:disabled, QPlainTextEdit:disabled {
+    background: oklch(0.16 0.01 250);
+    color: oklch(0.40 0.01 250);
+    opacity: 0.6;
+}
+
+/* ── 复选框 Checkbox ───────────────────────────────────── */
+QCheckBox {
+    spacing: 8px;
+    min-height: 24px;
+    font-weight: 500;
+    color: oklch(0.93 0.01 250);
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid oklch(0.32 0.01 250);
+    border-radius: 4px;
+    background: oklch(0.16 0.01 250);
+}
+
+QCheckBox::indicator:hover {
+    border-color: oklch(0.65 0.20 250);
+}
+
+QCheckBox::indicator:checked {
+    background: oklch(0.65 0.20 250);
+    border-color: oklch(0.65 0.20 250);
+}
+
+/* ── 单选按钮 Radio ───────────────────────────────────── */
+QRadioButton {
+    spacing: 8px;
+    min-height: 24px;
+    font-weight: 500;
+    color: oklch(0.93 0.01 250);
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 2px solid oklch(0.32 0.01 250);
+    border-radius: 9px;
+    background: oklch(0.16 0.01 250);
+}
+
+QRadioButton::indicator:hover {
+    border-color: oklch(0.65 0.20 250);
+}
+
+QRadioButton::indicator:checked {
+    background: oklch(0.65 0.20 250);
+    border-color: oklch(0.65 0.20 250);
+}
+
+/* ── 滑块 Slider ───────────────────────────────────────── */
+QSlider::groove:horizontal {
+    border: none;
+    background: oklch(0.20 0.01 250);
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: oklch(0.65 0.20 250);
+    border: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    margin: -5px 0;
+}
+
+QSlider::handle:horizontal:hover {
+    background: oklch(0.70 0.24 250);
+}
+
+QSlider::sub-page:horizontal {
+    background: oklch(0.65 0.20 250);
+    border-radius: 3px;
+}
+
+/* ── 进度条 Progress Bar ───────────────────────────────── */
+QProgressBar {
+    background: oklch(0.20 0.01 250);
+    border: none;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: oklch(0.93 0.01 250);
+    height: 24px;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 oklch(0.65 0.20 250),
+        stop:1 oklch(0.70 0.24 250));
+    border-radius: 8px;
+    margin: 2px;
+}
+
+/* ── 标签页 Tab Widget ─────────────────────────────────── */
+QTabWidget::pane {
+    background: oklch(0.13 0.01 250);
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    color: oklch(0.55 0.01 250);
+    padding: 10px 20px;
+    margin-right: 2px;
+    font-weight: 500;
+    min-width: 100px;
+    min-height: 36px;
+}
+
+QTabBar::tab:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.22 0.01 250),
+        stop:1 oklch(0.19 0.01 250));
+    color: oklch(0.65 0.20 250);
+}
+
+QTabBar::tab:selected {
+    background: oklch(0.13 0.01 250);
+    border-color: oklch(0.65 0.20 250);
+    color: oklch(0.65 0.20 250);
+    font-weight: 600;
+}
+
+/* ── 分组框 Group Box ──────────────────────────────────── */
+QGroupBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    margin-top: 8px;
+    font-weight: 600;
+    color: oklch(0.93 0.01 250);
+    padding-top: 8px;
+}
+
+QGroupBox::title {
+    color: oklch(0.65 0.20 250);
+    padding: 0 8px;
+    subcontrol-origin: margin;
+    left: 8px;
+    top: -10px;
+    background: oklch(0.13 0.01 250);
+    border-radius: 4px;
+    padding: 2px 8px;
+}
+
+/* ── 分割器 Splitter ───────────────────────────────────── */
+QSplitter {
+    background: oklch(0.13 0.01 250);
+}
+
+QSplitter::handle {
+    background: oklch(0.24 0.01 250);
+    width: 4px;
+    height: 4px;
+}
+
+QSplitter::handle:hover {
+    background: oklch(0.65 0.20 250);
+}
+
+/* ── 滚动条 Scrollbar ───────────────────────────────────── */
+QScrollBar:vertical {
+    background: oklch(0.13 0.01 250);
+    width: 12px;
+    border-radius: 6px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: oklch(0.32 0.01 250);
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: oklch(0.40 0.01 250);
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+    height: 0;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background: oklch(0.13 0.01 250);
+    height: 12px;
+    border-radius: 6px;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background: oklch(0.32 0.01 250);
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: oklch(0.40 0.01 250);
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    background: none;
+    width: 0;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+/* ── 菜单 Menu ──────────────────────────────────────────── */
+QMenu {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    padding: 6px;
+    color: oklch(0.93 0.01 250);
+}
+
+QMenu::item {
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+QMenu::item:hover {
+    background: oklch(0.20 0.04 250);
+    color: oklch(0.65 0.20 250);
+}
+
+QMenu::item:selected {
+    background: oklch(0.16 0.03 250);
+    color: oklch(0.93 0.01 250);
+}
+
+/* ── 工具提示 Tooltip ──────────────────────────────────── */
+QToolTip {
+    background: oklch(0.19 0.01 250);
+    color: oklch(0.93 0.01 250);
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* ── 状态栏 Status Bar ─────────────────────────────────── */
+QStatusBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border-top: 1px solid oklch(0.24 0.01 250);
+    color: oklch(0.55 0.01 250);
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* ── 对话框 Dialog ─────────────────────────────────────── */
+QDialog {
+    background: oklch(0.16 0.01 250);
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 12px;
+    color: oklch(0.93 0.01 250);
+}
+
+QDialog QLabel {
+    color: oklch(0.93 0.01 250);
+}
+
+QDialogButtonBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.16 0.01 250));
+    border-top: 1px solid oklch(0.24 0.01 250);
+    padding: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* ── 卡片 ──────────────────────────────────────────────── */
+QFrame[objectName="projectCard"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 12px;
+}
+
+QFrame[objectName="projectCard"]:hover {
+    border-color: oklch(0.65 0.20 250);
+}
+
+QFrame[objectName="templateCard"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 2px solid oklch(0.24 0.01 250);
+    border-radius: 12px;
+}
+
+QFrame[objectName="templateCard"]:hover {
+    border-color: oklch(0.65 0.20 250);
+}
+
+QFrame[objectName="templateCard"][selected="true"] {
+    border-color: oklch(0.65 0.22 145);
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.70 0.14 145 / 0.10),
+        stop:1 oklch(0.13 0.01 250));
+}
+
+/* ── 按钮组 ────────────────────────────────────────────── */
+QButtonGroup {
+    spacing: 8px;
+}
+
+/* ── 表格 Table ────────────────────────────────────────── */
+QTableWidget {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    gridline-color: oklch(0.24 0.01 250);
+}
+
+QTableWidget::item {
+    padding: 8px 12px;
+    color: oklch(0.93 0.01 250);
+    border-bottom: 1px solid oklch(0.19 0.01 250);
+}
+
+QTableWidget::item:selected {
+    background: oklch(0.20 0.04 250);
+    color: oklch(0.65 0.20 250);
+}
+
+QTableWidget::header {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    padding: 10px;
+    font-weight: 600;
+    color: oklch(0.65 0.20 250);
+}
+
+/* ── 列表控件 List Widget ──────────────────────────────── */
+QListWidget, QListWidget::item {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.93 0.01 250);
+}
+
+QListWidget::item {
+    padding: 10px 14px;
+    border-bottom: 1px solid oklch(0.19 0.01 250);
+}
+
+QListWidget::item:hover {
+    background: oklch(0.20 0.04 250);
+    color: oklch(0.65 0.20 250);
+}
+
+QListWidget::item:selected {
+    background: oklch(0.16 0.03 250);
+    color: oklch(0.93 0.01 250);
+}
+
+/* ── 下拉框 ComboBox ───────────────────────────────────── */
+QComboBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: oklch(0.93 0.01 250);
+    min-height: 36px;
+}
+
+QComboBox:hover {
+    border-color: oklch(0.32 0.01 250);
+}
+
+QComboBox:focus {
+    border-color: oklch(0.65 0.20 250);
+    outline: none;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+    background: transparent;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid oklch(0.55 0.01 250);
+    margin-right: 8px;
+}
+
+QComboBox QAbstractItemView {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    selection-background-color: oklch(0.20 0.04 250);
+    selection-color: oklch(0.65 0.20 250);
+    padding: 6px;
+}
+
+QComboBox QAbstractItemView::item {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 2px 0;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: oklch(0.70 0.12 250 / 0.10);
+    color: oklch(0.65 0.20 250);
+}
+
+/* ── 旋转框 SpinBox ────────────────────────────────────── */
+QSpinBox, QDoubleSpinBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.93 0.01 250);
+    padding: 10px 14px;
+}
+
+QSpinBox:hover, QDoubleSpinBox:hover {
+    border-color: oklch(0.32 0.01 250);
+}
+
+QSpinBox:focus, QDoubleSpinBox:focus {
+    border-color: oklch(0.65 0.20 250);
+    outline: none;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    background: transparent;
+    border: none;
+}
+
+QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 6px solid oklch(0.55 0.01 250);
+    width: 12px;
+    height: 12px;
+}
+
+QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid oklch(0.55 0.01 250);
+    width: 12px;
+    height: 12px;
+}
+
+/* ── 日期时间选择器 ────────────────────────────────────── */
+QDateTimeEdit, QDateEdit, QTimeEdit {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.93 0.01 250);
+    padding: 10px 14px;
+}
+
+QDateTimeEdit:hover, QDateEdit:hover, QTimeEdit:hover {
+    border-color: oklch(0.32 0.01 250);
+}
+
+QDateTimeEdit:focus, QDateEdit:focus, QTimeEdit:focus {
+    border-color: oklch(0.65 0.20 250);
+    outline: none;
+}
+
+/* ── 字体选择器 ────────────────────────────────────────── */
+QFontComboBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 oklch(0.19 0.01 250),
+        stop:1 oklch(0.13 0.01 250));
+    border: 1px solid oklch(0.24 0.01 250);
+    border-radius: 8px;
+    color: oklch(0.93 0.01 250);
+    padding: 10px 14px;
+}
+
+QFontComboBox:hover {
+    border-color: oklch(0.32 0.01 250);
+}
+
+QFontComboBox:focus {
+    border-color: oklch(0.65 0.20 250);
+    outline: none;
+}
+
+/* ── 动画关键帧 (需要 Qt 6.6+) ─────────────────────────── */
+/* @keyframes pulse — 脉冲效果 */
+@keyframes pulse {
+    0%, 100% { opacity: 1.0; }
+    50% { opacity: 0.6; }
+}
+
+/* @keyframes spin — 加载旋转 */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ── prefers-reduced-motion 支持 ──────────────────────── */
+/* 浏览器中通过 CSS media query，Qt QSS 不支持，但我们在
+   animation_helper.py 中通过 QSettings 检测系统偏好 */
+
+/* ── 无障碍增强 ───────────────────────────────────────── */
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    QWidget {
+        border: 2px solid oklch(0.93 0.01 250);
+    }
+}

@@ -1,0 +1,116 @@
+name: Validate PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 代码质量检查
+  # ─────────────────────────────────────────────────────────────
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install lint tools
+        run: |
+          pip install ruff flake8 mypy safety
+
+      - name: Run Ruff (format + imports)
+        run: ruff check . --output-format=github
+
+      - name: Run type check
+        run: mypy app/ --ignore-missing-imports --disable-error-code=import
+
+      - name: Security audit
+        run: safety check --stdin || true
+
+  # ─────────────────────────────────────────────────────────────
+  # 测试
+  # ─────────────────────────────────────────────────────────────
+  test:
+    strategy:
+      matrix:
+        python: ['3.10', '3.11', '3.12']
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run tests
+        run: pytest tests/ -v --cov=app --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  # ─────────────────────────────────────────────────────────────
+  # 文档构建
+  # ─────────────────────────────────────────────────────────────
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install VitePress
+        working-directory: docs
+        run: npm install
+
+      - name: Build docs
+        working-directory: docs
+        run: npm run docs:build
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs/.vitepress/dist
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────
+  # 平台检查
+  # ─────────────────────────────────────────────────────────────
+  platform-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check FFmpeg
+        run: which ffmpeg && ffmpeg -version | head -1 || echo "FFmpeg not found"
+
+      - name: Check Python version
+        run: python --version
+
+      - name: Check installed packages
+        run: pip list | grep -E "(PySide|ffmpeg|openai)" || echo "No matching packages"

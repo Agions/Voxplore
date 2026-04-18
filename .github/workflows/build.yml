@@ -1,0 +1,210 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - wheels-only
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # Python Wheels (跨平台)
+  # ─────────────────────────────────────────────────────────────
+  build-wheels:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.11', '3.12']
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build meson-python meson ninja
+
+      - name: Build wheels
+        run: |
+          python -m build --wheel --outdir dist/wheels
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-py${{ matrix.python }}
+          path: dist/wheels/*.whl
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────
+  # PyInstaller 打包 (Windows)
+  # ─────────────────────────────────────────────────────────────
+  build-windows-exe:
+    needs: build-wheels
+    runs-on: windows-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Install dependencies
+        run: |
+          pip install --find-links wheels -r requirements.txt 2>/dev/null || true
+          pip install -e .
+          pip install pyinstaller Nuitka
+
+      - name: Build EXE
+        run: |
+          pyinstaller main.spec --name Voxplore-${{ github.ref_name }}-win64 --noconfirm
+        working-directory: .
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-${{ github.ref_name }}-win64
+          path: dist/Voxplore-*.exe
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────
+  # macOS DMG
+  # ─────────────────────────────────────────────────────────────
+  build-macos-dmg:
+    runs-on: macos-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install pyinstaller
+
+      - name: Build macOS app
+        run: |
+          chmod +x build_dmg.sh
+          ./build_dmg.sh
+        env:
+          VERSION: ${{ github.ref_name }}
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-${{ github.ref_name }}-macos
+          path: dist/Voxplore-*.dmg
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────
+  # Linux AppImage
+  # ─────────────────────────────────────────────────────────────
+  build-linux-appimage:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    container:
+      image: ubuntu:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq python3 python3-pip ffmpeg libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-randr0 libxcb-shape0 libxcb-xineranza0 libxkbcommon-x11-0 libegl1-mesa
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and build
+        run: |
+          pip install -e .
+          pip install pyinstaller
+          pyinstaller main.spec --name Voxplore-${{ github.ref_name }}-linux --noconfirm
+
+      - name: Package AppDir
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp -r dist/Voxplore-*/* AppDir/usr/
+          mkdir -p AppDir/usr/share/applications
+          cat > AppDir/Voxplore.desktop << 'EOF'
+          [Desktop Entry]
+          Name=Voxplore
+          Exec=Voxplore
+          Type=Application
+          EOF
+
+      - name: Upload AppDir
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-${{ github.ref_name }}-linux-AppDir
+          path: AppDir
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────
+  # 发布到 GitHub Release
+  # ─────────────────────────────────────────────────────────────
+  create-release:
+    needs: [build-wheels, build-windows-exe, build-macos-dmg]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            all-artifacts/**/*.whl
+            all-artifacts/**/*.exe
+            all-artifacts/**/*.dmg
+            all-artifacts/**/Voxplore-*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

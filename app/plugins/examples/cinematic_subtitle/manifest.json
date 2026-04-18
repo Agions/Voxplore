@@ -1,0 +1,15 @@
+{
+  "id": "voxplore.cinematic-subtitle",
+  "name": "电影感字幕插件",
+  "version": "1.0.0",
+  "author": "Voxplore Team",
+  "description": "提供电影级 ASS 字幕样式，支持多种预设和自定义",
+  "plugin_type": "subtitle_style",
+  "homepage": "https://github.com/voxplore/plugins",
+  "license": "MIT",
+  "entry_point": "cinematic_subtitle:CinematicSubtitlePlugin",
+  "dependencies": {},
+  "permissions": [],
+  "min_app_version": "1.0.0",
+  "tags": ["subtitle", "cinematic", "ass"]
+}

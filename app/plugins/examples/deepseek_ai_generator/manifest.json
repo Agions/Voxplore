@@ -1,0 +1,17 @@
+{
+  "id": "voxplore.deepseek-ai-generator",
+  "name": "DeepSeek AI 生成器插件",
+  "version": "1.0.0",
+  "author": "Voxplore Team",
+  "description": "集成 DeepSeek 大语言模型，提供场景分析和脚本生成功能",
+  "plugin_type": "ai_generator",
+  "homepage": "https://github.com/voxplore/plugins",
+  "license": "MIT",
+  "entry_point": "deepseek_ai_generator:DeepSeekAIGeneratorPlugin",
+  "dependencies": {
+    "openai": ">=1.0.0"
+  },
+  "permissions": ["network"],
+  "min_app_version": "1.0.0",
+  "tags": ["ai", "deepseek", "script-generation", "scene-analysis"]
+}
