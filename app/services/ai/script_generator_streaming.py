@@ -510,7 +510,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                     try:
                         provider_type = ProviderType(config.provider)
                     except ValueError:
-                        pass
+                        logger.warning(f"Invalid provider type: {config.provider!r}, falling back to None")
                 
                 system_prompt = self.STYLE_PROMPTS.get(
                     config.style,

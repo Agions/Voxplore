@@ -31,9 +31,16 @@ from .exceptions import (
 )
 from .logger import setup_logging, get_logger
 from .project_manager import ProjectManager
-from .service_registry import ServiceRegistry
 from .service_container import ServiceContainer
 from .secure_key_manager import SecureKeyManager
+
+# Interfaces
+from .interfaces import (
+    IVideoMaker,
+    IScriptGenerator,
+    IVoiceGenerator,
+    IExporter,
+)
 
 __all__ = [
     # Config
@@ -67,9 +74,14 @@ __all__ = [
     "ProjectManager",
 
     # Service
-    "ServiceRegistry",
     "ServiceContainer",
 
     # Security
     "SecureKeyManager",
+
+    # Interfaces
+    "IVideoMaker",
+    "IScriptGenerator",
+    "IVoiceGenerator",
+    "IExporter",
 ]

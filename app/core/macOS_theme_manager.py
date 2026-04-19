@@ -8,6 +8,7 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 
 import logging
 from pathlib import Path
+from threading import Lock
 from typing import Optional
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QFile, QTextStream, Signal, QObject
@@ -161,15 +162,18 @@ class macOS_ThemeManager(QObject):
 
 # 全局实例
 _theme_manager_instance = None
+_theme_lock = Lock()
 
 
 def get_theme_manager(app: Optional[QApplication] = None) -> macOS_ThemeManager:
-    """获取主题管理器单例"""
+    """获取主题管理器单例（线程安全）"""
     global _theme_manager_instance
     if _theme_manager_instance is None:
-        if app is None:
-            app = QApplication.instance()
-        _theme_manager_instance = macOS_ThemeManager(app)
+        with _theme_lock:
+            if _theme_manager_instance is None:
+                if app is None:
+                    app = QApplication.instance()
+                _theme_manager_instance = macOS_ThemeManager(app)
     return _theme_manager_instance
 
 

@@ -10,7 +10,8 @@ import math
 from .models.perspective_models import (
     NarrationSegment, ClipSegment, PerspectiveShot,
     InterleaveDecision, InterleaveTimeline, InterleaveMode,
-    InterleaveContext, TransitionType, SceneSegment
+    InterleaveContext, TransitionType, SceneSegment,
+    SubjectRole, SubjectPosition
 )
 
 
@@ -157,10 +158,9 @@ class VideoInterleaver:
             if clip.is_key_moment:
                 s += 2.0
 
-            # 内容相关性
+            # 内容相关性 — 基于主体匹配评分
             if shot and shot.primary_subject:
-                # TODO: 基于主体匹配评分
-                s += 1.0
+                s += self._score_subject_match(shot.primary_subject, narration)
 
             # 时长适配
             duration_diff = abs(clip.duration - narration.duration)
@@ -283,6 +283,68 @@ class VideoInterleaver:
         )
 
         return zoom, box
+
+    def _score_subject_match(
+        self,
+        subject: SubjectPosition,
+        narration: NarrationSegment,
+    ) -> float:
+        """
+        基于主体角色与解说情感的匹配度评分。
+
+        评分维度:
+        - 角色-情感关联 (0.0-1.0): PROTAGONIST 关联内心情感词, SUPPORTING 关联叙述词
+        - 空间构图 (0.0-0.5): 主角居中/黄金分割构图加分
+        - 视线方向 (0.0-0.3): 与解说视角(pov)匹配的视线加分
+        """
+        score = 0.0
+
+        # ── 角色-情感关联 ─────────────────────────────────
+        emotion = narration.emotion.lower() if narration.emotion else "neutral"
+        role = subject.role
+
+        # 内心情感 → 主角（第一人称代入感）
+        inner_emotions = {"sad", "melancholy", "nostalgic", "fearful", "tender", "neutral"}
+        # 叙述性情感 → 配角/背景（观察者视角）
+        narrative_emotions = {"excited", "neutral", "calm", "tense"}
+
+        if role == SubjectRole.PROTAGONIST:
+            if emotion in inner_emotions:
+                score += 1.0
+            else:
+                score += 0.3
+        elif role == SubjectRole.SUPPORTING:
+            if emotion in narrative_emotions:
+                score += 0.8
+            else:
+                score += 0.4
+        else:  # BACKGROUND / UNKNOWN
+            score += 0.1
+
+        # ── 空间构图 ────────────────────────────────────
+        # 黄金分割 / 中心构图加分
+        cx, cy = subject.x_percent, subject.y_percent
+        is_center = 40 <= cx <= 60 and 40 <= cy <= 60
+        is_golden = (
+            (55 <= cx <= 65 and 35 <= cy <= 45) or   # 右上黄金点
+            (35 <= cx <= 45 and 55 <= cy <= 65) or   # 左下黄金点
+            (55 <= cx <= 65 and 55 <= cy <= 65) or   # 右下黄金点
+            (35 <= cx <= 45 and 35 <= cy <= 45)       # 左上黄金点
+        )
+        if is_center:
+            score += 0.5
+        elif is_golden:
+            score += 0.3
+
+        # ── 视线方向 ────────────────────────────────────
+        gaze = subject.gaze_direction
+        if gaze == "center":
+            score += 0.3
+        elif gaze in ("left", "right"):
+            score += 0.1
+        # "up"/"down" 不加分
+
+        return score
 
     def _infer_subtitle_style(self, emotional_intensity: float) -> str:
         """根据情绪推断字幕风格"""

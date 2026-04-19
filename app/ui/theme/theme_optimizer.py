@@ -7,6 +7,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QColor, QPainter
 
+from app.ui.components.design_system import Colors
+
 
 # 预定义主题配色方案
 class ThemePresets:
@@ -257,12 +259,12 @@ class ThemePresetSelector(QWidget):
         title_font.setPointSize(16)
         title_font.setWeight(QFont.Weight.Bold)
         title.setFont(title_font)
-        title.setStyleSheet("color: #E6EDF3;")
+        title.setStyleSheet(f"color: {Colors.TextPrimary};")
         layout.addWidget(title)
         
         # 深色主题区域
         dark_label = QLabel("深色主题")
-        dark_label.setStyleSheet("color: #8B949E; font-size: 12px; font-weight: 600;")
+        dark_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
         layout.addWidget(dark_label)
         
         dark_grid = QHBoxLayout()
@@ -276,7 +278,7 @@ class ThemePresetSelector(QWidget):
         
         # 浅色主题区域
         light_label = QLabel("浅色主题")
-        light_label.setStyleSheet("color: #8B949E; font-size: 12px; font-weight: 600;")
+        light_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
         layout.addWidget(light_label)
         
         light_grid = QHBoxLayout()

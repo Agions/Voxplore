@@ -9,9 +9,12 @@ Voxplore 应用程序核心类
 from typing import Dict, List, Optional, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
+import logging
 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer, Signal, QObject, QSettings
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "ApplicationState",
@@ -336,7 +339,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            print(f"Failed to initialize logger: {e}")
+            logger.error(f"Failed to initialize logger: {e}")
             return False
 
     def _init_config_manager(self) -> bool:

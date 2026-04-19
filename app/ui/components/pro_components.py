@@ -13,6 +13,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor
 
+from app.ui.components.design_system import Colors
+
 
 class GradientButton(QPushButton):
     """渐变按钮 - 专业设计"""
@@ -108,13 +110,13 @@ class StatCard(QFrame):
         # 值
         value_label = QLabel(value)
         value_label.setFont(QFont("", 24, QFont.Weight.Bold))
-        value_label.setStyleSheet("color: #FFFFFF; background: transparent;")
+        value_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         layout.addWidget(value_label)
         
         # 标签
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", 12))
-        label_widget.setStyleSheet("color: #A1A1AA; background: transparent;")
+        label_widget.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         layout.addWidget(label_widget)
 
 
@@ -194,7 +196,7 @@ class LoadingOverlay(QFrame):
         # 文本
         self.text_label = QLabel("加载中...")
         self.text_label.setFont(QFont("", 14))
-        self.text_label.setStyleSheet("color: #A1A1AA; background: transparent;")
+        self.text_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         layout.addWidget(self.text_label)
         
         # 启动旋转动画

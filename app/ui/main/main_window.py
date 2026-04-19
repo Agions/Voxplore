@@ -16,6 +16,7 @@ from PySide6.QtGui import QFont
 
 from ...core.application import Application
 from ...core.logger import Logger
+from app.ui.components.design_system import Colors
 
 
 class VoxploreWindow(QMainWindow):
@@ -62,7 +63,7 @@ class VoxploreWindow(QMainWindow):
 
         self.status_bar = QStatusBar()
         self.status_bar.setFixedHeight(26)
-        self.status_bar.setStyleSheet("QStatusBar { color: #4A5A70; font-size: 11px; background: #0A0E16; }")
+        self.status_bar.setStyleSheet(f"QStatusBar {{ color: {Colors.TextMuted}; font-size: 11px; background: {Colors.BgBase}; }}")
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("就绪")
 
@@ -80,7 +81,7 @@ class VoxploreWindow(QMainWindow):
         logo_layout.addWidget(logo_icon)
         logo_text = QLabel("NARR")
         logo_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        logo_text.setStyleSheet("color: #0A84FF; font-size: 8px; font-weight: 800; letter-spacing: 0.15em;")
+        logo_text.setStyleSheet(f"color: {Colors.Primary}; font-size: 8px; font-weight: 800; letter-spacing: 0.15em;")
         logo_layout.addWidget(logo_text)
         logo_container = QWidget()
         logo_container.setLayout(logo_layout)
@@ -96,9 +97,9 @@ class VoxploreWindow(QMainWindow):
             btn.setToolTip(tip)
             btn.setCheckable(True)
             btn.setStyleSheet(
-                "QPushButton { background: transparent; border: none; border-radius: 10px; font-size: 18px; } "
-                "QPushButton:hover { background: #111827; } "
-                "QPushButton:checked { background: #0F1D32; }"
+                f"QPushButton {{ background: transparent; border: none; border-radius: 10px; font-size: 18px; }} "
+                f"QPushButton:hover {{ background: {Colors.BgElevated}; }} "
+                f"QPushButton:checked {{ background: {Colors.PrimarySubtle}; }}"
             )
             btn.clicked.connect(lambda _, p=page_id: self._navigate_to(p))
             layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -107,7 +108,7 @@ class VoxploreWindow(QMainWindow):
         layout.addStretch()
         ver = QLabel("v3.2")
         ver.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        ver.setStyleSheet("color: #3A4A60; font-size: 9px; font-weight: 600;")
+        ver.setStyleSheet(f"color: {Colors.TextMuted}; font-size: 9px; font-weight: 600;")
         layout.addWidget(ver, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def _load_pages(self):

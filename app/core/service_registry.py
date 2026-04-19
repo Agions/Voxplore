@@ -2,8 +2,28 @@
 # -*- coding: utf-8 -*-
 
 """
-Voxplore 服务注册表 - 高级服务管理系统
-支持依赖注入、生命周期管理、配置驱动的服务初始化
+Voxplore 服务注册表 ⚠️ 已废弃
+
+此模块已废弃，请使用 ServiceContainer (service_container.py)。
+
+废弃原因:
+    ServiceRegistry 是一个过度设计的"未来储备"模块，从未被实际使用。
+    项目当前使用 ServiceContainer 管理服务。
+
+迁移指南:
+    # 旧 (废弃)
+    from app.core import ServiceRegistry
+    registry = ServiceRegistry()
+    registry.register(...)
+    registry.resolve(...)
+
+    # 新 (推荐)
+    from app.core import ServiceContainer
+    container = ServiceContainer()
+    container.register(...)
+    container.resolve(...)
+
+此模块将在未来版本中移除。
 """
 
 import inspect

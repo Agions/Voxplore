@@ -40,6 +40,9 @@ class ErrorCode(Enum):
     # 网络错误
     NETWORK_ERROR = "NET001"
 
+    # 系统错误
+    SYSTEM_ERROR = "SYS001"
+
     # 未知错误
     UNKNOWN_ERROR = "UNK001"
 
@@ -215,6 +218,204 @@ class NetworkError(VoxploreError):
         )
 
 
+class ProviderError(VoxploreError):
+    """AI Provider 错误"""
+
+    def __init__(
+        self,
+        message: str,
+        provider: Optional[str] = None,
+        model: Optional[str] = None,
+    ):
+        code = ErrorCode.LLM_API_ERROR
+        hint = "请检查 Provider 配置和 API 密钥"
+
+        details: Dict[str, Any] = {}
+        if provider:
+            details["provider"] = provider
+        if model:
+            details["model"] = model
+
+        super().__init__(
+            code=code,
+            message=message,
+            details=details or None,
+            hint=hint,
+        )
+
+
+class RateLimitError(ProviderError):
+    """API 速率限制错误"""
+
+    def __init__(
+        self,
+        message: str = "API 速率限制",
+        provider: Optional[str] = None,
+        retry_after: Optional[float] = None,
+    ):
+        details: Dict[str, Any] = {"retry_after": retry_after} if retry_after else {}
+        if provider:
+            details["provider"] = provider
+
+        super().__init__(
+            message=message,
+            provider=provider,
+            details=details,
+        )
+
+
+class CircuitOpenError(ProviderError):
+    """熔断器打开错误"""
+
+    def __init__(
+        self,
+        message: str = "服务熔断器已打开",
+        provider: Optional[str] = None,
+        failure_count: Optional[int] = None,
+    ):
+        details: Dict[str, Any] = {}
+        if failure_count is not None:
+            details["failure_count"] = failure_count
+        if provider:
+            details["provider"] = provider
+
+        super().__init__(
+            message=message,
+            provider=provider,
+            details=details,
+        )
+
+
+class SecurityError(VoxploreError):
+    """安全错误（路径遍历、格式验证等）"""
+
+    def __init__(self, message: str, path: Optional[str] = None):
+        super().__init__(
+            code=ErrorCode.FILE_NOT_FOUND,
+            message=message,
+            details={"path": path} if path else None,
+            hint="请检查文件路径是否合法"
+        )
+
+
+class ExportError(VoxploreError):
+    """导出错误"""
+
+    def __init__(
+        self,
+        message: str,
+        format: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        hint = "请检查 FFmpeg 是否正确安装" if "ffmpeg" in message.lower() else None
+
+        export_details: Dict[str, Any] = dict(details or {})
+        if format:
+            export_details["format"] = format
+
+        super().__init__(
+            code=ErrorCode.VIDEO_PROCESS_ERROR,
+            message=message,
+            details=export_details or None,
+            hint=hint,
+        )
+
+
+class ProjectError(VoxploreError):
+    """项目管理错误"""
+
+    def __init__(
+        self,
+        message: str,
+        project_id: Optional[str] = None,
+        operation: Optional[str] = None,
+    ):
+        hint = None
+        code = ErrorCode.FILE_NOT_FOUND
+
+        if "not found" in message.lower() or "不存在" in message:
+            code = ErrorCode.FILE_NOT_FOUND
+            hint = "请检查项目路径是否正确"
+        elif "load" in message.lower() or "加载" in message:
+            hint = "请检查项目文件是否损坏"
+        elif "save" in message.lower() or "保存" in message:
+            hint = "请检查磁盘空间和写入权限"
+
+        super().__init__(
+            code=code,
+            message=message,
+            details={
+                "project_id": project_id,
+                "operation": operation,
+            } if project_id or operation else None,
+            hint=hint,
+        )
+
+
+# =============================================================================
+# 服务层错误（从 registry_models.py 迁移）
+# =============================================================================
+class ServiceError(VoxploreError):
+    """服务层错误基类"""
+    pass
+
+
+class ServiceNotFoundError(ServiceError):
+    """服务未找到错误"""
+
+    def __init__(self, service_name: str):
+        super().__init__(
+            code=ErrorCode.SYSTEM_ERROR,
+            message=f"服务未注册: {service_name}",
+            details={"service": service_name},
+            hint="请检查服务是否已注册",
+        )
+
+
+class ServiceDependencyError(ServiceError):
+    """服务依赖错误"""
+
+    def __init__(
+        self,
+        message: str,
+        service: Optional[str] = None,
+        dependency: Optional[str] = None,
+    ):
+        details: Dict[str, Any] = {}
+        if service:
+            details["service"] = service
+        if dependency:
+            details["dependency"] = dependency
+
+        super().__init__(
+            code=ErrorCode.SYSTEM_ERROR,
+            message=message,
+            details=details or None,
+        )
+
+
+class ServiceInitializationError(ServiceError):
+    """服务初始化错误"""
+
+    def __init__(self, service: str, reason: str):
+        super().__init__(
+            code=ErrorCode.SYSTEM_ERROR,
+            message=f"服务初始化失败 [{service}]: {reason}",
+            details={"service": service, "reason": reason},
+        )
+
+
+class ServiceTimeoutError(ServiceError):
+    """服务超时错误"""
+
+    def __init__(self, service: str, timeout: float):
+        super().__init__(
+            code=ErrorCode.SYSTEM_ERROR,
+            message=f"服务响应超时 [{service}]: {timeout}s",
+            details={"service": service, "timeout": timeout},
+        )
+
+
 def format_error_message(error: Exception) -> str:
     """格式化错误消息，用于用户界面显示"""
 
@@ -274,5 +475,16 @@ __all__ = [
     "VideoError",
     "TTSError",
     "NetworkError",
+    "ProviderError",
+    "RateLimitError",
+    "CircuitOpenError",
+    "SecurityError",
+    "ExportError",
+    "ProjectError",
+    "ServiceError",
+    "ServiceNotFoundError",
+    "ServiceDependencyError",
+    "ServiceInitializationError",
+    "ServiceTimeoutError",
     "get_error_hint",
 ]

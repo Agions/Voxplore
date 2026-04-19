@@ -127,8 +127,8 @@ class ConfigManager:
                 with open(path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 return AppConfig(**data)
-            except Exception:
-                logger.debug("Config operation failed")
+            except (json.JSONDecodeError, TypeError, OSError) as e:
+                logger.warning(f"Config file load failed: {e}")
         
         return AppConfig()
     
@@ -164,8 +164,8 @@ class ConfigManager:
                 for key, value in data.items():
                     if not getattr(keys, key, ""):  # 环境变量已设置的值不覆盖
                         setattr(keys, key, value)
-            except Exception:
-                logger.debug("Config operation failed")
+            except (json.JSONDecodeError, TypeError, OSError) as e:
+                logger.warning(f"API keys file load failed: {e}")
         
         return keys
     

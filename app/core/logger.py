@@ -141,7 +141,7 @@ def setup_logging(
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
         except Exception as e:
-            print(f"无法创建日志文件: {e}")
+            logging.getLogger(__name__).error(f"无法创建日志文件: {e}")
 
 
 def get_logger(name: str) -> Logger:

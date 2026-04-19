@@ -351,6 +351,41 @@ class BaseLLMProvider(ABC):
             ProviderError: 提供商错误
         """
         pass
+
+    def health_check(self, timeout: float = 5.0) -> bool:
+        """
+        健康检查（带超时）
+
+        默认实现：尝试用 model list API 或简单 completion 检测连通性。
+        子类可覆盖自定义检查逻辑。
+
+        Args:
+            timeout: 超时时间（秒）
+
+        Returns:
+            提供商是否可用
+        """
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        try:
+            # 构建最简单的请求
+            request = LLMRequest(
+                prompt="ping",
+                model="default",
+                max_tokens=1,
+                temperature=0.0,
+            )
+            result = loop.run_until_complete(
+                asyncio.wait_for(self.generate(request), timeout=timeout)
+            )
+            return result is not None
+        except (asyncio.TimeoutError, Exception):
+            return False
     async def generate_cached(self, request: LLMRequest) -> LLMResponse:
         """
         生成文本（带缓存）✅ 优化：重复 prompt 直接返回缓存结果
@@ -371,18 +406,48 @@ class BaseLLMProvider(ABC):
         requests: List[LLMRequest],
         max_concurrency: int = 5,
         use_cache: bool = True,
+        deduplicate: bool = True,
     ) -> List[LLMResponse]:
         """
-        批量生成文本 ✅ 优化：asyncio.gather 并发 + 请求缓存
+        批量生成文本 ✅ 优化：asyncio.gather 并发 + 请求缓存 + 请求去重
 
         Args:
             requests: LLM 请求列表
             max_concurrency: 最大并发数（防止超出 API 限制）
             use_cache: 是否启用缓存（默认启用，重复 prompt 直接返回）
+            deduplicate: 是否对重复请求去重（相同 prompt+model+temperature 只调用一次）
 
         Returns:
-            响应列表
+            响应列表（与输入顺序一致）
         """
+        if deduplicate:
+            # 去重：记录每个唯一请求的首次出现索引
+            seen: Dict[str, int] = {}
+            unique_requests: List[LLMRequest] = []
+            index_map: List[int] = []  # 结果列表中的位置映射
+
+            for req in requests:
+                key = self._make_cache_key(req)
+                if key not in seen:
+                    seen[key] = len(unique_requests)
+                    unique_requests.append(req)
+                index_map.append(seen[key])
+
+            # 对去重后的请求执行批量生成
+            if use_cache:
+                unique_results = await gather_with_concurrency(
+                    max_concurrency,
+                    *[self.generate_cached(req) for req in unique_requests]
+                )
+            else:
+                unique_results = await gather_with_concurrency(
+                    max_concurrency,
+                    *[self.generate(req) for req in unique_requests]
+                )
+
+            # 将结果映射回原始顺序
+            return [unique_results[idx] if idx < len(unique_results) else None for idx in index_map]
+
         if use_cache:
             results = await gather_with_concurrency(
                 max_concurrency,
@@ -398,16 +463,6 @@ class BaseLLMProvider(ABC):
             for r in results
         ]
 
-
-    @abstractmethod
-    def health_check(self) -> bool:
-        """
-        健康检查
-
-        Returns:
-            是否健康
-        """
-        pass
 
     async def close(self):
         """关闭连接"""

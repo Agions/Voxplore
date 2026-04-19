@@ -14,10 +14,12 @@
 """
 
 import subprocess
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+logger = logging.getLogger(__name__)
 
 
 class BeatStrength(Enum):
@@ -232,8 +234,9 @@ class BeatDetector:
             bound_times = librosa.frames_to_time(
                 bound_frames, sr=sr, hop_length=self._hop_length
             )
-        except Exception:
+        except Exception as e:
             # 降级：简单按时间等分
+            logger.warning(f"librosa.segment.agglomerative 失败: {e}，回退到时间等分")
             n_sections = max(2, int(duration / 30))
             bound_times = [i * duration / n_sections
                           for i in range(1, n_sections)]

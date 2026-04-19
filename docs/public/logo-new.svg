@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a1a"/>
+      <stop offset="100%" style="stop-color:#1a1a3a"/>
+    </linearGradient>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff"/>
+      <stop offset="100%" style="stop-color:#7b2fff"/>
+    </linearGradient>
+    <linearGradient id="scopeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7b2fff"/>
+      <stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="190" fill="url(#bg)" stroke="url(#scopeGrad)" stroke-width="3"/>
+
+  <!-- Viewfinder brackets -->
+  <g stroke="url(#scopeGrad)" stroke-width="4" fill="none" stroke-linecap="round">
+    <!-- Top-left -->
+    <path d="M 80 110 L 80 80 L 110 80"/>
+    <!-- Top-right -->
+    <path d="M 290 80 L 320 80 L 320 110"/>
+    <!-- Bottom-left -->
+    <path d="M 80 290 L 80 320 L 110 320"/>
+    <!-- Bottom-right -->
+    <path d="M 290 320 L 320 320 L 320 290"/>
+  </g>
+
+  <!-- Sound waves (voice) -->
+  <g fill="none" stroke-linecap="round">
+    <!-- Inner wave -->
+    <path d="M 140 200 Q 155 170 175 170 Q 200 170 200 200 Q 200 230 225 230 Q 245 230 260 200" 
+          stroke="url(#waveGrad)" stroke-width="4" opacity="0.9"/>
+    <!-- Middle wave -->
+    <path d="M 115 200 Q 135 155 165 155 Q 200 155 200 200 Q 200 245 235 245 Q 265 245 285 200" 
+          stroke="url(#waveGrad)" stroke-width="3.5" opacity="0.7"/>
+    <!-- Outer wave -->
+    <path d="M 90 200 Q 120 140 155 140 Q 200 140 200 200 Q 200 260 245 260 Q 280 260 310 200" 
+          stroke="url(#waveGrad)" stroke-width="3" opacity="0.5"/>
+  </g>
+
+  <!-- Center dot (protagonist focus) -->
+  <circle cx="200" cy="200" r="12" fill="url(#scopeGrad)"/>
+  <circle cx="200" cy="200" r="6" fill="#ffffff"/>
+
+  <!-- Text -->
+  <text x="200" y="360" text-anchor="middle" 
+        font-family="'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" 
+        font-size="28" font-weight="700" letter-spacing="4" fill="#ffffff">VOXPLORE</text>
+  
+  <text x="200" y="385" text-anchor="middle" 
+        font-family="'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" 
+        font-size="12" font-weight="400" letter-spacing="2.5" fill="#00d4ff" opacity="0.85">AI VIDEO NARRATOR</text>
+</svg>

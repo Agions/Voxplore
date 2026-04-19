@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
+from ....core.exceptions import ExportError
 from ..video_tools.ffmpeg_tool import FFmpegTool
 
 
@@ -157,7 +158,10 @@ class VideoExporter:
         result = subprocess.run(cmd, capture_output=True, text=True)
         
         if result.returncode != 0:
-            raise RuntimeError(f"导出失败: {result.stderr}")
+            raise ExportError(
+                message=f"导出失败",
+                details={"stderr": result.stderr, "cmd": " ".join(cmd)}
+            )
         
         return str(output)
     
@@ -225,7 +229,10 @@ class VideoExporter:
         list_file.unlink(missing_ok=True)
         
         if result.returncode != 0:
-            raise RuntimeError(f"拼接失败: {result.stderr}")
+            raise ExportError(
+                message="拼接失败",
+                details={"stderr": result.stderr}
+            )
         
         return str(output)
     
@@ -284,7 +291,10 @@ class VideoExporter:
         result = subprocess.run(cmd, capture_output=True, text=True)
         
         if result.returncode != 0:
-            raise RuntimeError(f"添加音频失败: {result.stderr}")
+            raise ExportError(
+                message="添加音频失败",
+                details={"stderr": result.stderr}
+            )
         
         return str(output)
     
@@ -325,7 +335,10 @@ class VideoExporter:
         result = subprocess.run(cmd, capture_output=True, text=True)
         
         if result.returncode != 0:
-            raise RuntimeError(f"创建缩略图失败: {result.stderr}")
+            raise ExportError(
+                message="创建缩略图失败",
+                details={"stderr": result.stderr}
+            )
         
         return str(output)
 

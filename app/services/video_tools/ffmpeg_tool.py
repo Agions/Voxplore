@@ -106,7 +106,8 @@ class FFmpegTool:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             data = json.loads(result.stdout)
             return int(data.get('format', {}).get('bit_rate', 0))
-        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"ffprobe 获取码率失败 {video_path}: {e}")
             return 0
 
     @staticmethod
@@ -121,7 +122,8 @@ class FFmpegTool:
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return json.loads(result.stdout)
-        except (subprocess.CalledProcessError, json.JSONDecodeError):
+        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+            logger.warning(f"ffprobe 获取视频信息失败 {video_path}: {e}")
             return {}
 
     # ========== 视频处理 ==========

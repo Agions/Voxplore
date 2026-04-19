@@ -8,22 +8,13 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QPainter, QLinearGradient, QColor
 
-# 色彩系统
-COLORS = {
-    "primary": "#6366F1",
-    "primary_end": "#8B5CF6",
-    "primary_light": "#818CF8",
-    "accent": "#06B6D4",
-    "background": "#0A0A0F",
-    "surface": "#12121A",
-    "card": "#1A1A24",
-    "card_elevated": "#22222E",
-    "text": "#E6EDF3",
-    "text_secondary": "#C9D1D9",
-    "text_tertiary": "#8B949E",
-    "border": "#30363D",
-    "success": "#238636",
-}
+from app.ui.components.design_system import Colors
+
+# OKLCH色彩系统 - 使用design_system的Colors类
+# QColor不支持oklch()，paintEvent中直接使用hex fallback
+_PRIMARY_HEX = "#388BFD"
+_PRIMARY_END_HEX = "#A371F7"
+_ACCENT_HEX = "#A371F7"
 
 
 class GradientLogoWidget(QWidget):
@@ -46,9 +37,9 @@ class GradientLogoWidget(QWidget):
             center.x() - radius, center.y() - radius,
             center.x() + radius, center.y() + radius
         )
-        gradient.setColorAt(0, QColor(COLORS["primary"]))
-        gradient.setColorAt(0.5, QColor(COLORS["primary_end"]))
-        gradient.setColorAt(1, QColor(COLORS["accent"]))
+        gradient.setColorAt(0, QColor(_PRIMARY_HEX))
+        gradient.setColorAt(0.5, QColor(_PRIMARY_END_HEX))
+        gradient.setColorAt(1, QColor(_ACCENT_HEX))
         
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(gradient)
@@ -79,8 +70,8 @@ class FeatureCard(QWidget):
         self.setFixedHeight(100)
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {COLORS["card"]};
-                border: 1px solid {COLORS["border"]};
+                background-color: {Colors.BgSurface};
+                border: 1px solid {Colors.BorderDefault};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -104,14 +95,14 @@ class FeatureCard(QWidget):
         title_font.setPointSize(14)
         title_font.setWeight(QFont.Weight.Bold)
         title_label.setFont(title_font)
-        title_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
+        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         text_layout.addWidget(title_label)
         
         desc_label = QLabel(self._description)
         desc_label.setWordWrap(True)
         desc_font = QFont()
         desc_label.setFont(desc_font)
-        desc_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; background: transparent;")
+        desc_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         text_layout.addWidget(desc_label)
         
         layout.addLayout(text_layout)
@@ -121,8 +112,8 @@ class FeatureCard(QWidget):
         """鼠标悬停效果"""
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {COLORS["card_elevated"]};
-                border: 1px solid {COLORS["primary"]};
+                background-color: {Colors.BgElevated};
+                border: 1px solid {Colors.Primary};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -133,8 +124,8 @@ class FeatureCard(QWidget):
         """鼠标离开效果"""
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {COLORS["card"]};
-                border: 1px solid {COLORS["border"]};
+                background-color: {Colors.BgSurface};
+                border: 1px solid {Colors.BorderDefault};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -160,9 +151,9 @@ class WelcomeScreen(QWidget):
         self.setStyleSheet(f"""
             QWidget {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 {COLORS["background"]},
-                    stop:0.5 {COLORS["surface"]},
-                    stop:1 {COLORS["background"]});
+                    stop:0 {Colors.BgBase},
+                    stop:0.5 {Colors.BgSurface},
+                    stop:1 {Colors.BgBase});
             }}
         """)
         
@@ -186,7 +177,7 @@ class WelcomeScreen(QWidget):
         name_font.setPointSize(28)
         name_font.setWeight(QFont.Weight.Bold)
         name_label.setFont(name_font)
-        name_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
+        name_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(name_label)
         
@@ -195,7 +186,7 @@ class WelcomeScreen(QWidget):
         subtitle_font = QFont()
         subtitle_font.setPointSize(14)
         subtitle.setFont(subtitle_font)
-        subtitle.setStyleSheet(f"color: {COLORS['text_tertiary']}; background: transparent;")
+        subtitle.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(subtitle)
         
@@ -207,7 +198,7 @@ class WelcomeScreen(QWidget):
         features_font.setPointSize(16)
         features_font.setWeight(QFont.Weight.Bold)
         features_label.setFont(features_font)
-        features_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
+        features_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         layout.addWidget(features_label)
         
         # 功能卡片列表
@@ -240,8 +231,8 @@ class WelcomeScreen(QWidget):
         self.start_btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {COLORS["primary"]},
-                    stop:1 {COLORS["primary_end"]});
+                    stop:0 {Colors.Primary},
+                    stop:1 {Colors.PrimaryHover});
                 color: white;
                 border: none;
                 border-radius: 12px;
@@ -250,13 +241,13 @@ class WelcomeScreen(QWidget):
             }}
             QPushButton:hover {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {COLORS["primary_light"]},
-                    stop:1 {COLORS["primary_end"]});
+                    stop:0 {Colors.PrimaryHover},
+                    stop:1 {Colors.Accent});
             }}
             QPushButton:pressed {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #4F46E5,
-                    stop:1 #7C3AED);
+                    stop:0 {Colors.PrimaryPressed},
+                    stop:1 {Colors.AccentSubtle});
             }}
         """)
         self.start_btn.clicked.connect(self.get_started.emit)
@@ -268,12 +259,12 @@ class WelcomeScreen(QWidget):
         self.skip_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {COLORS["text_tertiary"]};
+                color: {Colors.TextMuted};
                 border: none;
                 font-size: 13px;
             }}
             QPushButton:hover {{
-                color: {COLORS["text_secondary"]};
+                color: {Colors.TextSecondary};
             }}
         """)
         self.skip_btn.clicked.connect(self.skip.emit)
@@ -284,7 +275,7 @@ class WelcomeScreen(QWidget):
         # 版本信息
         version_label = QLabel(f"版本 {self._version}")
         version_label.setStyleSheet(f"""
-            color: {COLORS["text_tertiary"]};
+            color: {Colors.TextMuted};
             font-size: 11px;
             background: transparent;
         """)

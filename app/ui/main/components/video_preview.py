@@ -14,6 +14,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal, QUrl
 
+from app.ui.components.design_system import Colors
+
+
 try:
     from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
     from PySide6.QtMultimediaWidgets import QVideoWidget
@@ -58,21 +61,21 @@ class VideoPreview(QWidget):
             self._player = None
             placeholder = QLabel("🎬 视频预览\n(需要 PyQt6-Multimedia)")
             placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            placeholder.setStyleSheet("""
-                QLabel {
-                    color: #999; font-size: 16px;
-                    background-color: #1e1e1e;
-                    border: 2px dashed #444;
+            placeholder.setStyleSheet(f"""
+                QLabel {{
+                    color: {Colors.TextMuted}; font-size: 16px;
+                    background-color: {Colors.BgSurface};
+                    border: 2px dashed {Colors.BorderDefault};
                     border-radius: 8px;
                     padding: 40px;
-                }
+                }}
             """)
             placeholder.setMinimumHeight(200)
             layout.addWidget(placeholder, 1)
 
         # 控制栏
         controls = QFrame()
-        controls.setStyleSheet("background-color: #252525; border-top: 1px solid #444;")
+        controls.setStyleSheet(f"background-color: {Colors.BgOverlay}; border-top: 1px solid {Colors.BorderDefault};")
         ctrl_layout = QVBoxLayout(controls)
         ctrl_layout.setContentsMargins(8, 4, 8, 4)
         ctrl_layout.setSpacing(4)
@@ -80,10 +83,10 @@ class VideoPreview(QWidget):
         # 进度条
         self._progress = QSlider(Qt.Orientation.Horizontal)
         self._progress.setRange(0, 1000)
-        self._progress.setStyleSheet("""
-            QSlider::groove:horizontal { height: 4px; background: #444; border-radius: 2px; }
-            QSlider::handle:horizontal { width: 12px; height: 12px; margin: -4px 0; background: #667eea; border-radius: 6px; }
-            QSlider::sub-page:horizontal { background: #667eea; border-radius: 2px; }
+        self._progress.setStyleSheet(f"""
+            QSlider::groove:horizontal {{ height: 4px; background: {Colors.BorderDefault}; border-radius: 2px; }}
+            QSlider::handle:horizontal {{ width: 12px; height: 12px; margin: -4px 0; background: {Colors.Primary}; border-radius: 6px; }}
+            QSlider::sub-page:horizontal {{ background: {Colors.Primary}; border-radius: 2px; }}
         """)
         self._progress.sliderMoved.connect(self._on_seek)
         ctrl_layout.addWidget(self._progress)
@@ -94,28 +97,28 @@ class VideoPreview(QWidget):
 
         self._play_btn = QPushButton("▶")
         self._play_btn.setFixedSize(32, 28)
-        self._play_btn.setStyleSheet("QPushButton { background: #667eea; color: white; border: none; border-radius: 4px; font-size: 12px; }")
+        self._play_btn.setStyleSheet(f"QPushButton {{ background: {Colors.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}")
         self._play_btn.clicked.connect(self.toggle_play)
 
         self._stop_btn = QPushButton("⏹")
         self._stop_btn.setFixedSize(32, 28)
-        self._stop_btn.setStyleSheet("QPushButton { background: #444; color: white; border: none; border-radius: 4px; font-size: 12px; }")
+        self._stop_btn.setStyleSheet(f"QPushButton {{ background: {Colors.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}")
         self._stop_btn.clicked.connect(self.stop)
 
         self._time_label = QLabel("00:00 / 00:00")
-        self._time_label.setStyleSheet("color: #999; font-size: 11px;")
+        self._time_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
 
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
         self._volume_slider.setRange(0, 100)
         self._volume_slider.setValue(80)
         self._volume_slider.setFixedWidth(80)
-        self._volume_slider.setStyleSheet("""
-            QSlider::groove:horizontal { height: 3px; background: #444; border-radius: 1px; }
-            QSlider::handle:horizontal { width: 10px; height: 10px; margin: -3px 0; background: #999; border-radius: 5px; }
+        self._volume_slider.setStyleSheet(f"""
+            QSlider::groove:horizontal {{ height: 3px; background: {Colors.BorderDefault}; border-radius: 1px; }}
+            QSlider::handle:horizontal {{ width: 10px; height: 10px; margin: -3px 0; background: {Colors.TextMuted}; border-radius: 5px; }}
         """)
         self._volume_slider.valueChanged.connect(self._on_volume)
         vol_label = QLabel("🔊")
-        vol_label.setStyleSheet("color: #999; font-size: 11px;")
+        vol_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
 
         btn_row.addWidget(self._play_btn)
         btn_row.addWidget(self._stop_btn)
@@ -193,32 +196,32 @@ class VideoPreview(QWidget):
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
         if is_dark:
-            self.setStyleSheet("""
-                QWidget {
-                    background-color: #0A0A0A;
-                }
-                QSlider::groove:horizontal {
-                    background: #2d2d2d;
+            self.setStyleSheet(f"""
+                QWidget {{
+                    background-color: {Colors.BgBase};
+                }}
+                QSlider::groove:horizontal {{
+                    background: {Colors.BgElevated};
                     height: 4px;
-                }
-                QSlider::handle:horizontal {
-                    background: #2962FF;
+                }}
+                QSlider::handle:horizontal {{
+                    background: {Colors.Primary};
                     width: 14px;
                     margin: -5px 0;
-                }
+                }}
             """)
         else:
-            self.setStyleSheet("""
-                QWidget {
-                    background-color: #f5f5f5;
-                }
-                QSlider::groove:horizontal {
-                    background: #e0e0e0;
+            self.setStyleSheet(f"""
+                QWidget {{
+                    background-color: {Colors.BgSurface};
+                }}
+                QSlider::groove:horizontal {{
+                    background: {Colors.BorderDefault};
                     height: 4px;
-                }
-                QSlider::handle:horizontal {
-                    background: #2196F3;
+                }}
+                QSlider::handle:horizontal {{
+                    background: {Colors.Primary};
                     width: 14px;
                     margin: -5px 0;
-                }
+                }}
             """)

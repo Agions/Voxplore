@@ -2,59 +2,28 @@
 # -*- coding: utf-8 -*-
 
 """
-LLM 提供商异常定义
+LLM Provider 异常兼容模块 ⚠️ 已废弃
 
-定义 LLM 服务相关的自定义异常类型。
+此模块已废弃。所有 Provider/RateLimit/CircuitOpen 等异常
+已统一迁移至 app.core.exceptions。
+
+废弃原因:
+    为统一错误层次，将这些异常合并到 app.core.exceptions 的
+    VoxploreError 体系，废弃独立定义。
+
+迁移指南:
+    # 旧 (废弃)
+    from app.services.ai.errors import ProviderError, RateLimitError
+
+    # 新 (推荐)
+    from app.core.exceptions import ProviderError, RateLimitError
+
+此文件将在未来版本中移除。
 """
 
-
-class ProviderError(Exception):
-    """LLM 提供商错误基类"""
-    pass
-
-
-class RateLimitError(ProviderError):
-    """速率限制错误 - API 调用频率超出限制"""
-    pass
-
-
-class CircuitOpenError(ProviderError):
-    """熔断器开启错误 - 服务暂时不可用"""
-    pass
-
-
-class AuthenticationError(ProviderError):
-    """认证错误 - API 密钥无效或已过期"""
-    pass
-
-
-class ValidationError(ProviderError):
-    """验证错误 - 请求参数无效"""
-    pass
-
-
-class TimeoutError(ProviderError):
-    """超时错误 - 请求响应超时"""
-    pass
-
-
-class ModelNotFoundError(ProviderError):
-    """模型未找到错误 - 请求的模型不存在"""
-    pass
-
-
-class QuotaExceededError(ProviderError):
-    """配额超出错误 - API 使用配额已用尽"""
-    pass
-
-
-__all__ = [
-    "ProviderError",
-    "RateLimitError",
-    "CircuitOpenError",
-    "AuthenticationError",
-    "ValidationError",
-    "TimeoutError",
-    "ModelNotFoundError",
-    "QuotaExceededError",
-]
+# 从新的统一位置重导出，避免现有代码的导入崩溃
+from app.core.exceptions import (
+    ProviderError,
+    RateLimitError,
+    CircuitOpenError,
+)

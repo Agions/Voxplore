@@ -4,40 +4,44 @@
 """
 场景分析器 V2 (Scene Analyzer V2)
 
-扩展版场景分析器，在原有 SceneAnalyzer 基础上增加了：
-- 重要性评分 (importance scoring)
-- 关键时刻提取 (key moment extraction)
-- 场景上下文提示生成 (scene context prompt generation)
-
-继承自 SceneAnalyzer 的完整实现。
+包含完整的场景分析实现：
+- SceneAnalyzer: 基础版（来自原有 scene_analyzer.py）
+- SceneAnalyzerV2: 扩展版，增加重要性评分、关键时刻提取、场景上下文提示
 
 使用示例:
-    from app.services.ai import SceneAnalyzerV2
-    
+    from app.services.ai import SceneAnalyzer   # 基础版
+    from app.services.ai import SceneAnalyzerV2  # 增强版（推荐）
+
     analyzer = SceneAnalyzerV2()
     scenes = analyzer.analyze_with_importance('video.mp4')
-    
+
     # 提取最佳关键时刻
     key_moments = analyzer.extract_key_moments(scenes, top_k=5)
-    
+
     # 生成场景上下文提示
     context_prompt = analyzer.generate_scene_context_prompt(scenes)
 """
 
 import logging
+import subprocess
+import re
+
+from pathlib import Path
 from typing import List, Optional, Callable, Dict, Any
 
-from .scene_analyzer import SceneAnalyzer
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
+
 
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
 # 场景类型优先级（数值越高越重要）
+# =============================================================================
 SCENE_TYPE_PRIORITY: Dict[SceneType, int] = {
     SceneType.LANDSCAPE: 10,     # 风景画面 - 最适合展示
     SceneType.B_ROLL: 8,         # 素材画面 - 适合混剪
-    SceneType.ACTION: 6,          # 动作场景
+    SceneType.ACTION: 6,         # 动作场景
     SceneType.TALKING_HEAD: 4,   # 人物讲话 - 较少使用
     SceneType.TRANSITION: 2,      # 转场 - 不适合
     SceneType.TITLE: 3,           # 标题画面
@@ -46,10 +50,416 @@ SCENE_TYPE_PRIORITY: Dict[SceneType, int] = {
 }
 
 
+# =============================================================================
+# 基础场景分析器（原 scene_analyzer.py 的实现）
+# =============================================================================
+class SceneAnalyzer:
+    """
+    场景分析器
+
+    集成 PySceneDetect 和 FFmpeg 进行视频场景检测和分析。
+    优先使用 PySceneDetect（更准确），回退到 FFmpeg 方法。
+    """
+
+    def __init__(self, config: Optional[AnalysisConfig] = None):
+        self.config = config or AnalysisConfig()
+        self._pyscenect_available = self._check_pyscenect()
+
+    def _check_pyscenect(self) -> bool:
+        """检查 PySceneDetect 是否可用"""
+        import importlib.util
+        return importlib.util.find_spec("scenedetect") is not None
+
+    def analyze(self, video_path: str) -> List[SceneInfo]:
+        """
+        分析视频场景
+
+        Args:
+            video_path: 视频文件路径
+
+        Returns:
+            场景列表
+        """
+        video_path_obj = Path(video_path)
+        if not video_path_obj.exists():
+            raise FileNotFoundError(f"视频文件不存在: {video_path}")
+
+        # 获取视频时长
+        duration = self._get_video_duration(str(video_path))
+
+        # 检测场景变化 - 优先使用 PySceneDetect
+        if self.config.use_pyscenect and self._pyscenect_available:
+            scene_times = self._detect_scenes_pyscenect(str(video_path))
+        else:
+            scene_times = self._detect_scene_changes(str(video_path))
+
+        # 构建场景列表
+        scenes = self._build_scenes(scene_times, duration)
+
+        # 分析每个场景
+        for scene in scenes:
+            self._analyze_scene(str(video_path), scene)
+
+        # 提取关键帧（如果启用）
+        if self.config.extract_keyframes:
+            self._extract_keyframes(str(video_path), scenes)
+
+        return scenes
+
+    def _get_video_duration(self, video_path: str) -> float:
+        """获取视频时长"""
+        from ..video_tools.ffmpeg_tool import FFmpegTool
+        return FFmpegTool.get_duration(video_path)
+
+    def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
+        """使用 PySceneDetect 检测场景变化"""
+        try:
+            from scenedetect import open_video, SceneManager
+            from scenedetect.detectors import ContentDetector, AdaptiveDetector, ThresholdDetector
+
+            video = open_video(video_path)
+            scene_manager = SceneManager()
+
+            threshold = self.config.scene_threshold
+
+            if self.config.detector_type == "adaptive":
+                from scenedetect.detectors.adaptive_detector import AdaptiveDetector
+                scene_manager.add_detector(
+                    AdaptiveDetector(
+                        adaptive_threshold=threshold * 50,
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)
+                    )
+                )
+            elif self.config.detector_type == "threshold":
+                scene_manager.add_detector(
+                    ThresholdDetector(threshold=int(threshold * 255))
+                )
+            else:
+                scene_manager.add_detector(
+                    ContentDetector(
+                        threshold=threshold * 50,
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)
+                    )
+                )
+
+            try:
+                scene_manager.detect_scenes(video, show_progress=False)
+            except Exception:
+                return [0.0]
+
+            scene_list = scene_manager.get_scene_list()
+
+            if not scene_list:
+                return [0.0]
+
+            scene_times = [0.0]
+            for scene in scene_list:
+                start_time = scene[0].get_seconds()
+                scene_times.append(start_time)
+
+            return scene_times
+
+        except ImportError as e:
+            logger.warning(f"PySceneDetect 导入失败: {e}")
+            self._pyscenect_available = False
+            return self._detect_scene_changes(video_path)
+        except Exception as e:
+            logger.error(f"PySceneDetect 场景检测失败: {e}")
+            return self._detect_scene_changes(video_path)
+
+    def _detect_scene_changes(self, video_path: str) -> List[float]:
+        """使用 FFmpeg 检测场景变化时间点（回退方法）"""
+        threshold = self.config.scene_threshold
+
+        cmd = [
+            'ffmpeg', '-i', video_path,
+            '-filter:v', f"select='gt(scene,{threshold})',showinfo",
+            '-f', 'null', '-'
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+
+            scene_times = [0.0]
+
+            pattern = r'pts_time:(\d+\.?\d*)'
+            matches = re.findall(pattern, result.stderr)
+
+            for match in matches:
+                time = float(match)
+                if not scene_times or (time - scene_times[-1]) >= self.config.min_scene_duration:
+                    scene_times.append(time)
+
+            return scene_times
+
+        except subprocess.TimeoutExpired:
+            logger.warning("场景检测超时")
+            return [0.0]
+        except Exception as e:
+            logger.error(f"场景检测失败: {e}")
+            return [0.0]
+
+    def _build_scenes(self, scene_times: List[float], total_duration: float) -> List[SceneInfo]:
+        """根据场景变化时间点构建场景列表"""
+        scenes = []
+
+        scene_times = sorted(set(scene_times))
+
+        for i in range(len(scene_times)):
+            start = scene_times[i]
+            end = scene_times[i + 1] if i + 1 < len(scene_times) else total_duration
+
+            if end - start >= self.config.min_scene_duration:
+                scene = SceneInfo(
+                    index=i,
+                    start=start,
+                    end=end,
+                    duration=end - start,
+                )
+                scenes.append(scene)
+
+        return scenes
+
+    def _analyze_scene(self, video_path: str, scene: SceneInfo) -> None:
+        """分析单个场景的特征"""
+        scene.avg_brightness = self._get_avg_brightness(
+            video_path, scene.start, scene.duration
+        )
+
+        scene.motion_level = self._get_motion_level(
+            video_path, scene.start, scene.duration
+        )
+
+        if self.config.analyze_audio:
+            scene.audio_level = self._get_audio_level(
+                video_path, scene.start, scene.duration
+            )
+
+        scene.suitability_score = self._calculate_suitability(scene)
+
+        scene.type = self._infer_scene_type(scene)
+
+    def _get_avg_brightness(self, video_path: str, start: float, duration: float) -> float:
+        """获取场景平均亮度"""
+        try:
+            cmd = [
+                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
+                '-i', video_path,
+                '-vf', 'signalstats',
+                '-f', 'null', '-'
+            ]
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+            match = re.search(r'YAVG:(\d+\.?\d*)', result.stderr)
+            if match:
+                return float(match.group(1)) / 255.0
+
+        except Exception:
+            logger.debug("Operation failed")
+
+        return 0.5
+
+    def _get_motion_level(self, video_path: str, start: float, duration: float) -> float:
+        """获取场景运动程度"""
+        try:
+            cmd = [
+                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
+                '-i', video_path,
+                '-filter:v', "select='gte(scene,0)',metadata=print",
+                '-f', 'null', '-'
+            ]
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+            scores = re.findall(r'lavfi\.scene_score=(\d+\.?\d*)', result.stderr)
+            if scores:
+                avg_score = sum(float(s) for s in scores) / len(scores)
+                return min(1.0, avg_score * 2)
+
+        except Exception:
+            logger.debug("Operation failed")
+
+        return 0.3
+
+    def _get_audio_level(self, video_path: str, start: float, duration: float) -> float:
+        """获取场景音频音量"""
+        try:
+            cmd = [
+                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
+                '-i', video_path,
+                '-af', 'volumedetect',
+                '-f', 'null', '-'
+            ]
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+
+            match = re.search(r'mean_volume:\s*([-\d.]+)', result.stderr)
+            if match:
+                db = float(match.group(1))
+                return max(0, min(1, (db + 60) / 60))
+
+        except Exception:
+            logger.debug("Operation failed")
+
+        return 0.5
+
+    def _calculate_suitability(self, scene: SceneInfo) -> float:
+        """计算场景作为解说画面的适用性"""
+        score = 50.0
+
+        if 2 <= scene.duration <= 5:
+            score += 20
+        elif scene.duration < 1:
+            score -= 20
+        elif scene.duration > 10:
+            score -= 10
+
+        if 0.2 <= scene.motion_level <= 0.6:
+            score += 15
+        elif scene.motion_level > 0.8:
+            score -= 10
+
+        if 0.3 <= scene.avg_brightness <= 0.7:
+            score += 15
+        else:
+            score -= 10
+
+        return max(0, min(100, score))
+
+    def _infer_scene_type(self, scene: SceneInfo) -> SceneType:
+        """根据特征推断场景类型"""
+        if scene.audio_level > 0.7 and scene.motion_level < 0.3:
+            return SceneType.TALKING_HEAD
+        elif scene.motion_level > 0.7:
+            return SceneType.ACTION
+        elif scene.duration < 1:
+            return SceneType.TRANSITION
+        elif scene.motion_level < 0.2 and scene.audio_level < 0.2:
+            return SceneType.LANDSCAPE
+        else:
+            return SceneType.B_ROLL
+
+    def _extract_keyframes(self, video_path: str, scenes: List[SceneInfo]) -> None:
+        """为每个场景提取关键帧"""
+        if not self.config.keyframe_dir:
+            keyframe_dir = Path(video_path).parent / "keyframes"
+        else:
+            keyframe_dir = Path(self.config.keyframe_dir)
+
+        keyframe_dir.mkdir(parents=True, exist_ok=True)
+
+        for scene in scenes:
+            timestamp = scene.start + scene.duration / 2
+            output_path = keyframe_dir / f"scene_{scene.index:03d}.jpg"
+
+            try:
+                cmd = [
+                    'ffmpeg', '-ss', str(timestamp),
+                    '-i', video_path,
+                    '-vframes', '1',
+                    '-q:v', '2',
+                    '-y', str(output_path)
+                ]
+
+                result = subprocess.run(cmd, capture_output=True, timeout=30)
+
+                if result.returncode == 0:
+                    scene.keyframe_path = str(output_path)
+
+            except Exception as e:
+                logger.error(f"提取关键帧失败 (场景 {scene.index}): {e}")
+
+    def get_best_scenes(
+        self,
+        scenes: List[SceneInfo],
+        count: int = 10,
+        min_score: float = 50.0,
+    ) -> List[SceneInfo]:
+        """获取最适合作为解说画面的场景"""
+        filtered = [s for s in scenes if s.suitability_score >= min_score]
+
+        sorted_scenes = sorted(
+            filtered,
+            key=lambda s: s.suitability_score,
+            reverse=True
+        )
+
+        return sorted_scenes[:count]
+
+    def get_scenes_for_duration(
+        self,
+        scenes: List[SceneInfo],
+        target_duration: float,
+    ) -> List[SceneInfo]:
+        """获取满足目标时长的场景组合"""
+        sorted_scenes = sorted(
+            scenes,
+            key=lambda s: s.suitability_score,
+            reverse=True
+        )
+
+        selected = []
+        total = 0.0
+
+        for scene in sorted_scenes:
+            if total >= target_duration:
+                break
+            selected.append(scene)
+            total += scene.duration
+
+        selected.sort(key=lambda s: s.start)
+
+        return selected
+
+    def split_video_by_scenes(
+        self,
+        video_path: str,
+        output_dir: str,
+        scenes: Optional[List[SceneInfo]] = None,
+    ) -> List[str]:
+        """将视频按场景分割"""
+        if scenes is None:
+            scenes = self.analyze(video_path)
+
+        output_dir_path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
+
+        video_stem = Path(video_path).stem
+        output_paths = []
+
+        for scene in scenes:
+            output_path = output_dir_path / f"{video_stem}_scene_{scene.index:03d}.mp4"
+
+            try:
+                cmd = [
+                    'ffmpeg', '-y',
+                    '-ss', str(scene.start),
+                    '-t', str(scene.duration),
+                    '-i', video_path,
+                    '-c', 'copy',
+                    '-avoid_negative_ts', 'make_zero',
+                    str(output_path)
+                ]
+
+                result = subprocess.run(cmd, capture_output=True, timeout=60)
+
+                if result.returncode == 0:
+                    output_paths.append(str(output_path))
+
+            except Exception as e:
+                logger.error(f"分割场景失败 (场景 {scene.index}): {e}")
+
+        return output_paths
+
+
+# =============================================================================
+# 场景分析器 V2（扩展版）
+# =============================================================================
 class SceneAnalyzerV2(SceneAnalyzer):
     """
     场景分析器 V2
-    
+
     在 SceneAnalyzer 基础上扩展了重要性评分和关键时刻提取功能。
     适合用于 AI 解说和智能混剪场景。
     """
@@ -57,17 +467,17 @@ class SceneAnalyzerV2(SceneAnalyzer):
     def __init__(self, config: Optional[AnalysisConfig] = None):
         """
         初始化场景分析器 V2
-        
+
         Args:
             config: 分析配置，如果为 None 则使用默认配置
         """
         super().__init__(config)
         self._importance_weights = {
-            'duration': 0.20,      # 时长权重
-            'brightness': 0.15,    # 亮度权重
-            'motion': 0.15,        # 运动程度权重
-            'scene_type': 0.30,    # 场景类型权重（最重要）
-            'audio': 0.20,         # 音频权重
+            'duration': 0.20,
+            'brightness': 0.15,
+            'motion': 0.15,
+            'scene_type': 0.30,
+            'audio': 0.20,
         }
 
     def analyze_with_importance(
@@ -77,104 +487,58 @@ class SceneAnalyzerV2(SceneAnalyzer):
     ) -> List[SceneInfo]:
         """
         分析视频场景并计算重要性评分
-        
+
         在原有 analyze() 方法基础上，为每个场景计算 suitability_score
         和可选的 narration_importance。
-        
+
         Args:
             video_path: 视频文件路径
             narration_importance_fn: 可选的回调函数，用于计算叙事重要性。
                                      函数签名: (SceneInfo) -> float (0-1)
                                      如果为 None，则使用默认计算方法
-            
+
         Returns:
             场景列表，每个场景都包含计算好的 suitability_score
-            
+
         Raises:
             FileNotFoundError: 视频文件不存在
         """
-        # 调用父类的 analyze 方法
         scenes = super().analyze(video_path)
-        
-        # 为每个场景计算增强版 suitability_score
+
         for scene in scenes:
-            # 使用增强版评分算法
             scene.suitability_score = self._calculate_enhanced_suitability(scene)
-            
-            # 计算叙事重要性（如果提供回调或使用默认方法）
+
             if narration_importance_fn is not None:
                 scene.narration_importance = narration_importance_fn(scene)
-            elif hasattr(scene, 'narration_importance') and scene.narration_importance > 0:
-                # 已有值，保持不变
-                pass
-            else:
-                # 使用默认计算方法
+            elif not hasattr(scene, 'narration_importance') or scene.narration_importance <= 0:
                 scene.narration_importance = self._calculate_default_narration_importance(scene)
-        
+            # else: 保留现有 scene.narration_importance 值
+
         return scenes
 
     def _calculate_enhanced_suitability(self, scene: SceneInfo) -> float:
-        """
-        计算增强版适用性评分 (0-100)
-        
-        评分因素：
-        - 时长：3-15秒为最佳（适合 narration）
-        - 亮度：mid-range (0.3-0.7) 评分较高
-        - 运动程度：moderate (0.2-0.6) 评分较高
-        - 场景类型：LANDSCAPE > B_ROLL > ACTION > ...
-        - 音频水平：higher is better
-        
-        Args:
-            scene: 场景信息
-            
-        Returns:
-            适用性评分 (0-100)
-        """
-        score = 50.0  # 基础分
-        
-        # === 1. 时长评分 (权重 20%) ===
-        # 最佳时长 3-15秒，太短或太长都降低评分
+        """计算增强版适用性评分 (0-100)"""
+        score = 50.0
+
         duration_score = self._score_duration(scene.duration)
         score += duration_score * self._importance_weights['duration'] * 2
-        
-        # === 2. 亮度评分 (权重 15%) ===
-        # mid-range brightness (0.3-0.7) scores higher
+
         brightness_score = self._score_brightness(scene.avg_brightness)
         score += brightness_score * self._importance_weights['brightness'] * 2
-        
-        # === 3. 运动程度评分 (权重 15%) ===
-        # moderate motion (0.2-0.6) scores higher
+
         motion_score = self._score_motion(scene.motion_level)
         score += motion_score * self._importance_weights['motion'] * 2
-        
-        # === 4. 场景类型评分 (权重 30%) ===
-        # 根据场景类型加权
+
         type_score = self._score_scene_type(scene.type)
         score += type_score * self._importance_weights['scene_type'] * 2
-        
-        # === 5. 音频评分 (权重 20%) ===
-        # higher audio presence scores higher
+
         audio_score = self._score_audio(scene.audio_level)
         score += audio_score * self._importance_weights['audio'] * 2
-        
-        # 确保分数在 0-100 范围内
+
         return max(0.0, min(100.0, score))
 
     def _score_duration(self, duration: float) -> float:
-        """
-        评分时长因素
-        
-        最佳范围: 3-15秒
-        - 3-15秒: 100% 得分
-        - 1-3秒或15-30秒: 60% 得分
-        - <1秒或>30秒: 20% 得分
-        
-        Args:
-            duration: 时长（秒）
-            
-        Returns:
-            评分 (0-100)
-        """
+        """评分时长因素 - 最佳范围: 3-15秒"""
         if 3.0 <= duration <= 15.0:
             return 100.0
         elif 1.0 <= duration < 3.0 or 15.0 < duration <= 30.0:
@@ -183,124 +547,56 @@ class SceneAnalyzerV2(SceneAnalyzer):
             return 20.0
 
     def _score_brightness(self, brightness: float) -> float:
-        """
-        评分亮度因素
-        
-        最佳范围: 0.3-0.7 (mid-range)
-        归一化 brightness 到 0-1 范围后评分：
-        - 0.3-0.7: 100% 得分
-        - 边缘处线性衰减
-        
-        Args:
-            brightness: 亮度值 (0.0-1.0)
-            
-        Returns:
-            评分 (0-100)
-        """
+        """评分亮度因素 - 最佳范围: 0.3-0.7"""
         if 0.3 <= brightness <= 0.7:
             return 100.0
         elif brightness < 0.3:
-            # 线性插值: 0.0 -> 0.0, 0.3 -> 100.0
             return (brightness / 0.3) * 100.0
-        else:  # brightness > 0.7
-            # 线性插值: 0.7 -> 100.0, 1.0 -> 0.0
+        else:
             return ((1.0 - brightness) / 0.3) * 100.0
 
     def _score_motion(self, motion: float) -> float:
-        """
-        评分运动程度因素
-        
-        最佳范围: 0.2-0.6 (moderate motion)
-        - 0.2-0.6: 100% 得分
-        - 静态 (<0.1) 或 过于混乱 (>0.9): 低分
-        
-        Args:
-            motion: 运动程度 (0.0-1.0)
-            
-        Returns:
-            评分 (0-100)
-        """
+        """评分运动程度因素 - 最佳范围: 0.2-0.6"""
         if 0.2 <= motion <= 0.6:
             return 100.0
         elif motion < 0.1:
-            # 静态场景，得分较低
             return 30.0
         elif motion < 0.2:
-            # 略微运动，线性插值
             return 30.0 + (motion - 0.1) / 0.1 * 70.0
         elif motion <= 0.9:
-            # 超过最佳范围，线性衰减
             return 100.0 - (motion - 0.6) / 0.3 * 40.0
         else:
-            # 过于混乱的场景
             return 20.0
 
     def _score_scene_type(self, scene_type: SceneType) -> float:
-        """
-        评分场景类型因素
-        
-        优先级顺序 (从高到低):
-        LANDSCAPE > B_ROLL > ACTION > TALKING_HEAD > TITLE > PRODUCT > TRANSITION > UNKNOWN
-        
-        Args:
-            scene_type: 场景类型
-            
-        Returns:
-            评分 (0-100)
-        """
+        """评分场景类型因素"""
         priority = SCENE_TYPE_PRIORITY.get(scene_type, 1)
         max_priority = max(SCENE_TYPE_PRIORITY.values())
-        # 归一化到 0-100
         return (priority / max_priority) * 100.0
 
     def _score_audio(self, audio_level: float) -> float:
-        """
-        评分音频因素
-        
-        更高的音频水平得分更高
-        0.0 -> 0分, 1.0 -> 100分
-        
-        Args:
-            audio_level: 音频水平 (0.0-1.0)
-            
-        Returns:
-            评分 (0-100)
-        """
+        """评分音频因素"""
         return audio_level * 100.0
 
     def _calculate_default_narration_importance(self, scene: SceneInfo) -> float:
-        """
-        计算默认叙事重要性
-        
-        综合考虑场景类型、时长和适合度来计算叙事重要性。
-        
-        Args:
-            scene: 场景信息
-            
-        Returns:
-            叙事重要性 (0.0-1.0)
-        """
-        # 场景类型权重
+        """计算默认叙事重要性"""
         type_weight = SCENE_TYPE_PRIORITY.get(scene.type, 1) / max(SCENE_TYPE_PRIORITY.values())
-        
-        # 时长权重（太长或太短都不适合）
+
         if 3.0 <= scene.duration <= 15.0:
             duration_weight = 1.0
         elif 1.0 <= scene.duration < 3.0 or 15.0 < scene.duration <= 30.0:
             duration_weight = 0.6
         else:
             duration_weight = 0.2
-        
-        # 适合度权重
+
         suitability_weight = scene.suitability_score / 100.0
-        
-        # 综合评分
+
         importance = (
             type_weight * 0.4 +
             duration_weight * 0.3 +
             suitability_weight * 0.3
         )
-        
+
         return max(0.0, min(1.0, importance))
 
     def extract_key_moments(
@@ -309,35 +605,15 @@ class SceneAnalyzerV2(SceneAnalyzer):
         top_k: int = 5,
         min_score: float = 30.0,
     ) -> List[SceneInfo]:
-        """
-        提取关键时刻（得分最高的场景）
-        
-        这些是展示原始素材的最佳时刻。
-        
-        Args:
-            scenes: 场景列表（应已包含 suitability_score）
-            top_k: 返回的场景数量上限
-            min_score: 最低分数阈值，低于此分数的场景会被过滤
-            
-        Returns:
-            按 suitability_score 降序排列的 top_k 个场景
-            
-        Example:
-            >>> analyzer = SceneAnalyzerV2()
-            >>> scenes = analyzer.analyze_with_importance('video.mp4')
-            >>> key_moments = analyzer.extract_key_moments(scenes, top_k=5)
-        """
-        # 过滤低分场景
+        """提取关键时刻（得分最高的场景）"""
         filtered = [s for s in scenes if s.suitability_score >= min_score]
-        
-        # 按 suitability_score 降序排列
+
         sorted_scenes = sorted(
             filtered,
             key=lambda s: s.suitability_score,
             reverse=True
         )
-        
-        # 返回 top_k
+
         return sorted_scenes[:top_k]
 
     def extract_key_moments_by_type(
@@ -346,79 +622,37 @@ class SceneAnalyzerV2(SceneAnalyzer):
         scene_type: SceneType,
         top_k: int = 3,
     ) -> List[SceneInfo]:
-        """
-        按场景类型提取关键时刻
-        
-        Args:
-            scenes: 场景列表
-            scene_type: 要筛选的场景类型
-            top_k: 每种类型返回的场景数量上限
-            
-        Returns:
-            指定的场景类型的 top_k 个高分场景
-        """
-        # 过滤指定类型
+        """按场景类型提取关键时刻"""
         filtered = [s for s in scenes if s.type == scene_type]
-        
-        # 按 suitability_score 降序排列
+
         sorted_scenes = sorted(
             filtered,
             key=lambda s: s.suitability_score,
             reverse=True
         )
-        
+
         return sorted_scenes[:top_k]
 
     def generate_scene_context_prompt(self, scenes: List[SceneInfo]) -> str:
-        """
-        生成场景上下文提示（用于 ScriptGenerator）
-        
-        生成一个 markdown 格式的场景描述列表，包含：
-        - 时间戳
-        - 场景描述
-        - 场景类型
-        - 适合度评分
-        
-        Args:
-            scenes: 场景列表
-            
-        Returns:
-            Markdown 格式的场景描述字符串
-            
-        Example:
-            >>> analyzer = SceneAnalyzerV2()
-            >>> scenes = analyzer.analyze_with_importance('video.mp4')
-            >>> prompt = analyzer.generate_scene_context_prompt(scenes)
-            >>> # prompt 内容示例:
-            >>> # ## 场景列表
-            >>> # 
-            >>> # 1. **[00:00-00:05]** 风景画面
-            >>> #    - 类型: LANDSCAPE
-            >>> #    - 评分: 95/100
-            >>> #    - 描述: 开场空镜头，...
-        """
+        """生成场景上下文提示（用于 ScriptGenerator）"""
         if not scenes:
             return "## 场景列表\n\n*暂无场景数据*"
-        
+
         lines = ["## 场景列表\n"]
-        
+
         for i, scene in enumerate(scenes, 1):
-            # 格式化时间戳
             start_str = self._format_timestamp(scene.start)
             end_str = self._format_timestamp(scene.end)
-            
-            # 场景类型中文名
+
             type_name = self._get_scene_type_name_cn(scene.type)
-            
-            # 构建场景描述
+
             lines.append(f"{i}. **{start_str} - {end_str}** {type_name}")
             lines.append(f"   - 类型: `{scene.type.value}`")
             lines.append(f"   - 评分: {scene.suitability_score:.0f}/100")
-            
+
             if scene.description:
                 lines.append(f"   - 描述: {scene.description}")
-            
-            # 添加额外信息（如果有）
+
             details = []
             if scene.avg_brightness > 0:
                 brightness_desc = self._describe_brightness(scene.avg_brightness)
@@ -428,12 +662,12 @@ class SceneAnalyzerV2(SceneAnalyzer):
                 details.append(f"运动{motion_desc}")
             if scene.audio_level > 0:
                 details.append(f"音频{'有' if scene.audio_level > 0.3 else '弱'}")
-            
+
             if details:
                 lines.append(f"   - 特征: {', '.join(details)}")
-            
-            lines.append("")  # 空行分隔
-        
+
+            lines.append("")
+
         return "\n".join(lines)
 
     def generate_brief_scene_summary(
@@ -441,200 +675,115 @@ class SceneAnalyzerV2(SceneAnalyzer):
         scenes: List[SceneInfo],
         max_scenes: int = 10,
     ) -> str:
-        """
-        生成简短场景摘要（适用于提示词）
-        
-        与 generate_scene_context_prompt 类似，但更简洁，
-        只包含关键信息，适合作为 LLM 提示词的一部分。
-        
-        Args:
-            scenes: 场景列表
-            max_scenes: 最多包含的场景数
-            
-        Returns:
-            简洁的场景描述字符串
-        """
+        """生成简短场景摘要（适用于提示词）"""
         if not scenes:
             return "视频包含0个有效场景。"
-        
-        # 按 suitability_score 排序取 top
+
         sorted_scenes = sorted(
             scenes,
             key=lambda s: s.suitability_score,
             reverse=True
         )[:max_scenes]
-        
+
         parts = [f"视频共 {len(scenes)} 个场景，选取最重要的 {len(sorted_scenes)} 个：\n"]
-        
+
         for scene in sorted_scenes:
             start_str = self._format_timestamp(scene.start)
             type_name = self._get_scene_type_name_cn(scene.type)
             score = scene.suitability_score
-            
+
             parts.append(f"- [{start_str}] {type_name} (评分:{score:.0f})")
-        
+
         return "\n".join(parts)
 
     def _format_timestamp(self, seconds: float) -> str:
-        """
-        格式化时间戳
-        
-        Args:
-            seconds: 秒数
-            
-        Returns:
-            MM:SS 格式字符串
-        """
+        """格式化时间戳为 MM:SS"""
         minutes = int(seconds // 60)
         secs = int(seconds % 60)
         return f"{minutes:02d}:{secs:02d}"
 
     def _get_scene_type_name_cn(self, scene_type: SceneType) -> str:
-        """
-        获取场景类型中文名
-        
-        Args:
-            scene_type: 场景类型
-            
-        Returns:
-            中文名称
-        """
-        type_names = {
-            SceneType.LANDSCAPE: "风景",
-            SceneType.B_ROLL: "素材",
-            SceneType.ACTION: "动作",
-            SceneType.TALKING_HEAD: "人物",
+        """获取场景类型中文名"""
+        names = {
+            SceneType.LANDSCAPE: "风景画面",
+            SceneType.B_ROLL: "素材画面",
+            SceneType.ACTION: "动作场景",
+            SceneType.TALKING_HEAD: "人物讲话",
             SceneType.TRANSITION: "转场",
-            SceneType.TITLE: "标题",
-            SceneType.PRODUCT: "产品",
+            SceneType.TITLE: "标题画面",
+            SceneType.PRODUCT: "产品展示",
             SceneType.UNKNOWN: "未知",
         }
-        return type_names.get(scene_type, "未知")
+        return names.get(scene_type, "未知")
 
     def _describe_brightness(self, brightness: float) -> str:
-        """
-        描述亮度特征
-        
-        Args:
-            brightness: 亮度值 (0.0-1.0)
-            
-        Returns:
-            中文描述
-        """
-        if brightness < 0.2:
+        """描述亮度"""
+        if brightness < 0.3:
             return "暗"
-        elif brightness < 0.4:
-            return "偏暗"
-        elif brightness < 0.6:
-            return "适中"
-        elif brightness < 0.8:
-            return "偏亮"
+        elif brightness > 0.7:
+            return "亮"
         else:
-            return "过亮"
+            return "适中"
 
     def _describe_motion(self, motion: float) -> str:
-        """
-        描述运动特征
-        
-        Args:
-            motion: 运动程度 (0.0-1.0)
-            
-        Returns:
-            中文描述
-        """
-        if motion < 0.1:
+        """描述运动程度"""
+        if motion < 0.2:
             return "静态"
-        elif motion < 0.3:
-            return "微动"
-        elif motion < 0.5:
-            return "适度"
-        elif motion < 0.7:
-            return "活跃"
-        else:
+        elif motion > 0.7:
             return "剧烈"
+        else:
+            return "适中"
 
 
-# =========== 便捷函数 ===========
-
-def analyze_video_with_importance(
-    video_path: str,
-    config: Optional[AnalysisConfig] = None,
-) -> List[SceneInfo]:
-    """
-    分析视频场景并计算重要性评分的便捷函数
-    
-    Args:
-        video_path: 视频文件路径
-        config: 分析配置
-        
-    Returns:
-        场景列表（包含 suitability_score）
-    """
-    analyzer = SceneAnalyzerV2(config)
-    return analyzer.analyze_with_importance(video_path)
+# =============================================================================
+# 向后兼容：SceneAnalyzer = SceneAnalyzerV2
+# =============================================================================
+# 注意：原有的 scene_analyzer.py 文件现在是一个兼容重导出。
+# 所有使用 from ..ai.scene_analyzer import SceneAnalyzer 的代码
+# 实际上获得的是 SceneAnalyzerV2（推荐使用的增强版）。
+SceneAnalyzer = SceneAnalyzerV2
 
 
-def extract_key_moments(
-    scenes: List[SceneInfo],
-    top_k: int = 5,
-) -> List[SceneInfo]:
-    """
-    从场景列表中提取关键时刻的便捷函数
-    
-    Args:
-        scenes: 场景列表
-        top_k: 返回数量
-        
-    Returns:
-        关键时刻列表
-    """
-    analyzer = SceneAnalyzerV2()
-    return analyzer.extract_key_moments(scenes, top_k)
+# =============================================================================
+# 便捷函数
+# =============================================================================
+def analyze_video(video_path: str, config: Optional[AnalysisConfig] = None) -> List[SceneInfo]:
+    """分析视频场景的便捷函数"""
+    analyzer = SceneAnalyzer(config)
+    return analyzer.analyze(video_path)
+
+
+def demo_analyze():
+    """演示场景分析"""
+    analyzer = SceneAnalyzer(AnalysisConfig(
+        scene_threshold=0.3,
+        min_scene_duration=0.5,
+        extract_keyframes=True,
+        use_pyscenect=True,
+    ))
+
+    print(f"PySceneDetect 可用: {analyzer._pyscenect_available}")
+
+    scenes = analyzer.analyze("input.mp4")
+
+    print(f"检测到 {len(scenes)} 个场景")
+    print("-" * 50)
+
+    for scene in scenes:
+        print(f"场景 {scene.index}")
+        print(f"  时间: {scene.start:.2f}s - {scene.end:.2f}s ({scene.duration:.2f}s)")
+        print(f"  类型: {scene.type.value}")
+        print(f"  亮度: {scene.avg_brightness:.2f}")
+        print(f"  运动: {scene.motion_level:.2f}")
+        print(f"  音量: {scene.audio_level:.2f}")
+        print(f"  评分: {scene.suitability_score:.1f}/100")
+        print()
+
+    best = analyzer.get_best_scenes(scenes, count=5)
+    print("\n最佳场景 (前5个):")
+    for scene in best:
+        print(f"  场景 {scene.index}: {scene.suitability_score:.1f}分")
 
 
 if __name__ == '__main__':
-    # 演示用法
-    import sys
-    
-    if len(sys.argv) > 1:
-        video_path = sys.argv[1]
-        
-        print("=" * 60)
-        print("SceneAnalyzerV2 演示")
-        print("=" * 60)
-        
-        analyzer = SceneAnalyzerV2()
-        
-        print("\n正在分析视频...")
-        scenes = analyzer.analyze_with_importance(video_path)
-        
-        print(f"\n检测到 {len(scenes)} 个场景")
-        print("-" * 60)
-        
-        for scene in scenes:
-            print(f"\n场景 {scene.index}")
-            print(f"  时间: {scene.start:.2f}s - {scene.end:.2f}s ({scene.duration:.2f}s)")
-            print(f"  类型: {scene.type.value}")
-            print(f"  亮度: {scene.avg_brightness:.2f}")
-            print(f"  运动: {scene.motion_level:.2f}")
-            print(f"  音频: {scene.audio_level:.2f}")
-            print(f"  评分: {scene.suitability_score:.1f}/100")
-            if hasattr(scene, 'narration_importance'):
-                print(f"  叙事重要性: {scene.narration_importance:.2f}")
-        
-        print("\n" + "=" * 60)
-        print("关键时刻 (Top 5)")
-        print("=" * 60)
-        
-        key_moments = analyzer.extract_key_moments(scenes, top_k=5)
-        for i, scene in enumerate(key_moments, 1):
-            print(f"\n{i}. 场景 {scene.index} ({scene.start:.1f}s - {scene.end:.1f}s)")
-            print(f"   类型: {scene.type.value}, 评分: {scene.suitability_score:.1f}")
-        
-        print("\n" + "=" * 60)
-        print("场景上下文提示")
-        print("=" * 60)
-        print(analyzer.generate_scene_context_prompt(scenes))
-        
-    else:
-        print("用法: python scene_analyzer_v2.py <video_path>")
+    demo_analyze()

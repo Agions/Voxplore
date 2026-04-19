@@ -5,8 +5,10 @@ frontend-design-pro 规范 · 2026-04-13
 """
 
 import platform
+import logging
 from PySide6.QtWidgets import QWidget, QGraphicsOpacityEffect
 from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QTimer, Qt, QSettings
+logger = logging.getLogger(__name__)
 
 
 class AnimationHelper:
@@ -41,8 +43,8 @@ class AnimationHelper:
                     style = app.style()
                     # QStyle.SH_ReducedAnimation = 44
                     reduced = style.styleHint(44) == 1
-            except Exception:
-                pass
+            except (RuntimeError, AttributeError, TypeError) as e:
+                logger.debug(f"macOS reduced motion detection failed: {e}")
 
         # Windows: 检查 EaseOfAccess 设置
         elif platform.system() == "Windows":
@@ -57,8 +59,8 @@ class AnimationHelper:
                 value, _ = winreg.QueryValueEx(key, "ShowAnimation")
                 reduced = value == 0
                 winreg.CloseKey(key)
-            except Exception:
-                pass
+            except (OSError, FileNotFoundError) as e:
+                logger.debug(f"Windows reduced motion detection failed: {e}")
 
         # Linux: 检查 GTK 和 Qt 减少动画设置
         elif platform.system() == "Linux":
@@ -68,8 +70,8 @@ class AnimationHelper:
                     QSettings.Format.NativeFormat
                 )
                 reduced = not gtk_settings.value("enable-animations", True, bool)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Linux GTK reduced motion detection failed: {e}")
             if not reduced:
                 try:
                     # KDE 设置
@@ -78,8 +80,8 @@ class AnimationHelper:
                         QSettings.Format.NativeFormat
                     )
                     reduced = kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Linux KDE reduced motion detection failed: {e}")
 
         cls._reduced_motion_cache = reduced
         return reduced

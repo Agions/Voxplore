@@ -16,6 +16,7 @@ from PySide6.QtGui import QFont, QCursor
 
 from .base_page import BasePage
 from app.ui.components.empty_state import MacEmptyStateV2
+from app.ui.components.design_system import Colors
 
 
 class TemplateCard(QFrame):
@@ -72,13 +73,13 @@ class TemplateCard(QFrame):
         # 标题
         title_label = QLabel(title)
         title_label.setFont(QFont("", 16, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #F0F6FC;")
+        title_label.setStyleSheet(f"color: {Colors.TextPrimary};")
         layout.addWidget(title_label)
 
         # 描述
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet("color: #8B949E; line-height: 1.4;")
+        desc_label.setStyleSheet(f"color: {Colors.TextSecondary}; line-height: 1.4;")
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
 
@@ -87,7 +88,7 @@ class TemplateCard(QFrame):
         # 底部提示
         hint_label = QLabel("点击开始 →")
         hint_label.setFont(QFont("", 11))
-        hint_label.setStyleSheet("color: #6E7681;")
+        hint_label.setStyleSheet(f"color: {Colors.TextMuted};")
         layout.addWidget(hint_label)
 
     def mousePressEvent(self, event):
@@ -132,13 +133,13 @@ class RecentProjectItem(QFrame):
         
         name_label = QLabel(name)
         name_label.setFont(QFont("", 14, QFont.Weight.Bold))
-        name_label.setStyleSheet("color: #F0F6FC;")
+        name_label.setStyleSheet(f"color: {Colors.TextPrimary};")
         info_layout.addWidget(name_label)
 
         # 路径显示（简化）
         from pathlib import Path
         path_label = QLabel(str(Path(path).parent.name))
-        path_label.setStyleSheet("color: #6E7681; font-size: 12px;")
+        path_label.setStyleSheet(f"color: {Colors.TextMuted}; font-size: 12px;")
         info_layout.addWidget(path_label)
 
         layout.addLayout(info_layout)
@@ -148,13 +149,13 @@ class RecentProjectItem(QFrame):
         if date:
             date_label = QLabel(date)
             date_label.setFont(QFont("", 12))
-            date_label.setStyleSheet("color: #8B949E;")
+            date_label.setStyleSheet(f"color: {Colors.TextSecondary};")
             layout.addWidget(date_label)
 
         # 箭头图标
         arrow = QLabel("→")
         arrow.setFont(QFont("", 16))
-        arrow.setStyleSheet("color: #6E7681;")
+        arrow.setStyleSheet(f"color: {Colors.TextMuted};")
         layout.addWidget(arrow)
 
     def mousePressEvent(self, event):
@@ -195,10 +196,9 @@ class HomePage(BasePage):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setStyleSheet("QScrollArea { border: none; background: #0D1117; }")
-
+        scroll.setStyleSheet(f"QScrollArea {{ border: none; background: {Colors.BgBase}; }}")
         content = QWidget()
-        content.setStyleSheet("background: #0D1117;")
+        content.setStyleSheet(f"background: {Colors.BgBase};")
         layout = QVBoxLayout(content)
         layout.setContentsMargins(48, 40, 48, 40)
         layout.setSpacing(0)
@@ -211,7 +211,7 @@ class HomePage(BasePage):
         # ── 模板网格 ──
         templates_label = QLabel("选择创作模板")
         templates_label.setFont(QFont("", 14, QFont.Weight.Bold))
-        templates_label.setStyleSheet("color: #8B949E; margin-bottom: 4px;")
+        templates_label.setStyleSheet(f"color: {Colors.TextSecondary}; margin-bottom: 4px;")
         layout.addWidget(templates_label)
         layout.addSpacing(16)
 
@@ -222,7 +222,7 @@ class HomePage(BasePage):
         # ── 分隔线 ──
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
-        line.setStyleSheet("color: #21262D;")
+        line.setStyleSheet(f"color: {Colors.BorderDefault};")
         layout.addWidget(line)
         layout.addSpacing(24)
 
@@ -254,14 +254,14 @@ class HomePage(BasePage):
         # 副标题
         subtitle = QLabel("AI 驱动的专业视频创作工具")
         subtitle.setFont(QFont("", 18))
-        subtitle.setStyleSheet("color: #8B949E;")
+        subtitle.setStyleSheet(f"color: {Colors.TextSecondary};")
         layout.addWidget(subtitle)
 
         # 分隔线
         layout.addSpacing(8)
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 transparent, stop:0.5 #21262D, stop:1 transparent); max-height: 1px;")
+        separator.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 transparent, stop:0.5 oklch(0.24 0.01 250), stop:1 transparent); max-height: 1px;")
         layout.addWidget(separator)
 
         return widget
@@ -290,25 +290,25 @@ class HomePage(BasePage):
         header_row = QHBoxLayout()
         label = QLabel("最近项目")
         label.setFont(QFont("", 16, QFont.Weight.Bold))
-        label.setStyleSheet("color: #F0F6FC;")
+        label.setStyleSheet(f"color: {Colors.TextPrimary};")
         header_row.addWidget(label)
         header_row.addStretch()
 
         # 查看全部按钮
         view_all_btn = QPushButton("查看全部 →")
-        view_all_btn.setStyleSheet("""
-            QPushButton {
+        view_all_btn.setStyleSheet(f"""
+            QPushButton {{
                 background: transparent;
-                color: #388BFD;
+                color: {Colors.Primary};
                 border: none;
                 font-size: 14px;
                 font-weight: 600;
                 padding: 4px 8px;
-            }
-            QPushButton:hover {
-                color: #58A6FF;
+            }}
+            QPushButton:hover {{
+                color: {Colors.PrimaryHover};
                 text-decoration: underline;
-            }
+            }}
         """)
         view_all_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         view_all_btn.clicked.connect(self._on_view_all_projects)

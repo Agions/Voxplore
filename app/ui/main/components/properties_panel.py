@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal
 
+from app.ui.components.design_system import Colors
+
 
 class PropertiesPanel(QWidget):
     """属性面板"""
@@ -34,13 +36,13 @@ class PropertiesPanel(QWidget):
 
         # 标题
         header = QLabel("⚙️ 属性")
-        header.setStyleSheet("""
-            QLabel {
-                color: #fff; font-size: 13px; font-weight: bold;
+        header.setStyleSheet(f"""
+            QLabel {{
+                color: {Colors.TextPrimary}; font-size: 13px; font-weight: bold;
                 padding: 10px 12px;
-                background-color: #2a2a2a;
-                border-bottom: 1px solid #444;
-            }
+                background-color: {Colors.BgElevated};
+                border-bottom: 1px solid {Colors.BorderDefault};
+            }}
         """)
         layout.addWidget(header)
 
@@ -48,7 +50,7 @@ class PropertiesPanel(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setStyleSheet("QScrollArea { background: #1e1e1e; border: none; }")
+        scroll.setStyleSheet(f"QScrollArea {{ background: {Colors.BgBase}; border: none; }}")
 
         content = QWidget()
         self._form_layout = QVBoxLayout(content)
@@ -117,7 +119,7 @@ class PropertiesPanel(QWidget):
         self._subtitle_text = QTextEdit()
         self._subtitle_text.setMaximumHeight(80)
         self._subtitle_text.setPlaceholderText("字幕内容...")
-        self._subtitle_text.setStyleSheet("QTextEdit { background: #2a2a2a; color: #ddd; border: 1px solid #444; border-radius: 4px; padding: 4px; }")
+        self._subtitle_text.setStyleSheet(f"QTextEdit {{ background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault}; border-radius: 4px; padding: 4px; }}")
 
         sub_style_form = QFormLayout()
         self._font_size_spin = QDoubleSpinBox()
@@ -160,21 +162,21 @@ class PropertiesPanel(QWidget):
 
     def _create_group(self, title: str) -> QGroupBox:
         group = QGroupBox(title)
-        group.setStyleSheet("""
-            QGroupBox {
-                color: #ccc; font-size: 12px; font-weight: bold;
-                border: 1px solid #333; border-radius: 6px;
+        group.setStyleSheet(f"""
+            QGroupBox {{
+                color: {Colors.TextSecondary}; font-size: 12px; font-weight: bold;
+                border: 1px solid {Colors.BorderDefault}; border-radius: 6px;
                 margin-top: 8px; padding-top: 16px;
-            }
-            QGroupBox::title {
+            }}
+            QGroupBox::title {{
                 subcontrol-origin: margin;
                 left: 8px; padding: 0 4px;
-            }
-            QLabel { color: #aaa; font-size: 11px; }
-            QDoubleSpinBox, QComboBox, QLineEdit {
-                background: #2a2a2a; color: #ddd; border: 1px solid #444;
+            }}
+            QLabel {{ color: {Colors.TextMuted}; font-size: 11px; }}
+            QDoubleSpinBox, QComboBox, QLineEdit {{
+                background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault};
                 border-radius: 3px; padding: 2px 4px;
-            }
+            }}
         """)
         group.setLayout(QVBoxLayout())
         return group
@@ -228,32 +230,32 @@ class PropertiesPanel(QWidget):
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
         if is_dark:
-            self.setStyleSheet("""
-                QScrollArea {
-                    background-color: #1a1a1a;
+            self.setStyleSheet(f"""
+                QScrollArea {{
+                    background-color: {Colors.BgBase};
                     border: none;
-                }
-                QLabel {
-                    color: #ffffff;
-                }
-                QLineEdit, QSpinBox, QComboBox {
-                    background-color: #2d2d2d;
-                    color: #ffffff;
-                    border: 1px solid #3a3a3a;
-                }
+                }}
+                QLabel {{
+                    color: {Colors.TextPrimary};
+                }}
+                QLineEdit, QSpinBox, QComboBox {{
+                    background-color: {Colors.BgElevated};
+                    color: {Colors.TextPrimary};
+                    border: 1px solid {Colors.BorderDefault};
+                }}
             """)
         else:
-            self.setStyleSheet("""
-                QScrollArea {
-                    background-color: #f5f5f5;
+            self.setStyleSheet(f"""
+                QScrollArea {{
+                    background-color: {Colors.BgSurface};
                     border: none;
-                }
-                QLabel {
-                    color: #000000;
-                }
-                QLineEdit, QSpinBox, QComboBox {
-                    background-color: #ffffff;
-                    color: #000000;
-                    border: 1px solid #d0d0d0;
-                }
+                }}
+                QLabel {{
+                    color: {Colors.TextPrimary};
+                }}
+                QLineEdit, QSpinBox, QComboBox {{
+                    background-color: {Colors.BgSurface};
+                    color: {Colors.TextPrimary};
+                    border: 1px solid {Colors.BorderDefault};
+                }}
             """)

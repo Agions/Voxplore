@@ -13,6 +13,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QCursor
 
 from ..pro_components import GradientButton
+from ..design_system import Colors
 
 
 class QuickActionCard(QFrame):
@@ -27,18 +28,18 @@ class QuickActionCard(QFrame):
         self._setup_ui(icon, title, description)
         
     def _setup_ui(self, icon: str, title: str, description: str):
-        self.setStyleSheet("""
-            QFrame {
-                background: linear-gradient(145deg, #1A1A24 0%, #16161F 100%);
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: linear-gradient(145deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 18px;
                 padding: 20px;
-            }
-            QFrame:hover {
-                border-color: rgba(124, 58, 237, 0.4);
+            }}
+            QFrame:hover {{
+                border-color: {Colors.Accent} / 0.4;
                 transform: translateY(-4px);
                 box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-            }
+            }}
         """)
         
         layout = QVBoxLayout(self)
@@ -57,7 +58,7 @@ class QuickActionCard(QFrame):
         
         arrow = QLabel("→")
         arrow.setFont(QFont("", 18))
-        arrow.setStyleSheet("color: #6B7280; background: transparent;")
+        arrow.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         header.addWidget(arrow)
         
         layout.addLayout(header)
@@ -65,13 +66,13 @@ class QuickActionCard(QFrame):
         # 标题
         title_label = QLabel(title)
         title_label.setFont(QFont("", 16, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #FFFFFF; background: transparent;")
+        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         layout.addWidget(title_label)
         
         # 描述
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet("color: #9CA3AF; background: transparent;")
+        desc_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
         
@@ -94,17 +95,17 @@ class ProjectPreviewCard(QFrame):
         self._setup_ui()
         
     def _setup_ui(self):
-        self.setStyleSheet("""
-            QFrame {
-                background: linear-gradient(180deg, #1A1A28 0%, #12121C 100%);
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: linear-gradient(180deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 20px;
                 overflow: hidden;
-            }
-            QFrame:hover {
-                border-color: rgba(124, 58, 237, 0.3);
+            }}
+            QFrame:hover {{
+                border-color: {Colors.Accent} / 0.3;
                 transform: translateY(-4px) scale(1.02);
-            }
+            }}
         """)
         
         layout = QVBoxLayout(self)
@@ -114,10 +115,10 @@ class ProjectPreviewCard(QFrame):
         # 缩略图区域
         thumbnail = QFrame()
         thumbnail.setFixedHeight(140)
-        thumbnail.setStyleSheet("""
+        thumbnail.setStyleSheet(f"""
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #1E1E2E,
-                stop:1 #2A2A3E);
+                stop:0 {Colors.BgElevated},
+                stop:1 {Colors.BgSurface});
         """)
         
         # 视频时长标签
@@ -145,7 +146,7 @@ class ProjectPreviewCard(QFrame):
         name = self._project_data.get("name", "未命名项目")
         name_label = QLabel(name)
         name_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
-        name_label.setStyleSheet("color: #FFFFFF; background: transparent;")
+        name_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         info_layout.addWidget(name_label)
         
         # 时间和状态
@@ -153,14 +154,14 @@ class ProjectPreviewCard(QFrame):
         
         time_label = QLabel("2小时前")
         time_label.setFont(QFont("", 11))
-        time_label.setStyleSheet("color: #6B7280; background: transparent;")
+        time_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         meta.addWidget(time_label)
         
         meta.addStretch()
         
         status = QLabel("✓ 已完成")
         status.setFont(QFont("", 11))
-        status.setStyleSheet("color: #10B981; background: transparent;")
+        status.setStyleSheet(f"color: {Colors.Success}; background: transparent;")
         meta.addWidget(status)
         
         info_layout.addLayout(meta)
@@ -209,7 +210,7 @@ class FeatureShowcase(QFrame):
         
         title_label = QLabel(title)
         title_label.setFont(QFont("", 20, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #FFFFFF; background: transparent;")
+        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         header.addWidget(title_label)
         
         header.addStretch()
@@ -223,12 +224,12 @@ class FeatureShowcase(QFrame):
             
             check = QLabel("✓")
             check.setFont(QFont("", 14))
-            check.setStyleSheet("color: #10B981; background: transparent;")
+            check.setStyleSheet(f"color: {Colors.Success}; background: transparent;")
             feature_item.addWidget(check)
             
             feature_label = QLabel(feature)
             feature_label.setFont(QFont("", 13))
-            feature_label.setStyleSheet("color: #D1D5DB; background: transparent;")
+            feature_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
             feature_item.addWidget(feature_label)
             
             feature_item.addStretch()
@@ -246,15 +247,15 @@ class AIPowerBadge(QFrame):
         self._setup_ui(title, description)
         
     def _setup_ui(self, title: str, description: str):
-        self.setStyleSheet("""
-            QFrame {
+        self.setStyleSheet(f"""
+            QFrame {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 rgba(124, 58, 237, 0.15),
                     stop:1 rgba(6, 182, 212, 0.15));
-                border: 1px solid rgba(124, 58, 237, 0.3);
+                border: 1px solid {Colors.AccentSubtle};
                 border-radius: 12px;
                 padding: 16px;
-            }
+            }}
         """)
         
         layout = QVBoxLayout(self)
@@ -262,12 +263,12 @@ class AIPowerBadge(QFrame):
         
         title_label = QLabel(f"⚡ {title}")
         title_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
-        title_label.setStyleSheet("color: #A78BFA; background: transparent;")
+        title_label.setStyleSheet(f"color: {Colors.AccentSubtle}; background: transparent;")
         layout.addWidget(title_label)
         
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet("color: #9CA3AF; background: transparent;")
+        desc_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
         layout.addWidget(desc_label)
 
 
@@ -288,7 +289,7 @@ class WelcomeHeader(QWidget):
         # 欢迎文字
         welcome = QLabel(f"欢迎回来{', ' + user_name if user_name else ''} 👋")
         welcome.setFont(QFont("", 14))
-        welcome.setStyleSheet("color: #9CA3AF; background: transparent;")
+        welcome.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
         layout.addWidget(welcome)
         
         # 主标题
@@ -306,7 +307,7 @@ class WelcomeHeader(QWidget):
         # 副标题
         subtitle = QLabel("AI 驱动的专业视频创作平台")
         subtitle.setFont(QFont("", 18))
-        subtitle.setStyleSheet("color: #D1D5DB; background: transparent;")
+        subtitle.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
         layout.addWidget(subtitle)
         
         # 快捷操作
@@ -319,19 +320,19 @@ class WelcomeHeader(QWidget):
         
         import_btn = QPushButton("📂 导入素材")
         import_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        import_btn.setStyleSheet("""
-            QPushButton {
+        import_btn.setStyleSheet(f"""
+            QPushButton {{
                 background: rgba(255, 255, 255, 0.05);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 14px;
                 padding: 14px 28px;
-                color: #D1D5DB;
+                color: {Colors.TextSecondary};
                 font-size: 14px;
-            }
-            QPushButton:hover {
+            }}
+            QPushButton:hover {{
                 background: rgba(255, 255, 255, 0.1);
                 border-color: rgba(255, 255, 255, 0.2);
-            }
+            }}
         """)
         actions.addWidget(import_btn)
         
@@ -372,17 +373,17 @@ class StatsRow(QWidget):
     def _create_stat_card(self, icon: str, value: str, label: str) -> QFrame:
         card = QFrame()
         card.setFixedSize(180, 100)
-        card.setStyleSheet("""
-            QFrame {
-                background: linear-gradient(145deg, #1A1A24 0%, #16161F 100%);
+        card.setStyleSheet(f"""
+            QFrame {{
+                background: linear-gradient(145deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 16px;
                 padding: 16px;
-            }
-            QFrame:hover {
-                border-color: rgba(124, 58, 237, 0.3);
+            }}
+            QFrame:hover {{
+                border-color: {Colors.Accent} / 0.3;
                 transform: translateY(-2px);
-            }
+            }}
         """)
         
         layout = QVBoxLayout(card)
@@ -395,12 +396,12 @@ class StatsRow(QWidget):
         
         value_label = QLabel(value)
         value_label.setFont(QFont("", 28, QFont.Weight.Bold))
-        value_label.setStyleSheet("color: #FFFFFF; background: transparent;")
+        value_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         layout.addWidget(value_label)
         
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", 12))
-        label_widget.setStyleSheet("color: #6B7280; background: transparent;")
+        label_widget.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         layout.addWidget(label_widget)
         
         return card

@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QRect
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
 
+from app.ui.components.design_system import Colors
+
 
 class TimelineClip:
     """时间线上的片段"""
@@ -52,7 +54,7 @@ class TimelineTrackWidget(QFrame):
         self.setFixedHeight(48)
         self.setMinimumWidth(600)
         self.setMouseTracking(True)
-        self.setStyleSheet("background-color: #1e1e1e; border: none; border-bottom: 1px solid #333;")
+        self.setStyleSheet(f"background-color: {Colors.BgSurface}; border: none; border-bottom: 1px solid {Colors.BorderDefault};")
 
     def set_duration(self, duration: float):
         self.total_duration = max(duration, 1)
@@ -83,7 +85,7 @@ class TimelineTrackWidget(QFrame):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         # 轨道标签
-        painter.setPen(QColor("#999"))
+        painter.setPen(QColor(Colors.TextSecondary))
         painter.setFont(QFont("Arial", 10))
         painter.drawText(QRect(4, 0, 72, self.height()), Qt.AlignmentFlag.AlignVCenter, self.track_label)
 
@@ -105,7 +107,7 @@ class TimelineTrackWidget(QFrame):
 
             # 片段标签
             if w > 40:
-                painter.setPen(QColor("#fff"))
+                painter.setPen(QColor(Colors.TextPrimary))
                 painter.setFont(QFont("Arial", 8))
                 text_rect = QRect(x1 + 4, y, w - 8, h)
                 painter.drawText(text_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
@@ -154,7 +156,7 @@ class TimelineRuler(QWidget):
         self.setFixedHeight(24)
         self.total_duration = 60.0
         self.pixels_per_second = 10.0
-        self.setStyleSheet("background-color: #252525;")
+        self.setStyleSheet(f"background-color: {Colors.BgOverlay};")
 
     def set_params(self, duration: float, pps: float):
         self.total_duration = duration
@@ -164,7 +166,7 @@ class TimelineRuler(QWidget):
 
     def paintEvent(self, event: QPaintEvent):
         painter = QPainter(self)
-        painter.setPen(QColor("#666"))
+        painter.setPen(QColor(Colors.TextMuted))
         painter.setFont(QFont("Arial", 8))
 
         # 计算刻度间隔
@@ -226,7 +228,7 @@ class Timeline(QWidget):
         self.fit_btn.clicked.connect(self._fit_to_view)
 
         self.time_label = QLabel("00:00 / 00:00")
-        self.time_label.setStyleSheet("color: #999; font-size: 11px;")
+        self.time_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
 
         toolbar.addWidget(self.zoom_out_btn)
         toolbar.addWidget(self.zoom_in_btn)
@@ -236,7 +238,7 @@ class Timeline(QWidget):
 
         toolbar_widget = QWidget()
         toolbar_widget.setLayout(toolbar)
-        toolbar_widget.setStyleSheet("background-color: #2a2a2a; border-bottom: 1px solid #444;")
+        toolbar_widget.setStyleSheet(f"background-color: {Colors.BgElevated}; border-bottom: 1px solid {Colors.BorderStrong};")
         layout.addWidget(toolbar_widget)
 
         # 滚动区域
@@ -244,7 +246,7 @@ class Timeline(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        scroll.setStyleSheet("background-color: #1a1a1a; border: none;")
+        scroll.setStyleSheet(f"background-color: {Colors.BgBase}; border: none;")
 
         self._track_container = QWidget()
         self._track_layout = QVBoxLayout(self._track_container)
@@ -256,9 +258,9 @@ class Timeline(QWidget):
         self._track_layout.addWidget(self._ruler)
 
         # 默认三轨道
-        self._add_track("video", "🎬 视频", "#667eea")
-        self._add_track("audio", "🔊 音频", "#43e97b")
-        self._add_track("subtitle", "💬 字幕", "#fa709a")
+        self._add_track("video", "🎬 视频", Colors.Primary)
+        self._add_track("audio", "🔊 音频", Colors.Success)
+        self._add_track("subtitle", "💬 字幕", Colors.Accent)
 
         self._track_layout.addStretch()
         scroll.setWidget(self._track_container)
@@ -308,7 +310,7 @@ class Timeline(QWidget):
                 video_track.add_clip(TimelineClip(
                     clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
                     label=clip_data.get("source", "").split("/")[-1][:15] if clip_data.get("source") else "",
-                    color="#667eea", track_type="video",
+                    color=Colors.Primary, track_type="video",
                 ))
 
         # 音频轨
@@ -317,7 +319,7 @@ class Timeline(QWidget):
             if audio_track:
                 audio_track.add_clip(TimelineClip(
                     clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
-                    label="🔊", color="#43e97b", track_type="audio",
+                    label="🔊", color=Colors.Success, track_type="audio",
                 ))
 
         # 字幕轨
@@ -326,7 +328,7 @@ class Timeline(QWidget):
             if sub_track:
                 sub_track.add_clip(TimelineClip(
                     clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
-                    label=clip_data.get("text", "")[:12], color="#fa709a", track_type="subtitle",
+                    label=clip_data.get("text", "")[:12], color=Colors.Accent, track_type="subtitle",
                 ))
 
     def set_playback_position(self, position_ms: int):
@@ -341,5 +343,5 @@ class Timeline(QWidget):
             t.clear_clips()
 
     def update_theme(self, is_dark: bool = True):
-        bg = "#1a1a1a" if is_dark else "#f0f0f0"
+        bg = Colors.BgBase if is_dark else Colors.BgSurface
         self.setStyleSheet(f"background-color: {bg};")

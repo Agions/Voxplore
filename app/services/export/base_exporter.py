@@ -33,8 +33,7 @@ def microseconds_to_seconds(us: int) -> float:
 
 def seconds_to_ticks(seconds: float, fps: float = 30.0) -> int:
     """秒转 ticks（Premiere/Final Cut 使用）"""
-    ticks_per_second = 254016000000  # Premiere tick rate
-    return int(seconds * ticks_per_second)
+    return int(seconds * TimeHelper.TICKS_PER_SECOND)
 
 
 def safe_filename(name: str) -> str:

@@ -9,6 +9,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 
+from app.ui.components.design_system import Colors
+
 
 class MacScrollArea(QScrollArea):
     """滚动区域"""
@@ -113,7 +115,7 @@ class MacEmptyState(QWidget):
 
         self.title = QLabel(title, self)
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.title.setStyleSheet("font-size: 18px; font-weight: bold; color: #FFFFFF;")
+        self.title.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TextPrimary};")
 
         layout.addWidget(self.icon)
         layout.addWidget(self.title)
@@ -121,5 +123,5 @@ class MacEmptyState(QWidget):
         if description:
             self.description = QLabel(description, self)
             self.description.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.description.setStyleSheet("font-size: 14px; color: #CCCCCC;")
+            self.description.setStyleSheet(f"font-size: 14px; color: {Colors.TextSecondary};")
             layout.addWidget(self.description)

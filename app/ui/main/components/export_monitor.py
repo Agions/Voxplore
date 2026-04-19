@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, QTimer, Signal, QRect
 from PySide6.QtGui import QFont, QColor, QPainter, QPen, QPoint
 
+from app.ui.components.design_system import Colors
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger
 
@@ -84,7 +85,7 @@ class ExportProgressWidget(QWidget):
         # 错误信息
         if self.task.status == ExportStatus.FAILED and self.task.error_message:
             error_label = QLabel(f"错误: {self.task.error_message}")
-            error_label.setStyleSheet("color: red; background-color: #ffeeee; "
+            error_label.setStyleSheet(f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
                                    "padding: 5px; border-radius: 3px;")
             error_label.setWordWrap(True)
             layout.addWidget(error_label)
@@ -141,14 +142,14 @@ class ExportProgressWidget(QWidget):
     def _get_status_color(self) -> str:
         """获取状态颜色"""
         colors = {
-            ExportStatus.PENDING: "#6c757d",
-            ExportStatus.QUEUED: "#ffc107",
-            ExportStatus.PROCESSING: "#007bff",
-            ExportStatus.COMPLETED: "#28a745",
-            ExportStatus.FAILED: "#dc3545",
-            ExportStatus.CANCELLED: "#6c757d"
+            ExportStatus.PENDING: Colors.TextMuted,
+            ExportStatus.QUEUED: Colors.Warning,
+            ExportStatus.PROCESSING: Colors.Primary,
+            ExportStatus.COMPLETED: Colors.Success,
+            ExportStatus.FAILED: Colors.Error,
+            ExportStatus.CANCELLED: Colors.TextMuted
         }
-        return colors.get(self.task.status, "#6c757d")
+        return colors.get(self.task.status, Colors.TextMuted)
 
     def _format_time(self, timestamp: Optional[float]) -> str:
         """格式化时间"""
@@ -205,19 +206,19 @@ class ExportStatisticsWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         # 总任务数
-        self.total_widget = self.create_stat_widget("总任务数", "0", "#6c757d")
+        self.total_widget = self.create_stat_widget("总任务数", "0", Colors.TextMuted)
         layout.addWidget(self.total_widget)
 
         # 处理中
-        self.processing_widget = self.create_stat_widget("处理中", "0", "#007bff")
+        self.processing_widget = self.create_stat_widget("处理中", "0", Colors.Primary)
         layout.addWidget(self.processing_widget)
 
         # 已完成
-        self.completed_widget = self.create_stat_widget("已完成", "0", "#28a745")
+        self.completed_widget = self.create_stat_widget("已完成", "0", Colors.Success)
         layout.addWidget(self.completed_widget)
 
         # 失败
-        self.failed_widget = self.create_stat_widget("失败", "0", "#dc3545")
+        self.failed_widget = self.create_stat_widget("失败", "0", Colors.Error)
         layout.addWidget(self.failed_widget)
 
     def create_stat_widget(self, title: str, value: str, color: str) -> QWidget:
@@ -238,7 +239,7 @@ class ExportStatisticsWidget(QWidget):
         # 标题
         title_label = QLabel(title)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #6c757d; font-size: 12px;")
+        title_label.setStyleSheet(f"color: {Colors.TextMuted}; font-size: 12px;")
 
         layout.addWidget(value_label)
         layout.addWidget(title_label)
@@ -493,42 +494,42 @@ class ExportMonitorWidget(QWidget):
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
         if is_dark:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #3a3a3a;
+            self.setStyleSheet(f"""
+                QGroupBox {{
+                    border: 1px solid {Colors.BorderDefault};
                     border-radius: 4px;
                     margin-top: 8px;
                     padding-top: 8px;
-                    color: #ffffff;
-                }
-                QProgressBar {
-                    border: 1px solid #3a3a3a;
+                    color: {Colors.TextPrimary};
+                }}
+                QProgressBar {{
+                    border: 1px solid {Colors.BorderDefault};
                     border-radius: 4px;
                     text-align: center;
-                    background-color: #2d2d2d;
-                }
-                QProgressBar::chunk {
-                    background-color: #2962FF;
-                }
+                    background-color: {Colors.BgElevated};
+                }}
+                QProgressBar::chunk {{
+                    background-color: {Colors.Primary};
+                }}
             """)
         else:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #d0d0d0;
+            self.setStyleSheet(f"""
+                QGroupBox {{
+                    border: 1px solid {Colors.BorderDefault};
                     border-radius: 4px;
                     margin-top: 8px;
                     padding-top: 8px;
-                    color: #000000;
-                }
-                QProgressBar {
-                    border: 1px solid #d0d0d0;
+                    color: {Colors.TextPrimary};
+                }}
+                QProgressBar {{
+                    border: 1px solid {Colors.BorderDefault};
                     border-radius: 4px;
                     text-align: center;
-                    background-color: #f5f5f5;
-                }
-                QProgressBar::chunk {
-                    background-color: #2196F3;
-                }
+                    background-color: {Colors.BgSurface};
+                }}
+                QProgressBar::chunk {{
+                    background-color: {Colors.Primary};
+                }}
             """)
 
 

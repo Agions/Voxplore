@@ -193,13 +193,30 @@ class SenseVoiceProvider:
             return self._extract_emotions_librosa(audio_path, segment_duration)
 
         # SenseVoice 完整实现
-        try:
-            # result = self._model.predict(audio_path, task="emotion", language="auto")
-            # return self._parse_emotion_result(result)
-            return []
-        except Exception as e:
-            logger.error(f"情感提取失败，回退到 librosa: {e}")
-            return self._extract_emotions_librosa(audio_path, segment_duration)
+        # 注意: SenseVoice 官方 API 不直接支持 emotion 任务,
+        # 需要使用 FunAudioLLM/SenseVoice 模型特定的推理接口。
+        # 当前回退到 librosa 声学特征分析。
+        raise NotImplementedError(
+            "SenseVoice 情感分析需要模型特定推理接口。"
+            "请使用 extract_emotions_librosa() 获取基于 librosa 声学特征的分析结果。"
+        )
+
+    def extract_emotions_librosa(
+        self,
+        audio_path: str,
+        segment_duration: float = 3.0
+    ) -> List[EmotionSegment]:
+        """
+        基于 librosa 声学特征的轻量情感分析（公开方法）。
+
+        Args:
+            audio_path: 音频文件路径
+            segment_duration: 分析片段长度（秒）
+
+        Returns:
+            情感片段列表
+        """
+        return self._extract_emotions_librosa(audio_path, segment_duration)
 
     def _extract_emotions_librosa(
         self,
@@ -308,13 +325,30 @@ class SenseVoiceProvider:
         if self._use_librosa_fallback:
             return self._diarize_librosa(audio_path, num_speakers)
 
-        try:
-            # result = self._model.predict(audio_path, task="diarization", language="auto")
-            # return self._parse_diarization_result(result)
-            return []
-        except Exception as e:
-            logger.error(f"说话人分离失败，回退到 librosa: {e}")
-            return self._diarize_librosa(audio_path, num_speakers)
+        # SenseVoice 说话人分离实现
+        # 注意: 需要使用 FunAudioLLM/SenseVoice 模型特定的推理接口。
+        # 当前回退到 librosa MFCC 聚类方案。
+        raise NotImplementedError(
+            "SenseVoice 说话人分离需要模型特定推理接口。"
+            "请使用 diarize_librosa() 获取基于 librosa MFCC 聚类的分析结果。"
+        )
+
+    def diarize_librosa(
+        self,
+        audio_path: str,
+        num_speakers: Optional[int] = None
+    ) -> List[SpeakerSegment]:
+        """
+        基于 librosa MFCC 特征的轻量说话人分离（公开方法）。
+
+        Args:
+            audio_path: 音频文件路径
+            num_speakers: 预期说话人数量（None 为自动检测）
+
+        Returns:
+            说话人片段列表
+        """
+        return self._diarize_librosa(audio_path, num_speakers)
 
     def _diarize_librosa(
         self,

@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
+from ....core.exceptions import ExportError, ProjectError
 
 logger = logging.getLogger(__name__)
 
@@ -265,7 +266,7 @@ class BatchExportManager:
             success = manager.export(project_data, config)
 
             if task.id in self._cancelled:
-                raise Exception("任务已取消")
+                raise ExportError("任务已取消")
 
             if success:
                 task.progress = 100.0
@@ -273,7 +274,10 @@ class BatchExportManager:
                 logger.info(f"导出完成: {task.name}")
                 return True, None
             else:
-                raise RuntimeError("ExportManager returned False")
+                raise ExportError(
+                    "导出失败",
+                    details={"reason": "ExportManager returned False"}
+                )
 
         except Exception as e:
             task.error = str(e)

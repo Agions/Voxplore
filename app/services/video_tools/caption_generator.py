@@ -9,10 +9,13 @@ Caption Generator - 动态字幕生成器
 - 支持多种字幕样式预设
 """
 
+import logging
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class CaptionStyle(Enum):
@@ -428,8 +431,8 @@ if __name__ == '__main__':
         start_time=0.0
     )
     
-    print(f"字幕文本: {caption.text}")
-    print(f"关键词数量: {sum(1 for w in caption.words if w.is_keyword)}")
+    logger.info(f"字幕文本: {caption.text}")
+    logger.info(f"关键词数量: {sum(1 for w in caption.words if w.is_keyword)}")
     
     # 示例2：导出字幕
     # generator.to_srt_format([caption], 'output.srt')

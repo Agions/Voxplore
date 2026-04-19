@@ -13,9 +13,13 @@ frontend-design-pro 规范 · 2026-04-10
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QPushButton, QLabel, QLineEdit, QProgressBar, QFrame
+    QWidget, QPushButton, QLabel, QLineEdit, QProgressBar, QFrame,
+    QHBoxLayout, QVBoxLayout
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QGraphicsOpacityEffect
+
+from app.ui.theme.animation_helper import AnimationHelper
 
 
 # ─── OKLCH 色彩系统 ────────────────────────────────────────
@@ -446,3 +450,158 @@ class CFNavButton(CFButton):
     def set_selected(self, selected: bool):
         self.selected = selected
         self._update_style()
+
+
+# ─── Toast 通知 ────────────────────────────────────────────
+class CFToastNotification(QFrame):
+    """
+    Voxplore Toast 通知组件
+
+    用法：
+        toast = CFToastNotification("操作成功", type="success")
+        toast.show()
+
+        # 自动消失（默认 3 秒）
+        toast = CFToastNotification("文件已保存", type="info", duration=5000)
+
+        # 带操作按钮
+        toast = CFToastNotification("确定要删除吗？", type="warning")
+        toast.add_action("撤销", lambda: print("撤销"))
+
+    类型：success / warning / error / info
+    """
+
+    _active_toasts = []  # 追踪所有活跃的 toast
+
+    def __init__(
+        self,
+        message: str,
+        type: str = "info",
+        duration: int = 3000,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self.message = message
+        self.type = type
+        self.duration = duration
+
+        self._setup_ui()
+        self._apply_style()
+        CFToastNotification._active_toasts.append(self)
+
+    def _setup_ui(self):
+        """构建 UI 结构"""
+        self._is_animating = False
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setFixedWidth(360)
+        self.setFixedHeight(56)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
+        layout.setSpacing(12)
+
+        # 图标
+        self.icon_label = QLabel()
+        self.icon_label.setFixedSize(24, 24)
+        layout.addWidget(self.icon_label)
+
+        # 消息
+        self.message_label = QLabel(self.message)
+        self.message_label.setWordWrap(True)
+        self.message_label.setStyleSheet("background: transparent; border: none;")
+        layout.addWidget(self.message_label, 1)
+
+        # 关闭按钮
+        self.close_btn = QPushButton("✕")
+        self.close_btn.setFixedSize(24, 24)
+        self.close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.close_btn.clicked.connect(self.hide)
+        layout.addWidget(self.close_btn)
+
+    def _apply_style(self):
+        """应用样式"""
+        colors = {
+            "success": (Colors.Success, Colors.SuccessSubtle, "✓"),
+            "warning": (Colors.Warning, Colors.WarningSubtle, "⚠"),
+            "error": (Colors.Error, Colors.ErrorSubtle, "✕"),
+            "info": (Colors.Info, Colors.Info, "ℹ"),
+        }
+        fg_color, bg_subtle, icon = colors.get(self.type, colors["info"])
+
+        self.icon_label.setText(f"<span style='color:{fg_color}; font-size:16px;'>{icon}</span>")
+        self.message_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; font-size: 14px; background: transparent; border: none;"
+        )
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: {Colors.BgElevated};
+                border: 1px solid {Colors.BorderDefault};
+                border-left: 3px solid {fg_color};
+                border-radius: 8px;
+            }}
+            QPushButton {{
+                background: transparent;
+                border: none;
+                color: {Colors.TextMuted};
+                font-size: 12px;
+            }}
+            QPushButton:hover {{
+                color: {Colors.TextPrimary};
+            }}
+        """)
+
+    def add_action(self, text: str, callback):
+        """添加操作按钮"""
+        btn = QPushButton(text)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn.clicked.connect(callback)
+        btn.clicked.connect(self.hide)
+        btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {Colors.Primary} / 0.15;
+                border: none;
+                border-radius: 4px;
+                color: {Colors.Primary};
+                padding: 6px 12px;
+                font-size: 13px;
+                font-weight: 600;
+            }}
+            QPushButton:hover {{
+                background: {Colors.Primary} / 0.25;
+            }}
+        """)
+        self.layout().addWidget(btn)
+
+    def show(self):
+        """显示通知并自动隐藏"""
+        # 初始化透明效果
+        opacity = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(opacity)
+        opacity.setOpacity(0)
+        self.show()
+
+        # 动画显示
+        AnimationHelper.fade_in(self, duration=200)
+
+        # 自动隐藏
+        if self.duration > 0:
+            QTimer.singleShot(self.duration, self.hide)
+
+    def hide(self):
+        """隐藏通知"""
+        if self._is_animating:
+            return
+        self._is_animating = True
+
+        def _on_complete():
+            super().hide()
+            if self in CFToastNotification._active_toasts:
+                CFToastNotification._active_toasts.remove(self)
+            self._is_animating = False
+
+        self._is_animating = False
+        AnimationHelper.fade_out(self, duration=200, hide_on_complete=False)
+
+        # 延迟关闭
+        QTimer.singleShot(200, _on_complete)

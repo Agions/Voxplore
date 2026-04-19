@@ -24,6 +24,7 @@ AI 第一人称独白制作器 (Monologue Maker)
     draft_path = maker.export_to_jianying(project, "/path/to/drafts")
 """
 
+import logging
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -31,6 +32,8 @@ from pathlib import Path
 from typing import Optional, List, Dict
 from dataclasses import dataclass, field
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 from .base_maker import BaseVideoMaker, BaseProject
 from .models.monologue_models import MonologueStyle, EmotionType, MonologueSegment
@@ -598,17 +601,17 @@ def create_monologue(
 
 def demo_monologue():
     """演示独白视频制作"""
-    print("=" * 50)
-    print("AI 第一人称独白制作演示")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("AI 第一人称独白制作演示")
+    logger.info("=" * 50)
     
     maker = MonologueMaker(voice_provider="edge")
     
     test_video = "test_video.mp4"
     
     if not Path(test_video).exists():
-        print(f"测试视频不存在: {test_video}")
-        print("请准备测试视频后再运行")
+        logger.info(f"测试视频不存在: {test_video}")
+        logger.info("请准备测试视频后再运行")
         return
     
     # 创建项目
@@ -619,8 +622,8 @@ def demo_monologue():
         style=MonologueStyle.MELANCHOLIC,
     )
     
-    print(f"\n项目创建成功: {project.name}")
-    print(f"视频时长: {project.video_duration:.2f}秒")
+    logger.info(f"项目创建成功: {project.name}")
+    logger.info(f"视频时长: {project.video_duration:.2f}秒")
     
     # 自定义独白
     custom_script = """
@@ -637,20 +640,20 @@ def demo_monologue():
     """
     
     maker.generate_script(project, custom_script=custom_script)
-    print(f"\n独白已生成，共 {len(project.segments)} 个片段")
+    logger.info(f"独白已生成，共 {len(project.segments)} 个片段")
     
     maker.generate_voice(project)
-    print(f"配音已生成，总时长: {project.total_duration:.2f}秒")
+    logger.info(f"配音已生成，总时长: {project.total_duration:.2f}秒")
     
     maker.generate_captions(project, style="cinematic")
-    print("字幕已生成 (电影级风格)")
+    logger.info("字幕已生成 (电影级风格)")
     
     # 导出
     output_dir = "./output/jianying_drafts"
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     draft_path = maker.export_to_jianying(project, output_dir)
-    print(f"\n✅ 剪映草稿已导出: {draft_path}")
+    logger.info(f"剪映草稿已导出: {draft_path}")
 
 
 if __name__ == '__main__':

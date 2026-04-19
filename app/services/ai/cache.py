@@ -9,6 +9,7 @@ Voxplore LLM 缓存和重试机制
 import hashlib
 import json
 import time
+from pathlib import Path
 from typing import Optional, Dict, Any, Callable
 from functools import wraps
 
@@ -113,6 +114,150 @@ class LLMMemoryCache:
             "size": len(self.cache),
             "max_size": self.max_size,
             "ttl": self.ttl
+        }
+
+
+class LLMDiskCache:
+    """
+    LLM 响应磁盘持久化缓存
+
+    重启后缓存不丢失，适合 LLM 响应这种耗时长的计算结果。
+    使用 SQLite 作为底层存储，支持 TTL 过期和 LRU 淘汰。
+    """
+
+    def __init__(self, cache_dir: str = ".llm_cache", max_size_mb: int = 500, ttl: int = 86400):
+        """
+        初始化磁盘缓存
+
+        Args:
+            cache_dir: 缓存目录
+            max_size_mb: 最大缓存大小 (MB)
+            ttl: 缓存过期时间 (秒)，默认 24 小时
+        """
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.max_size_mb = max_size_mb
+        self.ttl = ttl
+        self._db_path = self.cache_dir / "responses.db"
+        self._init_db()
+
+    def _init_db(self):
+        """初始化 SQLite 数据库"""
+        import sqlite3
+        conn = sqlite3.connect(str(self._db_path))
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS responses (
+                key TEXT PRIMARY KEY,
+                provider TEXT,
+                model TEXT,
+                prompt_preview TEXT,
+                temperature REAL,
+                content TEXT,
+                tokens_used INTEGER DEFAULT 0,
+                latency_ms REAL DEFAULT 0,
+                created_at INTEGER,
+                expires_at INTEGER
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_expires ON responses(expires_at)")
+        conn.commit()
+        conn.close()
+
+    def _generate_key(self, messages: list, model: str, temperature: Optional[float] = None) -> str:
+        """生成缓存键"""
+        data = {"messages": messages, "model": model, "temperature": temperature}
+        data_str = json.dumps(data, sort_keys=True, ensure_ascii=False)
+        return hashlib.md5(data_str.encode()).hexdigest()
+
+    def get(self, messages: list, model: str, temperature: Optional[float] = None) -> Optional[Dict]:
+        """获取缓存响应"""
+        key = self._generate_key(messages, model, temperature)
+        import sqlite3
+        conn = sqlite3.connect(str(self._db_path))
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        now = int(time.time())
+        cursor.execute(
+            "SELECT * FROM responses WHERE key=? AND expires_at>?",
+            (key, now)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            return dict(row)
+        return None
+
+    def set(
+        self,
+        messages: list,
+        model: str,
+        content: str,
+        temperature: Optional[float] = None,
+        provider: str = "",
+        tokens_used: int = 0,
+        latency_ms: float = 0.0
+    ) -> None:
+        """设置缓存"""
+        key = self._generate_key(messages, model, temperature)
+        now = int(time.time())
+        import sqlite3
+        conn = sqlite3.connect(str(self._db_path))
+        cursor = conn.cursor()
+        prompt_preview = messages[-1]["content"][:100] if messages else ""
+        cursor.execute("""
+            INSERT OR REPLACE INTO responses
+            (key, provider, model, prompt_preview, temperature, content, tokens_used, latency_ms, created_at, expires_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (key, provider, model, prompt_preview, temperature, content, tokens_used, latency_ms, now, now + self.ttl))
+        conn.commit()
+        conn.close()
+        self._cleanup_if_needed()
+
+    def _cleanup_if_needed(self):
+        """检查并清理缓存大小"""
+        import sqlite3
+        db_size_mb = self._db_path.stat().st_size / (1024 * 1024)
+        if db_size_mb > self.max_size_mb:
+            conn = sqlite3.connect(str(self._db_path))
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM responses WHERE expires_at < ?", (int(time.time()),))
+            conn.commit()
+            conn.close()
+            import sqlite3
+            if self._db_path.stat().st_size / (1024 * 1024) > self.max_size_mb:
+                conn = sqlite3.connect(str(self._db_path))
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM responses WHERE key IN (SELECT key FROM responses ORDER BY created_at ASC LIMIT ?)", (100,))
+                conn.commit()
+                conn.close()
+
+    def clear_expired(self) -> int:
+        """清理过期缓存，返回删除条目数"""
+        import sqlite3
+        conn = sqlite3.connect(str(self._db_path))
+        cursor = conn.cursor()
+        now = int(time.time())
+        cursor.execute("DELETE FROM responses WHERE expires_at < ?", (now,))
+        count = cursor.rowcount
+        conn.commit()
+        conn.close()
+        return count
+
+    def get_stats(self) -> Dict[str, Any]:
+        """获取缓存统计"""
+        import sqlite3
+        conn = sqlite3.connect(str(self._db_path))
+        cursor = conn.cursor()
+        now = int(time.time())
+        cursor.execute("SELECT COUNT(*), SUM(tokens_used) FROM responses WHERE expires_at>?", (now,))
+        row = cursor.fetchone()
+        conn.close()
+        return {
+            "entries": row[0] or 0,
+            "total_tokens": row[1] or 0,
+            "size_mb": round(self._db_path.stat().st_size / (1024 * 1024), 2),
+            "ttl": self.ttl,
         }
 
 

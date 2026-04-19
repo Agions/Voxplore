@@ -212,7 +212,7 @@ class ErrorHandler:
             log_method = getattr(self.logger, error_info.severity, self.logger.error)
             log_method(error_message, exc_info=error_info.exception)
         else:
-            print(error_message)
+            logging.getLogger("error_handler").error(error_message)
             if error_info.exception:
                 traceback.print_exception(
                     type(error_info.exception), 
@@ -381,7 +381,7 @@ def sync_retry(
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     """处理未捕获的异常"""
-    print(f"未捕获的异常: {exc_value}")
+    logging.getLogger("error_handler").critical(f"未捕获的异常: {exc_value}")
     traceback.print_exception(exc_type, exc_value, exc_traceback)
 
 
@@ -440,7 +440,7 @@ def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
         if log:
             log.critical(error_info.message, exc_info=(exc_type, exc_value, exc_traceback))
         else:
-            print(f"{error_info.error_type}: {error_info.message}")
+            logging.getLogger("error_handler").critical(f"{error_info.error_type}: {error_info.message}")
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
     sys.excepthook = exception_handler
@@ -486,7 +486,7 @@ def safe_execute(
         if logger:
             logger.error(error_info.message, exc_info=e)
         else:
-            print(f"{error_info.error_type}: {error_info.message}")
+            logging.getLogger("error_handler").error(f"{error_info.error_type}: {error_info.message}")
             traceback.print_exception(type(e), e, e.__traceback__)
         
         # 显示错误对话框

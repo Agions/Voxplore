@@ -12,6 +12,7 @@ from enum import Enum
 from pathlib import Path
 
 import logging
+from ....core.exceptions import ExportError
 from .jianying_exporter import JianyingExporter
 from .direct_video_exporter import DirectVideoExporter
 
@@ -71,7 +72,10 @@ class ExportManager:
         """
         exporter = self.exporters.get(config.format)
         if not exporter:
-            raise ValueError(f"不支持的导出格式: {config.format}")
+            raise ExportError(
+                message=f"不支持的导出格式",
+                format=config.format,
+            )
 
         # 准备输出路径
         if not config.output_path:

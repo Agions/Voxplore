@@ -356,32 +356,29 @@ class LLMManager:
             ProviderError: 所有提供商均失败
         """
         import asyncio
+        import concurrent.futures
 
+        request = LLMRequest(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+
+        # 如果已经有 running loop，在新线程的独立 loop 中运行
         try:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
         except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+            # 没有运行中的 loop，可以安全用 asyncio.run()
+            result = asyncio.run(self.generate(request, provider))
+            return result.content
 
-        try:
-            request = LLMRequest(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature
-            )
-
-            # 如果已经有 running loop，在同一个 loop 中运行
-            if loop.is_running():
-                # 创建一个 future 来在 running loop 中运行协程
-                future = asyncio.ensure_future(self.generate(request, provider))
-                return loop, future
-
-            return loop.run_until_complete(self.generate(request, provider))
-
-        except Exception as e:
-            raise ProviderError(f"Sync generate failed: {e}")
+        # 已有 loop，在新线程中运行（避免与 running loop 冲突）
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(asyncio.run, self.generate(request, provider))
+            result = future.result()
+            return result.content
 
     def ask(
         self,
@@ -401,15 +398,7 @@ class LLMManager:
             AI 生成的答案
         """
         result = self.generate_sync(prompt, system_prompt, **kwargs)
-
-        # 处理返回值格式
-        if isinstance(result, tuple):
-            # 返回 (loop, future) 的情况
-            return None
-
-        if hasattr(result, 'content'):
-            return result.content
-        return str(result)
+        return result if isinstance(result, str) else str(result)
 
     async def __aenter__(self):
         return self

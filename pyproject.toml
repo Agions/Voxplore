@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "narrafiilm"
-version = "3.8.1"
+version = "3.9.0"
 description = "Voxplore - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
