@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 from dataclasses import dataclass, asdict
 import logging
+import threading
 logger = logging.getLogger(__name__)
 @dataclass
 class AppConfig:
@@ -210,13 +211,16 @@ class ConfigManager:
 
 # 全局配置管理器
 _config_manager: Optional[ConfigManager] = None
+_config_lock = threading.Lock()
 
 
 def get_config_manager() -> ConfigManager:
     """获取全局配置管理器"""
     global _config_manager
     if _config_manager is None:
-        _config_manager = ConfigManager()
+        with _config_lock:
+            if _config_manager is None:
+                _config_manager = ConfigManager()
     return _config_manager
 
 

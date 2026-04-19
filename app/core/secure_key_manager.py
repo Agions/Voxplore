@@ -15,6 +15,7 @@ import keyring
 import platform
 import hashlib
 import logging
+import threading
 
 
 class SecureKeyManager:
@@ -338,11 +339,14 @@ class SecureKeyManager:
 
 # 全局安全密钥管理器实例
 _secure_key_manager: Optional[SecureKeyManager] = None
+_secure_key_lock = threading.Lock()
 
 
 def get_secure_key_manager() -> SecureKeyManager:
     """获取全局安全密钥管理器实例"""
     global _secure_key_manager
     if _secure_key_manager is None:
-        _secure_key_manager = SecureKeyManager()
+        with _secure_key_lock:
+            if _secure_key_manager is None:
+                _secure_key_manager = SecureKeyManager()
     return _secure_key_manager

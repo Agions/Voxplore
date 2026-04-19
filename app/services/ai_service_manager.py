@@ -7,6 +7,7 @@ AI 服务管理器兼容层
 from enum import Enum
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
+import threading
 
 
 class ServiceStatus(Enum):
@@ -77,11 +78,14 @@ class AIServiceManager:
 
 # 创建全局实例
 _service_manager: Optional[AIServiceManager] = None
+_service_lock = threading.Lock()
 
 
 def get_ai_service_manager() -> AIServiceManager:
     """获取 AI 服务管理器实例"""
     global _service_manager
     if _service_manager is None:
-        _service_manager = AIServiceManager()
+        with _service_lock:
+            if _service_manager is None:
+                _service_manager = AIServiceManager()
     return _service_manager

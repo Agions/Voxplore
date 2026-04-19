@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 # AI 服务
 from .ai.llm_manager import LLMManager
-from .ai.scene_analyzer import SceneAnalyzer
+from .ai.scene_analyzer_v2 import SceneAnalyzer
 from .ai.voice_generator import VoiceGenerator
 from .ai.script_generator import ScriptGenerator
 from .ai.secure_subtitle_extractor import SecureSubtitleExtractor as SubtitleExtractor

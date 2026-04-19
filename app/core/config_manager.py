@@ -6,6 +6,7 @@ Voxplore 配置管理器
 提供统一的配置管理接口
 """
 
+import threading
 import yaml
 from typing import Dict, Any, Optional
 from pathlib import Path
@@ -295,13 +296,16 @@ class ConfigManager:
 
 # 全局配置管理器实例
 _global_config_manager: Optional[ConfigManager] = None
+_config_lock = threading.Lock()
 
 
 def get_config_manager() -> ConfigManager:
     """获取全局配置管理器实例"""
     global _global_config_manager
     if _global_config_manager is None:
-        _global_config_manager = ConfigManager()
+        with _config_lock:
+            if _global_config_manager is None:
+                _global_config_manager = ConfigManager()
     return _global_config_manager
 
 

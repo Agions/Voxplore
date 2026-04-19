@@ -4,6 +4,7 @@
 """
 
 import logging
+import threading
 from typing import Dict, Callable, Optional, List, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -299,11 +300,14 @@ class ShortcutManager(QObject):
 
 # 全局实例
 _shortcut_manager: Optional[ShortcutManager] = None
+_shortcut_lock = threading.Lock()
 
 
 def get_shortcut_manager() -> ShortcutManager:
     """获取全局快捷键管理器"""
     global _shortcut_manager
     if _shortcut_manager is None:
-        _shortcut_manager = ShortcutManager()
+        with _shortcut_lock:
+            if _shortcut_manager is None:
+                _shortcut_manager = ShortcutManager()
     return _shortcut_manager

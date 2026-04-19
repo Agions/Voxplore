@@ -4,10 +4,13 @@ Voxplore CLI Main Entry
 """
 
 import argparse
+import logging
 import sys
 import os
 from pathlib import Path
 from typing import Optional, List
+
+logger = logging.getLogger(__name__)
 
 # 添加项目根目录到 Python 路径
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
@@ -118,29 +121,29 @@ def _add_plugin_subcommands(subparsers) -> None:
 def _handle_project_command(args) -> int:
     """处理 project 子命令"""
     if args.subcommand == "create":
-        print(f"创建项目: {args.name}")
-        print(f"视频文件: {args.video}")
-        print(f"输出目录: {args.output}")
+        logger.info(f"创建项目: {args.name}")
+        logger.info(f"视频文件: {args.video}")
+        logger.info(f"输出目录: {args.output}")
         # TODO: 实现项目创建逻辑
         return 0
 
     elif args.subcommand == "list":
         format_type = args.format
         if format_type == "json":
-            print("[]")  # TODO: 返回实际项目列表
+            print("[]")  # noqa  # TODO: 返回实际项目列表
         else:
-            print("项目列表:")
-            print("  (暂无项目)")
+            logger.info("项目列表:")
+            logger.info("  (暂无项目)")
         return 0
 
     elif args.subcommand == "delete":
-        print(f"删除项目: {args.name}")
+        logger.info(f"删除项目: {args.name}")
         if not args.force:
-            print("使用 --force 确认删除")
+            logger.warning("使用 --force 确认删除")
         return 0
 
     elif args.subcommand == "info":
-        print(f"项目信息: {args.name}")
+        logger.info(f"项目信息: {args.name}")
         return 0
 
     return 0
@@ -149,7 +152,7 @@ def _handle_project_command(args) -> int:
 def _handle_server_command(args) -> int:
     """处理 server 子命令"""
     if args.subcommand == "start":
-        print(f"启动服务器: {args.host}:{args.port}")
+        logger.info(f"启动服务器: {args.host}:{args.port}")
         try:
             import uvicorn
             from app.api.main import app
@@ -160,15 +163,15 @@ def _handle_server_command(args) -> int:
                 reload=args.reload,
             )
         except ImportError:
-            print("错误: 需要安装 uvicorn (pip install uvicorn)")
+            logger.error("错误: 需要安装 uvicorn (pip install uvicorn)")
             return 1
         except Exception as e:
-            print(f"服务器启动失败: {e}")
+            logger.error(f"服务器启动失败: {e}")
             return 1
         return 0
 
     elif args.subcommand == "status":
-        print("服务器状态: 未运行")
+        logger.info("服务器状态: 未运行")
         return 0
 
     return 0
@@ -177,17 +180,17 @@ def _handle_server_command(args) -> int:
 def _handle_plugin_command(args) -> int:
     """处理 plugin 子命令"""
     if args.subcommand == "list":
-        print("插件列表:")
+        logger.info("插件列表:")
         # TODO: 从 PluginRegistry 获取实际插件列表
-        print("  (暂无插件)")
+        logger.info("  (暂无插件)")
         return 0
 
     elif args.subcommand == "enable":
-        print(f"启用插件: {args.name}")
+        logger.info(f"启用插件: {args.name}")
         return 0
 
     elif args.subcommand == "disable":
-        print(f"禁用插件: {args.name}")
+        logger.info(f"禁用插件: {args.name}")
         return 0
 
     return 0
@@ -228,10 +231,10 @@ def run(argv: Optional[List[str]] = None) -> int:
             parser.print_help()
             return 0
     except KeyboardInterrupt:
-        print("\n已取消")
+        logger.info("已取消")
         return 130
     except Exception as e:
-        print(f"错误: {e}")
+        logger.error(f"错误: {e}")
         if getattr(args, "verbose", False):
             import traceback
             traceback.print_exc()

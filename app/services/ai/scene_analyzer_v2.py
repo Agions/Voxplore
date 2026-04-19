@@ -2,24 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-场景分析器 V2 (Scene Analyzer V2)
+场景分析器 (Scene Analyzer)
 
-包含完整的场景分析实现：
-- SceneAnalyzer: 基础版（来自原有 scene_analyzer.py）
-- SceneAnalyzerV2: 扩展版，增加重要性评分、关键时刻提取、场景上下文提示
+提供场景检测、镜头评分、关键帧提取、上下文提示生成等功能。
 
 使用示例:
-    from app.services.ai import SceneAnalyzer   # 基础版
-    from app.services.ai import SceneAnalyzerV2  # 增强版（推荐）
+    from app.services.ai import SceneAnalyzer, SceneAnalyzerV2
 
     analyzer = SceneAnalyzerV2()
     scenes = analyzer.analyze_with_importance('video.mp4')
 
-    # 提取最佳关键时刻
     key_moments = analyzer.extract_key_moments(scenes, top_k=5)
 
-    # 生成场景上下文提示
-    context_prompt = analyzer.generate_scene_context_prompt(scenes)
+注意:
+    SceneAnalyzer 和 SceneAnalyzerV2 在此模块中指向同一实现（SceneAnalyzerV2）。
+    原有的 scene_analyzer.py 已废弃并删除，统一使用本模块。
 """
 
 import logging
@@ -736,11 +733,10 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
 
 # =============================================================================
-# 向后兼容：SceneAnalyzer = SceneAnalyzerV2
+# 重新导出（保持向后兼容）
 # =============================================================================
-# 注意：原有的 scene_analyzer.py 文件现在是一个兼容重导出。
-# 所有使用 from ..ai.scene_analyzer import SceneAnalyzer 的代码
-# 实际上获得的是 SceneAnalyzerV2（推荐使用的增强版）。
+# 注意：SceneAnalyzer 和 SceneAnalyzerV2 指向同一实现（SceneAnalyzerV2）
+# 原有的 scene_analyzer.py 已废弃并删除，统一使用本模块
 SceneAnalyzer = SceneAnalyzerV2
 
 

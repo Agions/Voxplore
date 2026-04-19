@@ -119,10 +119,8 @@ class PluginLoader:
             # 注册
             self._registry.register_plugin(manifest)
 
-            # 添加插件路径到 sys.path（如果需要）
-            plugin_path_str = str(plugin_dir)
-            if plugin_path_str not in importlib.sys.path:
-                importlib.sys.path.insert(0, plugin_path_str)
+            # 安全加载：验证路径并使用 spec_from_file_location 避免 sys.path 注入
+            self._safe_load_entry_point(plugin_dir, manifest)
 
             # 加载
             self._registry.load_plugin(manifest.id)
@@ -138,6 +136,41 @@ class PluginLoader:
         except Exception as e:
             print(f"Failed to load plugin {manifest.id}: {e}")
             return False
+
+    def _safe_load_entry_point(self, plugin_dir: Path, manifest: PluginManifest) -> None:
+        """
+        安全地加载插件入口点，避免 sys.path 注入攻击
+        
+        验证:
+        1. 插件目录必须在已注册的插件目录列表中
+        2. 使用 spec_from_file_location 直接加载模块，不修改 sys.path
+        """
+        # 验证插件目录在允许的插件目录列表中
+        plugin_dir_resolved = plugin_dir.resolve()
+        is_allowed = any(
+            allowed_dir.resolve() in plugin_dir_resolved.parents
+            or plugin_dir_resolved == allowed_dir.resolve()
+            for allowed_dir in self._plugin_dirs
+        )
+        if not is_allowed:
+            raise ValueError(f"Plugin directory not in allowed plugin dirs: {plugin_dir}")
+
+        # 使用 spec_from_file_location 加载模块，避免修改 sys.path
+        module_path, class_name = manifest.entry_point.split(":", 1)
+        module_file_path = plugin_dir / f"{module_path.replace('.', '/')}.py"
+
+        # 验证模块路径在插件目录内（防止路径穿越）
+        module_file_resolved = module_file_path.resolve()
+        if not module_file_resolved.is_relative_to(plugin_dir_resolved):
+            raise ValueError(f"Entry point path escapes plugin directory: {module_file_path}")
+
+        # 加载模块
+        spec = importlib.util.spec_from_file_location(module_path, module_file_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Cannot load module from {module_file_path}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_path] = module
+        spec.loader.exec_module(module)
 
     def load_all_discovered(
         self,

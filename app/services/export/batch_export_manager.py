@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
+import threading
 from ....core.exceptions import ExportError, ProjectError
 
 logger = logging.getLogger(__name__)
@@ -352,11 +353,14 @@ class BatchExportManager:
 
 # 全局实例
 _batch_export_manager: Optional[BatchExportManager] = None
+_batch_lock = threading.Lock()
 
 
 def get_batch_export_manager() -> BatchExportManager:
     """获取全局批量导出管理器"""
     global _batch_export_manager
     if _batch_export_manager is None:
-        _batch_export_manager = BatchExportManager()
+        with _batch_lock:
+            if _batch_export_manager is None:
+                _batch_export_manager = BatchExportManager()
     return _batch_export_manager

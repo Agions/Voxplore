@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from PySide6.QtWidgets import QMessageBox, QWidget
 from functools import wraps
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -499,11 +500,14 @@ def safe_execute(
 # ============ 全局实例 ============
 
 _async_error_handler: Optional[AsyncErrorHandler] = None
+_error_handler_lock = threading.Lock()
 
 
 def get_async_error_handler() -> AsyncErrorHandler:
     """获取全局异步错误处理器"""
     global _async_error_handler
     if _async_error_handler is None:
-        _async_error_handler = AsyncErrorHandler()
+        with _error_handler_lock:
+            if _async_error_handler is None:
+                _async_error_handler = AsyncErrorHandler()
     return _async_error_handler

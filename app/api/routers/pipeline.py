@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional
 import uuid
 import asyncio
+import threading
 
 from app.api.schemas.models import (
     NarrationRequest, PipelineStatus, InterleaveModeAPI
@@ -20,12 +21,15 @@ _tasks: dict = {}
 
 # 全局 PipelineIntegrator 实例
 _integrator: Optional[PipelineIntegrator] = None
+_integrator_lock = threading.Lock()
 
 
 def _get_integrator() -> PipelineIntegrator:
     global _integrator
     if _integrator is None:
-        _integrator = PipelineIntegrator()
+        with _integrator_lock:
+            if _integrator is None:
+                _integrator = PipelineIntegrator()
     return _integrator
 
 

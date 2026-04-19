@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Any, Dict, Optional
 import yaml
+import threading
 
 # ✅ 新增：python-dotenv 支持
 try:
@@ -386,13 +387,16 @@ class SecureConfigLoader:
 # ============ 全局实例 ============
 
 _config_loader: Optional[SecureConfigLoader] = None
+_config_loader_lock = threading.Lock()
 
 
 def get_config_loader() -> SecureConfigLoader:
     """获取全局配置加载器"""
     global _config_loader
     if _config_loader is None:
-        _config_loader = SecureConfigLoader()
+        with _config_loader_lock:
+            if _config_loader is None:
+                _config_loader = SecureConfigLoader()
     return _config_loader
 
 

@@ -7,6 +7,7 @@ Voxplore 图标管理器
 支持自定义图标和 PyQt 标准图标
 """
 
+import threading
 from typing import Optional, Dict
 from pathlib import Path
 
@@ -165,13 +166,16 @@ class IconManager:
 
 # 全局图标管理器实例
 _icon_manager: Optional[IconManager] = None
+_icon_lock = threading.Lock()
 
 
 def get_icon_manager(icon_dir: Optional[str] = None) -> IconManager:
     """获取全局图标管理器"""
     global _icon_manager
     if _icon_manager is None:
-        _icon_manager = IconManager(icon_dir)
+        with _icon_lock:
+            if _icon_manager is None:
+                _icon_manager = IconManager(icon_dir)
     return _icon_manager
 
 
