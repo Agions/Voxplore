@@ -8,7 +8,6 @@ AI状态监控面板
 
 import time as time_module
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass
 from datetime import datetime
 
 from PySide6.QtWidgets import (
@@ -23,29 +22,9 @@ from ....core.icon_manager import get_icon
 from ....core.application import Application
 from ....services import ServiceStatus
 
+from .monitor_models import MonitorMode, AlertData
 from .monitor_widgets import ServiceStatusWidget, PerformanceChart, AlertWidget
 from .monitor_pages import MonitorPages
-
-
-class MonitorMode:
-    """监控模式"""
-    OVERVIEW = "overview"
-    SERVICES = "services"
-    PERFORMANCE = "performance"
-    USAGE = "usage"
-    ALERTS = "alerts"
-
-
-@dataclass
-class AlertData:
-    """告警数据"""
-    id: str
-    service_name: str
-    level: str  # info, warning, error, critical
-    message: str
-    timestamp: float
-    resolved: bool = False
-    details: Optional[Dict[str, Any]] = None
 
 
 class AIMonitorPanel(QWidget):
