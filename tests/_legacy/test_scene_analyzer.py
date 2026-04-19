@@ -4,7 +4,7 @@
 import pytest
 from dataclasses import asdict
 
-from app.services.ai.scene_analyzer_v2 import (
+from app.services.ai.scene_analyzer import (
     SceneType,
     SceneInfo,
     AnalysisConfig,

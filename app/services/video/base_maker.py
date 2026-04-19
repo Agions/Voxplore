@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Callable, TypeVar, Generic
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-from ..ai.scene_analyzer_v2 import SceneAnalyzer, SceneInfo
+from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..export.jianying_exporter import JianyingExporter
 from ..export.jianying_models import (
     JianyingDraft, JianyingConfig,

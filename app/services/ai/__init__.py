@@ -50,7 +50,7 @@ from .sensevoice_provider import SenseVoiceProvider
 from .whisper_asr_provider import WhisperASRProvider, TranscriptionResult, TranscriptSegment
 
 # 场景分析
-from .scene_analyzer_v2 import SceneAnalyzer, SceneAnalyzerV2
+from .scene_analyzer import SceneAnalyzer, SceneAnalyzerV2
 
 # 接口抽象
 from ..interfaces import (

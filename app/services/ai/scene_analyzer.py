@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import List, Optional, Callable, Dict, Any
 
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
+from .scene_scorer import SceneScorer, SCENE_TYPE_PRIORITY
 
 
 logger = logging.getLogger(__name__)
@@ -35,16 +36,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # 场景类型优先级（数值越高越重要）
 # =============================================================================
-SCENE_TYPE_PRIORITY: Dict[SceneType, int] = {
-    SceneType.LANDSCAPE: 10,     # 风景画面 - 最适合展示
-    SceneType.B_ROLL: 8,         # 素材画面 - 适合混剪
-    SceneType.ACTION: 6,         # 动作场景
-    SceneType.TALKING_HEAD: 4,   # 人物讲话 - 较少使用
-    SceneType.TRANSITION: 2,      # 转场 - 不适合
-    SceneType.TITLE: 3,           # 标题画面
-    SceneType.PRODUCT: 5,         # 产品展示
-    SceneType.UNKNOWN: 1,        # 未知 - 最低优先级
-}
+# 注意：SCENE_TYPE_PRIORITY 已移至 scene_scorer.py，此处保留用于向后兼容
 
 
 # =============================================================================
@@ -476,6 +468,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
             'scene_type': 0.30,
             'audio': 0.20,
         }
+        self._scorer = SceneScorer()
 
     def analyze_with_importance(
         self,
@@ -515,86 +508,11 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
     def _calculate_enhanced_suitability(self, scene: SceneInfo) -> float:
         """计算增强版适用性评分 (0-100)"""
-        score = 50.0
-
-        duration_score = self._score_duration(scene.duration)
-        score += duration_score * self._importance_weights['duration'] * 2
-
-        brightness_score = self._score_brightness(scene.avg_brightness)
-        score += brightness_score * self._importance_weights['brightness'] * 2
-
-        motion_score = self._score_motion(scene.motion_level)
-        score += motion_score * self._importance_weights['motion'] * 2
-
-        type_score = self._score_scene_type(scene.type)
-        score += type_score * self._importance_weights['scene_type'] * 2
-
-        audio_score = self._score_audio(scene.audio_level)
-        score += audio_score * self._importance_weights['audio'] * 2
-
-        return max(0.0, min(100.0, score))
-
-    def _score_duration(self, duration: float) -> float:
-        """评分时长因素 - 最佳范围: 3-15秒"""
-        if 3.0 <= duration <= 15.0:
-            return 100.0
-        elif 1.0 <= duration < 3.0 or 15.0 < duration <= 30.0:
-            return 60.0
-        else:
-            return 20.0
-
-    def _score_brightness(self, brightness: float) -> float:
-        """评分亮度因素 - 最佳范围: 0.3-0.7"""
-        if 0.3 <= brightness <= 0.7:
-            return 100.0
-        elif brightness < 0.3:
-            return (brightness / 0.3) * 100.0
-        else:
-            return ((1.0 - brightness) / 0.3) * 100.0
-
-    def _score_motion(self, motion: float) -> float:
-        """评分运动程度因素 - 最佳范围: 0.2-0.6"""
-        if 0.2 <= motion <= 0.6:
-            return 100.0
-        elif motion < 0.1:
-            return 30.0
-        elif motion < 0.2:
-            return 30.0 + (motion - 0.1) / 0.1 * 70.0
-        elif motion <= 0.9:
-            return 100.0 - (motion - 0.6) / 0.3 * 40.0
-        else:
-            return 20.0
-
-    def _score_scene_type(self, scene_type: SceneType) -> float:
-        """评分场景类型因素"""
-        priority = SCENE_TYPE_PRIORITY.get(scene_type, 1)
-        max_priority = max(SCENE_TYPE_PRIORITY.values())
-        return (priority / max_priority) * 100.0
-
-    def _score_audio(self, audio_level: float) -> float:
-        """评分音频因素"""
-        return audio_level * 100.0
+        return self._scorer.calculate_importance(scene, self._importance_weights)
 
     def _calculate_default_narration_importance(self, scene: SceneInfo) -> float:
         """计算默认叙事重要性"""
-        type_weight = SCENE_TYPE_PRIORITY.get(scene.type, 1) / max(SCENE_TYPE_PRIORITY.values())
-
-        if 3.0 <= scene.duration <= 15.0:
-            duration_weight = 1.0
-        elif 1.0 <= scene.duration < 3.0 or 15.0 < scene.duration <= 30.0:
-            duration_weight = 0.6
-        else:
-            duration_weight = 0.2
-
-        suitability_weight = scene.suitability_score / 100.0
-
-        importance = (
-            type_weight * 0.4 +
-            duration_weight * 0.3 +
-            suitability_weight * 0.3
-        )
-
-        return max(0.0, min(1.0, importance))
+        return self._scorer.calculate_narration_importance(scene)
 
     def extract_key_moments(
         self,
