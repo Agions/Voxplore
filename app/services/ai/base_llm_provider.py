@@ -35,6 +35,14 @@ import hashlib
 logger = logging.getLogger(__name__)
 
 
+# ============ 公共常量 ============
+DEFAULT_CACHE_TTL = 3600.0           # 默认请求缓存 TTL: 1小时（秒）
+DEFAULT_LONG_CACHE_TTL = 86400.0    # 长缓存 TTL: 24小时（秒）
+DEFAULT_RETRY_MAX_DELAY = 30.0      # 重试最大延迟（秒）
+DEFAULT_KEEPALIVE_EXPIRY = 30.0     # HTTP keepalive 过期时间（秒）
+DEFAULT_LOCAL_TIMEOUT = 300.0       # 本地 LLM 请求超时（秒，5分钟）
+
+
 T = TypeVar("T")
 
 
@@ -101,7 +109,7 @@ class RequestCache:
     减少重复 API 调用
     """
     
-    def __init__(self, max_size: int = 1000, ttl: float = 3600.0):
+    def __init__(self, max_size: int = 1000, ttl: float = DEFAULT_CACHE_TTL):
         self.max_size = max_size
         self.ttl = ttl
         self._cache: Dict[str, tuple] = {}  # key -> (value, expiry)
@@ -197,7 +205,7 @@ class HTTPClientMixin:
         self._retry_handler = RetryHandler(
             max_attempts=3,
             base_delay=1.0,
-            max_delay=30.0
+            max_delay=DEFAULT_RETRY_MAX_DELAY
         )
 
     def _init_http_client(self, headers: Optional[Dict[str, str]] = None):
@@ -214,7 +222,7 @@ class HTTPClientMixin:
             limits=httpx.Limits(
                 max_keepalive_connections=10,
                 max_connections=20,
-                keepalive_expiry=30.0
+                keepalive_expiry=DEFAULT_KEEPALIVE_EXPIRY
             )
         )
 
@@ -328,7 +336,7 @@ class BaseLLMProvider(ABC):
         self._circuit_breaker = CircuitBreaker()
 
         # 初始化请求缓存（减少重复 API 调用，TTL=24h）
-        self._cache = RequestCache(max_size=500, ttl=86400.0)
+        self._cache = RequestCache(max_size=500, ttl=DEFAULT_LONG_CACHE_TTL)
 
     def _make_cache_key(self, request: LLMRequest) -> str:
         """生成缓存键（基于 model + prompt 前200字 + temperature）"""

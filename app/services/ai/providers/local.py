@@ -18,6 +18,7 @@ from ..base_llm_provider import (
     ProviderError,
     HTTPClientMixin,
     ModelManagerMixin,
+    DEFAULT_RETRY_MAX_DELAY,
 )
 
 
@@ -69,7 +70,7 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     ):
         # 调用父类初始化
         BaseLLMProvider.__init__(self, api_key, base_url)
-        HTTPClientMixin.__init__(self, api_key, base_url, timeout=300.0)
+        HTTPClientMixin.__init__(self, api_key, base_url, timeout=DEFAULT_LOCAL_TIMEOUT)
 
         self.backend = backend.lower()
 

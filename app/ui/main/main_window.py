@@ -167,6 +167,7 @@ class VoxploreWindow(QMainWindow):
         new_anim.finished.connect(lambda: setattr(self, '_is_animating', False))
 
     def _on_page_activated(self):
+        """Hook for subclass page activation logic (override in subclass)."""
         pass
 
     def show_status(self, msg: str):

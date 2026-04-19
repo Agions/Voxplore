@@ -70,8 +70,8 @@ class AnimationHelper:
                     QSettings.Format.NativeFormat
                 )
                 reduced = not gtk_settings.value("enable-animations", True, bool)
-            except Exception as e:
-                logger.debug(f"Linux GTK reduced motion detection failed: {e}")
+            except (TypeError, RuntimeError) as e:
+                logger.debug("Linux GTK reduced motion detection failed: %s", e)
             if not reduced:
                 try:
                     # KDE 设置
@@ -80,8 +80,8 @@ class AnimationHelper:
                         QSettings.Format.NativeFormat
                     )
                     reduced = kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
-                except Exception as e:
-                    logger.debug(f"Linux KDE reduced motion detection failed: {e}")
+                except (TypeError, RuntimeError) as e:
+                    logger.debug("Linux KDE reduced motion detection failed: %s", e)
 
         cls._reduced_motion_cache = reduced
         return reduced

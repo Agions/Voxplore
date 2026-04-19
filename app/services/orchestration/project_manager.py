@@ -36,6 +36,9 @@ import uuid
 # 获取 logger
 logger = logging.getLogger(__name__)
 
+# ============ 常量 ============
+HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
+
 
 class ProjectType(Enum):
     """项目类型"""
@@ -392,7 +395,7 @@ class ProjectManager:
         try:
             with open(path, 'rb') as f:
                 # 只读取前 1MB 用于哈希计算
-                chunk = f.read(1024 * 1024)
+                chunk = f.read(HASH_CHUNK_SIZE)
                 return hashlib.md5(chunk).hexdigest()
         except Exception:
             return ""
