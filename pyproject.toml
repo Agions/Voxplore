@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "narrafiilm"
-version = "3.9.0"
+name = "voxplore"
+version = "3.10.0"
 description = "Voxplore - AI-Powered Video Creation Desktop App"
 license = {text = "MIT"}
 authors = [
@@ -57,6 +57,11 @@ dependencies = [
     # Network
     "requests>=2.31.0",
     "httpx>=0.25.0",
+    # HTTP Server
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    # Data validation
+    "pydantic>=2.5.0",
     # Config
     "python-dotenv>=1.0.0",
     "pyyaml>=6.0.1",
@@ -94,7 +99,7 @@ all = [
 ]
 
 [project.scripts]
-narrafiilm = "app.main:main"
+voxplore = "app.main:main"
 
 [tool.setuptools]
 packages = ["app"]
