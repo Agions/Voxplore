@@ -66,7 +66,7 @@ jobs:
           python -m PyInstaller \
             --clean \
             --onedir \
-            --name Narrafiilm-${{ matrix.platform }} \
+            --name Voxplore-${{ matrix.platform }} \
             ${{ matrix.pyinstaller_args }} \
             app/main.py
 
@@ -79,27 +79,27 @@ jobs:
 
           case "${{ matrix.platform }}" in
             linux-*)
-              tar -cvf Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar \
-                Narrafiilm-${{ matrix.platform }}
-              xz -9 Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar
-              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.tar.xz"
+              tar -cvf Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar \
+                Voxplore-${{ matrix.platform }}
+              xz -9 Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar
+              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar.xz"
               ;;
             macos-*)
               # Create .app bundle
-              APP_NAME="Narrafiilm.app"
+              APP_NAME="Voxplore.app"
               mkdir -p "$APP_NAME/Contents/MacOS"
               mkdir -p "$APP_NAME/Contents/Resources"
-              cp -r "Narrafiilm-${{ matrix.platform }}/"* "$APP_NAME/Contents/MacOS/"
+              cp -r "Voxplore-${{ matrix.platform }}/"* "$APP_NAME/Contents/MacOS/"
               cp -r "$GITHUB_WORKSPACE/resources" "$APP_NAME/Contents/"
               
               # Package as DMG
-              hdiutil create -volname "Narrafiilm" -srcfolder "$APP_NAME" \
-                -ov -format UDZO "Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
-              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
+              hdiutil create -volname "Voxplore" -srcfolder "$APP_NAME" \
+                -ov -format UDZO "Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
+              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
               ;;
             windows-*)
-              powershell -Command "Compress-Archive -Force 'Narrafiilm-${{ matrix.platform }}\*' 'Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.zip'"
-              ARTIFACT="Narrafiilm-${{ github.ref_name }}-${{ matrix.platform }}.zip"
+              powershell -Command "Compress-Archive -Force 'Voxplore-${{ matrix.platform }}\*' 'Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.zip'"
+              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.zip"
               ;;
           esac
           
@@ -109,7 +109,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Narrafiilm-${{ matrix.platform }}
+          name: Voxplore-${{ matrix.platform }}
           path: dist/${{ steps.package.outputs.artifact }}
           retention-days: 3
 
@@ -117,7 +117,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
-          name: Narrafiilm ${{ github.ref_name }}
+          name: Voxplore ${{ github.ref_name }}
           draft: false
           files: dist/${{ steps.package.outputs.artifact }}
         env:
