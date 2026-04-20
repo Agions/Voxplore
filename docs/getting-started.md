@@ -11,7 +11,7 @@ description: Voxplore 完整安装与首次使用指南。
 
 ## 第一步：安装 Voxplore
 
-### 下载安装包（推荐）
+### 下载安装包
 
 访问 [GitHub Releases](https://github.com/Agions/Voxplore/releases/latest)，下载对应平台版本：
 
@@ -19,19 +19,12 @@ description: Voxplore 完整安装与首次使用指南。
 |------|------|----------|
 | Windows | `Voxplore-Setup-x.x.x.exe` | 运行安装程序 |
 | macOS | `Voxplore-x.x.x.dmg` | 拖入 Applications |
-| Linux | `Voxplore-x.x.x.AppImage` | 添加执行权限后运行 |
-
-### Homebrew（macOS / Linux）
-
-```bash
-brew install narrafiilm
-```
 
 ### 源码运行
 
 ```bash
 git clone https://github.com/Agions/Voxplore.git
-cd narrafiilm
+cd Voxplore
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 python app/main.py
@@ -83,7 +76,7 @@ Voxplore 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 $0.1 / 1
 在项目根目录创建 `.env`：
 
 ```env
-DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+DEEPSEEK_API_KEY=***
 ```
 
 ---
