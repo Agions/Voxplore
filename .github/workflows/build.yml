@@ -84,14 +84,14 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller main.spec --name Voxplore-${{ github.ref_name }}-win64 --noconfirm
+          pyinstaller main.spec --noconfirm
         working-directory: .
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: Voxplore-${{ github.ref_name }}-win64
-          path: dist/Voxplore-*.exe
+          path: dist/*.exe
           retention-days: 90
 
   # macOS DMG
@@ -140,7 +140,7 @@ jobs:
       - name: Install system deps
         run: |
           apt-get update -qq
-          apt-get install -y -qq python3 python3-pip ffmpeg libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-randr0 libxcb-shape0 libxcb-xineranza0 libxkbcommon-x11-0 libegl1-mesa
+          apt-get install -y -qq python3 python3-pip ffmpeg libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-randr0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0 libegl1
 
       - name: Set up Python
         uses: actions/setup-python@v5
