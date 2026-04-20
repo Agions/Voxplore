@@ -19,6 +19,9 @@ from typing import List, Optional, Dict
 import uuid
 from datetime import datetime
 
+# ─── 常量定义 ──────────────────────────────────────────────────
+JIANYING_VERSION = 360000  # 剪映版本号
+
 
 # ─── 枚举定义 ────────────────────────────────────────────────
 
@@ -274,7 +277,7 @@ class JianyingDraft:
     update_time: int = field(default_factory=lambda: int(datetime.now().timestamp() * 1000))
 
     # 版本
-    version: int = 360000  # 剪映版本号
+    version: int = JIANYING_VERSION  # 剪映版本号
     platform: str = "all"
 
     def add_track(self, track: Track) -> None:
@@ -342,7 +345,7 @@ class JianyingConfig:
     """导出配置"""
     copy_materials: bool = True  # 是否复制素材到草稿目录
     canvas_ratio: str = "9:16"   # 画布比例: 9:16, 16:9, 1:1
-    version: int = 360000        # 剪映版本号
+    version: int = JIANYING_VERSION  # 剪映版本号
 
 
 __all__ = [
