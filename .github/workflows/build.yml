@@ -126,52 +126,6 @@ jobs:
           path: dist/Voxplore-*.dmg
           retention-days: 90
 
-  # Linux AppImage
-  build-linux-appimage:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-
-    container:
-      image: ubuntu:latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install system deps
-        run: |
-          apt-get update -qq
-          apt-get install -y -qq python3 python3-pip ffmpeg libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-randr0 libxcb-shape0 libxcb-xinerama0 libxkbcommon-x11-0 libegl1
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install and build
-        run: |
-          pip install --break-system-packages -e .
-          pip install --break-system-packages pyinstaller
-          pyinstaller main.spec --name Voxplore-${{ github.ref_name }}-linux --noconfirm
-
-      - name: Package AppDir
-        run: |
-          mkdir -p AppDir/usr/bin
-          cp -r dist/Voxplore-*/* AppDir/usr/
-          mkdir -p AppDir/usr/share/applications
-          cat > AppDir/Voxplore.desktop << 'EOF'
-          [Desktop Entry]
-          Name=Voxplore
-          Exec=Voxplore
-          Type=Application
-          EOF
-
-      - name: Upload AppDir
-        uses: actions/upload-artifact@v4
-        with:
-          name: Voxplore-${{ github.ref_name }}-linux-AppDir
-          path: AppDir
-          retention-days: 90
-
   # Create Release
   create-release:
     needs: [build-wheels, build-windows-exe, build-macos-dmg]
