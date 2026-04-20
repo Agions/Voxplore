@@ -27,7 +27,7 @@ import logging
 import json
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict, Tuple
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
@@ -160,28 +160,58 @@ class JianyingExporter:
         return name.strip()
 
     def _copy_materials(self, draft: JianyingDraft, draft_folder: Path) -> None:
-        """复制素材到草稿目录"""
+        """复制素材到草稿目录（并行化以提升大文件性能）"""
         materials_folder = draft_folder / "materials"
         materials_folder.mkdir(exist_ok=True)
 
-        # 复制视频素材
-        for video in draft.materials.videos:
-            if video.path and Path(video.path).exists():
-                src = Path(video.path)
-                dst = materials_folder / src.name
-                if not dst.exists():
-                    shutil.copy2(src, dst)
-                # 更新路径为相对路径
-                video.path = str(dst)
+        from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        # 复制音频素材
+        def _copy_single(src_path: str, materials_folder: Path) -> Optional[str]:
+            """复制单个素材，返回新路径"""
+            src = Path(src_path)
+            if not src.exists():
+                return None
+            dst = materials_folder / src.name
+            if not dst.exists():
+                shutil.copy2(src, dst)
+            return str(dst)
+
+        # 收集所有待复制的素材
+        tasks: List[Tuple[str, str]] = []  # [(src_path, type), ...]
+
+        for video in draft.materials.videos:
+            if video.path:
+                tasks.append((video.path, "video"))
+
         for audio in draft.materials.audios:
-            if audio.path and Path(audio.path).exists():
-                src = Path(audio.path)
-                dst = materials_folder / src.name
-                if not dst.exists():
-                    shutil.copy2(src, dst)
-                audio.path = str(dst)
+            if audio.path:
+                tasks.append((audio.path, "audio"))
+
+        # 并行复制所有素材
+        if tasks:
+            results: Dict[str, str] = {}
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                futures = {
+                    executor.submit(_copy_single, src, materials_folder): src
+                    for src, _ in tasks
+                }
+                for future in as_completed(futures):
+                    src = futures[future]
+                    try:
+                        new_path = future.result()
+                        if new_path:
+                            results[src] = new_path
+                    except Exception as e:
+                        logger.warning(f"素材复制失败 {src}: {e}")
+
+            # 更新路径为相对路径
+            for video in draft.materials.videos:
+                if video.path and video.path in results:
+                    video.path = results[video.path]
+
+            for audio in draft.materials.audios:
+                if audio.path and audio.path in results:
+                    audio.path = results[audio.path]
 
     def _write_json(self, path: Path, data: dict) -> None:
         """写入 JSON 文件"""
