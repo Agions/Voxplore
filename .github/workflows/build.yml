@@ -139,9 +139,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: all-artifacts
+          merge-multiple: true
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: false
           prerelease: false
@@ -150,6 +151,5 @@ jobs:
             all-artifacts/**/*.whl
             all-artifacts/**/*.exe
             all-artifacts/**/*.dmg
-            all-artifacts/**/Voxplore-*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
