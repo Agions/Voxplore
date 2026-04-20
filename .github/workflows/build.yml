@@ -107,13 +107,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
       - name: Install dependencies
         run: |
-          uv pip install --system -e .
-          uv pip install --system pyinstaller
+          pip install -e .
+          pip install pyinstaller
 
       - name: Build macOS app
         run: |
