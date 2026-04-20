@@ -149,8 +149,8 @@ jobs:
 
       - name: Install and build
         run: |
-          pip install -e .
-          pip install pyinstaller
+          pip install --break-system-packages -e .
+          pip install --break-system-packages pyinstaller
           pyinstaller main.spec --name Voxplore-${{ github.ref_name }}-linux --noconfirm
 
       - name: Package AppDir
