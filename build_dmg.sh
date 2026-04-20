@@ -37,7 +37,7 @@ fi
 
 # 安装依赖
 echo "[3/6] 安装依赖..."
-uv pip install -e .
+pip install -e .
 
 # 使用 PyInstaller 构建
 echo "[4/6] 构建应用..."
