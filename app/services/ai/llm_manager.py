@@ -66,6 +66,22 @@ class LLMManager:
         """初始化所有提供商"""
         llm_config = self.config.get("LLM", {})
 
+        def _add_provider(name: str, config: dict, provider_type: ProviderType, cls):
+            """通用 Provider 添加逻辑，返回是否成功"""
+            if config.get("enabled", False):
+                api_key = config.get("api_key", "")
+                if api_key and not api_key.startswith("${"):
+                    self.providers[provider_type] = cls(
+                        api_key=api_key,
+                        base_url=config.get("base_url", ""),
+                    )
+                    logger.info(f"✅ LLM Provider [{name}] 已加载")
+                    return True
+                else:
+                    logger.debug(f"⏭️  LLM Provider [{name}] 已启用但 API Key 未配置或为占位符")
+                    return False
+            return None
+
         # 通义千问
         qwen_config = llm_config.get("qwen", {})
         if qwen_config.get("enabled", False):
@@ -75,6 +91,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=qwen_config.get("base_url", ""),
                 )
+                logger.info(f"✅ LLM Provider [qwen] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [qwen] 已启用但 API Key 未配置")
 
         # Kimi
         kimi_config = llm_config.get("kimi", {})
@@ -85,6 +104,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=kimi_config.get("base_url", ""),
                 )
+                logger.info(f"✅ LLM Provider [kimi] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [kimi] 已启用但 API Key 未配置")
 
         # GLM-5
         glm5_config = llm_config.get("glm5", {})
@@ -95,6 +117,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=glm5_config.get("base_url", ""),
                 )
+                logger.info(f"✅ LLM Provider [glm5] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [glm5] 已启用但 API Key 未配置")
 
         # Claude
         claude_config = llm_config.get("claude", {})
@@ -105,6 +130,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=claude_config.get("base_url", "https://api.anthropic.com"),
                 )
+                logger.info(f"✅ LLM Provider [claude] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [claude] 已启用但 API Key 未配置")
 
         # Gemini
         gemini_config = llm_config.get("gemini", {})
@@ -115,6 +143,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=gemini_config.get("base_url", "https://generativelanguage.googleapis.com"),
                 )
+                logger.info(f"✅ LLM Provider [gemini] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [gemini] 已启用但 API Key 未配置")
 
         # 本地模型
         local_config = llm_config.get("local", {})
@@ -124,6 +155,7 @@ class LLMManager:
                 base_url=local_config.get("base_url", "http://localhost:11434"),
                 backend=local_config.get("backend", "ollama"),
             )
+            logger.info(f"✅ LLM Provider [local/ollama] 已加载")
 
         # DeepSeek
         deepseek_config = llm_config.get("deepseek", {})
@@ -134,6 +166,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=deepseek_config.get("base_url", "https://api.deepseek.com"),
                 )
+                logger.info(f"✅ LLM Provider [deepseek] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [deepseek] 已启用但 API Key 未配置")
 
         # 字节豆包 (Doubao)
         doubao_config = llm_config.get("doubao", {})
@@ -144,6 +179,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=doubao_config.get("base_url", "https://ark.cn-beijing.volces.com/api/v3"),
                 )
+                logger.info(f"✅ LLM Provider [doubao] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [doubao] 已启用但 API Key 未配置")
 
         # 腾讯混元 (Hunyuan)
         hunyuan_config = llm_config.get("hunyuan", {})
@@ -154,6 +192,9 @@ class LLMManager:
                     api_key=api_key,
                     base_url=hunyuan_config.get("base_url", "https://hunyuan.tencentcloudapi.com"),
                 )
+                logger.info(f"✅ LLM Provider [hunyuan] 已加载")
+            else:
+                logger.debug(f"⏭️  LLM Provider [hunyuan] 已启用但 API Key 未配置")
 
         # 设置默认提供商
         default_name = llm_config.get("default_provider", "qwen")
@@ -164,6 +205,9 @@ class LLMManager:
                 self._default_provider = list(self.providers.keys())[0]
             else:
                 self._default_provider = None
+
+        if self.providers:
+            logger.info(f"📦 LLM Manager 初始化完成，共 {len(self.providers)} 个 Provider")
 
     async def generate(
         self,
