@@ -12,7 +12,7 @@ from enum import Enum
 from pathlib import Path
 
 import logging
-from ....core.exceptions import ExportError
+from ...core.exceptions import ExportError
 from .jianying_exporter import JianyingExporter
 from .direct_video_exporter import DirectVideoExporter
 

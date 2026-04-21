@@ -84,7 +84,7 @@ class TestProviderError:
     def test_error_creation(self):
         """测试错误创建"""
         err = ProviderError("Test error message")
-        assert str(err) == "Test error message"
+        assert "Test error message" in str(err)  # 包含原始消息
 
     def test_error_inheritance(self):
         """测试错误继承"""

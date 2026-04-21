@@ -12,6 +12,7 @@ import shutil
 import uuid
 import zipfile
 from datetime import datetime
+from dataclasses import asdict
 from typing import Dict, List, Optional, Any
 import logging
 

@@ -10,7 +10,7 @@ import os
 import json
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 import logging
 

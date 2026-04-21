@@ -44,7 +44,7 @@ class AnimationHelper:
                     # QStyle.SH_ReducedAnimation = 44
                     reduced = style.styleHint(44) == 1
             except (RuntimeError, AttributeError, TypeError) as e:
-                logger.debug(f"macOS reduced motion detection failed: {e}")
+                logger.warning(f"macOS reduced motion detection failed: {e}")
 
         # Windows: 检查 EaseOfAccess 设置
         elif platform.system() == "Windows":
@@ -60,7 +60,7 @@ class AnimationHelper:
                 reduced = value == 0
                 winreg.CloseKey(key)
             except (OSError, FileNotFoundError) as e:
-                logger.debug(f"Windows reduced motion detection failed: {e}")
+                logger.warning(f"Windows reduced motion detection failed: {e}")
 
         # Linux: 检查 GTK 和 Qt 减少动画设置
         elif platform.system() == "Linux":
@@ -71,7 +71,7 @@ class AnimationHelper:
                 )
                 reduced = not gtk_settings.value("enable-animations", True, bool)
             except (TypeError, RuntimeError) as e:
-                logger.debug("Linux GTK reduced motion detection failed: %s", e)
+                logger.warning("Linux GTK reduced motion detection failed: %s", e)
             if not reduced:
                 try:
                     # KDE 设置
@@ -81,7 +81,7 @@ class AnimationHelper:
                     )
                     reduced = kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
                 except (TypeError, RuntimeError) as e:
-                    logger.debug("Linux KDE reduced motion detection failed: %s", e)
+                    logger.warning("Linux KDE reduced motion detection failed: %s", e)
 
         cls._reduced_motion_cache = reduced
         return reduced

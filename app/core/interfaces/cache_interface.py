@@ -50,7 +50,7 @@ class CacheStats:
     hit_rate: float = 0.0
     avg_entry_size: float = 0.0
     max_size_bytes: int = 0
-    policy: str = CachePolicy.LRU
+    policy: CachePolicy = CachePolicy.LRU
 
 
 class ICache(ABC):
