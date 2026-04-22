@@ -17,7 +17,14 @@ def _oklch(key: str, mode: str = "dark") -> str:
     return tokens.get(key, COLORS.get(key, "oklch(0.50 0.00 0)"))
 
 
-from ...core.config_manager import ThemeConfig
+from dataclasses import dataclass
+
+
+@dataclass
+class ThemeConfig:
+    """主题配置（简化版）"""
+    name: str = "voxplore"
+    mode: str = "dark"
 
 
 @dataclass
@@ -87,9 +94,11 @@ class ThemeManager(QObject):
     theme_changed = Signal(str)  # 主题模式变更信号
     theme_applied = Signal()  # 主题应用完成信号
 
-    def __init__(self, theme_config: ThemeConfig):
+    def __init__(self, theme_config: ThemeConfig | None = None):
         super().__init__()
 
+        if theme_config is None:
+            theme_config = ThemeConfig()
         self.theme_config = theme_config
         self.current_mode = theme_config.mode
         self.colors = ThemeColors.from_mode(theme_config.mode)
@@ -345,3 +354,22 @@ class ThemeManager(QObject):
             "colors": self.colors.__dict__,
             "available_themes": self.get_available_themes()
         }
+
+    # ─── 新设计系统集成 ────────────────────────────────────
+    def apply_design_system(self, widget=None) -> None:
+        """应用全新设计系统（简约科技风 + OKLCH tokens）"""
+        from .qss_variables import register_qss_variables
+        from .base_styles import get_base_qss
+
+        vars_css = register_qss_variables()
+        base_css = get_base_qss()
+        full_css = f"""{vars_css}\n{base_css}"""
+
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if widget:
+            widget.setStyleSheet(full_css)
+        elif app:
+            app.setStyleSheet(full_css)
+            for w in app.allWidgets():
+                w.setStyleSheet(full_css)

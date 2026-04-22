@@ -338,5 +338,23 @@ def run_export():
     print(f"\n✅ 完成! 草稿路径: {draft_path}")
 
 
+def launch_new_ui():
+    """启动全新设计的 UI"""
+    from app.ui.windows.main_window import MainWindow
+    from app.ui.theme.theme_manager import ThemeManager
+    from PySide6.QtWidgets import QApplication
+    import sys
+
+    app = QApplication(sys.argv)
+    theme = ThemeManager()
+    theme.apply_design_system(app)
+
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
+
+
 if __name__ == '__main__':
-    main()
+    # 新 UI 入口（渐进替换）
+    # launch_new_ui()  # 取消注释启用新 UI
+    pass

@@ -1,6 +1,6 @@
 ---
 title: 快速入门
-description: Voxplore 完整安装与首次使用指南。
+description: Voxplore 完整安装与首次使用指南，10 分钟上手。
 ---
 
 # 快速入门
@@ -19,6 +19,7 @@ description: Voxplore 完整安装与首次使用指南。
 |------|------|----------|
 | Windows | `Voxplore-Setup-x.x.x.exe` | 运行安装程序 |
 | macOS | `Voxplore-x.x.x.dmg` | 拖入 Applications |
+| Linux | `Voxplore-x.x.x.AppImage` | 添加执行权限后运行 |
 
 ### 源码运行
 
@@ -55,9 +56,9 @@ ffmpeg -version
 
 ---
 
-## 第三步：配置 DeepSeek API Key
+## 第三步：配置 DeepSeek API Key {#配置-api-key}
 
-Voxplore 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 $0.1 / 1M tokens）。
+Voxplore 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 ¥0.07 / 1M tokens，处理一个 5 分钟视频不足 **1 分钱**）。
 
 ### 获取 Key
 
@@ -76,35 +77,46 @@ Voxplore 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 $0.1 / 1
 在项目根目录创建 `.env`：
 
 ```env
-DEEPSEEK_API_KEY=***
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
 ```
 
 ---
 
-## 第四步：生成第一个解说视频
+## 第四步：4 步创作你的第一个解说视频
 
 ### Step 1 — 新建项目
 
-启动 Voxplore → 点击 **新建项目** → 选择保存位置 → 输入项目名称
+启动 Voxplore → 在项目列表点击 **新建项目** → 输入项目名称 → 进入上传步骤
 
-### Step 2 — 导入视频
+### Step 2 — 上传视频
 
-- 点击 **导入素材** 或直接拖拽视频文件
+- 点击 **选择文件** 或拖拽视频到窗口
+- 支持文件夹批量选择 / Ctrl 多选
 - 支持格式：`MP4` / `MOV` / `AVI` / `MKV` / `WebM`
 
-### Step 3 — 生成解说
+### Step 3 — 选择风格，开始创作
 
-1. 选择**情感风格**：治愈 / 悬疑 / 励志 / 怀旧 / 浪漫
-2. 选择**配音音色**：默认 XiaoXiao（女声）
+1. **情感风格**：治愈 / 悬疑 / 励志 / 怀旧 / 浪漫 / 幽默 / 纪录片（共 7 种）
+2. **角色设定**（可选）：主角名称、职业、性格特征
 3. 点击 **开始创作**
 
-等待 1–3 分钟（取决于视频长度），预览结果后点击 **导出**。
+等待 1–5 分钟（取决于视频长度和 AI 模型），AI 自动完成：场景理解 → 智能分组 → 叙事选段 → 解说生成 → 配音合成。
+
+### Step 4 — 预览并导出
+
+预览解说效果，满意后点击 **导出**：
+
+| 格式 | 说明 |
+|------|------|
+| **MP4（H.264）** | 兼容性最好，跨平台 |
+| **MP4（H.265）** | 体积小约 40%，需较新设备 |
+| **剪映草稿 JSON** | 导入剪映继续精剪 |
 
 ---
 
 ## 遇到问题？
 
-- [5 分钟快速开始](./guide/quick-start) — 精简版上手指南
+- [5 分钟快速开始](./guide/quick-start) — 精简版
 - [完整安装指南](./guide/installation) — 各平台详细步骤
 - [疑难排查](./guide/troubleshooting) — 常见问题解决
 - [常见问题](./faq) — FAQ 列表
