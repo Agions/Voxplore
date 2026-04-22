@@ -35,6 +35,23 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 
+def _check_update_async(window):
+    """启动后异步检测更新，有新版本时提示用户（静默失败）"""
+    try:
+        from app.update import check_update, format_update_message
+        from PySide6.QtWidgets import QMessageBox
+
+        info = check_update()
+        if info and info.is_newer:
+            QMessageBox.information(
+                window,
+                "🎉 发现新版本",
+                format_update_message(info),
+            )
+    except Exception:
+        pass  # 更新检测失败，静默忽略，不影响用户使用
+
+
 def main():
     """主函数"""
     from app.utils.version import __version__
@@ -76,7 +93,11 @@ def main():
         # 创建主窗口并注入 application 实例
         window = MainWindow(application)
         window.show()
-        
+
+        # 启动后 3 秒异步检测更新（非阻塞）
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(3000, lambda: _check_update_async(window))
+
         exit_code = qt_app.exec()
         
         # 关闭应用程序
@@ -351,6 +372,11 @@ def launch_new_ui():
 
     window = MainWindow()
     window.show()
+
+    # 启动后 3 秒异步检测更新
+    from PySide6.QtCore import QTimer
+    QTimer.singleShot(3000, lambda: _check_update_async(window))
+
     sys.exit(app.exec())
 
 

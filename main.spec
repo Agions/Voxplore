@@ -3,7 +3,7 @@
 Voxplore PyInstaller 构建配置
 使用方法: pyinstaller main.spec
 
-版本: 1.2.0
+版本: 自动从 pyproject.toml 读取（CI/CD 使用 workflows，本地推荐 make build:win）
 """
 
 import sys
@@ -11,8 +11,8 @@ import os
 
 block_cipher = None
 
-# 版本
-VERSION = "3.8.1"
+# 版本（从 pyproject.toml 动态读取，避免手动维护）
+# 本地构建时直接用 make build:win/mac/linux，版本号自动从 pyproject.toml 获取
 
 # 分析入口点
 app_main = 'app/main.py'

@@ -1,124 +1,400 @@
 name: Release Build
 
+# ============================================================
+# 触发条件：
+#   - push tag: v*  （如 v4.0.0）
+#   - 手动触发（workflow_dispatch）
+# ============================================================
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version (without v, e.g. 3.4.1)'
-        required: false
 
 permissions:
   contents: write
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux-x86_64
-            artifact_ext: tar.xz
-            pyinstaller_args: --add-data "resources:resources"
-          - os: macos-latest
-            platform: macos-x86_64
-            artifact_ext: dmg
-            pyinstaller_args: --add-data "resources:resources" --windowed
-          - os: macos-14-latest
-            platform: macos-arm64
-            artifact_ext: dmg
-            pyinstaller_args: --add-data "resources:resources" --windowed
-          - os: windows-latest
-            platform: windows-x86_64
-            artifact_ext: zip
-            pyinstaller_args: --add-data "resources;resources"
+env:
+  PYTHON_VERSION: '3.11'
 
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: 准备版本信息（所有平台共享）
+  # ─────────────────────────────────────────────
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_tag: ${{ steps.version.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from pyproject.toml
+        id: version
+        run: |
+          VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "//;s/"//')
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_tag=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "📦 Building Voxplore v${VERSION}"
+
+  # ─────────────────────────────────────────────
+  # Job 2: Windows x64（PyInstaller）
+  # ─────────────────────────────────────────────
+  build-windows:
+    needs: setup
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.setup.outputs.version }}
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Install UPX
-        shell: bash
-        run: |
-          case "${{ matrix.os }}" in
-            ubuntu-latest) sudo apt-get install -y upx ;;
-            macos-latest) brew install upx ;;
-            windows-latest) choco install upx -y ;;
-          esac
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: Install dependencies
-        shell: bash
         run: |
-          pip install -e . pyinstaller
+          pip install -e ".[all]" pyinstaller
 
       - name: Build with PyInstaller
-        shell: bash
         run: |
-          set -e
-          python -m PyInstaller \
-            --clean \
-            --onedir \
-            --name Voxplore-${{ matrix.platform }} \
-            ${{ matrix.pyinstaller_args }} \
+          pyinstaller `
+            --clean `
+            --onedir `
+            --name "Voxplore-${{ env.VERSION }}-windows-x64" `
+            --add-data "resources;resources" `
+            --hidden-import=PySide6 `
+            --hidden-import=PySide6.QtCore `
+            --hidden-import=PySide6.QtGui `
+            --hidden-import=PySide6.QtWidgets `
+            --hidden-import=PySide6.QtMultimedia `
+            --hidden-import=cv2 `
+            --hidden-import=numpy `
+            --hidden-import=PIL `
+            --hidden-import=librosa `
+            --hidden-import=soundfile `
+            --hidden-import=pydub `
+            --hidden-import=faster_whisper `
+            --hidden-import=edge_tts `
+            --hidden-import=openai `
+            --hidden-import=cryptography `
+            --hidden-import=keyring `
+            --hidden-import=httpx `
+            --hidden-import=dotenv `
+            --hidden-import=yaml `
+            --collect-all=PySide6 `
+            --noconfirm `
             app/main.py
 
-      - id: package
-        name: Package artifact
-        shell: bash
+      - name: Package as zip
         run: |
-          set -e
-          cd dist
-
-          case "${{ matrix.platform }}" in
-            linux-*)
-              tar -cvf Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar \
-                Voxplore-${{ matrix.platform }}
-              xz -9 Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar
-              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.tar.xz"
-              ;;
-            macos-*)
-              # Create .app bundle
-              APP_NAME="Voxplore.app"
-              mkdir -p "$APP_NAME/Contents/MacOS"
-              mkdir -p "$APP_NAME/Contents/Resources"
-              cp -r "Voxplore-${{ matrix.platform }}/"* "$APP_NAME/Contents/MacOS/"
-              cp -r "$GITHUB_WORKSPACE/resources" "$APP_NAME/Contents/"
-              
-              # Package as DMG
-              hdiutil create -volname "Voxplore" -srcfolder "$APP_NAME" \
-                -ov -format UDZO "Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
-              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.dmg"
-              ;;
-            windows-*)
-              powershell -Command "Compress-Archive -Force 'Voxplore-${{ matrix.platform }}\*' 'Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.zip'"
-              ARTIFACT="Voxplore-${{ github.ref_name }}-${{ matrix.platform }}.zip"
-              ;;
-          esac
-          
-          ls -lh
-          echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
+          powershell -Command "Compress-Archive -Force 'dist\Voxplore-${{ env.VERSION }}-windows-x64\*' 'dist\Voxplore-${{ env.VERSION }}-windows-x64.zip'"
+          dir dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Voxplore-${{ matrix.platform }}
-          path: dist/${{ steps.package.outputs.artifact }}
-          retention-days: 3
+          name: Voxplore-windows-x64
+          path: dist/Voxplore-${{ env.VERSION }}-windows-x64.zip
+          retention-days: 5
 
-      - name: Create Release
+  # ─────────────────────────────────────────────
+  # Job 3: macOS x64（PyInstaller）
+  # ─────────────────────────────────────────────
+  build-macos-x64:
+    needs: setup
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.setup.outputs.version }}
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[all]" pyinstaller
+          brew install create-dmg || true
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller \
+            --clean \
+            --onedir \
+            --name "Voxplore-${{ env.VERSION }}-macos-x64" \
+            --windowed \
+            --add-data "resources:resources" \
+            --hidden-import=PySide6 \
+            --hidden-import=PySide6.QtCore \
+            --hidden-import=PySide6.QtGui \
+            --hidden-import=PySide6.QtWidgets \
+            --hidden-import=PySide6.QtMultimedia \
+            --hidden-import=cv2 \
+            --hidden-import=numpy \
+            --hidden-import=PIL \
+            --hidden-import=librosa \
+            --hidden-import=soundfile \
+            --hidden-import=pydub \
+            --hidden-import=faster_whisper \
+            --hidden-import=edge_tts \
+            --hidden-import=openai \
+            --hidden-import=cryptography \
+            --hidden-import=keyring \
+            --hidden-import=httpx \
+            --hidden-import=dotenv \
+            --hidden-import=yaml \
+            --collect-all=PySide6 \
+            --noconfirm \
+            app/main.py
+
+      - name: Create app bundle
+        run: |
+          APP_NAME="Voxplore.app"
+          mkdir -p "$APP_NAME/Contents/MacOS"
+          mkdir -p "$APP_NAME/Contents/Resources"
+          cp -r "dist/Voxplore-${{ env.VERSION }}-macos-x64/"* "$APP_NAME/Contents/MacOS/"
+          cp -r resources "$APP_NAME/Contents/"
+          chmod -R a+rX "$APP_NAME"
+
+      - name: Package as DMG
+        run: |
+          if command -v create-dmg &> /dev/null; then
+            create-dmg \
+              --volname "Voxplore" \
+              --window-size 600 400 \
+              --icon "Voxplore.app" 150 185 \
+              --app-drop-link 450 185 \
+              "Voxplore-${{ env.VERSION }}-macos-x64.dmg" \
+              "Voxplore.app"
+          else
+            hdiutil create -volname "Voxplore" \
+              -srcfolder "Voxplore.app" \
+              -ov -format UDZO \
+              "Voxplore-${{ env.VERSION }}-macos-x64.dmg"
+          fi
+          ls -lh *.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-macos-x64
+          path: Voxplore-${{ env.VERSION }}-macos-x64.dmg
+          retention-days: 5
+
+  # ─────────────────────────────────────────────
+  # Job 4: macOS ARM64（PyInstaller）
+  # ─────────────────────────────────────────────
+  build-macos-arm64:
+    needs: setup
+    runs-on: macos-14
+    timeout-minutes: 45
+    env:
+      VERSION: ${{ needs.setup.outputs.version }}
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[all]" pyinstaller
+          brew install create-dmg || true
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller \
+            --clean \
+            --onedir \
+            --name "Voxplore-${{ env.VERSION }}-macos-arm64" \
+            --windowed \
+            --add-data "resources:resources" \
+            --hidden-import=PySide6 \
+            --hidden-import=PySide6.QtCore \
+            --hidden-import=PySide6.QtGui \
+            --hidden-import=PySide6.QtWidgets \
+            --hidden-import=PySide6.QtMultimedia \
+            --hidden-import=cv2 \
+            --hidden-import=numpy \
+            --hidden-import=PIL \
+            --hidden-import=librosa \
+            --hidden-import=soundfile \
+            --hidden-import=pydub \
+            --hidden-import=faster_whisper \
+            --hidden-import=edge_tts \
+            --hidden-import=openai \
+            --hidden-import=cryptography \
+            --hidden-import=keyring \
+            --hidden-import=httpx \
+            --hidden-import=dotenv \
+            --hidden-import=yaml \
+            --collect-all=PySide6 \
+            --noconfirm \
+            app/main.py
+
+      - name: Create app bundle
+        run: |
+          APP_NAME="Voxplore.app"
+          mkdir -p "$APP_NAME/Contents/MacOS"
+          mkdir -p "$APP_NAME/Contents/Resources"
+          cp -r "dist/Voxplore-${{ env.VERSION }}-macos-arm64/"* "$APP_NAME/Contents/MacOS/"
+          cp -r resources "$APP_NAME/Contents/"
+          chmod -R a+rX "$APP_NAME"
+
+      - name: Package as DMG
+        run: |
+          if command -v create-dmg &> /dev/null; then
+            create-dmg \
+              --volname "Voxplore" \
+              --window-size 600 400 \
+              --icon "Voxplore.app" 150 185 \
+              --app-drop-link 450 185 \
+              "Voxplore-${{ env.VERSION }}-macos-arm64.dmg" \
+              "Voxplore.app"
+          else
+            hdiutil create -volname "Voxplore" \
+              -srcfolder "Voxplore.app" \
+              -ov -format UDZO \
+              "Voxplore-${{ env.VERSION }}-macos-arm64.dmg"
+          fi
+          ls -lh *.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-macos-arm64
+          path: Voxplore-${{ env.VERSION }}-macos-arm64.dmg
+          retention-days: 5
+
+  # ─────────────────────────────────────────────
+  # Job 5: Linux x86_64（Nuitka + AppImage）
+  # ─────────────────────────────────────────────
+  build-linux:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VERSION: ${{ needs.setup.outputs.version }}
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx libgl1-mesa-glx libxkbcommon0 libdbus-1-3 \
+            libegl1 libgl1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 \
+            wget patchelf
+
+      - name: Install Python dependencies
+        run: |
+          pip install -e ".[all]" nuitka
+
+      - name: Build with Nuitka
+        run: |
+          mkdir -p dist-nuitka
+          nuitka \
+            --standalone \
+            --onefile \
+            --enable-plugin=pyside6 \
+            --include-qt-plugins=accessible,iconengines,imageformats,platforms,styles \
+            --remove-output \
+            --output-dir=dist-nuitka \
+            --output-filename="Voxplore-${{ env.VERSION }}-linux-x86_64" \
+            --linux-icon="resources/icons/app_icon.png" \
+            --enable-console=no \
+            app/main.py
+
+      - name: Download appimagetool
+        run: |
+          wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
+          chmod +x appimagetool
+
+      - name: Package as AppImage
+        run: |
+          # 将 nuitka 输出打包为 AppImage 兼容目录
+          APP_DIR="Voxplore-${{ env.VERSION }}-linux-x86_64.AppDir"
+          mkdir -p "$APP_DIR"
+          cp dist-nuitka/Voxplore-${{ env.VERSION }}-linux-x86_64 "$APP_DIR/"
+          cp resources/icons/app_icon.png "$APP_DIR/" 2>/dev/null || true
+
+          # AppRun wrapper
+          cat > "$APP_DIR/AppRun" << 'APPWRITE'
+          #!/bin/bash
+          SELF=$(readlink -f "$0")
+          DIR=$(dirname "$SELF")
+          exec "$DIR/Voxplore-${{ env.VERSION }}-linux-x86_64" "$@"
+          APPWRITE
+          chmod +x "$APP_DIR/AppRun"
+
+          # AppImage.yml
+          cat > "$APP_DIR/AppImage.yml" << 'YMLEOF'
+          appid: com.voxplore.app
+          version: "${{ env.VERSION }}"
+          name: Voxplore
+          exec: Voxplore-${{ env.VERSION }}-linux-x86_64
+          YMLEOF
+
+          ARCH=x86_64 ./appimagetool "$APP_DIR" "Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage"
+          ls -lh Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxplore-linux-x86_64
+          path: Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage
+          retention-days: 5
+
+  # ─────────────────────────────────────────────
+  # Job 6: 汇总所有 artifact，创建 GitHub Release
+  # ─────────────────────────────────────────────
+  create-release:
+    needs: [setup, build-windows, build-macos-x64, build-macos-arm64, build-linux]
+    runs-on: ubuntu-latest
+    env:
+      VERSION_TAG: ${{ needs.setup.outputs.version_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: |
+          find artifacts -type f | sort
+          echo "---"
+          ls -lh artifacts/
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          name: Voxplore ${{ github.ref_name }}
+          tag_name: ${{ env.VERSION_TAG }}
+          name: Voxplore ${{ env.VERSION_TAG }}
           draft: false
-          files: dist/${{ steps.package.outputs.artifact }}
+          generate_release_notes: true
+          files: |
+            artifacts/*.zip
+            artifacts/*.dmg
+            artifacts/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
