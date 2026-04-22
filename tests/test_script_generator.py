@@ -5,7 +5,6 @@
 单元测试 - 文案生成器
 """
 
-import pytest
 from pathlib import Path
 import sys
 
@@ -17,7 +16,6 @@ from app.services.ai.script_generator import (
     VoiceTone,
     ScriptConfig,
     GeneratedScript,
-    ScriptSegment,
 )
 
 

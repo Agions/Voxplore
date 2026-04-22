@@ -345,6 +345,9 @@ class VideoExporter:
 
 def demo_export():
     """演示视频导出"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     exporter = VideoExporter(ExportConfig(
         width=1080,
         height=1920,

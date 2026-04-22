@@ -13,11 +13,11 @@ from PySide6.QtWidgets import (
     QFileDialog, QSizePolicy, QRadioButton, QButtonGroup, QMessageBox
 )
 from PySide6.QtCore import Qt, Signal, QThread, QUrl
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 
-from app.ui.components import MacCard, MacTitleLabel, MacPrimaryButton, MacSecondaryButton
+from app.ui.components import MacCard
 
 
 # ── OKLCH Design Tokens ──────────────────────────────────────

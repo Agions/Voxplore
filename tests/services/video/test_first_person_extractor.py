@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 """测试第一人称视角提取服务"""
 
-import pytest
 from dataclasses import asdict
-from unittest.mock import MagicMock, patch
-import numpy as np
+from unittest.mock import MagicMock
 
 from app.services.video.extraction.first_person_extractor import (
     VideoSegment,

@@ -4,7 +4,6 @@ Projects Router
 """
 
 from fastapi import APIRouter, HTTPException
-from typing import List
 
 from app.api.schemas.models import (
     ProjectCreate, ProjectResponse, ProjectListResponse

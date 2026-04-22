@@ -2,7 +2,6 @@
 """测试第一人称独白制作器"""
 
 import pytest
-from dataclasses import asdict
 
 from app.services.video.monologue_maker import (
     MonologueStyle,

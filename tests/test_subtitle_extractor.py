@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Subtitle Extractor"""
 
-import pytest
 from dataclasses import asdict
 
 from app.services.ai.subtitle_extractor import (

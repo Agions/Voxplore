@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """测试日志模块"""
 
-import pytest
 import logging
-import sys
 from io import StringIO
 
 from app.core.logger import Logger, LogLevel, LogFormat

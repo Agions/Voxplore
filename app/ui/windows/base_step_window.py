@@ -3,7 +3,7 @@ BaseStepWindow - 步骤窗口基类
 所有步骤窗口（上传/场景/配音/导出）继承此基类
 """
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 
 
 class BaseStepWindow(QWidget):

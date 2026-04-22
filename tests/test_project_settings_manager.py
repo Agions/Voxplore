@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试项目设置管理器"""
 
-import pytest
 from app.core.project_settings_manager import (
     SettingType,
     SettingDefinition,

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """测试剪映导出器"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.export.jianying_exporter import (
     TrackType,

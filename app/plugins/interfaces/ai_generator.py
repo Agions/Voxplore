@@ -4,7 +4,7 @@ AI 生成器插件接口
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, AsyncIterator
+from typing import Dict, List, Optional, AsyncIterator
 from dataclasses import dataclass
 from app.plugins.interfaces.base import BasePlugin, PluginType
 
@@ -47,7 +47,7 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     async def analyze_scene(
         self,
         video_path: str,
-        frame timestamps: List[float],
+        frame_timestamps: List[float],
     ) -> List[SceneAnalysis]:
         """
         分析视频场景

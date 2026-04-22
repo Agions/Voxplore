@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """测试 FFmpeg 工具"""
 
-import pytest
 import os
 import tempfile
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from subprocess import CalledProcessError
 
 from app.services.video_tools.ffmpeg_tool import FFmpegTool

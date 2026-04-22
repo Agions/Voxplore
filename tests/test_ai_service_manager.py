@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Test AI Service Manager"""
 
-import pytest
-from datetime import datetime
-from dataclasses import asdict
 
 from app.services.ai_service_manager import (
     ServiceStatus,

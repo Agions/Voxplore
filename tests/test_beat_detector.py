@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Beat Detector"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.audio.beat_detector import (
     BeatStrength,

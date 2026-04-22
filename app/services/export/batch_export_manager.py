@@ -11,7 +11,7 @@ from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 import threading
-from ...core.exceptions import ExportError, ProjectError
+from ...core.exceptions import ExportError
 
 logger = logging.getLogger(__name__)
 

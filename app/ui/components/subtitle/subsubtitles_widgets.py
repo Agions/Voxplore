@@ -13,23 +13,20 @@ Subtitle Track Widget
 - 缩放和平移
 """
 
-from typing import List, Optional, Dict, Any, Tuple
-import math
+from typing import List, Optional, Tuple
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
-    QPushButton, QSlider, QScrollArea, QToolTip,
-    QAbstractItemView, QListWidget, QListWidgetItem,
+    QPushButton, QSlider, QScrollArea,
 )
-from PySide6.QtCore import Qt, Signal, Slot, QRect, QPoint, QSize
+from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QLinearGradient, 
-    QPainterPath, QMouseEvent, QPalette, QFont
+    QPainter, QColor, QPen, QBrush, QMouseEvent, QFont
 )
 
 from .subsubtitles import (
     SubtitleTrack, SubtitleBlock, MultiTrackSubtitleEditor,
-    SubtitleStylePreset, SubtitlePosition, SubtitleAnimation,
+    SubtitleStylePreset,
 )
 
 

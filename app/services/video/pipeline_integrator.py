@@ -30,7 +30,7 @@ Pipeline Integrator
     maker.apply_interleave_to_project(project, timeline)
 """
 
-from typing import List, Optional, Dict, Any, Callable
+from typing import List, Optional, Dict, Any
 
 from .monologue_maker import MonologueMaker, MonologueProject, MonologueSegment
 from .perspective_mapper import PerspectiveMapper
@@ -38,13 +38,10 @@ from .video_interleaver import VideoInterleaver
 from .models.perspective_models import (
     PerspectiveShot,
     InterleaveTimeline,
-    InterleaveDecision,
     InterleaveContext,
-    InterleaveMode,
     NarrationSegment,
     ClipSegment,
     SceneSegment,
-    TransitionType,
 )
 from .models.monologue_models import EmotionType
 from ..ai.scene_models import SceneInfo

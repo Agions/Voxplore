@@ -10,7 +10,7 @@ import asyncio
 import threading
 
 from app.api.schemas.models import (
-    NarrationRequest, PipelineStatus, InterleaveModeAPI
+    NarrationRequest, PipelineStatus
 )
 from app.services.video.pipeline_integrator import PipelineIntegrator
 
@@ -113,7 +113,6 @@ async def _process_narration(task_id: str):
         # ── 步骤 1: 创建项目 ──
         _update(task, "pending", 5.0, "正在创建项目...")
 
-        from app.services.video.monologue_maker import MonologueProject, MonologueStyle
         project = integrator.create_project(
             source_video=req["source_video"],
             context=req.get("context", ""),

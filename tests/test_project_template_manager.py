@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """测试项目模板管理器"""
 
-import pytest
 from datetime import datetime
-from dataclasses import asdict
 
 from app.core.project_template_manager import (
     TemplateCategory,
     TemplateInfo,
-    ProjectType,
 )
 
 

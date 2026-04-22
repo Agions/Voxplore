@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试事件总线"""
 
-import pytest
 from app.core.event_bus import EventBus
 
 

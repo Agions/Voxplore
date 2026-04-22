@@ -16,8 +16,6 @@ from app.services.video.models.perspective_models import (
     ClipSegment,
     NarrationSegment,
     SceneSegment,
-    SubjectPosition,
-    SubjectRole,
 )
 from app.services.video.models.monologue_models import EmotionType, MonologueSegment
 

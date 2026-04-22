@@ -4,12 +4,10 @@ Perspective Mapper
 """
 
 from typing import List, Optional, Dict, Any
-import numpy as np
 
 from .models.perspective_models import (
     SceneSegment, KeyFrame, PerspectiveShot, ViewpointAnchor,
-    SubjectPosition, SubjectRole, NarrationSegment,
-    InterleaveDecision, InterleaveMode, TransitionType
+    SubjectPosition, SubjectRole, NarrationSegment
 )
 
 

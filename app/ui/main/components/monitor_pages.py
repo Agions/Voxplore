@@ -5,17 +5,13 @@
 AI监控面板 - 页面创建
 """
 
-import random
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
-    QPushButton, QLabel, QFrame, QGroupBox, QComboBox, QTableWidget,
-    QTableWidgetItem
+    QPushButton, QLabel, QFrame, QGroupBox, QComboBox, QTableWidget
 )
-from PySide6.QtCore import Qt, QPoint
-from PySide6.QtGui import QColor, QCursor
 
-from .monitor_widgets import ServiceStatusWidget, PerformanceChart
+from .monitor_widgets import PerformanceChart
 
 
 class MonitorPages:

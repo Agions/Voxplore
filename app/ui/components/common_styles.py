@@ -8,7 +8,6 @@ OKLCH 色彩系统 · frontend-design-pro compliant
 所有组件共享的 design token（颜色/间距/圆角/按钮/卡片/输入框）
 """
 
-from enum import Enum
 
 
 class ColorPalette:

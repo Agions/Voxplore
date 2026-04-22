@@ -10,11 +10,11 @@ LLM 请求重试机制
 import asyncio
 import logging
 import random
-from typing import Any, Callable, Dict, Optional
-from datetime import datetime, timedelta
+from typing import Any, Callable, Optional
+from datetime import datetime
 from enum import Enum
 
-from .errors import RateLimitError, CircuitOpenError
+from .errors import CircuitOpenError
 
 
 logger = logging.getLogger(__name__)

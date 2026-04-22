@@ -5,11 +5,10 @@
 AI监控面板 - 可复用组件
 """
 
-import time as time_module
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime, timedelta
 
-from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
+from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QPixmap, QColor, QCursor, QPen, QBrush, QPainter, QPainterPath
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Scene Analyzer"""
 
-import pytest
 from dataclasses import asdict
 
 from app.services.ai.scene_analyzer import (

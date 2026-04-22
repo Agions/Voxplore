@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试配置管理器"""
 
-import pytest
 from app.core.config_manager import (
     LLMProviderType,
     LLMConfig,

@@ -3,12 +3,10 @@ Voxplore 主窗口 — 完整的窗口管理器 + Pipeline 集成
 """
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QStackedWidget,
-    QApplication, QMessageBox
+    QMessageBox
 )
-from PySide6.QtCore import Qt, Signal, QTimer
 
 from app.ui.components.step_indicator import StepIndicator
-from app.ui.windows.base_step_window import BaseStepWindow
 from app.ui.windows.upload_window import UploadWindow
 from app.ui.windows.scene_window import SceneWindow
 from app.ui.windows.narration_window import NarrationWindow

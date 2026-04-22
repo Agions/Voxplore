@@ -4,8 +4,6 @@ Video Interleaver
 """
 
 from typing import List, Optional, Dict, Any, Tuple
-import bisect
-import math
 
 from .models.perspective_models import (
     NarrationSegment, ClipSegment, PerspectiveShot,

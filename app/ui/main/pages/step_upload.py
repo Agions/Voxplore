@@ -14,15 +14,14 @@ from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
     QLineEdit, QComboBox, QFrame, QFileDialog, QProgressBar,
-    QScrollArea, QSizePolicy, QAbstractItemView, QListWidget, QListWidgetItem,
-    QCheckBox
+    QScrollArea, QCheckBox
 )
-from PySide6.QtCore import Qt, Signal, QSize, QThread, QTimer
-from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent, QPixmap, QImage, QIcon
+from PySide6.QtCore import Qt, Signal, QThread
+from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent, QPixmap
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
 
-from ...components import MacCard, MacPrimaryButton, MacSecondaryButton
+from ...components import MacCard
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

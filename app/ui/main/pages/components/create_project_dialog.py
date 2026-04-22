@@ -7,9 +7,8 @@
 
 from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QDialog, QLineEdit, QComboBox,
-    QMessageBox
+    QMessageBox, QWidget
 )
-from PySide6.QtCore import Qt
 
 from app.ui.components import (
     MacPrimaryButton, MacSecondaryButton, MacTitleLabel, MacLabel,

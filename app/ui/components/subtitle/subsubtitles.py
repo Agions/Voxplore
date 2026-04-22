@@ -17,7 +17,7 @@ MultiTrack Subtitle System
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict
 import uuid
 
 

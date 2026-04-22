@@ -5,12 +5,12 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QScrollArea, QFrame, QGridLayout,
-    QSizePolicy, QSpacerItem, QInputDialog, QMessageBox,
-    QMenu, QApplication
+    QInputDialog, QMessageBox,
+    QMenu
 )
-from PySide6.QtCore import Qt, Signal, QSize, QTimer
+from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont, QAction, QCursor
-from app.core.project_manager import ProjectManager, Project
+from app.core.project_manager import ProjectManager
 
 
 class ProjectCard(QFrame):

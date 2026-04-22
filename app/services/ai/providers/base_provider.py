@@ -11,7 +11,7 @@ LLM Provider Mixins
 
 import httpx
 import asyncio
-from typing import List, Dict, Any, AsyncGenerator
+from typing import List, Dict, Any
 
 
 class HTTPProviderMixin:
@@ -87,9 +87,9 @@ class RetryProviderMixin:
         self.base_delay = base_delay
         self.exponential_base = exponential_base
 
-    async def _retry_generate(self, request: "LLMRequest") -> "LLMResponse":
+    async def _retry_generate(self, request, response):
         """带重试的生成（指数退避）"""
-        from ..base_llm_provider import LLMResponse, ProviderError
+        # Import locally to avoid circular imports and undefined name issues
 
         last_error = None
 

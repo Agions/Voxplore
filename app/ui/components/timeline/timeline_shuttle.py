@@ -6,12 +6,10 @@ Timeline Shuttle Component
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame,
     QLabel, QPushButton, QSlider, QScrollArea,
-    QAbstractItemView, QListWidget, QListWidgetItem,
 )
-from PySide6.QtCore import Qt, Signal, Slot, QRect, QPoint, QSize
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QPalette
-from typing import List, Optional, Dict, Any, Tuple
-import math
+from PySide6.QtCore import Qt, Signal, QPoint
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush
+from typing import List, Dict, Tuple
 
 from app.services.video.models.perspective_models import (
     NarrationSegment, ClipSegment, InterleaveDecision,

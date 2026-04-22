@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """测试智能视频分组服务"""
 
-import pytest
-from unittest.mock import MagicMock, patch
 import numpy as np
 
 from app.services.video.grouping.smart_grouper import (

@@ -7,14 +7,14 @@
 """
 
 import os
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QComboBox, QSpinBox, QTableWidget, QTableWidgetItem,
                             QFileDialog, QMessageBox, QTabWidget, QGroupBox,
-                            QLineEdit, QCheckBox, QDialog)
+                            QLineEdit, QCheckBox, QDialog, QFormLayout)
 from PySide6.QtCore import Qt, Signal
 
-from ...export.export_system import ExportTask, ExportPreset
+from ...export.export_system import ExportPreset
 from ...core.logger import Logger
 
 from .export_format_selector import ExportSettingsDialog

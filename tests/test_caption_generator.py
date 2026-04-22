@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Caption Generator"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.video_tools.caption_generator import (
     CaptionStyle,

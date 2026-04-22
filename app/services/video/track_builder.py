@@ -8,7 +8,6 @@
 """
 
 from pathlib import Path
-from typing import Dict, Any
 
 from app.services.export.jianying_models import (
     JianyingDraft,

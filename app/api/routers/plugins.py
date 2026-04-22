@@ -5,7 +5,7 @@ Plugins Router
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List
 
 router = APIRouter()
 

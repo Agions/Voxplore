@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试异常模块"""
 
-import pytest
 
 from app.core.exceptions import (
     ErrorCode,

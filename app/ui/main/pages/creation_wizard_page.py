@@ -11,8 +11,7 @@ frontend-design-pro: OKLCH色彩 · OutCubic动效 · 脉冲指示器
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QStackedWidget,
-    QGraphicsOpacityEffect
+    QVBoxLayout, QHBoxLayout, QLabel, QFrame, QStackedWidget
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QTimer, QPoint
 from PySide6.QtGui import QFont

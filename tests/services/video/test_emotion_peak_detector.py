@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """测试情感峰值检测服务"""
 
-import pytest
-from dataclasses import asdict
-from unittest.mock import MagicMock
 
 from app.services.video.extraction.emotion_peak_detector import (
     EmotionPeak,

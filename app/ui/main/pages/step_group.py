@@ -12,13 +12,11 @@ import os
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
-    QFrame, QScrollArea, QSizePolicy, QProgressBar, QCheckBox,
-    QComboBox, QLineEdit, QGraphicsDropShadowEffect
+    QFrame, QScrollArea, QSizePolicy, QProgressBar, QLineEdit
 )
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QFont, QPixmap, QDrag, QDropEvent, QPainter, QColor
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont, QPixmap, QDrag
 
-from ...components import MacCard, MacPrimaryButton, MacSecondaryButton
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

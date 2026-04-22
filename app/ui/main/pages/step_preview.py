@@ -9,15 +9,13 @@ Task 2.3 UX 改善:
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QTextEdit, QComboBox, QLineEdit, QCheckBox, QScrollArea,
-    QSizePolicy, QProgressBar, QSplitter, QTabWidget, QListWidget,
-    QListWidgetItem, QAbstractItemView
+    QSizePolicy, QProgressBar, QSplitter, QTabWidget
 )
 from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QFont, QPainter, QTextCursor
+from PySide6.QtGui import QFont
 
-from ...components import MacCard, MacPrimaryButton, MacSecondaryButton
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

@@ -4,9 +4,7 @@ Cinematic Subtitle Plugin
 """
 
 from typing import Dict, Any, List, Optional
-import math
 
-from app.plugins.interfaces.base import BasePlugin, PluginManifest, PluginType, AppContext
 from app.plugins.interfaces.export_plugin import BaseExportPlugin
 
 

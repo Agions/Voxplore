@@ -3,12 +3,13 @@ Plugin Loader
 插件加载器，负责扫描目录和加载插件
 """
 
-import os
+import sys
+
 import json
 import importlib
 import importlib.util
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 
 from app.plugins.interfaces.base import PluginManifest, PluginType, AppContext
 from app.plugins.registry import PluginRegistry

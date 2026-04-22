@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """测试片段选择服务"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.video.selection.segment_selector import (
     SelectionStrategy,

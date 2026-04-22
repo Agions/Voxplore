@@ -5,9 +5,8 @@ Plugin Registry
 
 import json
 import os
-from pathlib import Path
-from typing import Dict, List, Optional, Callable, Any
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Callable
+from dataclasses import dataclass
 from enum import Enum
 
 from app.plugins.interfaces.base import BasePlugin, PluginManifest, PluginType, AppContext

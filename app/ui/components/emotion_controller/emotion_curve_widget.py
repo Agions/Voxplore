@@ -15,14 +15,13 @@ Emotion Curve Widget
 - 平滑动画效果
 """
 
-import math
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from PySide6.QtWidgets import QWidget, QToolTip
-from PySide6.QtCore import Qt, QPoint, QRect, Signal, QPropertyAnimation, Property
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import QSize, Qt, Signal, QPoint, QRect, QPropertyAnimation
 from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QLinearGradient, 
-    QPainterPath, QMouseEvent, QHoverEvent, QPalette
+    QPainter, QColor, QPen, QBrush, QLinearGradient,
+    QPainterPath, QMouseEvent
 )
 
 

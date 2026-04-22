@@ -12,7 +12,6 @@ import shutil
 import zipfile
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
 from pathlib import Path
 import logging
 
@@ -20,7 +19,7 @@ from PySide6.QtCore import QObject, Signal
 
 from .project_manager import Project, ProjectType
 from .config_manager import ConfigManager
-from .template_models import TemplateInfo, TemplateCategory
+from .template_models import TemplateInfo, TemplateCategory, TemplateMetadata
 
 
 class ProjectTemplateManager(QObject):

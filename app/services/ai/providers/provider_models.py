@@ -16,6 +16,7 @@ LLM Provider 标准化 Pydantic 模型
 
 from typing import Optional, List, Dict, Any, Literal
 from pydantic import BaseModel, Field
+from ...base_llm_provider import LLMRequest, LLMResponse
 
 
 class ChatMessage(BaseModel):
@@ -145,7 +146,6 @@ class ChatRequest(BaseModel):
     @classmethod
     def from_llm_request(cls, req: "LLMRequest") -> "ChatRequest":
         """从现有 LLMRequest (dataclass) 转换"""
-        from .base_llm_provider import LLMRequest as LLMReq
 
         messages = []
         if req.system_prompt:
@@ -203,7 +203,6 @@ class ChatResponse(BaseModel):
     @classmethod
     def from_llm_response(cls, resp: "LLMResponse") -> "ChatResponse":
         """从现有 LLMResponse (dataclass) 转换"""
-        from .base_llm_provider import LLMResponse as LLMResp
 
         usage = UsageInfo()
         if resp.usage:

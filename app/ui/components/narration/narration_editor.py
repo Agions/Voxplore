@@ -4,18 +4,14 @@ Narration Editor Component
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QTextEdit, QLabel, QPushButton, QComboBox,
-    QSlider, QFrame, QListWidget, QListWidgetItem,
-    QToolBar, QLineEdit
+    QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QComboBox,
+    QSlider, QFrame, QListWidget, QListWidgetItem
 )
-from PySide6.QtCore import Qt, Signal, Slot, QTimer
-from PySide6.QtGui import QFont, QTextCharFormat, QColor, QPainter, QPen
-from typing import List, Optional, Dict, Any, Callable
-import re
+from PySide6.QtCore import Qt, Signal
+from typing import List, Optional, Dict
 
 from app.services.video.models.perspective_models import (
-    NarrationSegment, EmotionType
+    NarrationSegment
 )
 
 

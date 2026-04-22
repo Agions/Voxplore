@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Video Exporter"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.export.video_exporter import (
     ExportFormat,

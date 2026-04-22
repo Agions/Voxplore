@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QScrollArea, QFrame, QProgressBar
 )
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal
 from app.ui.windows.base_step_window import BaseStepWindow
 
 
@@ -169,11 +169,11 @@ class SceneCard(QFrame):
         layout.setSpacing(8)
 
         # 时间范围
-        time_label = QLabel(f"⏱ {scene['start']:02d}:00 — {scene['end']:02d}:00")
+        time_label = QLabel(f"⏱ {self.scene['start']:02d}:00 — {self.scene['end']:02d}:00")
         time_label.setObjectName("scene_time")
 
         # 描述
-        desc = QLabel(scene["description"])
+        desc = QLabel(self.scene["description"])
         desc.setObjectName("scene_desc")
         desc.setWordWrap(True)
 

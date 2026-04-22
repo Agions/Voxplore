@@ -26,8 +26,7 @@ Voxplore 服务接口定义
     process_video(MonologueMaker(), "video.mp4")
 """
 
-from typing import Protocol, runtime_checkable, Optional, List, Any, Dict, Callable
-from pathlib import Path
+from typing import Protocol, runtime_checkable, Optional, List, Any, Callable
 
 
 # =============================================================================

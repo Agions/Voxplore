@@ -4,8 +4,7 @@ Voxplore Video Perspective & Interleave Models
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Dict, Any, Tuple
-from typing_extensions import TypedDict
+from typing import List, Optional, Tuple
 
 
 # ─────────────────────────────────────────────────────────────

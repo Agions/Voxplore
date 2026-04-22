@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """测试视频制作器基类"""
 
-import pytest
 from dataclasses import asdict
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 
 from app.services.video.base_maker import (
     BaseProject,

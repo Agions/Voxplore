@@ -6,9 +6,8 @@ DeepSeek AI 生成器插件 - 提供场景分析和脚本生成功能
 import uuid
 import json
 from typing import Dict, Any, List, Optional, AsyncIterator
-from dataclasses import dataclass
 
-from app.plugins.interfaces.base import BasePlugin, PluginManifest, PluginType, AppContext
+from app.plugins.interfaces.base import PluginManifest
 from app.plugins.interfaces.ai_generator import (
     BaseAIGeneratorPlugin,
     SceneAnalysis,

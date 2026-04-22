@@ -22,10 +22,9 @@ LLM 提供商抽象基类
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, TypeVar, Callable
+from typing import Dict, List, Optional, Any, TypeVar
 from dataclasses import dataclass
 from enum import Enum
-from collections import deque
 import asyncio
 import httpx
 import logging
@@ -99,7 +98,6 @@ from .errors import (
 from .retry import (
     RetryHandler,
     RateLimiter,
-    CircuitState,
     CircuitBreaker,
 )
 

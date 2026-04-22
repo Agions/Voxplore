@@ -19,17 +19,17 @@ Emotion Controller Component
     controller.curve_confirmed.connect(on_curve_confirmed)
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QSlider, QFrame, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, Slot, QSize
-from PySide6.QtGui import QColor, QFont
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont
 
 from .emotion_curve_widget import EmotionCurveWidget
-from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton, get_preset_by_name
+from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
 
 
 class EmotionController(QWidget):

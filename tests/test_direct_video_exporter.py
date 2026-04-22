@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Direct Video Exporter"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.export.direct_video_exporter import (
     Resolution,

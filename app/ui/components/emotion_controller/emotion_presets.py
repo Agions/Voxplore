@@ -14,9 +14,8 @@ Emotion Presets Data
 """
 
 from typing import Dict, List
-from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QPushButton
-from PySide6.QtGui import QColor, QPalette
+from PySide6.QtGui import QColor
 
 
 # 情感预设数据结构
@@ -185,7 +184,6 @@ def interpolate_curve(curve: List[float], num_points: int) -> List[float]:
     if len(curve) < 2:
         return curve
     
-    import math
     
     # 使用线性插值
     result = []

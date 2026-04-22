@@ -18,7 +18,7 @@ from ..base_llm_provider import (
     ProviderError,
     HTTPClientMixin,
     ModelManagerMixin,
-    DEFAULT_RETRY_MAX_DELAY,
+    DEFAULT_LOCAL_TIMEOUT,
 )
 
 

@@ -4,12 +4,10 @@
 """
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QScrollArea, QFrame, QGridLayout,
-    QProgressBar, QComboBox, QCheckBox, QGroupBox,
-    QSizePolicy, QSpacerItem, QRadioButton, QButtonGroup
+    QLabel, QFrame, QProgressBar, QGroupBox,
+    QRadioButton, QButtonGroup
 )
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt, Signal
 from app.ui.windows.base_step_window import BaseStepWindow
 
 

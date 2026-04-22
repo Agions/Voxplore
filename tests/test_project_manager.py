@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """测试项目管理器"""
 
-import pytest
-from datetime import datetime
 from app.core.project_manager import (
     ProjectStatus,
     ProjectType,

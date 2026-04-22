@@ -4,11 +4,10 @@ AI 生成解说词 + 情感控制 + 预览
 """
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QScrollArea, QFrame, QGridLayout,
-    QTextEdit, QSlider, QGroupBox, QComboBox,
-    QSpacerItem, QSizePolicy, QProgressBar
+    QLabel, QFrame, QTextEdit, QSlider, QGroupBox, QComboBox,
+    QProgressBar
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from app.ui.windows.base_step_window import BaseStepWindow
 

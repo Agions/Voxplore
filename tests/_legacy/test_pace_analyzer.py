@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Pace Analyzer"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.video_tools.pace_analyzer import (
     PaceLevel,

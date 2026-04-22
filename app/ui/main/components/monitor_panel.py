@@ -7,14 +7,14 @@ AI状态监控面板
 """
 
 import time as time_module
-from typing import Dict, Any, List, Optional
+from typing import Dict, List
 from datetime import datetime
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QStackedWidget,
-    QPushButton, QLabel, QGroupBox, QMessageBox, QTableWidgetItem
+    QPushButton, QLabel, QMessageBox, QTableWidgetItem
 )
-from PySide6.QtCore import QTimer, Signal
+from PySide6.QtCore import QTimer, Signal, Qt
 from PySide6.QtGui import QColor
 
 from ....core.logger import Logger
@@ -23,7 +23,7 @@ from ....core.application import Application
 from ....services import ServiceStatus
 
 from .monitor_models import MonitorMode, AlertData
-from .monitor_widgets import ServiceStatusWidget, PerformanceChart, AlertWidget
+from .monitor_widgets import ServiceStatusWidget, AlertWidget
 from .monitor_pages import MonitorPages
 
 

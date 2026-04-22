@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QRect
-from PySide6.QtGui import QFont
 
 from ...core.application import Application
 from ...core.logger import Logger

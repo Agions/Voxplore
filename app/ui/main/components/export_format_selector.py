@@ -10,7 +10,6 @@ from typing import Dict, Any
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QGroupBox, QFormLayout,
                             QLineEdit, QTextEdit, QComboBox, QSpinBox,
                             QDialogButtonBox)
-from PySide6.QtCore import Qt
 
 from ....export.export_system import ExportPreset
 from ....core.logger import Logger

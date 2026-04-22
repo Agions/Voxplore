@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Silence Remover"""
 
-import pytest
 from dataclasses import asdict
 
 from app.services.video_tools.silence_remover import (

@@ -14,7 +14,7 @@ frontend-design-pro 规范 · 2026-04-10
 
 from PySide6.QtWidgets import (
     QWidget, QPushButton, QLabel, QLineEdit, QProgressBar, QFrame,
-    QHBoxLayout, QVBoxLayout
+    QHBoxLayout
 )
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QGraphicsOpacityEffect
@@ -82,6 +82,17 @@ class Colors:
         "warning": "#D29922",
         "error": "#DA3633",
     }
+
+
+# ─── 圆角系统 ────────────────────────────────────────────
+class Radius:
+    """圆角 tokens"""
+    none = "0px"
+    sm = "4px"
+    md = "6px"
+    lg = "8px"
+    xl = "12px"
+    full = "9999px"
 
 
 # ─── 字体系统 ──────────────────────────────────────────────

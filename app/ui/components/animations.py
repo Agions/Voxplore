@@ -14,8 +14,7 @@ frontend-design-pro compliant: OutCubic easing · 微交互 100-150ms · 页面�
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import (
-    QPropertyAnimation, QEasingCurve, Qt, QRect, Signal, QTimer,
-    QParallelAnimationGroup, QSequentialAnimationGroup
+    QPropertyAnimation, QEasingCurve, QRect, Signal, QTimer
 )
 from PySide6.QtGui import QColor, QPainter, QPen, QPaintEvent
 

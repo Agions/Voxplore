@@ -2,7 +2,7 @@
 """测试服务注册表"""
 
 import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 
 from app.core.service_registry import (
     ServiceState,

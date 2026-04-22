@@ -7,7 +7,7 @@ DeepSeek 提供商
 """
 
 import httpx
-from typing import List, AsyncIterator, Optional
+from typing import List, AsyncIterator
 
 from ..base_llm_provider import (
     BaseLLMProvider,

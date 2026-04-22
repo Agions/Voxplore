@@ -22,7 +22,6 @@ Whisper ASR 提供者（离线语音识别）
 from __future__ import annotations
 
 import logging
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, AsyncIterator

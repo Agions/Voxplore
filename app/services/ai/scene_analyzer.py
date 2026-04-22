@@ -24,10 +24,10 @@ import subprocess
 import re
 
 from pathlib import Path
-from typing import List, Optional, Callable, Dict, Any
+from typing import List, Optional, Callable
 
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
-from .scene_scorer import SceneScorer, SCENE_TYPE_PRIORITY
+from .scene_scorer import SceneScorer
 
 
 logger = logging.getLogger(__name__)

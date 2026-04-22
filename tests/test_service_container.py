@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试服务容器"""
 
-import pytest
 from app.core.service_container import ServiceContainer
 
 

@@ -17,11 +17,9 @@ Subtitle Exporter and Importer
 import re
 import json
 from pathlib import Path
-from typing import List, Optional, Dict, Any
-from dataclasses import dataclass
+from typing import List, Dict
 
 from .subsubtitles import (
-    SubtitleStylePreset,
     SubtitleBlock,
     SubtitleTrack,
     MultiTrackSubtitleEditor,

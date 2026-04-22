@@ -7,7 +7,6 @@ CFToastNotification 使用示例
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-from PySide6.QtCore import Qt
 from app.ui.components.design_system import CFToastNotification
 
 

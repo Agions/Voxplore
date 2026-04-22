@@ -32,7 +32,6 @@ from typing import Optional, List, Dict, Tuple
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
     TrackType,
-    MaterialType,
     TimeRange,
     Track,
     Segment,
@@ -414,7 +413,6 @@ class JianyingExporter:
 
 def demo_export():
     """导出示例"""
-    from .jianying_models import TimeRange
 
     exporter = JianyingExporter(JianyingConfig(
         canvas_ratio="9:16",  # 竖屏短视频

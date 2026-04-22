@@ -25,11 +25,10 @@ AI 第一人称独白制作器 (Monologue Maker)
 """
 
 import logging
-import os
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -79,7 +78,6 @@ class MonologueProject(BaseProject):
             实际保存的文件路径
         """
         import json
-        from dataclasses import asdict
 
         save_path = Path(path) if path else Path(self.output_dir) / f"{self.name}.narrafiilm"
         save_path.parent.mkdir(parents=True, exist_ok=True)

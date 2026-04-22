@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """测试安全密钥管理器"""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from cryptography.fernet import Fernet
 
 from app.core.secure_key_manager import SecureKeyManager

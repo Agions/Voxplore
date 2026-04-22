@@ -25,14 +25,13 @@
 import asyncio
 import json
 import logging
-from typing import Optional, List, Dict, Any, Callable, AsyncIterator
+from typing import Optional, Dict, Any, Callable, AsyncIterator
 
 from .script_generator import ScriptGenerator
 from .script_models import (
     ScriptStyle,
     VoiceTone,
     ScriptConfig,
-    ScriptSegment,
     GeneratedScript,
 )
 
@@ -468,11 +467,11 @@ class StreamingScriptGenerator(ScriptGenerator):
             SSE 格式的字符串行
         """
         async def _sse_generator():
-            config = config or ScriptConfig()
+            cfg = config if config is not None else ScriptConfig()
             
             full_content = ""
             
-            async for chunk in self._stream_sse_content(topic, config):
+            async for chunk in self._stream_sse_content(topic, cfg):
                 if chunk:
                     full_content += chunk
                     # SSE 格式: data: {chunk}\n\n
@@ -601,11 +600,11 @@ class StreamingScriptGenerator(ScriptGenerator):
             事件字典
         """
         async def _iter():
-            config = config or ScriptConfig()
+            cfg = config if config is not None else ScriptConfig()
             last_sentiment = 0.0
             full_content = ""
             
-            async for chunk in self._stream_content(topic, config):
+            async for chunk in self._stream_content(topic, cfg):
                 if chunk:
                     full_content += chunk
                     yield {'type': 'chunk', 'content': chunk}

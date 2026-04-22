@@ -2,7 +2,6 @@
 """测试导出器基类"""
 
 import pytest
-from dataclasses import asdict
 
 from app.services.export.base_exporter import (
     seconds_to_microseconds,

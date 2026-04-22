@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Cache Manager"""
 
-import pytest
-import time
 
 from app.core.cache_manager import MemoryCache
 from app.core.interfaces.cache_interface import CachePolicy

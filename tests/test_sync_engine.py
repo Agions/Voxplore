@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Sync Engine"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.audio.sync_engine import (
     SyncStrategy,

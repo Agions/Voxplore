@@ -15,7 +15,6 @@ FirstPersonExtractor - 第一人称视角提取服务
 
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
-from typing import Any
 import numpy as np
 
 

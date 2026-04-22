@@ -5,7 +5,6 @@
 单元测试 - LLM 提供商
 """
 
-import pytest
 from pathlib import Path
 import sys
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Test Transition Effects"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.video.transition_effects import (
     TransitionType,

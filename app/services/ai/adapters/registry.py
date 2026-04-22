@@ -3,8 +3,8 @@ AI Provider Registry
 Provider 注册与管理中心
 """
 
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional
+from dataclasses import dataclass
 import logging
 
 from .base import (

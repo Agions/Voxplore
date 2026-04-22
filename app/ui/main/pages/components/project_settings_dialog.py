@@ -6,15 +6,12 @@
 """
 
 from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QWidget, QTabWidget, QLineEdit,
-    QComboBox, QSpinBox, QCheckBox, QSlider, QLabel,
-    QScrollArea, QGroupBox
+    QVBoxLayout, QHBoxLayout, QWidget, QTabWidget, QComboBox, QCheckBox, QScrollArea, QGroupBox, QDialog
 )
-from PySide6.QtCore import Qt
 
 from app.ui.components import (
     MacPrimaryButton, MacSecondaryButton, MacIconButton,
-    MacTitleLabel, MacLabel, MacCard,
+    MacTitleLabel,
 )
 from app.core.project_manager import Project
 from app.core.project_settings_manager import ProjectSettingsManager

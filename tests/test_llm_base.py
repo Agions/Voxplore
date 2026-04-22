@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """测试 LLM 提供商基类和混入"""
 
-import pytest
-from dataclasses import asdict
 
 from app.services.ai.base_llm_provider import (
     LLMRequest,

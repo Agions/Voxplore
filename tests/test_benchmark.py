@@ -82,7 +82,6 @@ class TestMemoryBenchmarks:
     
     def test_cache_memory(self):
         """缓存内存使用"""
-        import sys
         from app.utils.performance import MemoryCache
         
         cache = MemoryCache(max_size=10000, ttl=60)

@@ -4,8 +4,7 @@ Export Plugin Interface
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, IO
-from dataclasses import dataclass
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 from app.plugins.interfaces.base import BasePlugin, PluginType
 

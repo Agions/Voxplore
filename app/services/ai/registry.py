@@ -7,7 +7,6 @@ AI Provider 注册表
 支持配置文件热加载（YAML 格式）。
 """
 
-from typing import ClassVar
 from pathlib import Path
 
 import yaml

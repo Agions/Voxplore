@@ -5,8 +5,6 @@
 import pytest
 import tempfile
 import os
-from pathlib import Path
-from unittest.mock import MagicMock
 
 from app.services.ai.registry import ProviderRegistry
 from app.services.ai.interfaces import (

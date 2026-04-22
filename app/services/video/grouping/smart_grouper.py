@@ -19,7 +19,6 @@ from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 from enum import Enum
 import numpy as np
-from collections import defaultdict
 
 
 class GroupingReason(Enum):
