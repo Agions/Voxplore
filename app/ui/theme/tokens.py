@@ -106,3 +106,11 @@ TRANSITION = {
     "normal": "200ms ease",
     "slow":   "300ms ease",
 }
+
+
+# ─── 主题 Tokens（Light / Dark 模式）────────────────────────
+# theme_manager.py 依赖这两个导出，但当前设计系统只有一套 COLORS。
+# Light/Dark 模式下同一 token key 映射到同一个 OKLCH 值
+#（背景色等视觉差异由 CSS 层通过 opacity/覆盖实现，而非独立 token）
+LIGHT_TOKENS = COLORS
+DARK_TOKENS = COLORS

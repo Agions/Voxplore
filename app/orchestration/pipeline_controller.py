@@ -100,7 +100,7 @@ class PipelineController(QObject):
             output_dir: 输出目录
         """
         if self._is_running:
-            self.logger.warn("Pipeline 已在运行中，忽略重复启动")
+            self.logger.warning("Pipeline 已在运行中，忽略重复启动")
             return
 
         self._is_running = True
@@ -160,7 +160,7 @@ class PipelineController(QObject):
             return
 
         if self._is_running:
-            self.logger.warn("Pipeline 正在运行中")
+            self.logger.warning("Pipeline 正在运行中")
             return
 
         self._is_running = True

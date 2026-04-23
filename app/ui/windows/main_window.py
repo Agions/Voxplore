@@ -141,14 +141,14 @@ class MainWindow(QMainWindow):
         """Step 1 完成：保存文件列表，进入 Step 2"""
         data = self.upload_win.get_data()
         self._shared_data["files"] = data["files"]
-        self._scene_win.set_shared_data({"files": data["files"]})
+        self.scene_win.set_shared_data({"files": data["files"]})
         self._go_to_step(1)
 
     def _on_scene_done(self):
         """Step 2 完成：保存场景数据，进入 Step 3"""
         data = self.scene_win.get_data()
         self._shared_data["scenes"] = data["scenes"]
-        self._narration_win.set_shared_data({
+        self.narration_win.set_shared_data({
             "files": self._shared_data.get("files", []),
             "scenes": data["scenes"],
         })
@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
         """Step 3 完成：保存配音数据，进入 Step 4"""
         data = self.narration_win.get_data()
         self._shared_data["narration"] = data
-        self._export_win.set_shared_data({
+        self.export_win.set_shared_data({
             "files": self._shared_data.get("files", []),
             "scenes": self._shared_data.get("scenes", []),
             "narration": data,

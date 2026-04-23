@@ -2,6 +2,7 @@
 项目列表窗口
 接入真实 ProjectManager，支持项目 CRUD
 """
+import logging
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QScrollArea, QFrame, QGridLayout,
@@ -184,7 +185,7 @@ class ProjectsWindow(QWidget):
                     "thumb": self._get_thumb_for_status(proj.metadata.status.value if proj.metadata.status else "draft"),
                 })
         except Exception as e:
-            print(f"[ProjectsWindow] 加载项目失败: {e}")
+            logging.getLogger(__name__).warning(f"加载项目失败: {e}")
         self._render_projects()
 
     def _get_thumb_for_status(self, status: str) -> str:
