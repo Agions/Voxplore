@@ -337,12 +337,12 @@ jobs:
             --noconfirm \
             app/main.py
 
-      - name: Upload artifact
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: Voxplore-linux-x86_64
           path: dist/Voxplore-${{ env.VERSION }}-linux-x86_64
-          retention-days: 5
+          retention-days: 90
 
   # ─────────────────────────────────────────────
   # Job 6: 汇总所有 artifact，创建 GitHub Release
@@ -377,6 +377,21 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/*.dmg
-            artifacts/Voxplore-*-linux-x86_64
+          body: |
+            ## Downloads
+
+            **macOS / Windows** — 直接下载上方附件
+
+            **Linux** — 请从 CI Artifact 下载（因体积超过 GitHub 2GB 限制）：
+            1. 点击上方 **Actions** 标签
+            2. 选择 **Release Build** workflow
+            3. 点击对应构建 run
+            4. 在 Artifacts 中下载 `Voxplore-linux-x86_64`
+
+            ```bash
+            # 下载后赋予执行权限
+            chmod +x Voxplore-4.0.0-linux-x86_64
+            ./Voxplore-4.0.0-linux-x86_64
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
