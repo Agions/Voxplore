@@ -314,7 +314,7 @@ jobs:
             --standalone \
             --onefile \
             --enable-plugin=pyside6 \
-            --include-qt-plugins=iconengines,imageformats,platforms,styles \
+            --include-qt-plugins=iconengines,imageformats,platforms,platformthemes \
             --remove-output \
             --output-dir=dist-nuitka \
             --output-filename="Voxplore-${{ env.VERSION }}-linux-x86_64" \
