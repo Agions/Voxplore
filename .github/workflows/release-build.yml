@@ -319,7 +319,6 @@ jobs:
             --output-dir=dist-nuitka \
             --output-filename="Voxplore-${{ env.VERSION }}-linux-x86_64" \
             --linux-icon="resources/icons/app_icon.png" \
-            --enable-console=no \
             app/main.py
 
       - name: Download appimagetool
