@@ -278,7 +278,7 @@ jobs:
           retention-days: 5
 
   # ─────────────────────────────────────────────
-  # Job 5: Linux x86_64（Nuitka + AppImage）
+  # Job 5: Linux x86_64（PyInstaller）
   # ─────────────────────────────────────────────
   build-linux:
     needs: setup
@@ -301,63 +301,53 @@ jobs:
           sudo apt-get install -y upx libgl1 libxkbcommon0 libdbus-1-3 \
             libegl1 libgl1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
             libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 \
-            wget patchelf
+            patchelf
 
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
-          pip install -e ".[all]" nuitka
+          pip install -e ".[all]" pyinstaller
 
-      - name: Build with Nuitka
+      - name: Build with PyInstaller
         run: |
-          mkdir -p dist-nuitka
-          nuitka \
-            --standalone \
-            --onefile \
-            --enable-plugin=pyside6 \
-            --include-qt-plugins=iconengines,imageformats,platforms \
-            --remove-output \
-            --output-dir=dist-nuitka \
-            --output-filename="Voxplore-${{ env.VERSION }}-linux-x86_64" \
+          pyinstaller \
+            --clean \
+            --onedir \
+            --name "Voxplore-${{ env.VERSION }}-linux-x86_64" \
+            --add-data "resources:resources" \
+            --hidden-import=PySide6 \
+            --hidden-import=PySide6.QtCore \
+            --hidden-import=PySide6.QtGui \
+            --hidden-import=PySide6.QtWidgets \
+            --hidden-import=PySide6.QtMultimedia \
+            --hidden-import=cv2 \
+            --hidden-import=numpy \
+            --hidden-import=PIL \
+            --hidden-import=librosa \
+            --hidden-import=soundfile \
+            --hidden-import=pydub \
+            --hidden-import=faster_whisper \
+            --hidden-import=edge_tts \
+            --hidden-import=openai \
+            --hidden-import=cryptography \
+            --hidden-import=keyring \
+            --hidden-import=httpx \
+            --hidden-import=dotenv \
+            --hidden-import=yaml \
+            --collect-all=PySide6 \
+            --noconfirm \
             app/main.py
 
-      - name: Download appimagetool
+      - name: Package as tarball
         run: |
-          wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
-          chmod +x appimagetool
-
-      - name: Package as AppImage
-        run: |
-          # 将 nuitka 输出打包为 AppImage 兼容目录
-          APP_DIR="Voxplore-${{ env.VERSION }}-linux-x86_64.AppDir"
-          mkdir -p "$APP_DIR"
-          cp dist-nuitka/Voxplore-${{ env.VERSION }}-linux-x86_64 "$APP_DIR/"
-          cp resources/icons/app_icon.png "$APP_DIR/" 2>/dev/null || true
-
-          # AppRun wrapper
-          cat > "$APP_DIR/AppRun" << 'APPWRITE'
-          #!/bin/bash
-          SELF=$(readlink -f "$0")
-          DIR=$(dirname "$SELF")
-          exec "$DIR/Voxplore-${{ env.VERSION }}-linux-x86_64" "$@"
-          APPWRITE
-          chmod +x "$APP_DIR/AppRun"
-
-          # AppImage.yml
-          cat > "$APP_DIR/AppImage.yml" << 'YMLEOF'
-          appid: com.voxplore.app
-          version: "${{ env.VERSION }}"
-          name: Voxplore
-          exec: Voxplore-${{ env.VERSION }}-linux-x86_64
-          YMLEOF
-
-          ARCH=x86_64 ./appimagetool "$APP_DIR" "Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage"
-          ls -lh Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage
+          tar -czf "Voxplore-${{ env.VERSION }}-linux-x86_64.tar.gz" \
+            -C dist "Voxplore-${{ env.VERSION }}-linux-x86_64"
+          ls -lh *.tar.gz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Voxplore-linux-x86_64
-          path: Voxplore-${{ env.VERSION }}-linux-x86_64.AppImage
+          path: Voxplore-${{ env.VERSION }}-linux-x86_64.tar.gz
           retention-days: 5
 
   # ─────────────────────────────────────────────
@@ -393,6 +383,6 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/*.dmg
-            artifacts/*.AppImage
+            artifacts/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
