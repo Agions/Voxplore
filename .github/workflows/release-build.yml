@@ -307,11 +307,11 @@ jobs:
         run: |
           pip install -e ".[all]" pyinstaller
 
-      - name: Build with PyInstaller
+      - name: Build with PyInstaller (onefile)
         run: |
           pyinstaller \
             --clean \
-            --onedir \
+            --onefile \
             --name "Voxplore-${{ env.VERSION }}-linux-x86_64" \
             --add-data "resources:resources" \
             --hidden-import=PySide6 \
@@ -337,17 +337,11 @@ jobs:
             --noconfirm \
             app/main.py
 
-      - name: Package as tarball
-        run: |
-          tar -czf "Voxplore-${{ env.VERSION }}-linux-x86_64.tar.gz" \
-            -C dist "Voxplore-${{ env.VERSION }}-linux-x86_64"
-          ls -lh *.tar.gz
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Voxplore-linux-x86_64
-          path: Voxplore-${{ env.VERSION }}-linux-x86_64.tar.gz
+          path: dist/Voxplore-${{ env.VERSION }}-linux-x86_64
           retention-days: 5
 
   # ─────────────────────────────────────────────
@@ -383,6 +377,6 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/*.dmg
-            artifacts/*.tar.gz
+            artifacts/Voxplore-*-linux-x86_64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
