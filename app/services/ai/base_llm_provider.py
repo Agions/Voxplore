@@ -48,7 +48,7 @@ T = TypeVar("T")
 # ============ 枚举定义 ============
 
 class ProviderType(Enum):
-    """LLM 提供商类型 (2026年3月最新国产模型)"""
+    """LLM 提供商类型 (2026年4月最新国产模型)"""
     QWEN = "qwen"           # 阿里通义千问
     KIMI = "kimi"           # 月之暗面 Kimi
     GLM5 = "glm5"           # 智谱 GLM

@@ -25,7 +25,7 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     API 文档: https://platform.deepseek.com/docs
 
-    支持模型 (2026年3月):
+    支持模型 (2026年4月最新):
     - deepseek-reasoner (R1): 推理模型，数学和代码能力强大
     - deepseek-v3-2 (V3.2): 最新基础模型，多任务能力强
     - deepseek-chat: 通用对话模型
