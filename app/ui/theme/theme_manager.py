@@ -17,8 +17,6 @@ def _oklch(key: str, mode: str = "dark") -> str:
     return tokens.get(key, COLORS.get(key, "oklch(0.50 0.00 0)"))
 
 
-from dataclasses import dataclass
-
 
 @dataclass
 class ThemeConfig:

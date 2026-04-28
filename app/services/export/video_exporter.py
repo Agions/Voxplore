@@ -159,7 +159,7 @@ class VideoExporter:
 
         if result.returncode != 0:
             raise ExportError(
-                message=f"导出失败",
+                message="导出失败",
                 details={"stderr": result.stderr, "cmd": " ".join(cmd)}
             )
 

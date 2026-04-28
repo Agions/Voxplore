@@ -73,7 +73,7 @@ class ExportManager:
         exporter = self.exporters.get(config.format)
         if not exporter:
             raise ExportError(
-                message=f"不支持的导出格式",
+                message="不支持的导出格式",
                 format=config.format,
             )
 

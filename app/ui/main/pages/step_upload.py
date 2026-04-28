@@ -9,7 +9,10 @@ Task 2.1 UX 改善:
 - 上传进度条：QProgressBar 显示分析进度
 """
 
-import os, json, subprocess, logging
+import os
+import json
+import subprocess
+import logging
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,

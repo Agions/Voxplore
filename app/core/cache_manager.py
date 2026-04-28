@@ -200,9 +200,6 @@ def cached(ttl: Optional[int] = None, use_disk: bool = False):
     return decorator
 
 
-# 重新导出以保持向后兼容
-from .cache_impl.memory_cache import MemoryCache
-from .cache_impl.disk_cache import DiskCache
 
 __all__ = [
     "CacheManager",

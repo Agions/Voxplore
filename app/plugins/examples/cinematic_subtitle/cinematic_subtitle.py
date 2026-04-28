@@ -150,8 +150,8 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         lines.append("ScriptType: v4.00+")
         lines.append("WrapStyle: 0")
         lines.append("ScaledBorderAndShadow: yes")
-        lines.append(f"PlayResX: 1920")
-        lines.append(f"PlayResY: 1080")
+        lines.append("PlayResX: 1920")
+        lines.append("PlayResY: 1080")
         lines.append("")
 
         lines.append("[V4+ Styles]")

@@ -18,9 +18,12 @@ Voxplore 核心抽象接口
 使用示例:
     from app.core.interfaces import IVideoMaker, IScriptGenerator
 
-    # 检查类是否实现接口
-    from app.services.video.monologue_maker import MonologueMaker
-    assert isinstance(MonologueMaker(), IVideoMaker)
+    # 检查类是否实现接口（延迟导入避免循环依赖）
+    import warnings
+    def _get_monologue_maker():
+        from app.services.video.monologue_maker import MonologueMaker
+        return MonologueMaker
+    assert isinstance(_get_monologue_maker()(), IVideoMaker)
 
     # 运行时协议检查
     from typing import runtime_checkable

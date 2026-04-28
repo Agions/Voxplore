@@ -25,6 +25,16 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any, TypeVar
 from dataclasses import dataclass
 from enum import Enum
+from .errors import (
+    ProviderError,
+    RateLimitError,
+    CircuitOpenError,
+)
+from .retry import (
+    RetryHandler,
+    RateLimiter,
+    CircuitBreaker,
+)
 import asyncio
 import httpx
 import logging
@@ -88,18 +98,6 @@ class LLMResponse:
 
 
 
-# ============ 导入异常和工具类 ============
-
-from .errors import (
-    ProviderError,
-    RateLimitError,
-    CircuitOpenError,
-)
-from .retry import (
-    RetryHandler,
-    RateLimiter,
-    CircuitBreaker,
-)
 
 class RequestCache:
     """

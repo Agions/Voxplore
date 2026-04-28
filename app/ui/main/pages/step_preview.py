@@ -599,10 +599,10 @@ class StepPreview(QWidget):
         # ── 主内容区：左侧预览 + 右侧设置 ──────────────────
         main_split = QSplitter(Qt.Orientation.Horizontal)
         main_split.setHandleWidth(16)
-        main_split.setStyleSheet(f"""
-            QSplitter::handle {{
+        main_split.setStyleSheet("""
+            QSplitter::handle {
                 background: transparent;
-            }}
+            }
         """)
 
         # 左侧：文案预览
