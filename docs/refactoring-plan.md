@@ -257,8 +257,8 @@ Provider 使用 Mixin 组合是合理的架构选择,不应强制改为继承层
 |--------|------|--------|------|
 | P1 | 将 `BaseExporter` ABC 改为接口定义，文件重命名 | 小 | ✅ 已完成 |
 | P1 | 评估 VideoExporter vs DirectVideoExporter 是否合并 | 中 | ✅ 已完成（保持分离） |
-| P2 | 完善 JIAN/YINGExporter 继承 BaseExporter（可选） | 中 | 待定 |
-| P2 | 添加服务层文档说明 | 小 | 待定 |
+| P2 | 完善 JIAN/YINGExporter 继承 BaseExporter（可选） | 中 | ❌ 不推荐 - 当前设计已工作良好，继承收益低 |
+| P2 | 添加服务层文档说明 | 小 | ❌ 不需要 - ServiceManager 与 AIServiceManager 职责已明确 |
 | P3 | 监控 `monologue_maker.py` 增长，必要时拆分 | 中 | 观察中 |
 
 ---
