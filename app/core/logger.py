@@ -42,7 +42,7 @@ class Logger:
             )
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
-    
+
     @classmethod
     def get_logger(cls, name: str) -> 'Logger':
         """获取日志记录器实例"""
@@ -78,11 +78,11 @@ class Logger:
 
     def log_lazy(self, level: int, message_fn: callable) -> None:
         """懒加载日志：仅在对应日志级别启用时才计算消息内容
-        
+
         Args:
             level: 日志级别
             message_fn: 返回消息字符串的函数（callable）
-        
+
         Usage:
             logger.log_lazy(logging.INFO, lambda: f"Expensive calculation: {compute()}")
         """

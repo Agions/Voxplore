@@ -34,13 +34,13 @@ class ServiceInfo:
 class ServiceManager:
     """
     统一服务管理器
-    
+
     提供服务的注册、获取和生命周期管理
     """
-    
+
     _services: Dict[str, ServiceInfo] = {}
     _initialized: bool = False
-    
+
     @classmethod
     def register(cls, name: str, service_class: Type):
         """注册服务"""
@@ -48,42 +48,42 @@ class ServiceManager:
             name=name,
             service_class=service_class,
         )
-    
+
     @classmethod
     def get(cls, name: str) -> Optional[Any]:
         """获取服务实例"""
         if name not in cls._services:
             return None
-        
+
         info = cls._services[name]
-        
+
         # 懒加载
         if info.instance is None:
             info.instance = info.service_class()
-        
+
         return info.instance
-    
+
     @classmethod
     def initialize(cls):
         """初始化所有服务"""
         if cls._initialized:
             return
-        
+
         # 注册 AI 服务
         cls.register("llm", LLMManager)
         cls.register("scene_analyzer", SceneAnalyzer)
         cls.register("voice_generator", VoiceGenerator)
         cls.register("script_generator", ScriptGenerator)
         cls.register("subtitle_extractor", SubtitleExtractor)
-        
+
         # 注册视频服务
         cls.register("monologue", MonologueMaker)
-        
+
         # 注册导出服务
         cls.register("export", ExportManager)
-        
+
         cls._initialized = True
-    
+
     @classmethod
     def get_all_services(cls) -> Dict[str, Any]:
         """获取所有服务"""
@@ -92,7 +92,7 @@ class ServiceManager:
             name: cls.get(name)
             for name in cls._services.keys()
         }
-    
+
     @classmethod
     def reset(cls):
         """重置所有服务"""

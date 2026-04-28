@@ -49,7 +49,7 @@ class MacStatLabel(QWidget):
 
         self.label = MacLabel(label)
         self.label.setProperty("secondary", True)
-        
+
         self.value = MacLabel(value)
         self.value.setFont(QFont("", 14, QFont.Weight.Bold))
 

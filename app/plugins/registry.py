@@ -36,7 +36,7 @@ class PluginEntry:
 class PluginRegistry:
     """
     插件注册中心
-    
+
     职责:
     - 注册/注销插件
     - 管理插件生命周期
@@ -63,7 +63,7 @@ class PluginRegistry:
     def register_plugin(self, manifest: PluginManifest) -> None:
         """
         注册插件（但不加载）
-        
+
         验证清单并添加到注册表
         """
         errors = manifest.validate()

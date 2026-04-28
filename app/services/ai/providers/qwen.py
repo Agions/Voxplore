@@ -124,7 +124,7 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     },
                 )
                 return response.json()
-            
+
             data = await self._retry_handler.execute(_call_api)
             latency_ms = (time.monotonic() - start_time) * 1000
 
@@ -153,13 +153,13 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """
         if not requests:
             return []
-        
+
         # 使用 gather_with_concurrency 控制并发数
         results = await gather_with_concurrency(
             max_concurrency,
             *[self.generate(req) for req in requests]
         )
-        
+
         # 处理异常
         responses = []
         for i, result in enumerate(results):
@@ -175,7 +175,7 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 ))
             else:
                 responses.append(result)
-        
+
         return responses
 
     async def close(self):

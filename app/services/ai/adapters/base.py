@@ -46,7 +46,7 @@ class ProviderMetadata:
 class BaseLLMAdapter(ABC):
     """
     LLM Adapter 基类
-    
+
     所有 AI Provider 通过 Adapter 模式接入:
     - 统一的接口
     - 可插拔
@@ -119,7 +119,7 @@ class VideoAnalysisAdapter(BaseLLMAdapter):
     async def analyze_video(self, video_path: str, frames: List[float]) -> Dict[str, Any]:
         """
         分析视频
-        
+
         Returns:
             {
                 "scenes": [...],
@@ -169,12 +169,12 @@ class TTSAdapter(BaseLLMAdapter):
     ) -> str:
         """
         合成语音
-        
+
         Args:
             text: 要合成的文本
             voice_id: 音色 ID
             output_path: 输出文件路径
-            
+
         Returns:
             生成的音频文件路径
         """

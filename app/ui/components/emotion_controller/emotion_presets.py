@@ -51,7 +51,7 @@ EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
         ],
         "description": "温暖、舒适的情感曲线，开始和结束都柔和，中间有持续的正向情感。适合疗愈、温暖、平静的内容。",
     },
-    
+
     "mysterious": {
         "name": "mysterious",
         "name_cn": "悬疑",
@@ -70,7 +70,7 @@ EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
         ],
         "description": "悬疑、紧张的情感曲线，有多个起伏和尖峰，适合制造紧张感和悬念。适合惊悚、探秘、推理内容。",
     },
-    
+
     "inspirational": {
         "name": "inspirational",
         "name_cn": "励志",
@@ -90,7 +90,7 @@ EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
         ],
         "description": "励志、奋进的情感曲线，从低到高逐渐上升，适合展现克服困难、取得成功的故事弧线。",
     },
-    
+
     "nostalgic": {
         "name": "nostalgic",
         "name_cn": "怀旧",
@@ -110,7 +110,7 @@ EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
         ],
         "description": "怀旧、沉思的情感曲线，情感深度在中间偏高，整体平缓有深度。适合回忆、思念、感慨类内容。",
     },
-    
+
     "romantic": {
         "name": "romantic",
         "name_cn": "浪漫",
@@ -136,32 +136,32 @@ EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
 def get_preset_by_name(name: str) -> EMOTION_PRESET:
     """
     根据名称获取情感预设
-    
+
     Args:
         name: 预设名称 (英文或中文)
-        
+
     Returns:
         预设数据字典
-        
+
     Raises:
         KeyError: 找不到预设
     """
     # 尝试英文名
     if name in EMOTION_PRESETS:
         return EMOTION_PRESETS[name]
-    
+
     # 尝试中文名
     for preset in EMOTION_PRESETS.values():
         if preset["name_cn"] == name:
             return preset
-    
+
     raise KeyError(f"未找到情感预设: {name}")
 
 
 def get_all_preset_names() -> List[str]:
     """
     获取所有预设名称列表
-    
+
     Returns:
         英文名称列表
     """
@@ -171,20 +171,20 @@ def get_all_preset_names() -> List[str]:
 def interpolate_curve(curve: List[float], num_points: int) -> List[float]:
     """
     对曲线进行插值，获取更多采样点
-    
+
     用于平滑动画或获取更高分辨率的曲线数据。
-    
+
     Args:
         curve: 原始曲线 (10个点)
         num_points: 目标采样点数量
-        
+
     Returns:
         插值后的曲线
     """
     if len(curve) < 2:
         return curve
-    
-    
+
+
     # 使用线性插值
     result = []
     for i in range(num_points):
@@ -192,35 +192,35 @@ def interpolate_curve(curve: List[float], num_points: int) -> List[float]:
         t = i / (num_points - 1) * (len(curve) - 1)
         idx = int(t)
         frac = t - idx
-        
+
         if idx >= len(curve) - 1:
             result.append(curve[-1])
         else:
             # 线性插值
             val = curve[idx] * (1 - frac) + curve[idx + 1] * frac
             result.append(val)
-    
+
     return result
 
 
 def smooth_curve(curve: List[float], iterations: int = 1) -> List[float]:
     """
     平滑曲线
-    
+
     使用简单移动平均进行平滑处理。
-    
+
     Args:
         curve: 原始曲线
         iterations: 平滑迭代次数
-        
+
     Returns:
         平滑后的曲线
     """
     if len(curve) < 3:
         return curve
-    
+
     result = curve[:]
-    
+
     for _ in range(iterations):
         smoothed = []
         for i in range(len(result)):
@@ -233,21 +233,21 @@ def smooth_curve(curve: List[float], iterations: int = 1) -> List[float]:
                 avg = (result[i - 1] + result[i] + result[i + 1]) / 3.0
                 smoothed.append(avg)
         result = smoothed
-    
+
     return result
 
 
 class EmotionPresetButton(QPushButton):
     """
     情感预设按钮
-    
+
     带有预设颜色和样式的按钮组件。
     """
-    
+
     def __init__(self, preset_key: str, parent=None):
         """
         初始化情感预设按钮
-        
+
         Args:
             preset_key: 预设键名 (如 "healing")
             parent: 父 widget
@@ -255,16 +255,16 @@ class EmotionPresetButton(QPushButton):
         super().__init__(parent)
         self.preset_key = preset_key
         self.preset = EMOTION_PRESETS.get(preset_key)
-        
+
         if self.preset:
             self.setText(self.preset["name_cn"])
             self._setup_style()
-    
+
     def _setup_style(self):
         """设置按钮样式"""
         color = self.preset["color_hex"]
         name_cn = self.preset["name_cn"]
-        
+
         # 使用内联样式
         self.setStyleSheet(f"""
             QPushButton {{
@@ -288,13 +288,13 @@ class EmotionPresetButton(QPushButton):
                 color: #090D14;
             }}
         """)
-    
+
     def get_color(self) -> QColor:
         """获取预设颜色"""
         if self.preset:
             return QColor(self.preset["color_hex"])
         return QColor("#FFFFFF")
-    
+
     def get_curve_template(self) -> List[float]:
         """获取预设曲线模板"""
         if self.preset:
@@ -306,25 +306,25 @@ if __name__ == '__main__':
     # 演示和测试
     import sys
     from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout
-    
+
     app = QApplication(sys.argv)
-    
+
     window = QWidget()
     window.setWindowTitle("Emotion Presets Demo")
     window.setStyleSheet("background-color: #090D14;")
-    
+
     layout = QVBoxLayout(window)
-    
+
     # 展示所有预设
     for preset_key, preset in EMOTION_PRESETS.items():
         btn = EmotionPresetButton(preset_key)
         layout.addWidget(btn)
-        
+
         # 打印曲线数据
         curve = preset["curve_template"]
         print(f"{preset['name_cn']}: {curve}")
-    
+
     window.resize(300, 400)
     window.show()
-    
+
     sys.exit(app.exec())

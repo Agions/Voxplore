@@ -106,7 +106,7 @@ class RequestCache:
     请求缓存 - 基于哈希的简单缓存
     减少重复 API 调用
     """
-    
+
     def __init__(self, max_size: int = 1000, ttl: float = DEFAULT_CACHE_TTL):
         self.max_size = max_size
         self.ttl = ttl
@@ -114,7 +114,7 @@ class RequestCache:
         self._lock = asyncio.Lock()
         self._hits = 0
         self._misses = 0
-    
+
     def _make_key(self, request: LLMRequest) -> str:
         """生成缓存键"""
         content = f"{request.model}:{request.prompt[:100]}:{request.temperature}"
@@ -154,14 +154,14 @@ class RequestCache:
                 time.monotonic() + self.ttl
             )
 
-    
+
     def _cleanup(self):
         """清理过期缓存"""
         now = time.monotonic()
         expired = [k for k, (_, expiry) in self._cache.items() if now >= expiry]
         for k in expired:
             del self._cache[k]
-        
+
         # 如果还是太多，删除最老的
         if len(self._cache) >= self.max_size:
             oldest = sorted(
@@ -170,12 +170,12 @@ class RequestCache:
             )[:len(self._cache) // 2]
             for k, _ in oldest:
                 del self._cache[k]
-    
+
     async def clear(self):
         """清空缓存"""
         async with self._lock:
             self._cache.clear()
-    
+
     def get_stats(self) -> Dict[str, int]:
         """获取缓存统计"""
         total = self._hits + self._misses
@@ -245,11 +245,11 @@ class HTTPClientMixin:
         # 验证响应格式
         if not data.get("choices"):
             raise ProviderError("API 响应格式错误: 缺少 choices 字段")
-        
+
         choice = data["choices"][0]
         if not choice.get("message"):
             raise ProviderError("API 响应格式错误: 缺少 message 字段")
-            
+
         content = choice["message"].get("content", "")
 
         return LLMResponse(
@@ -487,21 +487,21 @@ async def gather_with_concurrency(
 ) -> List[Any]:
     """
     控制并发数的 asyncio.gather ✅ 新增
-    
+
     Args:
         n: 最大并发数
         *tasks: 异步任务
         return_exceptions: 是否返回异常
-        
+
     Returns:
         结果列表
     """
     semaphore = asyncio.Semaphore(n)
-    
+
     async def _run_with_semaphore(task):
         async with semaphore:
             return await task
-    
+
     return await asyncio.gather(
         *[_run_with_semaphore(task) for task in tasks],
         return_exceptions=return_exceptions

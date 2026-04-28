@@ -14,12 +14,12 @@ from .models.perspective_models import (
 class PerspectiveMapper:
     """
     第一人称视角映射器
-    
+
     核心职责:
     1. 分析画面中的主体位置，建立"我"的视觉坐标系
     2. 将解说内容与画面元素关联
     3. 决定何时展示原片画面（穿插策略）
-    
+
     算法流程:
     - 输入: 场景分段 + 关键帧 + 解说文本
     - 处理: 主体检测 → 视角锚点 → 穿插决策
@@ -42,13 +42,13 @@ class PerspectiveMapper:
     ) -> List[PerspectiveShot]:
         """
         将场景与第一人称视角映射
-        
+
         Args:
             scenes: 场景分段列表
             narration_segments: 解说片段列表
             video_keyframes: 视频关键帧
             emotion_curve: 情感强度曲线
-            
+
         Returns:
             PerspectiveShot 列表
         """
@@ -104,7 +104,7 @@ class PerspectiveMapper:
     ) -> ViewpointAnchor:
         """
         从场景中提取视角锚点
-        
+
         建立"我"在画面中的位置:
         - 基于画面构图规则（三分法、视线引导）
         - 基于场景氛围
@@ -165,7 +165,7 @@ class PerspectiveMapper:
     ) -> bool:
         """
         决定是否展示原片画面
-        
+
         规则:
         - 情绪强度 >= 0.7 → 展示（沉浸感）
         - 叙事重要性 >= 0.8 → 展示（关键信息）
@@ -206,7 +206,7 @@ class PerspectiveMapper:
     ) -> float:
         """
         计算原片权重 (0=纯解说, 1=纯原片)
-        
+
         公式: weight = (emotional + importance) / 2 * 0.8
         """
         return min(1.0, (emotional_intensity + narration_importance) / 2 * 0.9)
@@ -239,11 +239,11 @@ class PerspectiveMapper:
     ) -> ViewpointAnchor:
         """
         确定单帧的视角锚点
-        
+
         Args:
             frame: 视频帧（numpy array 或路径）
             subject_positions: 检测到的主体位置列表
-            
+
         Returns:
             ViewpointAnchor
         """

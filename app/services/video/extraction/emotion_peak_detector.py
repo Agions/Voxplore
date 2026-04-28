@@ -27,18 +27,18 @@ class EmotionPeak:
 @runtime_checkable
 class VisualComplexityAnalyzer(Protocol):
     """视觉复杂度分析器协议
-    
+
     实现此协议以接入真实视觉分析模型
     """
-    
+
     def analyze(self, video_path: str, start: float, end: float) -> float:
         """分析视觉复杂度
-        
+
         Args:
             video_path: 视频路径
             start: 开始时间（秒）
             end: 结束时间（秒）
-            
+
         Returns:
             复杂度评分（0.0 ~ 1.0）
         """
@@ -48,18 +48,18 @@ class VisualComplexityAnalyzer(Protocol):
 @runtime_checkable
 class AudioEmotionAnalyzer(Protocol):
     """音频情绪分析器协议
-    
+
     实现此协议以接入真实音频情绪识别模型
     """
-    
+
     def analyze(self, video_path: str, start: float, end: float) -> float:
         """分析音频情绪强度
-        
+
         Args:
             video_path: 视频路径
             start: 开始时间（秒）
             end: 结束时间（秒）
-            
+
         Returns:
             情绪评分（0.0 ~ 1.0）
         """
@@ -68,7 +68,7 @@ class AudioEmotionAnalyzer(Protocol):
 
 class MockVisualComplexityAnalyzer:
     """模拟视觉复杂度分析器（用于测试和开发）"""
-    
+
     def analyze(self, video_path: str, start: float, end: float) -> float:
         # 模拟：基于路径和时长生成伪随机复杂度
         hash_val = hash(video_path + f"{start:.1f}") % (2**20)
@@ -78,7 +78,7 @@ class MockVisualComplexityAnalyzer:
 
 class MockAudioEmotionAnalyzer:
     """模拟音频情绪分析器（用于测试和开发）"""
-    
+
     def analyze(self, video_path: str, start: float, end: float) -> float:
         # 模拟：默认中等情绪
         hash_val = hash(video_path + f"{end:.1f}") % (2**20)
@@ -88,14 +88,14 @@ class MockAudioEmotionAnalyzer:
 
 class EmotionPeakDetector:
     """情感峰值检测器"""
-    
+
     # 评分权重
     VISUAL_WEIGHT = 0.6
     AUDIO_WEIGHT = 0.4
-    
+
     # 最低峰值阈值（低于此值不返回）
     MIN_PEAK_THRESHOLD = 0.4
-    
+
     def __init__(
         self,
         visual_analyzer: VisualComplexityAnalyzer | None = None,
@@ -105,7 +105,7 @@ class EmotionPeakDetector:
         min_peak_threshold: float = MIN_PEAK_THRESHOLD,
     ):
         """初始化检测器
-        
+
         Args:
             visual_analyzer: 视觉复杂度分析器（默认使用 Mock）
             audio_analyzer: 音频情绪分析器（默认使用 Mock）
@@ -118,24 +118,24 @@ class EmotionPeakDetector:
         self._visual_weight = visual_weight
         self._audio_weight = audio_weight
         self._min_peak_threshold = min_peak_threshold
-    
+
     def detect_peaks(
         self,
         segments: list[VideoSegment],
     ) -> list[EmotionPeak]:
         """检测情感峰值
-        
+
         Args:
             segments: 视频片段列表
-            
+
         Returns:
             情感峰值列表（按峰值评分降序排列）
         """
         if not segments:
             return []
-        
+
         peaks = []
-        
+
         for seg in segments:
             # 计算视觉复杂度
             try:
@@ -146,7 +146,7 @@ class EmotionPeakDetector:
                 )
             except Exception:
                 visual_score = 0.5
-            
+
             # 计算音频情绪
             try:
                 audio_score = self._audio_analyzer.analyze(
@@ -156,33 +156,33 @@ class EmotionPeakDetector:
                 )
             except Exception:
                 audio_score = 0.5
-            
+
             # 综合评分
             peak_score = (
                 self._visual_weight * visual_score +
                 self._audio_weight * audio_score
             )
-            
+
             # 低于阈值跳过
             if peak_score < self._min_peak_threshold:
                 continue
-            
+
             # 判断峰值原因
             reason = self._determine_reason(
                 visual_score, audio_score, seg.description
             )
-            
+
             peaks.append(EmotionPeak(
                 segment=seg,
                 peak_score=peak_score,
                 reason=reason,
             ))
-        
+
         # 按峰值评分降序排列
         peaks.sort(key=lambda p: p.peak_score, reverse=True)
-        
+
         return peaks
-    
+
     def _determine_reason(
         self,
         visual_score: float,

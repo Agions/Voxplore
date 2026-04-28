@@ -8,7 +8,7 @@ from .feature_tour import FeatureTourDialog, FeatureTooltip, FeatureHighlight
 
 __all__ = [
     'WelcomeScreen',
-    'FeatureCard', 
+    'FeatureCard',
     'GradientLogoWidget',
     'OnboardingWizard',
     'WelcomeStep',

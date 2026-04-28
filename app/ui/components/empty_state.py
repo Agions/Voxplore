@@ -29,26 +29,26 @@ COLORS = {
 
 class EmptyStateIcon(QFrame):
     """空状态图标 - 渐变风格插画"""
-    
+
     def __init__(self, icon_type: str = "default", size: int = 120, parent=None):
         super().__init__(parent)
         self._icon_type = icon_type
         self._size = size
         self.setFixedSize(size, size)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
+
         center = self.rect().center()
         radius = self._size // 2 - 10
-        
+
         # 绘制圆形背景
         gradient = QLinearGradient(
             center.x() - radius, center.y() - radius,
             center.x() + radius, center.y() + radius
         )
-        
+
         if self._icon_type == "projects":
             gradient.setColorAt(0, QColor("#388BFD").withAlpha(40))
             gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))
@@ -61,11 +61,11 @@ class EmptyStateIcon(QFrame):
         else:
             gradient.setColorAt(0, QColor(COLORS["primary"]).withAlpha(40))
             gradient.setColorAt(1, QColor(COLORS["accent"]).withAlpha(30))
-            
+
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(gradient)
         painter.drawEllipse(center, radius, radius)
-        
+
         # 绘制内圈
         inner_gradient = QLinearGradient(
             center.x() - radius + 15, center.y() - radius + 15,
@@ -73,16 +73,16 @@ class EmptyStateIcon(QFrame):
         )
         inner_gradient.setColorAt(0, QColor("#FFFFFF").withAlpha(20))
         inner_gradient.setColorAt(1, QColor("#FFFFFF").withAlpha(5))
-        
+
         painter.setBrush(inner_gradient)
         painter.drawEllipse(center, radius - 12, radius - 12)
-        
+
         # 绘制图标符号
         painter.setPen(QColor(COLORS["text_secondary"]))
         icon_font = QFont("Arial")
         icon_font.setPointSize(int(radius * 0.5))
         painter.setFont(icon_font)
-        
+
         icon_map = {
             "projects": "📁",
             "media": "🎬",
@@ -92,7 +92,7 @@ class EmptyStateIcon(QFrame):
             "default": "📭"
         }
         icon = icon_map.get(self._icon_type, icon_map["default"])
-        
+
         painter.drawText(
             self.rect(),
             Qt.AlignmentFlag.AlignCenter,
@@ -102,12 +102,12 @@ class EmptyStateIcon(QFrame):
 
 class EmptyStateButton(QPushButton):
     """空状态操作按钮"""
-    
+
     def __init__(self, text: str, primary: bool = True, parent=None):
         super().__init__(text, parent)
         self._primary = primary
         self._setup_style()
-        
+
     def _setup_style(self):
         if self._primary:
             self.setStyleSheet(f"""
@@ -154,10 +154,10 @@ class EmptyStateButton(QPushButton):
 
 class MacEmptyStateV2(QWidget):
     """增强版空状态组件 - 品牌升级"""
-    
+
     # 信号定义
     action_clicked = Signal(str)  # 操作点击信号
-    
+
     def __init__(
         self,
         icon_type: str = "default",
@@ -174,17 +174,17 @@ class MacEmptyStateV2(QWidget):
         self._primary_action_text = primary_action_text
         self._secondary_action_text = secondary_action_text
         self._setup_ui()
-        
+
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.setSpacing(24)
         layout.setContentsMargins(40, 60, 40, 60)
-        
+
         # 图标
         self.icon_widget = EmptyStateIcon(self._icon_type, 120)
         layout.addWidget(self.icon_widget)
-        
+
         # 标题
         self.title_label = QLabel(self._title)
         title_font = QFont()
@@ -194,7 +194,7 @@ class MacEmptyStateV2(QWidget):
         self.title_label.setStyleSheet(f"color: {COLORS['text']};")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
-        
+
         # 描述
         if self._description:
             self.desc_label = QLabel(self._description)
@@ -206,39 +206,39 @@ class MacEmptyStateV2(QWidget):
             self.desc_label.setWordWrap(True)
             self.desc_label.setMaximumWidth(400)
             layout.addWidget(self.desc_label)
-        
+
         # 操作按钮
         if self._primary_action_text or self._secondary_action_text:
             button_layout = QHBoxLayout()
             button_layout.setSpacing(12)
             button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            
+
             if self._primary_action_text:
                 self.primary_btn = EmptyStateButton(self._primary_action_text, primary=True)
                 self.primary_btn.clicked.connect(
                     lambda: self.action_clicked.emit("primary")
                 )
                 button_layout.addWidget(self.primary_btn)
-                
+
             if self._secondary_action_text:
                 self.secondary_btn = EmptyStateButton(self._secondary_action_text, primary=False)
                 self.secondary_btn.clicked.connect(
                     lambda: self.action_clicked.emit("secondary")
                 )
                 button_layout.addWidget(self.secondary_btn)
-                
+
             layout.addLayout(button_layout)
-            
+
     def set_title(self, title: str):
         """设置标题"""
         self._title = title
         self.title_label.setText(title)
-        
+
     def set_description(self, description: str):
         """设置描述"""
         self._description = description
         self.desc_label.setText(description)
-        
+
     def set_icon_type(self, icon_type: str):
         """设置图标类型"""
         self._icon_type = icon_type
@@ -250,7 +250,7 @@ class MacEmptyStateV2(QWidget):
 
 class ProjectsEmptyState(MacEmptyStateV2):
     """项目列表空状态"""
-    
+
     def __init__(self, parent=None):
         super().__init__(
             icon_type="projects",
@@ -264,7 +264,7 @@ class ProjectsEmptyState(MacEmptyStateV2):
 
 class MediaLibraryEmptyState(MacEmptyStateV2):
     """素材库空状态"""
-    
+
     def __init__(self, parent=None):
         super().__init__(
             icon_type="media",
@@ -278,7 +278,7 @@ class MediaLibraryEmptyState(MacEmptyStateV2):
 
 class SearchEmptyState(MacEmptyStateV2):
     """搜索结果空状态"""
-    
+
     def __init__(self, keyword: str = "", parent=None):
         super().__init__(
             icon_type="search",
@@ -292,7 +292,7 @@ class SearchEmptyState(MacEmptyStateV2):
 
 class ErrorEmptyState(MacEmptyStateV2):
     """错误空状态"""
-    
+
     def __init__(self, error_message: str = "出了点问题", parent=None):
         super().__init__(
             icon_type="error",

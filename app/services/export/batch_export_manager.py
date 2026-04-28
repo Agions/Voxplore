@@ -56,14 +56,14 @@ class BatchExportManager:
     """批量导出管理器"""
 
     def __init__(
-        self, 
+        self,
         max_parallel: int = 2,
         on_progress: Optional[Callable[[str, float], None]] = None,
         on_complete: Optional[Callable[[str, bool, Optional[str]], None]] = None
     ):
         """
         初始化批量导出管理器
-        
+
         Args:
             max_parallel: 最大并行导出数
             on_progress: 进度回调 (task_id, progress)
@@ -107,25 +107,25 @@ class BatchExportManager:
     ) -> List[ExportTask]:
         """
         从项目列表添加批量任务
-        
+
         Args:
             projects: 项目列表 [{id, name, path}, ...]
             output_dir: 输出目录
             format: 导出格式
             quality: 导出质量
-            
+
         Returns:
             任务列表
         """
         tasks = []
-        
+
         for project in projects:
             task_id = f"export_{project['id']}"
             output_path = os.path.join(
-                output_dir, 
+                output_dir,
                 f"{project['name']}.{format}"
             )
-            
+
             task = self.add_task(
                 task_id=task_id,
                 name=project['name'],
@@ -135,19 +135,19 @@ class BatchExportManager:
                 quality=quality
             )
             tasks.append(task)
-            
+
         return tasks
 
     def start(self) -> BatchExportResult:
         """开始批量导出"""
         start_time = time.time()
-        
+
         # 准备任务
         pending_tasks = [
             task for task in self._tasks.values()
             if task.status == ExportStatus.PENDING
         ]
-        
+
         completed = 0
         failed = 0
         cancelled = 0
@@ -162,15 +162,15 @@ class BatchExportManager:
         # 等待完成
         for future in as_completed(futures):
             task = futures[future]
-            
+
             if task.id in self._cancelled:
                 task.status = ExportStatus.CANCELLED
                 cancelled += 1
                 continue
-                
+
             try:
                 success, error = future.result()
-                
+
                 if success:
                     task.status = ExportStatus.COMPLETED
                     completed += 1
@@ -190,13 +190,13 @@ class BatchExportManager:
                         "success": False,
                         "error": error
                     })
-                    
+
             except Exception as e:
                 task.status = ExportStatus.FAILED
                 task.error = str(e)
                 failed += 1
                 logger.error(f"导出任务失败: {task.name}, {e}")
-                
+
             # 回调
             if self.on_complete:
                 self.on_complete(
@@ -206,7 +206,7 @@ class BatchExportManager:
                 )
 
         total_time = time.time() - start_time
-        
+
         return BatchExportResult(
             total=len(pending_tasks),
             completed=completed,
@@ -311,23 +311,23 @@ class BatchExportManager:
         total = len(self._tasks)
         if total == 0:
             return {"total": 0, "progress": 0}
-            
+
         completed = sum(
-            1 for t in self._tasks.values() 
+            1 for t in self._tasks.values()
             if t.status == ExportStatus.COMPLETED
         )
         failed = sum(
-            1 for t in self._tasks.values() 
+            1 for t in self._tasks.values()
             if t.status == ExportStatus.FAILED
         )
         running = sum(
-            1 for t in self._tasks.values() 
+            1 for t in self._tasks.values()
             if t.status == ExportStatus.RUNNING
         )
-        
+
         # 计算平均进度
         avg_progress = sum(t.progress for t in self._tasks.values()) / total
-        
+
         return {
             "total": total,
             "completed": completed,
@@ -339,7 +339,7 @@ class BatchExportManager:
     def clear(self) -> None:
         """清理已完成的任务"""
         self._tasks = {
-            task_id: task 
+            task_id: task
             for task_id, task in self._tasks.items()
             if task.status in [ExportStatus.PENDING, ExportStatus.RUNNING]
         }

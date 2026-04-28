@@ -17,13 +17,13 @@ def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None)
     layout = QHBoxLayout(widget)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(8)
-    
+
     icon_label = QLabel(icon)
     text_label = MacLabel(text)
-    
+
     layout.addWidget(icon_label)
     layout.addWidget(text_label)
-    
+
     return widget
 
 
@@ -33,10 +33,10 @@ def create_status_badge_row(status: str, parent: Optional[QWidget] = None) -> QW
     layout = QHBoxLayout(widget)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(8)
-    
+
     status_badge = MacBadge(status)
-    
+
     layout.addWidget(status_badge)
     layout.addStretch()
-    
+
     return widget

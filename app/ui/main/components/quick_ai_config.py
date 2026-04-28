@@ -150,7 +150,7 @@ class QuickAIConfigWidget(QWidget):
             self.apply_button.clicked.connect(self._on_apply_clicked)
         if hasattr(self, 'refresh_button'):
             self.refresh_button.clicked.connect(self.refresh_status)
-        
+
         # 连接配置变化信号
         if hasattr(self, 'config_changed'):
             self.config_changed.connect(self._on_config_changed)

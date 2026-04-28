@@ -51,7 +51,7 @@ class ProjectsPage(BasePage):
 
     def __init__(self, application):
         super().__init__("projects", "项目管理", application)
-        
+
         # 日志器
         self.logger = logging.getLogger(__name__)
 

@@ -47,23 +47,23 @@ class SubtitleAnimation(Enum):
 class SubtitleStylePreset:
     """
     字幕样式预设
-    
+
     定义字幕的外观和行为样式。
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "默认样式"
-    
+
     # 字体设置
     font_family: str = "思源黑体"
     font_size: float = 8.0          # 剪映相对尺寸
     font_weight: int = 400          # 字重
     font_color: str = "#FFFFFF"
-    
+
     # 背景设置
     background_color: str = ""
     background_alpha: float = 0.0   # 0-1
     background_radius: float = 0.0  # 圆角
-    
+
     # 描边/阴影
     stroke_color: str = ""
     stroke_width: float = 0.0
@@ -71,20 +71,20 @@ class SubtitleStylePreset:
     shadow_offset_x: float = 0.0
     shadow_offset_y: float = 0.0
     shadow_blur: float = 0.0
-    
+
     # 位置
     position: SubtitlePosition = SubtitlePosition.BOTTOM
     position_x_percent: float = 50.0  # X位置百分比
     position_y_percent: float = 85.0  # Y位置百分比
     alignment: int = 1                # 0=左, 1=中, 2=右
-    
+
     # 动画
     animation: SubtitleAnimation = SubtitleAnimation.FADE
     animation_duration: float = 0.3   # 秒
-    
+
     # 行间距
     line_spacing: float = 1.2
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -111,7 +111,7 @@ class SubtitleStylePreset:
             "animation_duration": self.animation_duration,
             "line_spacing": self.line_spacing,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleStylePreset':
         """从字典创建"""
@@ -173,32 +173,32 @@ DEFAULT_PRESETS = {
 class SubtitleBlock:
     """
     字幕块 - 单个字幕段落
-    
+
     表示时间线上的一段字幕。
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     track_id: str = ""
-    
+
     # 内容
     text: str = ""
-    
+
     # 时间（秒）
     start_time: float = 0.0
     end_time: float = 0.0
-    
+
     # 样式
     style_id: str = ""
-    
+
     # 元数据
     emphasis_words: List[str] = field(default_factory=list)  # 重音词
     translation: str = ""                                    # 翻译
     notes: str = ""                                          # 备注
-    
+
     @property
     def duration(self) -> float:
         """持续时间"""
         return self.end_time - self.start_time
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -212,15 +212,15 @@ class SubtitleBlock:
             "translation": self.translation,
             "notes": self.notes,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleBlock':
         """从字典创建"""
         return cls(**data)
-    
+
     def overlaps(self, other: 'SubtitleBlock') -> bool:
         """检测与另一个字幕块是否重叠"""
-        return (self.start_time < other.end_time and 
+        return (self.start_time < other.end_time and
                 self.end_time > other.start_time)
 
 
@@ -232,31 +232,31 @@ class SubtitleBlock:
 class SubtitleTrack:
     """
     字幕轨道
-    
+
     包含多个字幕块，属于同一轨道共享样式。
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "字幕轨道"
-    
+
     # 轨道设置
     enabled: bool = True
     locked: bool = False
     visible: bool = True
-    
+
     # 样式预设ID
     style_id: str = "cinematic"
-    
+
     # 字幕块列表
     blocks: List[SubtitleBlock] = field(default_factory=list)
-    
+
     # 轨道颜色（用于UI显示）
     color: str = "#6366F1"
-    
+
     def add_block(self, block: SubtitleBlock) -> None:
         """添加字幕块"""
         block.track_id = self.id
         self.blocks.append(block)
-    
+
     def remove_block(self, block_id: str) -> bool:
         """移除字幕块"""
         for i, block in enumerate(self.blocks):
@@ -264,14 +264,14 @@ class SubtitleTrack:
                 self.blocks.pop(i)
                 return True
         return False
-    
+
     def get_block_at(self, time: float) -> Optional[SubtitleBlock]:
         """获取指定时间的字幕块"""
         for block in self.blocks:
             if block.start_time <= time < block.end_time:
                 return block
         return None
-    
+
     def get_blocks_in_range(self, start: float, end: float) -> List[SubtitleBlock]:
         """获取指定时间范围内的字幕块"""
         result = []
@@ -279,7 +279,7 @@ class SubtitleTrack:
             if block.start_time < end and block.end_time > start:
                 result.append(block)
         return result
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -292,7 +292,7 @@ class SubtitleTrack:
             "blocks": [b.to_dict() for b in self.blocks],
             "color": self.color,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleTrack':
         """从字典创建"""
@@ -312,41 +312,41 @@ class SubtitleTrack:
 class MultiTrackSubtitleEditor:
     """
     多轨道字幕编辑器
-    
+
     管理所有字幕轨道，提供统一的编辑接口。
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "多轨道字幕编辑器"
-    
+
     # 轨道列表
     tracks: List[SubtitleTrack] = field(default_factory=list)
-    
+
     # 样式预设
     presets: Dict[str, SubtitleStylePreset] = field(default_factory=dict)
-    
+
     # 项目设置
     duration: float = 0.0       # 总时长（秒）
     fps: float = 30.0
-    
+
     # 当前状态
     current_track_id: Optional[str] = None
     current_time: float = 0.0
-    
+
     def __post_init__(self):
         """初始化"""
         # 添加默认预设
         for preset_id, preset in DEFAULT_PRESETS.items():
             if preset_id not in self.presets:
                 self.presets[preset_id] = preset
-    
+
     # ─────────────────────────────────────────────────────────────
     # 轨道管理
     # ─────────────────────────────────────────────────────────────
-    
+
     def add_track(self, track: SubtitleTrack) -> None:
         """添加轨道"""
         self.tracks.append(track)
-    
+
     def remove_track(self, track_id: str) -> bool:
         """移除轨道"""
         for i, track in enumerate(self.tracks):
@@ -354,11 +354,11 @@ class MultiTrackSubtitleEditor:
                 self.tracks.pop(i)
                 return True
         return False
-    
+
     def get_track(self, track_id: str) -> Optional[SubtitleTrack]:
         """获取轨道"""
         return next((t for t in self.tracks if t.id == track_id), None)
-    
+
     def move_track(self, track_id: str, new_index: int) -> bool:
         """移动轨道位置"""
         for i, track in enumerate(self.tracks):
@@ -367,11 +367,11 @@ class MultiTrackSubtitleEditor:
                 self.tracks.insert(new_index, track)
                 return True
         return False
-    
+
     # ─────────────────────────────────────────────────────────────
     # 字幕块操作
     # ─────────────────────────────────────────────────────────────
-    
+
     def add_block_to_track(self, track_id: str, block: SubtitleBlock) -> bool:
         """添加字幕块到轨道"""
         track = self.get_track(track_id)
@@ -379,14 +379,14 @@ class MultiTrackSubtitleEditor:
             track.add_block(block)
             return True
         return False
-    
+
     def remove_block(self, block_id: str) -> bool:
         """移除字幕块"""
         for track in self.tracks:
             if track.remove_block(block_id):
                 return True
         return False
-    
+
     def get_block(self, block_id: str) -> Optional[SubtitleBlock]:
         """获取字幕块"""
         for track in self.tracks:
@@ -394,7 +394,7 @@ class MultiTrackSubtitleEditor:
                 if block.id == block_id:
                     return block
         return None
-    
+
     def get_all_blocks_at(self, time: float) -> List[SubtitleBlock]:
         """获取指定时间的所有轨道字幕块"""
         result = []
@@ -404,30 +404,30 @@ class MultiTrackSubtitleEditor:
                 if block:
                     result.append(block)
         return result
-    
+
     # ─────────────────────────────────────────────────────────────
     # 样式预设
     # ─────────────────────────────────────────────────────────────
-    
+
     def add_preset(self, preset: SubtitleStylePreset, preset_id: str = None) -> str:
         """添加样式预设"""
         if preset_id is None:
             preset_id = preset.id
         self.presets[preset_id] = preset
         return preset_id
-    
+
     def get_preset(self, preset_id: str) -> Optional[SubtitleStylePreset]:
         """获取样式预设"""
         return self.presets.get(preset_id)
-    
+
     def get_style_for_track(self, track: SubtitleTrack) -> SubtitleStylePreset:
         """获取轨道的样式"""
         return self.presets.get(track.style_id, DEFAULT_PRESETS["cinematic"])
-    
+
     # ─────────────────────────────────────────────────────────────
     # 导出/序列化
     # ─────────────────────────────────────────────────────────────
-    
+
     def to_dict(self) -> dict:
         """转换为字典"""
         return {
@@ -440,25 +440,25 @@ class MultiTrackSubtitleEditor:
             "current_track_id": self.current_track_id,
             "current_time": self.current_time,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> 'MultiTrackSubtitleEditor':
         """从字典创建"""
         tracks_data = data.pop("tracks", [])
         presets_data = data.pop("presets", {})
-        
+
         editor = cls(**data)
-        
+
         # 恢复轨道
         for track_data in tracks_data:
             editor.tracks.append(SubtitleTrack.from_dict(track_data))
-        
+
         # 恢复预设
         for preset_id, preset_data in presets_data.items():
             editor.presets[preset_id] = SubtitleStylePreset.from_dict(preset_data)
-        
+
         return editor
-    
+
     def calculate_duration(self) -> float:
         """计算总时长"""
         max_end = 0.0
@@ -479,17 +479,17 @@ def export_to_jianying_text_track(
 ) -> List[Dict]:
     """
     导出轨道为剪映字幕格式
-    
+
     Args:
         editor: 字幕编辑器
         track: 字幕轨道
-        
+
     Returns:
         剪映字幕段列表
     """
     style = editor.get_style_for_track(track)
     segments = []
-    
+
     for block in sorted(track.blocks, key=lambda b: b.start_time):
         segments.append({
             "text": block.text,
@@ -497,7 +497,7 @@ def export_to_jianying_text_track(
             "duration": block.duration,
             "style": style.to_dict(),
         })
-    
+
     return segments
 
 

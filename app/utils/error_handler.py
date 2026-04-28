@@ -63,7 +63,7 @@ class RetryStrategy:
     重试策略 ✅ 新增
     支持指数退避和条件重试
     """
-    
+
     def __init__(
         self,
         max_attempts: int = 3,
@@ -77,18 +77,18 @@ class RetryStrategy:
         self.max_delay = max_delay
         self.exponential_base = exponential_base
         self.retryable_categories = retryable_categories
-    
+
     def can_retry(self, error_info: ErrorInfo) -> bool:
         """判断是否可以重试"""
         if error_info.retry_count >= self.max_attempts:
             return False
-        
+
         try:
             category = ErrorCategory(error_info.category)
             return category in self.retryable_categories
         except ValueError:
             return False
-    
+
     def get_delay(self, attempt: int) -> float:
         """计算延迟时间"""
         import random
@@ -104,18 +104,18 @@ class AsyncErrorHandler:
     异步错误处理器 ✅ 新增
     支持异步操作的安全执行和自动重试
     """
-    
+
     def __init__(self, retry_strategy: RetryStrategy = None):
         self.retry_strategy = retry_strategy or RetryStrategy()
         self._error_history: list = []
         self._max_history = 100
-    
+
     def _record_error(self, error_info: ErrorInfo):
         """记录错误历史"""
         self._error_history.append(error_info)
         if len(self._error_history) > self._max_history:
             self._error_history.pop(0)
-    
+
     async def safe_execute_async(
         self,
         func: Callable,
@@ -126,26 +126,26 @@ class AsyncErrorHandler:
     ) -> Optional[Any]:
         """
         安全执行异步函数
-        
+
         Args:
             func: 异步函数
             *args: 位置参数
             error_message: 错误消息
             on_retry: 重试时的回调函数
             **kwargs: 关键字参数
-            
+
         Returns:
             函数返回值，失败时返回 None
         """
         _last_error = None
-        
+
         for attempt in range(self.retry_strategy.max_attempts):
             try:
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 else:
                     return func(*args, **kwargs)
-            
+
             except Exception as e:
                 _last_error = e
                 error_info = ErrorInfo(
@@ -157,26 +157,26 @@ class AsyncErrorHandler:
                     retry_count=attempt,
                     context={"args": str(args)[:100], "kwargs": str(kwargs)[:100]}
                 )
-                
+
                 self._record_error(error_info)
-                
+
                 if self.retry_strategy.can_retry(error_info):
                     delay = self.retry_strategy.get_delay(attempt)
                     logger.warning(
                         f"异步操作失败 (尝试 {attempt + 1}/{self.retry_strategy.max_attempts}): {e}. "
                         f"{delay:.1f}秒后重试..."
                     )
-                    
+
                     if on_retry:
                         on_retry(error_info)
-                    
+
                     await asyncio.sleep(delay)
                 else:
                     logger.error(f"异步操作最终失败: {e}")
                     break
-        
+
         return None
-    
+
     def get_recent_errors(self, limit: int = 10) -> list:
         """获取最近的错误"""
         return self._error_history[-limit:]
@@ -193,10 +193,10 @@ class ErrorHandler:
         # ✅ 新增：错误历史
         self._error_history: list = []
         self._max_history = 100
-    
+
     def handle_error(self, error_info: ErrorInfo):
         """处理错误
-        
+
         Args:
             error_info: 错误信息对象
         """
@@ -204,11 +204,11 @@ class ErrorHandler:
         self._error_history.append(error_info)
         if len(self._error_history) > self._max_history:
             self._error_history.pop(0)
-        
+
         error_message = f"[{error_info.category.upper()}] {error_info.error_type}: {error_info.message}"
         if error_info.details:
             error_message += f"\n详情: {error_info.details}"
-        
+
         if self.logger:
             log_method = getattr(self.logger, error_info.severity, self.logger.error)
             log_method(error_message, exc_info=error_info.exception)
@@ -216,21 +216,21 @@ class ErrorHandler:
             logging.getLogger("error_handler").error(error_message)
             if error_info.exception:
                 traceback.print_exception(
-                    type(error_info.exception), 
-                    error_info.exception, 
+                    type(error_info.exception),
+                    error_info.exception,
                     error_info.exception.__tracetrace__
                 )
-    
+
     def show_error_dialog(
-        self, 
-        parent: Optional[QWidget], 
-        title: str, 
-        message: str, 
+        self,
+        parent: Optional[QWidget],
+        title: str,
+        message: str,
         details: str = "",
         category: str = "unknown"
     ) -> None:
         """显示错误对话框
-        
+
         Args:
             parent: 父窗口
             title: 对话框标题
@@ -249,9 +249,9 @@ class ErrorHandler:
             "validation": QMessageBox.Icon.Information,
             "permission": QMessageBox.Icon.Critical,
         }
-        
+
         icon = icon_map.get(category, QMessageBox.Icon.Critical)
-        
+
         if parent:
             msg_box = QMessageBox(parent)
             msg_box.setIcon(icon)
@@ -264,36 +264,36 @@ class ErrorHandler:
             QMessageBox.critical(None, title, message)
 
     def log_and_show_error(
-        self, 
-        parent: Optional[QWidget], 
+        self,
+        parent: Optional[QWidget],
         error_info: ErrorInfo,
         show_dialog: bool = True
     ) -> None:
         """记录错误并可选显示错误对话框
-        
+
         Args:
             parent: 父窗口
             error_info: 错误信息对象
             show_dialog: 是否显示对话框
         """
         self.handle_error(error_info)
-        
+
         if show_dialog:
             self.show_error_dialog(
-                parent, 
-                "错误", 
-                error_info.message, 
+                parent,
+                "错误",
+                error_info.message,
                 error_info.details,
                 error_info.category
             )
-    
+
     def get_error_summary(self) -> Dict[str, int]:
         """获取错误统计摘要"""
         summary = {}
         for error in self._error_history:
             summary[error.category] = summary.get(error.category, 0) + 1
         return summary
-    
+
     def get_recent_errors(self, limit: int = 10) -> list:
         """获取最近的错误"""
         return self._error_history[-limit:]
@@ -308,7 +308,7 @@ def async_retry(
 ):
     """
     异步重试装饰器 ✅ 新增
-    
+
     Args:
         max_attempts: 最大重试次数
         base_delay: 基础延迟（秒）
@@ -318,7 +318,7 @@ def async_retry(
         @wraps(func)
         async def wrapper(*args, **kwargs):
             import random
-            
+
             for attempt in range(max_attempts):
                 try:
                     return await func(*args, **kwargs)
@@ -334,7 +334,7 @@ def async_retry(
                         logger.error(f"{func.__name__} 最终失败: {e}")
                         raise
             return None
-        
+
         return wrapper
     return decorator
 
@@ -346,7 +346,7 @@ def sync_retry(
 ):
     """
     同步重试装饰器 ✅ 新增
-    
+
     Args:
         max_attempts: 最大重试次数
         base_delay: 基础延迟（秒）
@@ -357,7 +357,7 @@ def sync_retry(
         def wrapper(*args, **kwargs):
             import time
             import random
-            
+
             for attempt in range(max_attempts):
                 try:
                     return func(*args, **kwargs)
@@ -373,7 +373,7 @@ def sync_retry(
                         logger.error(f"{func.__name__} 最终失败: {e}")
                         raise
             return None
-        
+
         return wrapper
     return decorator
 
@@ -387,14 +387,14 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 def show_error_dialog(
-    parent: Optional[QWidget], 
-    title: str, 
-    message: str, 
+    parent: Optional[QWidget],
+    title: str,
+    message: str,
     details: str = "",
     category: str = "unknown"
 ) -> None:
     """显示错误对话框
-    
+
     Args:
         parent: 父窗口
         title: 对话框标题
@@ -422,10 +422,10 @@ def show_error_dialog(
 
 def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
     """设置全局异常处理器
-    
+
     Args:
         logger: 日志记录器
-        
+
     Returns:
         ErrorHandler: 错误处理器实例
     """
@@ -437,7 +437,7 @@ def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
             exception=exc_value,
             details=str(exc_value)
         )
-        
+
         if log:
             log.critical(error_info.message, exc_info=(exc_type, exc_value, exc_traceback))
         else:
@@ -458,7 +458,7 @@ def safe_execute(
     **kwargs
 ) -> Optional[Any]:
     """安全执行函数
-    
+
     Args:
         func: 要执行的函数
         parent: 父窗口，用于显示错误对话框
@@ -467,7 +467,7 @@ def safe_execute(
         category: 错误类别
         *args: 函数参数
         **kwargs: 函数关键字参数
-        
+
     Returns:
         Any: 函数返回值，如果执行失败则返回None
     """
@@ -482,18 +482,18 @@ def safe_execute(
             details=str(e),
             category=category
         )
-        
+
         # 记录错误
         if logger:
             logger.error(error_info.message, exc_info=e)
         else:
             logging.getLogger("error_handler").error(f"{error_info.error_type}: {error_info.message}")
             traceback.print_exception(type(e), e, e.__traceback__)
-        
+
         # 显示错误对话框
         if parent:
             show_error_dialog(parent, "错误", error_info.message, error_info.details, category)
-        
+
         return None
 
 

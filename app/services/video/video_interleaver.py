@@ -16,16 +16,16 @@ from .models.perspective_models import (
 class VideoInterleaver:
     """
     视频穿插逻辑处理器
-    
+
     核心算法：解说与原片的穿插策略
-    
+
     穿插模式:
     1. NARRATION_PRIORITY (解说优先): 原片作为佐证点缀
     2. ORIGINAL_PRIORITY (原片优先): 解说作为画外音背景
     3. EMOTIONAL_BURST (情绪高潮): 高潮时切入原片营造沉浸
     4. MINIMALIST (极简): 纯解说，最小化原片
     5. CINEMATIC (电影感): 根据场景动态平衡
-    
+
     穿插决策流程:
     - 遍历解说片段
     - 查找对应原片片段
@@ -48,7 +48,7 @@ class VideoInterleaver:
     ) -> InterleaveTimeline:
         """
         生成最终穿插时间线
-        
+
         Args:
             narration_timeline: 解说时间轴
             original_clips: 原片片段列表
@@ -56,7 +56,7 @@ class VideoInterleaver:
             scene_segments: 场景分段
             emotion_curve: 情感强度曲线
             context: 穿插上下文配置
-            
+
         Returns:
             InterleaveTimeline: 包含所有片段的排列和转场
         """

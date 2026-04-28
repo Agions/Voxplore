@@ -3,7 +3,7 @@
 介绍 Voxplore 的核心功能
 """
 
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton)
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QPainter, QLinearGradient, QColor
@@ -19,19 +19,19 @@ _ACCENT_HEX = "#A371F7"
 
 class GradientLogoWidget(QWidget):
     """渐变 Logo 组件"""
-    
+
     def __init__(self, size: int = 100, parent=None):
         super().__init__(parent)
         self.logo_size = size
         self.setFixedSize(size, size)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
+
         center = self.rect().center()
         radius = self.logo_size // 2 - 5
-        
+
         # 渐变背景
         gradient = QLinearGradient(
             center.x() - radius, center.y() - radius,
@@ -40,11 +40,11 @@ class GradientLogoWidget(QWidget):
         gradient.setColorAt(0, QColor(_PRIMARY_HEX))
         gradient.setColorAt(0.5, QColor(_PRIMARY_END_HEX))
         gradient.setColorAt(1, QColor(_ACCENT_HEX))
-        
+
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(gradient)
         painter.drawEllipse(center, radius, radius)
-        
+
         # Logo 文字
         painter.setPen(QColor("#FFFFFF"))
         font = QFont("Arial", int(radius * 0.45), QFont.Weight.Bold)
@@ -58,14 +58,14 @@ class GradientLogoWidget(QWidget):
 
 class FeatureCard(QWidget):
     """功能介绍卡片"""
-    
+
     def __init__(self, icon: str, title: str, description: str, parent=None):
         super().__init__(parent)
         self._icon = icon
         self._title = title
         self._description = description
         self._setup_ui()
-        
+
     def _setup_ui(self):
         self.setFixedHeight(100)
         self.setStyleSheet(f"""
@@ -76,20 +76,20 @@ class FeatureCard(QWidget):
                 padding: 16px;
             }}
         """)
-        
+
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(16)
-        
+
         # 图标区域
         icon_label = QLabel(self._icon)
         icon_label.setStyleSheet("font-size: 28px; background: transparent;")
         layout.addWidget(icon_label)
-        
+
         # 文字内容
         text_layout = QVBoxLayout()
         text_layout.setSpacing(4)
-        
+
         title_label = QLabel(self._title)
         title_font = QFont()
         title_font.setPointSize(14)
@@ -97,17 +97,17 @@ class FeatureCard(QWidget):
         title_label.setFont(title_font)
         title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         text_layout.addWidget(title_label)
-        
+
         desc_label = QLabel(self._description)
         desc_label.setWordWrap(True)
         desc_font = QFont()
         desc_label.setFont(desc_font)
         desc_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         text_layout.addWidget(desc_label)
-        
+
         layout.addLayout(text_layout)
         layout.addStretch()
-        
+
     def enterEvent(self, event):
         """鼠标悬停效果"""
         self.setStyleSheet(f"""
@@ -119,7 +119,7 @@ class FeatureCard(QWidget):
             }}
         """)
         super().enterEvent(event)
-        
+
     def leaveEvent(self, event):
         """鼠标离开效果"""
         self.setStyleSheet(f"""
@@ -135,17 +135,17 @@ class FeatureCard(QWidget):
 
 class WelcomeScreen(QWidget):
     """欢迎页面 - 首次使用引导的起始页"""
-    
+
     # 信号定义
     get_started = Signal()  # 开始使用信号
     skip = Signal()  # 跳过信号
-    
+
     def __init__(self, app_name: str = "Voxplore", version: str = "v2.0.0", parent=None):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version
         self._setup_ui()
-        
+
     def _setup_ui(self):
         """设置 UI"""
         self.setStyleSheet(f"""
@@ -156,21 +156,21 @@ class WelcomeScreen(QWidget):
                     stop:1 {Colors.BgBase});
             }}
         """)
-        
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(20)
-        
+
         # 顶部 Logo 和标题
         header_widget = QWidget()
         header_layout = QVBoxLayout(header_widget)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.setSpacing(16)
-        
+
         # Logo
         self.logo = GradientLogoWidget(80)
         header_layout.addWidget(self.logo)
-        
+
         # 应用名称
         name_label = QLabel(self._app_name)
         name_font = QFont()
@@ -180,7 +180,7 @@ class WelcomeScreen(QWidget):
         name_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(name_label)
-        
+
         # 副标题
         subtitle = QLabel("智能视频创作平台")
         subtitle_font = QFont()
@@ -189,9 +189,9 @@ class WelcomeScreen(QWidget):
         subtitle.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(subtitle)
-        
+
         layout.addWidget(header_widget)
-        
+
         # 功能介绍区域
         features_label = QLabel("核心功能")
         features_font = QFont()
@@ -200,30 +200,30 @@ class WelcomeScreen(QWidget):
         features_label.setFont(features_font)
         features_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
         layout.addWidget(features_label)
-        
+
         # 功能卡片列表
         features_layout = QVBoxLayout()
         features_layout.setSpacing(12)
-        
+
         self.features = [
             ("🎬", "智能剪辑", "AI 自动识别精彩片段，智能剪辑"),
             ("📝", "脚本生成", "根据视频内容自动生成解说脚本"),
             ("🎤", "语音合成", "多风格 AI 配音，支持多种音色"),
             ("📤", "多格式导出", "支持 Premiere、剪映、DaVinci 等主流软件"),
         ]
-        
+
         for icon, title, desc in self.features:
             card = FeatureCard(icon, title, desc)
             features_layout.addWidget(card)
-            
+
         layout.addLayout(features_layout)
-        
+
         layout.addStretch()
-        
+
         # 按钮区域
         button_layout = QVBoxLayout()
         button_layout.setSpacing(12)
-        
+
         # 开始使用按钮
         self.start_btn = QPushButton("开始使用")
         self.start_btn.setCursor(Qt.CursorShape.PointingHand)
@@ -252,7 +252,7 @@ class WelcomeScreen(QWidget):
         """)
         self.start_btn.clicked.connect(self.get_started.emit)
         button_layout.addWidget(self.start_btn)
-        
+
         # 跳过按钮
         self.skip_btn = QPushButton("暂时跳过")
         self.skip_btn.setCursor(Qt.CursorShape.PointingHand)
@@ -269,9 +269,9 @@ class WelcomeScreen(QWidget):
         """)
         self.skip_btn.clicked.connect(self.skip.emit)
         button_layout.addWidget(self.skip_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-        
+
         layout.addLayout(button_layout)
-        
+
         # 版本信息
         version_label = QLabel(f"版本 {self._version}")
         version_label.setStyleSheet(f"""
@@ -281,7 +281,7 @@ class WelcomeScreen(QWidget):
         """)
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(version_label)
-        
+
     def animate_in(self):
         """入场动画"""
         self.setWindowOpacity(0)

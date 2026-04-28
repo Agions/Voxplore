@@ -93,7 +93,7 @@ class AppContext:
 class BasePlugin(ABC):
     """
     所有插件的抽象基类
-    
+
     插件生命周期:
     1. __init__(manifest) - 创建实例
     2. initialize(context) - 初始化
@@ -137,7 +137,7 @@ class BasePlugin(ABC):
     def initialize(self, context: AppContext) -> None:
         """
         初始化插件
-        
+
         在此阶段:
         - 读取配置
         - 注册事件监听
@@ -197,7 +197,7 @@ class BasePlugin(ABC):
     def get_metadata(self) -> Dict[str, Any]:
         """
         获取插件元数据
-        
+
         返回的字典会暴露给:
         - 插件管理 UI
         - API 端点

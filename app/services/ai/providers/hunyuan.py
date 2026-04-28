@@ -66,11 +66,11 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     ):
         # 调用父类初始化
         BaseLLMProvider.__init__(self, api_key, base_url)
-        
+
         # 腾讯云需要特殊认证
         self.secret_id = secret_id
         self.secret_key = secret_key
-        
+
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端

@@ -246,11 +246,11 @@ class Application(QObject):
         """注册服务"""
         # 注册到服务容器
         self._service_container.register_by_name(name, service)
-        
+
         # 同时按类型注册，方便按类型获取
         service_type = type(service)
         self._service_container.register(service_type, service)
-        
+
         self.service_registered.emit(name, service)
 
     def unregister_service(self, name: str) -> None:
@@ -419,27 +419,27 @@ class Application(QObject):
             # 创建并注册AI服务管理器
             ai_service_manager = get_ai_service_manager()
             self.register_service("ai_service_manager", ai_service_manager)
-            
+
             # 初始化项目管理相关服务
             from .project_manager import ProjectManager
             from .project_template_manager import ProjectTemplateManager
             from .project_settings_manager import ProjectSettingsManager
             from .config_manager import ConfigManager
-            
+
             # 创建配置管理器实例（如果不存在）
             config_manager = self.get_service_by_name("config_manager")
             if not config_manager:
                 config_manager = ConfigManager()
                 self.register_service("config_manager", config_manager)
-            
+
             # 创建并注册项目管理器
             project_manager = ProjectManager(config_manager)
             self.register_service("project_manager", project_manager)
-            
+
             # 创建并注册模板管理器
             template_manager = ProjectTemplateManager(config_manager)
             self.register_service("template_manager", template_manager)
-            
+
             # 创建并注册设置管理器
             settings_manager = ProjectSettingsManager(config_manager)
             self.register_service("settings_manager", settings_manager)

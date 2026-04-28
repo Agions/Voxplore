@@ -3,7 +3,7 @@
 用于在应用中随时展示功能介绍
 """
 
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QFrame)
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, Signal
 from PySide6.QtGui import QFont, QColor, QPainter
@@ -29,19 +29,19 @@ COLORS = {
 
 class FeatureTooltip(QWidget):
     """功能提示弹窗 - 浮动在界面元素旁边"""
-    
+
     # 信号定义
     dismissed = Signal()  # 关闭信号
     action_clicked = Signal()  # 操作按钮点击
-    
-    def __init__(self, title: str, content: str, 
+
+    def __init__(self, title: str, content: str,
                  action_text: str = None, parent=None):
         super().__init__(parent)
         self._title = title
         self._content = content
         self._action_text = action_text
         self._setup_ui()
-        
+
     def _setup_ui(self):
         self.setFixedWidth(280)
         self.setWindowFlags(
@@ -49,7 +49,7 @@ class FeatureTooltip(QWidget):
             Qt.WindowType.ToolTip
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        
+
         # 主容器
         container = QWidget(self)
         container.setStyleSheet(f"""
@@ -60,14 +60,14 @@ class FeatureTooltip(QWidget):
                 padding: 16px;
             }}
         """)
-        
+
         layout = QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
-        
+
         # 标题行
         title_layout = QHBoxLayout()
-        
+
         title_label = QLabel(self._title)
         title_font = QFont()
         title_font.setPointSize(14)
@@ -75,9 +75,9 @@ class FeatureTooltip(QWidget):
         title_label.setFont(title_font)
         title_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
         title_layout.addWidget(title_label)
-        
+
         title_layout.addStretch()
-        
+
         # 关闭按钮
         close_btn = QPushButton("✕")
         close_btn.setFixedSize(24, 24)
@@ -97,15 +97,15 @@ class FeatureTooltip(QWidget):
         """)
         close_btn.clicked.connect(self.dismissed.emit)
         title_layout.addWidget(close_btn)
-        
+
         layout.addLayout(title_layout)
-        
+
         # 内容
         content_label = QLabel(self._content)
         content_label.setWordWrap(True)
         content_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; line-height: 1.5; background: transparent;")
         layout.addWidget(content_label)
-        
+
         # 操作按钮（如果有）
         if self._action_text:
             action_btn = QPushButton(self._action_text)
@@ -130,7 +130,7 @@ class FeatureTooltip(QWidget):
             """)
             action_btn.clicked.connect(self.action_clicked.emit)
             layout.addWidget(action_btn)
-            
+
     def show_at(self, x: int, y: int):
         """在指定位置显示"""
         self.move(x, y)
@@ -147,7 +147,7 @@ class FeatureTooltip(QWidget):
 
 class FeatureHighlight(QWidget):
     """功能高亮框 - 用于引导用户关注特定区域"""
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -155,7 +155,7 @@ class FeatureHighlight(QWidget):
             Qt.WindowType.FramelessWindowHint |
             Qt.WindowType.ToolTip
         )
-        
+
     def highlight_widget(self, widget):
         """高亮指定部件"""
         if widget:
@@ -168,11 +168,11 @@ class FeatureHighlight(QWidget):
                 abs(global_rect[1].y() - global_rect[0].y()) + 20
             )
             self.show()
-            
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
+
         # 绘制高亮边框
         painter.setPen(QColor(COLORS["primary"]))
         painter.setBrush(Qt.BrushStyle.NoBrush)
@@ -181,18 +181,18 @@ class FeatureHighlight(QWidget):
 
 class FeatureTourDialog(QWidget):
     """功能导览对话框 - 完整的功能介绍弹窗"""
-    
+
     # 信号定义
     closed = Signal()  # 关闭信号
     next_feature = Signal()  # 下一个功能
     prev_feature = Signal()  # 上一个功能
-    
+
     def __init__(self, features: list = None, parent=None):
         super().__init__(parent)
         self._features = features or self._default_features()
         self._current_index = 0
         self._setup_ui()
-        
+
     def _default_features(self) -> list:
         """默认功能列表"""
         return [
@@ -227,7 +227,7 @@ class FeatureTourDialog(QWidget):
                 "action": "查看格式"
             }
         ]
-        
+
     def _setup_ui(self):
         """设置 UI"""
         self.setFixedSize(420, 320)
@@ -236,7 +236,7 @@ class FeatureTourDialog(QWidget):
             Qt.WindowType.Dialog
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        
+
         # 主容器
         main_widget = QWidget(self)
         main_widget.setFixedSize(420, 320)
@@ -250,19 +250,19 @@ class FeatureTourDialog(QWidget):
                 border-radius: 16px;
             }}
         """)
-        
+
         layout = QVBoxLayout(main_widget)
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(16)
-        
+
         # 顶部区域 - 图标和标题
         header_layout = QHBoxLayout()
         header_layout.setSpacing(12)
-        
+
         self.icon_label = QLabel(self._features[0]["icon"])
         self.icon_label.setStyleSheet("font-size: 32px; background: transparent;")
         header_layout.addWidget(self.icon_label)
-        
+
         self.title_label = QLabel(self._features[0]["title"])
         title_font = QFont()
         title_font.setPointSize(18)
@@ -270,16 +270,16 @@ class FeatureTourDialog(QWidget):
         self.title_label.setFont(title_font)
         self.title_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
         header_layout.addWidget(self.title_label)
-        
+
         header_layout.addStretch()
-        
+
         # 进度指示器
         progress_label = QLabel(f"{self._current_index + 1}/{len(self._features)}")
         progress_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;")
         header_layout.addWidget(progress_label)
-        
+
         layout.addLayout(header_layout)
-        
+
         # 内容区域
         content_frame = QFrame()
         content_frame.setStyleSheet(f"""
@@ -292,12 +292,12 @@ class FeatureTourDialog(QWidget):
         """)
         content_layout = QVBoxLayout(content_frame)
         content_layout.setSpacing(8)
-        
+
         self.content_label = QLabel(self._features[0]["content"])
         self.content_label.setWordWrap(True)
         self.content_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; line-height: 1.6; background: transparent;")
         content_layout.addWidget(self.content_label)
-        
+
         # 操作按钮区域（如果有）
         if self._features[0].get("action"):
             self.action_btn = QPushButton(self._features[0]["action"])
@@ -321,15 +321,15 @@ class FeatureTourDialog(QWidget):
                 }}
             """)
             content_layout.addWidget(self.action_btn, alignment=Qt.AlignmentFlag.AlignLeft)
-            
+
         layout.addWidget(content_frame)
-        
+
         layout.addStretch()
-        
+
         # 底部按钮区域
         button_layout = QHBoxLayout()
         button_layout.setSpacing(12)
-        
+
         # 关闭按钮
         close_btn = QPushButton("关闭")
         close_btn.setCursor(Qt.CursorShape.PointingHand)
@@ -349,9 +349,9 @@ class FeatureTourDialog(QWidget):
         """)
         close_btn.clicked.connect(self.closed.emit)
         button_layout.addWidget(close_btn)
-        
+
         button_layout.addStretch()
-        
+
         # 上一个按钮
         self.prev_btn = QPushButton("←")
         self.prev_btn.setCursor(Qt.CursorShape.PointingHand)
@@ -371,7 +371,7 @@ class FeatureTourDialog(QWidget):
         """)
         self.prev_btn.clicked.connect(self._show_prev)
         button_layout.addWidget(self.prev_btn)
-        
+
         # 下一个按钮
         self.next_btn = QPushButton("→")
         self.next_btn.setCursor(Qt.CursorShape.PointingHand)
@@ -394,26 +394,26 @@ class FeatureTourDialog(QWidget):
         """)
         self.next_btn.clicked.connect(self._show_next)
         button_layout.addWidget(self.next_btn)
-        
+
         layout.addLayout(button_layout)
-        
+
         self._update_buttons()
-        
+
     def _update_content(self):
         """更新内容"""
         feature = self._features[self._current_index]
-        
+
         # 更新图标
         self.icon_label.setText(feature["icon"])
-        
+
         # 更新标题
         self.title_label.setText(feature["title"])
-        
+
         # 更新内容
         self.content_label.setText(feature["content"])
-        
+
         self._update_buttons()
-        
+
     def _update_buttons(self):
         """更新按钮状态"""
         # 上一个按钮
@@ -436,7 +436,7 @@ class FeatureTourDialog(QWidget):
                 border-color: transparent;
             }}
         """)
-        
+
         # 下一个按钮
         if self._current_index >= len(self._features) - 1:
             self.next_btn.setText("✓")
@@ -469,14 +469,14 @@ class FeatureTourDialog(QWidget):
                         stop:1 {COLORS["primary_end"]});
                 }}
             """)
-            
+
     def _show_prev(self):
         """显示上一个功能"""
         if self._current_index > 0:
             self._current_index -= 1
             self._update_content()
             self.prev_feature.emit()
-            
+
     def _show_next(self):
         """显示下一个功能"""
         if self._current_index < len(self._features) - 1:
@@ -485,7 +485,7 @@ class FeatureTourDialog(QWidget):
             self.next_feature.emit()
         else:
             self.closed.emit()
-            
+
     def show_at_center(self):
         """在父窗口中央显示"""
         if self.parent():
@@ -496,7 +496,7 @@ class FeatureTourDialog(QWidget):
                      self.parent().mapToGlobal(self.parent().rect().topLeft()).y() + y)
         self.show()
         self._animate_in()
-        
+
     def _animate_in(self):
         """入场动画"""
         self.setWindowOpacity(0)
@@ -506,7 +506,7 @@ class FeatureTourDialog(QWidget):
         animation.setEndValue(1)
         animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
         animation.start()
-        
+
     def _animate_out(self):
         """离场动画"""
         animation = QPropertyAnimation(self, b"windowOpacity")

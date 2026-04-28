@@ -26,7 +26,7 @@ class RegistryEntry:
 class LLMProviderRegistry:
     """
     LLM Provider 注册中心
-    
+
     职责:
     - 注册/注销 Provider
     - 获取 Provider 实例

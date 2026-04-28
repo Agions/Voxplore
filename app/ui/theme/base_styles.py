@@ -13,7 +13,7 @@ def get_base_qss() -> str:
         font-family: var(--font-family);
         font-size: var(--font-size-md);
     }}
-    
+
     /* === 按钮 === */
     QPushButton {{
         background-color: var(--color-bg-elevated);
@@ -35,7 +35,7 @@ def get_base_qss() -> str:
         color: var(--color-text-disabled);
         border-color: var(--color-border-subtle);
     }}
-    
+
     /* 主按钮 */
     QPushButton.primary {{
         background-color: var(--color-primary);
@@ -48,7 +48,7 @@ def get_base_qss() -> str:
     QPushButton.primary:pressed {{
         background-color: var(--color-primary-pressed);
     }}
-    
+
     /* 次要按钮 */
     QPushButton.secondary {{
         background-color: transparent;
@@ -59,14 +59,14 @@ def get_base_qss() -> str:
         color: var(--color-text-primary);
         border-color: var(--color-border-strong);
     }}
-    
+
     /* === 卡片 === */
     QFrame.card {{
         background-color: var(--color-bg-surface);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-lg);
     }}
-    
+
     /* === 输入框 === */
     QLineEdit {{
         background-color: var(--color-bg-surface);
@@ -82,7 +82,7 @@ def get_base_qss() -> str:
     QLineEdit::placeholder {{
         color: var(--color-text-muted);
     }}
-    
+
     /* === 标签 === */
     QLabel {{
         background: transparent;
@@ -92,7 +92,7 @@ def get_base_qss() -> str:
         color: var(--color-text-secondary);
         font-size: var(--font-size-sm);
     }}
-    
+
     /* === 进度条 === */
     QProgressBar {{
         background-color: var(--color-bg-surface);
@@ -104,7 +104,7 @@ def get_base_qss() -> str:
         background-color: var(--color-primary);
         border-radius: var(--radius-full);
     }}
-    
+
     /* === 滚动条 === */
     QScrollBar:vertical {{
         background: transparent;

@@ -99,7 +99,7 @@ class MacPageToolbar(QWidget):
 class MacEmptyState(QWidget):
     """空状态"""
 
-    def __init__(self, icon: str = "📭", title: str = "暂无内容", 
+    def __init__(self, icon: str = "📭", title: str = "暂无内容",
                  description: str = "", parent: Optional[QWidget] = None):
         super().__init__(parent)
         self._setup_ui(icon, title, description)

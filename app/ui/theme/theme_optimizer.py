@@ -13,7 +13,7 @@ from app.ui.components.design_system import Colors
 # 预定义主题配色方案
 class ThemePresets:
     """主题配色方案预设"""
-    
+
     # 深色主题系列
     DARK_THEMES = {
         "Midnight": {
@@ -125,7 +125,7 @@ class ThemePresets:
             "info": "#3B82F6",
         },
     }
-    
+
     # 浅色主题系列
     LIGHT_THEMES = {
         "Snow": {
@@ -219,7 +219,7 @@ class ThemePresets:
             "info": "#0284C7",
         },
     }
-    
+
     @classmethod
     def get_all_themes(cls):
         """获取所有主题"""
@@ -227,7 +227,7 @@ class ThemePresets:
             "深色主题": cls.DARK_THEMES,
             "浅色主题": cls.LIGHT_THEMES,
         }
-    
+
     @classmethod
     def get_theme_names(cls, theme_type: str = None):
         """获取主题名称列表"""
@@ -241,18 +241,18 @@ class ThemePresets:
 
 class ThemePresetSelector(QWidget):
     """主题预设选择器 - 图形化选择界面"""
-    
+
     # 信号
     theme_selected = Signal(str, dict)  # 主题名称, 配色
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setup_ui()
-        
+
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setSpacing(16)
-        
+
         # 标题
         title = QLabel("选择主题")
         title_font = QFont()
@@ -261,46 +261,46 @@ class ThemePresetSelector(QWidget):
         title.setFont(title_font)
         title.setStyleSheet(f"color: {Colors.TextPrimary};")
         layout.addWidget(title)
-        
+
         # 深色主题区域
         dark_label = QLabel("深色主题")
         dark_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
         layout.addWidget(dark_label)
-        
+
         dark_grid = QHBoxLayout()
         dark_grid.setSpacing(12)
-        
+
         for name, colors in ThemePresets.DARK_THEMES.items():
             btn = self._create_theme_button(name, colors, is_dark=True)
             dark_grid.addWidget(btn)
-            
+
         layout.addLayout(dark_grid)
-        
+
         # 浅色主题区域
         light_label = QLabel("浅色主题")
         light_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
         layout.addWidget(light_label)
-        
+
         light_grid = QHBoxLayout()
         light_grid.setSpacing(12)
-        
+
         for name, colors in ThemePresets.LIGHT_THEMES.items():
             btn = self._create_theme_button(name, colors, is_dark=False)
             light_grid.addWidget(btn)
-            
+
         layout.addLayout(light_grid)
-        
+
     def _create_theme_button(self, name: str, colors: dict, is_dark: bool):
         """创建主题预览按钮"""
         btn = QPushButton()
         btn.setFixedSize(60, 50)
         btn.setCursor(Qt.CursorShape.PointingHand)
         btn.setToolTip(name)
-        
+
         # 预览样式
         bg = colors.get("background", "#0A0A0F")
         primary = colors.get("primary", "#6366F1")
-        
+
         btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
@@ -314,21 +314,21 @@ class ThemePresetSelector(QWidget):
                 border-color: {primary};
             }}
         """)
-        
+
         # 点击事件
         btn.clicked.connect(lambda: self.theme_selected.emit(name, colors))
-        
+
         return btn
 
 
 class ThemeColorPreview(QWidget):
     """主题颜色预览组件"""
-    
+
     def __init__(self, colors: dict = None, parent=None):
         super().__init__(parent)
         self._colors = colors or {}
         self._setup_ui()
-        
+
     def _setup_ui(self):
         self.setFixedSize(200, 120)
         self.setStyleSheet("""
@@ -336,15 +336,15 @@ class ThemeColorPreview(QWidget):
                 background: transparent;
             }
         """)
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
+
         # 绘制背景预览
         bg = self._colors.get("background", "#0A0A0F")
         painter.fillRect(self.rect(), QColor(bg))
-        
+
         # 绘制色块
         colors_to_show = [
             ("primary", 10, 10),
@@ -354,11 +354,11 @@ class ThemeColorPreview(QWidget):
             ("success", 130, 10),
             ("warning", 160, 10),
         ]
-        
+
         for color_key, x, y in colors_to_show:
             color = self._colors.get(color_key, "#6366F1")
             painter.fillRect(x, y, 25, 15, QColor(color))
-            
+
     def set_colors(self, colors: dict):
         """设置颜色"""
         self._colors = colors
@@ -367,7 +367,7 @@ class ThemeColorPreview(QWidget):
 
 def generate_theme_stylesheet(colors: dict, is_dark: bool = True) -> str:
     """根据配色生成完整的主题样式表"""
-    
+
     if is_dark:
         template = """
 /* Generated Theme Stylesheet - {name} */
@@ -570,17 +570,17 @@ QToolTip {{
     padding: 6px 10px;
 }}
 """
-    
+
     # 填充颜色
     primary_light = colors.get("primary", "#6366F1")
     if is_dark:
         # 浅化主色
         primary_light = primary_light  # 可以进一步处理变亮
-    
+
     result = template.format(
         name=colors.get("name", "Custom Theme"),
         **colors,
         primary_light=primary_light
     )
-    
+
     return result

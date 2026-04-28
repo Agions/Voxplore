@@ -17,7 +17,7 @@ from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
 
 __all__ = [
     "EmotionController",
-    "EmotionCurveWidget", 
+    "EmotionCurveWidget",
     "EmotionPresetButton",
     "EMOTION_PRESETS",
 ]

@@ -18,7 +18,7 @@ from app.plugins.registry import PluginRegistry
 class PluginLoader:
     """
     插件加载器
-    
+
     功能:
     - 扫描插件目录
     - 解析清单文件
@@ -44,7 +44,7 @@ class PluginLoader:
     def discover_plugins(self) -> List[PluginManifest]:
         """
         扫描所有插件目录，发现插件
-        
+
         Returns:
             发现的插件清单列表
         """
@@ -70,7 +70,7 @@ class PluginLoader:
     def _discover_plugin_in_dir(self, plugin_path: Path) -> Optional[PluginManifest]:
         """
         在指定目录中发现插件
-        
+
         查找顺序:
         1. manifest.json
         2. __manifest__.json
@@ -114,7 +114,7 @@ class PluginLoader:
     ) -> bool:
         """
         从目录加载单个插件
-        
+
         步骤:
         1. 注册到清单
         2. 实例化
@@ -145,7 +145,7 @@ class PluginLoader:
     def _safe_load_entry_point(self, plugin_dir: Path, manifest: PluginManifest) -> None:
         """
         安全地加载插件入口点，避免 sys.path 注入攻击
-        
+
         验证:
         1. 插件目录必须在已注册的插件目录列表中
         2. 使用 spec_from_file_location 直接加载模块，不修改 sys.path
@@ -184,11 +184,11 @@ class PluginLoader:
     ) -> Dict[str, bool]:
         """
         加载所有发现的插件
-        
+
         Args:
             context: 应用上下文
             enabled_plugins: 指定启用的插件 ID 列表，None 则全部启用
-            
+
         Returns:
             插件 ID -> 是否成功
         """
@@ -230,7 +230,7 @@ class PluginLoader:
     ) -> List[str]:
         """
         验证插件依赖是否满足
-        
+
         Returns:
             缺失或不满足的依赖列表
         """
@@ -251,7 +251,7 @@ class PluginLoader:
     def _check_version(self, installed: str, spec: str) -> bool:
         """
         简单版本检查
-        
+
         支持:
         - ">=1.0.0"
         - "~=1.0.0"

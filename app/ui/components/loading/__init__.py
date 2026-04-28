@@ -11,7 +11,7 @@ from .pulse_indicator import PulseIndicator, LoadingOverlay
 
 __all__ = [
     'SkeletonWidget',
-    'SkeletonBar', 
+    'SkeletonBar',
     'SkeletonCircle',
     'PulseIndicator',
     'LoadingOverlay',

@@ -34,7 +34,7 @@ class ScriptGeneration:
 class BaseAIGeneratorPlugin(ABC, BasePlugin):
     """
     AI 生成器插件基类
-    
+
     实现此接口以添加新的 AI 模型支持:
     - 场景分析
     - 脚本生成
@@ -51,11 +51,11 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     ) -> List[SceneAnalysis]:
         """
         分析视频场景
-        
+
         Args:
             video_path: 视频文件路径
             frame_timestamps: 要分析的帧时间戳
-            
+
         Returns:
             场景分析结果列表
         """
@@ -71,13 +71,13 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     ) -> ScriptGeneration:
         """
         生成解说脚本
-        
+
         Args:
             scene_context: 场景上下文描述
             emotion: 目标情感风格
             style: 解说风格
             max_duration: 最大时长（秒）
-            
+
         Returns:
             生成的脚本
         """
@@ -92,7 +92,7 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     ) -> AsyncIterator[str]:
         """
         流式生成脚本（实时预览）
-        
+
         Yields:
             增量文本片段
         """
@@ -107,7 +107,7 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     def get_capabilities(self) -> Dict[str, bool]:
         """
         获取插件能力
-        
+
         Returns:
             {
                 "scene_analysis": bool,

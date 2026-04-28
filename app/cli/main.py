@@ -237,10 +237,10 @@ def create_cli() -> argparse.ArgumentParser:
 def run(argv: Optional[List[str]] = None) -> int:
     """
     运行 CLI
-    
+
     Args:
         argv: 命令行参数 (None 则使用 sys.argv)
-        
+
     Returns:
         退出码
     """

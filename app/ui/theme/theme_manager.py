@@ -171,14 +171,14 @@ class ThemeManager(QObject):
     def get_available_themes(self) -> List[str]:
         """获取可用主题列表"""
         return [preset.name for preset in self.theme_presets]
-        
+
     def get_theme_preset(self, theme_name: str) -> Optional[ThemePreset]:
         """获取指定主题预设"""
         for preset in self.theme_presets:
             if preset.name == theme_name:
                 return preset
         return None
-        
+
     def apply_theme_by_name(self, theme_name: str) -> None:
         """通过主题名称应用主题"""
         preset = self.get_theme_preset(theme_name)
@@ -238,7 +238,7 @@ class ThemeManager(QObject):
         else:
             # 使用外部浅色主题样式表（如果存在）
             stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "light_theme.qss")
-        
+
         try:
             with open(stylesheet_path, "r", encoding="utf-8") as f:
                 return f.read()
@@ -300,14 +300,14 @@ class ThemeManager(QObject):
             # 应用到所有顶级窗口
             for widget in app.allWidgets():
                 widget.setStyleSheet(stylesheet)
-        
+
     def apply_theme_instantly(self, theme_name: str) -> None:
         """立即应用主题，用于实时预览"""
         preset = self.get_theme_preset(theme_name)
         if preset:
             # 保存当前主题状态
             original_mode = self.current_mode
-            
+
             # 保存当前颜色配置
             original_colors = ThemeColors(
                 primary=self.colors.primary,
@@ -328,17 +328,17 @@ class ThemeManager(QObject):
                 light=self.colors.light,
                 dark=self.colors.dark
             )
-            
+
             # 应用新主题
             self.current_mode = preset.mode
             self.colors = preset.colors
             self._apply_to_application()
             self.theme_changed.emit(theme_name)
             self.theme_applied.emit()
-            
+
             # 3秒后恢复原主题（仅用于预览）
             QTimer.singleShot(3000, lambda: self._restore_theme(original_mode, original_colors))
-            
+
     def _restore_theme(self, original_mode: str, original_colors: ThemeColors) -> None:
         """恢复原始主题"""
         self.current_mode = original_mode
@@ -346,7 +346,7 @@ class ThemeManager(QObject):
         self._apply_to_application()
         self.theme_changed.emit(original_mode)
         self.theme_applied.emit()
-        
+
     def get_current_theme_info(self) -> Dict[str, Any]:
         """获取当前主题信息"""
         return {

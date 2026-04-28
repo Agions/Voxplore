@@ -6,7 +6,7 @@ Voxplore 服务模块
 - video: 视频制作（解说、混剪、独白）
 - audio: 音频处理（节拍检测、音画同步）
 - export: 导出服务（剪映、PR、FCP、DaVinci）
-- video_tools: 病毒视频处理（字幕、节奏分析）
+- video_tools: 视频处理工具（字幕、节奏分析）
 - orchestration: 编排服务（工作流、撤销管理、批量处理）
 - publish: 多平台发布 [暂时关闭]
 - ui: UI 图形界面（位于 app/ui/）

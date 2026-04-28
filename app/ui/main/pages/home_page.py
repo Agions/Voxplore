@@ -61,12 +61,12 @@ class TemplateCard(QFrame):
         """)
         icon_layout = QVBoxLayout(icon_container)
         icon_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         icon_label = QLabel(icon)
         icon_label.setFont(QFont("", 32))
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         icon_layout.addWidget(icon_label)
-        
+
         layout.addWidget(icon_container)
         layout.addSpacing(4)
 
@@ -130,7 +130,7 @@ class RecentProjectItem(QFrame):
         # 项目信息
         info_layout = QVBoxLayout()
         info_layout.setSpacing(2)
-        
+
         name_label = QLabel(name)
         name_label.setFont(QFont("", 14, QFont.Weight.Bold))
         name_label.setStyleSheet(f"color: {Colors.TextPrimary};")
@@ -372,14 +372,14 @@ class HomePage(BasePage):
         """打开最近项目"""
         self.logger.info(f"打开最近项目: {path}")
         self.project_opened.emit(path)
-        
+
         # 切换到项目编辑页面
         if hasattr(self, 'application'):
             main_window = self.application.get_service_by_name("main_window")
             if main_window and hasattr(main_window, 'switch_to_page'):
                 from app.ui.main.main_window import PageType
                 main_window.switch_to_page(PageType.VIDEO_EDITOR)
-    
+
     def _on_view_all_projects(self):
         """查看全部项目"""
         self.logger.info("切换到项目管理页面")

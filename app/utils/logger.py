@@ -14,7 +14,7 @@ from typing import Optional
 
 class LogFormatter(logging.Formatter):
     """自定义日志格式"""
-    
+
     COLORS = {
         'DEBUG': '\033[36m',    # 青色
         'INFO': '\033[32m',     # 绿色
@@ -23,7 +23,7 @@ class LogFormatter(logging.Formatter):
         'CRITICAL': '\033[35m', # 紫色
         'RESET': '\033[0m',
     }
-    
+
     def format(self, record):
         # 添加颜色
         if hasattr(sys.stderr, 'isatty') and sys.stderr.isatty():
@@ -32,7 +32,7 @@ class LogFormatter(logging.Formatter):
                 record.levelname = (
                     f"{self.COLORS[levelname]}{levelname}{self.COLORS['RESET']}"
                 )
-        
+
         return super().format(record)
 
 
@@ -44,43 +44,43 @@ def setup_logger(
 ) -> logging.Logger:
     """
     设置日志器
-    
+
     Args:
         name: 日志器名称
         level: 日志级别
         log_file: 日志文件路径 (可选)
         format_string: 格式字符串 (可选)
-        
+
     Returns:
         Logger 实例
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.handlers.clear()
-    
+
     # 默认格式
     if format_string is None:
         format_string = (
             "%(asctime)s | %(levelname)-8s | "
             "%(name)s:%(lineno)d | %(message)s"
         )
-    
+
     formatter = LogFormatter(format_string, datefmt="%H:%M:%S")
-    
+
     # 控制台处理器
     console = logging.StreamHandler(sys.stderr)
     console.setFormatter(formatter)
     logger.addHandler(console)
-    
+
     # 文件处理器
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         file_handler = logging.FileHandler(log_file, encoding='utf-8')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-    
+
     return logger
 
 

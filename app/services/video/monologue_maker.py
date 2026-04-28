@@ -253,7 +253,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self.voice_generator = VoiceGenerator(provider=voice_provider)
         self.script_generator = ScriptGenerator(use_llm_manager=True)
         self.caption_generator = CaptionGenerator()
-    
+
     def create_project(
         self,
         source_video: str,
@@ -281,7 +281,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self._report_progress("分析视频", 1.0)
 
         return project
-    
+
     def generate_script(
         self,
         project: MonologueProject,
@@ -311,7 +311,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self._segment_script(project)
 
         self._report_progress("生成独白", 1.0)
-    
+
     def _segment_script(self, project: MonologueProject) -> None:
         """将独白分段 — 支持空白行和中文句末标点双重拆分"""
         # 优先按空白行分段，否则按中文句末标点分
@@ -362,7 +362,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 video_end=scene.end if scene else (i + 1) * seg_duration,
             )
             project.segments.append(segment)
-    
+
     def _infer_emotion(self, text: str, base_emotion: str) -> EmotionType:
         """根据文本内容推断情感"""
         # 简单关键词匹配
@@ -373,13 +373,13 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             EmotionType.TENDER: ["温柔", "爱", "思念", "想", "心"],
             EmotionType.EXCITED: ["激动", "兴奋", "期待", "梦想", "未来"],
         }
-        
+
         # 检查关键词
         for emotion, keywords in emotion_keywords.items():
             for keyword in keywords:
                 if keyword in text:
                     return emotion
-        
+
         # 使用基础情感
         emotion_map = {
             "惆怅": EmotionType.SAD,
@@ -389,9 +389,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             "温柔": EmotionType.TENDER,
             "excited": EmotionType.EXCITED,
         }
-        
+
         return emotion_map.get(base_emotion, EmotionType.NEUTRAL)
-    
+
     def generate_voice(
         self,
         project: MonologueProject,
@@ -457,7 +457,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 segment.audio_path, segment.audio_duration, segment.sentence_timestamps = results[i]
 
         self._report_progress("生成配音", 1.0)
-    
+
     def generate_captions(
         self,
         project: MonologueProject,
@@ -465,16 +465,16 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     ) -> None:
         """
         生成电影级字幕
-        
+
         Args:
             project: 项目对象
             style: 字幕风格 (cinematic, minimal, expressive)
         """
         self._report_progress("生成字幕", 0.0)
-        
+
         project.caption_style = style
         caption_cfg = CAPTION_STYLES.get(style, CAPTION_STYLES["cinematic"])
-        
+
         current_time = 0.0
 
         for i, segment in enumerate(project.segments):
@@ -534,9 +534,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
             current_time += segment.audio_duration
             self._report_progress("生成字幕", (i + 1) / len(project.segments))
-        
+
         self._report_progress("生成字幕", 1.0)
-    
+
     def _build_jianying_tracks(self, draft: JianyingDraft, project: MonologueProject) -> None:
         """构建独白视频的剪映轨道"""
         build_monologue_tracks(
@@ -570,30 +570,30 @@ def create_monologue(
 ) -> str:
     """
     一键创建独白视频
-    
+
     Args:
         source_video: 源视频
         context: 场景描述
         emotion: 情感
         output_jianying_dir: 剪映草稿目录
         style: 独白风格
-        
+
     Returns:
         剪映草稿路径
     """
     maker = MonologueMaker()
-    
+
     project = maker.create_project(
         source_video=source_video,
         context=context,
         emotion=emotion,
         style=style,
     )
-    
+
     maker.generate_script(project)
     maker.generate_voice(project)
     maker.generate_captions(project)
-    
+
     return maker.export_to_jianying(project, output_jianying_dir)
 
 
@@ -602,16 +602,16 @@ def demo_monologue():
     logger.info("=" * 50)
     logger.info("AI 第一人称独白制作演示")
     logger.info("=" * 50)
-    
+
     maker = MonologueMaker(voice_provider="edge")
-    
+
     test_video = "test_video.mp4"
-    
+
     if not Path(test_video).exists():
         logger.info(f"测试视频不存在: {test_video}")
         logger.info("请准备测试视频后再运行")
         return
-    
+
     # 创建项目
     project = maker.create_project(
         source_video=test_video,
@@ -619,37 +619,37 @@ def demo_monologue():
         emotion="惆怅",
         style=MonologueStyle.MELANCHOLIC,
     )
-    
+
     logger.info(f"项目创建成功: {project.name}")
     logger.info(f"视频时长: {project.video_duration:.2f}秒")
-    
+
     # 自定义独白
     custom_script = """
     有些路，只能一个人走。
-    
+
     夜深了，霓虹灯还在闪烁，
     我的影子被拉得很长很长。
-    
+
     这座城市从不缺少热闹，
     只是热闹从来都不属于我。
-    
+
     但我知道，
     总有一盏灯，会为我而亮。
     """
-    
+
     maker.generate_script(project, custom_script=custom_script)
     logger.info(f"独白已生成，共 {len(project.segments)} 个片段")
-    
+
     maker.generate_voice(project)
     logger.info(f"配音已生成，总时长: {project.total_duration:.2f}秒")
-    
+
     maker.generate_captions(project, style="cinematic")
     logger.info("字幕已生成 (电影级风格)")
-    
+
     # 导出
     output_dir = "./output/jianying_drafts"
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
+
     draft_path = maker.export_to_jianying(project, output_dir)
     logger.info(f"剪映草稿已导出: {draft_path}")
 

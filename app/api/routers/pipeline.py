@@ -41,9 +41,9 @@ def _get_integrator() -> PipelineIntegrator:
 async def create_narration_task(request: NarrationRequest):
     """
     创建视频解说任务
-    
+
     上传视频文件，AI 生成第一人称解说
-    
+
     返回 task_id 用于查询进度
     """
     task_id = str(uuid.uuid4())
@@ -99,7 +99,7 @@ async def cancel_task(task_id: str):
 async def _process_narration(task_id: str):
     """
     调用 PipelineIntegrator 真实处理流程
-    
+
     步骤：analyze → script → voice → caption → interleave → export
     """
     task = _tasks.get(task_id)
@@ -148,7 +148,7 @@ async def _process_narration(task_id: str):
 
         # ── 步骤 7: 导出 ──
         _update(task, "exporting", 95.0, "正在生成最终视频...")
-        draft_path = integrator.export_to_jianying(
+        _ = integrator.export_to_jianying(
             project,
             req.get("output_dir", "./output/jianying_drafts")
         )

@@ -12,7 +12,7 @@ from app.plugins.interfaces.base import BasePlugin, PluginType
 class BaseExportPlugin(ABC, BasePlugin):
     """
     导出格式插件基类
-    
+
     实现此接口以添加新的导出格式支持
     """
 
@@ -37,12 +37,12 @@ class BaseExportPlugin(ABC, BasePlugin):
     ) -> bool:
         """
         导出项目
-        
+
         Args:
             project_data: 项目数据（包含视频、解说、字幕等信息）
             output_path: 输出文件路径
             options: 导出选项
-            
+
         Returns:
             是否导出成功
         """
@@ -52,7 +52,7 @@ class BaseExportPlugin(ABC, BasePlugin):
     def get_export_options(self) -> List[Dict[str, Any]]:
         """
         获取导出选项定义
-        
+
         Returns:
             选项列表，每项包含:
             {
@@ -68,7 +68,7 @@ class BaseExportPlugin(ABC, BasePlugin):
     def validate_project(self, project_data: Dict[str, Any]) -> List[str]:
         """
         验证项目数据是否满足导出要求
-        
+
         Returns:
             错误列表，空则验证通过
         """
