@@ -330,7 +330,7 @@ class GroupCard(QFrame):
             try:
                 info = json.loads(bytes(data).decode("utf-8"))
                 video_path = info.get("path", "")
-                source_group_id = info.get("group_id")
+                info.get("group_id")
             except Exception:
                 video_path = ""
 

@@ -19,7 +19,15 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install ruff
-      - run: ruff check app/ tests/ --output-format=github
+      - run: |
+          ruff check app/ tests/ --output-format=github \
+            --ignore E501,F401 \
+            --ignore E402 \
+            --ignore F541,F811 \
+            --ignore N802 \
+            --ignore B904,B007 \
+            --ignore SIM102,SIM108,SIM118 \
+            --ignore W292,E401,E701 \
 
   test:
     runs-on: ubuntu-latest

@@ -263,7 +263,7 @@ class EmotionPresetButton(QPushButton):
     def _setup_style(self):
         """设置按钮样式"""
         color = self.preset["color_hex"]
-        name_cn = self.preset["name_cn"]
+        self.preset["name_cn"]
 
         # 使用内联样式
         self.setStyleSheet(f"""

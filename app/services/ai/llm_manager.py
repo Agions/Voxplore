@@ -412,7 +412,7 @@ class LLMManager:
 
         # 如果已经有 running loop，在新线程的独立 loop 中运行
         try:
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
         except RuntimeError:
             # 没有运行中的 loop，可以安全用 asyncio.run()
             result = asyncio.run(self.generate(request, provider))

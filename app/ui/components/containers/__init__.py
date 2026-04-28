@@ -7,7 +7,6 @@ MacCard — REDESIGNED
 """
 
 from PySide6.QtWidgets import QFrame
-from PySide6.QtCore import Qt
 
 from .common_styles import ColorPalette as CP, CardStyles
 

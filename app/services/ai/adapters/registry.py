@@ -146,7 +146,7 @@ class LLMProviderRegistry:
         """从配置文件加载 Provider"""
         import yaml
         with open(config_path, "r") as f:
-            config = yaml.safe_load(f)
+            yaml.safe_load(f)
 
         # 动态导入并注册 adapters
         # 具体实现略（见 ai_service_manager.py）

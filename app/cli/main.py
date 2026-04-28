@@ -154,7 +154,6 @@ def _handle_server_command(args) -> int:
         logger.info(f"启动服务器: {args.host}:{args.port}")
         try:
             import uvicorn
-            from app.api.main import app
             uvicorn.run(
                 "app.api.main:app",
                 host=args.host,

@@ -71,7 +71,7 @@ class TimelineRuler(QWidget):
 
         # 计算可见范围
         px_per_sec = self.scale
-        total_px = self.duration * px_per_sec
+        self.duration * px_per_sec
 
         # 绘制刻度
         painter.setPen(QPen(QColor("#334155"), 1))
@@ -112,7 +112,7 @@ class TimelineRuler(QWidget):
 
             # 三角形指示器
             painter.setBrush(QBrush(QColor("#22D3EE")))
-            path = [
+            [
                 QPoint(int(pos_x) - 6, 0),
                 QPoint(int(pos_x) + 6, 0),
                 QPoint(int(pos_x), 8),

@@ -238,7 +238,6 @@ class StyleSheet:
     def card(elevated: bool = False) -> str:
         """卡片样式"""
         bg = Colors.BgElevated if elevated else Colors.BgSurface
-        shadow = Shadows.md if elevated else "none"
         return f"""
         QFrame {{
             background: {bg};

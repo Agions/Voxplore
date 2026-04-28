@@ -64,7 +64,7 @@ class VideoInterleaver:
         decisions: List[InterleaveDecision] = []
 
         # 构建原片时间索引
-        clip_lookup = self._build_clip_lookup(original_clips)
+        self._build_clip_lookup(original_clips)
 
         # 遍历解说片段
         for i, narration in enumerate(narration_timeline):

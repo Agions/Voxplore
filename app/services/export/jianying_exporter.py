@@ -32,7 +32,7 @@ from typing import Optional, List, Dict, Tuple
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
     TrackType,
-    MaterialType,
+    MaterialType,  # noqa: F401  # intentionally re-exported for tests
     TimeRange,
     Track,
     Segment,

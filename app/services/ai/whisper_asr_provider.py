@@ -86,7 +86,7 @@ class WhisperASRProvider:
         """探测可用后端"""
         # 1. 优先: faster-whisper
         try:
-            import faster_whisper
+            import faster_whisper  # noqa: F401
             self._backend = "faster-whisper"
             logger.info(f"使用 faster-whisper ({self.model_size})")
             return
@@ -95,7 +95,7 @@ class WhisperASRProvider:
 
         # 2. 回退: openai-whisper
         try:
-            import whisper
+            import whisper  # noqa: F401
             self._backend = "openai-whisper"
             logger.info(f"使用 openai-whisper ({self.model_size})")
             return
