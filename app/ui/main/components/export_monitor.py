@@ -15,6 +15,7 @@ from PySide6.QtCore import Qt, QTimer, Signal, QRect
 from PySide6.QtGui import QFont, QColor, QPainter, QPen, QPoint
 
 from app.ui.components.design_system import Colors
+from app.ui.main.components.monitor_widgets import PerformanceChart
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger
 
@@ -267,75 +268,6 @@ class ExportStatisticsWidget(QWidget):
         self.failed_widget.findChildren(QLabel)[0].setText(str(self.failed_tasks))
 
 
-class ExportSpeedChart(QWidget):
-    """导出速度图表"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.logger = Logger.get_logger(__name__)
-        self.speed_history = []
-        self.max_history_points = 100
-        self.setMinimumHeight(150)
-
-    def add_speed_point(self, speed: float):
-        """添加速度点"""
-        self.speed_history.append(speed)
-        if len(self.speed_history) > self.max_history_points:
-            self.speed_history.pop(0)
-        self.update()
-
-    def clear_history(self):
-        """清除历史记录"""
-        self.speed_history.clear()
-        self.update()
-
-    def paintEvent(self, event):
-        """绘制事件"""
-        if not self.speed_history:
-            return
-
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        # 获取绘制区域
-        rect = self.rect()
-        margin = 20
-        chart_rect = QRect(margin, margin, rect.width() - 2 * margin, rect.height() - 2 * margin)
-
-        # 绘制背景
-        painter.fillRect(chart_rect, QColor(248, 249, 250))
-        painter.setPen(QPen(QColor(222, 226, 230), 1))
-        painter.drawRect(chart_rect)
-
-        if len(self.speed_history) < 2:
-            return
-
-        # 计算缩放
-        max_speed = max(self.speed_history) if self.speed_history else 1
-        min_speed = min(self.speed_history) if self.speed_history else 0
-        speed_range = max_speed - min_speed if max_speed != min_speed else 1
-
-        # 绘制速度曲线
-        painter.setPen(QPen(QColor(0, 123, 255), 2))
-
-        points = []
-        for i, speed in enumerate(self.speed_history):
-            x = chart_rect.left() + (i / (len(self.speed_history) - 1)) * chart_rect.width()
-            y = chart_rect.bottom() - ((speed - min_speed) / speed_range) * chart_rect.height()
-            points.append(QPoint(int(x), int(y)))
-
-        for i in range(len(points) - 1):
-            painter.drawLine(points[i], points[i + 1])
-
-        # 绘制当前速度值
-        if self.speed_history:
-            current_speed = self.speed_history[-1]
-            painter.setPen(QPen(QColor(0, 123, 255), 1))
-            painter.setFont(QFont("Arial", 10))
-            painter.drawText(chart_rect.right() - 100, chart_rect.top() + 20,
-                           f"当前速度: {current_speed:.1f} MB/s")
-
-
 class ExportMonitorWidget(QWidget):
     """导出监控主部件"""
 
@@ -378,7 +310,8 @@ class ExportMonitorWidget(QWidget):
         speed_group = QGroupBox("导出速度")
         speed_layout = QVBoxLayout(speed_group)
 
-        self.speed_chart = ExportSpeedChart()
+        self.speed_chart = PerformanceChart("导出速度", max_value=50)
+        self.speed_chart.setMinimumHeight(150)
         speed_layout.addWidget(self.speed_chart)
 
         # 添加到分割器
@@ -465,7 +398,7 @@ class ExportMonitorWidget(QWidget):
                     active_count += 1
 
         # 添加到速度历史
-        self.speed_chart.add_speed_point(total_speed)
+        self.speed_chart.add_data_point(total_speed)
 
     def on_task_clicked(self, task_id: str):
         """任务点击事件"""
