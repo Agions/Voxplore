@@ -15,6 +15,10 @@ from pathlib import Path
 from typing import Optional, Generic, TypeVar
 from dataclasses import dataclass, field
 import logging
+
+# Premiere tick rate constant (must be defined before any function using it)
+PREMIERE_TICKS_PER_SECOND = 254016000000
+
 from ..video_tools.ffmpeg_tool import FFmpegTool
 logger = logging.getLogger(__name__)
 
@@ -32,13 +36,13 @@ def microseconds_to_seconds(us: int) -> float:
 
 
 def seconds_to_ticks(seconds: float, fps: float = 30.0) -> int:
-    """秒转 ticks（Premiere/Final Cut 使用）- 内部使用 TimeHelper.TICKS_PER_SECOND"""
-    return int(seconds * TimeHelper.TICKS_PER_SECOND)
+    """秒转 ticks（Premiere/Final Cut 使用）"""
+    return int(seconds * PREMIERE_TICKS_PER_SECOND)
 
 
 def _get_ticks_per_second() -> int:
-    """获取 Premiere tick rate 常量（延迟解析避免前向引用）"""
-    return TimeHelper.TICKS_PER_SECOND
+    """获取 Premiere tick rate 常量"""
+    return PREMIERE_TICKS_PER_SECOND
 
 
 def safe_filename(name: str) -> str:
@@ -182,7 +186,7 @@ class TimeHelper:
     """时间转换辅助类"""
 
     # Premiere tick rate
-    TICKS_PER_SECOND = 254016000000
+    TICKS_PER_SECOND = PREMIERE_TICKS_PER_SECOND
 
     @staticmethod
     def seconds_to_us(seconds: float) -> int:
