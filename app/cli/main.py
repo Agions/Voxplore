@@ -119,30 +119,159 @@ def _add_plugin_subcommands(subparsers) -> None:
 
 def _handle_project_command(args) -> int:
     """处理 project 子命令"""
+    import json
+    import os
+    import shutil
+    import uuid
+    from datetime import datetime
+
+    PROJECTS_DIR = os.path.expanduser("~/Voxplore/Projects")
+
+    def _load_project_metadata(project_path: str) -> dict | None:
+        """从 project.json 加载项目元数据"""
+        pf = os.path.join(project_path, "project.json")
+        if not os.path.exists(pf):
+            return None
+        try:
+            with open(pf, "r", encoding="utf-8") as f:
+                return json.load(f).get("metadata", {})
+        except Exception:
+            return None
+
+    def _find_project_by_name(name: str) -> tuple[str, str] | None:
+        """按名称查找项目，返回 (project_id, project_path) 或 None"""
+        if not os.path.exists(PROJECTS_DIR):
+            return None
+        for d in os.listdir(PROJECTS_DIR):
+            proj_path = os.path.join(PROJECTS_DIR, d)
+            if not os.path.isdir(proj_path):
+                continue
+            meta = _load_project_metadata(proj_path)
+            if meta and meta.get("name") == name:
+                project_id = os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else ""
+                return project_id, proj_path
+        return None
+
+    def _list_projects_json() -> list[dict]:
+        """返回所有项目的 JSON 表示"""
+        if not os.path.exists(PROJECTS_DIR):
+            return []
+        result = []
+        for d in sorted(os.listdir(PROJECTS_DIR)):
+            proj_path = os.path.join(PROJECTS_DIR, d)
+            if not os.path.isdir(proj_path):
+                continue
+            meta = _load_project_metadata(proj_path)
+            if not meta:
+                continue
+            result.append({
+                "name": meta.get("name", ""),
+                "id": os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else "",
+                "path": proj_path,
+                "author": meta.get("author", ""),
+                "created_at": meta.get("created_at", ""),
+                "modified_at": meta.get("modified_at", ""),
+                "status": meta.get("status", "active"),
+            })
+        return result
+
     if args.subcommand == "create":
-        logger.info(f"创建项目: {args.name}")
-        logger.info(f"视频文件: {args.video}")
-        logger.info(f"输出目录: {args.output}")
-        # TODO: 实现项目创建逻辑
+        project_id = str(uuid.uuid4())
+        slug = args.name.replace(" ", "_")
+        project_path = os.path.join(PROJECTS_DIR, f"{slug}_{project_id[:8]}")
+        os.makedirs(project_path, exist_ok=True)
+        for subdir in ["media", "exports", "backups", "cache", "assets"]:
+            os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+
+        now = datetime.now().isoformat()
+        project_json = {
+            "metadata": {
+                "name": args.name,
+                "description": "",
+                "author": os.getlogin(),
+                "version": "1.0.0",
+                "created_at": now,
+                "modified_at": now,
+                "tags": [],
+                "project_type": "video_editing",
+                "thumbnail": "",
+                "status": "active",
+                "file_path": project_path,
+            },
+            "settings": {},
+            "timeline": {"segments": []},
+        }
+        with open(os.path.join(project_path, "project.json"), "w", encoding="utf-8") as f:
+            json.dump(project_json, f, ensure_ascii=False, indent=2)
+
+        # 如果指定了视频文件，建立软链接
+        if args.video and os.path.exists(args.video):
+            media_dir = os.path.join(project_path, "media")
+            video_name = os.path.basename(args.video)
+            link_path = os.path.join(media_dir, video_name)
+            try:
+                os.symlink(args.video, link_path)
+                logger.info(f"视频已链接: {link_path}")
+            except OSError:
+                shutil.copy2(args.video, link_path)
+                logger.info(f"视频已复制: {link_path}")
+
+        logger.info(f"✓ 项目已创建: {args.name}")
+        logger.info(f"  路径: {project_path}")
+        logger.info(f"  ID: {project_id}")
         return 0
 
     elif args.subcommand == "list":
-        format_type = args.format
-        if format_type == "json":
-            print("[]")  # noqa  # TODO: 返回实际项目列表
+        projects = _list_projects_json()
+        if not projects:
+            logger.info("项目列表: (暂无项目)")
+            return 0
+
+        if args.format == "json":
+            print(json.dumps(projects, ensure_ascii=False, indent=2))
         else:
-            logger.info("项目列表:")
-            logger.info("  (暂无项目)")
+            logger.info(f"项目列表 (共 {len(projects)} 个):")
+            print(f"  {'名称':<30} {'ID':<8} {'作者':<15} {'创建时间':<26} {'状态'}")
+            print(f"  {'-'*30} {'-'*8} {'-'*15} {'-'*26} {'------'}")
+            for p in projects:
+                created = p["created_at"][:19] if p["created_at"] else "-"
+                print(f"  {p['name']:<30} {p['id']:<8} {p['author']:<15} {created:<26} {p['status']}")
         return 0
 
     elif args.subcommand == "delete":
-        logger.info(f"删除项目: {args.name}")
         if not args.force:
             logger.warning("使用 --force 确认删除")
+            return 1
+        found = _find_project_by_name(args.name)
+        if not found:
+            logger.error(f"项目不存在: {args.name}")
+            return 1
+        project_id, project_path = found
+        shutil.rmtree(project_path)
+        logger.info(f"✓ 已删除项目: {args.name} ({project_path})")
         return 0
 
     elif args.subcommand == "info":
-        logger.info(f"项目信息: {args.name}")
+        found = _find_project_by_name(args.name)
+        if not found:
+            logger.error(f"项目不存在: {args.name}")
+            return 1
+        project_id, project_path = found
+        meta = _load_project_metadata(project_path)
+        if not meta:
+            logger.error(f"无法读取项目信息: {project_path}")
+            return 1
+        print(f"\n项目信息: {args.name}")
+        print(f"  ID:           {project_id}")
+        print(f"  路径:         {project_path}")
+        print(f"  作者:         {meta.get('author', '-')}")
+        print(f"  版本:         {meta.get('version', '-')}")
+        print(f"  创建时间:     {meta.get('created_at', '-')[:19]}")
+        print(f"  修改时间:     {meta.get('modified_at', '-')[:19]}")
+        print(f"  状态:         {meta.get('status', '-')}")
+        print(f"  描述:         {meta.get('description', '-')}")
+        subdirs = [d for d in os.listdir(project_path) if os.path.isdir(os.path.join(project_path, d))]
+        print(f"  子目录:       {', '.join(sorted(subdirs))}")
         return 0
 
     return 0
