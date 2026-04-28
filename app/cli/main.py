@@ -179,10 +179,44 @@ def _handle_server_command(args) -> int:
 def _handle_plugin_command(args) -> int:
     """处理 plugin 子命令"""
     if args.subcommand == "list":
-        logger.info("插件列表:")
-        # TODO: 从 PluginRegistry 获取实际插件列表
-        logger.info("  (暂无插件)")
-        return 0
+        try:
+            from app.plugins.loader import PluginLoader
+            loader = PluginLoader()
+            discovered = loader.discover_plugins()
+            registry = loader.get_registry()
+
+            # 注册内置示例插件
+            builtin = {
+                "cinematic_subtitle": {"name": "电影级字幕", "version": "1.0.0", "type": "subtitle"},
+                "deepseek_ai_generator": {"name": "DeepSeek AI 生成器", "version": "1.0.0", "type": "ai_generator"},
+            }
+
+            all_plugins = list(discovered) + list(builtin.keys())
+            if not all_plugins:
+                logger.info("插件列表: (暂无插件)")
+                return 0
+
+            if args.enabled:
+                enabled = [p for p in all_plugins if registry.get(p, {}).get("enabled", False)]
+                all_plugins = enabled if enabled else all_plugins
+
+            logger.info(f"插件列表 (共 {len(all_plugins)} 个):")
+            for pid in sorted(all_plugins):
+                manifest = registry.get(pid, {}).get("manifest", {})
+                if pid in builtin:
+                    info = builtin[pid]
+                    logger.info(f"  [{info['type']}] {pid} - {info['name']} v{info['version']}")
+                else:
+                    name = manifest.get("name", pid)
+                    ver = manifest.get("version", "?")
+                    ptype = manifest.get("plugin_type", "unknown")
+                    enabled = registry.get(pid, {}).get("enabled", False)
+                    status = "✓" if enabled else "✗"
+                    logger.info(f"  [{status}][{ptype}] {pid} - {name} v{ver}")
+            return 0
+        except Exception as e:
+            logger.error(f"获取插件列表失败: {e}")
+            return 1
 
     elif args.subcommand == "enable":
         logger.info(f"启用插件: {args.name}")

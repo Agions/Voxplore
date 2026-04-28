@@ -291,3 +291,15 @@ class PluginRegistry:
 
     def __contains__(self, plugin_id: str) -> bool:
         return plugin_id in self._plugins
+
+    def get(self, plugin_id: str, default=None):
+        """获取插件条目（dict 兼容接口）"""
+        entry = self._plugins.get(plugin_id)
+        if entry is None:
+            return default
+        return {
+            "manifest": entry.manifest,
+            "state": entry.state.value if entry.state else None,
+            "enabled": entry.state == PluginState.ENABLED,
+            "instance": entry.instance,
+        }

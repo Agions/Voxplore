@@ -26,8 +26,8 @@ class PluginLoader:
     - 加载插件到注册表
     """
 
-    def __init__(self, registry: PluginRegistry):
-        self._registry = registry
+    def __init__(self, registry: PluginRegistry = None):
+        self._registry = registry if registry is not None else PluginRegistry()
         self._plugin_dirs: List[Path] = []
 
     def add_plugin_directory(self, directory: str) -> None:
@@ -36,6 +36,10 @@ class PluginLoader:
         if not path.exists():
             raise ValueError(f"Plugin directory does not exist: {path}")
         self._plugin_dirs.append(path)
+
+    def get_registry(self) -> PluginRegistry:
+        """获取插件注册表实例"""
+        return self._registry
 
     def discover_plugins(self) -> List[PluginManifest]:
         """
