@@ -135,3 +135,98 @@ class TestCaptionGenerator:
         words = generator._segment_words("你好世界")
         
         assert isinstance(words, list)
+
+
+class TestCaptionGeneratorMethods:
+    """Test CaptionGenerator methods"""
+
+    def test_generate_from_text_returns_captions(self):
+        """Test generate_from_text returns a Caption"""
+        generator = CaptionGenerator()
+        caption = generator.generate_from_text("你好世界", start_time=0.0)
+        assert isinstance(caption, Caption)
+        assert caption.text == "你好世界"
+        assert caption.start_time == 0.0
+
+    def test_generate_from_text_with_duration(self):
+        """Test generate_from_text with explicit duration"""
+        generator = CaptionGenerator()
+        caption = generator.generate_from_text("测试文本", start_time=5.0, duration=3.0)
+        assert abs(caption.end_time - 8.0) < 0.1
+
+    def test_generate_from_text_word_timestamps(self):
+        """Test words get timestamps assigned"""
+        generator = CaptionGenerator()
+        caption = generator.generate_from_text("你好", start_time=0.0, duration=2.0)
+        assert len(caption.words) > 0
+        for w in caption.words:
+            assert w.start_time < w.end_time
+
+    def test_generate_from_transcript_returns_list(self):
+        """Test generate_from_transcript returns list of captions"""
+        generator = CaptionGenerator()
+        transcript = [
+            {"text": "第一句", "start": 0.0, "end": 1.0, "words": []},
+            {"text": "第二句", "start": 1.0, "end": 2.0, "words": []},
+        ]
+        captions = generator.generate_from_transcript(transcript)
+        assert isinstance(captions, list)
+        assert len(captions) == 2
+        assert captions[0].text == "第一句"
+        assert captions[1].text == "第二句"
+
+    def test_generate_from_transcript_with_word_timestamps(self):
+        """Test transcript with per-word timestamps"""
+        generator = CaptionGenerator()
+        transcript = [
+            {
+                "text": "你好",
+                "start": 0.0,
+                "end": 0.5,
+                "words": [
+                    {"word": "你", "start": 0.0, "end": 0.25},
+                    {"word": "好", "start": 0.25, "end": 0.5},
+                ]
+            }
+        ]
+        captions = generator.generate_from_transcript(transcript)
+        assert len(captions) == 1
+        assert len(captions[0].words) == 2
+        assert captions[0].words[0].text == "你"
+        assert captions[0].words[0].start_time == 0.0
+
+    def test_to_srt_format(self, tmp_path):
+        """Test SRT export writes valid file"""
+        generator = CaptionGenerator()
+        caption = generator.generate_from_text("测试", start_time=0.0, duration=1.0)
+        out = tmp_path / "test.srt"
+        generator.to_srt_format([caption], str(out))
+        content = out.read_text(encoding="utf-8")
+        assert "1" in content
+        assert "00:00:00,000 --> 00:00:01,000" in content
+        assert "1\n" in content  # SRT uses numbered entries
+
+    def test_to_ass_format(self, tmp_path):
+        """Test ASS export writes valid file"""
+        generator = CaptionGenerator()
+        caption = generator.generate_from_text("测试", start_time=0.0, duration=1.0)
+        out = tmp_path / "test.ass"
+        generator.to_ass_format([caption], str(out))
+        content = out.read_text(encoding="utf-8-sig")
+        assert "[Script Info]" in content
+        assert "1\n" in content  # SRT uses numbered entries
+
+    def test_format_srt_time(self):
+        """Test _format_srt_time produces correct format"""
+        generator = CaptionGenerator()
+        assert generator._format_srt_time(0.0) == "00:00:00,000"
+        assert generator._format_srt_time(1.5) == "00:00:01,500"
+        assert generator._format_srt_time(3661.0) == "01:01:01,000"
+
+    def test_ass_header_contains_script_info(self):
+        """Test ASS header generation"""
+        generator = CaptionGenerator()
+        header = generator._generate_ass_header()
+        assert "[Script Info]" in header
+        assert "[V4+ Styles]" in header
+        assert "[Events]" in header
