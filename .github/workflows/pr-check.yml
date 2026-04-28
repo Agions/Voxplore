@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install ruff
-      - run: ruff check app/ tests/ --output-format=github || true
+      - run: ruff check app/ tests/ --output-format=github
 
   test:
     runs-on: ubuntu-latest
@@ -30,4 +30,4 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -e ".[all,dev]"
-      - run: pytest tests/ -v --ignore=tests/test_ui_components.py --ignore=tests/test_page_loader.py --ignore=tests/test_macOS_theme_manager.py --ignore=tests/test_icon_manager.py --ignore=tests/test_application.py --ignore=tests/test_integration.py --ignore=tests/test_error_handler.py --ignore=tests/test_event_handler.py --ignore=tests/test_cache_manager.py --ignore=tests/test_llm_cache.py --ignore=tests/test_mashup_maker.py --ignore=tests/test_subtitle_extractor.py --ignore=tests/test_video_content_analyzer.py --ignore=tests/test_video_summarizer.py --ignore=tests/test_video_understanding.py --ignore=tests/test_video_exporter.py --ignore=tests/test_direct_video_exporter.py --ignore=tests/test_caption_generator.py --ignore=tests/test_scene_analyzer.py --ignore=tests/test_script_generator.py --ignore=tests/test_voice_generator.py --ignore=tests/test_commentary_maker.py --ignore=tests/test_highlight_detector.py --ignore=tests/test_pace_analyzer.py --ignore=tests/test_video_enhancer.py --ignore=tests/test_video_maker.py --ignore=tests/test_silence_remover.py --ignore=tests/test_sync_engine.py --ignore=tests/test_transition_effects.py --ignore=tests/test_beat_detector.py --ignore=tests/test_templates.py --ignore=tests/test_ai_service_manager.py || true
+      - run: pytest tests/ -v --tb=short
