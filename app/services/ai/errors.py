@@ -22,3 +22,33 @@ LLM Provider 异常兼容模块 ⚠️ 已废弃
 """
 
 # 从新的统一位置重导出，避免现有代码的导入崩溃
+
+# === 废弃迁移：统一从 app.core.exceptions 导入 ===
+# 此文件历史遗留，仅作兼容层，未来版本移除
+from app.core.exceptions import (
+    ProviderError,
+    RateLimitError,
+    CircuitOpenError,
+    LLMError,
+    NetworkError,
+    ConfigError,
+    ServiceError,
+    ServiceNotFoundError,
+    ServiceDependencyError,
+    ServiceInitializationError,
+    ServiceTimeoutError,
+)
+
+__all__ = [
+    "ProviderError",
+    "RateLimitError",
+    "CircuitOpenError",
+    "LLMError",
+    "NetworkError",
+    "ConfigError",
+    "ServiceError",
+    "ServiceNotFoundError",
+    "ServiceDependencyError",
+    "ServiceInitializationError",
+    "ServiceTimeoutError",
+]
