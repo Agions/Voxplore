@@ -16,7 +16,7 @@ LLM Provider 标准化 Pydantic 模型
 
 from typing import Optional, List, Dict, Any, Literal
 from pydantic import BaseModel, Field
-from ...base_llm_provider import LLMRequest, LLMResponse
+from ..base_llm_provider import LLMRequest, LLMResponse
 
 
 class ChatMessage(BaseModel):
