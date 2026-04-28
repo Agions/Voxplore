@@ -3,7 +3,7 @@
 
 """
 Google Gemini 提供商
-支持 Gemini 3.1 Flash / Gemini 3.1 Pro (2026年4月最新)
+支持 Gemini 3.1 Flash / Gemini 3.1 Pro
 
 使用公共混入类减少重复代码
 """

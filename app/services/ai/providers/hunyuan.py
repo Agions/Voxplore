@@ -3,7 +3,7 @@
 
 """
 腾讯混元 (Hunyuan) 提供商
-支持混元模型系列 (2026年4月最新)
+支持混元模型系列
 
 使用公共混入类减少重复代码
 """
@@ -27,7 +27,7 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://cloud.tencent.com/document/product/1729
     """
 
-    # 模型列表 (2026年4月最新)
+    # 模型列表
     MODELS = {
         "hunyuan-pro": {
             "name": "Hunyuan Pro",

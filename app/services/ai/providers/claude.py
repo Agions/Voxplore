@@ -3,7 +3,7 @@
 
 """
 Anthropic Claude 提供商
-支持 Claude Sonnet 4.5 (2026年4月最新)
+支持 Claude Sonnet 4.5
 
 使用公共混入类减少重复代码
 """

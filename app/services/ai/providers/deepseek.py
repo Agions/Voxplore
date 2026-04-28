@@ -3,7 +3,7 @@
 
 """
 DeepSeek 提供商
-支持 DeepSeek R1, V4 Flash/Pro 系列模型 (2026年4月最新)
+支持 DeepSeek R1, V4 Flash/Pro 系列模型
 """
 
 import httpx
@@ -25,13 +25,13 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     API 文档: https://platform.deepseek.com/docs
 
-    支持模型 (2026年4月最新):
+    支持模型:
     - deepseek-reasoner (R1): 推理模型，数学和代码能力强大
     - deepseek-v3-2 (V3.2): 最新基础模型，多任务能力强
     - deepseek-chat: 通用对话模型
     """
 
-    # 可用模型列表 (2026年4月最新)
+    # 可用模型列表
     MODELS = {
         "deepseek-v4-flash": {
             "name": "DeepSeek V4 Flash",

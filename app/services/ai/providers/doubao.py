@@ -3,7 +3,7 @@
 
 """
 字节豆包 (Doubao) 提供商
-支持豆包模型系列 (2026年4月最新)
+支持豆包模型系列
 
 使用公共混入类减少重复代码
 """
@@ -27,7 +27,7 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://www.volcengine.com/docs/82379
     """
 
-    # 模型列表 (2026年4月最新)
+    # 模型列表
     MODELS = {
         "doubao-pro-32k": {
             "name": "Doubao Pro 32K",

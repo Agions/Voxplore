@@ -1,10 +1,10 @@
-# Voxplore AI LLM 配置 (2026年4月最新)
+# Voxplore AI LLM 配置
 
 LLM:
   # 默认提供商 (qwen | kimi | glm5 | openai | deepseek | claude | gemini | local | doubao | hunyuan)
   default_provider: "qwen"
 
-  # 通义千问 Qwen Plus (2026年4月最新)
+  # 通义千问 Qwen Plus
   qwen:
     enabled: true
     api_key: ${QWEN_API_KEY}
@@ -14,7 +14,7 @@ LLM:
     temperature: 0.7
     top_p: 0.9
 
-  # DeepSeek V4 (2026年4月最新)
+  # DeepSeek V4
   deepseek:
     enabled: false
     api_key: ${DEEPSEEK_API_KEY}
@@ -23,7 +23,7 @@ LLM:
     max_tokens: 16384
     temperature: 0.7
 
-  # Kimi moonshot-v1 (2026年4月最新)
+  # Kimi moonshot-v1
   kimi:
     enabled: false
     api_key: ${KIMI_API_KEY}
@@ -32,7 +32,7 @@ LLM:
     max_tokens: 8000
     temperature: 0.7
 
-  # 智谱 GLM-4 (2026年4月最新)
+  # 智谱 GLM-4
   glm5:
     enabled: false
     api_key: ${GLM5_API_KEY}
@@ -41,7 +41,7 @@ LLM:
     max_tokens: 8000
     temperature: 0.7
 
-  # OpenAI GPT-4o (2026年4月最新)
+  # OpenAI GPT-4o
   openai:
     enabled: false
     api_key: ${OPENAI_API_KEY}
@@ -59,7 +59,7 @@ LLM:
     max_tokens: 2000
     temperature: 0.7
 
-  # Google Gemini 2.0 (2026年4月最新)
+  # Google Gemini 2.0
   gemini:
     enabled: false
     api_key: ${GEMINI_API_KEY}
@@ -75,7 +75,7 @@ LLM:
     base_url: "http://localhost:11434"
     backend: "ollama"
 
-  # 字节豆包 Doubao (2026年4月最新)
+  # 字节豆包 Doubao
   doubao:
     enabled: false
     api_key: ${DOUBAO_API_KEY}
@@ -84,7 +84,7 @@ LLM:
     max_tokens: 8000
     temperature: 0.7
 
-  # 腾讯混元 Hunyuan (2026年4月最新)
+  # 腾讯混元 Hunyuan
   hunyuan:
     enabled: false
     api_key: ${HUNYUAN_API_KEY}
