@@ -3,7 +3,7 @@
 
 import pytest
 
-from app.services.export.base_exporter import (
+from app.services.export.export_utils import (
     seconds_to_microseconds,
     microseconds_to_seconds,
     seconds_to_ticks,

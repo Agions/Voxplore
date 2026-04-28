@@ -15,6 +15,7 @@
 """
 
 import subprocess
+import warnings
 from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
@@ -75,9 +76,26 @@ class VideoExporter:
     视频文件导出器
 
     使用 FFmpeg 将项目导出为视频文件
+
+    .. deprecated::
+        推荐使用 :class:`DirectVideoExporter`，它提供更完整的功能：
+        - 硬件加速支持 (NVIDIA, Intel, Apple, VAAPI)
+        - 多种分辨率预设
+        - 批量导出
+        - 解说视频导出
+
+    使用示例:
+        from app.services.export import DirectVideoExporter
+
+        exporter = DirectVideoExporter()
     """
 
-    def __init__(self, config: Optional[ExportConfig] = None):
+    def __init__(self, config: Optional['ExportConfig'] = None):
+        warnings.warn(
+            "VideoExporter is deprecated, use DirectVideoExporter instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.config = config or ExportConfig()
         FFmpegTool.check_ffmpeg()
 
