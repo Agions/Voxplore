@@ -356,3 +356,48 @@ class TestProviderRegistryIntrospection:
 
         providers = self.registry.list_tts_providers()
         assert providers == ["tts1"]
+
+
+class TestProviderRegistryEdgeCases:
+    """测试注册表边界情况"""
+
+    def setup_method(self):
+        ProviderRegistry._instance = None
+        self.registry = ProviderRegistry.instance()
+
+    def test_set_default_vision_unknown_raises(self):
+        """测试设置不存在的默认 Vision Provider 抛出 KeyError"""
+        with pytest.raises(KeyError) as exc_info:
+            self.registry.set_default_vision("nonexistent_vision")
+        assert "nonexistent_vision" in str(exc_info.value)
+
+    def test_set_default_llm_unknown_raises(self):
+        """测试设置不存在的默认 LLM Provider 抛出 KeyError"""
+        with pytest.raises(KeyError) as exc_info:
+            self.registry.set_default_llm("nonexistent_llm")
+        assert "nonexistent_llm" in str(exc_info.value)
+
+    def test_set_default_tts_unknown_raises(self):
+        """测试设置不存在的默认 TTS Provider 抛出 KeyError"""
+        with pytest.raises(KeyError) as exc_info:
+            self.registry.set_default_tts("nonexistent_tts")
+        assert "nonexistent_tts" in str(exc_info.value)
+
+    def test_get_default_llm_auto_first(self):
+        """测试 LLM 未设置默认时自动返回第一个"""
+        self.registry.register_llm("first_llm", MockLLMProvider())
+        default = self.registry.get_default_llm()
+        assert default is not None
+
+    def test_get_default_tts_no_provider_raises(self):
+        """测试无 TTS Provider 时 get_default_tts 抛出 RuntimeError"""
+        registry = ProviderRegistry()
+        with pytest.raises(RuntimeError) as exc_info:
+            registry.get_default_tts()
+        assert "No TTS providers" in str(exc_info.value)
+
+    def test_get_default_tts_auto_first(self):
+        """测试 TTS 未设置默认时自动返回第一个"""
+        self.registry.register_tts("first_tts", MockTTSProvider())
+        default = self.registry.get_default_tts()
+        assert default is not None
