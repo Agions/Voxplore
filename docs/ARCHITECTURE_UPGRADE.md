@@ -14,7 +14,7 @@
 │   配置管理 · 事件总线 · 依赖注入 · 安全密钥管理                 │
 ├──────────────────────────────────────────────────────────────┤
 │                        外部依赖层                              │
-│        FFmpeg · OpenCV · Qwen2.5-VL · DeepSeek-V3 · Edge-TTS │
+│        FFmpeg · OpenCV · Qwen2.5-VL · DeepSeek-V4 · Edge-TTS │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -437,7 +437,7 @@ class LLMProviderRegistry:
 | **缓存** | Redis | 新增 |
 | **数据库** | SQLite（本地）<br>+ PostgreSQL（远程 API） | 增强 |
 | **AI 分析** | Qwen2.5-VL | 现有 |
-| **AI 文案** | DeepSeek-V3 / Qwen-Plus | 现有 |
+| **AI 文案** | DeepSeek-V4 / Qwen-Plus | 现有 |
 | **语音合成** | Edge-TTS / F5-TTS | 现有 |
 | **视频处理** | FFmpeg | 现有 |
 

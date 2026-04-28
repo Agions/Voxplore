@@ -70,7 +70,7 @@ CMD ["python3", "app/main.py"]
 
 ### DeepSeek API Key 多少钱？
 
-DeepSeek-V3 价格极低（约 $0.1 / 1M tokens），处理一个 5 分钟视频约消耗 50K–100K tokens，成本不到 **1 分钱**。普通使用一个月 $1 足够。
+DeepSeek-V4 价格极低（约 $0.1 / 1M tokens），处理一个 5 分钟视频约消耗 50K–100K tokens，成本不到 **1 分钱**。普通使用一个月 $1 足够。
 
 ### API Key 泄露了怎么办？
 
@@ -82,7 +82,7 @@ DeepSeek-V3 价格极低（约 $0.1 / 1M tokens），处理一个 5 分钟视频
 
 ### 支持其他 AI 提供商吗？
 
-目前 Voxplore 主推 DeepSeek-V3（性价比最优）。理论上支持 OpenAI GPT-4.1 和 Anthropic Claude 系列，但需要自行修改代码中的 API 端点。视频理解模型（Qwen2.5-VL）目前仅支持阿里云百炼 API。
+目前 Voxplore 主推 DeepSeek-V4（性价比最优）。理论上支持 OpenAI GPT-4.1 和 Anthropic Claude 系列，但需要自行修改代码中的 API 端点。视频理解模型（Qwen2.5-VL）目前仅支持阿里云百炼 API。
 
 ---
 

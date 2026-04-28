@@ -131,7 +131,7 @@ class VideoAnalysisAdapter(BaseLLMAdapter):
 
 
 class ScriptLLMAdapter(BaseLLMAdapter):
-    """脚本生成 Adapter - DeepSeek-V3, Qwen-Plus 等"""
+    """脚本生成 Adapter - DeepSeek-V4, Qwen-Plus 等"""
     provider_type = ProviderType.SCRIPT_LLM
 
     @abstractmethod

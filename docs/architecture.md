@@ -25,7 +25,7 @@ Voxplore 采用 **三层模块化架构**：
 │   配置管理 · 事件总线 · 依赖注入 · 安全密钥管理               │
 ├──────────────────────────────────────────────────────────────┤
 │                        外部依赖层                              │
-│        FFmpeg · OpenCV · Qwen2.5-VL · DeepSeek-V3 · Edge-TTS │
+│        FFmpeg · OpenCV · Qwen2.5-VL · DeepSeek-V4 · Edge-TTS │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,7 +50,7 @@ Voxplore/
 │   │   │   ├── providers/       # LLM 提供商抽象（OpenAI 兼容接口）
 │   │   │   ├── llm_manager.py   # LLM 统一管理器
 │   │   │   ├── scene_analyzer.py # Qwen2.5-VL 场景理解
-│   │   │   ├── script_generator.py # DeepSeek-V3 解说生成
+│   │   │   ├── script_generator.py # DeepSeek-V4 解说生成
 │   │   │   └── voice_generator.py  # Edge-TTS / F5-TTS 语音合成
 │   │   ├── video/               # 视频处理服务
 │   │   │   └── monologue_maker.py  # AI 第一人称解说制作（核心）
@@ -88,7 +88,7 @@ Voxplore/
 |------|------|
 | `complete(prompt, model?)` | 文本补全 |
 | `analyze_video(video_path)` | Qwen2.5-VL 视频内容分析 |
-| `generate_script(context, emotion)` | DeepSeek-V3 生成解说文案 |
+| `generate_script(context, emotion)` | DeepSeek-V4 生成解说文案 |
 
 ### SecureKeyManager（密钥安全）
 
@@ -105,7 +105,7 @@ API Key 存储优先级:
 ```
 视频 → 场景检测（PySceneDetect）
       → AI 内容分析（Qwen2.5-VL）
-      → 解说生成（DeepSeek-V3）
+      → 解说生成（DeepSeek-V4）
       → 配音合成（Edge-TTS / F5-TTS）
       → 字幕生成（ASS + TTS word-level timing）
       → 视频合成（FFmpeg）
@@ -116,7 +116,7 @@ API Key 存储优先级:
 |------|----------|
 | 场景检测 | PySceneDetect |
 | 内容分析 | Qwen2.5-VL（阿里云百炼 API） |
-| 文案生成 | DeepSeek-V3.2（API） |
+| 文案生成 | DeepSeek-V4.2（API） |
 | 语音合成 | Edge-TTS（本地）/ F5-TTS（本地） |
 | 字幕生成 | TTS word-level timing → ASS 格式 |
 | 视频合成 | FFmpeg（H.264 / H.265） |
@@ -151,7 +151,7 @@ Plugin Interface (抽象基类)
 | GUI 框架 | **PySide6** (LGPL) |
 | 视频处理 | FFmpeg、opencv-python |
 | AI 分析 | Qwen2.5-VL（阿里云百炼 API） |
-| AI 文案 | DeepSeek-V3.2（API） |
+| AI 文案 | DeepSeek-V4.2（API） |
 | 语音合成 | Edge-TTS（本地）、F5-TTS（本地） |
 | 加密 | cryptography (Fernet / AES-128) |
 | 配置 | YAML、python-dotenv |

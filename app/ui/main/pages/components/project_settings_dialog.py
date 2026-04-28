@@ -190,7 +190,7 @@ class ProjectSettingsDialog(QDialog):
         provider_layout = QVBoxLayout(provider_group)
 
         self.ai_provider_combo = QComboBox()
-        self.ai_provider_combo.addItems(["DeepSeek-V3", "通义千问", "Kimi", "智谱 GLM-5"])
+        self.ai_provider_combo.addItems(["DeepSeek-V4", "通义千问", "Kimi", "智谱 GLM-5"])
         provider_layout.addWidget(self.ai_provider_combo)
 
         layout.addWidget(provider_group)

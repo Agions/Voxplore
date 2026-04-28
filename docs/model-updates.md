@@ -13,7 +13,7 @@ description: Voxplore AI 模型版本变更历史、TTS/ASR/LLM 更新追踪。
 
 | 模型层 | 当前版本 | 状态 |
 |--------|----------|------|
-| **LLM（解说生成）** | DeepSeek-V3.2 | ✅ 推荐 |
+| **LLM（解说生成）** | DeepSeek-V4.2 | ✅ 推荐 |
 | **视频理解** | Qwen2.5-VL (7B) | ✅ 推荐 |
 | **ASR（语音识别）** | SenseVoice | ✅ 推荐 |
 | **TTS（配音合成）** | Edge-TTS 7.2.8 | ✅ 推荐 |
@@ -31,7 +31,7 @@ description: Voxplore AI 模型版本变更历史、TTS/ASR/LLM 更新追踪。
 | **Provider 抽象** | 新建 `provider_models.py`（Pydantic 模型），统一 LLM Provider 接口 |
 | **Bug 修复** | Hunyuan / Doubao `usage` 字段缺失问题修复 |
 
-> **Voxplore v3.6.0 推荐默认配置不变**：DeepSeek-V3.2 + Qwen2.5-VL + Edge-TTS。
+> **Voxplore v3.6.0 推荐默认配置不变**：DeepSeek-V4.2 + Qwen2.5-VL + Edge-TTS。
 
 ---
 
@@ -114,8 +114,8 @@ description: Voxplore AI 模型版本变更历史、TTS/ASR/LLM 更新追踪。
 
 | 预算 | LLM（解说生成） | 视频理解 | TTS | ASR |
 |------|----------------|----------|-----|-----|
-| 免费 | DeepSeek-V3.2 | Qwen2.5-VL（本地） | Edge-TTS | SenseVoice |
-| <$5/月 | DeepSeek-V3.2 | Qwen2.5-VL（API） | Edge-TTS | SenseVoice |
+| 免费 | DeepSeek-V4.2 | Qwen2.5-VL（本地） | Edge-TTS | SenseVoice |
+| <$5/月 | DeepSeek-V4.2 | Qwen2.5-VL（API） | Edge-TTS | SenseVoice |
 | $5-50/月 | GPT-5.4 | GPT-5.4 Vision | Edge-TTS | SenseVoice |
 | >$50/月 | Claude Opus 4.6 | GPT-5.4 Vision | OpenAI TTS | SenseVoice |
 

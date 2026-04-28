@@ -73,7 +73,7 @@ class SettingsPage(BasePage):
         desc.set_style("color: #5A7088; font-size: 12px; line-height: 1.8;")
         about_layout.addWidget(desc)
 
-        tech = CFLabel("Powered by: Qwen2.5-VL · DeepSeek-V3 · Edge-TTS · SenseVoice")
+        tech = CFLabel("Powered by: Qwen2.5-VL · DeepSeek-V4 · Edge-TTS · SenseVoice")
         tech.set_style("color: #2A3A50; font-size: 11px; padding-top: 8px;")
         about_layout.addWidget(tech)
 

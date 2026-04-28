@@ -30,12 +30,12 @@ Voxplore 的 AI 模型分三层：**视频理解**、**解说生成**、**配音
 
 | 模型 | 说明 | 推荐度 |
 |------|------|--------|
-| **DeepSeek-V3** | 性价比最高，中文理解强，API 成本极低 | ⭐⭐⭐⭐⭐ |
+| **DeepSeek-V4** | 性价比最高，中文理解强，API 成本极低 | ⭐⭐⭐⭐⭐ |
 | **GPT-4o** | OpenAI 旗舰，最强通用能力 | ⭐⭐⭐⭐ |
 | **Claude Sonnet 4** | Anthropic 旗舰，超长上下文 | ⭐⭐⭐⭐ |
 | **Qwen2.5-Max** | 阿里中文优化，API 稳定 | ⭐⭐⭐ |
 
-> **默认使用 DeepSeek-V3**，成本约为 GPT-4o 的 **1/50**。
+> **默认使用 DeepSeek-V4**，成本约为 GPT-4o 的 **1/50**。
 
 ---
 
@@ -99,8 +99,8 @@ export DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx
 
 | 预算 | 视频理解 | 解说生成 | 配音 |
 |------|----------|----------|------|
-| **免费** | Qwen2.5-VL 本地 | DeepSeek-V3 | Edge-TTS |
-| **低 <¥50/月** | Qwen2.5-VL API | DeepSeek-V3 | Edge-TTS |
+| **免费** | Qwen2.5-VL 本地 | DeepSeek-V4 | Edge-TTS |
+| **低 <¥50/月** | Qwen2.5-VL API | DeepSeek-V4 | Edge-TTS |
 | **中 ¥50–300/月** | Qwen2.5-VL API | GPT-4o | Edge-TTS |
 | **高 >¥300/月** | GPT-4o | Claude Sonnet 4 | OpenAI TTS |
 

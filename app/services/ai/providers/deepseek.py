@@ -3,7 +3,7 @@
 
 """
 DeepSeek 提供商
-支持 DeepSeek R1, V3.2 和 Chat 系列模型 (2026年3月最新)
+支持 DeepSeek R1, V4 Flash/Pro 系列模型 (2026年4月最新)
 """
 
 import httpx
@@ -31,13 +31,20 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     - deepseek-chat: 通用对话模型
     """
 
-    # 可用模型列表 (2026年3月最新)
+    # 可用模型列表 (2026年4月最新)
     MODELS = {
-        "deepseek-chat": {
-            "name": "DeepSeek V3",
-            "description": "最新基础模型，多任务能力强 (2026.03)",
+        "deepseek-v4-flash": {
+            "name": "DeepSeek V4 Flash",
+            "description": "V4 主力模型，MoE架构，1M上下文，极高性价比 (2026.04)",
             "max_tokens": 16384,
-            "context_length": 64000,
+            "context_length": 1000000,
+        },
+        "deepseek-v4-pro": {
+            "name": "DeepSeek V4 Pro",
+            "description": "V4 高配版，推理能力更强，适合复杂任务 (2026.04)",
+            "max_tokens": 32768,
+            "context_length": 1000000,
+            "reasoning": True,
         },
         "deepseek-reasoner": {
             "name": "DeepSeek R1",
@@ -45,6 +52,12 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "max_tokens": 32768,
             "context_length": 64000,
             "reasoning": True,
+        },
+        "deepseek-chat": {
+            "name": "DeepSeek V3 (兼容)",
+            "description": "V3.2 基础模型，多任务能力强 (2026.03)",
+            "max_tokens": 16384,
+            "context_length": 64000,
         },
         "deepseek-coder": {
             "name": "DeepSeek Coder",
@@ -61,7 +74,7 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     }
 
     # 默认模型
-    DEFAULT_MODEL = "deepseek-chat"
+    DEFAULT_MODEL = "deepseek-v4-flash"
 
     def __init__(
         self,

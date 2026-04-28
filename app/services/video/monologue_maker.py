@@ -5,7 +5,7 @@ AI 第一人称独白制作器 (Monologue Maker)
 
 工作流程:
     1. 分析原视频内容（SceneAnalyzer）
-    2. 生成第一人称独白文案（ScriptGenerator + DeepSeek-V3）
+    2. 生成第一人称独白文案（ScriptGenerator + DeepSeek-V4）
     3. 生成情感化 AI 配音（VoiceGenerator + Edge-TTS）
     4. 生成电影级字幕（CaptionGenerator）
     5. 导出剪映草稿

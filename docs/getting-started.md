@@ -58,7 +58,7 @@ ffmpeg -version
 
 ## 第三步：配置 DeepSeek API Key {#配置-api-key}
 
-Voxplore 使用 **DeepSeek-V3** 生成解说稿，性价比最高（约 ¥0.07 / 1M tokens，处理一个 5 分钟视频不足 **1 分钱**）。
+Voxplore 使用 **DeepSeek-V4** 生成解说稿，性价比最高（约 ¥0.07 / 1M tokens，处理一个 5 分钟视频不足 **1 分钱**）。
 
 ### 获取 Key
 
