@@ -11,7 +11,7 @@
 | 文件 | 行数 | 状态 |
 |------|------|------|
 | `monitor_panel.py` | 657 | 🔴 需要拆分 |
-| `export_monitor.py` | 662 | 🔴 需要拆分 |
+| `export_monitor.py` | 516 | 🟡 已优化（-146行） |
 | `design_system.py` | 617 | 🟡 可优化 |
 | `onboarding_wizard.py` | 652 | 🟡 观察中 |
 | `subsubtitles_widgets.py` | 650 | 🟡 观察中 |
