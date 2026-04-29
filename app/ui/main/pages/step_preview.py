@@ -11,7 +11,8 @@ Task 2.3 UX 改善:
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QTextEdit, QComboBox, QLineEdit, QCheckBox, QScrollArea,
-    QSizePolicy, QProgressBar, QSplitter, QTabWidget
+    QSizePolicy, QProgressBar, QSplitter, QTabWidget, QFileDialog,
+    QMessageBox
 )
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont
@@ -202,6 +203,7 @@ class NarrationSegmentCard(QFrame):
         self._load_text(text)
 
     def get_text(self) -> str:
+        """获取当前编辑后的文本"""
         return self._text
 
     def get_segment_id(self) -> int:
@@ -517,6 +519,19 @@ class PreviewTextArea(QFrame):
         self._update_word_count()
         self._update_segment_tabs()
 
+    def get_segments(self) -> list:
+        """获取所有分段的 (time_range, text, emotion)"""
+        result = []
+        for i in range(self._segments_layout.count()):
+            card = self._segments_layout.itemAt(i).widget()
+            if isinstance(card, NarrationSegmentCard):
+                result.append((
+                    card._time_range,
+                    card.get_text(),
+                    card._emotion
+                ))
+        return result
+
     def _on_segment_changed(self, text: str):
         self._update_word_count()
 
@@ -688,14 +703,82 @@ class StepPreview(QWidget):
         # 可在此触发重新生成（debounce）
 
     def _on_save_draft(self):
-        """保存草稿 - TODO: 实现完整的保存逻辑"""
-        # 当前只提供视觉反馈
-        self._save_btn.setText("✅ 已保存")
-        QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
+        """保存草稿到项目"""
+        # 获取当前文本内容
+        if self._bulk_edit_cb.isChecked():
+            text = self._bulk_text_edit.toPlainText()
+        else:
+            # 从分段卡片收集文本
+            segments = self._preview_area.get_segments()
+            text = "\n".join(seg[1] for seg in segments)
+
+        if not text.strip():
+            QMessageBox.warning(self, "保存失败", "解说文案为空，请先生成或输入文案")
+            return
+
+        # 如果有当前项目，直接保存
+        if hasattr(self, '_project_id') and self._project_id:
+            self._save_to_project(text)
+            return
+
+        # 否则弹出文件保存对话框
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "保存解说文案",
+            "narrations.txt",
+            "文本文件 (*.txt);;所有文件 (*.*)"
+        )
+        if file_path:
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
+                self._save_btn.setText("✅ 已保存")
+                QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
+            except Exception as e:
+                QMessageBox.warning(self, "保存失败", f"无法保存文件：{e}")
+
+    def _save_to_project(self, text: str):
+        """保存到当前项目"""
+        try:
+            # 获取 ProjectManager
+            from app.services.orchestration import ProjectManager
+            manager = ProjectManager()
+            project = manager.get_project(self._project_id)
+            if project:
+                project.settings.narration_text = text
+                manager.save(project)
+                self._save_btn.setText("✅ 已保存")
+                QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
+            else:
+                QMessageBox.warning(self, "保存失败", "无法获取项目信息")
+        except Exception as e:
+            QMessageBox.warning(self, "保存失败", f"保存项目失败：{e}")
 
     def _on_export(self):
-        """导出文案 - TODO: 实现完整的导出逻辑"""
-        pass
+        """导出文案为独立文件"""
+        if self._bulk_edit_cb.isChecked():
+            text = self._bulk_text_edit.toPlainText()
+        else:
+            segments = self._preview_area.get_segments()
+            text = "\n".join(seg[1] for seg in segments)
+
+        if not text.strip():
+            QMessageBox.warning(self, "导出失败", "解说文案为空")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "导出解说文案",
+            "narrations.txt",
+            "文本文件 (*.txt);;Markdown (*.md);;所有文件 (*.*)"
+        )
+        if file_path:
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
+                QMessageBox.information(self, "导出成功", f"文案已导出至：\n{file_path}")
+            except Exception as e:
+                QMessageBox.warning(self, "导出失败", f"无法导出文件：{e}")
 
     def _on_generate(self):
         """触发生成配音"""
