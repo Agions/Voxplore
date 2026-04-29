@@ -14,6 +14,8 @@ import json
 import subprocess
 import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
     QLineEdit, QComboBox, QFrame, QFileDialog, QProgressBar,
@@ -411,9 +413,12 @@ class VideoMetadataPanel(QFrame):
                     self.labels["resolution"].setText(f"{s.get('width','?')}×{s.get('height','?')}")
                     break
             size = int(fmt.get("size", 0))
-            if size > 1024**3: self.labels["size"].setText(f"{size/1024**3:.1f} GB")
-            elif size > 1024**2: self.labels["size"].setText(f"{size/1024**2:.0f} MB")
-            else: self.labels["size"].setText(f"{size/1024:.0f} KB")
+            if size > 1024**3:
+                self.labels["size"].setText(f"{size/1024**3:.1f} GB")
+            elif size > 1024**2:
+                self.labels["size"].setText(f"{size/1024**2:.0f} MB")
+            else:
+                self.labels["size"].setText(f"{size/1024:.0f} KB")
             self.labels["format"].setText(fmt.get("format_name", "").split(",")[0])
         except Exception as e:
             logging.getLogger(__name__).warning(f"获取文件信息失败: {e}")

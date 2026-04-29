@@ -483,7 +483,7 @@ class LoadingAnimation:
         layout.setContentsMargins(0, 0, 0, 0)
 
         dots = []
-        for i in range(count):
+        for _i in range(count):
             dot = QLabel("●")
             dot.setStyleSheet(f"color: {color}; font-size: 10px;")
             layout.addWidget(dot)
