@@ -290,8 +290,8 @@ class SecureKeyManager:
             self._encryption_key = None
             try:
                 keyring.delete_password(self.app_name, "master_key")
-            except Exception:
-                self.logger.debug("Operation failed")
+            except Exception as e:
+                self.logger.debug(f"Failed to delete old master key: {e}")
 
             # 重新存储所有密钥（使用新的主密钥）
             for provider, key_data in stored_keys.items():
@@ -312,7 +312,8 @@ class SecureKeyManager:
             try:
                 key_data = self.get_api_key(provider)
                 results[provider] = key_data is not None and "api_key" in key_data
-            except Exception:
+            except Exception as e:
+                self.logger.debug(f"Integrity check failed for {provider}: {e}")
                 results[provider] = False
 
         return results
@@ -333,7 +334,8 @@ class SecureKeyManager:
             keyring.set_password(self.app_name, test_key, "test")
             keyring.delete_password(self.app_name, test_key)
             return True
-        except Exception:
+        except Exception as e:
+            self.logger.debug(f"Keyring unavailable: {e}")
             return False
 
 

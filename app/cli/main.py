@@ -135,7 +135,11 @@ def _handle_project_command(args) -> int:
         try:
             with open(pf, "r", encoding="utf-8") as f:
                 return json.load(f).get("metadata", {})
-        except Exception:
+        except json.JSONDecodeError as e:
+            logger.debug(f"Invalid project metadata JSON: {e}")
+            return None
+        except Exception as e:
+            logger.debug(f"Failed to load project metadata: {e}")
             return None
 
     def _find_project_by_name(name: str) -> tuple[str, str] | None:

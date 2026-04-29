@@ -171,6 +171,8 @@ class DiskCache(ICache):
                     return False
 
             return True
+        except json.JSONDecodeError:
+            return False  # 损坏的元数据视为过期
         except Exception:
             return False
 
@@ -233,6 +235,8 @@ class DiskCache(ICache):
                 size_bytes=metadata['size_bytes'],
                 metadata=metadata.get('metadata', {})
             )
+        except json.JSONDecodeError:
+            return None
         except Exception:
             return None
 
@@ -251,8 +255,8 @@ class DiskCache(ICache):
                         import fnmatch
                         if fnmatch.fnmatch(key, pattern):
                             keys.append(key)
-            except Exception:
-                logger.debug("Cache operation failed")
+            except Exception as e:
+                logger.debug(f"Cache keys iteration error: {e}")
         return keys
 
     def cleanup_expired(self) -> int:
@@ -270,8 +274,8 @@ class DiskCache(ICache):
                         cache_path = meta_file.with_suffix('.cache')
                         self._delete_files(cache_path, meta_file)
                         count += 1
-            except Exception:
-                logger.debug("Cache operation failed")
+            except Exception as e:
+                logger.debug(f"Cleanup iteration error: {e}")
         return count
 
     def _delete_files(self, cache_path: Path, meta_path: Path) -> None:
@@ -281,8 +285,8 @@ class DiskCache(ICache):
                 cache_path.unlink()
             if meta_path.exists():
                 meta_path.unlink()
-        except Exception:
-            logger.debug("Cache operation failed")
+        except Exception as e:
+            logger.debug(f"Delete cache files error: {e}")
 
     def _evict_if_needed(self, required_bytes: int) -> None:
         """如果需要则清理空间"""
@@ -303,8 +307,8 @@ class DiskCache(ICache):
                     if oldest_time is None or mtime < oldest_time:
                         oldest_time = mtime
                         oldest_file = meta_file
-                except Exception:
-                    logger.debug("Cache operation failed")
+                except Exception as e:
+                    logger.debug(f"Stat cache file error: {e}")
 
             if oldest_file is None:
                 break

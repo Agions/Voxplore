@@ -48,8 +48,8 @@ def _check_update_async(window):
                 "🎉 发现新版本",
                 format_update_message(info),
             )
-    except Exception:
-        pass  # 更新检测失败，静默忽略，不影响用户使用
+    except Exception as e:
+        logger.debug(f"Update check failed: {e}")  # 更新检测失败，静默忽略，不影响用户使用
 
 
 def main():

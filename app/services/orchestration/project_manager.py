@@ -320,7 +320,8 @@ class ProjectManager:
         """检查是否是压缩文件"""
         try:
             return zipfile.is_zipfile(path)
-        except Exception:
+        except Exception as e:
+            self.logger.debug(f"Zipfile check failed: {e}")
             return False
 
     def _migrate_if_needed(self, data: Dict) -> Dict:
@@ -397,7 +398,8 @@ class ProjectManager:
                 # 只读取前 1MB 用于哈希计算
                 chunk = f.read(HASH_CHUNK_SIZE)
                 return hashlib.md5(chunk).hexdigest()
-        except Exception:
+        except Exception as e:
+            self.logger.debug(f"Hash computation failed: {e}")
             return ""
 
     def get_recent_projects(self, count: int = 10) -> List[Dict]:
