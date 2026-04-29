@@ -81,8 +81,10 @@ class ThumbnailWorker(QThread):
                 "-vf", "scale=160:90",
                 thumb_path,
             ], capture_output=True, timeout=15)
-        except Exception:
-            pass
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Thumbnail generation failed: {e}")
+        except Exception as e:
+            logger.debug(f"Thumbnail generation error: {e}")
 
         return thumb_path if os.path.exists(thumb_path) else ""
 

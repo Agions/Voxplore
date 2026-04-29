@@ -346,8 +346,10 @@ class HomePage(BasePage):
                         for f in files[:5]
                         if isinstance(f, str)
                     ]
-        except Exception:
-            self.logger.debug("Operation failed")
+        except PermissionError as e:
+            self.logger.warning(f"Permission denied accessing templates: {e}")
+        except Exception as e:
+            self.logger.debug(f"Template loading error: {e}")
         return []
 
     def _on_template_clicked(self, template_id: str):

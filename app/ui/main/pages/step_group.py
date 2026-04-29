@@ -331,7 +331,11 @@ class GroupCard(QFrame):
                 info = json.loads(bytes(data).decode("utf-8"))
                 video_path = info.get("path", "")
                 info.get("group_id")
-            except Exception:
+            except json.JSONDecodeError as e:
+                self.logger.debug(f"Invalid JSON in drop data: {e}")
+                video_path = ""
+            except Exception as e:
+                self.logger.debug(f"Drop data parsing error: {e}")
                 video_path = ""
 
             if video_path:

@@ -557,7 +557,11 @@ class ProjectsPage(BasePage):
                 if file_path.is_file():
                     total_size += file_path.stat().st_size
             return total_size
-        except Exception:
+        except PermissionError as e:
+            self.logger.warning(f"Permission denied accessing project: {e}")
+            return 0
+        except Exception as e:
+            self.logger.debug(f"Project size calculation error: {e}")
             return 0
 
     def _format_file_size(self, size_bytes: int) -> str:

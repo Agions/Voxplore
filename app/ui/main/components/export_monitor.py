@@ -342,8 +342,10 @@ class ExportMonitorWidget(QWidget):
         """清理资源"""
         try:
             self.update_timer.stop()
-        except Exception:
-            self.logger.debug("Operation failed")
+        except RuntimeError as e:
+            self.logger.debug(f"Timer already stopped: {e}")
+        except Exception as e:
+            self.logger.warning(f"Cleanup failed: {e}")
 
     def update_theme(self, is_dark: bool = True):
         """更新主题"""
