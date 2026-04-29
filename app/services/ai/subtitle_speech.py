@@ -90,8 +90,8 @@ class SpeechSubtitleExtractor:
             if audio_path != str(path):
                 try:
                     os.unlink(audio_path)
-                except Exception:
-                    logger.debug("Operation failed")
+                except Exception as e:
+                    logger.debug(f"Failed to clean up temp audio: {e}")
 
         return result
 

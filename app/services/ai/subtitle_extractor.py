@@ -115,8 +115,8 @@ class OCRSubtitleExtractor:
         for _, fp in frames:
             try:
                 os.unlink(fp)
-            except Exception:
-                logger.debug("Operation failed")
+            except Exception as e:
+                logger.debug(f"Failed to clean up temp frame: {e}")
 
         result.segments = segments
         result.full_text = " ".join(s.text for s in segments)

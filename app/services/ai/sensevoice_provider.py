@@ -246,7 +246,8 @@ class SenseVoiceProvider:
             try:
                 pitches, magnitudes = librosa.piptrack(y=segment, sr=sr)
                 pitch_mean = pitches[magnitudes > 0.05].mean() if (pitches[magnitudes > 0.05].size > 0) else 0
-            except Exception:
+            except Exception as e:
+                logger.debug(f"Pitch extraction failed: {e}")
                 pitch_mean = 0
 
             # 提取能量 (energy)
@@ -257,7 +258,8 @@ class SenseVoiceProvider:
                 onset_env = librosa.onset.onset_strength(y=segment, sr=sr)
                 tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
                 tempo = float(tempo) if np.isscalar(tempo) else float(tempo[0]) if len(tempo) > 0 else 0
-            except Exception:
+            except Exception as e:
+                logger.debug(f"Tempo extraction failed: {e}")
                 tempo = 0
 
             # 能量变化率

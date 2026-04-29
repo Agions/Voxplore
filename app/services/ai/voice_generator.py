@@ -190,8 +190,12 @@ class EdgeTTSProvider(TTSProvider):
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 return float(result.stdout.strip())
-        except Exception:
-            logger.debug("Operation failed")
+        except FileNotFoundError:
+            logger.debug("ffprobe not found")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"ffprobe failed: {e}")
+        except Exception as e:
+            logger.debug(f"Getting audio duration failed: {e}")
 
         return 0.0
 
@@ -289,8 +293,12 @@ class OpenAITTSProvider(TTSProvider):
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode == 0:
                 return float(result.stdout.strip())
-        except Exception:
-            logger.debug("Operation failed")
+        except FileNotFoundError:
+            logger.debug("ffprobe not found")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"ffprobe failed: {e}")
+        except Exception as e:
+            logger.debug(f"Getting audio duration failed: {e}")
         return 0.0
 
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:

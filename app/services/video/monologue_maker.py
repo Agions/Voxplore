@@ -551,7 +551,8 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         """通过 FFmpegTool 获取视频时长（秒），失败返回 0.0"""
         try:
             return FFmpegTool.get_duration(video_path) or 0.0
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to get video duration for {video_path}: {e}")
             return 0.0
 
 
