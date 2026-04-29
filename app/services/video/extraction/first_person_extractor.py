@@ -15,7 +15,10 @@ FirstPersonExtractor - 第一人称视角提取服务
 
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
+import logging
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -140,7 +143,7 @@ class FirstPersonExtractor:
             try:
                 result = self._vision_model.analyze_frame(video_path, timestamp)
                 frame_results.append((timestamp, result))
-            except Exception as e:
+            except Exception:
                 frame_errors += 1
                 frame_results.append((timestamp, {
                     "is_first_person": False,

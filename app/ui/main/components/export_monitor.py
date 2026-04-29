@@ -16,6 +16,7 @@ from PySide6.QtGui import QFont, QColor, QPainter, QPen, QPoint
 
 from app.ui.components.design_system import Colors
 from app.ui.main.components.export_statistics_widget import ExportStatisticsWidget
+from app.ui.main.components.monitor_widgets import PerformanceChart
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger
 
