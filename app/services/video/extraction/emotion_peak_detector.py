@@ -144,7 +144,8 @@ class EmotionPeakDetector:
                     seg.start_time,
                     seg.end_time,
                 )
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Visual analysis failed for segment {seg.segment_id}: {e}")
                 visual_score = 0.5
 
             # 计算音频情绪
@@ -154,7 +155,8 @@ class EmotionPeakDetector:
                     seg.start_time,
                     seg.end_time,
                 )
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Audio analysis failed for segment {seg.segment_id}: {e}")
                 audio_score = 0.5
 
             # 综合评分

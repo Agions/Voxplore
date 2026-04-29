@@ -495,8 +495,12 @@ class DirectVideoExporter:
                 )
                 if result.returncode == 0:
                     return HWAccel.NVIDIA
-            except Exception:
-                logger.debug("Operation failed")
+            except FileNotFoundError:
+                logger.debug("nvidia-smi not found")
+            except subprocess.CalledProcessError as e:
+                logger.warning(f"nvidia-smi check failed: {e}")
+            except Exception as e:
+                logger.debug(f"nvidia-smi check error: {e}")
 
             # 检测 Intel
             try:
@@ -507,8 +511,12 @@ class DirectVideoExporter:
                 )
                 if "Intel" in result.stdout:
                     return HWAccel.INTEL
-            except Exception:
-                logger.debug("Operation failed")
+            except FileNotFoundError:
+                logger.debug("wmic not found (non-Windows)")
+            except subprocess.CalledProcessError as e:
+                logger.warning(f"wmic check failed: {e}")
+            except Exception as e:
+                logger.debug(f"wmic check error: {e}")
         elif system == "Linux":
             return HWAccel.VAAPI
 

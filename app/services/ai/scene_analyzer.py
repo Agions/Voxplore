@@ -133,7 +133,8 @@ class SceneAnalyzer:
 
             try:
                 scene_manager.detect_scenes(video, show_progress=False)
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Scene detection failed: {e}, returning [0.0]")
                 return [0.0]
 
             scene_list = scene_manager.get_scene_list()
@@ -244,8 +245,10 @@ class SceneAnalyzer:
             if match:
                 return float(match.group(1)) / 255.0
 
-        except Exception:
-            logger.debug("Operation failed")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"ffprobe signalstats failed: {e}")
+        except Exception as e:
+            logger.debug(f"Getting brightness failed: {e}")
 
         return 0.5
 
@@ -266,8 +269,10 @@ class SceneAnalyzer:
                 avg_score = sum(float(s) for s in scores) / len(scores)
                 return min(1.0, avg_score * 2)
 
-        except Exception:
-            logger.debug("Operation failed")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"ffmpeg scene detection failed: {e}")
+        except Exception as e:
+            logger.debug(f"Scene score detection failed: {e}")
 
         return 0.3
 
@@ -288,8 +293,10 @@ class SceneAnalyzer:
                 db = float(match.group(1))
                 return max(0, min(1, (db + 60) / 60))
 
-        except Exception:
-            logger.debug("Operation failed")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"ffmpeg audio level check failed: {e}")
+        except Exception as e:
+            logger.debug(f"Audio level detection failed: {e}")
 
         return 0.5
 

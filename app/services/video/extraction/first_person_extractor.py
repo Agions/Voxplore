@@ -135,17 +135,22 @@ class FirstPersonExtractor:
         # 逐帧分析
         frame_results = []
         timestamp = 0.0
+        frame_errors = 0
         while timestamp < duration:
             try:
                 result = self._vision_model.analyze_frame(video_path, timestamp)
                 frame_results.append((timestamp, result))
-            except Exception:
+            except Exception as e:
+                frame_errors += 1
                 frame_results.append((timestamp, {
                     "is_first_person": False,
                     "confidence": 0.0,
                     "description": "",
                 }))
             timestamp += self._frame_interval
+
+        if frame_errors > 0:
+            logger.warning(f"Frame analysis errors: {frame_errors}/{int(duration / self._frame_interval) + 1}")
 
         # 聚类连续的第一人称帧
         segments = self._cluster_segments(frame_results, video_path)

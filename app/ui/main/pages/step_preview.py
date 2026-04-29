@@ -688,14 +688,13 @@ class StepPreview(QWidget):
         # 可在此触发重新生成（debounce）
 
     def _on_save_draft(self):
-        """保存草稿"""
-        # TODO: 实现保存逻辑
+        """保存草稿 - TODO: 实现完整的保存逻辑"""
+        # 当前只提供视觉反馈
         self._save_btn.setText("✅ 已保存")
         QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
 
     def _on_export(self):
-        """导出文案"""
-        # TODO: 实现导出
+        """导出文案 - TODO: 实现完整的导出逻辑"""
         pass
 
     def _on_generate(self):

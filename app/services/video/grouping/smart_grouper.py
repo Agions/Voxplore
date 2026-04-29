@@ -153,17 +153,24 @@ class SmartGrouper:
         # 1. 提取 embedding
         vision_embeddings = {}
         audio_embeddings = {}
+        failed_vision = 0
+        failed_audio = 0
 
         for vp in video_paths:
             try:
                 vision_embeddings[vp] = self._vision_embedder.extract(vp)
-            except Exception:
+            except Exception as e:
+                failed_vision += 1
                 vision_embeddings[vp] = list(np.random.randn(128))
 
             try:
                 audio_embeddings[vp] = self._audio_embedder.extract(vp)
-            except Exception:
+            except Exception as e:
+                failed_audio += 1
                 audio_embeddings[vp] = list(np.random.randn(64))
+
+        if failed_vision > 0 or failed_audio > 0:
+            logger.warning(f"Embedding extraction failed: vision={failed_vision}, audio={failed_audio}")
 
         # 2. 计算两两相似度矩阵
         n = len(video_paths)
