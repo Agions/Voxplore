@@ -489,7 +489,7 @@ class ProjectManager(QObject):
                 if include_media:
                     media_dir = os.path.join(project.path, 'media')
                     if os.path.exists(media_dir):
-                        for root, dirs, files in os.walk(media_dir):
+                        for root, _dirs, files in os.walk(media_dir):
                             for file in files:
                                 file_path = os.path.join(root, file)
                                 arcname = os.path.relpath(file_path, project.path)

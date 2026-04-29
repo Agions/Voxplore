@@ -192,7 +192,7 @@ class ProjectSettingsManager(QObject):
                 if not isinstance(value, dict):
                     return False
         except Exception as e:
-            logger.debug(f"Setting validation error: {e}")
+            self.logger.debug(f"Setting validation error: {e}")
             return False
 
         # 范围检查
@@ -216,7 +216,7 @@ class ProjectSettingsManager(QObject):
                 if not validator_func(value):
                     return False
             except Exception as e:
-                logger.debug(f"Validator error for {definition.key}: {e}")
+                self.logger.debug(f"Validator error for {definition.key}: {e}")
                 return False
 
         return True
@@ -337,7 +337,7 @@ class ProjectSettingsManager(QObject):
 
             if changes_made:
                 self._save_settings()
-                for key, old_value, new_value in changes_made:
+                for key, _old_value, new_value in changes_made:
                     self.settings_changed.emit(key, new_value)
 
             self.profile_applied.emit(profile_name)
@@ -546,7 +546,7 @@ class ProjectSettingsManager(QObject):
             path = Path(value)
             return path.exists() or path.parent.exists()
         except Exception as e:
-            logger.debug(f"Path validation error: {e}")
+            self.logger.debug(f"Path validation error: {e}")
             return False
 
     def _validate_color(self, value: str) -> bool:
@@ -558,5 +558,5 @@ class ProjectSettingsManager(QObject):
             # 支持RGB/RGBA格式
             return value in ['red', 'green', 'blue', 'white', 'black', 'transparent']
         except Exception as e:
-            logger.debug(f"Color validation error: {e}")
+            self.logger.debug(f"Color validation error: {e}")
             return False
