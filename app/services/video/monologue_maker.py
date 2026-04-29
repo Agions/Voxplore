@@ -25,11 +25,14 @@ AI 第一人称独白制作器 (Monologue Maker)
 """
 
 import re
+import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 from .base_maker import BaseVideoMaker, BaseProject
 from .models.monologue_models import MonologueStyle, EmotionType, MonologueSegment
 from ..ai.script_generator import ScriptGenerator, VoiceTone

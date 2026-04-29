@@ -499,7 +499,7 @@ class LoadingAnimation:
         # 动画定时器
         def animate():
             for j, d in enumerate(dots):
-                delay = (i + j) % count
+                delay = (_i + j) % count
                 opacity = 0.3 if delay != 0 else 1.0
                 d.setStyleSheet(f"color: {color}; font-size: 10px; opacity: {opacity};")
 

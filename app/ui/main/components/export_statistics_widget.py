@@ -10,8 +10,12 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
+import logging
 
 from app.ui.components.design_system import Colors
+from app.services.export.batch_export_manager import ExportStatus
+
+logger = logging.getLogger(__name__)
 
 
 class ExportStatisticsWidget(QWidget):
@@ -19,7 +23,6 @@ class ExportStatisticsWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.logger = Logger.get_logger(__name__)
         self.total_tasks = 0
         self.completed_tasks = 0
         self.failed_tasks = 0

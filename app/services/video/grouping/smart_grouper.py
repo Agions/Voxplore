@@ -18,7 +18,10 @@ SmartGrouper - 智能视频分组服务
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 from enum import Enum
+import logging
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class GroupingReason(Enum):
