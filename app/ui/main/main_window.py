@@ -33,7 +33,8 @@ class VoxploreWindow(QMainWindow):
 
         qss_path = os.path.join(os.path.dirname(__file__), "../theme/narrafiilm.qss")
         if os.path.exists(qss_path):
-            self.setStyleSheet(open(qss_path).read())
+            with open(qss_path) as f:
+                self.setStyleSheet(f.read())
 
         self._pages = {}
         self._current_page = None
