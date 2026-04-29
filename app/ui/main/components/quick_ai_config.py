@@ -22,7 +22,7 @@ from app.core.icon_manager import get_icon
 from ..dialogs.model_application_dialog import ModelApplicationDialog
 
 # 导入标准化 macOS 组件
-from app.ui.common.macOS_components import (
+from app.ui.common.macos_components import (
     MacCard, MacSecondaryButton,
     MacIconButton, MacTitleLabel, MacLabel, MacBadge,
     MacEmptyState,

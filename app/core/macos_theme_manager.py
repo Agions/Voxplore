@@ -15,7 +15,7 @@ from PySide6.QtCore import QFile, QTextStream, Signal, QObject
 from PySide6.QtGui import QFont
 
 
-class macOS_ThemeManager(QObject):
+class MacOSThemeManager(QObject):
     """macOS 设计系统主题管理器"""
 
     # 信号
@@ -165,7 +165,7 @@ _theme_manager_instance = None
 _theme_lock = Lock()
 
 
-def get_theme_manager(app: Optional[QApplication] = None) -> macOS_ThemeManager:
+def get_theme_manager(app: Optional[QApplication] = None) -> MacOSThemeManager:
     """获取主题管理器单例（线程安全）"""
     global _theme_manager_instance
     if _theme_manager_instance is None:
@@ -173,7 +173,7 @@ def get_theme_manager(app: Optional[QApplication] = None) -> macOS_ThemeManager:
             if _theme_manager_instance is None:
                 if app is None:
                     app = QApplication.instance()
-                _theme_manager_instance = macOS_ThemeManager(app)
+                _theme_manager_instance = MacOSThemeManager(app)
     return _theme_manager_instance
 
 
@@ -183,4 +183,4 @@ def apply_macos_theme(app: QApplication, theme: str = "dark") -> bool:
     return manager.load_system(theme)
 
 
-__all__ = ["macOS_ThemeManager", "get_theme_manager", "apply_macos_theme"]
+__all__ = ["MacOSThemeManager", "get_theme_manager", "apply_macos_theme"]

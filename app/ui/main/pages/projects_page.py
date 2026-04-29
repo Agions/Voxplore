@@ -19,7 +19,7 @@ from PySide6.QtCore import Qt, QTimer
 from .base_page import BasePage
 
 # 导入辅助函数
-from app.ui.common.macOS_components import create_icon_text_row
+from app.ui.common.macos_components import create_icon_text_row
 from app.core.project_manager import ProjectManager, Project, ProjectType, ProjectStatus
 from app.core.project_template_manager import ProjectTemplateManager
 from app.core.project_settings_manager import ProjectSettingsManager
