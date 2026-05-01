@@ -393,13 +393,9 @@ class JianyingExporter:
         draft.add_text(material)
 
         # 获取或创建字幕轨道
-        text_tracks = [t for t in draft.tracks if t.type == TrackType.TEXT]
-        if not text_tracks:
-            text_track = Track(type=TrackType.TEXT)
-            draft.add_track(text_track)
-            text_tracks = [text_track]
+        text_track = self._get_or_create_track(draft, TrackType.TEXT)
 
-        # 创建片段
+        # 创建片段并添加到轨道
         segment = Segment(
             material_id=material.id,
             source_timerange=TimeRange.from_seconds(0, duration),
@@ -411,7 +407,7 @@ class JianyingExporter:
             },
         )
 
-        text_tracks[0].add_segment(segment)
+        text_track.add_segment(segment)
         return segment
 
     def _get_video_info(self, video_path: str) -> dict:
