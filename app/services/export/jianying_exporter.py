@@ -43,6 +43,7 @@ from .jianying_models import (
     JianyingConfig,
     CanvasConfig,
 )
+from .export_utils import safe_filename
 
 
 logger = logging.getLogger(__name__)
