@@ -173,7 +173,8 @@ class DiskCache(ICache):
             return True
         except json.JSONDecodeError:
             return False  # 损坏的元数据视为过期
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Cache expiry check failed: {e}")
             return False
 
     def clear(self) -> None:
@@ -237,7 +238,8 @@ class DiskCache(ICache):
             )
         except json.JSONDecodeError:
             return None
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to load cache entry for key {key!r}: {e}")
             return None
 
     def keys(self, pattern: Optional[str] = None) -> list[str]:

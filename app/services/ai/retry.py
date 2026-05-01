@@ -235,8 +235,9 @@ class CircuitBreaker:
             result = await func(*args, **kwargs)
             await self._on_success()
             return result
-        except Exception:
+        except Exception as e:
             await self._on_failure()
+            logger.warning(f"Circuit breaker error in {func.__name__}: {e}")
             raise
 
     async def _check_state_transition(self) -> None:

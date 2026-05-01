@@ -162,14 +162,16 @@ class SmartGrouper:
         for vp in video_paths:
             try:
                 vision_embeddings[vp] = self._vision_embedder.extract(vp)
-            except Exception:
+            except Exception as e:
                 failed_vision += 1
+                logger.warning(f"Vision embedding extraction failed for {vp}: {e}")
                 vision_embeddings[vp] = list(np.random.randn(128))
 
             try:
                 audio_embeddings[vp] = self._audio_embedder.extract(vp)
-            except Exception:
+            except Exception as e:
                 failed_audio += 1
+                logger.warning(f"Audio embedding extraction failed for {vp}: {e}")
                 audio_embeddings[vp] = list(np.random.randn(64))
 
         if failed_vision > 0 or failed_audio > 0:

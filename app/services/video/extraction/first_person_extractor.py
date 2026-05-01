@@ -143,8 +143,9 @@ class FirstPersonExtractor:
             try:
                 result = self._vision_model.analyze_frame(video_path, timestamp)
                 frame_results.append((timestamp, result))
-            except Exception:
+            except Exception as e:
                 frame_errors += 1
+                logger.warning(f"Frame analysis failed at {timestamp}s: {e}")
                 frame_results.append((timestamp, {
                     "is_first_person": False,
                     "confidence": 0.0,
