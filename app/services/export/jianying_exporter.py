@@ -154,14 +154,9 @@ class JianyingExporter:
         return str(draft_folder)
 
     def _safe_filename(self, name: str) -> str:
-        """生成安全的文件名"""
-        # 移除或替换不安全字符
-        invalid_chars = '<>:"/\\|?*'
-        for char in invalid_chars:
-            name = name.replace(char, '_')
-        return name.strip()
+        """生成安全的文件名（委托给模块级工具函数）"""
+        return safe_filename(name)
 
-    # =========== 轨道/片段辅助方法 ===========
 
     def _get_or_create_track(
         self,
