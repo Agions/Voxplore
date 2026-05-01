@@ -90,15 +90,17 @@ class JianyingExporter:
             version=self.config.version,
         )
 
+    # 画布比例配置（类常量，避免每次调用重新创建字典）
+    _CANVAS_CONFIGS = {
+        "9:16": CanvasConfig(width=1080, height=1920, ratio="9:16"),  # 竖屏
+        "16:9": CanvasConfig(width=1920, height=1080, ratio="16:9"),  # 横屏
+        "1:1": CanvasConfig(width=1080, height=1080, ratio="1:1"),    # 方形
+        "3:4": CanvasConfig(width=1080, height=1440, ratio="3:4"),    # 小红书
+    }
+
     def _get_canvas_config(self, ratio: str) -> CanvasConfig:
         """根据比例获取画布配置"""
-        configs = {
-            "9:16": CanvasConfig(width=1080, height=1920, ratio="9:16"),  # 竖屏
-            "16:9": CanvasConfig(width=1920, height=1080, ratio="16:9"),  # 横屏
-            "1:1": CanvasConfig(width=1080, height=1080, ratio="1:1"),    # 方形
-            "3:4": CanvasConfig(width=1080, height=1440, ratio="3:4"),    # 小红书
-        }
-        return configs.get(ratio, configs["9:16"])
+        return self._CANVAS_CONFIGS.get(ratio, self._CANVAS_CONFIGS["9:16"])
 
     def export(
         self,
@@ -158,6 +160,51 @@ class JianyingExporter:
         for char in invalid_chars:
             name = name.replace(char, '_')
         return name.strip()
+
+    # =========== 轨道/片段辅助方法 ===========
+
+    def _get_or_create_track(
+        self,
+        draft: JianyingDraft,
+        track_type: TrackType,
+        attribute: int = 0,
+    ) -> Track:
+        """获取指定类型的已有轨道，或创建新轨道
+
+        Args:
+            draft: 草稿对象
+            track_type: 轨道类型（VIDEO/AUDIO）
+            attribute: 轨道属性（VIDEO 轨道默认为 1）
+
+        Returns:
+            轨道对象
+        """
+        tracks = [t for t in draft.tracks if t.type == track_type]
+        if tracks:
+            return tracks[0]
+        new_track = Track(type=track_type, attribute=attribute)
+        draft.add_track(new_track)
+        return new_track
+
+    def _compute_next_track_start(
+        self,
+        draft: JianyingDraft,
+        track_type: TrackType,
+    ) -> float:
+        """计算自动 target_start：沿用指定轨道末尾时间
+
+        Args:
+            draft: 草稿对象
+            track_type: 轨道类型
+
+        Returns:
+            目标时间轴开始位置（秒），默认 0
+        """
+        tracks = [t for t in draft.tracks if t.type == track_type]
+        if not tracks or not tracks[0].segments:
+            return 0.0
+        last_seg = tracks[0].segments[-1]
+        return (last_seg.target_timerange.start + last_seg.target_timerange.duration) / 1_000_000
 
     def _copy_materials(self, draft: JianyingDraft, draft_folder: Path) -> None:
         """复制素材到草稿目录（并行化以提升大文件性能）"""
@@ -253,35 +300,20 @@ class JianyingExporter:
         )
         draft.add_video(material)
 
-        # 计算目标开始时间
+        # 计算目标开始时间（自动沿用轨道末尾，或创建新轨道）
         if target_start is None:
-            # 找到视频轨道的最后位置
-            video_tracks = [t for t in draft.tracks if t.type == TrackType.VIDEO]
-            if video_tracks:
-                last_track = video_tracks[0]
-                if last_track.segments:
-                    last_seg = last_track.segments[-1]
-                    target_start = (last_seg.target_timerange.start +
-                                   last_seg.target_timerange.duration) / 1_000_000
-                else:
-                    target_start = 0
-            else:
-                # 创建新的视频轨道
-                new_track = Track(type=TrackType.VIDEO, attribute=1)
-                draft.add_track(new_track)
-                target_start = 0
+            target_start = self._compute_next_track_start(draft, TrackType.VIDEO)
 
-        # 创建片段
+        # 获取或创建视频轨道
+        video_track = self._get_or_create_track(draft, TrackType.VIDEO, attribute=1)
+
+        # 创建片段并添加到轨道
         segment = Segment(
             material_id=material.id,
             source_timerange=TimeRange.from_seconds(start, duration),
             target_timerange=TimeRange.from_seconds(target_start, duration),
         )
-
-        # 添加到视频轨道
-        video_tracks = [t for t in draft.tracks if t.type == TrackType.VIDEO]
-        if video_tracks:
-            video_tracks[0].add_segment(segment)
+        video_track.add_segment(segment)
 
         return segment
 
@@ -317,21 +349,16 @@ class JianyingExporter:
         draft.add_audio(material)
 
         # 获取或创建音频轨道
-        audio_tracks = [t for t in draft.tracks if t.type == TrackType.AUDIO]
-        if not audio_tracks:
-            audio_track = Track(type=TrackType.AUDIO)
-            draft.add_track(audio_track)
-            audio_tracks = [audio_track]
+        audio_track = self._get_or_create_track(draft, TrackType.AUDIO)
 
-        # 创建片段
+        # 创建片段并添加到轨道
         segment = Segment(
             material_id=material.id,
             source_timerange=TimeRange.from_seconds(start, duration),
             target_timerange=TimeRange.from_seconds(target_start, duration),
             volume=volume,
         )
-
-        audio_tracks[0].add_segment(segment)
+        audio_track.add_segment(segment)
         return segment
 
     def add_caption(
