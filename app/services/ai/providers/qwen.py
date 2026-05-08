@@ -12,7 +12,6 @@
 
 import time
 import httpx
-from typing import List
 
 from ..base_llm_provider import (
     BaseLLMProvider,

@@ -8,7 +8,6 @@ Anthropic Claude 提供商
 使用公共混入类减少重复代码
 """
 
-from typing import Optional
 import base64
 from pathlib import Path
 
