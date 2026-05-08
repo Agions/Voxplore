@@ -53,21 +53,7 @@ def _emotion_type_to_str(emotion: EmotionType) -> str:
     return mapping.get(emotion, "neutral")
 
 
-def _emotion_type_to_intensity(emotion: EmotionType) -> float:
-    """将 EmotionType 映射为情感强度值 (0.0–1.0)"""
-    mapping = {
-        EmotionType.CALM: 0.1,
-        EmotionType.NEUTRAL: 0.2,
-        EmotionType.TENDER: 0.4,
-        EmotionType.SAD: 0.5,
-        EmotionType.HAPPY: 0.6,
-        EmotionType.EXCITED: 0.8,
-        EmotionType.ANGRY: 0.9,
-    }
-    return mapping.get(emotion, 0.5)
-
-
-# ─────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────
 # SceneConverter
 # ─────────────────────────────────────────────────────────────
 

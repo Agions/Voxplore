@@ -19,9 +19,6 @@ from ..export.jianying_models import (
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
 )
-from ...utils.security import get_ffmpeg_executor
-
-_video_executor = get_ffmpeg_executor()
 
 
 @dataclass
@@ -255,62 +252,8 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
 # =========== 便捷函数 ===========
 
-def merge_audio_files(
-    audio_paths: List[str],
-    output_path: str,
-) -> str:
-    """合并多个音频文件"""
-
-    if not audio_paths:
-        raise ValueError("没有可用的音频文件")
-
-    # 如果只有一个文件，直接返回
-    if len(audio_paths) == 1:
-        return audio_paths[0]
-
-    # 创建临时列表文件
-    concat_list = Path(output_path).parent / "audio_concat.txt"
-    with open(concat_list, 'w') as f:
-        for audio in audio_paths:
-            f.write(f"file '{audio}'\n")
-
-    # 合并音频
-    cmd = [
-        'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
-        '-i', str(concat_list),
-        '-c', 'copy', output_path
-    ]
-    _video_executor.run(cmd, timeout=120)
-
-    return output_path
-
-
-def composite_video_with_audio(
-    video_path: str,
-    audio_path: str,
-    output_path: str,
-) -> str:
-    """使用 FFmpeg 合成视频和音频"""
-
-    cmd = [
-        'ffmpeg', '-y',
-        '-i', video_path,
-        '-i', audio_path,
-        '-c:v', 'libx264', '-preset', 'medium',
-        '-c:a', 'aac',
-        '-map', '0:v:0', '-map', '1:a:0',
-        '-shortest',
-        output_path
-    ]
-    _video_executor.run(cmd, timeout=300)
-
-    return output_path
-
-
 __all__ = [
     "BaseProject",
     "BaseVideoMaker",
     "ProgressMixin",
-    "merge_audio_files",
-    "composite_video_with_audio",
 ]
