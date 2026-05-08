@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QFrame, QScrollArea, QSizePolicy, QProgressBar, QLineEdit
 )
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QDrag
 
 # 导入拖拽辅助组件
 from .components.drag_helpers import _GroupThumbItem, _VideoMimeData, MIME_TYPE

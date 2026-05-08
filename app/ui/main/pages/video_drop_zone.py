@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
 
 

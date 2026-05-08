@@ -12,6 +12,7 @@
 import os
 import tempfile
 import logging
+logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import List, Optional, Tuple
 

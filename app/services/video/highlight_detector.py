@@ -578,8 +578,6 @@ def demo_highlight_detection():
         motion_weight=0.2,
         color_weight=0.1,
     )
-
-    detector = HighlightDetector(config)
     logger.info(f"配置: {config}")
     logger.info("使用 detector.detect('video.mp4') 检测高光")
 

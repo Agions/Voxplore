@@ -128,7 +128,7 @@ class ProjectsListPanel(QWidget):
 
         try:
             projects = self._project_manager.get_all_projects()
-        except Exception as e:
+        except Exception:
             self._add_empty_spacer()
             return
 
