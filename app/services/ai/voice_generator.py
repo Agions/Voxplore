@@ -26,12 +26,11 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 from abc import ABC, abstractmethod
 import logging
-import subprocess
 
 logger = logging.getLogger(__name__)
 
 from .voice_models import VoiceStyle, VoiceGender, VoiceConfig, VoiceInfo, GeneratedVoice
-from ...utils.security import get_ffmpeg_executor
+from ...utils.security import get_ffmpeg_executor, SecurityError
 
 _audio_executor = get_ffmpeg_executor()
 
@@ -285,7 +284,6 @@ class OpenAITTSProvider(TTSProvider):
     def _get_audio_duration(self, audio_path: str) -> float:
         """获取音频时长"""
         try:
-            import subprocess
             cmd = [
                 'ffprobe', '-v', 'quiet',
                 '-show_entries', 'format=duration',
@@ -297,7 +295,7 @@ class OpenAITTSProvider(TTSProvider):
                 return float(result.stdout.strip())
         except FileNotFoundError:
             logger.debug("ffprobe not found")
-        except subprocess.CalledProcessError as e:
+        except SecurityError as e:
             logger.warning(f"ffprobe failed: {e}")
         except Exception as e:
             logger.debug(f"Getting audio duration failed: {e}")
