@@ -71,6 +71,7 @@ from .highlight_detector import (
     HighlightDetectorConfig,
 )
 from .pipeline_integrator import PipelineIntegrator
+from .scene_converter import SceneConverter, EmotionCurveGenerator
 
 __all__ = [
     # 原有
@@ -111,6 +112,9 @@ __all__ = [
     "HighlightSegment",
     "HighlightReason",
     "HighlightDetectorConfig",
+    # 场景转换
+    "SceneConverter",
+    "EmotionCurveGenerator",
     # 流水线集成
     "PipelineIntegrator",
 ]

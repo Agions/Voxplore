@@ -34,6 +34,7 @@ from typing import List, Optional, Dict, Any
 
 from .monologue_maker import MonologueMaker, MonologueProject, MonologueSegment
 from .perspective_mapper import PerspectiveMapper
+from .scene_converter import SceneConverter, EmotionCurveGenerator
 from .video_interleaver import VideoInterleaver
 from .models.perspective_models import (
     PerspectiveShot,
@@ -43,7 +44,6 @@ from .models.perspective_models import (
     ClipSegment,
     SceneSegment,
 )
-from .models.monologue_models import EmotionType
 from ..ai.scene_models import SceneInfo
 
 
@@ -74,6 +74,8 @@ class PipelineIntegrator(MonologueMaker):
 
         self.perspective_mapper = PerspectiveMapper(config=perspective_config)
         self.video_interleaver = VideoInterleaver(config=interleaver_config)
+        self.scene_converter = SceneConverter()
+        self.emotion_generator = EmotionCurveGenerator(smoothing_window=3)
 
         # 缓存最新穿插结果
         self._last_perspective_shots: List[PerspectiveShot] = []
@@ -125,46 +127,17 @@ class PipelineIntegrator(MonologueMaker):
         return perspective_shots
 
     def _convert_scenes(self, scenes: List[SceneInfo]) -> List[SceneSegment]:
-        """将 SceneInfo 转换为 SceneSegment"""
-        result = []
-        for i, scene in enumerate(scenes):
-            segment = SceneSegment(
-                scene_id=scene.keyframe_path or f"scene_{i}",
-                start_time=scene.start,
-                end_time=scene.end,
-                scene_type=scene.type.value if hasattr(scene.type, 'value') else str(scene.type),
-                location=scene.description or "未知地点",
-                atmosphere=self._infer_atmosphere(scene),
-                narration_importance=scene.suitability_score / 100.0 if scene.suitability_score else 0.5,
-            )
-            result.append(segment)
-        return result
-
-    def _infer_atmosphere(self, scene: SceneInfo) -> str:
-        """从场景信息推断氛围"""
-        brightness = getattr(scene, 'avg_brightness', 0.5)
-        if brightness > 0.7:
-            return "bright"
-        elif brightness < 0.3:
-            return "dark"
-        return "peaceful"
+        """将 SceneInfo 转换为 SceneSegment（委托给 SceneConverter）"""
+        return [SceneConverter.from_scene_info(scene) for scene in scenes]
 
     def _convert_to_narration_segments(
         self, segments: List[MonologueSegment]
     ) -> List[NarrationSegment]:
-        """将 MonologueSegment 转换为 NarrationSegment"""
-        result = []
-        for i, seg in enumerate(segments):
-            narration = NarrationSegment(
-                segment_id=f"narration_{i}",
-                text=seg.script,
-                start_time=seg.video_start,
-                end_time=seg.video_end,
-                duration=seg.audio_duration if seg.audio_duration > 0 else (seg.video_end - seg.video_start),
-                emotion=seg.emotion.value if isinstance(seg.emotion, EmotionType) else str(seg.emotion),
-            )
-            result.append(narration)
-        return result
+        """将 MonologueSegment 转换为 NarrationSegment（委托给 SceneConverter）"""
+        return [
+            SceneConverter.from_monologue_segment(seg, segment_id=f"narration_{i}")
+            for i, seg in enumerate(segments)
+        ]
 
     def _extract_keyframes(self, project: MonologueProject) -> List:
         """提取关键帧列表"""
@@ -310,14 +283,14 @@ class PipelineIntegrator(MonologueMaker):
         return project
 
     # ─────────────────────────────────────────────────────────────────
-    # 情感曲线
+    # 情感曲线（委托给 scene_converter）
     # ─────────────────────────────────────────────────────────────────
 
     def generate_emotion_curve(self, segments: List[MonologueSegment]) -> List[float]:
         """
-        生成情感强度曲线
+        生成情感强度曲线（委托给 EmotionCurveGenerator）
 
-        基于每个片段的情感类型生成 0-1 的情感强度曲线
+        基于每个片段的情感类型生成 0-1 的情感强度曲线。
 
         Args:
             segments: 独白片段列表
@@ -325,70 +298,7 @@ class PipelineIntegrator(MonologueMaker):
         Returns:
             情感强度曲线列表，每项 0-1
         """
-        if not segments:
-            return []
-
-        emotion_curve = []
-        for segment in segments:
-            intensity = self._emotion_to_intensity(segment.emotion)
-            emotion_curve.append(intensity)
-
-        # 平滑处理（简单移动平均）
-        smoothed = self._smooth_curve(emotion_curve, window=3)
-        return smoothed
-
-    def _emotion_to_intensity(self, emotion: EmotionType) -> float:
-        """
-        将情感类型转换为强度值
-
-        映射规则:
-        - NEUTRAL -> 0.3
-        - SAD -> 0.6 (情感强烈)
-        - HAPPY -> 0.5
-        - CALM -> 0.2
-        - TENDER -> 0.4
-        - EXCITED -> 0.9 (高潮)
-        - ANGRY -> 0.8
-        """
-        mapping = {
-            EmotionType.NEUTRAL: 0.3,
-            EmotionType.SAD: 0.6,
-            EmotionType.HAPPY: 0.5,
-            EmotionType.CALM: 0.2,
-            EmotionType.TENDER: 0.4,
-            EmotionType.EXCITED: 0.9,
-            EmotionType.ANGRY: 0.8,
-        }
-
-        if isinstance(emotion, EmotionType):
-            return mapping.get(emotion, 0.5)
-        elif isinstance(emotion, str):
-            # 尝试从字符串匹配
-            for emo_type, val in mapping.items():
-                if emo_type.value.lower() == emotion.lower():
-                    return val
-            return 0.5
-        return 0.5
-
-    def _smooth_curve(self, curve: List[float], window: int = 3) -> List[float]:
-        """
-        平滑情感曲线
-
-        使用简单移动平均
-        """
-        if len(curve) <= window:
-            return curve
-
-        smoothed = []
-        half_window = window // 2
-
-        for i in range(len(curve)):
-            start = max(0, i - half_window)
-            end = min(len(curve), i + half_window + 1)
-            avg = sum(curve[start:end]) / (end - start)
-            smoothed.append(avg)
-
-        return smoothed
+        return self.emotion_generator.get_segment_emotions(segments)
 
     # ─────────────────────────────────────────────────────────────────
     # 完整流水线
