@@ -218,7 +218,7 @@ class ErrorHandler:
                 traceback.print_exception(
                     type(error_info.exception),
                     error_info.exception,
-                    error_info.exception.__tracetrace__
+                    error_info.exception.__traceback__
                 )
 
     def show_error_dialog(
