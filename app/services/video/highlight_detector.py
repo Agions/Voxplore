@@ -199,7 +199,6 @@ class HighlightDetector:
         Returns:
             List of (timestamp, score) tuples
         """
-        import json
 
         # 简化：使用帧间差异检测
         # 生成采样帧用于比较
