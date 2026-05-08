@@ -6,7 +6,6 @@
 支持 Qwen Plus/Max/Turbo 等模型 (2026.03 最新)
 
 优化:
-- asyncio.gather 批量并发处理 ✅
 - 重试机制 (RetryHandler) ✅
 - 延迟统计 ✅
 """
@@ -22,7 +21,6 @@ from ..base_llm_provider import (
     ProviderError,
     HTTPClientMixin,
     ModelManagerMixin,
-    gather_with_concurrency,
 )
 
 
@@ -135,48 +133,6 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
-
-    async def generate_batch(
-        self,
-        requests: List[LLMRequest],
-        max_concurrency: int = 5
-    ) -> List[LLMResponse]:
-        """
-        批量生成文本 ✅ 优化：使用 asyncio.gather 并发处理
-
-        Args:
-            requests: LLM 请求列表
-            max_concurrency: 最大并发数（防止超出 API 限制）
-
-        Returns:
-            LLM 响应列表
-        """
-        if not requests:
-            return []
-
-        # 使用 gather_with_concurrency 控制并发数
-        results = await gather_with_concurrency(
-            max_concurrency,
-            *[self.generate(req) for req in requests]
-        )
-
-        # 处理异常
-        responses = []
-        for i, result in enumerate(results):
-            if isinstance(result, Exception):
-                logger.error(f"批量请求 {i} 失败: {result}")
-                # 返回错误响应而非抛出异常
-                responses.append(LLMResponse(
-                    content="",
-                    model=requests[i].model,
-                    tokens_used=0,
-                    finish_reason="error",
-                    raw_response={"error": str(result)}
-                ))
-            else:
-                responses.append(result)
-
-        return responses
 
 
 # 添加日志记录器

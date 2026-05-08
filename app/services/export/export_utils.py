@@ -40,11 +40,6 @@ def seconds_to_ticks(seconds: float, fps: float = 30.0) -> int:
     return int(seconds * PREMIERE_TICKS_PER_SECOND)
 
 
-def _get_ticks_per_second() -> int:
-    """获取 Premiere tick rate 常量"""
-    return PREMIERE_TICKS_PER_SECOND
-
-
 def safe_filename(name: str) -> str:
     """生成安全的文件名"""
     invalid_chars = '<>:"/\\|?*'
@@ -178,45 +173,6 @@ def copy_material_to_folder(material_path: str, dest_folder: Path) -> str:
         shutil.copy2(src, dst)
 
     return str(dst)
-
-
-# ========== 便捷类 ==========
-
-class TimeHelper:
-    """时间转换辅助类"""
-
-    # Premiere tick rate
-    TICKS_PER_SECOND = PREMIERE_TICKS_PER_SECOND
-
-    @staticmethod
-    def seconds_to_us(seconds: float) -> int:
-        """秒转微秒"""
-        return int(seconds * 1_000_000)
-
-    @staticmethod
-    def us_to_seconds(us: int) -> float:
-        """微秒转秒"""
-        return us / 1_000_000
-
-    @staticmethod
-    def seconds_to_ticks(seconds: float) -> int:
-        """秒转 ticks"""
-        return int(seconds * TimeHelper.TICKS_PER_SECOND)
-
-    @staticmethod
-    def ticks_to_seconds(ticks: int) -> float:
-        """ticks 转秒"""
-        return ticks / TimeHelper.TICKS_PER_SECOND
-
-    @staticmethod
-    def seconds_to_frames(seconds: float, fps: float) -> int:
-        """秒转帧数"""
-        return int(seconds * fps)
-
-    @staticmethod
-    def frames_to_seconds(frames: int, fps: float) -> float:
-        """帧数转秒"""
-        return frames / fps
 
 
 __all__ = [

@@ -9,7 +9,7 @@ Voxplore 导出服务模块
 
 from .export_utils import (
     BaseExporter, BaseProject, BaseTrack, BaseSegment, BaseMaterial,
-    ExporterConfig, TimeHelper, safe_filename,
+    ExporterConfig, safe_filename,
     get_video_duration, get_video_resolution, copy_material_to_folder,
 )
 from .jianying_exporter import JianyingExporter
@@ -33,7 +33,6 @@ __all__ = [
     "BaseSegment",
     "BaseMaterial",
     "ExporterConfig",
-    "TimeHelper",
     "safe_filename",
     "get_video_duration",
     "get_video_resolution",
