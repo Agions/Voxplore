@@ -202,15 +202,6 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
 
-    async def close(self):
-        """关闭HTTP客户端"""
-        await self._close_http_client()
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
 
 
 # 需要导入httpx用于类型提示

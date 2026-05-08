@@ -75,12 +75,4 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """批量生成"""
         return [await self.generate(req) for req in requests]
 
-    async def close(self):
-        """关闭HTTP客户端"""
-        await self._close_http_client()
 
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()

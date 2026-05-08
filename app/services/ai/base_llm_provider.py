@@ -258,6 +258,20 @@ class HTTPClientMixin:
             latency_ms=latency_ms,  # ✅ 新增延迟统计
         )
 
+    # ========== Context Manager ==========
+
+    async def __aenter__(self) -> "HTTPClientMixin":
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await self.close()
+
+    async def close(self) -> None:
+        """关闭 HTTP 客户端"""
+        await self._close_http_client()
+
+    # ========== HTTP Error Handling ==========
+
     def _handle_http_error(self, e: httpx.HTTPStatusError) -> ProviderError:
         """处理HTTP错误"""
         error_msg = f"HTTP 错误: {e.response.status_code}"

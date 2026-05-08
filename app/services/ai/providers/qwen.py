@@ -178,15 +178,5 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
         return responses
 
-    async def close(self):
-        """关闭 HTTP 客户端"""
-        await self._close_http_client()
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
-
 
 # 添加日志记录器

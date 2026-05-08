@@ -251,12 +251,3 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """获取模型信息"""
         return self.MODELS.get(model, {})
 
-    async def close(self):
-        """关闭HTTP客户端"""
-        await self._close_http_client()
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
