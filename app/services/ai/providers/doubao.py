@@ -8,8 +8,6 @@
 使用公共混入类减少重复代码
 """
 
-import json
-
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -137,16 +135,8 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 },
                 stream=True
             )
-
-            async for line in response.aiter_lines():
-                if line.startswith("data: "):
-                    if line.strip() == "data: [DONE]":
-                        break
-                    data = json.loads(line[6:])
-                    if "choices" in data and len(data["choices"]) > 0:
-                        delta = data["choices"][0].get("delta", {})
-                        if "content" in delta:
-                            yield delta["content"]
+            async for chunk in self._parse_sse_stream(response):
+                yield chunk
 
         except Exception as e:
             raise ProviderError(f"流式生成失败: {str(e)}")

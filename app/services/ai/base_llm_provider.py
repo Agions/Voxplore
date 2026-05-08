@@ -22,9 +22,10 @@ LLM 提供商抽象基类
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, TypeVar
+from typing import Dict, List, Optional, Any, TypeVar, AsyncIterator
 from dataclasses import dataclass
 from enum import Enum
+import json
 from .errors import (
     ProviderError,
     RateLimitError,
@@ -319,6 +320,31 @@ class HTTPClientMixin:
             raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
+
+    async def _parse_sse_stream(
+        self,
+        response,
+        delta_key: str = "delta",
+        content_key: str = "content",
+    ) -> AsyncIterator[str]:
+        """
+        通用 SSE 流式解析（供 Doubao/Hunyuan 等 Provider 使用）。
+
+        Args:
+            response: httpx 的流式响应
+            delta_key: delta 字段的键名（OpenAI 用 "delta"，混元用 "Delta"）
+            content_key: content 字段的键名（OpenAI 用 "content"，混元用 "Content"）
+        """
+        async for line in response.aiter_lines():
+            if line.startswith("data: "):
+                if line.strip() == "data: [DONE]":
+                    break
+                data = json.loads(line[6:])
+                choices_key = "choices"
+                if choices_key in data and len(data[choices_key]) > 0:
+                    delta = data[choices_key][0].get(delta_key, {})
+                    if content_key in delta:
+                        yield delta[content_key]
 
 
 class ModelManagerMixin:

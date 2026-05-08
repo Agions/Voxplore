@@ -9,7 +9,6 @@ from .hunyuan import HunyuanProvider
 from .kimi import KimiProvider
 from .local import LocalProvider
 from .qwen import QwenProvider
-from .base_provider import HTTPProviderMixin, BatchProviderMixin, RetryProviderMixin
 from .provider_models import (
     ChatMessage,
     UsageInfo,
@@ -28,10 +27,6 @@ __all__ = [
     "KimiProvider",
     "LocalProvider",
     "QwenProvider",
-    # Mixins
-    "HTTPProviderMixin",
-    "BatchProviderMixin",
-    "RetryProviderMixin",
     # Models
     "ChatMessage",
     "UsageInfo",
