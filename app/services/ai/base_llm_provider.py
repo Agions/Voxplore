@@ -288,7 +288,7 @@ class HTTPClientMixin:
             elif e.response.status_code == 401:
                 error_msg = f"认证失败: {error_msg}"
         except Exception:
-            logger.debug(f"Failed to parse error response")
+            logger.debug("Failed to parse error response")
         return ProviderError(error_msg)
 
     async def _generate_openai_compatible(
