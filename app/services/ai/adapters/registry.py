@@ -142,16 +142,6 @@ class LLMProviderRegistry:
 
         self._initialized = False
 
-    def load_from_config(self, config_path: str) -> None:
-        """从配置文件加载 Provider"""
-        import yaml
-        with open(config_path, "r") as f:
-            yaml.safe_load(f)
-
-        # 动态导入并注册 adapters
-        # 具体实现略（见 ai_service_manager.py）
-        pass
-
     @property
     def is_initialized(self) -> bool:
         return self._initialized
