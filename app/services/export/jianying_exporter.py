@@ -131,7 +131,7 @@ class JianyingExporter:
         output_path = Path(output_dir)
 
         # 创建草稿文件夹（使用项目名称）
-        safe_name = self._safe_filename(draft.name)
+        safe_name = safe_filename(draft.name)
         draft_folder = output_path / safe_name
         draft_folder.mkdir(parents=True, exist_ok=True)
 
@@ -157,11 +157,6 @@ class JianyingExporter:
         _report("写入元信息", 1.0)
 
         return str(draft_folder)
-
-    def _safe_filename(self, name: str) -> str:
-        """生成安全的文件名（委托给模块级工具函数）"""
-        return safe_filename(name)
-
 
     def _get_or_create_track(
         self,
