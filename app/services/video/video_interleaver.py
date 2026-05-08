@@ -68,9 +68,6 @@ class VideoInterleaver:
         ctx = context or InterleaveContext()
         decisions: List[InterleaveDecision] = []
 
-        # 构建原片时间索引
-        self._build_clip_lookup(original_clips)
-
         # 遍历解说片段
         for i, narration in enumerate(narration_timeline):
             # 获取对应的视角信息
@@ -120,13 +117,6 @@ class VideoInterleaver:
             interleave_mode=self._infer_interleave_mode(emotion_curve),
             emotion_curve=emotion_curve
         )
-
-    def _build_clip_lookup(
-        self,
-        clips: List[ClipSegment]
-    ) -> Dict[int, ClipSegment]:
-        """构建时间索引"""
-        return {clip.start_time: clip for clip in clips}
 
     def _find_overlapping_clips(
         self,
@@ -374,71 +364,3 @@ class VideoInterleaver:
         else:
             return InterleaveMode.MINIMALIST
 
-    # ─────────────────────────────────────────────────────────────
-    # 高层次 API
-    # ─────────────────────────────────────────────────────────────
-
-    def interleave_narration_priority(
-        self,
-        narration_timeline: List[NarrationSegment],
-        original_clips: List[ClipSegment],
-    ) -> InterleaveTimeline:
-        """解说优先模式——原片仅在关键时刻展示"""
-        ctx = InterleaveContext(
-            max_original_ratio=0.3,
-            min_narration_ratio=0.7,
-            emotion_threshold=0.5
-        )
-        # 使用空视角和默认情感曲线
-        empty_shots = [PerspectiveShot(
-            shot_id=f"shot_{i}",
-            start_time=n.start_time,
-            end_time=n.end_time,
-            duration=n.duration,
-            viewpoint=None,
-            show_original_clip=False,
-            original_clip_weight=0.0,
-        ) for i, n in enumerate(narration_timeline)]
-
-        emotion_curve = [0.3] * len(narration_timeline)
-
-        return self.decide_interleave(
-            narration_timeline=narration_timeline,
-            original_clips=original_clips,
-            perspective_shots=empty_shots,
-            scene_segments=[],
-            emotion_curve=emotion_curve,
-            context=ctx
-        )
-
-    def interleave_cinematic(
-        self,
-        narration_timeline: List[NarrationSegment],
-        original_clips: List[ClipSegment],
-        emotion_curve: List[float],
-    ) -> InterleaveTimeline:
-        """电影感模式——动态平衡解说与原片"""
-        ctx = InterleaveContext(
-            max_original_ratio=0.6,
-            min_narration_ratio=0.4,
-            emotion_threshold=0.6,
-            allow_zoom_highlight=True
-        )
-        empty_shots = [PerspectiveShot(
-            shot_id=f"shot_{i}",
-            start_time=n.start_time,
-            end_time=n.end_time,
-            duration=n.duration,
-            viewpoint=None,
-            show_original_clip=emotion_curve[i] >= 0.6 if i < len(emotion_curve) else False,
-            original_clip_weight=emotion_curve[i] if i < len(emotion_curve) else 0.5,
-        ) for i, n in enumerate(narration_timeline)]
-
-        return self.decide_interleave(
-            narration_timeline=narration_timeline,
-            original_clips=original_clips,
-            perspective_shots=empty_shots,
-            scene_segments=[],
-            emotion_curve=emotion_curve,
-            context=ctx
-        )

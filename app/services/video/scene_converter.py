@@ -146,46 +146,6 @@ class SceneConverter:
             pause_after=0.0,
         )
 
-    @staticmethod
-    def monologue_to_clip_segment(
-        segment: MonologueSegment,
-        source_path: str = "",
-        clip_id: Optional[str] = None,
-    ) -> ClipSegment:
-        """
-        将 MonologueSegment 转换为 ClipSegment（原片片段）。
-
-        注意：ClipSegment 通常从原片分析得到，这里提供一种基于独白时间戳的
-        近似转换，适用于"纯解说"视频中需要嵌入原片素材的场景。
-
-        Args:
-            segment: 独白片段
-            source_path: 原片路径
-            clip_id: 可选的片段 ID，默认自动生成
-
-        Returns:
-            对应的 ClipSegment 实例
-        """
-        if clip_id is None:
-            clip_id = f"clip_{uuid.uuid4().hex[:8]}"
-
-        duration = segment.audio_duration if segment.audio_duration > 0 else (
-            segment.video_end - segment.video_start
-        )
-
-        # 高情绪时刻视为关键时刻
-        is_key = segment.emotion in (EmotionType.EXCITED, EmotionType.ANGRY, EmotionType.HAPPY)
-
-        return ClipSegment(
-            clip_id=clip_id,
-            source_path=source_path,
-            start_time=segment.video_start,
-            end_time=segment.video_end,
-            duration=duration,
-            is_key_moment=is_key,
-            key_content=segment.script[:100] if segment.script else "",
-        )
-
 
 # ─────────────────────────────────────────────────────────────
 # EmotionCurveGenerator

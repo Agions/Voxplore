@@ -140,11 +140,6 @@ class BaseExporter(ABC, Generic[T, C]):
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=indent)
 
-    def _read_json(self, path: Path) -> dict:
-        """读取 JSON 文件"""
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-
 
 # ========== 便捷工具函数 ==========
 
@@ -184,7 +179,6 @@ __all__ = [
     "get_video_duration",
     "get_video_resolution",
     "copy_material_to_folder",
-    "TimeHelper",
 
     # 基础类
     "BaseTrack",
