@@ -14,14 +14,13 @@
     )
 """
 
-import subprocess
 import warnings
 from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
 from ...core.exceptions import ExportError
-from ..video_tools.ffmpeg_tool import FFmpegTool
+from ...utils.security import get_ffmpeg_executor
 
 
 class ExportFormat(Enum):
@@ -97,7 +96,7 @@ class VideoExporter:
             stacklevel=2,
         )
         self.config = config or ExportConfig()
-        FFmpegTool.check_ffmpeg()
+        self._executor = get_ffmpeg_executor()
 
     def export(
         self,
@@ -173,7 +172,7 @@ class VideoExporter:
         cmd.append(str(output))
 
         # 执行
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = self._executor.run(cmd, timeout=300)
 
         if result.returncode != 0:
             raise ExportError(
@@ -241,7 +240,7 @@ class VideoExporter:
             str(output)
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = self._executor.run(cmd, timeout=300)
 
         # 清理
         list_file.unlink(missing_ok=True)
@@ -306,7 +305,7 @@ class VideoExporter:
             str(output)
         ])
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = self._executor.run(cmd, timeout=300)
 
         if result.returncode != 0:
             raise ExportError(
@@ -350,7 +349,7 @@ class VideoExporter:
             str(output)
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = self._executor.run(cmd, timeout=60)
 
         if result.returncode != 0:
             raise ExportError(

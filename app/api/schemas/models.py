@@ -20,10 +20,8 @@ class EmotionType(str, Enum):
     ROMANTIC = "romantic"     # 浪漫
 
 
-class ExportFormat(str, Enum):
-    MP4 = "mp4"
-    JIANYIN = "jianyin"       # 剪映草稿
-    PREMIERE_XML = "premiere_xml"
+# API 层 ExportFormat：统一使用 export_manager.ExportFormat
+from app.services.export.export_manager import ExportFormat as ManagerExportFormat
 
 
 class InterleaveModeAPI(str, Enum):
@@ -86,9 +84,12 @@ class PipelineStatus(BaseModel):
 
 class ExportRequest(BaseModel):
     project_id: str
-    format: ExportFormat = ExportFormat.MP4
-    quality: str = "high"                # low, medium, high
-    options: Optional[Dict[str, Any]] = None
+    format: ManagerExportFormat = ManagerExportFormat.MP4
+    quality: str = "high"                # low, medium, high, ultra
+    resolution: str = "1080p"            # 720p, 1080p, 4k
+    fps: int = 30
+    codec: str = "h264"                 # h264, h265, vp9
+    output_path: Optional[str] = None
 
 
 class ExportResponse(BaseModel):

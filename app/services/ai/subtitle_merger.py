@@ -17,6 +17,8 @@ from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["SubtitleMerger"]
+
 
 class SubtitleMerger:
     """

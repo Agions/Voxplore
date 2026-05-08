@@ -20,7 +20,6 @@
 """
 
 import logging
-import subprocess
 import re
 
 from pathlib import Path
@@ -28,6 +27,7 @@ from typing import List, Optional, Callable
 
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
 from .scene_scorer import SceneScorer
+from ...utils.security import get_ffmpeg_executor
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +53,7 @@ class SceneAnalyzer:
     def __init__(self, config: Optional[AnalysisConfig] = None):
         self.config = config or AnalysisConfig()
         self._pyscenect_available = self._check_pyscenect()
+        self._executor = get_ffmpeg_executor()
 
     def _check_pyscenect(self) -> bool:
         """检查 PySceneDetect 是否可用"""
@@ -168,7 +169,7 @@ class SceneAnalyzer:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            result = self._executor.run(cmd, timeout=300)
 
             scene_times = [0.0]
 
@@ -182,7 +183,7 @@ class SceneAnalyzer:
 
             return scene_times
 
-        except subprocess.TimeoutExpired:
+        except TimeoutError:
             logger.warning("场景检测超时")
             return [0.0]
         except Exception as e:
@@ -195,8 +196,7 @@ class SceneAnalyzer:
 
         scene_times = sorted(set(scene_times))
 
-        for i in range(len(scene_times)):
-            start = scene_times[i]
+        for i, start in enumerate(scene_times):
             end = scene_times[i + 1] if i + 1 < len(scene_times) else total_duration
 
             if end - start >= self.config.min_scene_duration:
@@ -239,14 +239,12 @@ class SceneAnalyzer:
                 '-f', 'null', '-'
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = self._executor.run(cmd, timeout=30)
 
             match = re.search(r'YAVG:(\d+\.?\d*)', result.stderr)
             if match:
                 return float(match.group(1)) / 255.0
 
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"ffprobe signalstats failed: {e}")
         except Exception as e:
             logger.debug(f"Getting brightness failed: {e}")
 
@@ -262,15 +260,13 @@ class SceneAnalyzer:
                 '-f', 'null', '-'
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = self._executor.run(cmd, timeout=30)
 
             scores = re.findall(r'lavfi\.scene_score=(\d+\.?\d*)', result.stderr)
             if scores:
                 avg_score = sum(float(s) for s in scores) / len(scores)
                 return min(1.0, avg_score * 2)
 
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"ffmpeg scene detection failed: {e}")
         except Exception as e:
             logger.debug(f"Scene score detection failed: {e}")
 
@@ -286,15 +282,13 @@ class SceneAnalyzer:
                 '-f', 'null', '-'
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            result = self._executor.run(cmd, timeout=30)
 
             match = re.search(r'mean_volume:\s*([-\d.]+)', result.stderr)
             if match:
                 db = float(match.group(1))
                 return max(0, min(1, (db + 60) / 60))
 
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"ffmpeg audio level check failed: {e}")
         except Exception as e:
             logger.debug(f"Audio level detection failed: {e}")
 
@@ -358,7 +352,7 @@ class SceneAnalyzer:
                     '-y', str(output_path)
                 ]
 
-                result = subprocess.run(cmd, capture_output=True, timeout=30)
+                result = self._executor.run(cmd, timeout=60)
 
                 if result.returncode == 0:
                     scene.keyframe_path = str(output_path)
@@ -438,7 +432,7 @@ class SceneAnalyzer:
                     str(output_path)
                 ]
 
-                result = subprocess.run(cmd, capture_output=True, timeout=60)
+                result = self._executor.run(cmd, timeout=120)
 
                 if result.returncode == 0:
                     output_paths.append(str(output_path))

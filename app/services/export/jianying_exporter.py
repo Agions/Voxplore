@@ -48,6 +48,10 @@ from .export_utils import safe_filename
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "JianyingExporter",
+]
+
 
 class JianyingExporter:
     """

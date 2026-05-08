@@ -20,6 +20,14 @@ from .beat_detector import (
     AudioAnalysisResult, BeatStrength, MusicSection
 )
 
+__all__ = [
+    "SyncStrategy",
+    "TransitionType",
+    "SyncPoint",
+    "SyncPlan",
+    "SyncEngine",
+]
+
 
 class SyncStrategy(Enum):
     BEAT_SYNC = "beat_sync"       # 每个节拍切

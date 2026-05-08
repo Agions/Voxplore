@@ -19,6 +19,9 @@ from ..export.jianying_models import (
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
 )
+from ...utils.security import get_ffmpeg_executor
+
+_video_executor = get_ffmpeg_executor()
 
 
 @dataclass
@@ -257,7 +260,6 @@ def merge_audio_files(
     output_path: str,
 ) -> str:
     """合并多个音频文件"""
-    import subprocess
 
     if not audio_paths:
         raise ValueError("没有可用的音频文件")
@@ -278,7 +280,7 @@ def merge_audio_files(
         '-i', str(concat_list),
         '-c', 'copy', output_path
     ]
-    subprocess.run(cmd, capture_output=True)
+    _video_executor.run(cmd, timeout=120)
 
     return output_path
 
@@ -289,7 +291,6 @@ def composite_video_with_audio(
     output_path: str,
 ) -> str:
     """使用 FFmpeg 合成视频和音频"""
-    import subprocess
 
     cmd = [
         'ffmpeg', '-y',
@@ -301,7 +302,7 @@ def composite_video_with_audio(
         '-shortest',
         output_path
     ]
-    subprocess.run(cmd, capture_output=True)
+    _video_executor.run(cmd, timeout=300)
 
     return output_path
 

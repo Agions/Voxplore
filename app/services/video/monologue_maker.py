@@ -43,6 +43,14 @@ from ..export.jianying_models import JianyingDraft
 from .track_builder import build_monologue_tracks, CAPTION_STYLES
 
 
+__all__ = [
+    "MonologueProject",
+    "MonologueMaker",
+    "create_monologue",
+    "demo_monologue",
+]
+
+
 @dataclass
 class MonologueProject(BaseProject):
     """独白视频项目"""

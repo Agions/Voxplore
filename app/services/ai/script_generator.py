@@ -272,13 +272,12 @@ class ScriptGenerator:
             )
             user_prompt = self._build_prompt(topic, config)
 
-            messages = []
-            messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": user_prompt})
-
             response = client.chat.completions.create(
                 model=config.model or "gpt-4",
-                messages=messages,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
                 temperature=config.temperature if hasattr(config, 'temperature') else 0.7,
                 max_tokens=2000,
             )

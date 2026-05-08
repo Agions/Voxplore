@@ -9,13 +9,20 @@ Task 2.2 UX 改善:
 """
 
 import os
+import json
+import logging
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
     QFrame, QScrollArea, QSizePolicy, QProgressBar, QLineEdit
 )
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QPixmap, QDrag
+from PySide6.QtGui import QFont
+
+# 导入拖拽辅助组件
+from .components.drag_helpers import _GroupThumbItem, _VideoMimeData, MIME_TYPE
+
+logger = logging.getLogger(__name__)
 
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
@@ -315,143 +322,31 @@ class GroupCard(QFrame):
 
     # ── 拖拽支持 ──
     def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat("application/x-voxplore-video"):
+        if event.mimeData().hasFormat(MIME_TYPE):
             event.acceptProposedAction()
 
     def dragMoveEvent(self, event):
-        if event.mimeData().hasFormat("application/x-voxplore-video"):
+        if event.mimeData().hasFormat(MIME_TYPE):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
         mime = event.mimeData()
-        if mime.hasFormat("application/x-voxplore-video"):
-            data = mime.data("application/x-voxplore-video")
-            import json
+        if mime.hasFormat(MIME_TYPE):
+            data = mime.data(MIME_TYPE)
             try:
                 info = json.loads(bytes(data).decode("utf-8"))
                 video_path = info.get("path", "")
                 info.get("group_id")
             except json.JSONDecodeError as e:
-                self.logger.debug(f"Invalid JSON in drop data: {e}")
+                logger.debug(f"Invalid JSON in drop data: {e}")
                 video_path = ""
             except Exception as e:
-                self.logger.debug(f"Drop data parsing error: {e}")
+                logger.debug(f"Drop data parsing error: {e}")
                 video_path = ""
 
             if video_path:
                 self.video_dropped.emit(video_path, self._group_id)
             event.acceptProposedAction()
-
-
-class _GroupThumbItem(QFrame):
-    """分组内的视频缩略图项"""
-    remove_requested = Signal(str)
-    drag_started = Signal(str)
-
-    def __init__(self, video_path: str, thumb_path: str = "", parent=None):
-        super().__init__(parent)
-        self._path = video_path
-        self._thumb = thumb_path
-        self.video_path = video_path
-        self._setup_ui()
-        self.setAcceptDrops(True)
-        self.setFixedSize(100, 80)
-        self.setCursor(Qt.CursorShape.OpenHandCursor)
-
-    def _setup_ui(self):
-        self.setStyleSheet(f"""
-            QFrame {{
-                background: {_T['bg_input']};
-                border: 1px solid {_T['border']};
-                border-radius: 8px;
-            }}
-            QFrame:hover {{
-                border-color: {_T['primary']};
-            }}
-        """)
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(4, 4, 4, 4)
-        layout.setSpacing(2)
-
-        # 缩略图
-        self._thumb_label = QLabel()
-        self._thumb_label.setFixedSize(92, 52)
-        self._thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._thumb_label.setStyleSheet("border-radius: 4px; background: #000;")
-        self._thumb_label.setText("🎬")
-        self._thumb_label.setFont(QFont("", 20))
-
-        if self._thumb and os.path.exists(self._thumb):
-            pixmap = QPixmap(self._thumb)
-            if not pixmap.isNull():
-                scaled = pixmap.scaled(92, 52, Qt.AspectRatioMode.KeepAspectRatio,
-                                       Qt.TransformationMode.SmoothTransformation)
-                self._thumb_label.setPixmap(scaled)
-                self._thumb_label.setText("")
-
-        layout.addWidget(self._thumb_label)
-
-        # 文件名（截断）
-        name = Path(self._path).name
-        if len(name) > 12:
-            name = name[:10] + "…"
-        self._name_label = QLabel(name)
-        self._name_label.setFont(QFont("", 8))
-        self._name_label.setStyleSheet(f"color: {_T['text_muted']};")
-        self._name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self._name_label)
-
-        # 移除按钮（悬停显示）
-        self._remove_btn = QPushButton("✕")
-        self._remove_btn.setFont(QFont("", 8))
-        self._remove_btn.setFixedSize(16, 16)
-        self._remove_btn.setStyleSheet(f"""
-            QPushButton {{
-                background: {_T['error']};
-                color: white;
-                border-radius: 8px;
-                padding: 0px;
-            }}
-        """)
-        self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self._path))
-        self._remove_btn.setVisible(False)
-        layout.addWidget(self._remove_btn, alignment=Qt.AlignmentFlag.AlignRight)
-
-        self._name_label.mousePressEvent = self._on_mouse_press
-
-    def _on_mouse_press(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.drag_started.emit(self._path)
-
-    def enterEvent(self, event):
-        self._remove_btn.setVisible(True)
-        super().enterEvent(event)
-
-    def leaveEvent(self, event):
-        self._remove_btn.setVisible(False)
-        super().leaveEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.MouseButton.LeftButton:
-            self.drag_started.emit(self._path)
-            drag = QDrag(self)
-            mime_data = _VideoMimeData(self._path, None)
-            drag.setMimeData(mime_data)
-            drag.exec(Qt.DropAction.MoveAction)
-
-
-class _VideoMimeData(QFrame):
-    """自定义拖拽数据（用于跨分组拖拽）"""
-    def __init__(self, video_path: str, group_id, parent=None):
-        super().__init__(parent)
-        import json
-        self._data = json.dumps({"path": video_path, "group_id": str(group_id)}).encode("utf-8")
-
-    def data(self, mime_type: str) -> bytes:
-        if mime_type == "application/x-voxplore-video":
-            return self._data
-        return b""
 
 
 # ── 智能分组页面 ────────────────────────────────────────────

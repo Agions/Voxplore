@@ -64,6 +64,13 @@ from .grouping.smart_grouper import (
     GroupingReason,
 )
 
+from .highlight_detector import (
+    HighlightDetector,
+    HighlightSegment,
+    HighlightReason,
+    HighlightDetectorConfig,
+)
+
 __all__ = [
     # 原有
     "BaseVideoMaker",
@@ -98,4 +105,9 @@ __all__ = [
     "VisionEmbedder",
     "AudioEmbedder",
     "GroupingReason",
+    # 高光检测
+    "HighlightDetector",
+    "HighlightSegment",
+    "HighlightReason",
+    "HighlightDetectorConfig",
 ]

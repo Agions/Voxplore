@@ -10,7 +10,6 @@
 """
 
 import os
-import subprocess
 import tempfile
 import logging
 from pathlib import Path
@@ -18,8 +17,10 @@ from typing import List, Optional, Tuple
 
 from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
 
+from ..video_tools.ffmpeg_tool import FFmpegTool
+from ...utils.security import get_ffmpeg_executor
 
-logger = logging.getLogger(__name__)
+_audio_executor = get_ffmpeg_executor()
 
 
 class SpeechSubtitleExtractor:
@@ -65,7 +66,7 @@ class SpeechSubtitleExtractor:
             language: 语言代码
         """
         path = Path(video_path)
-        duration = self._get_duration(str(path))
+        duration = FFmpegTool.get_duration(str(path))
 
         result = SubtitleExtractionResult(
             video_path=str(path),
@@ -124,7 +125,7 @@ class SpeechSubtitleExtractor:
         elif hasattr(response, 'text'):
             # 无时间戳,整段返回
             segments.append(SubtitleSegment(
-                start=0, end=self._get_duration(audio_path),
+                start=0, end=FFmpegTool.get_duration(audio_path),
                 text=response.text.strip(),
                 source="speech",
             ))
@@ -242,16 +243,7 @@ class SpeechSubtitleExtractor:
             '-ar', '16000', '-ac', '1',
             output
         ]
-        r = subprocess.run(cmd, capture_output=True)
+        r = _audio_executor.run(cmd, timeout=120)
         if r.returncode != 0:
-            raise RuntimeError(f"音频提取失败: {r.stderr.decode()[:200]}")
+            raise RuntimeError(f"音频提取失败: {r.stderr[:200]}")
         return output
-
-    def _get_duration(self, path: str) -> float:
-        cmd = ['ffprobe', '-v', 'quiet', '-show_entries',
-               'format=duration', '-of', 'csv=p=0', path]
-        r = subprocess.run(cmd, capture_output=True, text=True)
-        try:
-            return float(r.stdout.strip())
-        except (ValueError, AttributeError):
-            return 0.0

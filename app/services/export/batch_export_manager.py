@@ -15,6 +15,13 @@ from ...core.exceptions import ExportError
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "ExportStatus",
+    "ExportTask",
+    "BatchExportResult",
+    "BatchExportManager",
+]
+
 
 class ExportStatus(Enum):
     """导出状态"""

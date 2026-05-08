@@ -30,7 +30,8 @@ from .exceptions import (
     ErrorCode,
 )
 from .logger import setup_logging, get_logger
-from .project_manager import ProjectManager
+# ProjectManager 需要 PySide6，由 UI 层按需导入
+# from app.core.project_manager import ProjectManager  # 需要 PySide6
 from .service_container import ServiceContainer
 from .secure_key_manager import SecureKeyManager
 
@@ -71,7 +72,7 @@ __all__ = [
 
 
     # Project
-    "ProjectManager",
+    # "ProjectManager",  # 需要 PySide6
 
     # Service
     "ServiceContainer",

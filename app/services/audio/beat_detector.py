@@ -13,13 +13,16 @@
 - Beat-sync 剪辑点建议
 """
 
-import subprocess
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 logger = logging.getLogger(__name__)
+
+from ...utils.security import get_ffmpeg_executor
+
+_audio_executor = get_ffmpeg_executor()
 
 
 class BeatStrength(Enum):
@@ -404,5 +407,5 @@ class BeatDetector:
             '-ar', '22050', '-ac', '1',
             output_path
         ]
-        subprocess.run(cmd, capture_output=True, check=True)
+        _audio_executor.run(cmd, timeout=120)
         return output_path

@@ -26,9 +26,14 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 from abc import ABC, abstractmethod
 import logging
+import subprocess
+
 logger = logging.getLogger(__name__)
 
 from .voice_models import VoiceStyle, VoiceGender, VoiceConfig, VoiceInfo, GeneratedVoice
+from ...utils.security import get_ffmpeg_executor
+
+_audio_executor = get_ffmpeg_executor()
 
 
 class TTSProvider(ABC):
@@ -180,20 +185,17 @@ class EdgeTTSProvider(TTSProvider):
 
         # 使用 ffprobe
         try:
-            import subprocess
             cmd = [
                 'ffprobe', '-v', 'quiet',
                 '-show_entries', 'format=duration',
                 '-of', 'csv=p=0',
                 audio_path
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = _audio_executor.run(cmd, timeout=30)
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except FileNotFoundError:
             logger.debug("ffprobe not found")
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"ffprobe failed: {e}")
         except Exception as e:
             logger.debug(f"Getting audio duration failed: {e}")
 
@@ -290,7 +292,7 @@ class OpenAITTSProvider(TTSProvider):
                 '-of', 'csv=p=0',
                 audio_path
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = _audio_executor.run(cmd, timeout=30)
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except FileNotFoundError:
@@ -409,24 +411,22 @@ class F5TTSProvider(TTSProvider):
 
     def _convert_to_mp3(self, input_path: str, output_path: str) -> None:
         """将 WAV 转码为 MP3"""
-        import subprocess
         cmd = [
             "ffmpeg", "-y", "-i", input_path,
             "-codec:a", "libmp3lame", "-q:a", "2",
             output_path,
         ]
-        subprocess.run(cmd, capture_output=True)
+        _audio_executor.run(cmd, timeout=60)
 
     def _get_audio_duration(self, audio_path: str) -> float:
         """获取音频时长"""
         try:
-            import subprocess
             cmd = [
                 "ffprobe", "-v", "quiet",
                 "-show_entries", "format=duration",
                 "-of", "csv=p=0", audio_path,
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = _audio_executor.run(cmd, timeout=30)
             if result.returncode == 0:
                 return float(result.stdout.strip())
         except Exception as e:

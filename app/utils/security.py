@@ -501,3 +501,28 @@ def validate_video_path(path: str, base_dir: Optional[str] = None) -> SecurityCh
             ALLOWED_VIDEO_EXTENSIONS
         )
     return result
+
+
+# ============ 全局 FFmpeg Executor 单例 ============
+# 所有使用 ffmpeg/ffprobe 的模块统一使用此单例，避免重复实例化
+_FFMPEG_EXECUTOR: Optional[SecureExecutor] = None
+
+
+def get_ffmpeg_executor() -> SecureExecutor:
+    """
+    获取全局 FFmpeg/ffprobe 安全执行器单例。
+
+    所有模块（字幕提取、节拍检测、视频导出等）统一使用此函数获取
+    SecureExecutor，避免 15+ 处重复实例化同一配置的执行器。
+
+    Returns:
+        SecureExecutor: 已配置好的执行器（ffmpeg, ffprobe）
+    """
+    global _FFMPEG_EXECUTOR
+    if _FFMPEG_EXECUTOR is None:
+        _FFMPEG_EXECUTOR = SecureExecutor(
+            allowed_base_dirs=[str(Path.home())],
+            allowed_commands=['ffmpeg', 'ffprobe'],
+        )
+    return _FFMPEG_EXECUTOR
+

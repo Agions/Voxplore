@@ -28,6 +28,8 @@ from typing import List, Optional, AsyncIterator
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["TranscriptSegment", "TranscriptionResult", "WhisperASRProvider"]
+
 
 @dataclass
 class TranscriptSegment:

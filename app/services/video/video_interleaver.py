@@ -13,6 +13,11 @@ from .models.perspective_models import (
 )
 
 
+__all__ = [
+    "VideoInterleaver",
+]
+
+
 class VideoInterleaver:
     """
     视频穿插逻辑处理器

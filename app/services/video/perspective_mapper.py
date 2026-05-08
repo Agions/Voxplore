@@ -11,6 +11,11 @@ from .models.perspective_models import (
 )
 
 
+__all__ = [
+    "PerspectiveMapper",
+]
+
+
 class PerspectiveMapper:
     """
     第一人称视角映射器

@@ -7,6 +7,8 @@
 from dataclasses import dataclass, field
 from typing import List
 
+__all__ = ["SubtitleSegment", "SubtitleExtractionResult"]
+
 
 @dataclass
 class SubtitleSegment:

@@ -11,7 +11,6 @@
 """
 
 import os
-import subprocess
 import tempfile
 import logging
 
@@ -22,6 +21,10 @@ from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
 from .subtitle_speech import SpeechSubtitleExtractor
 from .subtitle_merger import SubtitleMerger
 from .subtitle_translator import SubtitleTranslator
+from ..video_tools.ffmpeg_tool import FFmpegTool
+from ...utils.security import get_ffmpeg_executor
+
+_video_executor = get_ffmpeg_executor()
 
 # 导出所有公共类型和类
 __all__ = [
@@ -67,7 +70,7 @@ class OCRSubtitleExtractor:
         if not path.exists():
             raise FileNotFoundError(f"视频不存在: {video_path}")
 
-        duration = self._get_duration(video_path)
+        duration = FFmpegTool.get_duration(video_path)
         result = SubtitleExtractionResult(
             video_path=video_path,
             duration=duration,
@@ -169,24 +172,11 @@ class OCRSubtitleExtractor:
                 '-i', video_path, '-vframes', '1',
                 '-q:v', '5', out
             ]
-            r = subprocess.run(cmd, capture_output=True)
+            r = _video_executor.run(cmd, timeout=30)
             if r.returncode == 0 and os.path.exists(out):
                 frames.append((ts, out))
 
         return frames
-
-    def _get_duration(self, video_path: str) -> float:
-        """获取视频时长"""
-        cmd = [
-            'ffprobe', '-v', 'quiet',
-            '-show_entries', 'format=duration',
-            '-of', 'csv=p=0', video_path
-        ]
-        r = subprocess.run(cmd, capture_output=True, text=True)
-        try:
-            return float(r.stdout.strip())
-        except (ValueError, AttributeError):
-            return 0.0
 
 
 # ========== 便捷函数 ==========

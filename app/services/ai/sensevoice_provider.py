@@ -24,6 +24,15 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "Emotion",
+    "EMOTION_KEYWORDS",
+    "EmotionSegment",
+    "SpeakerSegment",
+    "AudioEvent",
+    "SenseVoiceProvider",
+]
+
 
 class Emotion(str, Enum):
     """情感类型"""

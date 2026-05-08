@@ -7,10 +7,16 @@
 """
 
 import os
+from pathlib import Path
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton, QFrame
 from PySide6.QtCore import Qt, Signal, QUrl
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtMultimediaWidgets import QVideoWidget
+
+from ...utils.security import get_ffmpeg_executor
+
+_video_executor = get_ffmpeg_executor()
 
 
 class VideoPlayer(QWidget):
@@ -258,7 +264,6 @@ class ThumbnailGenerator:
         count: int = 10,
     ) -> list:
         """生成视频缩略图"""
-        import subprocess
         import os
 
         output_dir = os.path.join(output_dir, "thumbnails")
@@ -272,7 +277,7 @@ class ThumbnailGenerator:
             "-of", "default=noprint_wrappers=1:nokey=1",
             video_path,
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = _video_executor.run(cmd, timeout=30)
         duration = float(result.stdout.strip() or 0)
 
         # 生成缩略图
@@ -293,7 +298,7 @@ class ThumbnailGenerator:
                 output_path,
             ]
 
-            subprocess.run(cmd, capture_output=True)
+            _video_executor.run(cmd, timeout=30)
             thumbnails.append(output_path)
 
         return thumbnails

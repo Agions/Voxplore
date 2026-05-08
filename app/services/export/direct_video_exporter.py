@@ -24,7 +24,6 @@
     )
 """
 
-import subprocess
 import tempfile
 import shutil
 from pathlib import Path
@@ -33,6 +32,7 @@ from dataclasses import dataclass
 from enum import Enum
 import logging
 from ..video_tools.ffmpeg_tool import FFmpegTool
+from ...utils.security import get_ffmpeg_executor
 logger = logging.getLogger(__name__)
 
 
@@ -163,7 +163,7 @@ class DirectVideoExporter:
         """
         self.config = config or VideoExportConfig()
         FFmpegTool.check_ffmpeg()
-        self._progress_callback: Optional[Callable[[str, float], None]] = None
+        self._executor = get_ffmpeg_executor()
 
     def set_progress_callback(self, callback: Callable[[str, float], None]) -> None:
         """设置进度回调"""
@@ -305,7 +305,7 @@ class DirectVideoExporter:
         # 添加硬件加速参数
         cmd = self._add_hw_accel_params(cmd, config)
 
-        subprocess.run(cmd, capture_output=True)
+        self._executor.run(cmd, timeout=600)
 
     def _merge_video_audio(
         self,
@@ -326,7 +326,7 @@ class DirectVideoExporter:
             output_path,
         ]
 
-        subprocess.run(cmd, capture_output=True)
+        self._executor.run(cmd, timeout=300)
 
     def _create_concat_list(
         self,
@@ -356,7 +356,7 @@ class DirectVideoExporter:
             output_path,
         ]
 
-        subprocess.run(cmd, capture_output=True)
+        self._executor.run(cmd, timeout=600)
 
     def _add_subtitles(
         self,
@@ -393,7 +393,7 @@ class DirectVideoExporter:
                 output_path,
             ]
 
-            subprocess.run(cmd, capture_output=True)
+            self._executor.run(cmd, timeout=600)
 
         return output_path
 
@@ -489,32 +489,23 @@ class DirectVideoExporter:
         elif system == "Windows":
             # 检测 NVIDIA
             try:
-                result = subprocess.run(
+                result = self._executor.run(
                     ['nvidia-smi'],
-                    capture_output=True,
+                    timeout=5,
                 )
                 if result.returncode == 0:
                     return HWAccel.NVIDIA
-            except FileNotFoundError:
-                logger.debug("nvidia-smi not found")
-            except subprocess.CalledProcessError as e:
-                logger.warning(f"nvidia-smi check failed: {e}")
             except Exception as e:
                 logger.debug(f"nvidia-smi check error: {e}")
 
             # 检测 Intel
             try:
-                result = subprocess.run(
+                result = self._executor.run(
                     ['wmic', 'cpu', 'get', 'name'],
-                    capture_output=True,
-                    text=True,
+                    timeout=5,
                 )
                 if "Intel" in result.stdout:
                     return HWAccel.INTEL
-            except FileNotFoundError:
-                logger.debug("wmic not found (non-Windows)")
-            except subprocess.CalledProcessError as e:
-                logger.warning(f"wmic check failed: {e}")
             except Exception as e:
                 logger.debug(f"wmic check error: {e}")
         elif system == "Linux":

@@ -11,10 +11,14 @@ import tempfile
 from pathlib import Path
 logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Tuple
+from ...utils.security import get_ffmpeg_executor
 
 
 class FFmpegTool:
     """FFmpeg 工具类"""
+
+    # 类级别安全执行器（复用全局单例）
+    _executor = get_ffmpeg_executor()
 
     # ========== 基础检查 ==========
 
@@ -22,10 +26,9 @@ class FFmpegTool:
     def check_ffmpeg() -> None:
         """检查 FFmpeg 是否可用"""
         try:
-            result = subprocess.run(
+            result = FFmpegTool._executor.run(
                 ['ffmpeg', '-version'],
-                capture_output=True,
-                text=True,
+                timeout=10,
             )
             if result.returncode != 0:
                 raise RuntimeError("FFmpeg 不可用")
@@ -44,7 +47,9 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=30)
+            if result.returncode != 0:
+                return 0.0
             data = json.loads(result.stdout)
             return float(data.get('format', {}).get('duration', 0))
         except (subprocess.CalledProcessError, KeyError, ValueError, json.JSONDecodeError):
@@ -60,7 +65,9 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=30)
+            if result.returncode != 0:
+                return (1920, 1080)
             data = json.loads(result.stdout)
             for stream in data.get('streams', []):
                 if stream.get('codec_type') == 'video':
@@ -80,7 +87,9 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=30)
+            if result.returncode != 0:
+                return 30.0
             data = json.loads(result.stdout)
             streams = data.get('streams', [])
             if streams:
@@ -103,7 +112,9 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=30)
+            if result.returncode != 0:
+                return 0
             data = json.loads(result.stdout)
             return int(data.get('format', {}).get('bit_rate', 0))
         except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
@@ -120,7 +131,9 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=30)
+            if result.returncode != 0:
+                return {}
             return json.loads(result.stdout)
         except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
             logger.warning(f"ffprobe 获取视频信息失败 {video_path}: {e}")
@@ -157,7 +170,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -186,16 +199,17 @@ class FFmpegTool:
                     f.write(f"file '{p}'\n")
                 list_path = f.name
 
+            cmd = [
+                'ffmpeg', '-y',
+                '-f', 'concat',
+                '-safe', '0',
+                '-i', list_path,
+                '-c', 'copy',
+                output_path,
+            ]
+
             try:
-                cmd = [
-                    'ffmpeg', '-y',
-                    '-f', 'concat',
-                    '-safe', '0',
-                    '-i', list_path,
-                    '-c', 'copy',
-                    output_path,
-                ]
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                result = FFmpegTool._executor.run(cmd, timeout=600)
                 return result.returncode == 0
             finally:
                 Path(list_path).unlink(missing_ok=True)
@@ -215,7 +229,7 @@ class FFmpegTool:
             ])
 
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                result = FFmpegTool._executor.run(cmd, timeout=600)
                 return result.returncode == 0
             except subprocess.CalledProcessError:
                 return False
@@ -246,7 +260,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -275,7 +289,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -308,7 +322,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -361,7 +375,7 @@ class FFmpegTool:
             ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -391,7 +405,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -430,7 +444,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=120)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -464,7 +478,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=120)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -502,7 +516,7 @@ class FFmpegTool:
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
         except subprocess.CalledProcessError:
             return False
@@ -514,14 +528,10 @@ class FFmpegTool:
         cmd: List[str],
         capture: bool = True,
         check: bool = False,
+        timeout: int = 300,
     ) -> subprocess.CompletedProcess:
-        """运行 FFmpeg 命令"""
-        return subprocess.run(
-            cmd,
-            capture_output=capture,
-            text=True,
-            check=check,
-        )
+        """运行 FFmpeg 命令（通过安全执行器）"""
+        return FFmpegTool._executor.run(cmd, timeout=timeout)
 
     @staticmethod
     def parse_time_output(output: str, key: str) -> Optional[float]:

@@ -3,10 +3,12 @@ Voxplore FastAPI Application
 Web API 层入口
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import projects, pipeline, export, health, plugins
+from app.core.exceptions import VoxploreError
 
 
 def create_app() -> FastAPI:
@@ -29,7 +31,40 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # 注册路由
+    # ── 全局异常处理器 ─────────────────────────────────────────────
+    @app.exception_handler(VoxploreError)
+    async def voxplore_error_handler(request: Request, exc: VoxploreError):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": exc.__class__.__name__,
+                "message": exc.message,
+                "details": exc.details or {},
+            },
+        )
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"error": "HTTPException", "message": exc.detail},
+        )
+
+    @app.exception_handler(Exception)
+    async def general_exception_handler(request: Request, exc: Exception):
+        # 暴露详细错误（开发环境）
+        import traceback
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "InternalServerError",
+                "message": str(exc),
+                "type": exc.__class__.__name__,
+                "traceback": traceback.format_exc(),
+            },
+        )
+
+    # ── 注册路由 ─────────────────────────────────────────────────
     app.include_router(health.router, prefix="/api/v1", tags=["健康检查"])
     app.include_router(projects.router, prefix="/api/v1", tags=["项目管理"])
     app.include_router(pipeline.router, prefix="/api/v1", tags=["流水线"])
