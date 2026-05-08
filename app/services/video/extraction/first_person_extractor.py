@@ -129,8 +129,8 @@ class FirstPersonExtractor:
         Returns:
             第一人称片段列表（按置信度降序排列）
         """
-        # 获取视频时长（模拟，实际应调用 ffprobe）
-        duration = self._get_video_duration(video_path)
+        # 获取视频时长（模拟：stub 实现，返回固定值）
+        duration = 60.0
 
         if duration <= 0:
             return []
@@ -166,16 +166,6 @@ class FirstPersonExtractor:
         filtered_segments.sort(key=lambda s: s.confidence, reverse=True)
 
         return filtered_segments
-
-    def _get_video_duration(self, video_path: str) -> float:
-        """获取视频时长（秒）
-
-        实际实现应调用 ffprobe
-        这里使用模拟值
-        """
-        # 模拟：默认 60 秒视频
-        # 未来接入真实 ffprobe
-        return 60.0
 
     def _cluster_segments(
         self,
