@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from ...utils.security import SecurityError
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +189,10 @@ class HighlightDetector:
         try:
             result = _get_executor().run(cmd, timeout=timeout)
             return result
+        except SecurityError:
+            # 命令注入攻击被拦截，不要静默吞噬
+            logger.warning(f"FFmpeg command blocked by security policy: {cmd[0]}")
+            return subprocess.CompletedProcess(cmd, 1, "", "SecurityError: command blocked")
         except Exception as e:
             logger.debug(f"FFmpeg 执行失败: {e}")
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
