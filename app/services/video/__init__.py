@@ -70,6 +70,7 @@ from .highlight_detector import (
     HighlightReason,
     HighlightDetectorConfig,
 )
+from .pipeline_integrator import PipelineIntegrator
 
 __all__ = [
     # 原有
@@ -110,4 +111,6 @@ __all__ = [
     "HighlightSegment",
     "HighlightReason",
     "HighlightDetectorConfig",
+    # 流水线集成
+    "PipelineIntegrator",
 ]
