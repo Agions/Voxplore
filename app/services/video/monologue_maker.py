@@ -283,7 +283,11 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
         # Fallback: 无场景时用 ffprobe 获取视频时长
         if project.video_duration <= 0:
-            project.video_duration = self._get_video_duration(source_video)
+            try:
+                project.video_duration = FFmpegTool.get_duration(source_video) or 0.0
+            except Exception as e:
+                logger.warning(f"Failed to get video duration for {source_video}: {e}")
+                project.video_duration = 0.0
 
         self._report_progress("分析视频", 1.0)
 
@@ -557,15 +561,6 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     # ------------------------------------------------------------------ #
     #  辅助方法                                                           #
     # ------------------------------------------------------------------ #
-
-    def _get_video_duration(self, video_path: str) -> float:
-        """通过 FFmpegTool 获取视频时长（秒），失败返回 0.0"""
-        try:
-            return FFmpegTool.get_duration(video_path) or 0.0
-        except Exception as e:
-            logger.warning(f"Failed to get video duration for {video_path}: {e}")
-            return 0.0
-
 
 # =========== 便捷函数 ===========
 

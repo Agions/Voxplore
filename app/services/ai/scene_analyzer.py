@@ -78,7 +78,8 @@ class SceneAnalyzer:
             raise FileNotFoundError(f"视频文件不存在: {video_path}")
 
         # 获取视频时长
-        duration = self._get_video_duration(str(video_path))
+        from ..video_tools.ffmpeg_tool import FFmpegTool
+        duration = FFmpegTool.get_duration(str(video_path))
 
         # 检测场景变化 - 优先使用 PySceneDetect
         if self.config.use_pyscenect and self._pyscenect_available:
@@ -98,11 +99,6 @@ class SceneAnalyzer:
             self._extract_keyframes(str(video_path), scenes)
 
         return scenes
-
-    def _get_video_duration(self, video_path: str) -> float:
-        """获取视频时长"""
-        from ..video_tools.ffmpeg_tool import FFmpegTool
-        return FFmpegTool.get_duration(video_path)
 
     def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
         """使用 PySceneDetect 检测场景变化"""
