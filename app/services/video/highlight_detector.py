@@ -27,6 +27,8 @@
         print(f"高光时刻: {h.timestamp:.1f}s, 置信度: {h.confidence:.2f}")
 """
 
+__all__ = ["HighlightReason", "HighlightSegment", "HighlightDetectorConfig", "HighlightDetector"]
+
 import logging
 import subprocess
 from pathlib import Path

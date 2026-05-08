@@ -37,6 +37,8 @@ from .script_models import (
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["StreamingScriptGenerator", "generate_script_streaming"]
+
 
 class StreamingScriptGenerator(ScriptGenerator):
     """
