@@ -259,15 +259,7 @@ class HighlightDetector:
         return changes
 
     def _detect_audio_peaks(self, video_path: Path) -> List[Tuple[float, float]]:
-        """
-        检测音频能量峰值（高能量 = 可能的高光）
-
-        Returns:
-            List of (timestamp, score) tuples
-        """
-        import json
-
-        # 使用 ffmpeg 提取音频并分析响度
+        """检测音频能量峰值（高能量 = 可能的高光）"""
         temp_dir = video_path.parent / ".voxplore_highlight_cache"
         temp_dir.mkdir(exist_ok=True)
 
