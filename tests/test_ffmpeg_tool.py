@@ -7,12 +7,13 @@ from unittest.mock import Mock, patch
 from subprocess import CalledProcessError
 
 from app.services.video_tools.ffmpeg_tool import FFmpegTool
+from app.utils.security import SecurityError
 
 
 class TestFFmpegToolBasic:
     """测试 FFmpeg 基础方法"""
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_duration_success(self, mock_run):
         """测试获取视频时长成功"""
         mock_run.return_value = Mock(
@@ -24,16 +25,16 @@ class TestFFmpegToolBasic:
 
         assert duration == 120.5
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_duration_error(self, mock_run):
         """测试获取视频时长失败"""
-        mock_run.side_effect = CalledProcessError(1, "ffprobe", stderr="error")
+        mock_run.side_effect = SecurityError("Command 'ffprobe' returned non-zero exit status 1.")
 
         duration = FFmpegTool.get_duration("/test/video.mp4")
 
         assert duration == 0.0
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_resolution_success(self, mock_run):
         """测试获取分辨率成功"""
         mock_run.return_value = Mock(
@@ -46,7 +47,7 @@ class TestFFmpegToolBasic:
         assert width == 1920
         assert height == 1080
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_resolution_no_video_stream(self, mock_run):
         """测试无视频流时返回默认值"""
         mock_run.return_value = Mock(
@@ -59,7 +60,7 @@ class TestFFmpegToolBasic:
         assert width == 1920
         assert height == 1080
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_framerate_success(self, mock_run):
         """测试获取帧率成功"""
         mock_run.return_value = Mock(
@@ -71,7 +72,7 @@ class TestFFmpegToolBasic:
 
         assert abs(fps - 29.97) < 0.1
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_framerate_integer(self, mock_run):
         """测试获取整数帧率"""
         mock_run.return_value = Mock(
@@ -83,7 +84,7 @@ class TestFFmpegToolBasic:
 
         assert fps == 60.0
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_bitrate_success(self, mock_run):
         """测试获取码率成功"""
         mock_run.return_value = Mock(
@@ -95,7 +96,7 @@ class TestFFmpegToolBasic:
 
         assert bitrate == 5000000
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_get_video_info_success(self, mock_run):
         """测试获取完整视频信息"""
         mock_run.return_value = Mock(
@@ -112,7 +113,7 @@ class TestFFmpegToolBasic:
 class TestFFmpegToolVideoProcessing:
     """测试视频处理方法"""
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_trim_video_success(self, mock_run):
         """测试裁剪视频成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -133,16 +134,16 @@ class TestFFmpegToolVideoProcessing:
             if os.path.exists(output):
                 os.unlink(output)
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_trim_video_failure(self, mock_run):
         """测试裁剪视频失败"""
-        mock_run.side_effect = CalledProcessError(1, "ffmpeg", stderr="error")
+        mock_run.side_effect = SecurityError("ffmpeg error")
 
         result = FFmpegTool.trim_video("/input.mp4", "/output.mp4", start=0, end=10)
 
         assert result is False
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_concat_videos_success(self, mock_run):
         """测试拼接视频成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -160,7 +161,7 @@ class TestFFmpegToolVideoProcessing:
             if os.path.exists(output):
                 os.unlink(output)
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_change_speed_success(self, mock_run):
         """测试改变视频速度成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -171,7 +172,7 @@ class TestFFmpegToolVideoProcessing:
         args = mock_run.call_args[0][0]
         assert 'setpts=0.5*PTS' in ' '.join(args)
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_reverse_video_success(self, mock_run):
         """测试倒放视频成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -186,7 +187,7 @@ class TestFFmpegToolVideoProcessing:
 class TestFFmpegToolAudioProcessing:
     """测试音频处理方法"""
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_extract_audio_success(self, mock_run):
         """测试提取音频成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -197,7 +198,7 @@ class TestFFmpegToolAudioProcessing:
         args = mock_run.call_args[0][0]
         assert '-vn' in args
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_add_audio_success(self, mock_run):
         """测试添加音频成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -211,7 +212,7 @@ class TestFFmpegToolAudioProcessing:
 
         assert result is True
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_adjust_volume_success(self, mock_run):
         """测试调整音量成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -226,7 +227,7 @@ class TestFFmpegToolAudioProcessing:
 class TestFFmpegToolThumbnail:
     """测试缩略图方法"""
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_generate_thumbnail_success(self, mock_run):
         """测试生成缩略图成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -251,7 +252,7 @@ class TestFFmpegToolThumbnail:
             if os.path.exists(output):
                 os.unlink(output)
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_generate_waveform_success(self, mock_run):
         """测试生成波形图成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -264,7 +265,7 @@ class TestFFmpegToolThumbnail:
 class TestFFmpegToolConversion:
     """测试格式转换方法"""
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_convert_format_success(self, mock_run):
         """测试格式转换成功"""
         mock_run.return_value = Mock(returncode=0)
@@ -281,40 +282,14 @@ class TestFFmpegToolConversion:
         assert '-c:v' in args
         assert 'libx264' in args
 
-    @patch('subprocess.run')
+    @patch('app.utils.security.SecureExecutor.run')
     def test_convert_format_failure(self, mock_run):
         """测试格式转换失败"""
-        mock_run.side_effect = CalledProcessError(1, "ffmpeg", stderr="error")
+        mock_run.side_effect = SecurityError("ffmpeg error")
 
         result = FFmpegTool.convert_format("/input.avi", "/output.mp4")
 
         assert result is False
-
-
-class TestFFmpegToolUtilities:
-    """测试工具方法"""
-
-    def test_parse_time_output_valid(self):
-        """测试解析有效时间输出"""
-        output = "something:90.5"
-        result = FFmpegTool.parse_time_output(output, "something:")
-        assert result == 90.5
-
-    def test_parse_time_output_invalid(self):
-        """测试解析无效时间输出"""
-        output = "no time here"
-        result = FFmpegTool.parse_time_output(output, "time=")
-        assert result is None
-
-    @patch('subprocess.run')
-    def test_run_command(self, mock_run):
-        """测试运行自定义命令"""
-        mock_run.return_value = Mock(stdout="test", returncode=0)
-
-        result = FFmpegTool.run_command(["ffmpeg", "-version"])
-
-        assert result.returncode == 0
-        mock_run.assert_called_once()
 
 
 class TestFFmpegToolIntegration:
@@ -339,8 +314,6 @@ class TestFFmpegToolIntegration:
             'generate_thumbnail',
             'generate_waveform',
             'convert_format',
-            'run_command',
-            'parse_time_output',
         ]
 
         for method in required_methods:

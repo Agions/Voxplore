@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, Tuple
-from ...utils.security import get_ffmpeg_executor
+from ...utils.security import get_ffmpeg_executor, SecurityError
 
 
 class FFmpegTool:
@@ -52,7 +52,7 @@ class FFmpegTool:
                 return 0.0
             data = json.loads(result.stdout)
             return float(data.get('format', {}).get('duration', 0))
-        except (subprocess.CalledProcessError, KeyError, ValueError, json.JSONDecodeError):
+        except (SecurityError, KeyError, ValueError, json.JSONDecodeError):
             return 0.0
 
     @staticmethod
@@ -72,7 +72,7 @@ class FFmpegTool:
             for stream in data.get('streams', []):
                 if stream.get('codec_type') == 'video':
                     return (stream.get('width', 1920), stream.get('height', 1080))
-        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        except (SecurityError, json.JSONDecodeError) as e:
             logger.debug(f"ffprobe resolution parse failed for {video_path}: {e}")
         return (1920, 1080)
 
@@ -98,7 +98,7 @@ class FFmpegTool:
                     num, den = fps_str.split('/')
                     return float(num) / float(den) if den != '0' else 30.0
                 return float(fps_str)
-        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
+        except (SecurityError, json.JSONDecodeError, ValueError) as e:
             logger.debug(f"ffprobe framerate parse failed for {video_path}: {e}")
         return 30.0
 
@@ -117,7 +117,7 @@ class FFmpegTool:
                 return 0
             data = json.loads(result.stdout)
             return int(data.get('format', {}).get('bit_rate', 0))
-        except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
+        except (SecurityError, json.JSONDecodeError, ValueError) as e:
             logger.warning(f"ffprobe 获取码率失败 {video_path}: {e}")
             return 0
 
@@ -135,7 +135,7 @@ class FFmpegTool:
             if result.returncode != 0:
                 return {}
             return json.loads(result.stdout)
-        except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+        except (SecurityError, json.JSONDecodeError) as e:
             logger.warning(f"ffprobe 获取视频信息失败 {video_path}: {e}")
             return {}
 
@@ -172,7 +172,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     @staticmethod
@@ -231,7 +231,7 @@ class FFmpegTool:
             try:
                 result = FFmpegTool._executor.run(cmd, timeout=600)
                 return result.returncode == 0
-            except subprocess.CalledProcessError:
+            except SecurityError:
                 return False
 
     @staticmethod
@@ -262,7 +262,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     @staticmethod
@@ -291,7 +291,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     # ========== 音频处理 ==========
@@ -324,7 +324,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     @staticmethod
@@ -377,7 +377,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     @staticmethod
@@ -407,7 +407,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     # ========== 缩略图 ==========
@@ -446,7 +446,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=120)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     @staticmethod
@@ -480,7 +480,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=120)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     # ========== 格式转换 ==========
@@ -518,7 +518,7 @@ class FFmpegTool:
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
             return result.returncode == 0
-        except subprocess.CalledProcessError:
+        except SecurityError:
             return False
 
     # ========== 辅助方法 ==========
