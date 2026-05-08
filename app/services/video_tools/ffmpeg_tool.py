@@ -523,28 +523,4 @@ class FFmpegTool:
 
     # ========== 辅助方法 ==========
 
-    @staticmethod
-    def run_command(
-        cmd: List[str],
-        capture: bool = True,
-        check: bool = False,
-        timeout: int = 300,
-    ) -> subprocess.CompletedProcess:
-        """运行 FFmpeg 命令（通过安全执行器）"""
-        return FFmpegTool._executor.run(cmd, timeout=timeout)
-
-    @staticmethod
-    def parse_time_output(output: str, key: str) -> Optional[float]:
-        """从 FFmpeg 输出解析时间值"""
-        for line in output.split('\n'):
-            if key in line:
-                try:
-                    parts = line.split(':', 1)
-                    if len(parts) > 1:
-                        return float(parts[1].strip())
-                except (ValueError, IndexError):
-                    continue
-        return None
-
-
 __all__ = ["FFmpegTool"]
