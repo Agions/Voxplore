@@ -19,7 +19,7 @@ from app.ui.components import (
     MacScrollArea, MacEmptyState,
 )
 from app.ui.common.macos_components import create_icon_text_row
-from .dialogs import ProjectSettingsDialog
+from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
 
 

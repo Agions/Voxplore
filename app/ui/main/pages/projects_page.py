@@ -124,7 +124,7 @@ class ProjectsPage(BasePage):
     def _on_new_project(self):
         """新建项目"""
         from PySide6.QtWidgets import QMessageBox, QDialog
-        from .components.dialogs import CreateProjectDialog
+        from .components.create_project_dialog import CreateProjectDialog
 
         if not self._template_manager:
             QMessageBox.warning(self, "错误", "模板管理器不可用，无法创建项目")

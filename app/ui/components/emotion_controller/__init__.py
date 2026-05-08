@@ -12,8 +12,8 @@ Emotion Controller Component
 """
 
 from .emotion_controller import EmotionController
-from .emotion_curve_widget import EmotionCurveWidget
-from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
+from .curve_widget import EmotionCurveWidget
+from .presets import EMOTION_PRESETS, EmotionPresetButton
 
 __all__ = [
     "EmotionController",

@@ -17,7 +17,7 @@ Subtitle Component
     - SubtitleImporter: 字幕导入器
 """
 
-from .subsubtitles import (
+from .subtitle_core import (
     SubtitlePosition,
     SubtitleAnimation,
     SubtitleStylePreset,
@@ -28,12 +28,12 @@ from .subsubtitles import (
     export_to_jianying_text_track,
 )
 
-from .subsubtitles_models import (
+from .subtitle_models import (
     SubtitleExporter,
     SubtitleImporter,
 )
 
-from .subsubtitles_widgets import (
+from .subtitle_widgets import (
     TimeRulerWidget,
     SubtitleBlockWidget,
     SubtitleTrackWidget,

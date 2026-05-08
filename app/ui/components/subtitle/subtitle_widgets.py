@@ -24,7 +24,7 @@ from PySide6.QtGui import (
     QPainter, QColor, QPen, QBrush, QMouseEvent, QFont
 )
 
-from .subsubtitles import (
+from .subtitle_core import (
     SubtitleTrack, SubtitleBlock, MultiTrackSubtitleEditor,
     SubtitleStylePreset,
 )

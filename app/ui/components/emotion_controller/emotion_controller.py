@@ -28,8 +28,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 
-from .emotion_curve_widget import EmotionCurveWidget
-from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
+from .curve_widget import EmotionCurveWidget
+from .presets import EMOTION_PRESETS, EmotionPresetButton
 
 
 class EmotionController(QWidget):

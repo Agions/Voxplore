@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
-from .subsubtitles import (
+from .subtitle_core import (
     SubtitleBlock,
     SubtitleTrack,
     MultiTrackSubtitleEditor,
@@ -213,7 +213,7 @@ class SubtitleExporter:
         Returns:
             剪映字幕段列表
         """
-        from .subsubtitles import export_to_jianying_text_track
+        from .subtitle_core import export_to_jianying_text_track
 
         tracks = editor.tracks
         if track_id:

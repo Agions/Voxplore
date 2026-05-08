@@ -420,7 +420,7 @@ class Application(QObject):
             # 初始化项目管理相关服务
             from .project_manager import ProjectManager
             from .project_template_manager import ProjectTemplateManager
-            from .project_settings_manager import ProjectSettingsManager
+            from .settings_manager import ProjectSettingsManager
             from .config_manager import ConfigManager
 
             # 创建配置管理器实例（如果不存在）

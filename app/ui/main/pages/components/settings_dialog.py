@@ -14,7 +14,7 @@ from app.ui.components import (
     MacTitleLabel,
 )
 from app.core.project_manager import Project
-from app.core.project_settings_manager import ProjectSettingsManager
+from app.core.settings_manager import ProjectSettingsManager
 
 
 class ProjectSettingsDialog(QDialog):
