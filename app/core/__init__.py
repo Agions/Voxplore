@@ -8,8 +8,7 @@ Voxplore 核心模块
 - event_bus: 事件总线
 - exceptions: 异常定义
 - logger: 日志
-- project_manager: 项目管理
-- service_registry: 服务注册表
+    service_container: 服务容器（推荐）
 - secure_key_manager: 密钥管理
 """
 

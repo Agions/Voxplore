@@ -129,9 +129,6 @@ class Application(QObject):
                     f"正在初始化 {name}..."
                 )
 
-            # 注册核心服务
-            self._register_core_services()
-
             # 加载配置
             self._load_configuration()
 
@@ -451,12 +448,6 @@ class Application(QObject):
             if hasattr(self, 'logger'):
                 self.logger.error(f"服务初始化失败: {e}")
             return False
-
-    def _register_core_services(self) -> None:
-        """注册核心服务"""
-        # 注册核心服务到服务容器（使用服务容器而非 ServiceRegistry）
-        # 已经在 _init_services 中注册过了
-        pass
 
     def _load_configuration(self) -> None:
         """加载配置"""

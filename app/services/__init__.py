@@ -20,8 +20,7 @@ from . import export
 from . import video_tools
 from . import orchestration
 
-# 多平台发布功能暂时关闭
-# from . import publish
+
 
 # 兼容层
 from .ai_service_manager import AIServiceManager, ServiceStatus, get_ai_service_manager
@@ -35,7 +34,7 @@ __all__ = [
     "export",
     "video_tools",
     "orchestration",
-    # publish,  # 暂时关闭
+
     # 兼容层
     "AIServiceManager",
     "ServiceStatus",
