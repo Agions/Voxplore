@@ -59,7 +59,7 @@ class StreamingScriptGenerator(ScriptGenerator):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        use_llm_manager: bool = False,
+        use_llm_manager: bool = True,
         llm_config: Optional[Dict[str, Any]] = None,
         llm_config_file: Optional[str] = None,
         stream_enabled: bool = True,

@@ -34,6 +34,7 @@ from .voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
 
 # 解说文案生成
 from .script_generator import ScriptGenerator
+from .script_generator_streaming import StreamingScriptGenerator
 
 # 字幕提取
 from .subtitle_extractor import (
@@ -85,6 +86,7 @@ __all__ = [
 
     # Script
     "ScriptGenerator",
+    "StreamingScriptGenerator",
 
     # Subtitle
     "SubtitleSegment",
