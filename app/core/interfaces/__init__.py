@@ -7,13 +7,6 @@ from .cache_interface import (
     generate_cache_key,
 )
 
-from .video_maker import (
-    IVideoMaker,
-    IScriptGenerator,
-    IVoiceGenerator,
-    IExporter,
-)
-
 __all__ = [
     # Cache
     'ICache',
@@ -21,10 +14,4 @@ __all__ = [
     'CacheStats',
     'CachePolicy',
     'generate_cache_key',
-
-    # Video/Audio interfaces
-    'IVideoMaker',
-    'IScriptGenerator',
-    'IVoiceGenerator',
-    'IExporter',
 ]

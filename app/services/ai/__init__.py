@@ -53,15 +53,6 @@ from .whisper_asr_provider import WhisperASRProvider, TranscriptionResult, Trans
 # 场景分析
 from .scene_analyzer import SceneAnalyzer, SceneAnalyzerV2
 
-# 接口抽象
-from ..interfaces import (
-    IVideoMaker,
-    IScriptGenerator,
-    IVoiceGenerator,
-    ISceneAnalyzer,
-    ProgressCallback,
-)
-
 # 缓存
 from .cache import LLMMemoryCache
 
@@ -108,11 +99,4 @@ __all__ = [
     # Scene Analyzer
     "SceneAnalyzer",
     "SceneAnalyzerV2",
-
-    # Interfaces
-    "IVideoMaker",
-    "IScriptGenerator",
-    "IVoiceGenerator",
-    "ISceneAnalyzer",
-    "ProgressCallback",
 ]

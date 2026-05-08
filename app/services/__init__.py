@@ -24,6 +24,7 @@ from . import orchestration
 
 # 兼容层
 from .ai_service_manager import AIServiceManager, ServiceStatus, get_ai_service_manager
+from .service_manager import ServiceManager
 
 
 __all__ = [
@@ -39,4 +40,5 @@ __all__ = [
     "AIServiceManager",
     "ServiceStatus",
     "get_ai_service_manager",
+    "ServiceManager",
 ]
