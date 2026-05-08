@@ -75,7 +75,7 @@ class PipelineIntegrator(MonologueMaker):
         self.perspective_mapper = PerspectiveMapper(config=perspective_config)
         self.video_interleaver = VideoInterleaver(config=interleaver_config)
         self.scene_converter = SceneConverter()
-        self.emotion_generator = EmotionCurveGenerator(smoothing_window=3)
+        self.emotion_generator = EmotionCurveGenerator()
 
         # 缓存最新穿插结果
         self._last_perspective_shots: List[PerspectiveShot] = []
