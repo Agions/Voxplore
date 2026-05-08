@@ -53,6 +53,36 @@ class TTSProvider(ABC):
         """列出可用声音"""
         pass
 
+    def _get_audio_duration(self, audio_path: str) -> float:
+        """统一获取音频时长（子模块如有更优实现可覆盖）"""
+        # 优先用 pydub（适合本地 wav/mp3）
+        try:
+            from pydub import AudioSegment
+            audio = AudioSegment.from_file(audio_path)
+            return len(audio) / 1000.0
+        except ImportError:
+            logger.debug("pydub not available, falling back to ffprobe")
+        except Exception as e:
+            logger.debug(f"pydub failed for {audio_path}: {e}")
+
+        # ffprobe 兜底
+        try:
+            cmd = [
+                'ffprobe', '-v', 'quiet',
+                '-show_entries', 'format=duration',
+                '-of', 'csv=p=0', audio_path
+            ]
+            result = _audio_executor.run(cmd, timeout=30)
+            if result.returncode == 0:
+                return float(result.stdout.strip())
+        except FileNotFoundError:
+            logger.debug("ffprobe not found")
+        except SecurityError as e:
+            logger.warning(f"ffprobe failed: {e}")
+        except Exception as e:
+            logger.debug(f"Getting audio duration failed: {e}")
+        return 0.0
+
 
 class EdgeTTSProvider(TTSProvider):
     """
@@ -173,33 +203,6 @@ class EdgeTTSProvider(TTSProvider):
         else:
             return voices[0][0]  # 默认第一个
 
-    def _get_audio_duration(self, audio_path: str) -> float:
-        """获取音频时长"""
-        try:
-            from pydub import AudioSegment
-            audio = AudioSegment.from_file(audio_path)
-            return len(audio) / 1000.0  # 毫秒转秒
-        except ImportError:
-            logger.debug("pydub not available for duration, falling back to ffprobe")
-
-        # 使用 ffprobe
-        try:
-            cmd = [
-                'ffprobe', '-v', 'quiet',
-                '-show_entries', 'format=duration',
-                '-of', 'csv=p=0',
-                audio_path
-            ]
-            result = _audio_executor.run(cmd, timeout=30)
-            if result.returncode == 0:
-                return float(result.stdout.strip())
-        except FileNotFoundError:
-            logger.debug("ffprobe not found")
-        except Exception as e:
-            logger.debug(f"Getting audio duration failed: {e}")
-
-        return 0.0
-
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
         """列出可用声音"""
         voices = []
@@ -280,26 +283,6 @@ class OpenAITTSProvider(TTSProvider):
             format=config.output_format,
             sentence_timestamps=[],
         )
-
-    def _get_audio_duration(self, audio_path: str) -> float:
-        """获取音频时长"""
-        try:
-            cmd = [
-                'ffprobe', '-v', 'quiet',
-                '-show_entries', 'format=duration',
-                '-of', 'csv=p=0',
-                audio_path
-            ]
-            result = _audio_executor.run(cmd, timeout=30)
-            if result.returncode == 0:
-                return float(result.stdout.strip())
-        except FileNotFoundError:
-            logger.debug("ffprobe not found")
-        except SecurityError as e:
-            logger.warning(f"ffprobe failed: {e}")
-        except Exception as e:
-            logger.debug(f"Getting audio duration failed: {e}")
-        return 0.0
 
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
         """列出可用声音"""
@@ -415,21 +398,6 @@ class F5TTSProvider(TTSProvider):
             output_path,
         ]
         _audio_executor.run(cmd, timeout=60)
-
-    def _get_audio_duration(self, audio_path: str) -> float:
-        """获取音频时长"""
-        try:
-            cmd = [
-                "ffprobe", "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "csv=p=0", audio_path,
-            ]
-            result = _audio_executor.run(cmd, timeout=30)
-            if result.returncode == 0:
-                return float(result.stdout.strip())
-        except Exception as e:
-            logger.debug(f"ffprobe duration failed for {audio_path}: {e}")
-        return 0.0
 
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
         """
