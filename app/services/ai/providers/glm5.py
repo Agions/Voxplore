@@ -10,12 +10,10 @@
 
 from typing import List
 
-import httpx
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
     LLMResponse,
-    ProviderError,
     HTTPClientMixin,
     ModelManagerMixin,
 )
@@ -65,31 +63,13 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
         model = self._get_model_name(request.model)
-
-        # 使用混入类的方法构建消息
         messages = self._build_messages(request)
-
-        try:
-            # GLM API路径略有不同
-            response = await self.http_client.post(
-                f"{self.base_url}chat/completions",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "max_tokens": request.max_tokens,
-                    "temperature": request.temperature,
-                    "top_p": request.top_p,
-                },
-            )
-
-            data = response.json()
-            # 使用混入类的方法解析响应
-            return self._parse_response(data, model)
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        return await self._generate_openai_compatible(
+            request=request,
+            model=model,
+            messages=messages,
+            endpoint="/chat/completions",
+        )
 
     async def generate_batch(self, requests: List[LLMRequest]) -> List[LLMResponse]:
         """批量生成"""
@@ -104,6 +84,3 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
-
-
-# 需要导入httpx用于类型提示
