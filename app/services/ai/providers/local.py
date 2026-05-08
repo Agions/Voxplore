@@ -243,10 +243,6 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         except Exception as e:
             raise ProviderError(f"拉取模型失败: {str(e)}")
 
-    async def generate_batch(self, requests: List[LLMRequest]) -> List[LLMResponse]:
-        """批量生成"""
-        return await super().generate_batch(requests)
-
     def get_available_models(self) -> List[str]:
         """获取可用模型列表"""
         return list(self.MODELS.keys())

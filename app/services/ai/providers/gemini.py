@@ -224,13 +224,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
 
-    async def generate_batch(
-        self,
-        requests: List[LLMRequest],
-    ) -> List[LLMResponse]:
-        """批量生成"""
-        return await super().generate_batch(requests)
-
     async def close(self):
         """关闭HTTP客户端"""
         await self._close_http_client()
