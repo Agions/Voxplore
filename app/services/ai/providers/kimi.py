@@ -8,8 +8,6 @@ Kimi (月之暗面 Moonshot AI) 提供商
 使用公共混入类减少重复代码
 """
 
-from typing import List
-
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -75,12 +73,5 @@ class KimiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             messages=messages,
             endpoint="/chat/completions",
         )
-
-    async def generate_batch(
-        self,
-        requests: List[LLMRequest],
-    ) -> List[LLMResponse]:
-        """批量生成"""
-        return await super().generate_batch(requests)
 
 

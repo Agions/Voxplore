@@ -8,8 +8,6 @@
 使用公共混入类减少重复代码
 """
 
-from typing import List
-
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -70,9 +68,5 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             messages=messages,
             endpoint="/chat/completions",
         )
-
-    async def generate_batch(self, requests: List[LLMRequest]) -> List[LLMResponse]:
-        """批量生成"""
-        return [await self.generate(req) for req in requests]
 
 
