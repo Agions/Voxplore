@@ -33,11 +33,21 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import List, Optional, Tuple
-from dataclasses import dataclass, asdict
 from enum import Enum
+from dataclasses import dataclass, asdict
 from ...utils.security import SecurityError
 
 logger = logging.getLogger(__name__)
+
+# 可选依赖，用于帧分析
+try:
+    import numpy as np  # noqa: F401
+    from PIL import Image  # noqa: F401
+    _OPTIONAL_DEPS_OK = True
+except ImportError:
+    _OPTIONAL_DEPS_OK = False
+    np = None
+    Image = None
 
 
 class HighlightReason(Enum):
@@ -322,27 +332,25 @@ class HighlightDetector:
         frame_files = self._extract_frames(video_path, "motion")
         if not frame_files:
             return []
+        if not _OPTIONAL_DEPS_OK:
+            return []
 
         motions = []
-        try:
-            import numpy as np
-            from PIL import Image
+        import numpy as np
+        from PIL import Image
 
-            prev_data = None
-            for i, frame_path in enumerate(frame_files):
-                timestamp = i / self.config.fps
-                img = Image.open(frame_path).convert('L')
-                data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
+        prev_data = None
+        for i, frame_path in enumerate(frame_files):
+            timestamp = i / self.config.fps
+            img = Image.open(frame_path).convert('L')
+            data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
 
-                if prev_data is not None:
-                    diff = np.sum(np.abs(data - prev_data)) / (len(data) * 255.0)
-                    if diff > 0.1:
-                        motions.append((timestamp, min(diff * 3, 1.0)))
+            if prev_data is not None:
+                diff = np.sum(np.abs(data - prev_data)) / (len(data) * 255.0)
+                if diff > 0.1:
+                    motions.append((timestamp, min(diff * 3, 1.0)))
 
-                prev_data = data
-
-        except ImportError:
-            pass
+            prev_data = data
 
         self._cleanup_frames(frame_files)
         return motions
@@ -357,35 +365,33 @@ class HighlightDetector:
         frame_files = self._extract_frames(video_path, "color")
         if not frame_files:
             return []
+        if not _OPTIONAL_DEPS_OK:
+            return []
 
         vibrant = []
-        try:
-            import numpy as np
-            from PIL import Image
+        import numpy as np
+        from PIL import Image
 
-            for i, frame_path in enumerate(frame_files):
-                timestamp = i / self.config.fps
-                img = Image.open(frame_path).convert('RGB')
-                arr = np.array(img, dtype=np.float32)  # (h, w, 3)
+        for i, frame_path in enumerate(frame_files):
+            timestamp = i / self.config.fps
+            img = Image.open(frame_path).convert('RGB')
+            arr = np.array(img, dtype=np.float32)  # (h, w, 3)
 
-                r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+            r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
 
-                # 平均亮度
-                brightness = (r.mean() + g.mean() + b.mean()) / (3 * 255.0)
+            # 平均亮度
+            brightness = (r.mean() + g.mean() + b.mean()) / (3 * 255.0)
 
-                # 色彩饱和度（向量化）
-                max_rgb = np.maximum(np.maximum(r, g), b)
-                min_rgb = np.minimum(np.minimum(r, g), b)
-                saturation = (max_rgb - min_rgb) / (max_rgb + 1e-6)
-                avg_saturation = saturation.mean()
+            # 色彩饱和度（向量化）
+            max_rgb = np.maximum(np.maximum(r, g), b)
+            min_rgb = np.minimum(np.minimum(r, g), b)
+            saturation = (max_rgb - min_rgb) / (max_rgb + 1e-6)
+            avg_saturation = saturation.mean()
 
-                # 高饱和度 + 中等亮度 = 鲜艳
-                vibrancy = avg_saturation * (1 - abs(brightness - 0.5) * 2)
-                if vibrancy > 0.4:
-                    vibrant.append((timestamp, min(vibrancy * 2, 1.0)))
-
-        except ImportError:
-            pass
+            # 高饱和度 + 中等亮度 = 鲜艳
+            vibrancy = avg_saturation * (1 - abs(brightness - 0.5) * 2)
+            if vibrancy > 0.4:
+                vibrant.append((timestamp, min(vibrancy * 2, 1.0)))
 
         self._cleanup_frames(frame_files)
         return vibrant
