@@ -6,6 +6,7 @@ DeepSeek 提供商
 支持 DeepSeek R1, V4 Flash/Pro 系列模型
 """
 
+import json
 import httpx
 from typing import AsyncIterator
 
@@ -104,22 +105,11 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         return model_info.get("reasoning", False)
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
-        """
-        生成文本
-
-        Args:
-            request: LLM 请求
-
-        Returns:
-            LLM 响应
-        """
+        """生成文本"""
         model = self._get_model_name(request.model)
         is_reasoning = self._is_reasoning_model(model)
-
-        # 使用混入类的方法构建消息
         messages = self._build_messages(request)
 
-        # 构建请求
         api_request = {
             "model": model,
             "messages": messages,
@@ -127,47 +117,24 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "temperature": request.temperature,
             "top_p": request.top_p,
         }
-
-        # 推理模型需要额外处理
         if is_reasoning:
             api_request["thinking"] = {"type": "enabled"}
 
-        # 调用 API
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/chat/completions",
-                json=api_request,
-            )
-
-            data = response.json()
-
-            # 解析响应（使用混入类的方法）
-            result = self._parse_response(data, model)
-
-            # DeepSeek R1 返回的 thinking 内容在不同的字段
-            # 需要从 raw_response 中提取并合并
-            if is_reasoning and hasattr(result, 'raw_response') and result.raw_response:
-                result.raw_response["is_reasoning_model"] = True
-            elif is_reasoning:
-                result.raw_response = {"is_reasoning_model": True}
-
-            return result
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        data = await self._call_api(
+            "POST", f"{self.base_url}/chat/completions", json=api_request
+        )
+        result = self._parse_response(data, model)
+        if is_reasoning:
+            raw = result.raw_response or {}
+            raw["is_reasoning_model"] = True
+            result.raw_response = raw
+        return result
 
     async def stream_generate(
         self,
         request: LLMRequest,
     ) -> AsyncIterator[dict]:
-        """
-        流式生成文本（支持 SSE）
-
-        Yields:
-            dict: 增量片段 {'content': str, 'done': bool}
-        """
+        """流式生成文本（支持 SSE）"""
         model = self._get_model_name(request.model)
         messages = self._build_messages(request)
 
@@ -196,7 +163,6 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     if line == "[DONE]":
                         yield {"done": True, "content": ""}
                         return
-                    import json
                     try:
                         data = json.loads(line)
                     except json.JSONDecodeError:

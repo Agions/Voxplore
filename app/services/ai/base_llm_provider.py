@@ -291,6 +291,21 @@ class HTTPClientMixin:
             logger.debug(f"Failed to parse error response: {e}")
         return ProviderError(error_msg)
 
+    async def _call_api(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+        """
+        通用非流式 API 调用（含统一错误包装）。
+
+        用法::
+            data = await self._call_api("POST", endpoint, json=payload)
+        """
+        try:
+            response = await self.http_client.request(method, endpoint, **kwargs)
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
+        except Exception as e:
+            raise ProviderError(f"API 调用失败: {str(e)}")
+
     async def _generate_openai_compatible(
         self,
         request: "LLMRequest",
@@ -303,23 +318,18 @@ class HTTPClientMixin:
 
         差异仅在 endpoint 路径，已在调用处传入。
         """
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}{endpoint}",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "max_tokens": request.max_tokens,
-                    "temperature": request.temperature,
-                    "top_p": request.top_p,
-                },
-            )
-            data = response.json()
-            return self._parse_response(data, model)
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        data = await self._call_api(
+            "POST",
+            f"{self.base_url}{endpoint}",
+            json={
+                "model": model,
+                "messages": messages,
+                "max_tokens": request.max_tokens,
+                "temperature": request.temperature,
+                "top_p": request.top_p,
+            },
+        )
+        return self._parse_response(data, model)
 
     async def _parse_sse_stream(
         self,

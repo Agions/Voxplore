@@ -8,6 +8,8 @@
 使用公共混入类减少重复代码
 """
 
+import httpx
+
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,
@@ -79,8 +81,6 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
         model = self._get_model_name(request.model)
-
-        # 构建消息
         messages = self._build_messages(request)
 
         try:
@@ -100,23 +100,25 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 raise ProviderError(f"API Error: {response.status_code} - {response.text}")
 
             result = response.json()
-            usage_data = result.get("usage", {})
-            tokens_used = (
-                usage_data.get("prompt_tokens", 0) +
-                usage_data.get("completion_tokens", 0)
-            )
-
-            return LLMResponse(
-                content=result["choices"][0]["message"]["content"],
-                model=model,
-                tokens_used=tokens_used,
-                finish_reason=result["choices"][0].get("finish_reason", "stop"),
-                usage=usage_data or None,
-                raw_response=result,
-            )
-
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
+
+        usage_data = result.get("usage", {})
+        tokens_used = (
+            usage_data.get("prompt_tokens", 0) +
+            usage_data.get("completion_tokens", 0)
+        )
+
+        return LLMResponse(
+            content=result["choices"][0]["message"]["content"],
+            model=model,
+            tokens_used=tokens_used,
+            finish_reason=result["choices"][0].get("finish_reason", "stop"),
+            usage=usage_data or None,
+            raw_response=result,
+        )
 
     async def generate_stream(self, request: LLMRequest):
         """流式生成"""
@@ -124,7 +126,8 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         messages = self._build_messages(request)
 
         try:
-            response = await self.http_client.post(
+            async with self.http_client.stream(
+                "POST",
                 "/chat/completions",
                 json={
                     "model": model,
@@ -133,10 +136,11 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     "temperature": request.temperature or 0.7,
                     "stream": True,
                 },
-                stream=True
-            )
-            async for chunk in self._parse_sse_stream(response):
-                yield chunk
-
+            ) as response:
+                response.raise_for_status()
+                async for chunk in self._parse_sse_stream(response):
+                    yield chunk
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"流式生成失败: {str(e)}")

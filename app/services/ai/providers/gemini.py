@@ -71,7 +71,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """生成文本"""
         model = self._get_model_name(request.model)
 
-        # 构建内容 (Gemini 特殊格式)
         contents = []
         if request.system_prompt:
             contents.append({
@@ -82,7 +81,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 "role": "model",
                 "parts": [{"text": "Understood."}]
             })
-
         contents.append({
             "role": "user",
             "parts": [{"text": request.prompt}]
@@ -97,41 +95,32 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             },
         }
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/v1beta/models/{model}:generateContent",
-                params={"key": self.api_key},
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST",
+            f"{self.base_url}/v1beta/models/{model}:generateContent",
+            params={"key": self.api_key},
+            json=payload,
+        )
 
-            data = response.json()
+        if "error" in data:
+            raise ProviderError(data["error"]["message"])
 
-            if "error" in data:
-                raise ProviderError(data["error"]["message"])
+        candidates = data.get("candidates", [])
+        if not candidates:
+            raise ProviderError("No response generated")
 
-            # 提取内容
-            candidates = data.get("candidates", [])
-            if not candidates:
-                raise ProviderError("No response generated")
+        content_parts = candidates[0].get("content", {}).get("parts", [])
+        content = "".join(part.get("text", "") for part in content_parts)
+        usage = data.get("usageMetadata", {})
+        tokens_used = (usage.get("promptTokenCount", 0) +
+                       usage.get("candidatesTokenCount", 0))
 
-            content_parts = candidates[0].get("content", {}).get("parts", [])
-            content = "".join(part.get("text", "") for part in content_parts)
-
-            usage = data.get("usageMetadata", {})
-            tokens_used = (usage.get("promptTokenCount", 0) +
-                          usage.get("candidatesTokenCount", 0))
-
-            return LLMResponse(
-                content=content,
-                model=model,
-                tokens_used=tokens_used,
-                finish_reason=candidates[0].get("finishReason", "STOP"),
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        return LLMResponse(
+            content=content,
+            model=model,
+            tokens_used=tokens_used,
+            finish_reason=candidates[0].get("finishReason", "STOP"),
+        )
 
     async def generate_with_image(
         self,
@@ -141,7 +130,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
 
-        # 读取图片
         image_path = Path(image_path)
         if not image_path.exists():
             raise ProviderError(f"图片不存在: {image_path}")
@@ -149,7 +137,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         with open(image_path, "rb") as f:
             image_data = base64.b64encode(f.read()).decode("utf-8")
 
-        # 检测图片类型
         mime_type = "image/jpeg"
         suffix = image_path.suffix.lower()
         if suffix == ".png":
@@ -188,41 +175,29 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             },
         }
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/v1beta/models/{model}:generateContent",
-                params={"key": self.api_key},
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST",
+            f"{self.base_url}/v1beta/models/{model}:generateContent",
+            params={"key": self.api_key},
+            json=payload,
+        )
 
-            data = response.json()
+        if "error" in data:
+            raise ProviderError(data["error"]["message"])
 
-            if "error" in data:
-                raise ProviderError(data["error"]["message"])
+        candidates = data.get("candidates", [])
+        if not candidates:
+            raise ProviderError("No response generated")
 
-            candidates = data.get("candidates", [])
-            if not candidates:
-                raise ProviderError("No response generated")
+        content_parts = candidates[0].get("content", {}).get("parts", [])
+        content = "".join(part.get("text", "") for part in content_parts)
+        usage = data.get("usageMetadata", {})
+        tokens_used = (usage.get("promptTokenCount", 0) +
+                       usage.get("candidatesTokenCount", 0))
 
-            content_parts = candidates[0].get("content", {}).get("parts", [])
-            content = "".join(part.get("text", "") for part in content_parts)
-
-            usage = data.get("usageMetadata", {})
-            tokens_used = (usage.get("promptTokenCount", 0) +
-                          usage.get("candidatesTokenCount", 0))
-
-            return LLMResponse(
-                content=content,
-                model=model,
-                tokens_used=tokens_used,
-                finish_reason=candidates[0].get("finishReason", "STOP"),
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
-
-
-
-# 需要导入httpx用于类型提示
+        return LLMResponse(
+            content=content,
+            model=model,
+            tokens_used=tokens_used,
+            finish_reason=candidates[0].get("finishReason", "STOP"),
+        )

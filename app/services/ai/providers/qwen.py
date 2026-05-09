@@ -92,42 +92,28 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         })
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
-        """
-        生成文本
-
-        Args:
-            request: LLM 请求
-
-        Returns:
-            LLM 响应
-        """
+        """生成文本"""
         model = self._get_model_name(request.model)
-
-        # 使用混入类的方法构建消息
         messages = self._build_messages(request)
 
-        # 调用 API（带重试机制）
         start_time = time.monotonic()
+        payload = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": request.max_tokens,
+            "temperature": request.temperature,
+            "top_p": request.top_p,
+        }
+
+        async def _call():
+            return await self._call_api(
+                "POST", f"{self.base_url}/chat/completions", json=payload
+            )
+
         try:
-            async def _call_api():
-                response = await self.http_client.post(
-                    f"{self.base_url}/chat/completions",
-                    json={
-                        "model": model,
-                        "messages": messages,
-                        "max_tokens": request.max_tokens,
-                        "temperature": request.temperature,
-                        "top_p": request.top_p,
-                    },
-                )
-                return response.json()
-
-            data = await self._retry_handler.execute(_call_api)
+            data = await self._retry_handler.execute(_call)
             latency_ms = (time.monotonic() - start_time) * 1000
-
-            # 使用混入类的方法解析响应
             return self._parse_response(data, model, latency_ms)
-
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
         except Exception as e:

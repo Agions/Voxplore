@@ -9,6 +9,7 @@
 """
 
 import json
+import httpx
 
 from ..base_llm_provider import (
     BaseLLMProvider,
@@ -81,12 +82,9 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
         model = self._get_model_name(request.model)
-
-        # 构建消息
         messages = self._build_messages(request)
 
         try:
-            # 腾讯混元使用同步API
             response = await self.http_client.post(
                 "",
                 json={
@@ -98,32 +96,32 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     "Stream": 0,
                 }
             )
-
-            if response.status_code != 200:
-                raise ProviderError(f"API Error: {response.status_code}")
-
-            result = response.json()
-
-            if "Response" in result:
-                resp_data = result["Response"]
-                usage_data = resp_data.get("Usage", {})
-                tokens_used = (
-                    usage_data.get("PromptTokens", 0) +
-                    usage_data.get("CompletionTokens", 0)
-                )
-                return LLMResponse(
-                    content=resp_data["Choices"][0]["Message"]["Content"],
-                    model=model,
-                    tokens_used=tokens_used,
-                    finish_reason="stop",
-                    usage=usage_data or None,
-                    raw_response=resp_data,
-                )
-            else:
-                raise ProviderError(f"API Error: {result}")
-
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"生成失败: {str(e)}")
+
+        if response.status_code != 200:
+            raise ProviderError(f"API Error: {response.status_code}")
+
+        result = response.json()
+        if "Response" in result:
+            resp_data = result["Response"]
+            usage_data = resp_data.get("Usage", {})
+            tokens_used = (
+                usage_data.get("PromptTokens", 0) +
+                usage_data.get("CompletionTokens", 0)
+            )
+            return LLMResponse(
+                content=resp_data["Choices"][0]["Message"]["Content"],
+                model=model,
+                tokens_used=tokens_used,
+                finish_reason="stop",
+                usage=usage_data or None,
+                raw_response=resp_data,
+            )
+        else:
+            raise ProviderError(f"API Error: {result}")
 
     async def generate_stream(self, request: LLMRequest):
         """流式生成"""
@@ -131,7 +129,8 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         messages = self._build_messages(request)
 
         try:
-            response = await self.http_client.post(
+            async with self.http_client.stream(
+                "POST",
                 "",
                 json={
                     "Model": model,
@@ -140,16 +139,16 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     "Temperature": request.temperature or 0.7,
                     "Stream": 1,
                 },
-                stream=True
-            )
-
-            async for line in response.aiter_lines():
-                if line:
-                    data = json.loads(line)
-                    if "Choices" in data:
-                        delta = data["Choices"][0].get("Delta", {})
-                        if "Content" in delta:
-                            yield delta["Content"]
-
+            ) as response:
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    if line:
+                        data = json.loads(line)
+                        if "Choices" in data:
+                            delta = data["Choices"][0].get("Delta", {})
+                            if "Content" in delta:
+                                yield delta["Content"]
+        except httpx.HTTPStatusError as e:
+            raise self._handle_http_error(e)
         except Exception as e:
             raise ProviderError(f"流式生成失败: {str(e)}")

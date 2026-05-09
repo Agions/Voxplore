@@ -75,7 +75,6 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """生成文本"""
         model = self._get_model_name(request.model)
 
-        # Claude 特殊格式：system参数单独传递
         messages = [{
             "role": "user",
             "content": [{"type": "text", "text": request.prompt}]
@@ -88,39 +87,28 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "temperature": request.temperature,
             "top_p": request.top_p,
         }
-
         if request.system_prompt:
             payload["system"] = request.system_prompt
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/v1/messages",
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST", f"{self.base_url}/v1/messages", json=payload
+        )
 
-            data = response.json()
+        if "error" in data:
+            raise ProviderError(data["error"]["message"])
 
-            if "error" in data:
-                raise ProviderError(data["error"]["message"])
+        content = ""
+        for block in data.get("content", []):
+            if block.get("type") == "text":
+                content += block.get("text", "")
 
-            # Claude 响应格式特殊
-            content = ""
-            for block in data.get("content", []):
-                if block.get("type") == "text":
-                    content += block.get("text", "")
-
-            return LLMResponse(
-                content=content,
-                model=model,
-                tokens_used=data.get("usage", {}).get("input_tokens", 0) +
-                          data.get("usage", {}).get("output_tokens", 0),
-                finish_reason=data.get("stop_reason", "stop"),
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        return LLMResponse(
+            content=content,
+            model=model,
+            tokens_used=data.get("usage", {}).get("input_tokens", 0) +
+                       data.get("usage", {}).get("output_tokens", 0),
+            finish_reason=data.get("stop_reason", "stop"),
+        )
 
     async def generate_with_image(
         self,
@@ -130,7 +118,6 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
 
-        # 读取图片并转为 base64
         image_path = Path(image_path)
         if not image_path.exists():
             raise ProviderError(f"图片不存在: {image_path}")
@@ -138,7 +125,6 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         with open(image_path, "rb") as f:
             image_data = base64.b64encode(f.read()).decode("utf-8")
 
-        # 检测图片类型
         mime_type = "image/jpeg"
         if image_path.suffix.lower() == ".png":
             mime_type = "image/png"
@@ -168,39 +154,27 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "max_tokens": request.max_tokens,
             "temperature": request.temperature,
         }
-
         if request.system_prompt:
             payload["system"] = request.system_prompt
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/v1/messages",
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST", f"{self.base_url}/v1/messages", json=payload
+        )
 
-            data = response.json()
+        if "error" in data:
+            raise ProviderError(data["error"]["message"])
 
-            if "error" in data:
-                raise ProviderError(data["error"]["message"])
+        content = ""
+        for block in data.get("content", []):
+            if block.get("type") == "text":
+                content += block.get("text", "")
 
-            content = ""
-            for block in data.get("content", []):
-                if block.get("type") == "text":
-                    content += block.get("text", "")
-
-            return LLMResponse(
-                content=content,
-                model=model,
-                tokens_used=data.get("usage", {}).get("input_tokens", 0) +
-                          data.get("usage", {}).get("output_tokens", 0),
-                finish_reason=data.get("stop_reason", "stop"),
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        return LLMResponse(
+            content=content,
+            model=model,
+            tokens_used=data.get("usage", {}).get("input_tokens", 0) +
+                       data.get("usage", {}).get("output_tokens", 0),
+            finish_reason=data.get("stop_reason", "stop"),
+        )
 
 
-
-# 需要导入httpx用于类型提示

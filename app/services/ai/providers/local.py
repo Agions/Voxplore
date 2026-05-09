@@ -123,28 +123,18 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             },
         }
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/api/generate",
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST", f"{self.base_url}/api/generate", json=payload
+        )
 
-            data = response.json()
-
-            if "error" in data:
-                raise ProviderError(data["error"])
-
-            return LLMResponse(
-                content=data.get("response", ""),
-                model=model,
-                tokens_used=data.get("eval_count", 0) + data.get("prompt_eval_count", 0),
-                finish_reason="stop",
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        if "error" in data:
+            raise ProviderError(data["error"])
+        return LLMResponse(
+            content=data.get("response", ""),
+            model=model,
+            tokens_used=data.get("eval_count", 0) + data.get("prompt_eval_count", 0),
+            finish_reason="stop",
+        )
 
     async def _generate_openai_compatible(self, request: LLMRequest, model: str) -> LLMResponse:
         """使用 OpenAI 兼容 API 生成"""
@@ -158,19 +148,10 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "top_p": request.top_p,
         }
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/v1/chat/completions",
-                json=payload,
-            )
-
-            data = response.json()
-            return self._parse_response(data, model)
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        data = await self._call_api(
+            "POST", f"{self.base_url}/v1/chat/completions", json=payload
+        )
+        return self._parse_response(data, model)
 
     async def _generate_llamacpp(self, request: LLMRequest, model: str) -> LLMResponse:
         """使用 llama.cpp server API 生成"""
@@ -188,45 +169,30 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "stream": False,
         }
 
-        try:
-            response = await self.http_client.post(
-                f"{self.base_url}/completion",
-                json=payload,
-            )
+        data = await self._call_api(
+            "POST", f"{self.base_url}/completion", json=payload
+        )
 
-            data = response.json()
-
-            if "error" in data:
-                raise ProviderError(data["error"])
-
-            return LLMResponse(
-                content=data.get("content", ""),
-                model=model,
-                tokens_used=data.get("tokens_evaluated", 0) + data.get("tokens_predicted", 0),
-                finish_reason="stop",
-            )
-
-        except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        if "error" in data:
+            raise ProviderError(data["error"])
+        return LLMResponse(
+            content=data.get("content", ""),
+            model=model,
+            tokens_used=data.get("tokens_evaluated", 0) + data.get("tokens_predicted", 0),
+            finish_reason="stop",
+        )
 
     async def list_models(self) -> List[Dict[str, Any]]:
         """列出本地可用的模型"""
         if self.backend == "ollama":
-            try:
-                response = await self.http_client.get(f"{self.base_url}/api/tags")
-                data = response.json()
-                models = data.get("models", [])
-                return [
-                    {"name": m.get("name"), "size": m.get("size"), "modified_at": m.get("modified_at")}
-                    for m in models
-                ]
-            except Exception as e:
-                raise ProviderError(f"获取模型列表失败: {str(e)}")
-        else:
-            return [{"name": name, "description": info["description"]}
-                    for name, info in self.MODELS.items()]
+            data = await self._call_api("GET", f"{self.base_url}/api/tags")
+            models = data.get("models", [])
+            return [
+                {"name": m.get("name"), "size": m.get("size"), "modified_at": m.get("modified_at")}
+                for m in models
+            ]
+        return [{"name": name, "description": info["description"]}
+                for name, info in self.MODELS.items()]
 
     async def pull_model(self, model: str) -> bool:
         """拉取模型（仅 Ollama）"""
