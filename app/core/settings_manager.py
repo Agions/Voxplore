@@ -277,12 +277,20 @@ class ProjectSettingsManager(QObject):
 
     def _save_settings(self) -> None:
         """保存设置"""
+        self._save_json_file(self.settings_file, self.settings)
+
+    def _save_profiles(self) -> None:
+        """保存配置文件"""
+        self._save_json_file(self.profiles_file, {name: asdict(p) for name, p in self.profiles.items()})
+
+    def _save_json_file(self, file_path: str, data: Any) -> None:
+        """安全保存 JSON 文件"""
         try:
-            os.makedirs(os.path.dirname(self.settings_file), exist_ok=True)
-            with open(self.settings_file, 'w', encoding='utf-8') as f:
-                json.dump(self.settings, f, indent=2, ensure_ascii=False)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            self.logger.error(f"Failed to save settings: {e}")
+            self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
     def create_profile(self, name: str, description: str,
                      settings_filter: List[str] = None) -> bool:
