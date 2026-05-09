@@ -6,6 +6,7 @@
 从 projects_page.py 拆分出来
 """
 
+import logging
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
@@ -21,6 +22,8 @@ from app.ui.components import (
 from app.ui.common.macos_components import create_icon_text_row
 from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectDetailsPanel(QWidget):
@@ -281,7 +284,8 @@ class ProjectDetailsPanel(QWidget):
                 if fp.is_file():
                     total += fp.stat().st_size
             return total
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Failed to calculate project size: {e}")
             return 0
 
     def _format_duration(self, seconds: float) -> str:

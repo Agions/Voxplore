@@ -6,6 +6,7 @@
 从 projects_page.py 拆分出来
 """
 
+import logging
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QComboBox, QSpacerItem, QSizePolicy,
@@ -16,6 +17,8 @@ from app.ui.components import (
 )
 from app.core.project_manager import ProjectType, ProjectStatus
 from .project_cards import ProjectCard
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectsListPanel(QWidget):
@@ -126,7 +129,8 @@ class ProjectsListPanel(QWidget):
 
         try:
             projects = self._project_manager.get_all_projects()
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Failed to load projects: {e}")
             self._add_empty_spacer()
             return
 
