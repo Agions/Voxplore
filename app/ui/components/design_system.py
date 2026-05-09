@@ -154,83 +154,45 @@ class StyleSheet:
     PySide6 样式生成器 — 与 dark_theme.qss 同步
     """
 
-    @staticmethod
-    def button(variant: str = "primary") -> str:
-        """按钮样式"""
-        radius = Radius
-        base = f"""
-            border-radius: {radius.md};
+    # 类常量：按钮变体样式（避免每次调用重建字典）
+    _BUTTON_BASE = f"""
+            border-radius: {Radius.md};
             padding: 10px 20px;
             font-size: 14px;
             font-weight: 600;
             min-height: 36px;
         """
+    _BUTTON_VARIANTS = {
+        "primary": f"background: {Colors.Primary};\nborder: none;\ncolor: #ffffff;",
+        "primary:hover": f"background: {Colors.PrimaryHover};",
+        "primary:pressed": f"background: {Colors.PrimaryPressed};",
+        "primary:disabled": f"background: {Colors.BorderDefault};\ncolor: {Colors.TextDisabled};\nopacity: 0.6;",
+        "secondary": f"background: transparent;\nborder: 1px solid {Colors.BorderDefault};\ncolor: {Colors.TextSecondary};",
+        "secondary:hover": f"background: {Colors.BgElevated};\nborder-color: {Colors.BorderStrong};\ncolor: {Colors.TextPrimary};",
+        "secondary:disabled": f"background: transparent;\ncolor: {Colors.TextDisabled};\nborder-color: {Colors.BorderSubtle};\nopacity: 0.6;",
+        "danger": f"background: {Colors.Error};\nborder: none;\ncolor: #ffffff;",
+        "danger:hover": f"background: {Colors.ErrorSubtle};",
+        "ghost": f"background: transparent;\nborder: none;\ncolor: {Colors.TextMuted};",
+        "ghost:hover": f"background: {Colors.TextMuted} / 0.08;\ncolor: {Colors.TextPrimary};",
+    }
 
-        variants = {
-            "primary": f"""
-                background: {Colors.Primary};
-                border: none;
-                color: #ffffff;
-            """,
-            "primary:hover": f"""
-                background: {Colors.PrimaryHover};
-            """,
-            "primary:pressed": f"""
-                background: {Colors.PrimaryPressed};
-            """,
-            "primary:disabled": f"""
-                background: {Colors.BorderDefault};
-                color: {Colors.TextDisabled};
-                opacity: 0.6;
-            """,
-            "secondary": f"""
-                background: transparent;
-                border: 1px solid {Colors.BorderDefault};
-                color: {Colors.TextSecondary};
-            """,
-            "secondary:hover": f"""
-                background: {Colors.BgElevated};
-                border-color: {Colors.BorderStrong};
-                color: {Colors.TextPrimary};
-            """,
-            "secondary:disabled": f"""
-                background: transparent;
-                color: {Colors.TextDisabled};
-                border-color: {Colors.BorderSubtle};
-                opacity: 0.6;
-            """,
-            "danger": f"""
-                background: {Colors.Error};
-                border: none;
-                color: #ffffff;
-            """,
-            "danger:hover": f"""
-                background: {Colors.ErrorSubtle};
-            """,
-            "ghost": f"""
-                background: transparent;
-                border: none;
-                color: {Colors.TextMuted};
-            """,
-            "ghost:hover": f"""
-                background: {Colors.TextMuted} / 0.08;
-                color: {Colors.TextPrimary};
-            """,
-        }
-
+    @staticmethod
+    def button(variant: str = "primary") -> str:
+        """按钮样式"""
+        v = StyleSheet._BUTTON_VARIANTS
         return f"""
         QPushButton {{
-            {base}
-            {variants.get("primary", "")}
+            {StyleSheet._BUTTON_BASE}
+            {v.get("primary", "")}
         }}
         QPushButton:hover {{
-            {variants.get(f"{variant}:hover", variants["primary:hover"])}
+            {v.get(f"{variant}:hover", v["primary:hover"])}
         }}
         QPushButton:pressed {{
-            {variants.get(f"{variant}:pressed", variants["primary:pressed"])}
+            {v.get(f"{variant}:pressed", v["primary:pressed"])}
         }}
         QPushButton:disabled {{
-            {variants.get(f"{variant}:disabled", variants["primary:disabled"])}
+            {v.get(f"{variant}:disabled", v["primary:disabled"])}
         }}
         """
 

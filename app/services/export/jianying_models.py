@@ -13,7 +13,7 @@ JianyingDraft data models — dataclass based
 - JianyingConfig (导出配置)
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import List, Optional, Dict
 import uuid
@@ -66,7 +66,7 @@ class TimeRange:
         )
 
     def to_dict(self) -> dict:
-        return {"start": self.start, "duration": self.duration}
+        return asdict(self)
 
 
 @dataclass
@@ -151,16 +151,7 @@ class VideoMaterial:
     category_name: str = "local"
 
     def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "path": self.path,
-            "duration": self.duration,
-            "width": self.width,
-            "height": self.height,
-            "type": self.type,
-            "category_id": self.category_id,
-            "category_name": self.category_name,
-        }
+        return asdict(self)
 
 
 @dataclass
@@ -175,13 +166,7 @@ class AudioMaterial:
     name: str = ""
 
     def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "path": self.path,
-            "duration": self.duration,
-            "type": self.type,
-            "name": self.name,
-        }
+        return asdict(self)
 
 
 @dataclass
@@ -243,11 +228,7 @@ class CanvasConfig:
     ratio: str = "9:16"
 
     def to_dict(self) -> dict:
-        return {
-            "width": self.width,
-            "height": self.height,
-            "ratio": self.ratio,
-        }
+        return asdict(self)
 
 
 # ─── 复合模型 ────────────────────────────────────────────────
