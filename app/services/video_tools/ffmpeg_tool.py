@@ -8,7 +8,7 @@ import json
 import logging
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 
 from ...utils.security import get_ffmpeg_executor, SecurityError
 
@@ -39,6 +39,17 @@ class FFmpegTool:
     # ========== 视频信息获取 ==========
 
     @staticmethod
+    def _run_ffprobe_json(cmd: List[str], timeout: int = 30) -> Optional[dict]:
+        """Run ffprobe command and return parsed JSON, or None on failure."""
+        try:
+            result = FFmpegTool._executor.run(cmd, timeout=timeout)
+            if result.returncode != 0:
+                return None
+            return json.loads(result.stdout)
+        except (SecurityError, json.JSONDecodeError):
+            return None
+
+    @staticmethod
     def get_duration(video_path: str) -> float:
         """获取视频时长（秒）"""
         cmd = [
@@ -46,15 +57,10 @@ class FFmpegTool:
             '-show_entries', 'format=duration',
             '-of', 'json', video_path
         ]
-
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=30)
-            if result.returncode != 0:
-                return 0.0
-            data = json.loads(result.stdout)
-            return float(data.get('format', {}).get('duration', 0))
-        except (SecurityError, KeyError, ValueError, json.JSONDecodeError):
+        data = FFmpegTool._run_ffprobe_json(cmd)
+        if data is None:
             return 0.0
+        return float(data.get('format', {}).get('duration', 0))
 
     @staticmethod
     def get_resolution(video_path: str) -> Tuple[int, int]:
@@ -64,17 +70,12 @@ class FFmpegTool:
             '-print_format', 'json',
             '-show_streams', video_path
         ]
-
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=30)
-            if result.returncode != 0:
-                return (1920, 1080)
-            data = json.loads(result.stdout)
-            for stream in data.get('streams', []):
-                if stream.get('codec_type') == 'video':
-                    return (stream.get('width', 1920), stream.get('height', 1080))
-        except (SecurityError, json.JSONDecodeError) as e:
-            logger.debug(f"ffprobe resolution parse failed for {video_path}: {e}")
+        data = FFmpegTool._run_ffprobe_json(cmd)
+        if data is None:
+            return (1920, 1080)
+        for stream in data.get('streams', []):
+            if stream.get('codec_type') == 'video':
+                return (stream.get('width', 1920), stream.get('height', 1080))
         return (1920, 1080)
 
     @staticmethod
@@ -86,21 +87,16 @@ class FFmpegTool:
             '-show_entries', 'stream=r_frame_rate',
             '-of', 'json', video_path
         ]
-
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=30)
-            if result.returncode != 0:
-                return 30.0
-            data = json.loads(result.stdout)
-            streams = data.get('streams', [])
-            if streams:
-                fps_str = streams[0].get('r_frame_rate', '30/1')
-                if '/' in fps_str:
-                    num, den = fps_str.split('/')
-                    return float(num) / float(den) if den != '0' else 30.0
-                return float(fps_str)
-        except (SecurityError, json.JSONDecodeError, ValueError) as e:
-            logger.debug(f"ffprobe framerate parse failed for {video_path}: {e}")
+        data = FFmpegTool._run_ffprobe_json(cmd)
+        if data is None:
+            return 30.0
+        streams = data.get('streams', [])
+        if streams:
+            fps_str = streams[0].get('r_frame_rate', '30/1')
+            if '/' in fps_str:
+                num, den = fps_str.split('/')
+                return float(num) / float(den) if den != '0' else 30.0
+            return float(fps_str)
         return 30.0
 
     @staticmethod
@@ -111,16 +107,10 @@ class FFmpegTool:
             '-show_entries', 'format=bit_rate',
             '-of', 'json', video_path
         ]
-
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=30)
-            if result.returncode != 0:
-                return 0
-            data = json.loads(result.stdout)
-            return int(data.get('format', {}).get('bit_rate', 0))
-        except (SecurityError, json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"ffprobe 获取码率失败 {video_path}: {e}")
+        data = FFmpegTool._run_ffprobe_json(cmd)
+        if data is None:
             return 0
+        return int(data.get('format', {}).get('bit_rate', 0))
 
     @staticmethod
     def get_video_info(video_path: str) -> Dict[str, Any]:
@@ -130,15 +120,7 @@ class FFmpegTool:
             '-print_format', 'json',
             '-show_format', '-show_streams', video_path
         ]
-
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=30)
-            if result.returncode != 0:
-                return {}
-            return json.loads(result.stdout)
-        except (SecurityError, json.JSONDecodeError) as e:
-            logger.warning(f"ffprobe 获取视频信息失败 {video_path}: {e}")
-            return {}
+        return FFmpegTool._run_ffprobe_json(cmd) or {}
 
     # ========== 视频处理 ==========
 
