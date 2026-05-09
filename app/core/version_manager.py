@@ -86,23 +86,21 @@ class ProjectVersionManager(QObject):
 
     def _save_version_info(self) -> None:
         """保存版本信息"""
-        try:
-            versions_file = os.path.join(self.version_dir, 'versions.json')
-            versions_data = {vid: v.to_dict() for vid, v in self.versions.items()}
-            with open(versions_file, 'w', encoding='utf-8') as f:
-                json.dump(versions_data, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            self.logger.error(f"Failed to save version info: {e}")
+        versions_file = os.path.join(self.version_dir, 'versions.json')
+        self._save_json_file(versions_file, {vid: v.to_dict() for vid, v in self.versions.items()})
 
     def _save_branch_info(self) -> None:
         """保存分支信息"""
+        branches_file = os.path.join(self.version_dir, 'branches.json')
+        self._save_json_file(branches_file, {name: b.to_dict() for name, b in self.branches.items()})
+
+    def _save_json_file(self, file_path: str, data: Dict) -> None:
+        """安全保存 JSON 文件"""
         try:
-            branches_file = os.path.join(self.version_dir, 'branches.json')
-            branches_data = {name: b.to_dict() for name, b in self.branches.items()}
-            with open(branches_file, 'w', encoding='utf-8') as f:
-                json.dump(branches_data, f, indent=2, ensure_ascii=False)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            self.logger.error(f"Failed to save branch info: {e}")
+            self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
     def _calculate_file_hash(self, file_path: str) -> str:
         """计算文件哈希值"""
