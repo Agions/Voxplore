@@ -314,7 +314,7 @@ class JianyingExporter:
         # 创建素材
         material = VideoMaterial(
             path=video_path,
-            duration=video_info.get('duration', int(duration * 1_000_000)),
+            duration=video_info.get('duration', TimeRange.from_seconds(0, duration).duration),
             width=video_info.get('width', 1920),
             height=video_info.get('height', 1080),
         )
@@ -358,7 +358,7 @@ class JianyingExporter:
         """
         material = AudioMaterial(
             path=audio_path,
-            duration=int(duration * 1_000_000),
+            duration=TimeRange.from_seconds(0, duration).duration,
             name=Path(audio_path).stem,
         )
         draft.add_audio(material)
@@ -431,7 +431,7 @@ class JianyingExporter:
             return {
                 'width': width,
                 'height': height,
-                'duration': int(duration * 1_000_000),
+                'duration': TimeRange.from_seconds(0, duration).duration,
             }
         except Exception as e:
             logger.error(f"获取视频信息失败: {e}")
