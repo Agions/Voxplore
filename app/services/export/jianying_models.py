@@ -90,10 +90,15 @@ class Segment:
 
     def to_dict(self) -> dict:
         """转换为剪映 JSON 格式"""
-        result = asdict(self)
-        result["target_timerange"] = self.target_timerange.to_dict()
-        result["source_timerange"] = self.source_timerange.to_dict()
-        return result
+        return {
+            "id": self.id,
+            "material_id": self.material_id,
+            "target_timerange": self.target_timerange.to_dict(),
+            "source_timerange": self.source_timerange.to_dict(),
+            "volume": self.volume,
+            "speed": self.speed,
+            "caption_info": self.caption_info,
+        }
 
 
 @dataclass
@@ -184,10 +189,6 @@ class JianyingMaterials:
     videos: List[VideoMaterial] = field(default_factory=list)
     audios: List[AudioMaterial] = field(default_factory=list)
     texts: List[TextMaterial] = field(default_factory=list)
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
 
 @dataclass
 class CanvasConfig:
