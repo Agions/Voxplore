@@ -33,7 +33,7 @@ import logging
 import subprocess
 from pathlib import Path
 from typing import List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import Enum
 from ...utils.security import SecurityError
 
@@ -73,14 +73,10 @@ class HighlightSegment:
         return self.end - self.start
 
     def to_dict(self) -> dict:
-        return {
-            "start": self.start,
-            "end": self.end,
-            "duration": self.duration,
-            "confidence": self.confidence,
-            "reason": self.reason.value,
-            "peak_timestamp": self.peak_timestamp,
-        }
+        d = asdict(self)
+        d["reason"] = self.reason.value
+        d["duration"] = self.duration
+        return d
 
 
 @dataclass

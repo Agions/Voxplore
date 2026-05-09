@@ -73,19 +73,10 @@ class ProjectMetadata:
     file_path: str = ""  # 项目文件路径
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "author": self.author,
-            "version": self.version,
-            "created_at": self.created_at,
-            "modified_at": self.modified_at,
-            "tags": self.tags,
-            "project_type": self.project_type.value if isinstance(self.project_type, Enum) else self.project_type,
-            "thumbnail": self.thumbnail,
-            "status": self.status.value,
-            "file_path": self.file_path,
-        }
+        d = asdict(self)
+        d["project_type"] = self.project_type.value if isinstance(self.project_type, Enum) else self.project_type
+        d["status"] = self.status.value
+        return d
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMetadata':
