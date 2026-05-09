@@ -275,19 +275,11 @@ class JianyingDraft:
         这是剪映草稿的核心文件
         """
         self.calculate_duration()
-
-        return {
-            "id": self.id,
-            "name": self.name,
-            "duration": self.duration,
-            "canvas_config": self.canvas_config.to_dict(),
-            "tracks": [t.to_dict() for t in self.tracks],
-            "materials": self.materials.to_dict(),
-            "version": self.version,
-            "platform": self.platform,
-            "create_time": self.create_time,
-            "update_time": self.update_time,
-        }
+        d = asdict(self)
+        d["canvas_config"] = self.canvas_config.to_dict()
+        d["tracks"] = [t.to_dict() for t in self.tracks]
+        d["materials"] = self.materials.to_dict()
+        return d
 
     def to_draft_meta_info(self) -> dict:
         """生成 draft_meta_info.json 内容"""
