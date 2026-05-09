@@ -62,7 +62,7 @@ class SettingsPage(BasePage):
         about_title.set_style("color: #E8EDF5; font-size: 14px; font-weight: 600;")
         about_layout.addWidget(about_title)
 
-        version = CFLabel("版本 3.9.0")
+        version = CFLabel("版本 1.0.0")
         version.set_style("color: #4A6080; font-size: 12px;")
         about_layout.addWidget(version)
 

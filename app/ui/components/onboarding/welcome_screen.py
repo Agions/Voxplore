@@ -140,7 +140,7 @@ class WelcomeScreen(QWidget):
     get_started = Signal()  # 开始使用信号
     skip = Signal()  # 跳过信号
 
-    def __init__(self, app_name: str = "Voxplore", version: str = "v2.0.0", parent=None):
+    def __init__(self, app_name: str = "Voxplore", version: str = "v1.0.0", parent=None):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version

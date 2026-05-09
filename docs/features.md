@@ -1,6 +1,7 @@
 ---
 title: 功能介绍
-description: Voxplore v4.0 全部功能的详细说明。
+description: Voxplore v1.0 全部功能的详细说明。
+
 ---
 
 # 功能介绍
@@ -9,7 +10,7 @@ description: Voxplore v4.0 全部功能的详细说明。
 
 ## 核心定位
 
-**Voxplore v4.0** — 多视频智能合并解说专家。
+**Voxplore v1.0** — 多视频智能合并解说专家。
 
 **输入：** 批量视频（文件夹 / Ctrl 多选）  
 **输出：** 模块化成品（合并版完整叙事 + 高光片段单独发布）  

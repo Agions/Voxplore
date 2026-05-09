@@ -21,7 +21,7 @@ class AppConfig:
     """应用配置"""
     # 应用信息
     name: str = "Voxplore"
-    version: str = "3.0.0"
+    version: str = "1.0.0"
     debug: bool = False
 
     # 路径配置
