@@ -190,7 +190,6 @@ class SidebarNavItem(QPushButton):
             shortcut_font.setWeight(QFont.Weight.Normal)
             painter.setFont(shortcut_font)
             painter.setPen(QColor("#4B5563"))
-            shortcut_rect = rect.adjusted(44, 0, -12, 0)
             fm = painter.fontMetrics()
             shortcut_text = self._shortcut
             shortcut_w = fm.horizontalAdvance(shortcut_text)
