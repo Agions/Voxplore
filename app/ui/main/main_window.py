@@ -15,11 +15,10 @@ Voxplore 主窗口 — 精致现代专业布局 v4
 import os
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton,
-    QToolButton, QSizePolicy, QGraphicsDropShadowEffect
+    QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton
 )
-from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QRect, QSize, QTimer
-from PySide6.QtGui import QFont, QPainter, QBrush, QPen, QColor, QLinearGradient, QPainterPath
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QRect
+from PySide6.QtGui import QFont, QPainter, QColor
 
 from ...core.application import Application
 from ...core.logger import Logger
