@@ -16,7 +16,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Voxplore API",
         description="AI 第一人称视频解说 API - 让视频讲述你的故事",
-        version="1.0.0",
+        version="1.0.1",
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
@@ -92,7 +92,7 @@ app = create_app()
 async def root():
     return {
         "name": "Voxplore API",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "docs": "/docs",
         "health": "/api/v1/health"
     }

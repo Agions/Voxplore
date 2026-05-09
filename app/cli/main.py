@@ -193,7 +193,7 @@ def _handle_project_command(args) -> int:
                 "name": args.name,
                 "description": "",
                 "author": os.getlogin(),
-                "version": "1.0.0",
+                "version": "1.0.1",
                 "created_at": now,
                 "modified_at": now,
                 "tags": [],
@@ -319,8 +319,8 @@ def _handle_plugin_command(args) -> int:
 
             # 注册内置示例插件
             builtin = {
-                "cinematic_subtitle": {"name": "电影级字幕", "version": "1.0.0", "type": "subtitle"},
-                "deepseek_ai_generator": {"name": "DeepSeek AI 生成器", "version": "1.0.0", "type": "ai_generator"},
+                "cinematic_subtitle": {"name": "电影级字幕", "version": "1.0.1", "type": "subtitle"},
+                "deepseek_ai_generator": {"name": "DeepSeek AI 生成器", "version": "1.0.1", "type": "ai_generator"},
             }
 
             all_plugins = list(discovered) + list(builtin.keys())

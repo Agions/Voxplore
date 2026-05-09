@@ -63,7 +63,7 @@ class ProjectMetadata:
     name: str = ""
     description: str = ""
     author: str = ""
-    version: str = "1.0.0"
+    version: str = "1.0.1"
     created_at: str = ""
     modified_at: str = ""
     tags: List[str] = field(default_factory=list)
@@ -105,7 +105,7 @@ class ProjectMetadata:
             name=data.get("name", ""),
             description=data.get("description", ""),
             author=data.get("author", ""),
-            version=data.get("version", "1.0.0"),
+            version=data.get("version", "1.0.1"),
             created_at=data.get("created_at", ""),
             modified_at=data.get("modified_at", ""),
             tags=data.get("tags", []),

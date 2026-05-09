@@ -458,7 +458,7 @@ class VoxploreWindow(QMainWindow):
         bottom_layout = QHBoxLayout(bottom)
         bottom_layout.setContentsMargins(16, 0, 16, 0)
 
-        ver = QLabel("v1.0.0")
+        ver = QLabel("v1.0.1")
         ver.setFont(QFont("", 9))
         ver.setStyleSheet("color: #4B5563;")
         bottom_layout.addWidget(ver)

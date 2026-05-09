@@ -107,7 +107,7 @@ def create_portable():
     
     import zipfile
     
-    version = "1.0.0"
+    version = "1.0.1"
     archive_name = f"Voxplore-{version}-portable.zip"
     
     with zipfile.ZipFile(archive_name, 'w', zipfile.ZIP_DEFLATED) as zf:

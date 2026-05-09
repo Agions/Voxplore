@@ -15,7 +15,7 @@ async def health_check():
     # 实际应检测各服务状态
     return HealthResponse(
         status="healthy",
-        version="1.0.0",
+        version="1.0.1",
         services={
             "api": "up",
             "video_processor": "up",

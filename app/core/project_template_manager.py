@@ -172,7 +172,7 @@ class ProjectTemplateManager(QObject):
                 name=template_name,
                 description=description,
                 author=project.metadata.author,
-                version="1.0.0",
+                version="1.0.1",
                 category=category,
                 tags=tags or []
             )
@@ -189,7 +189,7 @@ class ProjectTemplateManager(QObject):
                 description=description,
                 category=category,
                 author=project.metadata.author,
-                version="1.0.0",
+                version="1.0.1",
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 file_size=self._calculate_directory_size(template_dir),
