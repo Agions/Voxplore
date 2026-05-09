@@ -27,7 +27,7 @@ import logging
 import json
 import shutil
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict, Tuple, Any
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
@@ -201,6 +201,31 @@ class JianyingExporter:
         last_seg = tracks[0].segments[-1]
         return (last_seg.target_timerange.start + last_seg.target_timerange.duration) / 1_000_000
 
+    def _add_segment(
+        self,
+        draft: JianyingDraft,
+        track_type: TrackType,
+        material: Any,
+        source_timerange: TimeRange,
+        target_timerange: TimeRange,
+        volume: Optional[float] = None,
+        caption_info: Optional[Dict] = None,
+        attribute: int = 0,
+    ) -> Segment:
+        """统一的片段添加逻辑"""
+        track = self._get_or_create_track(draft, track_type, attribute=attribute)
+        segment = Segment(
+            material_id=material.id,
+            source_timerange=source_timerange,
+            target_timerange=target_timerange,
+        )
+        if volume is not None:
+            segment.volume = volume
+        if caption_info is not None:
+            segment.caption_info = caption_info
+        track.add_segment(segment)
+        return segment
+
     def _copy_materials(self, draft: JianyingDraft, draft_folder: Path) -> None:
         """复制素材到草稿目录（并行化以提升大文件性能）"""
         materials_folder = draft_folder / "materials"
@@ -299,18 +324,14 @@ class JianyingExporter:
         if target_start is None:
             target_start = self._compute_next_track_start(draft, TrackType.VIDEO)
 
-        # 获取或创建视频轨道
-        video_track = self._get_or_create_track(draft, TrackType.VIDEO, attribute=1)
-
-        # 创建片段并添加到轨道
-        segment = Segment(
-            material_id=material.id,
-            source_timerange=TimeRange.from_seconds(start, duration),
-            target_timerange=TimeRange.from_seconds(target_start, duration),
+        return self._add_segment(
+            draft,
+            TrackType.VIDEO,
+            material,
+            TimeRange.from_seconds(start, duration),
+            TimeRange.from_seconds(target_start, duration),
+            attribute=1,
         )
-        video_track.add_segment(segment)
-
-        return segment
 
     def add_audio_segment(
         self,
@@ -335,7 +356,6 @@ class JianyingExporter:
         Returns:
             创建的片段对象
         """
-        # 创建素材
         material = AudioMaterial(
             path=audio_path,
             duration=int(duration * 1_000_000),
@@ -343,18 +363,14 @@ class JianyingExporter:
         )
         draft.add_audio(material)
 
-        # 获取或创建音频轨道
-        audio_track = self._get_or_create_track(draft, TrackType.AUDIO)
-
-        # 创建片段并添加到轨道
-        segment = Segment(
-            material_id=material.id,
-            source_timerange=TimeRange.from_seconds(start, duration),
-            target_timerange=TimeRange.from_seconds(target_start, duration),
+        return self._add_segment(
+            draft,
+            TrackType.AUDIO,
+            material,
+            TimeRange.from_seconds(start, duration),
+            TimeRange.from_seconds(target_start, duration),
             volume=volume,
         )
-        audio_track.add_segment(segment)
-        return segment
 
     def add_caption(
         self,
@@ -379,7 +395,6 @@ class JianyingExporter:
         Returns:
             创建的片段对象
         """
-        # 创建文本素材
         material = TextMaterial(
             content=text,
             font_size=font_size,
@@ -387,23 +402,18 @@ class JianyingExporter:
         )
         draft.add_text(material)
 
-        # 获取或创建字幕轨道
-        text_track = self._get_or_create_track(draft, TrackType.TEXT)
-
-        # 创建片段并添加到轨道
-        segment = Segment(
-            material_id=material.id,
-            source_timerange=TimeRange.from_seconds(0, duration),
-            target_timerange=TimeRange.from_seconds(start, duration),
+        return self._add_segment(
+            draft,
+            TrackType.TEXT,
+            material,
+            TimeRange.from_seconds(0, duration),
+            TimeRange.from_seconds(start, duration),
             caption_info={
                 "content": text,
                 "font_size": font_size,
                 "font_color": font_color,
             },
         )
-
-        text_track.add_segment(segment)
-        return segment
 
     def _get_video_info(self, video_path: str) -> dict:
         """
