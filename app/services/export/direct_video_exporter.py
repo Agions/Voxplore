@@ -512,36 +512,3 @@ class DirectVideoExporter:
             return HWAccel.VAAPI
 
         return HWAccel.NONE
-
-
-def demo_export():
-    """演示视频导出"""
-    logger.info("=" * 60)
-    logger.info("🎬 直接视频导出器")
-    logger.info("=" * 60)
-
-    exporter = DirectVideoExporter()
-
-    # 检测硬件加速
-    hw_accel = exporter.get_system_hw_accel()
-    logger.info(f"检测到的硬件加速: {hw_accel.value}")
-
-    # 显示可用分辨率
-    logger.info("可用分辨率:")
-    for res in Resolution:
-        logger.info(f"  - {res.name}: {res.width}x{res.height}")
-
-    logger.info("导出配置示例:")
-    config = VideoExportConfig(
-        resolution=Resolution.VERTICAL_1080P,
-        hw_accel=hw_accel,
-        video_bitrate="8M",
-    )
-    logger.info(f"  分辨率: {config.resolution.name}")
-    logger.info(f"  编码器: {config.video_codec.value}")
-    logger.info(f"  硬件加速: {config.hw_accel.value}")
-    logger.info(f"  视频码率: {config.video_bitrate}")
-
-
-if __name__ == '__main__':
-    demo_export()

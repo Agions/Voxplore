@@ -418,22 +418,3 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         b = hex_color[4:6]
 
         return f"{b}{g}{r}".upper()
-
-
-# 使用示例
-if __name__ == '__main__':
-    # 创建字幕生成器
-    generator = CaptionGenerator()
-
-    # 示例1：从文本生成
-    caption = generator.generate_from_text(
-        "这个方法太牛逼了！震惊全网的爆款技巧揭秘",
-        start_time=0.0
-    )
-
-    logger.info(f"字幕文本: {caption.text}")
-    logger.info(f"关键词数量: {sum(1 for w in caption.words if w.is_keyword)}")
-
-    # 示例2：导出字幕
-    # generator.to_srt_format([caption], 'output.srt')
-    # generator.to_ass_format([caption], 'output.ass')

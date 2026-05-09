@@ -535,27 +535,3 @@ class HighlightDetector:
                 h.end = nearest_beat + h.duration
 
         return highlights
-
-
-def demo_highlight_detection():
-    """演示高光检测"""
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger.info("=" * 60)
-    logger.info("🎬 高光检测器演示")
-    logger.info("=" * 60)
-
-    # 默认配置
-    config = HighlightDetectorConfig(
-        min_confidence=0.5,
-        scene_change_weight=0.3,
-        audio_peak_weight=0.4,
-        motion_weight=0.2,
-        color_weight=0.1,
-    )
-    logger.info(f"配置: {config}")
-    logger.info("使用 detector.detect('video.mp4') 检测高光")
-
-
-if __name__ == '__main__':
-    demo_highlight_detection()
