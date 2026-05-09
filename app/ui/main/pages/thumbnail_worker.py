@@ -6,13 +6,12 @@
 """
 
 import os
-import subprocess
 import logging
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
-from ...utils.security import get_ffmpeg_executor
+from ...utils.security import get_ffmpeg_executor, SecurityError
 
 logger = logging.getLogger(__name__)
 _video_executor = get_ffmpeg_executor()
@@ -48,7 +47,7 @@ class ThumbnailWorker(QThread):
             return thumb_path
 
         try:
-            _video_executor.run([
+            result = _video_executor.run([
                 "ffmpeg", "-y", "-ss", "1",
                 "-i", video_path,
                 "-vframes", "1",
@@ -56,8 +55,10 @@ class ThumbnailWorker(QThread):
                 "-vf", "scale=160:90",
                 thumb_path,
             ], timeout=15)
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"Thumbnail generation failed: {e}")
+            if result.returncode != 0:
+                logger.warning(f"Thumbnail generation failed: {result.stderr}")
+        except SecurityError as e:
+            logger.debug(f"Thumbnail generation error: {e}")
         except Exception as e:
             logger.debug(f"Thumbnail generation error: {e}")
 
