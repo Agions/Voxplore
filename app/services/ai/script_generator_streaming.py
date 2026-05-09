@@ -456,32 +456,3 @@ def generate_script_streaming(
     """流式生成文案的便捷函数"""
     generator = StreamingScriptGenerator(use_llm_manager=True)
     return generator.generate_streaming(topic, config, callback)
-
-
-if __name__ == '__main__':
-    print("StreamingScriptGenerator 演示")
-    print("-" * 50)
-
-    def on_chunk(chunk: str):
-        print(chunk, end='', flush=True)
-
-    def on_sentiment(text: str, sentiment: float):
-        print(f"\n[sentiment changed: {sentiment:.2f}]", end='')
-
-    try:
-        generator = StreamingScriptGenerator(use_llm_manager=True)
-        script = generator.generate_streaming(
-            topic="这部电影讲述了一个感人的故事",
-            config=ScriptConfig(
-                style=ScriptStyle.MONOLOGUE,
-                target_duration=30,
-            ),
-            callback=on_chunk,
-            sentiment_callback=on_sentiment,
-        )
-        print("\n\n" + "=" * 50)
-        print("生成完成!")
-        print(f"字数: {script.word_count}")
-        print(f"预计时长: {script.estimated_duration:.1f}s")
-    except Exception as e:
-        print(f"\n演示需要配置 LLM: {e}")

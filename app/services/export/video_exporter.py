@@ -358,24 +358,3 @@ class VideoExporter:
             )
 
         return str(output)
-
-
-def demo_export():
-    """演示视频导出"""
-    import logging
-    logger = logging.getLogger(__name__)
-
-    exporter = VideoExporter(ExportConfig(
-        width=1080,
-        height=1920,
-        use_hw_accel=True,
-    ))
-
-    logger.info("VideoExporter 已初始化")
-    logger.info(f"  格式: {exporter.config.format.value}")
-    logger.info(f"  分辨率: {exporter.config.width}x{exporter.config.height}")
-    logger.info(f"  硬件加速: {exporter.config.use_hw_accel}")
-
-
-if __name__ == '__main__':
-    demo_export()
