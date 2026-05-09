@@ -197,20 +197,11 @@ class HighlightDetector:
             logger.debug(f"FFmpeg 执行失败: {e}")
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
 
-    def _detect_scene_changes(self, video_path: Path) -> List[Tuple[float, float]]:
-        """
-        检测场景突变（镜头切换）
-
-        Returns:
-            List of (timestamp, score) tuples
-        """
-
-        # 简化：使用帧间差异检测
-        # 生成采样帧用于比较
+    def _extract_frames(self, video_path: Path, prefix: str) -> List[Path]:
+        """提取视频帧到临时目录，返回帧文件列表"""
         temp_dir = video_path.parent / ".voxplore_highlight_cache"
         temp_dir.mkdir(exist_ok=True)
-
-        output_prefix = temp_dir / f"{video_path.stem}_scene"
+        output_prefix = temp_dir / f"{video_path.stem}_{prefix}"
         cmd = [
             'ffmpeg', '-y',
             '-i', str(video_path),
@@ -218,13 +209,26 @@ class HighlightDetector:
             '-q:v', '2',
             f"{output_prefix}%04d.jpg",
         ]
-
         self._run_ffmpeg(cmd)
+        return sorted(temp_dir.glob(f"{video_path.stem}_{prefix}*.jpg"))
 
-        # 比较相邻帧差异
+    def _cleanup_frames(self, frame_files: List[Path]) -> None:
+        """清理临时帧文件"""
+        for f in frame_files:
+            f.unlink(missing_ok=True)
+
+    def _detect_scene_changes(self, video_path: Path) -> List[Tuple[float, float]]:
+        """
+        检测场景突变（镜头切换）
+
+        Returns:
+            List of (timestamp, score) tuples
+        """
+        frame_files = self._extract_frames(video_path, "scene")
+        if not frame_files:
+            return []
+
         changes = []
-        frame_files = sorted(temp_dir.glob(f"{video_path.stem}_scene*.jpg"))
-
         try:
             from PIL import Image
             import math
@@ -257,10 +261,7 @@ class HighlightDetector:
                         changes.append((timestamp, min(ratio * 2, 1.0)))
                 prev_size = size
 
-        # 清理临时文件
-        for f in frame_files:
-            f.unlink(missing_ok=True)
-
+        self._cleanup_frames(frame_files)
         return changes
 
     def _detect_audio_peaks(self, video_path: Path) -> List[Tuple[float, float]]:
@@ -322,28 +323,17 @@ class HighlightDetector:
         Returns:
             List of (timestamp, score) tuples
         """
-        temp_dir = video_path.parent / ".voxplore_highlight_cache"
-        temp_dir.mkdir(exist_ok=True)
+        frame_files = self._extract_frames(video_path, "motion")
+        if not frame_files:
+            return []
 
-        output_prefix = temp_dir / f"{video_path.stem}_motion"
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', str(video_path),
-            '-vf', f"fps={self.config.fps}",
-            '-q:v', '2',
-            f"{output_prefix}%04d.jpg",
-        ]
-        self._run_ffmpeg(cmd)
-
-        motion_frames = sorted(temp_dir.glob(f"{video_path.stem}_motion*.jpg"))
         motions = []
-
         try:
             import numpy as np
             from PIL import Image
 
             prev_data = None
-            for i, frame_path in enumerate(motion_frames):
+            for i, frame_path in enumerate(frame_files):
                 timestamp = i / self.config.fps
                 img = Image.open(frame_path).convert('L')
                 data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
@@ -358,10 +348,7 @@ class HighlightDetector:
         except ImportError:
             pass
 
-        # 清理
-        for f in motion_frames:
-            f.unlink(missing_ok=True)
-
+        self._cleanup_frames(frame_files)
         return motions
 
     def _detect_color_vibrancy(self, video_path: Path) -> List[Tuple[float, float]]:
@@ -371,27 +358,16 @@ class HighlightDetector:
         Returns:
             List of (timestamp, score) tuples
         """
-        temp_dir = video_path.parent / ".voxplore_highlight_cache"
-        temp_dir.mkdir(exist_ok=True)
+        frame_files = self._extract_frames(video_path, "color")
+        if not frame_files:
+            return []
 
-        output_prefix = temp_dir / f"{video_path.stem}_color"
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', str(video_path),
-            '-vf', f"fps={self.config.fps}",
-            '-q:v', '2',
-            f"{output_prefix}%04d.jpg",
-        ]
-        self._run_ffmpeg(cmd)
-
-        frames = sorted(temp_dir.glob(f"{video_path.stem}_color*.jpg"))
         vibrant = []
-
         try:
             import numpy as np
             from PIL import Image
 
-            for i, frame_path in enumerate(frames):
+            for i, frame_path in enumerate(frame_files):
                 timestamp = i / self.config.fps
                 img = Image.open(frame_path).convert('RGB')
                 arr = np.array(img, dtype=np.float32)  # (h, w, 3)
@@ -415,10 +391,7 @@ class HighlightDetector:
         except ImportError:
             pass
 
-        # 清理
-        for f in frames:
-            f.unlink(missing_ok=True)
-
+        self._cleanup_frames(frame_files)
         return vibrant
 
     def _merge_highlights(
