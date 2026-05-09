@@ -15,7 +15,7 @@ MultiTrack Subtitle System
 - TimeRulerWidget: 时间标尺组件
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import List, Optional, Dict
 import uuid
@@ -87,30 +87,10 @@ class SubtitleStylePreset:
 
     def to_dict(self) -> dict:
         """转换为字典"""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "font_family": self.font_family,
-            "font_size": self.font_size,
-            "font_weight": self.font_weight,
-            "font_color": self.font_color,
-            "background_color": self.background_color,
-            "background_alpha": self.background_alpha,
-            "background_radius": self.background_radius,
-            "stroke_color": self.stroke_color,
-            "stroke_width": self.stroke_width,
-            "shadow_color": self.shadow_color,
-            "shadow_offset_x": self.shadow_offset_x,
-            "shadow_offset_y": self.shadow_offset_y,
-            "shadow_blur": self.shadow_blur,
-            "position": self.position.value,
-            "position_x_percent": self.position_x_percent,
-            "position_y_percent": self.position_y_percent,
-            "alignment": self.alignment,
-            "animation": self.animation.value,
-            "animation_duration": self.animation_duration,
-            "line_spacing": self.line_spacing,
-        }
+        d = asdict(self)
+        d["position"] = self.position.value
+        d["animation"] = self.animation.value
+        return d
 
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleStylePreset':
@@ -201,17 +181,7 @@ class SubtitleBlock:
 
     def to_dict(self) -> dict:
         """转换为字典"""
-        return {
-            "id": self.id,
-            "track_id": self.track_id,
-            "text": self.text,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "style_id": self.style_id,
-            "emphasis_words": self.emphasis_words,
-            "translation": self.translation,
-            "notes": self.notes,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleBlock':
@@ -282,16 +252,9 @@ class SubtitleTrack:
 
     def to_dict(self) -> dict:
         """转换为字典"""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "enabled": self.enabled,
-            "locked": self.locked,
-            "visible": self.visible,
-            "style_id": self.style_id,
-            "blocks": [b.to_dict() for b in self.blocks],
-            "color": self.color,
-        }
+        d = asdict(self)
+        d["blocks"] = [b.to_dict() for b in self.blocks]
+        return d
 
     @classmethod
     def from_dict(cls, data: dict) -> 'SubtitleTrack':
@@ -430,16 +393,10 @@ class MultiTrackSubtitleEditor:
 
     def to_dict(self) -> dict:
         """转换为字典"""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "tracks": [t.to_dict() for t in self.tracks],
-            "presets": {k: v.to_dict() for k, v in self.presets.items()},
-            "duration": self.duration,
-            "fps": self.fps,
-            "current_track_id": self.current_track_id,
-            "current_time": self.current_time,
-        }
+        d = asdict(self)
+        d["tracks"] = [t.to_dict() for t in self.tracks]
+        d["presets"] = {k: v.to_dict() for k, v in self.presets.items()}
+        return d
 
     @classmethod
     def from_dict(cls, data: dict) -> 'MultiTrackSubtitleEditor':

@@ -90,18 +90,10 @@ class Segment:
 
     def to_dict(self) -> dict:
         """转换为剪映 JSON 格式"""
-        result = {
-            "id": self.id,
-            "material_id": self.material_id,
-            "target_timerange": self.target_timerange.to_dict(),
-            "source_timerange": self.source_timerange.to_dict(),
-            "volume": self.volume,
-            "speed": self.speed,
-        }
-
-        if self.caption_info:
-            result["caption_info"] = self.caption_info
-
+        result = asdict(self)
+        # TimeRange 需要调用自身的 to_dict()
+        result["target_timerange"] = self.target_timerange.to_dict()
+        result["source_timerange"] = self.source_timerange.to_dict()
         return result
 
 
@@ -125,13 +117,10 @@ class Track:
         self.segments.append(segment)
 
     def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "type": self.type.value,
-            "segments": [s.to_dict() for s in self.segments],
-            "attribute": self.attribute,
-            "flag": self.flag,
-        }
+        d = asdict(self)
+        d["type"] = self.type.value
+        d["segments"] = [s.to_dict() for s in self.segments]
+        return d
 
 
 # ─── 素材模型 ────────────────────────────────────────────────

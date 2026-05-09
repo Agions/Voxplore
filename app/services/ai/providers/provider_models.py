@@ -35,14 +35,7 @@ class ChatMessage(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """转为字典（适配 OpenAI 格式）"""
-        result = {"role": self.role, "content": self.content}
-        if self.name:
-            result["name"] = self.name
-        if self.tool_calls:
-            result["tool_calls"] = self.tool_calls
-        if self.tool_call_id:
-            result["tool_call_id"] = self.tool_call_id
-        return result
+        return {k: v for k, v in self.model_dump().items() if v is not None}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ChatMessage":
@@ -115,13 +108,7 @@ class UsageInfo(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """转为标准字典"""
-        result = {
-            "prompt_tokens": self.prompt_tokens,
-            "completion_tokens": self.completion_tokens,
-            "total_tokens": self.total_tokens,
-        }
-        result.update(self.extra)
-        return result
+        return self.model_dump()
 
 
 class ChatRequest(BaseModel):
@@ -170,21 +157,10 @@ class ChatRequest(BaseModel):
 
     def to_openai_dict(self) -> Dict[str, Any]:
         """转为 OpenAI API 格式"""
-        result = {
-            "model": self.model,
-            "messages": [m.to_dict() for m in self.messages],
-            "temperature": self.temperature,
-            "max_tokens": self.max_tokens,
-            "top_p": self.top_p,
-        }
-        if self.stop:
-            result["stop"] = self.stop
-        if self.tools:
-            result["tools"] = self.tools
-        if self.tool_choice:
-            result["tool_choice"] = self.tool_choice
-        result.update(self.extra)
-        return result
+        d = self.model_dump(exclude_unset=True)
+        d["messages"] = [m.to_dict() for m in self.messages]
+        d.update(self.extra)
+        return d
 
 
 class ChatResponse(BaseModel):
@@ -225,10 +201,6 @@ class ChatResponse(BaseModel):
 
     def to_dict(self) -> Dict[str, Any]:
         """转为标准字典"""
-        return {
-            "content": self.content,
-            "model": self.model,
-            "usage": self.usage.to_dict(),
-            "finish_reason": self.finish_reason,
-            "latency_ms": self.latency_ms,
-        }
+        d = self.model_dump(exclude_none=True)
+        d["usage"] = self.usage.to_dict()
+        return d
