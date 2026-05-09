@@ -1,5 +1,4 @@
 """pytest configuration - skip PySide6 GUI tests when display is not available."""
-from pathlib import Path
 
 _PYSIDE6_GUI_TESTS = [
     "tests/test_project_manager.py",

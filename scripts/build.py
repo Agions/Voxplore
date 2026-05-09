@@ -5,7 +5,7 @@
 打包和发布脚本
 """
 
-import os
+import importlib.util
 import sys
 import subprocess
 import shutil
@@ -76,9 +76,7 @@ def build_exe(platform="auto"):
             platform = "linux"
     
     # 检查 pyinstaller
-    try:
-        import PyInstaller
-    except ImportError:
+    if importlib.util.find_spec("pyinstaller") is None:
         print("安装 PyInstaller...")
         subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"])
     

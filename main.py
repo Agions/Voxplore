@@ -12,7 +12,6 @@ Voxplore - AI Video Editor
 """
 
 import sys
-import os
 
 # 确保项目根目录在 Python 路径中
 from pathlib import Path

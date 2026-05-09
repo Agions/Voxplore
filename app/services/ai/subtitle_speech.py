@@ -236,7 +236,8 @@ class SpeechSubtitleExtractor:
         if ext in ('.mp3', '.wav', '.m4a', '.flac', '.ogg', '.aac'):
             return video_path
 
-        output = tempfile.mktemp(suffix='.wav', prefix='narrafiilm_stt_')
+        fd, output = tempfile.mkstemp(suffix='.wav', prefix='narrafiilm_stt_')
+        os.close(fd)  # mkstemp 创建文件，ffmpeg 会覆盖它
         cmd = [
             'ffmpeg', '-y', '-i', video_path,
             '-vn', '-acodec', 'pcm_s16le',
