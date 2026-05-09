@@ -156,24 +156,10 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
         video_material = VideoMaterial(
             path=source_video,
-            duration=int(duration * 1_000_000),
+            duration=TimeRange.from_seconds(duration).duration,
         )
         draft.add_video(video_material)
-
-        if segments_data:
-            for seg in segments_data:
-                segment = Segment(
-                    material_id=video_material.id,
-                    source_timerange=TimeRange.from_seconds(
-                        seg.get("source_start", 0),
-                        seg.get("duration", 0),
-                    ),
-                    target_timerange=TimeRange.from_seconds(
-                        seg.get("target_start", 0),
-                        seg.get("duration", 0),
-                    ),
-                )
-                video_track.add_segment(segment)
+        _add_segments_to_track(video_track, video_material.id, segments_data)
 
         return video_track
 
@@ -190,27 +176,33 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
         audio_material = AudioMaterial(
             path=audio_path,
-            duration=int(duration * 1_000_000),
+            duration=TimeRange.from_seconds(duration).duration,
             name=Path(audio_path).stem,
         )
         draft.add_audio(audio_material)
-
-        if segments_data:
-            for seg in segments_data:
-                segment = Segment(
-                    material_id=audio_material.id,
-                    source_timerange=TimeRange.from_seconds(
-                        seg.get("source_start", 0),
-                        seg.get("duration", 0),
-                    ),
-                    target_timerange=TimeRange.from_seconds(
-                        seg.get("target_start", 0),
-                        seg.get("duration", 0),
-                    ),
-                )
-                audio_track.add_segment(segment)
+        _add_segments_to_track(audio_track, audio_material.id, segments_data)
 
         return audio_track
+
+
+def _add_segments_to_track(
+    track: Track, material_id: str, segments_data: Optional[List[Dict]]
+) -> None:
+    """Add segments to a track from segments_data dict"""
+    if not segments_data:
+        return
+    for seg in segments_data:
+        track.add_segment(Segment(
+            material_id=material_id,
+            source_timerange=TimeRange.from_seconds(
+                seg.get("source_start", 0),
+                seg.get("duration", 0),
+            ),
+            target_timerange=TimeRange.from_seconds(
+                seg.get("target_start", 0),
+                seg.get("duration", 0),
+            ),
+        ))
 
     def _create_text_track(
         self,
