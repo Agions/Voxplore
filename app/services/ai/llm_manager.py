@@ -29,13 +29,18 @@ from .providers.hunyuan import HunyuanProvider
 
 logger = logging.getLogger(__name__)
 
-def _safe_import():
-    """安全导入依赖"""
-    try:
-        import httpx
-        return httpx
-    except ImportError:
-        return None
+# Provider 注册表: (配置键名, ProviderType, 提供商类, 默认 base_url)
+_PROVIDER_REGISTRY = [
+    ("qwen",     ProviderType.QWEN,     QwenProvider,     ""),
+    ("kimi",     ProviderType.KIMI,    KimiProvider,     ""),
+    ("glm5",     ProviderType.GLM5,    GLM5Provider,     ""),
+    ("claude",   ProviderType.CLAUDE,   ClaudeProvider,   "https://api.anthropic.com"),
+    ("gemini",   ProviderType.GEMINI,  GeminiProvider,   "https://generativelanguage.googleapis.com"),
+    ("local",    ProviderType.LOCAL,   LocalProvider,    "http://localhost:11434"),
+    ("deepseek", ProviderType.DEEPSEEK, DeepSeekProvider, "https://api.deepseek.com"),
+    ("doubao",   ProviderType.DOUBAO,  DoubaoProvider,   "https://ark.cn-beijing.volces.com/api/v3"),
+    ("hunyuan",  ProviderType.HUNYUAN, HunyuanProvider, "https://hunyuan.tencentcloudapi.com"),
+]
 
 
 class LLMManager:
@@ -49,152 +54,26 @@ class LLMManager:
     """
 
     def __init__(self, config: Dict[str, Any]):
-        """
-        初始化管理器
-
-        Args:
-            config: 配置字典
-        """
         self.config = config
         self.providers: Dict[ProviderType, BaseLLMProvider] = {}
         self._default_provider: Optional[ProviderType] = None
-
-        # 初始化提供商
         self._init_providers()
 
     def _init_providers(self):
         """初始化所有提供商"""
         llm_config = self.config.get("LLM", {})
 
-        def _add_provider(name: str, config: dict, provider_type: ProviderType, cls):
-            """通用 Provider 添加逻辑，返回是否成功"""
-            if config.get("enabled", False):
-                api_key = config.get("api_key", "")
-                if api_key and not api_key.startswith("${"):
-                    self.providers[provider_type] = cls(
-                        api_key=api_key,
-                        base_url=config.get("base_url", ""),
-                    )
-                    logger.info(f"✅ LLM Provider [{name}] 已加载")
-                    return True
-                else:
-                    logger.debug(f"⏭️  LLM Provider [{name}] 已启用但 API Key 未配置或为占位符")
-                    return False
-            return None
-
-        # 通义千问
-        qwen_config = llm_config.get("qwen", {})
-        if qwen_config.get("enabled", False):
-            api_key = qwen_config.get("api_key", "")
-            if api_key and api_key != "${QWEN_API_KEY}":
-                self.providers[ProviderType.QWEN] = QwenProvider(
-                    api_key=api_key,
-                    base_url=qwen_config.get("base_url", ""),
-                )
-                logger.info("✅ LLM Provider [qwen] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [qwen] 已启用但 API Key 未配置")
-
-        # Kimi
-        kimi_config = llm_config.get("kimi", {})
-        if kimi_config.get("enabled", False):
-            api_key = kimi_config.get("api_key", "")
-            if api_key and api_key != "${KIMI_API_KEY}":
-                self.providers[ProviderType.KIMI] = KimiProvider(
-                    api_key=api_key,
-                    base_url=kimi_config.get("base_url", ""),
-                )
-                logger.info("✅ LLM Provider [kimi] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [kimi] 已启用但 API Key 未配置")
-
-        # GLM-5
-        glm5_config = llm_config.get("glm5", {})
-        if glm5_config.get("enabled", False):
-            api_key = glm5_config.get("api_key", "")
-            if api_key and api_key != "${GLM5_API_KEY}":
-                self.providers[ProviderType.GLM5] = GLM5Provider(
-                    api_key=api_key,
-                    base_url=glm5_config.get("base_url", ""),
-                )
-                logger.info("✅ LLM Provider [glm5] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [glm5] 已启用但 API Key 未配置")
-
-        # Claude
-        claude_config = llm_config.get("claude", {})
-        if claude_config.get("enabled", False):
-            api_key = claude_config.get("api_key", "")
-            if api_key and api_key != "${CLAUDE_API_KEY}":
-                self.providers[ProviderType.CLAUDE] = ClaudeProvider(
-                    api_key=api_key,
-                    base_url=claude_config.get("base_url", "https://api.anthropic.com"),
-                )
-                logger.info("✅ LLM Provider [claude] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [claude] 已启用但 API Key 未配置")
-
-        # Gemini
-        gemini_config = llm_config.get("gemini", {})
-        if gemini_config.get("enabled", False):
-            api_key = gemini_config.get("api_key", "")
-            if api_key and api_key != "${GEMINI_API_KEY}":
-                self.providers[ProviderType.GEMINI] = GeminiProvider(
-                    api_key=api_key,
-                    base_url=gemini_config.get("base_url", "https://generativelanguage.googleapis.com"),
-                )
-                logger.info("✅ LLM Provider [gemini] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [gemini] 已启用但 API Key 未配置")
-
-        # 本地模型
-        local_config = llm_config.get("local", {})
-        if local_config.get("enabled", False):
-            self.providers[ProviderType.LOCAL] = LocalProvider(
-                api_key=local_config.get("api_key", ""),
-                base_url=local_config.get("base_url", "http://localhost:11434"),
-                backend=local_config.get("backend", "ollama"),
-            )
-            logger.info("✅ LLM Provider [local/ollama] 已加载")
-
-        # DeepSeek
-        deepseek_config = llm_config.get("deepseek", {})
-        if deepseek_config.get("enabled", False):
-            api_key = deepseek_config.get("api_key", "")
-            if api_key and api_key != "${DEEPSEEK_API_KEY}":
-                self.providers[ProviderType.DEEPSEEK] = DeepSeekProvider(
-                    api_key=api_key,
-                    base_url=deepseek_config.get("base_url", "https://api.deepseek.com"),
-                )
-                logger.info("✅ LLM Provider [deepseek] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [deepseek] 已启用但 API Key 未配置")
-
-        # 字节豆包 (Doubao)
-        doubao_config = llm_config.get("doubao", {})
-        if doubao_config.get("enabled", False):
-            api_key = doubao_config.get("api_key", "")
-            if api_key and api_key != "${DOUBAO_API_KEY}":
-                self.providers[ProviderType.DOUBAO] = DoubaoProvider(
-                    api_key=api_key,
-                    base_url=doubao_config.get("base_url", "https://ark.cn-beijing.volces.com/api/v3"),
-                )
-                logger.info("✅ LLM Provider [doubao] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [doubao] 已启用但 API Key 未配置")
-
-        # 腾讯混元 (Hunyuan)
-        hunyuan_config = llm_config.get("hunyuan", {})
-        if hunyuan_config.get("enabled", False):
-            api_key = hunyuan_config.get("api_key", "")
-            if api_key and api_key != "${HUNYUAN_API_KEY}":
-                self.providers[ProviderType.HUNYUAN] = HunyuanProvider(
-                    api_key=api_key,
-                    base_url=hunyuan_config.get("base_url", "https://hunyuan.tencentcloudapi.com"),
-                )
-                logger.info("✅ LLM Provider [hunyuan] 已加载")
-            else:
-                logger.debug("⏭️  LLM Provider [hunyuan] 已启用但 API Key 未配置")
+        for cfg_key, provider_type, provider_cls, default_base_url in _PROVIDER_REGISTRY:
+            cfg = llm_config.get(cfg_key, {})
+            if not cfg.get("enabled", False):
+                continue
+            api_key = cfg.get("api_key", "")
+            if not api_key or api_key.startswith("${"):
+                logger.debug(f"⏭️  LLM Provider [{cfg_key}] 已启用但 API Key 未配置或为占位符")
+                continue
+            base_url = cfg.get("base_url", default_base_url)
+            self.providers[provider_type] = provider_cls(api_key=api_key, base_url=base_url)
+            logger.info(f"✅ LLM Provider [{cfg_key}] 已加载")
 
         # 设置默认提供商
         default_name = llm_config.get("default_provider", "qwen")
@@ -215,7 +94,7 @@ class LLMManager:
         provider: Optional[ProviderType] = None,
     ) -> LLMResponse:
         """
-        生成文本
+        生成内容（单次）
 
         Args:
             request: LLM 请求
@@ -223,226 +102,128 @@ class LLMManager:
 
         Returns:
             LLM 响应
-        """
-        # 确定使用的提供商
-        if provider and provider in self.providers:
-            active_provider = self.providers[provider]
-        else:
-            provider = self._default_provider
-            if not provider or provider not in self.providers:
-                raise ProviderError("没有可用的提供商")
-            active_provider = self.providers[provider]
-
-        try:
-            return await active_provider.generate(request)
-
-        except ProviderError as e:
-            # 自动切换到下一个可用的提供商
-            logger.warning(f"提供商 {provider.value} 失败: {e}")
-            return await self._try_fallback(request, exclude=[provider])
-
-    async def _try_fallback(
-        self,
-        request: LLMRequest,
-        exclude: List[ProviderType],
-    ) -> LLMResponse:
-        """
-        尝试备用提供商
-
-        Args:
-            request: LLM 请求
-            exclude: 要排除的提供商列表
-
-        Returns:
-            LLM 响应
-
-        Raises:
-            ProviderError: 所有提供商均失败
-        """
-        for provider_type, provider_instance in self.providers.items():
-            if provider_type not in exclude:
-                try:
-                    logger.info(f"尝试备用提供商: {provider_type.value}")
-                    return await provider_instance.generate(request)
-                except ProviderError as e:
-                    logger.warning(f"提供商 {provider_type.value} 失败: {e}")
-                    continue
-
-        raise ProviderError("所有提供商均失败")
-
-    def get_provider(self, provider_type: ProviderType) -> BaseLLMProvider:
-        """
-        获取指定提供商
-
-        Args:
-            provider_type: 提供商类型
-
-        Returns:
-            提供商实例
-
-        Raises:
-            ValueError: 提供商不可用
-        """
-        if provider_type not in self.providers:
-            raise ValueError(f"提供商 {provider_type} 不可用")
-        return self.providers[provider_type]
-
-    def get_available_providers(self) -> List[ProviderType]:
-        """
-        获取可用的提供商列表
-
-        Returns:
-            提供商类型列表
-        """
-        return list(self.providers.keys())
-
-    def health_check(self) -> Dict[ProviderType, bool]:
-        """
-        健康检查所有提供商
-
-        Returns:
-            提供商健康状态字典
-        """
-        results = {}
-        for provider_type, provider in self.providers.items():
-            results[provider_type] = provider.health_check()
-        return results
-
-    async def stream_generate(
-        self,
-        prompt: str,
-        system_prompt: str = "",
-        model: str = "default",
-        max_tokens: int = 2000,
-        temperature: float = 0.7,
-        provider: Optional[ProviderType] = None,
-    ) -> AsyncIterator[dict]:
-        """
-        流式生成文本（仅支持 DeepSeek，其他提供商回退到非流式）
-
-        Args:
-            prompt: 用户提示词
-            system_prompt: 系统提示词
-            model: 模型名
-            max_tokens: 最大 token 数
-            temperature: 温度
-            provider: 指定提供商（默认 DeepSeek）
-
-        Yields:
-            dict: {'content': str, 'done': bool}
         """
         if provider is None:
             provider = self._default_provider
 
-        provider_instance = self.providers.get(provider)
-        if not provider_instance:
-            # 回退到 DeepSeek
-            provider = ProviderType.DEEPSEEK
-            provider_instance = self.providers.get(provider)
-            if not provider_instance:
-                return
+        if provider not in self.providers:
+            return await self._try_fallback(request, provider)
 
-        # 检查是否支持流式
-        if not hasattr(provider_instance, "stream_generate"):
-            # 不支持流式，回退到普通 generate
-            request = LLMRequest(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                model=model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-            response = await provider_instance.generate(request)
-            yield {"done": False, "content": response.content}
-            yield {"done": True, "content": ""}
-            return
+        try:
+            return await self.providers[provider].generate(request)
+        except Exception as e:
+            logger.warning(f"Provider {provider} 生成失败: {e}")
+            return await self._try_fallback(request, provider)
 
-        request = LLMRequest(
-            prompt=prompt,
-            system_prompt=system_prompt,
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
-        async for chunk in provider_instance.stream_generate(request):
-            yield chunk
-
-    async def close_all(self):
-        """关闭所有提供商的连接"""
-        for provider in self.providers.values():
-            if hasattr(provider, "close"):
-                await provider.close()
-
-    def generate_sync(
+    async def _try_fallback(
         self,
-        prompt: str,
-        system_prompt: str = "",
-        model: str = "default",
-        max_tokens: int = 2000,
-        temperature: float = 0.7,
-        provider: Optional[ProviderType] = None
-    ) -> str:
+        request: LLMRequest,
+        failed_provider: Optional[ProviderType],
+    ) -> LLMResponse:
+        """尝试备用提供商"""
+        for p, provider in self.providers.items():
+            if p != failed_provider:
+                try:
+                    return await provider.generate(request)
+                except Exception as e:
+                    logger.warning(f"Provider {p} 也失败: {e}")
+        raise ProviderError("所有 Provider 都失败")
+
+    def get_provider(self, provider_type: ProviderType) -> BaseLLMProvider:
+        """获取指定类型的 Provider"""
+        return self.providers.get(provider_type)
+
+    def get_available_providers(self) -> List[ProviderType]:
+        """获取所有可用的 Provider 类型"""
+        return list(self.providers.keys())
+
+    def health_check(self) -> Dict[ProviderType, bool]:
+        """检查所有 Provider 健康状态"""
+        return {
+            p: provider.health_check()
+            for p, provider in self.providers.items()
+        }
+
+    async def stream_generate(
+        self,
+        request: LLMRequest,
+        provider: Optional[ProviderType] = None,
+    ) -> AsyncIterator[str]:
         """
-        同步版本的文本生成（方便非异步环境调用）
+        流式生成
 
         Args:
-            prompt: 用户提示词
-            system_prompt: 系统提示词
-            model: 模型名称
-            max_tokens: 最大生成长度
-            temperature: 温度参数
+            request: LLM 请求
             provider: 指定提供商（可选）
 
-        Returns:
-            生成的文本内容
-
-        Raises:
-            ProviderError: 所有提供商均失败
+        Yields:
+            文本块
         """
-        import asyncio
-        import concurrent.futures
+        if provider is None:
+            provider = self._default_provider
 
-        request = LLMRequest(
-            prompt=prompt,
-            system_prompt=system_prompt,
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature
-        )
+        if provider not in self.providers:
+            logger.warning(f"Provider {provider} 不可用，尝试流式回退")
+            async for chunk in self._stream_fallback(request, provider):
+                yield chunk
+            return
 
-        # 如果已经有 running loop，在新线程的独立 loop 中运行
+        p = self.providers[provider]
+        if not hasattr(p, 'stream_generate'):
+            response = await p.generate(request)
+            yield response.content
+            return
+
         try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            # 没有运行中的 loop，可以安全用 asyncio.run()
-            result = asyncio.run(self.generate(request, provider))
-            return result.content
+            async for chunk in p.stream_generate(request):
+                yield chunk
+        except Exception as e:
+            logger.warning(f"Provider {provider} 流式生成失败: {e}")
+            async for chunk in self._stream_fallback(request, provider):
+                yield chunk
 
-        # 已有 loop，在新线程中运行（避免与 running loop 冲突）
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            future = pool.submit(asyncio.run, self.generate(request, provider))
-            result = future.result()
-            return result.content
-
-    def ask(
+    async def _stream_fallback(
         self,
-        prompt: str,
-        system_prompt: str = "",
-        **kwargs
-    ) -> str:
-        """
-        简单的问答接口（同步）
+        request: LLMRequest,
+        failed_provider: Optional[ProviderType],
+    ) -> AsyncIterator[str]:
+        """流式回退"""
+        for p in self.providers:
+            if p != failed_provider:
+                try:
+                    prov = self.providers[p]
+                    if hasattr(prov, 'stream_generate'):
+                        async for chunk in prov.stream_generate(request):
+                            yield chunk
+                    else:
+                        resp = await prov.generate(request)
+                        yield resp.content
+                    return
+                except Exception as e:
+                    logger.warning(f"Provider {p} 流式也失败: {e}")
+        raise ProviderError("所有 Provider 流式都失败")
 
-        Args:
-            prompt: 用户问题
-            system_prompt: 系统提示词
-            **kwargs: 其他参数传递给 generate_sync
+    async def close_all(self):
+        """关闭所有 Provider 连接"""
+        for provider in self.providers.values():
+            await provider.close()
 
-        Returns:
-            AI 生成的答案
-        """
-        result = self.generate_sync(prompt, system_prompt, **kwargs)
-        return result if isinstance(result, str) else str(result)
+    def generate_sync(self, request: LLMRequest, provider: Optional[ProviderType] = None) -> LLMResponse:
+        """同步生成（内部使用）"""
+        import asyncio
+        return asyncio.run(self.generate(request, provider))
+
+    def ask(self, question: str, context: str = "", provider: Optional[ProviderType] = None) -> str:
+        """快捷方法：简单问答"""
+        request = LLMRequest(
+            prompt=question,
+            system_prompt=f"你是一个有帮助的AI助手。{context}" if context else "你是一个有帮助的AI助手。",
+            model="",
+            max_tokens=2048,
+            temperature=0.7,
+        )
+        response = self.generate_sync(request, provider)
+        return response.content
 
     async def __aenter__(self):
         return self
@@ -452,46 +233,24 @@ class LLMManager:
 
 
 def load_llm_config(config_file: str = "config/llm.yaml") -> Dict[str, Any]:
-    """
-    加载 LLM 配置
-
-    Args:
-        config_file: 配置文件路径
-
-    Returns:
-        配置字典
-    """
-    import os
-    from pathlib import Path
-
+    """加载 LLM 配置"""
+    import yaml
     try:
-        import yaml
-    except ImportError:
-        raise ImportError("需要安装 pyyaml: pip install pyyaml")
+        with open(config_file, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+            return config or {}
+    except FileNotFoundError:
+        logger.warning(f"LLM 配置文件 {config_file} 不存在，使用空配置")
+        return {}
 
-    config_path = Path(config_file)
-
-    if not config_path.exists():
-        # 返回默认配置
-        return {"LLM": {"default_provider": "qwen"}}
-
-    # 读取配置
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-
-    # 替换环境变量
     def replace_env_vars(obj):
-        """递归替换环境变量"""
+        """替换配置中的环境变量"""
         if isinstance(obj, dict):
             return {k: replace_env_vars(v) for k, v in obj.items()}
-        elif isinstance(obj, str):
-            if obj.startswith("${") and obj.endswith("}"):
-                env_var = obj[2:-1]
-                return os.getenv(env_var, obj)
-            return obj
-        else:
-            return obj
-
-    config = replace_env_vars(config)
-
-    return config
+        elif isinstance(obj, list):
+            return [replace_env_vars(item) for item in obj]
+        elif isinstance(obj, str) and obj.startswith("env:"):
+            import os
+            env_key = obj[4:]
+            return os.environ.get(env_key, obj)
+        return obj
