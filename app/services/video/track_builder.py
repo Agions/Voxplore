@@ -70,7 +70,7 @@ def build_monologue_tracks(
 
     video_material = VideoMaterial(
         path=source_video,
-        duration=int(video_duration * 1_000_000),
+        duration=TimeRange.from_seconds(0, video_duration).duration,
     )
     draft.add_video(video_material)
 
@@ -96,7 +96,7 @@ def build_monologue_tracks(
         if segment.audio_path:
             audio_material = AudioMaterial(
                 path=segment.audio_path,
-                duration=int(segment.audio_duration * 1_000_000),
+                duration=TimeRange.from_seconds(0, segment.audio_duration).duration,
                 name=Path(segment.audio_path).stem,
             )
             draft.add_audio(audio_material)
