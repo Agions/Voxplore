@@ -27,7 +27,7 @@ import logging
 import json
 import shutil
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple, Any
+from typing import Optional, List, Dict, Any
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .jianying_models import (
@@ -244,15 +244,15 @@ class JianyingExporter:
             return str(dst)
 
         # 收集所有待复制的素材
-        tasks: List[Tuple[str, str]] = []  # [(src_path, type), ...]
+        tasks: List[str] = []
 
         for video in draft.materials.videos:
             if video.path:
-                tasks.append((video.path, "video"))
+                tasks.append(video.path)
 
         for audio in draft.materials.audios:
             if audio.path:
-                tasks.append((audio.path, "audio"))
+                tasks.append(audio.path)
 
         # 并行复制所有素材
         if tasks:
@@ -260,7 +260,7 @@ class JianyingExporter:
             with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = {
                     executor.submit(_copy_single, src, materials_folder): src
-                    for src, _ in tasks
+                    for src in tasks
                 }
                 for future in as_completed(futures):
                     src = futures[future]
