@@ -191,18 +191,11 @@ class TextMaterial:
     background_color: str = ""
     has_shadow: bool = True
 
+    # 素材类型（固定为 text，asdict 直接导出）
+    type: str = "text"
+
     def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "content": self.content,
-            "font_path": self.font_path,
-            "font_size": self.font_size,
-            "font_color": self.font_color,
-            "alignment": self.alignment,
-            "background_color": self.background_color,
-            "has_shadow": self.has_shadow,
-            "type": "text",
-        }
+        return asdict(self)
 
 
 @dataclass
