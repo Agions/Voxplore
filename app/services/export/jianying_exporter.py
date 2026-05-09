@@ -272,13 +272,9 @@ class JianyingExporter:
                         logger.warning(f"素材复制失败 {src}: {e}")
 
             # 更新路径为相对路径
-            for video in draft.materials.videos:
-                if video.path and video.path in results:
-                    video.path = results[video.path]
-
-            for audio in draft.materials.audios:
-                if audio.path and audio.path in results:
-                    audio.path = results[audio.path]
+            for material in draft.materials.videos + draft.materials.audios:
+                if material.path and material.path in results:
+                    material.path = results[material.path]
 
     def _write_json(self, path: Path, data: dict) -> None:
         """写入 JSON 文件"""
