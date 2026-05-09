@@ -17,7 +17,7 @@
     from app.core.models.project_models import Project, ProjectType, ProjectMetadata
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -128,15 +128,7 @@ class ProjectSettings:
     channels: int = 2
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "resolution": self.resolution,
-            "fps": self.fps,
-            "bitrate": self.bitrate,
-            "codec": self.codec,
-            "audio_codec": self.audio_codec,
-            "sample_rate": self.sample_rate,
-            "channels": self.channels,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ProjectSettings':
@@ -167,19 +159,7 @@ class ProjectMedia:
     created_at: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "type": self.type,
-            "path": self.path,
-            "duration": self.duration,
-            "size": self.size,
-            "width": self.width,
-            "height": self.height,
-            "fps": self.fps,
-            "codec": self.codec,
-            "created_at": self.created_at,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMedia':
@@ -207,12 +187,7 @@ class ProjectTimeline:
     out_point: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "tracks": self.tracks,
-            "duration": self.duration,
-            "in_point": self.in_point,
-            "out_point": self.out_point,
-        }
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ProjectTimeline':
