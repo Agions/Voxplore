@@ -373,7 +373,7 @@ class VoxploreWindow(QMainWindow):
         # 状态栏
         self.status_bar = QStatusBar()
         self.status_bar.setFixedHeight(28)
-        self.status_bar.setStyleSheet(f"""
+        self.status_bar.setStyleSheet("""
             QStatusBar {{
                 color: #6B7280;
                 font-size: 11px;
