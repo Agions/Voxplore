@@ -91,7 +91,6 @@ class Segment:
     def to_dict(self) -> dict:
         """转换为剪映 JSON 格式"""
         result = asdict(self)
-        # TimeRange 需要调用自身的 to_dict()
         result["target_timerange"] = self.target_timerange.to_dict()
         result["source_timerange"] = self.source_timerange.to_dict()
         return result
@@ -117,10 +116,11 @@ class Track:
         self.segments.append(segment)
 
     def to_dict(self) -> dict:
-        d = asdict(self)
-        d["type"] = self.type.value
-        d["segments"] = [s.to_dict() for s in self.segments]
-        return d
+        return {
+            **asdict(self),
+            "type": self.type.value,
+            "segments": [s.to_dict() for s in self.segments],
+        }
 
 
 # ─── 素材模型 ────────────────────────────────────────────────
@@ -139,9 +139,6 @@ class VideoMaterial:
     category_id: str = ""
     category_name: str = "local"
 
-    def to_dict(self) -> dict:
-        return asdict(self)
-
 
 @dataclass
 class AudioMaterial:
@@ -153,9 +150,6 @@ class AudioMaterial:
     # 音频属性
     type: str = "music"
     name: str = ""
-
-    def to_dict(self) -> dict:
-        return asdict(self)
 
 
 @dataclass
@@ -183,9 +177,6 @@ class TextMaterial:
     # 素材类型（固定为 text，asdict 直接导出）
     type: str = "text"
 
-    def to_dict(self) -> dict:
-        return asdict(self)
-
 
 @dataclass
 class JianyingMaterials:
@@ -195,11 +186,7 @@ class JianyingMaterials:
     texts: List[TextMaterial] = field(default_factory=list)
 
     def to_dict(self) -> dict:
-        return {
-            "videos": [v.to_dict() for v in self.videos],
-            "audios": [a.to_dict() for a in self.audios],
-            "texts": [t.to_dict() for t in self.texts],
-        }
+        return asdict(self)
 
 
 @dataclass
@@ -208,9 +195,6 @@ class CanvasConfig:
     width: int = 1080  # 竖屏短视频
     height: int = 1920
     ratio: str = "9:16"
-
-    def to_dict(self) -> dict:
-        return asdict(self)
 
 
 # ─── 复合模型 ────────────────────────────────────────────────
@@ -276,7 +260,7 @@ class JianyingDraft:
         """
         self.calculate_duration()
         d = asdict(self)
-        d["canvas_config"] = self.canvas_config.to_dict()
+        d["canvas_config"] = asdict(self.canvas_config)
         d["tracks"] = [t.to_dict() for t in self.tracks]
         d["materials"] = self.materials.to_dict()
         return d
@@ -319,6 +303,6 @@ __all__ = [
     "CanvasConfig",
     # 复合模型
     "JianyingDraft",
-    # 配置
+    # 导出配置
     "JianyingConfig",
 ]
