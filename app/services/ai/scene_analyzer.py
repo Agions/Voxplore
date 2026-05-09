@@ -222,26 +222,38 @@ class SceneAnalyzer:
 
         scene.type = self._infer_scene_type(scene)
 
-    def _get_avg_brightness(self, video_path: str, start: float, duration: float) -> float:
-        """获取场景平均亮度"""
+    def _run_video_metric(
+        self,
+        video_path: str,
+        start: float,
+        duration: float,
+        vf: str,
+        regex: str,
+        default: float,
+    ) -> float:
+        """通用的 FFmpeg 视频指标提取"""
         try:
             cmd = [
                 'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
-                '-i', video_path,
-                '-vf', 'signalstats',
-                '-f', 'null', '-'
+                '-i', video_path, '-vf', vf, '-f', 'null', '-'
             ]
-
             result = self._executor.run(cmd, timeout=30)
-
-            match = re.search(r'YAVG:(\d+\.?\d*)', result.stderr)
+            match = re.search(regex, result.stderr)
             if match:
-                return float(match.group(1)) / 255.0
+                return float(match.group(1))
+        except Exception:
+            pass
+        return default
 
-        except Exception as e:
-            logger.debug(f"Getting brightness failed: {e}")
-
-        return 0.5
+    def _get_avg_brightness(self, video_path: str, start: float, duration: float) -> float:
+        """获取场景平均亮度"""
+        val = self._run_video_metric(
+            video_path, start, duration,
+            vf='signalstats',
+            regex=r'YAVG:(\d+\.?\d*)',
+            default=0.5,
+        )
+        return val / 255.0
 
     def _get_motion_level(self, video_path: str, start: float, duration: float) -> float:
         """获取场景运动程度"""
@@ -252,40 +264,24 @@ class SceneAnalyzer:
                 '-filter:v', "select='gte(scene,0)',metadata=print",
                 '-f', 'null', '-'
             ]
-
             result = self._executor.run(cmd, timeout=30)
-
             scores = re.findall(r'lavfi\.scene_score=(\d+\.?\d*)', result.stderr)
             if scores:
                 avg_score = sum(float(s) for s in scores) / len(scores)
                 return min(1.0, avg_score * 2)
-
         except Exception as e:
             logger.debug(f"Scene score detection failed: {e}")
-
         return 0.3
 
     def _get_audio_level(self, video_path: str, start: float, duration: float) -> float:
         """获取场景音频音量"""
-        try:
-            cmd = [
-                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
-                '-i', video_path,
-                '-af', 'volumedetect',
-                '-f', 'null', '-'
-            ]
-
-            result = self._executor.run(cmd, timeout=30)
-
-            match = re.search(r'mean_volume:\s*([-\d.]+)', result.stderr)
-            if match:
-                db = float(match.group(1))
-                return max(0, min(1, (db + 60) / 60))
-
-        except Exception as e:
-            logger.debug(f"Audio level detection failed: {e}")
-
-        return 0.5
+        db = self._run_video_metric(
+            video_path, start, duration,
+            vf='volumedetect',
+            regex=r'mean_volume:\s*([-\d.]+)',
+            default=-60.0,
+        )
+        return max(0, min(1, (db + 60) / 60))
 
     def _calculate_suitability(self, scene: SceneInfo) -> float:
         """计算场景作为解说画面的适用性"""
