@@ -60,7 +60,7 @@ async def list_plugins():
         return PluginListResponse(total=len(plugins), plugins=plugins)
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/plugins/{plugin_id}", response_model=PluginInfo)
@@ -93,7 +93,7 @@ async def get_plugin(plugin_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/plugins/{plugin_id}/enable")
@@ -117,7 +117,7 @@ async def enable_plugin(plugin_id: str, request: PluginEnableRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/plugins/types")
@@ -135,7 +135,7 @@ async def list_plugin_types():
             ]
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 def _type_description(plugin_type: str) -> str:

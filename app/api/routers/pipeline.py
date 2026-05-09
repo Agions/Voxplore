@@ -136,7 +136,8 @@ async def _process_narration(task_id: str):
 
         # ── 步骤 5: 生成字幕 ──
         _update(task, "caption", 75.0, "正在生成字幕...")
-        integrator.generate_captions(project, style=req.get("caption_style", "cinematic"))
+        caption_style = req.get("caption_style", "cinematic")
+        integrator.generate_captions(project, style=caption_style)
 
         # ── 步骤 6: 视角映射 + 穿插 ──
         if req.get("include_interleave", True):
