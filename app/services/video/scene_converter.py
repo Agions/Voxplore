@@ -13,7 +13,6 @@ from typing import List, Optional
 
 from app.services.ai.scene_models import SceneInfo, SceneType
 from app.services.video.models.perspective_models import (
-    ClipSegment,
     NarrationSegment,
     SceneSegment,
 )

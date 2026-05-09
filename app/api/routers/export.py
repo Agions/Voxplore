@@ -3,10 +3,8 @@ Export Router
 导出 API - 支持 MP4/MOV/GIF/剪映草稿格式
 """
 
-import asyncio
 import uuid
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 

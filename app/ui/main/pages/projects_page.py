@@ -8,7 +8,7 @@ Voxplore 项目管理页面 - 重构版
 
 import logging
 from typing import Optional
-from PySide6.QtWidgets import QSplitter, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QSplitter, QWidget
 from PySide6.QtCore import Qt
 
 from .base_page import BasePage

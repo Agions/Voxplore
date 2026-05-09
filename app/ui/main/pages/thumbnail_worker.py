@@ -12,10 +12,9 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
-logger = logging.getLogger(__name__)
-
 from ...utils.security import get_ffmpeg_executor
 
+logger = logging.getLogger(__name__)
 _video_executor = get_ffmpeg_executor()
 
 

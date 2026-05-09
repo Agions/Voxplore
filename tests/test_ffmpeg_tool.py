@@ -4,7 +4,6 @@
 import os
 import tempfile
 from unittest.mock import Mock, patch
-from subprocess import CalledProcessError
 
 from app.services.video_tools.ffmpeg_tool import FFmpegTool
 from app.utils.security import SecurityError

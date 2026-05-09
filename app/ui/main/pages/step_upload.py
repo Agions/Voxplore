@@ -21,7 +21,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
-    QLineEdit, QComboBox, QFrame, QProgressBar,
+    QLineEdit, QComboBox, QProgressBar,
     QScrollArea
 )
 from PySide6.QtCore import Qt, Signal

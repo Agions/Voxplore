@@ -9,18 +9,17 @@
 2. 本地 Faster-Whisper 模型(离线,速度快 3-4x,推荐)
 """
 
+import logging
 import os
 import tempfile
-import logging
-logger = logging.getLogger(__name__)
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
-
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from ...utils.security import get_ffmpeg_executor
 
+logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()
 
 

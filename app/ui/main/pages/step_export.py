@@ -13,7 +13,7 @@ import os
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QFrame, QProgressBar,
+    QPushButton, QProgressBar,
     QFileDialog, QSizePolicy, QRadioButton, QButtonGroup, QMessageBox
 )
 from PySide6.QtCore import Qt, Signal, QUrl

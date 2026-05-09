@@ -6,12 +6,13 @@ FFmpeg 工具模块
 
 import json
 import logging
-import subprocess
 import tempfile
 from pathlib import Path
-logger = logging.getLogger(__name__)
-from typing import Optional, List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple
+
 from ...utils.security import get_ffmpeg_executor, SecurityError
+
+logger = logging.getLogger(__name__)
 
 
 class FFmpegTool:

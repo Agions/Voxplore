@@ -2,7 +2,6 @@
 """测试高光检测器"""
 
 import pytest
-from pathlib import Path
 from app.services.video import (
     HighlightDetector,
     HighlightSegment,

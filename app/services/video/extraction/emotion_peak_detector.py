@@ -14,9 +14,9 @@ from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 import logging
 
-logger = logging.getLogger(__name__)
-
 from app.services.video.extraction.first_person_extractor import VideoSegment
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

@@ -18,10 +18,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-logger = logging.getLogger(__name__)
 
 from ...utils.security import get_ffmpeg_executor
 
+logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()
 
 

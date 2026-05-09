@@ -16,11 +16,12 @@ from typing import Optional, Generic, TypeVar
 from dataclasses import dataclass, field
 import logging
 
+from ..video_tools.ffmpeg_tool import FFmpegTool
+
+logger = logging.getLogger(__name__)
+
 # Premiere tick rate constant (must be defined before any function using it)
 PREMIERE_TICKS_PER_SECOND = 254016000000
-
-from ..video_tools.ffmpeg_tool import FFmpegTool
-logger = logging.getLogger(__name__)
 
 
 # ========== 时间处理工具 ==========

@@ -4,8 +4,10 @@ Pydantic 模型定义
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from enum import Enum
+
+from app.services.export.export_manager import ExportFormat as ManagerExportFormat
 
 
 # ─────────────────────────────────────────────────────────────
@@ -18,10 +20,6 @@ class EmotionType(str, Enum):
     MOTIVATIONAL = "motivational"  # 励志
     NOSTALGIC = "nostalgic"   # 怀旧
     ROMANTIC = "romantic"     # 浪漫
-
-
-# API 层 ExportFormat：统一使用 export_manager.ExportFormat
-from app.services.export.export_manager import ExportFormat as ManagerExportFormat
 
 
 class InterleaveModeAPI(str, Enum):

@@ -8,10 +8,8 @@ Task 2.2 UX 改善:
 - 置信度显示：每组显示AI分组置信度百分比
 """
 
-import os
 import json
 import logging
-from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
     QFrame, QScrollArea, QSizePolicy, QProgressBar, QLineEdit

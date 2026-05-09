@@ -8,13 +8,11 @@
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QComboBox, QSpacerItem, QSizePolicy, QMessageBox,
+    QComboBox, QSpacerItem, QSizePolicy,
 )
-from PySide6.QtCore import Qt, QTimer
 
 from app.ui.components import (
-    MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
-    MacIconButton, MacSearchBox, MacScrollArea,
+    MacElevatedCard, MacSearchBox, MacScrollArea,
 )
 from app.core.project_manager import ProjectType, ProjectStatus
 from .project_cards import ProjectCard

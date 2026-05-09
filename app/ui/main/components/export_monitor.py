@@ -11,8 +11,8 @@ from typing import Dict, List, Optional
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QPushButton, QProgressBar, QSplitter, QGroupBox,
                             QScrollArea, QDialog, QMessageBox)
-from PySide6.QtCore import Qt, QTimer, Signal, QRect
-from PySide6.QtGui import QFont, QColor, QPainter, QPen, QPoint
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QFont
 
 from app.ui.components.design_system import Colors
 from app.ui.main.components.export_statistics_widget import ExportStatisticsWidget
