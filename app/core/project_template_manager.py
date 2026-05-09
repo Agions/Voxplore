@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 import logging
 
-from PySide6.QtCore import QObject, Signal
+from app.core._signals import QObject, Signal
 
 from .project_manager import Project, ProjectType
 from .config_manager import ConfigManager

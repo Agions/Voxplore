@@ -11,8 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTimer, Signal, QObject, QSettings
+from app.core._signals import QObject, Signal
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +62,7 @@ class ErrorInfo:
     message: str
     details: Optional[str] = None
     exception: Optional[Exception] = None
-    timestamp: float = field(default_factory=lambda: QApplication.instance().property('timestamp') if QApplication.instance() else 0)
+    timestamp: float = field(default_factory=lambda: (__import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication.instance() or {}).get('timestamp', 0))
 
 
 class Application(QObject):
@@ -94,7 +93,7 @@ class Application(QObject):
         self._event_handlers: Dict[str, List[Callable]] = {}
 
         # 定时器和任务
-        self._timers: Dict[str, QTimer] = {}
+        self._timers: Dict[str, object] = {}
         self._tasks: List[Callable] = []
 
         # 初始化顺序
@@ -113,6 +112,7 @@ class Application(QObject):
             self._set_state(ApplicationState.INITIALIZING)
 
             # 确保QApplication存在 - 应该已经在main.py中创建
+            QApplication = __import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication
             app = QApplication.instance()
             if not app:
                 self.error_occurred.emit("INIT_ERROR", "QApplication not created. Call QApplication.instance() first.")
@@ -200,6 +200,7 @@ class Application(QObject):
     def run(self) -> int:
         """运行应用程序主循环"""
         try:
+            QApplication = __import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication
             app = QApplication.instance()
             if not app:
                 self.error_occurred.emit("RUN_ERROR", "QApplication not found")
@@ -290,7 +291,7 @@ class Application(QObject):
                     except Exception as e:
                         self.error_occurred.emit("EVENT_ERROR", f"Event handler error: {str(e)}")
 
-    def add_timer(self, name: str, interval: int, callback: Callable, single_shot: bool = False) -> QTimer:
+    def add_timer(self, name: str, interval: int, callback: Callable, single_shot: bool = False) -> object:
         """
         添加定时器
 
@@ -299,6 +300,7 @@ class Application(QObject):
         确保所有定时器相关调用都在主线程中执行，或使用 QMetaObject.invokeMethod
         将定时器操作调度到主线程。
         """
+        QTimer = __import__('PySide6.QtCore', fromlist=['QTimer']).QTimer
         timer = QTimer()
         timer.setInterval(interval)
         timer.setSingleShot(single_shot)
@@ -453,6 +455,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从文件或注册表加载配置
+            QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
             _settings = QSettings("Voxplore", "Application")
 
             # 加载应用程序配置
@@ -465,6 +468,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存配置到文件或注册表
+            QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
             _settings = QSettings("Voxplore", "Application")
 
             self.logger.info("配置保存完成")

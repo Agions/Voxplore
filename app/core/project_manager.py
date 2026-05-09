@@ -16,7 +16,7 @@ from dataclasses import asdict
 from typing import Dict, List, Optional, Any
 import logging
 
-from PySide6.QtCore import QObject, Signal
+from app.core._signals import QObject, Signal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager
