@@ -56,7 +56,7 @@ class TestCreateTaskStore:
         with patch.dict("os.environ", {"REDIS_URL": "redis://localhost:6379/0"}):
             with patch("app.api.routers._task_store.RedisTaskStore") as mock_redis:
                 mock_redis.return_value = mock_redis
-                store = create_task_store()
+                _store = create_task_store()
                 # create_task_store tries RedisTaskStore; on connection fail falls back
                 # so we just verify it doesn't crash and returns a TaskStore
 

@@ -45,7 +45,7 @@ def _handle_project_error(action_code: str, action_name: str):
                 # 根据返回值类型返回 False 或 None
                 hints = {'bool': False, 'str': None}
                 ret_type = method.__annotations__.get('return', '')
-                return hints.get(str(ret_type).split("'")[1] if "'" in str(ret_type) else '', None)
+                return hints.get(str(ret_type).split("'")[1] if "'" in str(ret_type) else '')
         return wrapper
     return decorator
 
