@@ -509,41 +509,4 @@ def load_project(project_path: str) -> VoxploreProject:
 
 # ========== 使用示例 ==========
 
-def demo_project_management():
-    """演示项目管理"""
-    logger.info("=" * 50)
-    logger.info("Voxplore 项目管理演示")
-    logger.info("=" * 50)
-
-    manager = ProjectManager()
-
-    # 创建项目
-    project = manager.create_project(
-        name="我的第一个视频",
-        project_type=ProjectType.COMMENTARY,
-    )
-
-    # 添加素材
-    manager.add_source(project, "/path/to/video.mp4", "video")
-    manager.add_source(project, "/path/to/bgm.mp3", "audio")
-
-    # 配置项目
-    project.config.llm_provider = "deepseek"
-    project.config.llm_model = "deepseek-chat"
-    project.config.voice_provider = "edge"
-    project.config.target_duration = 120.0
-    project.config.target_platform = "bilibili"
-
-    # 保存项目
-    save_path = manager.save(project, "./demo_project.narrafiilm")
-    logger.info(f"项目已保存: {save_path}")
-
-    # 加载项目
-    loaded = manager.load(save_path)
-    logger.info(f"项目已加载: {loaded.metadata.name}")
-    logger.info(f"素材数量: {len(loaded.sources)}")
-    logger.info(f"目标平台: {loaded.config.target_platform}")
-
-
-if __name__ == '__main__':
-    demo_project_management()
+# （示例代码已移除，保持文件简洁）
