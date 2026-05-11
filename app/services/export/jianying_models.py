@@ -190,6 +190,10 @@ class JianyingMaterials:
     audios: List[AudioMaterial] = field(default_factory=list)
     texts: List[TextMaterial] = field(default_factory=list)
 
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
 @dataclass
 class CanvasConfig:
     """画布配置"""

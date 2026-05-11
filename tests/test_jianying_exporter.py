@@ -7,8 +7,15 @@ from app.services.export.jianying_exporter import (
     MaterialType,
     TimeRange,
     Track,
+    Segment,
     JianyingDraft,
     JianyingExporter,
+)
+from app.services.export.jianying_models import (
+    JianyingMaterials,
+    VideoMaterial,
+    AudioMaterial,
+    TextMaterial,
 )
 
 
@@ -113,3 +120,60 @@ class TestJianyingExporter:
         track = Track(type=TrackType.AUDIO)
 
         assert track.type == TrackType.AUDIO
+
+
+class TestJianyingMaterials:
+    """测试素材集合"""
+
+    def test_to_dict(self):
+        """测试 to_dict 方法（JianyingMaterials 无 to_dict 会导致 to_draft_content 失败）"""
+        mats = JianyingMaterials(
+            videos=[VideoMaterial(path="/test.mp4", duration=5000000)],
+            audios=[AudioMaterial(path="/a.mp3", duration=3000000)],
+            texts=[TextMaterial(content="测试字幕")],
+        )
+        result = mats.to_dict()
+        assert "videos" in result
+        assert "audios" in result
+        assert "texts" in result
+        assert result["videos"][0]["path"] == "/test.mp4"
+
+
+class TestJianyingDraftContent:
+    """测试 draft 内容生成"""
+
+    def test_to_draft_content(self):
+        """测试 to_draft_content 生成完整 JSON（JianyingMaterials 缺失 to_dict 会触发 AttributeError）"""
+        draft = JianyingDraft(name="Test")
+        draft.materials = JianyingMaterials(
+            videos=[VideoMaterial(path="/a.mp4", duration=5000000)],
+            audios=[],
+            texts=[],
+        )
+        content = draft.to_draft_content()
+        assert content["name"] == "Test"
+        assert "materials" in content
+        assert "tracks" in content
+        assert content["materials"]["videos"][0]["path"] == "/a.mp4"
+
+    def test_to_draft_content_with_segments(self):
+        """测试带轨道片段的 to_draft_content"""
+        draft = JianyingDraft(name="With Segments")
+        draft.materials = JianyingMaterials(
+            videos=[VideoMaterial(id="v1", path="/a.mp4", duration=5000000)],
+            audios=[],
+            texts=[],
+        )
+        track = Track(id="t1", type=TrackType.VIDEO)
+        track.add_segment(
+            Segment(
+                material_id="v1",
+                target_timerange=TimeRange(start=0, duration=5000000),
+                source_timerange=TimeRange(start=0, duration=5000000),
+            )
+        )
+        draft.tracks.append(track)
+        content = draft.to_draft_content()
+        assert len(content["tracks"]) == 1
+        assert content["tracks"][0]["type"] == "video"
+        assert len(content["tracks"][0]["segments"]) == 1
