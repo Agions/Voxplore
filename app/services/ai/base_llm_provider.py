@@ -349,7 +349,10 @@ class HTTPClientMixin:
             if line.startswith("data: "):
                 if line.strip() == "data: [DONE]":
                     break
-                data = json.loads(line[6:])
+                try:
+                    data = json.loads(line[6:])
+                except json.JSONDecodeError:
+                    continue  # Skip malformed JSON lines
                 choices_key = "choices"
                 if choices_key in data and len(data[choices_key]) > 0:
                     delta = data[choices_key][0].get(delta_key, {})

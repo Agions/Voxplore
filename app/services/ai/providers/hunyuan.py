@@ -143,7 +143,10 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if line:
-                        data = json.loads(line)
+                        try:
+                            data = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
                         if "Choices" in data:
                             delta = data["Choices"][0].get("Delta", {})
                             if "Content" in delta:
