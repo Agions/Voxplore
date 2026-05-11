@@ -11,7 +11,6 @@ Google Gemini 提供商
 import base64
 from pathlib import Path
 
-import httpx
 from ..base_llm_provider import (
     BaseLLMProvider,
     LLMRequest,

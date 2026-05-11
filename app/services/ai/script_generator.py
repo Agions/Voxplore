@@ -51,7 +51,7 @@ from .script_models import (
 import logging
 logger = logging.getLogger(__name__)
 
-__all__ = ["ScriptGenerator", "generate_script", "demo_generate"]
+__all__ = ["ScriptGenerator", "generate_script"]
 
 
 class ScriptGenerator:

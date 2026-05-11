@@ -48,7 +48,6 @@ __all__ = [
     "MonologueProject",
     "MonologueMaker",
     "create_monologue",
-    "demo_monologue",
 ]
 
 
