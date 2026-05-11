@@ -181,7 +181,7 @@ DeepSeek-V4 价格极低（约 $0.1 / 1M tokens），处理一个 5 分钟视频
 
 ### 如何贡献代码？
 
-见 [贡献指南](../contributing)。
+见 [贡献指南](../../CONTRIBUTING.md)。
 
 ### 商业使用需要授权吗？
 
