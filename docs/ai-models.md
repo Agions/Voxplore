@@ -16,7 +16,7 @@ Voxplore 的 AI 模型分三层：**视频理解**、**解说生成**、**配音
 | 模型 | 说明 | 推荐度 |
 |------|------|--------|
 | **Qwen2.5-VL (72B)** | 阿里开源，视频理解 SOTA，支持 Native 视频输入 | ⭐⭐⭐⭐⭐ |
-| **Qwen3-VL (8B/32B)** | Qwen 2025 开源，推理比 2.5 更慢，准确度差异不大 | ⭐⭐⭐ |
+| **Qwen3-VL (8B/32B)** | Qwen 2025 开源，推理速度比 2.5 更慢 | ⭐⭐⭐ |
 | **GPT-4o** | OpenAI 旗舰多模态，能力强但费用高 | ⭐⭐⭐ |
 | **Gemini 2.5 Flash** | Google 高性价比主力 | ⭐⭐⭐⭐ |
 
@@ -71,26 +71,26 @@ Voxplore 的 AI 模型分三层：**视频理解**、**解说生成**、**配音
 
 ```bash
 # 获取 Key：https://platform.deepseek.com
-export DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
+export DEEPSEEK_API_KEY=sk-xxx...xxxx
 ```
 
 ### OpenAI GPT-4o
 
 ```bash
-export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
+export OPENAI_API_KEY=sk-xxx...xxxx
 ```
 
 ### Claude Sonnet 4
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
+export ANTHROPIC_API_KEY=sk-ant...xxxx
 ```
 
 ### 阿里云百炼（Qwen2.5-VL）
 
 ```bash
 # https://bailian.console.aliyun.com
-export DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx
+export DASHSCOPE_API_KEY=sk-xxx...xxxx
 ```
 
 ---
@@ -106,9 +106,9 @@ export DASHSCOPE_API_KEY=sk-xxxxxxxxxxxxxxxx
 
 ---
 
-## API Key 安全
+## 安全提示
 
-::: warning 安全提示
+::: warning ⚠️ 重要
 - **不要** 将 API Key 提交到代码仓库
 - 使用 `.env` 文件（已加入 .gitignore）或系统 Keychain 存储
 - 定期检查用量异常

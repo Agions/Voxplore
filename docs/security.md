@@ -242,6 +242,4 @@ python -m narrafiilm data purge --project=my-project
 ## 相关文档
 
 - 🔧 [配置参考](./config.md) — 配置文件详解
-- 🤖 [AI 模型配置](./guide/ai-configuration.md) — API Key 配置
-- 🔌 [插件开发](./guide/plugin-development.md) — 插件安全机制
-- 📐 [架构升级方案](./ARCHITECTURE_UPGRADE.md) — 系统架构
+- 🤖 [AI 模型配置](../ai-models.md) — API Key 配置
