@@ -500,41 +500,5 @@ def create_emotion_controller(parent: Optional[QWidget] = None) -> EmotionContro
     return EmotionController(parent)
 
 
-if __name__ == '__main__':
-    # 演示用法
-    import sys
-    from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
-
-    app = QApplication(sys.argv)
-    app.setStyleSheet("""
-        QMainWindow {
-            background-color: #090D14;
-        }
-    """)
-
-    window = QMainWindow()
-    window.setWindowTitle("Emotion Controller Demo")
-    window.setMinimumSize(700, 500)
-
-    central = QWidget()
-    window.setCentralWidget(central)
-
-    layout = QVBoxLayout(central)
-    layout.setContentsMargins(20, 20, 20, 20)
-
-    # 创建情感控制器
-    controller = EmotionController()
-    layout.addWidget(controller)
-
-    # 连接信号
-    def on_emotion_changed(emotion: str, intensity: float):
-        print(f"Emotion changed: {emotion}, intensity: {intensity:.2f}")
-
-    def on_curve_confirmed(curve: List[float]):
-        print(f"Curve confirmed: {curve}")
-
-    controller.emotion_changed.connect(on_emotion_changed)
-    controller.curve_confirmed.connect(on_curve_confirmed)
-
-    window.show()
-    sys.exit(app.exec())
+# 注意: EmotionController 依赖 PySide6 Qt 绑定，headless 环境无法直接运行 demo。
+# 集成测试请使用 pytest-qt 或手动在桌面环境验证。

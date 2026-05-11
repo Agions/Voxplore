@@ -300,31 +300,3 @@ class EmotionPresetButton(QPushButton):
         if self.preset:
             return self.preset["curve_template"].copy()
         return [0.5] * 11
-
-
-if __name__ == '__main__':
-    # 演示和测试
-    import sys
-    from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout
-
-    app = QApplication(sys.argv)
-
-    window = QWidget()
-    window.setWindowTitle("Emotion Presets Demo")
-    window.setStyleSheet("background-color: #090D14;")
-
-    layout = QVBoxLayout(window)
-
-    # 展示所有预设
-    for preset_key, preset in EMOTION_PRESETS.items():
-        btn = EmotionPresetButton(preset_key)
-        layout.addWidget(btn)
-
-        # 打印曲线数据
-        curve = preset["curve_template"]
-        print(f"{preset['name_cn']}: {curve}")
-
-    window.resize(300, 400)
-    window.show()
-
-    sys.exit(app.exec())
