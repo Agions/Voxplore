@@ -21,11 +21,10 @@ AI 配音生成器 (Voice Generator)
 """
 
 import logging
-import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice
+from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice, VoiceStyle, VoiceGender
 from ...utils.security import get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
