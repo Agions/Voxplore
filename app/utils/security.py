@@ -95,7 +95,7 @@ class PathValidator:
         """
         self.allowed_base_dirs = allowed_base_dirs or []
 
-    def validate(self, path: str, allow_absolute: bool = True) -> SecurityCheckResult:
+    def validate(self, path: str, allow_absolute: bool = True) -> SecurityCheckResult:  # noqa: ARG002
         """
         验证路径安全性
 

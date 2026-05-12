@@ -85,7 +85,7 @@ class LLMProvider(Protocol):
         """
         ...
 
-    def generate_narration(self, context: str, character: str | None = None) -> str:
+    def generate_narration(self, context: str, _character: str | None = None) -> str:
         """生成解说文案
 
         Args:
@@ -117,7 +117,7 @@ class TTSProvider(Protocol):
         """
         ...
 
-    def synthesize_with_timing(self, text: str, word_timings: list[float]) -> AudioData:
+    def synthesize_with_timing(self, text: str, _word_timings: list[float]) -> AudioData:
         """带词级别时间戳的语音合成
 
         Args:

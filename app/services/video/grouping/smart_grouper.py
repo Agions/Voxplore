@@ -47,7 +47,7 @@ class VisionEmbedder(Protocol):
     实现此协议以接入真实 Qwen2.5-VL 模型
     """
 
-    def extract(self, video_path: str, num_frames: int = 8) -> list[float]:
+    def extract(self, video_path: str, _num_frames: int = 8) -> list[float]:
         """提取视频视觉 embedding
 
         Args:
@@ -85,7 +85,7 @@ class MockVisionEmbedder:
     def __init__(self, seed: int = 42):
         self._rng = np.random.RandomState(seed)
 
-    def extract(self, video_path: str, num_frames: int = 8) -> list[float]:
+    def extract(self, video_path: str, _num_frames: int = 8) -> list[float]:
         # 使用路径哈希生成确定性但唯一的 embedding
         hash_val = hash(video_path) % (2**31)
         rng = np.random.RandomState(hash_val)

@@ -451,7 +451,7 @@ class ScriptGenerator:
     def split_to_captions(
         self,
         script: GeneratedScript,
-        max_chars: int = 20,
+        _max_chars: int = 20,  # reserved for char-based splitting (not yet used)
     ) -> List[Dict[str, Any]]:
         """
         将文案拆分为字幕
