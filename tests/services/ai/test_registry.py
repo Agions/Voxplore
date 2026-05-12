@@ -45,7 +45,7 @@ class MockLLMProvider(LLMProvider):
             character="旁白",
         )
 
-    def generate_narration(self, context: str, character: str | None = None) -> str:
+    def generate_narration(self, context: str, character: str | None = None) -> str:  # noqa: ARG001
         return f"测试解说: {context}"
 
 

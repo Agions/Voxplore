@@ -47,7 +47,7 @@ class MockVisionEmbedder:
     def __init__(self, embeddings: dict[str, list[float]]):
         self._embeddings = embeddings
 
-    def extract(self, video_path: str, num_frames: int = 8) -> list[float]:
+    def extract(self, video_path: str, num_frames: int = 8) -> list[float]:  # noqa: ARG001
         if video_path not in self._embeddings:
             # 返回随机 embedding 用于不相似视频
             return list(np.random.randn(128))

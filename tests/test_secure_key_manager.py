@@ -12,7 +12,7 @@ class TestSecureKeyManager:
 
     @patch('app.core.secure_key_manager.platform.system')
     @patch('app.core.secure_key_manager.keyring')
-    def test_init_default(self, mock_keyring, mock_platform):
+    def test_init_default(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试默认初始化"""
         mock_platform.return_value = "Linux"
         
@@ -24,7 +24,7 @@ class TestSecureKeyManager:
 
     @patch('app.core.secure_key_manager.platform.system')
     @patch('app.core.secure_key_manager.keyring')
-    def test_init_custom_app_name(self, mock_keyring, mock_platform):
+    def test_init_custom_app_name(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试自定义应用名称"""
         mock_platform.return_value = "Linux"
         
@@ -35,7 +35,7 @@ class TestSecureKeyManager:
     @patch('app.core.secure_key_manager.platform.system')
     @patch('app.core.secure_key_manager.keyring')
     @patch('app.core.secure_key_manager.SecureKeyManager._get_master_key')
-    def test_store_and_get_key(self, mock_master_key, mock_keyring, mock_platform):
+    def test_store_and_get_key(self, mock_master_key, mock_keyring, mock_platform):  # noqa: ARG001
         """测试存储和获取密钥"""
         mock_platform.return_value = "Linux"
         mock_master_key.return_value = Fernet.generate_key()
@@ -50,7 +50,7 @@ class TestSecureKeyManager:
 
     @patch('app.core.secure_key_manager.platform.system')
     @patch('app.core.secure_key_manager.keyring')
-    def test_delete_key(self, mock_keyring, mock_platform):
+    def test_delete_key(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试删除密钥"""
         mock_platform.return_value = "Linux"
 
@@ -61,7 +61,7 @@ class TestSecureKeyManager:
 
     @patch('app.core.secure_key_manager.platform.system')
     @patch('app.core.secure_key_manager.keyring')
-    def test_list_stored_keys(self, mock_keyring, mock_platform):
+    def test_list_stored_keys(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试列出已存储的密钥"""
         mock_platform.return_value = "Linux"
 
