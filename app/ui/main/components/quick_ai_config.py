@@ -18,7 +18,7 @@ from PySide6.QtCore import Qt, QTimer, Signal
 
 from app.core.config_manager import ConfigManager
 from app.core.logger import Logger
-from app.core.icon_manager import get_icon
+from app.ui.icon_manager import get_icon
 from ..dialogs.model_application_dialog import ModelApplicationDialog
 
 # 导入标准化 macOS 组件
