@@ -33,7 +33,7 @@ from .subtitle_models import (
     SubtitleImporter,
 )
 
-from .subtitle_wgts import (
+from .widgets import (
     TimeRulerWidget,
     SubtitleBlockWidget,
     SubtitleTrackWidget,
