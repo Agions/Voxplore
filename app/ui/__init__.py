@@ -5,9 +5,5 @@ Voxplore UI 模块
 """
 
 from .main.main_window import VoxploreWindow
-from .main.main_window import VoxploreWindow as MainWindow
 
-__all__ = [
-    "MainWindow",
-    "VoxploreWindow",
-]
+__all__ = ["MainWindow", "VoxploreWindow"]
