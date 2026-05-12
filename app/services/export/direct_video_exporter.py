@@ -366,22 +366,14 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> str:
         """添加字幕到视频"""
-        # 生成 ASS 字幕
-        from ..video_tools.caption_gen import CaptionGenerator, CaptionConfig
-
-        _caption_gen = CaptionGenerator(CaptionConfig())
-
         # 收集所有字幕
         all_captions = []
         for segment in project.segments:
             all_captions.extend(segment.captions)
 
-        # 生成 ASS 文件
-        with tempfile.TemporaryDirectory() as temp_dir:
-            _ass_path = Path(temp_dir) / "subtitles.ass"
-            # 这里需要转换 caption 格式
-            # 简化实现：使用 filter_complex 添加字幕
-
+        # 生成 ASS 文件（注释：可扩展为从 all_captions 生成真实 ASS）
+        # 简化实现：使用 filter_complex 添加字幕
+        with tempfile.TemporaryDirectory():
             cmd = [
                 'ffmpeg', '-y',
                 '-i', video_path,

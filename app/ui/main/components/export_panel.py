@@ -501,12 +501,23 @@ class ExportPanel(QWidget):
     def apply_queue_settings(self):
         """应用队列设置"""
         try:
-            _max_concurrent = self.max_concurrent_spin.value()
-            _auto_cleanup = self.auto_cleanup_check.isChecked()
+            max_concurrent = self.max_concurrent_spin.value()
+            auto_cleanup = self.auto_cleanup_check.isChecked()
+            self._apply_concurrent_limit(max_concurrent)
+            if auto_cleanup:
+                self._schedule_cleanup()
             QMessageBox.information(self, "成功", "队列设置已应用")
 
         except Exception as e:
             QMessageBox.critical(self, "错误", f"设置应用失败: {str(e)}")
+
+    def _apply_concurrent_limit(self, limit: int):
+        """实际应用并发限制"""
+        pass  # TODO: connect to actual export queue
+
+    def _schedule_cleanup(self):
+        """安排自动清理"""
+        pass  # TODO: implement auto-cleanup scheduling
 
     def add_preset(self):
         """添加预设"""
@@ -539,8 +550,13 @@ class ExportPanel(QWidget):
         """编辑预设数据"""
         dialog = ExportSettingsDialog(preset, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            _preset_data = dialog.get_preset_data()
+            preset_data = dialog.get_preset_data()
+            self._save_preset(preset.id, preset_data)
             QMessageBox.information(self, "成功", "预设已更新")
+
+    def _save_preset(self, preset_id: str, data: dict):
+        """保存预设数据"""
+        pass  # TODO: implement preset persistence
 
     def delete_preset(self):
         """删除预设"""

@@ -19,8 +19,7 @@ LLM 提供商抽象基类
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, TypeVar, AsyncIterator
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Any, AsyncIterator
 import json
 from .errors import (
     ProviderError,

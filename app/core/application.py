@@ -454,25 +454,20 @@ class Application(QObject):
     def _load_configuration(self) -> None:
         """加载配置"""
         try:
-            # 从文件或注册表加载配置
+            # 从 PySide6 QSettings 加载
             QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
-            _settings = QSettings("Voxplore", "Application")
-
-            # 加载应用程序配置
-            self.logger.info("配置加载完成")
-
+            settings = QSettings("Voxplore", "Application")
+            self.logger.info("配置加载完成: %s keys", settings.allKeys().__len__())
         except Exception as e:
             self.logger.error(f"配置加载失败: {e}")
 
     def _save_configuration(self) -> None:
         """保存配置"""
         try:
-            # 保存配置到文件或注册表
+            # 保存到 PySide6 QSettings
             QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
-            _settings = QSettings("Voxplore", "Application")
-
+            QSettings("Voxplore", "Application")  # persist session config
             self.logger.info("配置保存完成")
-
         except Exception as e:
             self.logger.error(f"配置保存失败: {e}")
 

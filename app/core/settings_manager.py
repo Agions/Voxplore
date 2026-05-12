@@ -279,10 +279,6 @@ class ProjectSettingsManager(QObject):
         """保存设置"""
         self._save_json_file(self.settings_file, self.settings)
 
-    def _save_profiles(self) -> None:
-        """保存配置文件"""
-        self._save_json_file(self.profiles_file, {name: asdict(p) for name, p in self.profiles.items()})
-
     def _save_json_file(self, file_path: str, data: Any) -> None:
         """安全保存 JSON 文件"""
         try:

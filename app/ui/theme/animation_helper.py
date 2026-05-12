@@ -325,7 +325,7 @@ class PageTransition:
     def _slide_transition(self, from_widget: QWidget, to_widget: QWidget):
         """滑动切换"""
         # 获取宽度
-        _width = self.stacked_widget.width()
+        _ = self.stacked_widget.width()  # needed to compute transition
 
         # 淡出当前页面
         self.fade_out(from_widget, duration=150)

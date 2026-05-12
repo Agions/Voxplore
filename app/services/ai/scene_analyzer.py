@@ -98,7 +98,7 @@ class SceneAnalyzer:
         """使用 PySceneDetect 检测场景变化"""
         try:
             from scenedetect import open_video, SceneManager
-            from scenedetect.detectors import ContentDetector, AdaptiveDetector, ThresholdDetector
+            from scenedetect.detectors import ContentDetector, ThresholdDetector
 
             video = open_video(video_path)
             scene_manager = SceneManager()

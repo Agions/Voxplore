@@ -149,7 +149,6 @@ class AsyncErrorHandler:
                     return func(*args, **kwargs)
 
             except Exception as e:
-                _last_error = e
                 error_info = ErrorInfo(
                     error_type=type(e).__name__,
                     severity="error",
