@@ -20,15 +20,13 @@ AI 配音生成器 (Voice Generator)
     )
 """
 
-import asyncio
 import logging
 import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
-from abc import ABC, abstractmethod
 
-from .voice_models import VoiceStyle, VoiceGender, VoiceConfig, VoiceInfo, GeneratedVoice
-from ...utils.security import get_ffmpeg_executor, SecurityError
+from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice
+from ...utils.security import get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()

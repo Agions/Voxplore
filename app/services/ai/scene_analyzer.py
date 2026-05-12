@@ -22,10 +22,9 @@ import logging
 import re
 
 from pathlib import Path
-from typing import List, Optional, Callable
+from typing import List, Optional
 
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
-from .scene_scorer import SceneScorer
 from ...utils.security import get_ffmpeg_executor
 
 

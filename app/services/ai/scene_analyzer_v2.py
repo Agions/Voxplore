@@ -14,6 +14,7 @@ from typing import List, Optional, Callable
 
 from .scene_models import SceneType, SceneInfo, AnalysisConfig
 from .scene_analyzer import SceneAnalyzer
+from .scene_scorer import SceneScorer
 
 logger = logging.getLogger(__name__)
 
