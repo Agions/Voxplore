@@ -12,11 +12,11 @@ import uuid
 from typing import List, Optional
 
 from app.services.ai.scene_models import SceneInfo, SceneType
-from app.services.video.models.perspective_models import (
+from app.services.video.models.perspective import (
     NarrationSegment,
     SceneSegment,
 )
-from app.services.video.models.monologue_models import EmotionType, MonologueSegment
+from app.services.video.models.monologue import EmotionType, MonologueSegment
 
 
 # ─────────────────────────────────────────────────────────────

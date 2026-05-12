@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.services.ai.script_generator_streaming import StreamingScriptGenerator
+from app.services.ai.script_stream import StreamingScriptGenerator
 
 
 class TestStreamingScriptGeneratorInit:
@@ -91,7 +91,7 @@ class TestModuleExports:
 
     def test_all_exports(self):
         """测试 __all__ 导出"""
-        from app.services.ai import script_generator_streaming as sg_streaming
+        from app.services.ai import script_stream as sg_streaming
         assert "StreamingScriptGenerator" in sg_streaming.__all__
         assert "generate_script_streaming" in sg_streaming.__all__
 

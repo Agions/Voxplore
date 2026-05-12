@@ -14,7 +14,7 @@ from .base import (
     VideoMetadata,
     ProcessingResult,
 )
-from .caption_generator import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
+from .caption_gen import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
 
 __all__ = [
     # 工具

@@ -15,7 +15,7 @@ from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont
 
 from app.ui.components.design_system import Colors
-from app.ui.main.components.export_statistics_widget import ExportStatisticsWidget
+from app.ui.main.components.export_stats import ExportStatisticsWidget
 from app.ui.main.components.monitor_widgets import PerformanceChart
 from ...export.export_system import ExportTask, ExportStatus
 from ...core.logger import Logger

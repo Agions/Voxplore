@@ -3,13 +3,13 @@
 提取类服务：第一人称视角提取、情感峰值检测
 """
 
-from .first_person_extractor import (
+from .first_person import (
     VideoSegment,
     FirstPersonExtractor,
     VisionModel,
 )
 
-from .emotion_peak_detector import (
+from .emotion_peak import (
     EmotionPeak,
     EmotionPeakDetector,
 )

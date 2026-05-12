@@ -22,11 +22,11 @@ from .monologue_maker import (
     MonologueSegment,
     MonologueStyle,
 )
-from .models.monologue_models import EmotionType
+from .models.monologue import EmotionType
 
 from .perspective_mapper import PerspectiveMapper
 from .video_interleaver import VideoInterleaver
-from .models.perspective_models import (
+from .models.perspective import (
     SceneSegment,
     KeyFrame,
     PerspectiveShot,
@@ -39,18 +39,18 @@ from .models.perspective_models import (
 )
 
 # Phase 3 新增（Phase 4 重构至 extraction/）
-from .extraction.first_person_extractor import (
+from .extraction.first_person import (
     FirstPersonExtractor,
     VideoSegment,
 )
 
-from .extraction.emotion_peak_detector import (
+from .extraction.emotion_peak import (
     EmotionPeakDetector,
     EmotionPeak,
 )
 
 # Phase 3 新增（Phase 4 重构至 selection/）
-from .selection.segment_selector import (
+from .selection.seg_selector import (
     SegmentSelector,
     SelectionStrategy,
 )

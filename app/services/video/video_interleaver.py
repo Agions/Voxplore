@@ -5,7 +5,7 @@ Video Interleaver
 
 from typing import List, Optional, Dict, Any, Tuple
 
-from .models.perspective_models import (
+from .models.perspective import (
     NarrationSegment, ClipSegment, PerspectiveShot,
     InterleaveDecision, InterleaveTimeline, InterleaveMode,
     InterleaveContext, TransitionType, SceneSegment,

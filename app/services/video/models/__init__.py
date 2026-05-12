@@ -7,7 +7,7 @@
 提供视频制作相关的数据结构和模型。
 """
 
-from .monologue_models import (
+from .monologue import (
     MonologueStyle,
     EmotionType,
     MonologueSegment,

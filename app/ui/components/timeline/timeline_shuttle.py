@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush
 from typing import List, Dict, Tuple
 
-from app.services.video.models.perspective_models import (
+from app.services.video.models.perspective import (
     NarrationSegment, ClipSegment, InterleaveDecision,
     InterleaveTimeline, TransitionType
 )

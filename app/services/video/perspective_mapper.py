@@ -5,7 +5,7 @@ Perspective Mapper
 
 from typing import List, Optional, Dict, Any
 
-from .models.perspective_models import (
+from .models.perspective import (
     SceneSegment, KeyFrame, PerspectiveShot, ViewpointAnchor,
     SubjectPosition, SubjectRole, NarrationSegment
 )

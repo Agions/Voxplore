@@ -367,7 +367,7 @@ class DirectVideoExporter:
     ) -> str:
         """添加字幕到视频"""
         # 生成 ASS 字幕
-        from ..video_tools.caption_generator import CaptionGenerator, CaptionConfig
+        from ..video_tools.caption_gen import CaptionGenerator, CaptionConfig
 
         _caption_gen = CaptionGenerator(CaptionConfig())
 

@@ -3,11 +3,11 @@
 """测试片段选择服务"""
 
 
-from app.services.video.selection.segment_selector import (
+from app.services.video.selection.seg_selector import (
     SelectionStrategy,
     SegmentSelector,
 )
-from app.services.video.extraction.first_person_extractor import VideoSegment
+from app.services.video.extraction.first_person import VideoSegment
 
 
 class TestSelectionStrategy:

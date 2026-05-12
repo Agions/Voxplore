@@ -14,7 +14,7 @@ SegmentSelector - 片段选择服务
 from enum import Enum
 from typing import Protocol, runtime_checkable
 
-from app.services.video.extraction.first_person_extractor import VideoSegment
+from app.services.video.extraction.first_person import VideoSegment
 
 
 class SelectionStrategy(Enum):

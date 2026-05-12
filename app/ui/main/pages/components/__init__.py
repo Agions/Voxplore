@@ -3,11 +3,11 @@
 """
 
 from .project_cards import ProjectCard, TemplateCard
-from .create_project_dialog import CreateProjectDialog
+from .create_proj_dlg import CreateProjectDialog
 from .settings_dialog import ProjectSettingsDialog
 from . import stats
-from .project_details_panel import ProjectDetailsPanel
-from .projects_list_panel import ProjectsListPanel
+from .proj_details_pnl import ProjectDetailsPanel
+from .proj_list_pnl import ProjectsListPanel
 
 __all__ = [
     "ProjectCard", "TemplateCard",

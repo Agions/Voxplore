@@ -3,7 +3,7 @@
 片段选择策略：叙事优先、情感峰值优先、混合策略
 """
 
-from .segment_selector import (
+from .seg_selector import (
     SelectionStrategy,
     SegmentSelector,
 )

@@ -2,7 +2,7 @@
 """Test Caption Generator"""
 
 
-from app.services.video_tools.caption_generator import (
+from app.services.video_tools.caption_gen import (
     CaptionStyle,
     EmotionLevel,
     Word,

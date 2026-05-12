@@ -36,7 +36,7 @@ from .monologue_maker import MonologueMaker, MonologueProject, MonologueSegment
 from .perspective_mapper import PerspectiveMapper
 from .scene_converter import SceneConverter, EmotionCurveGenerator
 from .video_interleaver import VideoInterleaver
-from .models.perspective_models import (
+from .models.perspective import (
     PerspectiveShot,
     InterleaveTimeline,
     InterleaveContext,
@@ -140,7 +140,7 @@ class PipelineIntegrator(MonologueMaker):
 
     def _extract_keyframes(self, project: MonologueProject) -> List:
         """提取关键帧列表"""
-        from .models.perspective_models import KeyFrame
+        from .models.perspective import KeyFrame
 
         keyframes = []
         for i, scene in enumerate(project.scenes):
@@ -472,8 +472,8 @@ class PipelineIntegrator(MonologueMaker):
 
 def _add_interleave_attributes():
     """动态添加穿插相关属性到 MonologueSegment"""
-    from .models.monologue_models import MonologueSegment
-    from .models.perspective_models import TransitionType
+    from .models.monologue import MonologueSegment
+    from .models.perspective import TransitionType
 
     # 检查是否已添加
     if hasattr(MonologueSegment, 'show_original'):

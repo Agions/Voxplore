@@ -60,8 +60,8 @@ class ProjectsPage(BasePage):
 
     def _init_ui(self):
         """初始化UI"""
-        from .components.project_details_panel import ProjectDetailsPanel
-        from .components.projects_list_panel import ProjectsListPanel
+        from .components.proj_details_pnl import ProjectDetailsPanel
+        from .components.proj_list_pnl import ProjectsListPanel
 
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
@@ -124,7 +124,7 @@ class ProjectsPage(BasePage):
     def _on_new_project(self):
         """新建项目"""
         from PySide6.QtWidgets import QMessageBox, QDialog
-        from .components.create_project_dialog import CreateProjectDialog
+        from .components.create_proj_dlg import CreateProjectDialog
 
         if not self._template_manager:
             QMessageBox.warning(self, "错误", "模板管理器不可用，无法创建项目")

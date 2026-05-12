@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal
 from typing import List, Optional, Dict
 
-from app.services.video.models.perspective_models import (
+from app.services.video.models.perspective import (
     NarrationSegment
 )
 

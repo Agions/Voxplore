@@ -33,10 +33,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .base_maker import BaseVideoMaker, BaseProject
-from .models.monologue_models import MonologueStyle, EmotionType, MonologueSegment
+from .models.monologue import MonologueStyle, EmotionType, MonologueSegment
 from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
-from ..video_tools.caption_generator import CaptionGenerator
+from ..video_tools.caption_gen import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from ..export.jianying_models import JianyingDraft
 from .track_builder import build_monologue_tracks, CAPTION_STYLES
