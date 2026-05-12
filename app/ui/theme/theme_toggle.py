@@ -194,7 +194,6 @@ class QuickThemeSwitcher(QWidget):
         btn.setToolTip(name)
 
         bg = "#0A0A0F" if is_dark else "#FFFFFF"
-        _border = "#30363D" if is_dark else "#D0D7DE"
 
         btn.setStyleSheet(f"""
             QPushButton {{

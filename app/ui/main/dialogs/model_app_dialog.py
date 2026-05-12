@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import webbrowser
-from typing import List
-
 from PySide6.QtWidgets import QWizard
-from PySide6.QtCore import Qt
 
 from ....core.icon_manager import get_icon
 from .model_app_pages import (

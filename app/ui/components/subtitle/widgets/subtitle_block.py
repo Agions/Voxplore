@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPainter, QColor, QPen, QFont, QMouseEvent
 
 from ..subtitle_core import SubtitleBlock, SubtitleStylePreset
 

@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QMouseEvent
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QMouseEvent, QPoint
 
 
 class TimeRulerWidget(QWidget):

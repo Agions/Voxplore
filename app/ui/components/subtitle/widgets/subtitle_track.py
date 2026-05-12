@@ -6,7 +6,7 @@ from typing import Optional
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel
 from PySide6.QtCore import Qt, Signal
 
-from ..subtitle_core import SubtitleTrack, SubtitleBlock
+from ..subtitle_core import SubtitleTrack
 from .subtitle_block import SubtitleBlockWidget
 
 
