@@ -21,6 +21,7 @@ AI 配音生成器 (Voice Generator)
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 

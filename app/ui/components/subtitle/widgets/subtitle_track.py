@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
-    QPushButton, QSlider, QScrollArea,
-)
-from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QMouseEvent, QFont
-)
+from typing import Optional
 
-from .subtitle_core import (
-    SubtitleTrack, SubtitleBlock, MultiTrackSubtitleEditor,
-    SubtitleStylePreset,
-)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel
+from PySide6.QtCore import Qt, Signal
+
+from ..subtitle_core import SubtitleTrack, SubtitleBlock
+from .subtitle_block import SubtitleBlockWidget
+
 
 class SubtitleTrackWidget(QFrame):
     """
@@ -34,7 +29,7 @@ class SubtitleTrackWidget(QFrame):
     def __init__(
         self,
         track: SubtitleTrack,
-        style: SubtitleStylePreset,
+        style,  # SubtitleStylePreset - imported but unused in this file
         scale: float = 50.0,
         parent: Optional[QWidget] = None
     ):

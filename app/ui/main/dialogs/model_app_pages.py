@@ -14,7 +14,7 @@ from enum import Enum
 from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QLabel, QFrame, QWidget,
     QGroupBox, QLineEdit, QTextEdit, QComboBox, QCheckBox, QMessageBox,
-    QListWidget, QFormLayout, QWizard, QWizardPage
+    QListWidget, QFormLayout, QWizardPage
 )
 from PySide6.QtCore import (
     Qt

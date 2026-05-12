@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
-    QPushButton, QSlider, QScrollArea,
-)
-from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QMouseEvent, QFont
-)
+from typing import List, Optional, Tuple
 
-from .subtitle_core import (
-    SubtitleTrack, SubtitleBlock, MultiTrackSubtitleEditor,
-    SubtitleStylePreset,
-)
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QMouseEvent
+
 
 class TimeRulerWidget(QWidget):
     """
@@ -52,25 +45,18 @@ class TimeRulerWidget(QWidget):
 
     def set_scale(self, scale: float) -> None:
         """设置缩放比例"""
-        self._scale = max(10, min(scale, 200))
+        self._scale = scale
         self.update()
 
-    def add_marker(self, time: float, label: str = "") -> None:
-        """添加标记点"""
-        self._markers.append((time, label))
-        self.update()
-
-    def clear_markers(self) -> None:
-        """清空标记点"""
-        self._markers.clear()
+    def set_markers(self, markers: List[Tuple[float, str]]) -> None:
+        """设置标记点"""
+        self._markers = markers
         self.update()
 
     def paintEvent(self, event) -> None:
+        """绘制时间标尺"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-
-        w = self.width()
-        h = self.height()
 
         # 背景
         painter.fillRect(self.rect(), QColor("#0D1117"))
@@ -79,73 +65,58 @@ class TimeRulerWidget(QWidget):
             return
 
         # 绘制刻度
-        painter.setPen(QPen(QColor("#334155"), 1))
+        width = self.width()
+        sec_per_px = self._duration / width
 
-        # 计算主刻度间隔
-        sec_per_mark = 1
-        if self._scale < 20:
-            sec_per_mark = 10
-        elif self._scale < 40:
-            sec_per_mark = 5
+        # 主刻度（每秒）
+        major_step = 1.0
+        if sec_per_px < 0.1:
+            major_step = 10.0
+        elif sec_per_px < 0.5:
+            major_step = 5.0
+        elif sec_per_px > 2.0:
+            major_step = 0.5
 
-        # 绘制刻度
-        for sec in range(0, int(self._duration) + 1):
-            x = sec * self._scale
-            if x > w:
+        for t in range(int(self._duration) + 1):
+            if t % major_step != 0:
+                continue
+            x = int(t / sec_per_px)
+            if x > width:
                 break
+            painter.setPen(QPen(QColor("#334155"), 1))
+            painter.drawLine(x, 0, x, 8)
 
-            if sec % sec_per_mark == 0:
-                if sec % 10 == 0:
-                    # 长刻度 + 标签
-                    painter.drawLine(int(x), h - 15, int(x), h)
-                    painter.setPen(QPen(QColor("#94A3B8"), 10, Qt.AlignCenter))
-                    painter.drawText(int(x) - 15, h - 18, 30, 14, Qt.AlignCenter, f"{sec}s")
-                    painter.setPen(QPen(QColor("#334155"), 1))
-                elif sec % 5 == 0:
-                    # 中刻度
-                    painter.drawLine(int(x), h - 10, int(x), h)
-                else:
-                    # 短刻度
-                    painter.drawLine(int(x), h - 6, int(x), h)
-
-        # 绘制标记点
-        painter.setBrush(QBrush(QColor("#6366F1")))
-        for marker_time, label in self._markers:
-            x = marker_time * self._scale
-            if 0 <= x <= w:
-                painter.drawEllipse(int(x) - 4, h - 24, 8, 8)
-                if label:
-                    painter.drawText(int(x) + 6, h - 20, label)
-
-        # 当前位置指示器
-        pos_x = self._position * self._scale
-        if 0 <= pos_x <= w:
-            painter.setPen(QPen(QColor("#22D3EE"), 2))
-            painter.drawLine(int(pos_x), 0, int(pos_x), h)
-
-            # 三角形指示器
-            painter.setBrush(QBrush(QColor("#22D3EE")))
-            painter.drawPolygon([
-                QPoint(int(pos_x) - 6, 0),
-                QPoint(int(pos_x) + 6, 0),
-                QPoint(int(pos_x), 8)
-            ])
+        # 绘制当前位置
+        if self._position > 0:
+            pos_x = self._position / sec_per_px
+            if 0 <= pos_x <= width:
+                # 绘制三角形标记
+                painter.setPen(QPen(QColor("#22D3EE"), 2))
+                painter.setBrush(QBrush(QColor("#22D3EE")))
+                painter.drawPolygon(
+                    QPoint(int(pos_x) - 6, 0),
+                    QPoint(int(pos_x) + 6, 0),
+                    QPoint(int(pos_x), 8)
+                )
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        self._update_position(event.position().x())
+        """鼠标按下"""
+        if event.button() == Qt.LeftButton:
+            self._update_position(event.position().x())
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """鼠标移动"""
         if event.buttons() & Qt.LeftButton:
             self._update_position(event.position().x())
 
     def _update_position(self, x: float) -> None:
+        """更新位置"""
         if self._duration <= 0:
             return
-        pos = x / self._scale
-        pos = max(0, min(pos, self._duration))
-        self._position = pos
+        sec_per_px = self._duration / self.width()
+        pos = max(0, min(x * sec_per_px, self._duration))
+        self.set_position(pos)
         self.position_changed.emit(pos)
-        self.update()
 
 
 __all__ = ["TimeRulerWidget"]

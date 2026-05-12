@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
     QPushButton, QSlider, QScrollArea,
 )
-from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QMouseEvent, QFont
-)
+from PySide6.QtCore import Qt, Signal
 
-from .subtitle_core import (
-    SubtitleTrack, SubtitleBlock, MultiTrackSubtitleEditor,
-    SubtitleStylePreset,
-)
+from ..subtitle_core import MultiTrackSubtitleEditor
+from .time_ruler import TimeRulerWidget
+from .subtitle_track import SubtitleTrackWidget
+
 
 class SubtitleTimelineWidget(QFrame):
     """

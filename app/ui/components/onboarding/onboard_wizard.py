@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                             QPushButton, QFrame, QComboBox, QCheckBox,
-                             QLineEdit)
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
+                             QPushButton, QFrame)
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont
 
 # Re-export step classes for wizard's internal use
 from .onboard_steps import (
-    StepIndicator, StepContent,
+    StepIndicator, COLORS,
     WelcomeStep, AIProviderStep,
     PreferencesStep, CompletionStep,
 )
