@@ -25,7 +25,7 @@ import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice, VoiceStyle, VoiceGender
+from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice
 from ...utils.security import get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)

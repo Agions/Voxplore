@@ -139,8 +139,6 @@ class AsyncErrorHandler:
         Returns:
             函数返回值，失败时返回 None
         """
-        _last_error = None
-
         for attempt in range(self.retry_strategy.max_attempts):
             try:
                 if asyncio.iscoroutinefunction(func):

@@ -116,7 +116,6 @@ class EdgeTTSProvider(TTSProvider):
         sentence_timestamps: List[Dict[str, Any]] = []
 
         async def _generate():
-            nonlocal sentence_timestamps
             communicate = self.edge_tts.Communicate(
                 text,
                 voice,

@@ -30,7 +30,8 @@ from .vision_providers import (
 )
 
 # 语音相关
-from .voice_generator import VoiceGenerator, VoiceConfig, VoiceStyle
+from .voice_generator import VoiceGenerator, VoiceConfig
+from .voice_models import VoiceStyle
 
 # 解说文案生成
 from .script_generator import ScriptGenerator

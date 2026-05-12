@@ -429,7 +429,6 @@ class SenseVoiceProvider:
             if labels[i] != labels[i - 1]:
                 # 说话人切换
                 seg_end = timestamps[i]
-                _confidence = float(kmeans.labels_[max(0, i - 1)] == labels[i - 1])
                 results.append(SpeakerSegment(
                     start=seg_start,
                     end=seg_end,
