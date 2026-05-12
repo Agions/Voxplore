@@ -105,7 +105,7 @@ class PerspectiveMapper:
         self,
         scene: SceneSegment,
         keyframes: List[KeyFrame],
-        scene_index: int,  # unused — kept for protocol compatibility
+        _scene_index: int,  # unused — kept for protocol compatibility
     ) -> ViewpointAnchor:
         """
         从场景中提取视角锚点
