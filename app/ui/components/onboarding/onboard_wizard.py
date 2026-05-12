@@ -7,10 +7,11 @@ from PySide6.QtCore import Qt, Signal
 
 # Re-export step classes for wizard's internal use
 from .onboard_steps import (
-    StepIndicator, COLORS,
+    StepIndicator,
     WelcomeStep, AIProviderStep,
     PreferencesStep, CompletionStep,
 )
+from .feature_tour import COLORS
 
 class OnboardingWizard(QWidget):
     """首次使用引导向导"""

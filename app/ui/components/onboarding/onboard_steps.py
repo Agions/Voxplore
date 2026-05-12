@@ -9,23 +9,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
-# 色彩系统
-COLORS = {
-    "primary": "#6366F1",
-    "primary_end": "#8B5CF6",
-    "primary_light": "#818CF8",
-    "accent": "#06B6D4",
-    "background": "#0A0A0F",
-    "surface": "#12121A",
-    "card": "#1A1A24",
-    "card_elevated": "#22222E",
-    "text": "#E6EDF3",
-    "text_secondary": "#C9D1D9",
-    "text_tertiary": "#8B949E",
-    "border": "#30363D",
-    "success": "#238636",
-    "warning": "#D29922",
-}
+from .feature_tour import COLORS  # consolidated color system
 
 
 class StepIndicator(QWidget):

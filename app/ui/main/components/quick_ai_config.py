@@ -219,7 +219,7 @@ class QuickAIConfigWidget(QWidget):
         """查看文档"""
         try:
             # 打开文档页面
-            webbrowser.open("https://github.com/your-repo/docs")
+            webbrowser.open("https://github.com/Agions/Voxplore#configuration")
         except Exception as e:
             self.logger.error(f"打开文档失败: {e}")
 

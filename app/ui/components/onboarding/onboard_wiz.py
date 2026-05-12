@@ -13,6 +13,7 @@ from .onboard_steps import (
     WelcomeStep, AIProviderStep,
     PreferencesStep, CompletionStep,
 )
+from .feature_tour import COLORS
 
 __all__ = [
     "OnboardingWizard",
