@@ -6,7 +6,7 @@ import pytest
 import tempfile
 import os
 
-from app.services.ai.registry import ProviderRegistry
+from app.services.ai.model_registry import ProviderRegistry
 from app.services.ai.interfaces import (
     VisionProvider,
     LLMProvider,

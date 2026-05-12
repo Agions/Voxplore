@@ -12,7 +12,7 @@ from app.services.ai.adapters.base import (
     ScriptLLMAdapter,
     TTSAdapter,
 )
-from app.services.ai.adapters.registry import (
+from app.services.ai.adapters.adapter_registry import (
     LLMProviderRegistry,
     get_registry,
 )
