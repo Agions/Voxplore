@@ -1,583 +1,524 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*
-
+# -*- coding: utf-8 -*-
 """
-Voxplore 主窗口 — 精致现代专业布局 v4
-视觉升级:
-  - 渐变玻璃态侧边栏 (左侧紫色光晕)
-  - 顶部工具栏磨砂效果
-  - 导航项悬浮高亮 + 选中动画条
-  - 阴影层次感
-  - 快捷操作图标按钮组
-  - 更好看的页面标题区
+Voxplore 主窗口 — 现代三栏布局 v5
+设计原则:
+  - 三栏布局: 侧边导航 | 主内容区 | 属性面板(可折叠)
+  - 扁平化设计语言，减少视觉噪音
+  - 清晰的视觉层级
+  - 统一的间距和圆角系统
 """
 
 import os
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton
+    QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton,
+    QSplitter, QToolButton, QScrollArea
 )
-from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QRect
-from PySide6.QtGui import QFont, QPainter, QColor
+from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve, QTimer
+from PySide6.QtGui import QFont, QPainter, QColor, QBrush, QPen
 
-from ...core.application import Application
-from ...core.logger import Logger
-from app.ui.components.design_system import Colors
+from app.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
 
 
-# ─── 导航项配置 ─────────────────────────────────────────────
-_NAV_ITEMS = [
-    ("creator",  "🏠", "创作台",    "Ctrl+N"),
-    ("projects", "📁", "项目",      "Ctrl+Shift+O"),
-    ("history",  "🕐", "历史",      "Ctrl+H"),
-    ("settings", "⚙️", "设置",      "Ctrl+,"),
-]
+# ═══════════════════════════════════════════════════════════════
+# 导航配置
+# ═══════════════════════════════════════════════════════════════
 
-# ─── 快捷工具栏按钮 ────────────────────────────────────────
-_TOOLBAR_ACTIONS = [
-    ("new_project", "＋", "新建项目"),
-    ("undo",       "↩", "撤销"),
-    ("redo",       "↪", "重做"),
-    ("export",     "↑", "导出"),
+NAV_ITEMS = [
+    ("home",      "主界面",    "⌂", "Alt+1"),
+    ("create",    "创作台",    "＋", "Alt+2"),
+    ("projects",  "项目管理",  "☰", "Alt+3"),
+    ("settings",  "设置",      "⚙", "Alt+4"),
 ]
 
 
 # ═══════════════════════════════════════════════════════════════
-#  自定义组件
+# 侧边栏
 # ═══════════════════════════════════════════════════════════════
 
-class GlowSidebar(QFrame):
-    """侧边栏 — 紫色渐变玻璃态"""
+class Sidebar(QFrame):
+    """左侧导航栏"""
+
+    navigated = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedWidth(220)
-        self.setObjectName("glow_sidebar")
+        self.setFixedWidth(64)
+        self.setObjectName("sidebar")
+        self._setup_style()
+        self._current = "home"
+        self._setup_ui()
+
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            #sidebar {{
+                background: {Colors.SIDEBAR_BG_TOP};
+                border-right: 1px solid {Colors.BORDER_SUBTLE};
+            }}
+        """)
+
+    def _setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 12, 0, 12)
+        layout.setSpacing(4)
+
+        # Logo
+        logo = QLabel("◆")
+        logo.setFont(QFont("", 20, QFont.Weight.Bold))
+        logo.setStyleSheet(f"color: {Colors.PRIMARY_400}; padding: 8px;")
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo.setFixedHeight(48)
+        layout.addWidget(logo)
+
+        layout.addSpacing(8)
+
+        # 导航项
+        self._nav_btns = {}
+        for item_id, label, icon, shortcut in NAV_ITEMS:
+            btn = NavButton(icon, label, shortcut)
+            btn.setFixedSize(48, 48)
+            btn.clicked.connect(lambda checked, i=item_id: self._on_nav(i))
+            layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+            self._nav_btns[item_id] = btn
+
+        layout.addStretch()
+
+        # 底部按钮
+        theme_btn = NavButton("◑", "深色模式", "")
+        theme_btn.setFixedSize(48, 48)
+        layout.addWidget(theme_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        layout.addSpacing(8)
+
+        # 版本号
+        version = QLabel("v2.0")
+        version.setFont(QFont("", 9))
+        version.setStyleSheet(f"color: {Colors.TEXT_MUTED}; padding: 4px;")
+        version.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(version)
+
+        self._set_active("home")
+
+    def _on_nav(self, item_id: str):
+        self._current = item_id
+        self._set_active(item_id)
+        self.navigated.emit(item_id)
+
+    def _set_active(self, item_id: str):
+        for _id, btn in self._nav_btns.items():
+            btn.set_active(_id == item_id)
+
+
+class NavButton(QPushButton):
+    """导航按钮"""
+
+    def __init__(self, icon: str, tooltip: str, shortcut: str):
+        super().__init__(icon)
+        self.setToolTip(f"{tooltip}  {shortcut}" if shortcut else tooltip)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setObjectName("nav_btn")
+        self._is_active = False
         self._setup_style()
 
     def _setup_style(self):
-        self.setStyleSheet("""
-            #glow_sidebar {
+        self.setStyleSheet(f"""
+            #nav_btn {{
+                background: transparent;
+                border: none;
+                border-radius: {Radii.base};
+                color: {Colors.TEXT_MUTED};
+                font-size: 18px;
+                padding: 8px;
+            }}
+            #nav_btn:hover {{
+                background: {Colors.BG_ELEVATED};
+                color: {Colors.TEXT_SECONDARY};
+            }}
+            #nav_btn[active="true"] {{
                 background: qlineargradient(
-                    x1:0, y1:0, x2:1, y2:1,
-                    stop:0 rgba(20, 14, 28, 0.98),
-                    stop:0.5 rgba(16, 11, 22, 0.99),
-                    stop:1 rgba(13, 9, 18, 1.0)
+                    x1:0, y1:0, x2:1, y2:0,
+                    stop:0 rgba(139, 92, 246, 0.2),
+                    stop:1 transparent
                 );
-                border-right: 1px solid rgba(255, 255, 255, 0.06);
-            }
+                color: {Colors.PRIMARY_400};
+                border-left: 2px solid {Colors.PRIMARY_500};
+            }}
         """)
 
+    def set_active(self, active: bool):
+        self._is_active = active
+        self.setProperty("active", active)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
-class SidebarTopLogo(QFrame):
-    """侧边栏顶部 Logo 区域"""
 
-    def __init__(self, parent=None):
+# ═══════════════════════════════════════════════════════════════
+# 顶部工具栏
+# ═══════════════════════════════════════════════════════════════
+
+class TopBar(QFrame):
+    """顶部工具栏"""
+
+    action_triggered = Signal(str)
+
+    def __init__(self, title: str = "", parent=None):
         super().__init__(parent)
-        self.setFixedHeight(64)
+        self._title = title
+        self.setFixedHeight(52)
+        self.setObjectName("topbar")
+        self._setup_style()
         self._setup_ui()
+
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            #topbar {{
+                background: {Colors.BG_SURFACE};
+                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
+            }}
+        """)
 
     def _setup_ui(self):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 0, 16, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(12)
 
-        # Logo 图标
-        icon_label = QLabel("✦")
-        icon_label.setFont(QFont("", 22))
-        icon_label.setStyleSheet("color: #A78BFA;")
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(icon_label)
+        # 标题
+        self._title_label = QLabel(self._title or "Voxplore")
+        self._title_label.setFont(QFont("", FontSizes.lg, QFont.Weight.Semibold))
+        self._title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        layout.addWidget(self._title_label)
 
-        # 文字标签
-        name_layout = QVBoxLayout()
-        name_layout.setSpacing(0)
-        name_layout.setContentsMargins(0, 0, 0, 0)
-
-        title_label = QLabel("Voxplore")
-        title_label.setFont(QFont("SF Pro Display", 14, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #F1F0F5;")
-        name_layout.addWidget(title_label)
-
-        sub_label = QLabel("AI Video Studio")
-        sub_label.setFont(QFont("", 9))
-        sub_label.setStyleSheet("color: #6B7280; letter-spacing: 0.05em;")
-        name_layout.addWidget(sub_label)
-
-        layout.addLayout(name_layout)
-        layout.addStretch()
-
-
-class SidebarNavItem(QPushButton):
-    """导航项 — 悬浮+选中态"""
-
-    def __init__(self, icon: str, label: str, shortcut: str = "", parent=None):
-        super().__init__(parent)
-        self._icon = icon
-        self._label = label
-        self._shortcut = shortcut
-        self._is_active = False
-        self.setCheckable(True)
-        self.setFixedSize(192, 44)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setToolTip(f"{label}  {shortcut}" if shortcut else label)
-        self._apply_style()
-
-    def set_active(self, active: bool):
-        self._is_active = active
-        self.setChecked(active)
-        self._apply_style()
-
-    def _apply_style(self):
-        if self._is_active:
-            bg = """
-                background: rgba(139, 92, 246, 0.15);
-                border-left: 2px solid #A78BFA;
-            """
-            icon_color = "#A78BFA"
-            text_color = "#E2E0FF"
-        else:
-            bg = """
-                background: transparent;
-                border-left: 2px solid transparent;
-            """
-            icon_color = "#6B7280"
-            text_color = "#9CA3AF"
-        self.setStyleSheet(f"""
-            QPushButton {{
-                {bg}
-                border-radius: 0px;
-                text-align: left;
-                padding: 0px 14px;
-            }}
-            QPushButton:hover {{
-                background: rgba(255, 255, 255, 0.05);
-            }}
-            QPushButton:!checked:hover {{
-                background: rgba(255, 255, 255, 0.04);
-                border-left: 2px solid rgba(167, 139, 250, 0.3);
-            }}
-        """)
-        # 用 QSS 无法单独设置图标颜色，用 update 触发 paintEvent
-        self._icon_color = icon_color
-        self._text_color = text_color
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = self.rect()
-
-        # 绘制图标
-        icon_rect = rect.adjusted(16, 0, -(rect.width() - 44), 0)
-        icon_font = QFont("", 16)
-        icon_font.setFamily("Segoe UI Emoji")
-        painter.setFont(icon_font)
-        painter.setPen(QColor(self._icon_color))
-        painter.drawText(icon_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._icon)
-
-        # 绘制标签
-        label_rect = rect.adjusted(44, 0, 0, 0)
-        label_font = QFont("", 13)
-        label_font.setWeight(QFont.Weight.Medium if self._is_active else QFont.Weight.Normal)
-        painter.setFont(label_font)
-        painter.setPen(QColor(self._text_color))
-        painter.drawText(label_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._label)
-
-        # 绘制快捷键
-        if self._shortcut and not self._is_active:
-            shortcut_font = QFont("", 9)
-            shortcut_font.setWeight(QFont.Weight.Normal)
-            painter.setFont(shortcut_font)
-            painter.setPen(QColor("#4B5563"))
-            fm = painter.fontMetrics()
-            shortcut_text = self._shortcut
-            shortcut_w = fm.horizontalAdvance(shortcut_text)
-            painter.drawText(
-                QRect(rect.right() - shortcut_w - 12, rect.top(), shortcut_w + 12, rect.height()),
-                Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight,
-                shortcut_text
-            )
-
-
-class TopToolbar(QFrame):
-    """顶部工具栏 — 磨砂玻璃态"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setFixedHeight(52)
-        self.setObjectName("top_toolbar")
-        self.setStyleSheet("""
-            #top_toolbar {
-                background: rgba(15, 12, 20, 0.85);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            }
-        """)
-
-
-class ToolbarIconBtn(QPushButton):
-    """工具栏图标按钮 — 悬浮放大效果"""
-
-    def __init__(self, icon: str, tip: str, parent=None):
-        super().__init__(parent)
-        self._icon = icon
-        self.setFixedSize(34, 34)
-        self.setToolTip(tip)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                border-radius: 8px;
-                font-size: 15px;
-                color: #9CA3AF;
-            }
-            QPushButton:hover {
-                background: rgba(255, 255, 255, 0.08);
-                color: #E5E7EB;
-            }
-            QPushButton:pressed {
-                background: rgba(255, 255, 255, 0.04);
-                color: #D1D5DB;
-            }
-        """)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setFont(QFont("", self._icon_to_size()))
-        painter.setPen(QColor("#9CA3AF") if not self.isEnabled() else QColor("#E5E7EB"))
-        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, self._icon)
-
-    def _icon_to_size(self) -> int:
-        return 16
-
-
-class PageTitleBar(QFrame):
-    """页面标题栏"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setFixedHeight(56)
-        self.setStyleSheet(f"""
-            background: {Colors.BgBase};
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        """)
-
-
-class UserAvatarBtn(QPushButton):
-    """用户头像按钮"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setFixedSize(32, 32)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #6366F1, stop:1 #8B5CF6);
-                border: none;
-                border-radius: 16px;
-                font-size: 14px;
-                color: white;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #818CF8, stop:1 #A78BFA);
-            }
-        """)
-
-
-# ═══════════════════════════════════════════════════════════════
-#  主窗口
-# ═══════════════════════════════════════════════════════════════
-
-class VoxploreWindow(QMainWindow):
-    """主窗口 v4 — 精致现代专业布局"""
-
-    status_updated = Signal(str)
-
-    def __init__(self, application: Application):
-        super().__init__()
-        self.application = application
-        self.logger = application.get_service_by_name("logger") or Logger("VoxploreWindow")
-        self.setWindowTitle("Voxplore — AI Video Studio")
-        self.resize(1440, 900)
-        self.setMinimumSize(1200, 750)
-
-        qss_path = os.path.join(os.path.dirname(__file__), "../theme/narrafiilm.qss")
-        if os.path.exists(qss_path):
-            with open(qss_path) as f:
-                self.setStyleSheet(f.read())
-
-        self._pages = {}
-        self._current_page = None
-        self._is_animating = False
-        self._init_ui()
-        self._load_pages()
-        self._navigate_to("creator")
-        self.logger.info("Voxplore 主窗口初始化完成 (v4 — 精致现代布局)")
-
-    # ─── UI 初始化 ────────────────────────────────────────────
-
-    def _init_ui(self):
-        central = QWidget()
-        self.setCentralWidget(central)
-        central.setStyleSheet(f"background: {Colors.BgBase};")
-
-        # 主垂直布局
-        main_vbox = QVBoxLayout(central)
-        main_vbox.setContentsMargins(0, 0, 0, 0)
-        main_vbox.setSpacing(0)
-
-        # 顶部工具栏
-        self.toolbar = TopToolbar()
-        self._build_toolbar()
-        main_vbox.addWidget(self.toolbar)
-
-        # 主体区域
-        body_hbox = QHBoxLayout()
-        body_hbox.setContentsMargins(0, 0, 0, 0)
-        body_hbox.setSpacing(0)
-
-        # 侧边栏
-        self.sidebar = GlowSidebar()
-        self._build_sidebar()
-        body_hbox.addWidget(self.sidebar)
-
-        # 内容区
-        content_frame = QFrame()
-        content_frame.setObjectName("content_area")
-        content_frame.setStyleSheet(f"""
-            #content_area {{
-                background: {Colors.BgBase};
-            }}
-        """)
-        content_vbox = QVBoxLayout(content_frame)
-        content_vbox.setContentsMargins(0, 0, 0, 0)
-        content_vbox.setSpacing(0)
-
-        # 页面标题栏
-        self.title_bar = PageTitleBar()
-        self._build_title_bar()
-        content_vbox.addWidget(self.title_bar)
-
-        # 页面堆栈
-        self.page_stack = QStackedWidget()
-        self.page_stack.setObjectName("page_stack")
-        content_vbox.addWidget(self.page_stack, 1)
-
-        body_hbox.addWidget(content_frame, 1)
-        main_vbox.addLayout(body_hbox, 1)
-
-        # 状态栏
-        self.status_bar = QStatusBar()
-        self.status_bar.setFixedHeight(28)
-        self.status_bar.setStyleSheet("""
-            QStatusBar {{
-                color: #6B7280;
-                font-size: 11px;
-                background: rgba(10, 8, 14, 0.98);
-                border-top: 1px solid rgba(255, 255, 255, 0.04);
-            }}
-        """)
-        self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("就绪")
-
-    def _build_toolbar(self):
-        layout = QHBoxLayout(self.toolbar)
-        layout.setContentsMargins(16, 0, 16, 0)
-        layout.setSpacing(8)
-
-        # 左侧留白（配合侧边栏宽度偏移）
-        layout.addSpacing(220 - 16)
-
-        # 页面标题 (工具栏中央)
-        self._toolbar_title = QLabel("创作台")
-        self._toolbar_title.setFont(QFont("", 14, QFont.Weight.Medium))
-        self._toolbar_title.setStyleSheet("color: #E5E7EB;")
-        self._toolbar_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self._toolbar_title)
         layout.addStretch()
 
         # 快捷操作按钮
-        actions_layout = QHBoxLayout()
-        actions_layout.setSpacing(4)
-        for action_id, icon, tip in _TOOLBAR_ACTIONS:
-            btn = ToolbarIconBtn(icon, tip)
-            actions_layout.addWidget(btn)
-            setattr(self, f"_btn_{action_id}", btn)
+        actions = [
+            ("undo",   "↩", "撤销"),
+            ("redo",   "↪", "重做"),
+            ("export", "↑", "导出"),
+            ("help",   "?", "帮助"),
+        ]
+        for _id, icon, tip in actions:
+            btn = QPushButton(icon)
+            btn.setObjectName("action_btn")
+            btn.setFixedSize(32, 32)
+            btn.setToolTip(tip)
+            btn.clicked.connect(lambda checked, i=_id: self.action_triggered.emit(i))
+            layout.addWidget(btn)
 
-        layout.addLayout(actions_layout)
+        self.setLayout(layout)
 
-        # 分隔线
-        sep = QFrame()
-        sep.setFixedSize(1, 20)
-        sep.setStyleSheet("background: rgba(255,255,255,0.08); margin: 0 8px;")
-        layout.addWidget(sep)
+    def set_title(self, title: str):
+        self._title_label.setText(title)
 
-        # 用户头像
-        avatar = UserAvatarBtn()
-        avatar.setToolTip("用户设置")
-        layout.addWidget(avatar)
 
-    def _build_sidebar(self):
-        layout = QVBoxLayout(self.sidebar)
+# ═══════════════════════════════════════════════════════════════
+# 内容页面容器
+# ═══════════════════════════════════════════════════════════════
+
+class ContentArea(QFrame):
+    """主内容区域"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("content_area")
+        self._setup_style()
+        self._stack = QStackedWidget()
+        self._page_map = {}
+
+        layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        layout.addWidget(self._stack)
 
-        # Logo 区
-        logo = SidebarTopLogo()
-        layout.addWidget(logo)
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            #content_area {{
+                background: {Colors.BG_BASE};
+            }}
+        """)
 
-        # 分隔线
-        sep = QFrame()
-        sep.setFixedHeight(1)
-        sep.setStyleSheet("background: rgba(255,255,255,0.05);")
-        layout.addWidget(sep)
+    def add_page(self, page_id: str, widget):
+        widget.setObjectName(f"page_{page_id}")
+        self._page_map[page_id] = widget
+        self._stack.addWidget(widget)
 
-        # 导航项
-        nav_container = QWidget()
-        nav_layout = QVBoxLayout(nav_container)
-        nav_layout.setContentsMargins(0, 12, 0, 12)
-        nav_layout.setSpacing(2)
+    def set_page(self, page_id: str):
+        if page_id in self._page_map:
+            self._stack.setCurrentWidget(self._page_map[page_id])
 
-        self.nav_buttons = {}
-        for page_id, icon, label, shortcut in _NAV_ITEMS:
-            nav_item = SidebarNavItem(icon, label, shortcut)
-            nav_item.clicked.connect(lambda _, p=page_id: self._navigate_to(p))
-            nav_layout.addWidget(nav_item)
-            self.nav_buttons[page_id] = nav_item
 
-        nav_layout.addStretch()
-        layout.addWidget(nav_container)
+# ═══════════════════════════════════════════════════════════════
+# 属性面板
+# ═══════════════════════════════════════════════════════════════
 
-        # 底部: 版本 + 状态点
-        bottom = QFrame()
-        bottom.setFixedHeight(36)
-        bottom_layout = QHBoxLayout(bottom)
-        bottom_layout.setContentsMargins(16, 0, 16, 0)
+class PropertiesPanel(QFrame):
+    """右侧属性面板（可折叠）"""
 
-        ver = QLabel("v1.0.1")
-        ver.setFont(QFont("", 9))
-        ver.setStyleSheet("color: #4B5563;")
-        bottom_layout.addWidget(ver)
-        bottom_layout.addStretch()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedWidth(280)
+        self.setObjectName("props_panel")
+        self._collapsed = False
+        self._setup_style()
+        self._setup_ui()
 
-        dots = QLabel("●  ●  ●")
-        dots.setFont(QFont("", 5))
-        dots.setStyleSheet("color: rgba(139, 92, 246, 0.4); letter-spacing: 3px;")
-        bottom_layout.addWidget(dots)
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            #props_panel {{
+                background: {Colors.BG_SURFACE};
+                border-left: 1px solid {Colors.BORDER_SUBTLE};
+            }}
+        """)
 
-        layout.addWidget(bottom)
+    def _setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
 
-    def _build_title_bar(self):
-        layout = QHBoxLayout(self.title_bar)
-        layout.setContentsMargins(32, 0, 24, 0)
-        layout.setSpacing(16)
+        # 折叠按钮
+        toggle_btn = QPushButton("◀")
+        toggle_btn.setFixedSize(24, 24)
+        toggle_btn.clicked.connect(self._toggle)
+        layout.addWidget(toggle_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
-        self.page_title_label = QLabel("创作台")
-        self.page_title_label.setFont(QFont("", 20, QFont.Weight.SemiBold))
-        self.page_title_label.setStyleSheet("color: #F1F0F5;")
-        layout.addWidget(self.page_title_label)
+        # 内容区
+        self._content = QScrollArea()
+        self._content.setWidgetResizable(True)
+        self._content.setStyleSheet("border: none;")
+        layout.addWidget(self._content)
 
-        self.page_breadcrumb = QLabel("")
-        self.page_breadcrumb.setFont(QFont("", 11))
-        self.page_breadcrumb.setStyleSheet("color: #4B5563;")
-        layout.addWidget(self.page_breadcrumb)
+    def _toggle(self):
+        self._collapsed = not self._collapsed
+        animation = QPropertyAnimation(self, b"maximumWidth")
+        animation.setDuration(200)
+        animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
+        if self._collapsed:
+            animation.setStartValue(280)
+            animation.setEndValue(0)
+        else:
+            animation.setStartValue(0)
+            animation.setEndValue(280)
+        animation.start()
 
+
+# ═══════════════════════════════════════════════════════════════
+# 状态栏
+# ═══════════════════════════════════════════════════════════════
+
+class StatusBar(QFrame):
+    """底部状态栏"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedHeight(28)
+        self.setObjectName("statusbar")
+        self._setup_style()
+        self._setup_ui()
+
+    def _setup_style(self):
+        self.setStyleSheet(f"""
+            #statusbar {{
+                background: {Colors.BG_SURFACE};
+                border-top: 1px solid {Colors.BORDER_SUBTLE};
+                color: {Colors.TEXT_MUTED};
+                font-size: {FontSizes.xs}px;
+            }}
+        """)
+
+    def _setup_ui(self):
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(12, 0, 12, 0)
+
+        self._status_label = QLabel("就绪")
+        layout.addWidget(self._status_label)
         layout.addStretch()
 
-        # 页面操作按钮区
-        self.page_actions_layout = QHBoxLayout()
-        self.page_actions_layout.setSpacing(6)
-        layout.addLayout(self.page_actions_layout)
+        self._progress_label = QLabel("")
+        layout.addWidget(self._progress_label)
 
-    def _load_pages(self):
-        from .pages.creation_wizard_page import CreationWizardPage
-        creator = CreationWizardPage("creator", "创作台", self.application)
-        creator.create_content()
-        creator.page_activated.connect(self._on_page_activated)
-        self.page_stack.addWidget(creator)
-        self._pages["creator"] = creator
+    def set_status(self, text: str):
+        self._status_label.setText(text)
 
-        from .pages.settings_page import SettingsPage
-        settings = SettingsPage("settings", "设置", self.application)
-        settings.create_content()
-        settings.page_activated.connect(self._on_page_activated)
-        self.page_stack.addWidget(settings)
-        self._pages["settings"] = settings
-
-        from .pages.base_page import BasePage
-        for pid, label in [("projects", "项目"), ("history", "历史")]:
-            page = BasePage(pid, label, self.application)
-            page.create_content = lambda: None
-            self.page_stack.addWidget(page)
-            self._pages[pid] = page
-
-    # ─── 导航 ─────────────────────────────────────────────────
-
-    def _navigate_to(self, page_id: str):
-        if page_id not in self._pages or self._is_animating or page_id == self._current_page:
-            return
-
-        # 更新导航选中态
-        for pid, btn in self.nav_buttons.items():
-            btn.set_active(pid == page_id)
-
-        self._is_animating = True
-        old_page = self._pages.get(self._current_page)
-        new_page = self._pages[page_id]
-        rect = self.page_stack.geometry()
-
-        # 更新标题
-        page_info = {i[0]: (i[2], j) for i, j in zip(_NAV_ITEMS, ["", "/ 项目列表", "/ 操作历史", "/ 应用设置"])}
-        title, breadcrumb = page_info.get(page_id, ("", ""))
-        self.page_title_label.setText(title)
-        self.page_breadcrumb.setText(breadcrumb)
-        self._toolbar_title.setText(title)
-
-        if rect.isNull() or rect.width() == 0:
-            new_page.setGeometry(rect)
-            self.page_stack.setCurrentWidget(new_page)
-            self._is_animating = False
-        else:
-            new_page.setGeometry(rect.right(), 0, rect.width(), rect.height())
-            self.page_stack.setCurrentWidget(new_page)
-            self._slide_animation(old_page, new_page, rect)
-
-        self._current_page = page_id
-        if hasattr(new_page, 'activate'):
-            new_page.activate()
-
-    def _slide_animation(self, old_page, new_page, rect):
-        if old_page is None:
-            new_page.setGeometry(rect)
-            self._is_animating = False
-            return
-
-        for page, end_x, start_x in [
-            (old_page, rect.left() - rect.width() // 3, rect.left()),
-            (new_page, rect.left(), rect.right()),
-        ]:
-            anim = QPropertyAnimation(page, b"geometry")
-            anim.setDuration(220)
-            anim.setStartValue(QRect(start_x, 0, rect.width(), rect.height()))
-            anim.setEndValue(QRect(end_x, 0, rect.width(), rect.height()))
-            anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-            anim.start()
-            if page is old_page:
-                old_anim = anim
-            else:
-                new_anim = anim
-
-        old_anim.finished.connect(lambda: old_page.setGeometry(rect) if old_page else None)
-        new_anim.finished.connect(lambda: setattr(self, '_is_animating', False))
-
-    def _on_page_activated(self):
-        pass
-
-    def show_status(self, msg: str):
-        self.status_bar.showMessage(msg)
+    def set_progress(self, text: str):
+        self._progress_label.setText(text)
 
 
-MainWindow = VoxploreWindow
+# ═══════════════════════════════════════════════════════════════
+# 占位页面
+# ═══════════════════════════════════════════════════════════════
+
+class PlaceholderPage(QFrame):
+    """占位页面（后续实现具体页面）"""
+
+    def __init__(self, title: str, parent=None):
+        super().__init__(parent)
+        self.setObjectName(f"page_{title.lower()}")
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        icon = QLabel("◎")
+        icon.setFont(QFont("", 48))
+        icon.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(icon)
+
+        title_label = QLabel(title)
+        title_label.setFont(QFont("", FontSizes.xxl, QFont.Weight.Semibold))
+        title_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_label)
+
+        desc = QLabel("正在开发中...")
+        desc.setFont(QFont("", FontSizes.sm))
+        desc.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(desc)
+
+
+# ═══════════════════════════════════════════════════════════════
+# 主窗口
+# ═══════════════════════════════════════════════════════════════
+
+class VoxploreMainWindow(QMainWindow):
+    """Voxplore 主窗口"""
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Voxplore")
+        self.setMinimumSize(1200, 720)
+        self._setup_ui()
+        self._connect_signals()
+        self._load_stylesheet()
+
+    def _setup_ui(self):
+        central = QWidget()
+        self.setCentralWidget(central)
+        root_layout = QHBoxLayout(central)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        # 侧边栏
+        self.sidebar = Sidebar()
+        root_layout.addWidget(self.sidebar)
+
+        # 主内容区
+        self.content = ContentArea()
+
+        # 延迟导入避免循环
+        from app.ui.main.pages.home_page import HomePage
+        from app.ui.main.pages.settings_page import SettingsPage
+
+        # 添加页面
+        self.content.add_page("home",     HomePage())
+        self.content.add_page("create",    PlaceholderPage("创作台"))
+        self.content.add_page("projects",  PlaceholderPage("项目管理"))
+        self.content.add_page("settings",  SettingsPage())
+
+        root_layout.addWidget(self.content, 1)
+
+        # 右侧属性面板
+        self.props = PropertiesPanel()
+        root_layout.addWidget(self.props)
+
+        # 顶部栏
+        self.topbar = TopBar("主界面")
+        self.setMenuWidget(self.topbar)
+
+        # 状态栏
+        self.statusbar = StatusBar()
+        self.setStatusBar(self.statusbar)
+
+    def _connect_signals(self):
+        self.sidebar.navigated.connect(self._on_navigate)
+
+    def _on_navigate(self, page_id: str):
+        self.content.set_page(page_id)
+        titles = {
+            "home":     "主界面",
+            "create":   "创作台",
+            "projects": "项目管理",
+            "settings": "设置",
+        }
+        self.topbar.set_title(titles.get(page_id, "Voxplore"))
+        self.statusbar.set_status(f"当前: {titles.get(page_id, page_id)}")
+
+    def _load_stylesheet(self):
+        self.setStyleSheet(f"""
+            QMainWindow {{
+                background: {Colors.BG_BASE};
+            }}
+            QPushButton {{
+                font-family: inherit;
+            }}
+            QPushButton#action_btn {{
+                background: transparent;
+                border: none;
+                border-radius: {Radii.sm};
+                color: {Colors.TEXT_MUTED};
+                font-size: 14px;
+            }}
+            QPushButton#action_btn:hover {{
+                background: {Colors.BG_ELEVATED};
+                color: {Colors.TEXT_SECONDARY};
+            }}
+            QPushButton#btn_primary {{
+                background: {Colors.PRIMARY_500};
+                color: white;
+                border: none;
+                border-radius: {Radii.base};
+                font-size: {FontSizes.base}px;
+                font-weight: {FontWeights.Medium};
+                padding: 0 16px;
+            }}
+            QPushButton#btn_primary:hover {{
+                background: {Colors.PRIMARY_400};
+            }}
+            QPushButton#btn_secondary {{
+                background: transparent;
+                color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: {Radii.base};
+                font-size: {FontSizes.base}px;
+                padding: 0 16px;
+            }}
+            QPushButton#btn_secondary:hover {{
+                background: {Colors.BG_ELEVATED};
+                color: {Colors.TEXT_PRIMARY};
+            }}
+            QPushButton#browse_btn {{
+                background: {Colors.PRIMARY_500};
+                color: white;
+                border: none;
+                border-radius: {Radii.base};
+                font-size: {FontSizes.sm};
+                font-weight: {FontWeights.Medium};
+            }}
+            QPushButton#browse_btn:hover {{
+                background: {Colors.PRIMARY_400};
+            }}
+            QToolTip {{
+                background: {Colors.BG_OVERLAY};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: {Radii.sm};
+                padding: 4px 8px;
+                font-size: {FontSizes.xs}px;
+            }}
+        """)
+
+
+# ═══════════════════════════════════════════════════════════════
+# 入口
+# ═══════════════════════════════════════════════════════════════
+
+def main():
+    import sys
+    from PySide6.QtWidgets import QApplication
+    app = QApplication(sys.argv)
+    window = VoxploreMainWindow()
+    window.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
