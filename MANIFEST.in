@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include voxplore *.py
+recursive-include config *.yaml
+recursive-include examples *.py
