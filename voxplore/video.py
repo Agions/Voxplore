@@ -432,8 +432,9 @@ class VideoProcessor:
         audio_volume: float = 1.0,
         video_volume: float = 0.0
     ) -> bool:
-        """添加音频到视频"""
+        """添加音频到视频（优化版 - 单次编码）"""
         try:
+            # 使用 filter_complex 一次性完成，避免多次编码
             subprocess.run(
                 [
                     "ffmpeg", "-y",
@@ -443,7 +444,9 @@ class VideoProcessor:
                     f"[0:a]volume={video_volume}[a0];[1:a]volume={audio_volume}[a1];[a0][a1]amix=inputs=2:duration=longest[aout]",
                     "-map", "0:v",
                     "-map", "[aout]",
-                    "-c:v", "copy",
+                    "-c:v", "copy",  # 视频流直接复制，不重新编码
+                    "-c:a", "aac",
+                    "-ar", "44100",
                     output_path
                 ],
                 capture_output=True,

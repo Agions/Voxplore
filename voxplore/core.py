@@ -62,16 +62,30 @@ class EventBus:
                     self._handlers[event_name].remove(handler)
     
     def publish(self, event_name: str, data: Any = None) -> None:
-        """发布事件"""
+        """发布事件（优化版 - 并行调用处理器）"""
         handlers = []
         with self._lock:
             handlers = self._handlers.get(event_name, []).copy()
         
-        for handler in handlers:
-            try:
-                handler(data)
-            except Exception as e:
-                logger.error(f"Event handler failed: {event_name}, error: {e}")
+        if not handlers:
+            return
+        
+        # 并行调用所有处理器
+        if len(handlers) > 1:
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=min(len(handlers), 4)) as executor:
+                futures = [executor.submit(self._safe_call, h, data) for h in handlers]
+                for f in futures:
+                    f.result()  # 等待完成以捕获异常
+        else:
+            self._safe_call(handlers[0], data)
+    
+    def _safe_call(self, handler: Callable, data: Any):
+        """安全调用处理器"""
+        try:
+            handler(data)
+        except Exception as e:
+            logger.error(f"Event handler failed: {e}")
     
     def clear(self, event_name: str = None) -> None:
         """清除事件处理器"""
