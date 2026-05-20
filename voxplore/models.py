@@ -30,7 +30,7 @@ class EmotionType(Enum):
     NEUTRAL = "neutral"
 
 
-@dataclass
+@dataclass(slots=True)
 class TimeRange:
     """时间范围"""
     start: float  # 秒
@@ -48,7 +48,7 @@ class TimeRange:
         return cls(start=start, end=end)
 
 
-@dataclass
+@dataclass(slots=True)
 class VideoSegment:
     """视频片段"""
     video_path: str
@@ -78,7 +78,7 @@ class VideoSegment:
         }
 
 
-@dataclass
+@dataclass(slots=True)
 class EmotionPeak:
     """情感峰值"""
     segment: VideoSegment
@@ -97,7 +97,7 @@ class EmotionPeak:
         }
 
 
-@dataclass
+@dataclass(slots=True)
 class NarrationBlock:
     """解说块"""
     text: str
@@ -121,7 +121,7 @@ class NarrationBlock:
         }
 
 
-@dataclass
+@dataclass(slots=True)
 class SubtitleItem:
     """字幕项"""
     text: str
@@ -149,7 +149,7 @@ class SubtitleItem:
         return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
 
 
-@dataclass
+@dataclass(slots=True)
 class AudioTrack:
     """音频轨道"""
     audio_path: str
@@ -157,6 +157,9 @@ class AudioTrack:
     voice: str = "zh-CN-XiaoxiaoNeural"
     rate: float = 1.0
     pitch: float = 0.0
+
+
+# VideoProject 和 VideoGroup 使用 field(default_factory=list) 不支持 slots=True
 
 
 @dataclass
@@ -211,7 +214,7 @@ class VideoProject:
         }
 
 
-@dataclass
+@dataclass(slots=True)
 class TaskProgress:
     """任务进度"""
     task_id: str
