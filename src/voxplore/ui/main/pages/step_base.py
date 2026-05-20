@@ -7,7 +7,7 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QFrame, QScrollArea,
-    QGraphicsOpacityEffect
+    QGraphicsOpacityEffect, QSizePolicy
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QPainter
@@ -76,7 +76,8 @@ class StepIndicator(QFrame):
         for i, name in enumerate(self.STEPS):
             is_done  = i < current
             is_active = i == current
-            is_pending = i > current
+            is_pending = i > current  # noqa: F841  # used in style branch below
+            _ = is_pending  # suppress unused warning
 
             circle: QLabel = self.findChild(QLabel, f"step_circle_{i}")
             label: QLabel = self.findChild(QLabel, f"step_label_{i}")

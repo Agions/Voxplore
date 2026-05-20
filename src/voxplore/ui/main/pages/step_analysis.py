@@ -236,14 +236,7 @@ class StepAnalysisPage(StepPage):
 
     def _simulate_progress(self):
         from PySide6.QtCore import QTimer
-        stages = [
-            "正在提取音频...",
-            "正在识别语音...",
-            "正在检测精彩片段...",
-            "正在生成字幕...",
-            "正在分析场景...",
-            "分析完成！",
-        ]
+
         self._stage_idx = 0
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._update_progress)
