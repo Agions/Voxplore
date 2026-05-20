@@ -25,7 +25,7 @@ class DeviceType(Enum):
     MPS = "mps"  # Apple Silicon
 
 
-@dataclass
+@dataclass(slots=True)
 class DeviceInfo:
     """设备信息"""
     device_type: DeviceType
