@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 数据模型
 定义核心业务对象
 """
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from typing import Any
 from enum import Enum
 from datetime import datetime
 
@@ -40,7 +39,7 @@ class TimeRange:
     def duration(self) -> float:
         return self.end - self.start
     
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {"start": self.start, "end": self.end}
     
     @classmethod
@@ -66,7 +65,7 @@ class VideoSegment:
     def time_range(self) -> TimeRange:
         return TimeRange(self.start_time, self.end_time)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "video_path": self.video_path,
             "start_time": self.start_time,
@@ -87,7 +86,7 @@ class EmotionPeak:
     visual_score: float = 0.0
     audio_score: float = 0.0
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "segment": self.segment.to_dict(),
             "peak_score": self.peak_score,
@@ -110,7 +109,7 @@ class NarrationBlock:
     def duration(self) -> float:
         return self.end_time - self.start_time
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "text": self.text,
             "start_time": self.start_time,
@@ -166,17 +165,17 @@ class AudioTrack:
 class VideoProject:
     """视频项目"""
     name: str
-    source_videos: List[str] = field(default_factory=list)
-    segments: List[VideoSegment] = field(default_factory=list)
-    emotion_peaks: List[EmotionPeak] = field(default_factory=list)
-    narration_blocks: List[NarrationBlock] = field(default_factory=list)
-    subtitles: List[SubtitleItem] = field(default_factory=list)
-    audio_track: Optional[AudioTrack] = None
+    source_videos: list[str] = field(default_factory=list)
+    segments: list[VideoSegment] = field(default_factory=list)
+    emotion_peaks: list[EmotionPeak] = field(default_factory=list)
+    narration_blocks: list[NarrationBlock] = field(default_factory=list)
+    subtitles: list[SubtitleItem] = field(default_factory=list)
+    audio_track: AudioTrack | None = None
     output_path: str = ""
     style: NarrationStyle = NarrationStyle.DOCUMENTARY
     emotion: EmotionType = EmotionType.NEUTRAL
-    created_at: float = field(default_factory=lambda: datetime.now().timestamp())
-    updated_at: float = field(default_factory=lambda: datetime.now().timestamp())
+    created_at: float = field(default_factory=lambda: datetime.now().timestamp)
+    updated_at: float = field(default_factory=lambda: datetime.now().timestamp)
     
     def add_segment(self, segment: VideoSegment):
         self.segments.append(segment)
@@ -190,7 +189,7 @@ class VideoProject:
         self.audio_track = audio
         self.updated_at = datetime.now().timestamp()
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "source_videos": self.source_videos,
@@ -225,14 +224,14 @@ class TaskProgress:
     steps_total: int = 0
     steps_completed: int = 0
     message: str = ""
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    result: Any | None = None
+    error: str | None = None
     
     @property
     def progress_percent(self) -> int:
         return int(self.progress * 100)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "task_id": self.task_id,
             "task_name": self.task_name,
@@ -252,8 +251,8 @@ class VideoGroup:
     """视频分组（用于多视频混剪）"""
     group_id: str
     name: str = ""
-    video_paths: List[str] = field(default_factory=list)
-    segments: List[VideoSegment] = field(default_factory=list)
+    video_paths: list[str] = field(default_factory=list)
+    segments: list[VideoSegment] = field(default_factory=list)
     visual_similarity: float = 0.0
     audio_similarity: float = 0.0
     combined_similarity: float = 0.0
@@ -261,7 +260,7 @@ class VideoGroup:
     def add_video(self, video_path: str):
         self.video_paths.append(video_path)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "group_id": self.group_id,
             "name": self.name,

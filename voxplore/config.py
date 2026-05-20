@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 配置管理
 统一管理系统配置、环境变量、参数设置
@@ -7,7 +6,7 @@ Voxplore 配置管理
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Optional
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
@@ -68,7 +67,7 @@ class AppConfig:
     cache: CacheConfig = field(default_factory=CacheConfig)
     video: VideoConfig = field(default_factory=VideoConfig)
     tts: TTSConfig = field(default_factory=TTSConfig)
-    llm_providers: Dict[str, LLMConfig] = field(default_factory=dict)
+    llm_providers: dict[str, LLMConfig] = field(default_factory=dict)
     default_llm: str = "deepseek"
 
 
@@ -91,7 +90,7 @@ class ConfigManager:
             return
         
         self._initialized = True
-        self._config: Optional[AppConfig] = None
+        self._config: AppConfig | None = None
         self._config_file = Path(__file__).parent.parent / "config" / "app_config.yaml"
         self._load_config()
     
@@ -156,7 +155,7 @@ class ConfigManager:
         # 从 YAML 文件加载（如果存在）
         if self._config_file.exists():
             try:
-                with open(self._config_file, 'r', encoding='utf-8') as f:
+                with open(self._config_file, encoding='utf-8') as f:
                     yaml_config = yaml.safe_load(f) or {}
                     self._merge_config(config_data, yaml_config)
             except Exception as e:
@@ -164,7 +163,7 @@ class ConfigManager:
         
         self._config = self._parse_config(config_data)
     
-    def _merge_config(self, base: Dict, update: Dict):
+    def _merge_config(self, base: dict, update: dict):
         """深度合并配置"""
         for key, value in update.items():
             if key in base and isinstance(base[key], dict) and isinstance(value, dict):
@@ -172,7 +171,7 @@ class ConfigManager:
             else:
                 base[key] = value
     
-    def _parse_config(self, data: Dict) -> AppConfig:
+    def _parse_config(self, data: dict) -> AppConfig:
         """解析配置为 dataclass"""
         cache = CacheConfig(**data.get("cache", {}))
         video = VideoConfig(**data.get("video", {}))
@@ -198,13 +197,13 @@ class ConfigManager:
         """获取应用配置"""
         return self._config
     
-    def get_llm_config(self, provider: str = None) -> Optional[LLMConfig]:
+    def get_llm_config(self, provider: str = None) -> LLMConfig | None:
         """获取指定 LLM 配置"""
         if provider is None:
             provider = self._config.default_llm
         return self._config.llm_providers.get(provider)
     
-    def get_enabled_llm(self) -> List[LLMConfig]:
+    def get_enabled_llm(self) -> list[LLMConfig]:
         """获取所有启用的 LLM"""
         return [
             cfg for cfg in self._config.llm_providers.values()
@@ -272,7 +271,7 @@ def get_config() -> AppConfig:
     return config_manager.config
 
 
-def get_llm_config(provider: str = None) -> Optional[LLMConfig]:
+def get_llm_config(provider: str = None) -> LLMConfig | None:
     """获取 LLM 配置（快捷函数）"""
     return config_manager.get_llm_config(provider)
 

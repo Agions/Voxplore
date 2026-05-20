@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 任务管理 V2
 支持任务暂停、恢复、取消、断点续传
@@ -11,8 +10,7 @@ import os
 import uuid
 import logging
 import threading
-import asyncio
-from typing import Optional, Dict, Any, List, Callable
+from typing import Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -23,12 +21,14 @@ from concurrent.futures import ThreadPoolExecutor
 try:
     import orjson
     _json_loads = orjson.loads
-    _json_dumps = lambda obj: orjson.dumps(obj, option=orjson.OPT_INDENT_2)
+    def _json_dumps(obj):
+        return orjson.dumps(obj, option=orjson.OPT_INDENT_2)
     _use_orjson = True
 except ImportError:
     import json
     _json_loads = json.load
-    _json_dumps = lambda obj: json.dumps(obj, ensure_ascii=False, indent=2)
+    def _json_dumps(obj):
+        return json.dumps(obj, ensure_ascii=False, indent=2)
     _use_orjson = False
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class TaskCheckpoint:
     step: int
     step_name: str
     progress: float
-    data: Dict[str, Any]
+    data: dict[str, Any]
     timestamp: float
     file_path: str = ""
 
@@ -64,20 +64,20 @@ class Task:
     status: TaskStatus
     progress: float
     current_step: str
-    steps: List[str]
+    steps: list[str]
     current_step_index: int
-    result: Optional[Any]
-    error: Optional[str]
+    result: Any | None
+    error: str | None
     created_at: float
     updated_at: float
-    checkpoints: List[TaskCheckpoint] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    checkpoints: list[TaskCheckpoint] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
     
     @property
     def progress_percent(self) -> int:
         return int(self.progress * 100)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "task_id": self.task_id,
             "name": self.name,
@@ -117,7 +117,7 @@ class TaskManager:
             return
         
         self._initialized = True
-        self._tasks: Dict[str, Task] = {}
+        self._tasks: dict[str, Task] = {}
         self._lock = threading.RLock()  # 可重入锁
         self._executor = ThreadPoolExecutor(max_workers=2)  # 异步保存线程池
         self._task_dir = os.path.expanduser("~/.cache/voxplore/tasks")
@@ -138,7 +138,7 @@ class TaskManager:
                         with open(file, 'rb') as f:
                             data = orjson.loads(f.read())
                     else:
-                        with open(file, 'r', encoding='utf-8') as f:
+                        with open(file, encoding='utf-8') as f:
                             data = json.load(f)
                     task = self._dict_to_task(data)
                     self._tasks[task.task_id] = task
@@ -180,7 +180,7 @@ class TaskManager:
         except Exception as e:
             logger.error(f"Failed to save task: {e}")
     
-    def _dict_to_task(self, data: Dict) -> Task:
+    def _dict_to_task(self, data: dict) -> Task:
         """从字典创建任务"""
         checkpoints = [
             TaskCheckpoint(**cp) for cp in data.get("checkpoints", [])
@@ -205,8 +205,8 @@ class TaskManager:
     def create_task(
         self,
         name: str,
-        steps: List[str] = None,
-        metadata: Dict[str, Any] = None
+        steps: list[str] = None,
+        metadata: dict[str, Any] = None
     ) -> str:
         """
         创建新任务
@@ -250,12 +250,12 @@ class TaskManager:
         
         return task_id
     
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """获取任务"""
         with self._lock:
             return self._tasks.get(task_id)
     
-    def list_tasks(self) -> List[Task]:
+    def list_tasks(self) -> list[Task]:
         """列出所有任务"""
         with self._lock:
             return list(self._tasks.values())
@@ -376,7 +376,7 @@ class TaskManager:
             
             return True
     
-    def get_checkpoint(self, task_id: str) -> Optional[TaskCheckpoint]:
+    def get_checkpoint(self, task_id: str) -> TaskCheckpoint | None:
         """获取最新检查点"""
         task = self.get_task(task_id)
         if not task or not task.checkpoints:
@@ -389,7 +389,7 @@ class TaskManager:
         task_id: str,
         step: int,
         step_name: str,
-        data: Dict[str, Any]
+        data: dict[str, Any]
     ):
         """保存检查点（JSON 格式）"""
         checkpoint = {
@@ -418,7 +418,7 @@ class TaskManager:
         except Exception as e:
             logger.error(f"Failed to save checkpoint: {e}")
     
-    def load_checkpoint(self, task_id: str, step: int) -> Optional[TaskCheckpoint]:
+    def load_checkpoint(self, task_id: str, step: int) -> TaskCheckpoint | None:
         """加载检查点"""
         checkpoint_file = os.path.join(
             self._checkpoints_dir,
@@ -433,7 +433,7 @@ class TaskManager:
                 with open(checkpoint_file, 'rb') as f:
                     data = orjson.loads(f.read())
             else:
-                with open(checkpoint_file, 'r', encoding='utf-8') as f:
+                with open(checkpoint_file, encoding='utf-8') as f:
                     data = json.load(f)
             return TaskCheckpoint(**data)
         except Exception as e:

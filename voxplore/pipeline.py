@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 核心处理流水线 V2
 性能优化版本：
@@ -9,19 +8,15 @@ Voxplore 核心处理流水线 V2
 - 进度实时反馈
 """
 import os
-import time
 import logging
-from typing import List, Optional, Dict, Any, Callable
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from threading import Thread
-import threading
 
 from .models import (
-    VideoSegment, EmotionPeak, NarrationBlock, SubtitleItem,
-    AudioTrack, VideoProject, NarrationStyle, EmotionType
+    VideoSegment, EmotionPeak, NarrationBlock, AudioTrack, VideoProject, NarrationStyle, EmotionType
 )
-from .video import VideoAnalyzer, VideoProcessor
+from .video import VideoAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +47,9 @@ class EmotionPeakDetector:
     
     def detect(
         self,
-        segments: List[VideoSegment],
-        progress_callback: Optional[Callable] = None
-    ) -> List[EmotionPeak]:
+        segments: list[VideoSegment],
+        progress_callback: Callable | None = None
+    ) -> list[EmotionPeak]:
         peaks = []
         total = len(segments)
         
@@ -88,7 +83,7 @@ class EmotionPeakDetector:
         
         return peaks
     
-    def _analyze_segment(self, segment: VideoSegment) -> Optional[EmotionPeak]:
+    def _analyze_segment(self, segment: VideoSegment) -> EmotionPeak | None:
         """分析单个片段"""
         cache_key = f"{segment.video_path}:{segment.start_time}:{segment.end_time}"
         if cache_key in self._cache:
@@ -193,7 +188,7 @@ class EmotionPeakDetector:
                     pitch_norm = min(1.0, np.mean(pitch_max) / 300.0)
                 else:
                     pitch_norm = 0.5
-            except:
+            except Exception:
                 pitch_norm = 0.5
             
             return energy_norm * 0.6 + pitch_norm * 0.4
@@ -241,8 +236,8 @@ class FirstPersonExtractor:
         video_path: str,
         group_id: str = "",
         use_cache: bool = True,
-        progress_callback: Optional[Callable] = None
-    ) -> List[VideoSegment]:
+        progress_callback: Callable | None = None
+    ) -> list[VideoSegment]:
         video_info = VideoAnalyzer.get_video_info(video_path)
         duration = video_info["duration"]
         
@@ -269,7 +264,7 @@ class FirstPersonExtractor:
         
         return segments
     
-    def _generate_timestamps(self, duration: float) -> List[float]:
+    def _generate_timestamps(self, duration: float) -> list[float]:
         """生成采样时间点"""
         timestamps = []
         current = 0.0
@@ -283,9 +278,9 @@ class FirstPersonExtractor:
     def _analyze_frames_parallel(
         self,
         video_path: str,
-        timestamps: List[float],
-        progress_callback: Optional[Callable] = None
-    ) -> List[Dict]:
+        timestamps: list[float],
+        progress_callback: Callable | None = None
+    ) -> list[dict]:
         """并行分析帧"""
         # 批量提取帧
         batch_size = self.config.batch_size
@@ -339,7 +334,7 @@ class FirstPersonExtractor:
         video_path: str,
         timestamp: float,
         frame
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """分析单帧"""
         try:
             import cv2
@@ -347,21 +342,13 @@ class FirstPersonExtractor:
             
             # 编码为 JPEG
             encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
-            _, buffer = cv2.imencode('.jpg', frame, encode_param)
-            frame_data = buffer.tobytes()
-            
-            # 简单视觉分析（基于颜色和运动）
-            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            
-            # 检测是否像 POV 镜头（第一人称视角特征）
-            # POV 镜头通常有较多手持运动模糊、中心构图等特征
+            cv2.imencode('.jpg', frame, encode_param)
             
             # 简化分析：基于图像复杂度
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
             
             # 简单的"第一人称"判断
             # 实际项目中应该用 Qwen2.5-VL 等模型
+            laplacian_var = cv2.Laplacian(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
             is_poi = laplacian_var > 100 and np.random.random() < 0.3
             
             confidence = 0.75 if is_poi else 0.35
@@ -377,7 +364,7 @@ class FirstPersonExtractor:
             logger.warning(f"Frame analysis failed at {timestamp}: {e}")
             return None
     
-    def _cluster_frames(self, frames: List[Dict]) -> List[VideoSegment]:
+    def _cluster_frames(self, frames: list[dict]) -> list[VideoSegment]:
         """聚类连续的第一人称帧"""
         if not frames:
             return []
@@ -418,7 +405,7 @@ class FirstPersonExtractor:
         
         return segments
     
-    def _filter_segments(self, segments: List[VideoSegment]) -> List[VideoSegment]:
+    def _filter_segments(self, segments: list[VideoSegment]) -> list[VideoSegment]:
         """过滤片段"""
         filtered = []
         
@@ -438,7 +425,7 @@ class FirstPersonExtractor:
         
         return filtered
     
-    def _split_long_segment(self, segment: VideoSegment) -> List[VideoSegment]:
+    def _split_long_segment(self, segment: VideoSegment) -> list[VideoSegment]:
         """拆分过长片段"""
         duration = segment.end_time - segment.start_time
         num_splits = int(duration / self.config.max_segment_duration) + 1
@@ -475,12 +462,12 @@ class ScriptGenerator:
     
     def generate(
         self,
-        segments: List[VideoSegment],
+        segments: list[VideoSegment],
         context: str = "",
         emotion: EmotionType = EmotionType.NEUTRAL,
         style: NarrationStyle = NarrationStyle.DOCUMENTARY,
-        progress_callback: Optional[Callable] = None
-    ) -> List[NarrationBlock]:
+        progress_callback: Callable | None = None
+    ) -> list[NarrationBlock]:
         if not self.llm:
             logger.warning("No LLM service available, using default script")
             return self._generate_default(len(segments))
@@ -544,7 +531,7 @@ class ScriptGenerator:
 
 解说文案："""
     
-    def _generate_default(self, count: int) -> List[NarrationBlock]:
+    def _generate_default(self, count: int) -> list[NarrationBlock]:
         texts = [
             "这是我记忆中最深刻的时刻。",
             "那时候的我，还不知道接下来会发生什么。",
@@ -586,13 +573,13 @@ class TTSGenerator:
     
     def generate(
         self,
-        narrations: List[NarrationBlock],
+        narrations: list[NarrationBlock],
         output_dir: str,
         voice: str = "zh-CN-XiaoxiaoNeural",
-        progress_callback: Optional[Callable] = None,
+        progress_callback: Callable | None = None,
         use_async: bool = True,
         max_concurrent: int = 4
-    ) -> Optional[AudioTrack]:
+    ) -> AudioTrack | None:
         """
         生成配音
         
@@ -601,7 +588,6 @@ class TTSGenerator:
             max_concurrent: 最大并发数
         """
         import os
-        import asyncio
         
         os.makedirs(output_dir, exist_ok=True)
         
@@ -614,12 +600,12 @@ class TTSGenerator:
     
     def _generate_async(
         self,
-        narrations: List[NarrationBlock],
+        narrations: list[NarrationBlock],
         output_dir: str,
         voice: str,
-        progress_callback: Optional[Callable],
+        progress_callback: Callable | None,
         max_concurrent: int
-    ) -> Optional[AudioTrack]:
+    ) -> AudioTrack | None:
         """异步并行生成配音"""
         import os
         import asyncio
@@ -669,11 +655,11 @@ class TTSGenerator:
     
     def _generate_sync(
         self,
-        narrations: List[NarrationBlock],
+        narrations: list[NarrationBlock],
         output_dir: str,
         voice: str,
-        progress_callback: Optional[Callable]
-    ) -> Optional[AudioTrack]:
+        progress_callback: Callable | None
+    ) -> AudioTrack | None:
         """串行生成配音（回退方案）"""
         import os
         
@@ -725,7 +711,7 @@ class TTSGenerator:
             rate=1.0
         )
     
-    def _concatenate_audio(self, audio_files: List[str], output_path: str) -> bool:
+    def _concatenate_audio(self, audio_files: list[str], output_path: str) -> bool:
         try:
             import subprocess
             
@@ -770,7 +756,7 @@ class VoxplorePipeline:
         emotion: EmotionType = EmotionType.NEUTRAL,
         style: NarrationStyle = NarrationStyle.DOCUMENTARY,
         voice: str = "zh-CN-XiaoxiaoNeural",
-        progress_callback: Optional[Callable] = None,
+        progress_callback: Callable | None = None,
         output_dir: str = None
     ) -> VideoProject:
         if output_dir is None:

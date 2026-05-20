@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 FirstPersonExtractor 优化版本
 改进点：
@@ -10,8 +9,8 @@ FirstPersonExtractor 优化版本
 5. 增量处理和断点续传
 """
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable, Optional, List, Dict, Any
-from enum import Enum
+from typing import Protocol, runtime_checkable
+import math
 import logging
 import json
 import os
@@ -67,7 +66,6 @@ class QwenVLAdapter:
                 return {"is_first_person": False, "confidence": 0.0, "description": "帧提取失败"}
             
             # 编码为 JPEG
-            import numpy as np
             _, img_encoded = cv2.imencode('.jpg', frame)
             img_bytes = img_encoded.tobytes()
             
@@ -146,8 +144,8 @@ class AdaptiveFrameSampler:
         self, 
         video_path: str, 
         duration: float,
-        scene_changes: List[float] = None,
-    ) -> List[float]:
+        scene_changes: list[float] = None,
+    ) -> list[float]:
         """
         生成采样时间点列表
         
@@ -179,7 +177,7 @@ class AdaptiveFrameSampler:
     def _get_interval_for_position(
         self, 
         current_time: float, 
-        scene_changes: List[float],
+        scene_changes: list[float],
         duration: float,
     ) -> float:
         """根据当前位置决定采样间隔"""
@@ -195,7 +193,7 @@ class AdaptiveFrameSampler:
         
         return self.base_interval
     
-    def _detect_scene_changes(self, video_path: str, duration: float) -> List[float]:
+    def _detect_scene_changes(self, video_path: str, duration: float) -> list[float]:
         """检测场景变化点（使用帧差分）"""
         try:
             import cv2
@@ -285,7 +283,7 @@ class FirstPersonExtractor:
     
     def __init__(
         self,
-        vision_model: Optional[VisionModel] = None,
+        vision_model: VisionModel | None = None,
         frame_interval: float = DEFAULT_FRAME_INTERVAL,
         min_confidence: float = MIN_CONFIDENCE_THRESHOLD,
         use_cache: bool = True,
@@ -369,7 +367,7 @@ class FirstPersonExtractor:
         video_path: str,
         group_id: str = "",
         force: bool = False,
-    ) -> List[VideoSegment]:
+    ) -> list[VideoSegment]:
         """
         提取第一人称片段
         
@@ -430,7 +428,7 @@ class FirstPersonExtractor:
         
         return segments
     
-    def _cluster_segments(self, frames: List[dict]) -> List[VideoSegment]:
+    def _cluster_segments(self, frames: list[dict]) -> list[VideoSegment]:
         """将连续的第一人称帧聚类成片段"""
         if not frames:
             return []
@@ -478,7 +476,7 @@ class FirstPersonExtractor:
         
         return segments
     
-    def _filter_segments(self, segments: List[VideoSegment]) -> List[VideoSegment]:
+    def _filter_segments(self, segments: list[VideoSegment]) -> list[VideoSegment]:
         """过滤和验证片段"""
         filtered = []
         
@@ -501,7 +499,7 @@ class FirstPersonExtractor:
         
         return filtered
     
-    def _split_long_segment(self, seg: VideoSegment) -> List[VideoSegment]:
+    def _split_long_segment(self, seg: VideoSegment) -> list[VideoSegment]:
         """拆分过长的片段"""
         duration = seg.end_time - seg.start_time
         num_splits = int(math.ceil(duration / self.MAX_SEGMENT_DURATION))
@@ -525,13 +523,13 @@ class FirstPersonExtractor:
         key = f"{video_path}:{group_id}:{os.path.getmtime(video_path)}"
         return hashlib.md5(key.encode()).hexdigest()
     
-    def _load_from_cache(self, cache_key: str) -> Optional[List[VideoSegment]]:
+    def _load_from_cache(self, cache_key: str) -> list[VideoSegment] | None:
         """从缓存加载"""
         try:
             cache_file = os.path.join(self._cache_dir, f"{cache_key}.json")
             
             if os.path.exists(cache_file):
-                with open(cache_file, 'r', encoding='utf-8') as f:
+                with open(cache_file, encoding='utf-8') as f:
                     data = json.load(f)
                 
                 return [
@@ -549,7 +547,7 @@ class FirstPersonExtractor:
         
         return None
     
-    def _save_to_cache(self, cache_key: str, segments: List[VideoSegment]):
+    def _save_to_cache(self, cache_key: str, segments: list[VideoSegment]):
         """保存到缓存"""
         try:
             os.makedirs(self._cache_dir, exist_ok=True)

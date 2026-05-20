@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 使用示例
 """
@@ -9,11 +8,6 @@ import sys
 # 添加项目路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from voxplore.config import get_config
-from voxplore.models import NarrationStyle, EmotionType, VideoSegment
-from voxplore.pipeline import VoxplorePipeline, PipelineConfig
-from voxplore.exporters import JianyingExporter, SubtitleExporter, VideoExporter
-from voxplore.video import VideoAnalyzer
 
 
 def example_analyze_video():
@@ -36,16 +30,8 @@ def example_process_video():
     print("示例2: 处理视频生成解说")
     print("=" * 50)
     
-    # 配置
-    config = PipelineConfig(
-        min_segment_duration=9.0,
-        max_segment_duration=60.0,
-        frame_sample_interval=1.0,
-        min_confidence=0.6,
-    )
-    
-    # 创建流水线
-    pipeline = VoxplorePipeline(config)
+    # 创建流水线（参考 pipeline.py 中的 VoxplorePipeline 用法）
+    # pipeline = VoxplorePipeline()
     
     # 处理视频
     # project = pipeline.process(

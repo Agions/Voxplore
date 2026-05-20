@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 任务管理器优化版本
 改进点：
@@ -10,14 +9,13 @@
 5. 详细的进度回调
 """
 from dataclasses import dataclass, field
-from typing import Optional, Callable, Dict, Any, List
+from typing import Any
+from collections.abc import Callable
 from enum import Enum
 import threading
 import time
 import json
-import os
 import logging
-from abc import ABC, abstractmethod
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ class TaskResult:
     """任务结果"""
     success: bool
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     duration: float = 0.0
 
 
@@ -70,17 +68,17 @@ class Task:
     name: str
     func: Callable
     args: tuple = field(default_factory=tuple)
-    kwargs: Dict[str, Any] = field(default_factory=dict)
+    kwargs: dict[str, Any] = field(default_factory=dict)
     priority: TaskPriority = TaskPriority.NORMAL
     status: TaskStatus = TaskStatus.PENDING
     progress: float = 0.0
-    result: Optional[TaskResult] = None
+    result: TaskResult | None = None
     created_at: float = field(default_factory=time.time)
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
-    checkpoints: Dict[str, Any] = field(default_factory=dict)  # 断点数据
+    started_at: float | None = None
+    completed_at: float | None = None
+    checkpoints: dict[str, Any] = field(default_factory=dict)  # 断点数据
     
-    def duration(self) -> Optional[float]:
+    def duration(self) -> float | None:
         """计算任务耗时"""
         if self.started_at:
             end = self.completed_at or time.time()
@@ -95,7 +93,7 @@ class CheckpointManager:
         self.checkpoint_dir = Path(checkpoint_dir).expanduser()
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
     
-    def save(self, task_id: str, data: Dict[str, Any]) -> str:
+    def save(self, task_id: str, data: dict[str, Any]) -> str:
         """
         保存断点
         
@@ -120,7 +118,7 @@ class CheckpointManager:
         logger.debug(f"Checkpoint saved: {task_id}")
         return str(checkpoint_file)
     
-    def load(self, task_id: str) -> Optional[Dict[str, Any]]:
+    def load(self, task_id: str) -> dict[str, Any] | None:
         """
         加载断点
         
@@ -136,7 +134,7 @@ class CheckpointManager:
             return None
         
         try:
-            with open(checkpoint_file, 'r', encoding='utf-8') as f:
+            with open(checkpoint_file, encoding='utf-8') as f:
                 data = json.load(f)
             logger.debug(f"Checkpoint loaded: {task_id}")
             return data.get("data")
@@ -165,7 +163,7 @@ class TaskExecutor:
         self,
         task: Task,
         checkpoint_manager: CheckpointManager,
-        progress_callback: Optional[Callable[[TaskProgress], None]] = None,
+        progress_callback: Callable[[TaskProgress], None] | None = None,
     ):
         self.task = task
         self.checkpoint_manager = checkpoint_manager
@@ -205,12 +203,12 @@ class TaskExecutor:
         """如果暂停则等待"""
         self._pause_event.wait()
     
-    def save_checkpoint(self, checkpoint_data: Dict[str, Any]):
+    def save_checkpoint(self, checkpoint_data: dict[str, Any]):
         """保存断点"""
         self.checkpoint_manager.save(self.task.task_id, checkpoint_data)
         self.task.checkpoints.update(checkpoint_data)
     
-    def load_checkpoint(self) -> Optional[Dict[str, Any]]:
+    def load_checkpoint(self) -> dict[str, Any] | None:
         """加载断点"""
         return self.checkpoint_manager.load(self.task.task_id)
     
@@ -318,14 +316,14 @@ class TaskManager:
         self.max_workers = max_workers
         self.checkpoint_manager = CheckpointManager(checkpoint_dir)
         
-        self._tasks: Dict[str, Task] = {}
-        self._executors: Dict[str, TaskExecutor] = {}
+        self._tasks: dict[str, Task] = {}
+        self._executors: dict[str, TaskExecutor] = {}
         self._lock = threading.Lock()
-        self._worker_thread: Optional[threading.Thread] = None
+        self._worker_thread: threading.Thread | None = None
         self._running = False
         
         # 进度回调
-        self._progress_callbacks: List[Callable[[TaskProgress], None]] = []
+        self._progress_callbacks: list[Callable[[TaskProgress], None]] = []
         
         # 全局限流
         self._semaphore = threading.Semaphore(max_workers)
@@ -375,15 +373,15 @@ class TaskManager:
             logger.info(f"Task submitted: {task_id} ({name})")
             return task
     
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """获取任务"""
         return self._tasks.get(task_id)
     
-    def get_all_tasks(self) -> List[Task]:
+    def get_all_tasks(self) -> list[Task]:
         """获取所有任务"""
         return list(self._tasks.values())
     
-    def get_tasks_by_status(self, status: TaskStatus) -> List[Task]:
+    def get_tasks_by_status(self, status: TaskStatus) -> list[Task]:
         """获取指定状态的任务"""
         return [t for t in self._tasks.values() if t.status == status]
     
@@ -505,7 +503,7 @@ class TaskManager:
         
         logger.info("Task manager shutdown")
     
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """获取摘要"""
         with self._lock:
             status_counts = {}

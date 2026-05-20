@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 命令行界面
 """
@@ -15,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from voxplore.config import get_config
 from voxplore.models import NarrationStyle, EmotionType
 from voxplore.pipeline import VoxplorePipeline, PipelineConfig
-from voxplore.exporters import JianyingExporter, SubtitleExporter, VideoExporter, ExportConfig
+from voxplore.exporters import JianyingExporter, SubtitleExporter, VideoExporter
 from voxplore.ai_services import ai_service_manager
 
 
@@ -79,14 +78,14 @@ def cmd_analyze(args):
     
     info = VideoAnalyzer.get_video_info(args.video)
     
-    print(f"\n📊 视频信息:")
+    print("\n📊 视频信息:")
     print(f"  时长: {info['duration']:.1f} 秒")
     print(f"  分辨率: {info['width']}x{info['height']}")
     print(f"  帧率: {info['fps']:.1f} fps")
     print(f"  大小: {info['size'] / 1024 / 1024:.1f} MB")
     
     if args.scenes:
-        print(f"\n🔍 检测场景变化...")
+        print("\n🔍 检测场景变化...")
         scenes = VideoAnalyzer.detect_scenes(args.video)
         print(f"  发现 {len(scenes)} 个场景")
         for i, (start, end) in enumerate(scenes[:5]):
@@ -132,7 +131,7 @@ def cmd_process(args):
             output_dir=args.output or "./output"
         )
         
-        print(f"\n\n✅ 处理完成!")
+        print("\n\n✅ 处理完成!")
         print(f"   提取片段: {len(project.segments)}")
         print(f"   情感峰值: {len(project.emotion_peaks)}")
         print(f"   解说块: {len(project.narration_blocks)}")
@@ -152,13 +151,13 @@ def export_project(project, args):
     output_dir = args.output or "./output"
     
     if args.format == "jianying":
-        print(f"\n📦 导出剪映草稿...")
+        print("\n📦 导出剪映草稿...")
         exporter = JianyingExporter()
         draft_path = exporter.export(project, output_dir)
         print(f"   草稿路径: {draft_path}")
     
     elif args.format == "mp4":
-        print(f"\n📦 导出 MP4 视频...")
+        print("\n📦 导出 MP4 视频...")
         exporter = VideoExporter()
         output_path = os.path.join(output_dir, f"{project.name}.mp4")
         success = exporter.export(project, output_path)
@@ -166,7 +165,7 @@ def export_project(project, args):
             print(f"   视频路径: {output_path}")
     
     elif args.format == "srt":
-        print(f"\n📦 导出字幕...")
+        print("\n📦 导出字幕...")
         output_path = os.path.join(output_dir, f"{project.name}.srt")
         SubtitleExporter.export_srt(project.subtitles, output_path)
         print(f"   字幕路径: {output_path}")

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 EmotionPeakDetector 优化版本
 改进点：
@@ -8,9 +7,9 @@ EmotionPeakDetector 优化版本
 3. 自适应采样策略
 4. 批量并行处理
 """
-from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable, Optional, List, Callable
-from enum import Enum
+from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
+from collections.abc import Callable
 import logging
 import math
 
@@ -155,7 +154,7 @@ class AudioEnergyEmotionAnalyzer:
                 avg_pitch = np.mean(pitch_max) if pitch_max else 0
                 # 归一化（人类语音基频约50-500Hz）
                 pitch_norm = min(1.0, avg_pitch / 300.0)
-            except:
+            except Exception:
                 pitch_norm = 0.5
             
             # 综合情绪 = 能量 * 0.6 + 音调 * 0.4
@@ -189,12 +188,12 @@ class EmotionPeakDetector:
     
     def __init__(
         self,
-        visual_analyzer: Optional[VisualComplexityAnalyzer] = None,
-        audio_analyzer: Optional[AudioEmotionAnalyzer] = None,
+        visual_analyzer: VisualComplexityAnalyzer | None = None,
+        audio_analyzer: AudioEmotionAnalyzer | None = None,
         visual_weight: float = VISUAL_WEIGHT,
         audio_weight: float = AUDIO_WEIGHT,
         min_peak_threshold: float = MIN_PEAK_THRESHOLD,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
     ):
         """
         Args:
@@ -216,7 +215,7 @@ class EmotionPeakDetector:
         self,
         segments: list,
         parallel: bool = True,
-    ) -> List[EmotionPeak]:
+    ) -> list[EmotionPeak]:
         """
         检测情感峰值（支持并行处理）
         
@@ -279,7 +278,7 @@ class EmotionPeakDetector:
         
         return peaks
     
-    def _analyze_segment(self, seg) -> Optional[EmotionPeak]:
+    def _analyze_segment(self, seg) -> EmotionPeak | None:
         """分析单个片段"""
         try:
             visual_score = self._visual_analyzer.analyze(
@@ -343,9 +342,9 @@ class EmotionPeakDetector:
     
     def _non_maximum_suppression(
         self, 
-        peaks: List[EmotionPeak], 
+        peaks: list[EmotionPeak], 
         min_gap: float = 5.0
-    ) -> List[EmotionPeak]:
+    ) -> list[EmotionPeak]:
         """非极大值抑制：保留峰值，抑制附近的较低峰"""
         if not peaks:
             return []

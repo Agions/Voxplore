@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voxplore - AI 影视解说工具</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a24;
+      --bg-card-hover: #22222e;
+      --border: #2a2a3a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --text-muted: #606070;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --accent-secondary: #22d3ee;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #6366f1 100%);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(139, 92, 246, 0.15), transparent),
+        radial-gradient(ellipse 50% 30% at 20% 80%, rgba(34, 211, 238, 0.1), transparent);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: var(--gradient-hero);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 5s ease infinite, fadeInUp 0.8s ease-out 0.1s both;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      color: var(--text-secondary);
+      max-width: 700px;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .hero-scenarios {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      animation: fadeInUp 0.8s ease-out 0.25s both;
+    }
+
+    .scenario-tag {
+      padding: 0.4rem 1rem;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 3rem;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--text-muted);
+    }
+
+    /* Stars Badge */
+    .stars-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      animation: fadeInUp 0.8s ease-out 0.35s both;
+    }
+
+    .stars-badge a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .stars-badge a:hover {
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    /* Scroll Indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-muted);
+    }
+
+    /* Section Styles */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .feature-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    .feature-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Quick Start Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .step-content h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .step-content p a {
+      color: var(--accent-secondary);
+      text-decoration: none;
+    }
+
+    .step-content p a:hover {
+      text-decoration: underline;
+    }
+
+    /* Code Block */
+    .code-block {
+      background: #0d0d12;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .code-dot.red { background: #ff5f57; }
+    .code-dot.yellow { background: #febc2e; }
+    .code-dot.green { background: #28c840; }
+
+    .code-title {
+      margin-left: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .code-content {
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-comment { color: #6a737d; }
+    .code-keyword { color: #ff79c6; }
+    .code-string { color: #f1fa8c; }
+    .code-function { color: #50fa7b; }
+    .code-variable { color: #8be9fd; }
+    .code-class { color: #bd93f9; }
+    .code-number { color: #ffb86c; }
+
+    /* Output line style */
+    .code-output {
+      color: var(--success);
+      opacity: 0.8;
+    }
+
+    /* Structure */
+    .structure-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .structure-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .structure-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .structure-item:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+
+    .structure-icon {
+      font-size: 1.25rem;
+      width: 32px;
+      text-align: center;
+    }
+
+    .structure-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--accent-secondary);
+    }
+
+    .structure-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-left: auto;
+    }
+
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+    }
+
+    th, td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    td:first-child {
+      font-weight: 500;
+    }
+
+    .style-emoji {
+      font-size: 1.25rem;
+      margin-right: 0.5rem;
+    }
+
+    /* Tech Stack - Table Style */
+    .tech-table {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .tech-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .tech-row:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .tech-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+    }
+
+    .tech-label span:first-child {
+      font-size: 1.25rem;
+    }
+
+    .tech-value {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 4rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* Call to Action */
+    .cta-section {
+      text-align: center;
+      padding: 6rem 2rem;
+      background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.05));
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    @keyframes typewriter {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-cta {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .btn {
+        justify-content: center;
+      }
+
+      .step {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .structure-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .structure-desc {
+        margin-left: 0;
+      }
+
+      .tech-row {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">v2.0.0 Release</div>
+    <h1 class="hero-title">Voxplore</h1>
+    <p class="hero-subtitle">AI 影视解说工具 — 第一人称视角视频创作平台，让你的故事更有电影感</p>
+    <div class="hero-scenarios">
+      <span class="scenario-tag">🎬 旅游 vlog</span>
+      <span class="scenario-tag">🎮 游戏集锦</span>
+      <span class="scenario-tag">📷 运动相机</span>
+      <span class="scenario-tag">📹 生活记录</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#quickstart" class="btn btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        快速开始
+      </a>
+      <a href="https://github.com/Agions/Voxplore" class="btn btn-secondary" target="_blank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+    <div class="stars-badge">
+      <a href="https://github.com/Agions/Voxplore" target="_blank">
+        ⭐ 给个项目 Star
+      </a>
+    </div>
+    <div class="scroll-indicator">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features">
+    <div class="section-header">
+      <p class="section-label">核心特性</p>
+      <h2 class="section-title">智能视频处理</h2>
+      <p class="section-desc">从视频分析到配音生成，全流程自动化处理</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">🎬</div>
+        <h3 class="feature-title">第一人称提取</h3>
+        <p class="feature-desc">自动识别并提取视频中的 POV / 主观镜头，精准定位第一人称视角片段</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">🎭</div>
+        <h3 class="feature-title">7 种情感风格</h3>
+        <p class="feature-desc">治愈 / 悬疑 / 励志 / 怀旧 / 浪漫 / 幽默 / 纪录片，匹配不同内容调性</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">🎙️</div>
+        <h3 class="feature-title">智能配音</h3>
+        <p class="feature-desc">Edge-TTS 高质量神经网络语音合成，支持多种音色和语速调节</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">📝</div>
+        <h3 class="feature-title">精准字幕</h3>
+        <p class="feature-desc">50ms 精度时间轴对齐，SRT / VTT / LRC 多格式导出</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">📦</div>
+        <h3 class="feature-title">剪映导出</h3>
+        <p class="feature-desc">原生草稿格式导出，直接导入剪映编辑，无需二次处理</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">💾</div>
+        <h3 class="feature-title">断点续传</h3>
+        <p class="feature-desc">任务暂停/恢复，中途打断也不怕，进度自动保存</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">本地处理</h3>
+        <p class="feature-desc">视频永不上传，保护隐私安全，适合敏感内容创作</p>
+      </div>
+      <div class="feature-card" data-animate>
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">低成本</h3>
+        <p class="feature-desc">集成 DeepSeek-V4 API，智能路由，< ¥0.01 / 视频</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Start Section -->
+  <section id="quickstart">
+    <div class="section-header">
+      <p class="section-label">快速开始</p>
+      <h2 class="section-title">运行环境</h2>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step" data-animate>
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>安装依赖</h3>
+          <p>克隆项目并安装 Python 依赖</p>
+        </div>
+      </div>
+      <div class="step" data-animate>
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>配置 API Key</h3>
+          <p>申请 DeepSeek 和阿里云 DashScope API Key · <a href="https://platform.deepseek.com/" target="_blank">DeepSeek 申请</a> · <a href="https://dashscope.console.aliyun.com/" target="_blank">DashScope 申请</a></p>
+        </div>
+      </div>
+      <div class="step" data-animate>
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>命令行使用</h3>
+          <p>使用命令行分析、处理、批量处理视频</p>
+        </div>
+      </div>
+      <div class="step" data-animate>
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Python API</h3>
+          <p>通过 Python API 集成到你的应用中</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+        <span class="code-title">terminal</span>
+      </div>
+      <div class="code-content">
+        <pre><code><span class="code-comment"># 1. 安装依赖</span>
+git clone https://github.com/Agions/Voxplore.git
+<span class="code-function">cd</span> Voxplore
+pip install -r requirements.txt
+
+<span class="code-comment"># 2. 配置 API Key（创建 .env 文件）</span>
+<span class="code-variable">DEEPSEEK_API_KEY</span>=<span class="code-string">sk-your-deepseek-api-key</span>
+<span class="code-variable">DASHSCOPE_API_KEY</span>=<span class="code-string">your-dashscope-api-key</span></code></pre>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top: 4rem;">
+      <h2 class="section-title">命令行使用</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+        <span class="code-title">terminal</span>
+      </div>
+      <div class="code-content">
+        <pre><code><span class="code-comment"># 分析视频，查看第一人称片段</span>
+python -m voxplore analyze video.mp4
+
+<span class="code-comment"># 检测所有场景</span>
+python -m voxplore analyze video.mp4 <span class="code-variable">--scenes</span>
+
+<span class="code-comment"># 处理视频（生成解说）</span>
+python -m voxplore process video.mp4 <span class="code-variable">--style documentary</span> <span class="code-variable">--emotion neutral</span>
+
+<span class="code-comment"># 批量处理</span>
+python -m voxplore batch <span class="code-string">"*.mp4"</span>
+
+<span class="code-comment"># 导出为剪映草稿</span>
+python -m voxplore process video.mp4 <span class="code-variable">--export --format jianying</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Python API Section -->
+  <section id="api">
+    <div class="section-header">
+      <p class="section-label">开发接口</p>
+      <h2 class="section-title">Python API</h2>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+        <span class="code-title">example.py</span>
+      </div>
+      <div class="code-content">
+        <pre><code><span class="code-keyword">from</span> voxplore.pipeline <span class="code-keyword">import</span> VoxplorePipeline, PipelineConfig
+<span class="code-keyword">from</span> voxplore.models <span class="code-keyword">import</span> NarrationStyle, EmotionType
+
+<span class="code-comment"># 创建流水线</span>
+config = PipelineConfig(
+    min_segment_duration=<span class="code-number">9.0</span>,   <span class="code-comment"># 最小片段（秒）</span>
+    max_segment_duration=<span class="code-number">60.0</span>,  <span class="code-comment"># 最大片段（秒）</span>
+)
+pipeline = VoxplorePipeline(config)
+
+<span class="code-comment"># 处理视频</span>
+project = pipeline.process(
+    video_path=<span class="code-string">"video.mp4"</span>,
+    context=<span class="code-string">"这是一段关于云南旅行的记录"</span>,
+    emotion=EmotionType.NEUTRAL,
+    style=NarrationStyle.DOCUMENTARY,
+    voice=<span class="code-string">"zh-CN-XiaoxiaoNeural"</span>,
+)
+
+<span class="code-comment"># 查看结果</span>
+<span class="code-function">print</span>(f<span class="code-string">"✅ 提取片段: </span>{<span class="code-function">len</span>(project.segments)}<span class="code-string">"</span>)
+<span class="code-function">print</span>(f<span class="code-string">"✅ 解说块:   </span>{<span class="code-function">len</span>(project.narration_blocks)}<span class="code-string">"</span>)</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Project Structure -->
+  <section id="structure">
+    <div class="section-header">
+      <p class="section-label">代码组织</p>
+      <h2 class="section-title">项目结构</h2>
+    </div>
+
+    <div class="structure-list">
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">📁</span>
+        <span class="structure-name">config.py</span>
+        <span class="structure-desc">配置管理</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">⚡</span>
+        <span class="structure-name">core.py</span>
+        <span class="structure-desc">核心模块（事件总线、服务容器）</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">📊</span>
+        <span class="structure-name">models.py</span>
+        <span class="structure-desc">数据模型定义</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">🎥</span>
+        <span class="structure-name">video.py</span>
+        <span class="structure-desc">视频处理</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">🤖</span>
+        <span class="structure-name">ai_services.py</span>
+        <span class="structure-desc">AI 服务（LLM / 视觉 / TTS / ASR）</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">🔗</span>
+        <span class="structure-name">pipeline.py</span>
+        <span class="structure-desc">处理流水线</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">📤</span>
+        <span class="structure-name">exporters.py</span>
+        <span class="structure-desc">导出服务（剪映 / 字幕）</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">📋</span>
+        <span class="structure-name">task_manager.py</span>
+        <span class="structure-desc">任务管理（断点续传）</span>
+      </div>
+      <div class="structure-item" data-animate>
+        <span class="structure-icon">⌨️</span>
+        <span class="structure-name">cli.py</span>
+        <span class="structure-desc">命令行界面</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Emotion Styles -->
+  <section id="emotions">
+    <div class="section-header">
+      <p class="section-label">情感风格</p>
+      <h2 class="section-title">7 种情感风格</h2>
+      <p class="section-desc">不同风格匹配不同内容调性</p>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>风格</th>
+            <th>语气</th>
+            <th>适用场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="style-emoji">🌡️</span>治愈</td>
+            <td>温暖</td>
+            <td>日常生活记录</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">🔍</span>悬疑</td>
+            <td>神秘</td>
+            <td>剧情紧张片段</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">💪</span>励志</td>
+            <td>激昂</td>
+            <td>高光时刻</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">📼</span>怀旧</td>
+            <td>平静</td>
+            <td>回忆场景</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">💕</span>浪漫</td>
+            <td>温柔</td>
+            <td>情感戏</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">😂</span>幽默</td>
+            <td>活泼</td>
+            <td>搞笑片段</td>
+          </tr>
+          <tr>
+            <td><span class="style-emoji">🎙️</span>纪录片</td>
+            <td>沉稳</td>
+            <td>说明性内容</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Export Section -->
+  <section id="export">
+    <div class="section-header">
+      <p class="section-label">导出格式</p>
+      <h2 class="section-title">剪映草稿 & 字幕</h2>
+      <p class="section-desc">多种导出格式，满足不同编辑需求</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+        <span class="code-title">export_example.py</span>
+      </div>
+      <div class="code-content">
+        <pre><code><span class="code-comment"># 导出为剪映草稿</span>
+<span class="code-keyword">from</span> voxplore.exporters <span class="code-keyword">import</span> JianyingExporter
+
+exporter = JianyingExporter()
+draft_path = exporter.export(project, output_dir=<span class="code-string">"./output"</span>)
+<span class="code-function">print</span>(f<span class="code-string">"草稿已导出: </span>{draft_path}<span class="code-string">"</span>)
+
+<span class="code-comment"># 导出多种字幕格式</span>
+<span class="code-keyword">from</span> voxplore.exporters <span class="code-keyword">import</span> SubtitleExporter
+
+SubtitleExporter.<span class="code-function">export_srt</span>(project.subtitles, <span class="code-string">"output.srt"</span>)
+SubtitleExporter.<span class="code-function">export_vtt</span>(project.subtitles, <span class="code-string">"output.vtt"</span>)
+SubtitleExporter.<span class="code-function">export_lrc</span>(project.subtitles, <span class="code-string">"output.lrc"</span>)</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="tech">
+    <div class="section-header">
+      <p class="section-label">技术栈</p>
+      <h2 class="section-title">核心依赖</h2>
+    </div>
+
+    <div class="tech-table">
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>🎬</span> 视频处理</div>
+        <div class="tech-value">OpenCV, FFmpeg</div>
+      </div>
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>🎤</span> 语音识别</div>
+        <div class="tech-value">Faster-Whisper</div>
+      </div>
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>👁️</span> 视觉模型</div>
+        <div class="tech-value">Qwen2.5-VL</div>
+      </div>
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>🧠</span> LLM</div>
+        <div class="tech-value">DeepSeek-V4, GPT-4o, Qwen</div>
+      </div>
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>🔊</span> TTS</div>
+        <div class="tech-value">Edge-TTS, F5-TTS</div>
+      </div>
+      <div class="tech-row" data-animate>
+        <div class="tech-label"><span>📝</span> 字幕</div>
+        <div class="tech-value">WhisperX 时间轴对齐</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2>开始使用 Voxplore</h2>
+    <p>一个专注于第一人称视角视频解说的 AI 工具，让你的故事更有电影感</p>
+    <a href="https://github.com/Agions/Voxplore" class="btn btn-primary" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+      ⭐ 给个项目 Star
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/Agions/Voxplore" target="_blank">GitHub</a>
+      <a href="#features">文档</a>
+      <a href="https://opensource.org/licenses/MIT" target="_blank">许可证 (MIT)</a>
+    </div>
+    <p>© 2024 Voxplore Team. Released under MIT License.</p>
+  </footer>
+
+  <script>
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          // Stagger animation delay
+          const delay = Array.from(entry.target.parentElement.children)
+            .indexOf(entry.target) * 100;
+
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, delay);
+
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('[data-animate]').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Reduced motion check
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReducedMotion.matches) {
+      document.querySelectorAll('[data-animate]').forEach(el => {
+        el.classList.add('visible');
+      });
+    }
+  </script>
+</body>
+</html>

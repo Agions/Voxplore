@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 AI Service Manager 优化版本
 改进点：
@@ -9,14 +8,13 @@ AI Service Manager 优化版本
 4. 统计和监控
 5. 多 Provider 智能路由
 """
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Callable, Any, List
+from dataclasses import dataclass
+from typing import Any
+from collections.abc import Callable
 from enum import Enum
 import threading
 import time
 import logging
-from collections import deque
-from functools import wraps
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +135,7 @@ class CircuitBreaker:
         self.half_open_requests = half_open_requests
         
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.state = "closed"  # closed, open, half_open
         self.half_open_allowed = 0
         self.lock = threading.Lock()
@@ -254,15 +252,15 @@ class AIServiceManager:
     """
     
     def __init__(self):
-        self._services: Dict[str, Any] = {}
-        self._providers: Dict[str, ProviderConfig] = {}
-        self._service_health: Dict[str, ServiceHealth] = {}
-        self._usage_stats: Dict[str, UsageStats] = {}
-        self._rate_limiters: Dict[str, RateLimiter] = {}
-        self._circuit_breakers: Dict[str, CircuitBreaker] = {}
-        self._retry_policies: Dict[str, RetryPolicy] = {}
+        self._services: dict[str, Any] = {}
+        self._providers: dict[str, ProviderConfig] = {}
+        self._service_health: dict[str, ServiceHealth] = {}
+        self._usage_stats: dict[str, UsageStats] = {}
+        self._rate_limiters: dict[str, RateLimiter] = {}
+        self._circuit_breakers: dict[str, CircuitBreaker] = {}
+        self._retry_policies: dict[str, RetryPolicy] = {}
         
-        self._health_check_thread: Optional[threading.Thread] = None
+        self._health_check_thread: threading.Thread | None = None
         self._running = False
         self._lock = threading.Lock()
         
@@ -294,15 +292,15 @@ class AIServiceManager:
         """注册服务"""
         self._services[name] = service
     
-    def get_service(self, name: str) -> Optional[Any]:
+    def get_service(self, name: str) -> Any | None:
         """获取服务"""
         return self._services.get(name)
     
-    def get_all_services(self) -> Dict[str, Any]:
+    def get_all_services(self) -> dict[str, Any]:
         """获取所有服务"""
         return self._services.copy()
     
-    def get_service_health(self, service_name: str) -> Optional[ServiceHealth]:
+    def get_service_health(self, service_name: str) -> ServiceHealth | None:
         """获取服务健康状态"""
         return self._service_health.get(service_name)
     
@@ -313,7 +311,7 @@ class AIServiceManager:
             UsageStats(provider=service_name)
         )
     
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """获取摘要"""
         with self._lock:
             active = sum(
@@ -518,7 +516,7 @@ class AIServiceManager:
         except Exception as e:
             self._update_health(name, ServiceStatus.ERROR, time.time() - start, str(e))
     
-    def get_best_provider(self, capability: str = "chat") -> Optional[str]:
+    def get_best_provider(self, capability: str = "chat") -> str | None:
         """
         获取最佳 Provider（基于健康状态和响应时间）
         
@@ -550,7 +548,7 @@ class AIServiceManager:
 
 
 # 全局实例
-_service_manager: Optional[AIServiceManager] = None
+_service_manager: AIServiceManager | None = None
 _manager_lock = threading.Lock()
 
 

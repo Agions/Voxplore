@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore AI 服务层 V2
 性能优化版本：
@@ -13,11 +12,10 @@ import time
 import logging
 import threading
 import hashlib
-import json
-from typing import Optional, Dict, Any, List, Callable
+from typing import Optional, Any
 from dataclasses import dataclass
 from enum import Enum
-from functools import lru_cache
+
 from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
@@ -105,7 +103,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.state = "closed"
         self.lock = threading.Lock()
     
@@ -143,7 +141,7 @@ class LRUCache:
         self.cache: OrderedDict = OrderedDict()
         self.lock = threading.Lock()
     
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         with self.lock:
             if key in self.cache:
                 self.cache.move_to_end(key)
@@ -184,13 +182,13 @@ class PersistentCache:
         hash_key = hashlib.md5(key.encode()).hexdigest()
         return os.path.join(self.cache_dir, f"{hash_key}.json")
     
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         path = self._get_path(key)
         if os.path.exists(path):
             try:
                 with open(path, 'rb' if self._use_orjson else 'r') as f:
                     if self._use_orjson:
-                        data = orjson.loads(f.read())
+                        data = self._json.loads(f.read())
                     else:
                         data = self._json.load(f)
                     if data.get("expires", float('inf')) < time.time():
@@ -210,7 +208,7 @@ class PersistentCache:
             }
             if self._use_orjson:
                 with open(path, 'wb') as f:
-                    f.write(orjson.dumps(cache_data))
+                    f.write(self._json.dumps(cache_data))
             else:
                 with open(path, 'w') as f:
                     self._json.dump(cache_data, f)
@@ -226,7 +224,7 @@ class LLMService:
     - 指数退避
     """
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.name = config.get("name", "unknown")
         self.enabled = config.get("enabled", False)
@@ -265,7 +263,7 @@ class LLMService:
         system: str = "",
         max_retries: int = 3,
         **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         if not self.enabled:
             return None
         
@@ -346,7 +344,7 @@ class VisionService:
     - 并行请求
     """
     
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.name = config.get("name", "qwen")
         self.enabled = config.get("enabled", False)
@@ -377,7 +375,7 @@ class VisionService:
         self,
         frame_data: bytes,
         prompt: str = "分析这张图片中的场景和人物视角"
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         if not self.enabled:
             return self._mock_result()
         
@@ -439,9 +437,9 @@ class VisionService:
     
     def analyze_frames_batch(
         self,
-        frames: List[bytes],
-        prompts: List[str] = None
-    ) -> List[Optional[Dict[str, Any]]]:
+        frames: list[bytes],
+        prompts: list[str] = None
+    ) -> list[dict[str, Any] | None]:
         """
         批量分析帧
         使用线程池并行处理
@@ -469,7 +467,7 @@ class VisionService:
         
         return results
     
-    def _parse_result(self, content: str) -> Dict[str, Any]:
+    def _parse_result(self, content: str) -> dict[str, Any]:
         is_first_person = "第一人称" in content or "POV" in content or "主观" in content
         confidence = 0.8 if is_first_person else 0.3
         
@@ -479,7 +477,7 @@ class VisionService:
             "description": content[:100]
         }
     
-    def _mock_result(self) -> Dict[str, Any]:
+    def _mock_result(self) -> dict[str, Any]:
         import random
         is_first_person = random.random() < 0.3
         
@@ -500,7 +498,7 @@ class TTSService:
         "zh-CN-XiaoyiNeural": "小艺",
     }
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
         self.provider = self.config.get("provider", "edge")
         self.voice = self.config.get("voice", "zh-CN-XiaoxiaoNeural")
@@ -514,7 +512,7 @@ class TTSService:
         voice: str = None,
         rate: float = None,
         **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         voice = voice or self.voice
         rate = rate or self.rate
         
@@ -533,7 +531,7 @@ class TTSService:
         voice: str = None,
         rate: float = None,
         **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         异步生成语音（edge-tts 原生支持异步）
         适合批量并行合成多个音频
@@ -562,10 +560,10 @@ class TTSService:
     
     @staticmethod
     async def generate_batch_async(
-        items: List[Tuple[str, str, str]],  # (text, output_path, voice)
+        items: list[tuple[str, str, str]],  # (text, output_path, voice)
         rate: float = 1.0,
         max_concurrent: int = 4
-    ) -> List[Optional[str]]:
+    ) -> list[str | None]:
         """
         批量异步生成语音
         items: [(text, output_path, voice), ...]
@@ -576,7 +574,7 @@ class TTSService:
         
         semaphore = asyncio.Semaphore(max_concurrent)
         
-        async def generate_one(text: str, output_path: str, voice: str) -> Optional[str]:
+        async def generate_one(text: str, output_path: str, voice: str) -> str | None:
             async with semaphore:
                 try:
                     rate_str = f"{int((rate - 1) * 100)}%"
@@ -598,7 +596,7 @@ class TTSService:
         output_path: str,
         voice: str,
         rate: float
-    ) -> Optional[str]:
+    ) -> str | None:
         try:
             import edge_tts
             
@@ -619,7 +617,7 @@ class TTSService:
             logger.error(f"Edge-TTS generation failed: {e}")
             return None
     
-    def _f5_tts(self, text: str, output_path: str, **kwargs) -> Optional[str]:
+    def _f5_tts(self, text: str, output_path: str, **kwargs) -> str | None:
         logger.warning("F5-TTS requires reference audio, use edge-tts instead")
         return None
 
@@ -627,7 +625,7 @@ class TTSService:
 class ASRService:
     """ASR 语音识别服务 V2"""
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
         self.provider = self.config.get("provider", "faster-whisper")
         self.model_name = self.config.get("model", "large-v3")
@@ -640,7 +638,7 @@ class ASRService:
         language: str = "zh",
         word_timestamps: bool = True,
         **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         # 检查缓存
         cache_key = f"{audio_path}:{language}:{word_timestamps}"
         cached = self.cache.get(cache_key)
@@ -663,11 +661,11 @@ class ASRService:
     
     def transcribe_batch(
         self,
-        audio_paths: List[str],
+        audio_paths: list[str],
         language: str = "zh",
         word_timestamps: bool = True,
         max_workers: int = 2
-    ) -> List[Optional[Dict[str, Any]]]:
+    ) -> list[dict[str, Any] | None]:
         """
         批量转写（并行进程）
         适合多个音频文件同时转写
@@ -733,7 +731,7 @@ class ASRService:
         audio_path: str,
         language: str,
         word_timestamps: bool
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         try:
             from faster_whisper import WhisperModel
             
@@ -774,7 +772,7 @@ class ASRService:
             logger.error(f"Faster-Whisper transcription failed: {e}")
             return None
     
-    def _sensevoice(self, audio_path: str, **kwargs) -> Optional[Dict[str, Any]]:
+    def _sensevoice(self, audio_path: str, **kwargs) -> dict[str, Any] | None:
         logger.warning("SenseVoice integration not implemented yet")
         return None
 
@@ -795,29 +793,29 @@ class AIServiceManager:
             return
         
         self._initialized = True
-        self._llm_services: Dict[str, LLMService] = {}
-        self._vision_service: Optional[VisionService] = None
-        self._tts_service: Optional[TTSService] = None
-        self._asr_service: Optional[ASRService] = None
+        self._llm_services: dict[str, LLMService] = {}
+        self._vision_service: VisionService | None = None
+        self._tts_service: TTSService | None = None
+        self._asr_service: ASRService | None = None
     
-    def register_llm(self, name: str, config: Dict[str, Any]) -> None:
+    def register_llm(self, name: str, config: dict[str, Any]) -> None:
         service = LLMService(config)
         self._llm_services[name] = service
         logger.info(f"Registered LLM service: {name}")
     
-    def register_vision(self, config: Dict[str, Any]) -> None:
+    def register_vision(self, config: dict[str, Any]) -> None:
         self._vision_service = VisionService(config)
         logger.info(f"Registered vision service: {config.get('name', 'unknown')}")
     
-    def register_tts(self, config: Dict[str, Any] = None) -> None:
+    def register_tts(self, config: dict[str, Any] = None) -> None:
         self._tts_service = TTSService(config)
         logger.info(f"Registered TTS service: {config.get('provider', 'edge')}")
     
-    def register_asr(self, config: Dict[str, Any] = None) -> None:
+    def register_asr(self, config: dict[str, Any] = None) -> None:
         self._asr_service = ASRService(config)
         logger.info(f"Registered ASR service: {config.get('provider', 'faster-whisper')}")
     
-    def get_llm(self, name: str = None) -> Optional[LLMService]:
+    def get_llm(self, name: str = None) -> LLMService | None:
         if name:
             return self._llm_services.get(name)
         for service in self._llm_services.values():
@@ -826,18 +824,18 @@ class AIServiceManager:
         return None
     
     @property
-    def vision(self) -> Optional[VisionService]:
+    def vision(self) -> VisionService | None:
         return self._vision_service
     
     @property
-    def tts(self) -> Optional[TTSService]:
+    def tts(self) -> TTSService | None:
         return self._tts_service
     
     @property
-    def asr(self) -> Optional[ASRService]:
+    def asr(self) -> ASRService | None:
         return self._asr_service
     
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         return {
             "llm_services": {
                 name: {

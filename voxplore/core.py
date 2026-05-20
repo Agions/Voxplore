@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 核心模块
 包含应用生命周期管理、事件总线、服务容器
@@ -7,7 +6,8 @@ Voxplore 核心模块
 import logging
 import threading
 from enum import Enum
-from typing import Callable, Any, Optional, Dict, List, Type
+from typing import Any
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -31,8 +31,8 @@ class ErrorInfo:
     error_type: str
     severity: str  # LOW, MEDIUM, HIGH, CRITICAL
     message: str
-    details: Optional[str] = None
-    exception: Optional[Exception] = None
+    details: str | None = None
+    exception: Exception | None = None
     timestamp: float = field(default_factory=lambda: datetime.now().timestamp())
 
 
@@ -43,7 +43,7 @@ class EventBus:
     """
     
     def __init__(self):
-        self._handlers: Dict[str, List[Callable]] = {}
+        self._handlers: dict[str, list[Callable]] = {}
         self._lock = threading.Lock()
     
     def subscribe(self, event_name: str, handler: Callable) -> None:
@@ -103,8 +103,8 @@ class ServiceContainer:
     """
     
     def __init__(self):
-        self._services: Dict[str, Any] = {}
-        self._factories: Dict[str, Callable] = {}
+        self._services: dict[str, Any] = {}
+        self._factories: dict[str, Callable] = {}
         self._lock = threading.Lock()
     
     def register(self, name: str, service: Any) -> None:

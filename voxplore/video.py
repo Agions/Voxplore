@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 视频处理 V2
 性能优化版本：
@@ -10,9 +9,7 @@ Voxplore 视频处理 V2
 import os
 import logging
 import subprocess
-import hashlib
-from pathlib import Path
-from typing import List, Optional, Tuple, Callable
+from collections.abc import Callable
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -26,7 +23,7 @@ class VideoCache:
         self._cache = {}
         self._access_order = []
     
-    def get(self, key: str) -> Optional[np.ndarray]:
+    def get(self, key: str) -> np.ndarray | None:
         if key in self._cache:
             self._access_order.remove(key)
             self._access_order.append(key)
@@ -135,7 +132,7 @@ class FFmpegSession:
             "size": 0,
         }
     
-    def extract_frame(self, video_path: str, timestamp: float) -> Optional[np.ndarray]:
+    def extract_frame(self, video_path: str, timestamp: float) -> np.ndarray | None:
         """提取单帧"""
         try:
             import cv2
@@ -157,18 +154,19 @@ class FFmpegSession:
     def extract_frames_batch(
         self,
         video_path: str,
-        timestamps: List[float],
-        progress_callback: Optional[Callable] = None
-    ) -> List[Tuple[float, np.ndarray]]:
+        timestamps: list[float],
+        progress_callback: Callable | None = None
+    ) -> list[tuple[float, np.ndarray]]:
         """
         批量提取帧 - 使用 decord 加速（如果可用）
         decord 比 OpenCV 更快，特别是对于大视频
         """
         # 尝试使用 decord
         try:
-            from decord import VideoReader
-            from decord import cpu
-            return self._extract_frames_decord(video_path, timestamps, progress_callback)
+            import importlib.util
+            spec = importlib.util.find_spec("decord")
+            if spec is not None:
+                return self._extract_frames_decord(video_path, timestamps, progress_callback)
         except ImportError:
             pass
         
@@ -178,18 +176,17 @@ class FFmpegSession:
     def _extract_frames_decord(
         self,
         video_path: str,
-        timestamps: List[float],
-        progress_callback: Optional[Callable] = None
-    ) -> List[Tuple[float, np.ndarray]]:
+        timestamps: list[float],
+        progress_callback: Callable | None = None
+    ) -> list[tuple[float, np.ndarray]]:
         """使用 decord 提取帧"""
         try:
-            from decord import VideoReader
-            import numpy as np
+            from decord import VideoReader, cpu
+            import cv2
             
             vr = VideoReader(video_path, ctx=cpu(0))
             fps = vr.get_avg_fps()
             total_frames = len(vr)
-            duration = total_frames / fps
             
             results = []
             
@@ -199,7 +196,6 @@ class FFmpegSession:
                 frame = vr[frame_idx].asnumpy()  # RGB 格式
                 
                 # 转换为 BGR 格式（OpenCV 兼容）
-                import cv2
                 frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 results.append((ts, frame_bgr))
                 
@@ -215,9 +211,9 @@ class FFmpegSession:
     def _extract_frames_opencv(
         self,
         video_path: str,
-        timestamps: List[float],
-        progress_callback: Optional[Callable] = None
-    ) -> List[Tuple[float, np.ndarray]]:
+        timestamps: list[float],
+        progress_callback: Callable | None = None
+    ) -> list[tuple[float, np.ndarray]]:
         """使用 OpenCV 提取帧（回退方案）"""
         results = []
         
@@ -253,7 +249,7 @@ class FFmpegSession:
         
         return results
     
-    def extract_audio(self, video_path: str, output_path: str = None) -> Optional[str]:
+    def extract_audio(self, video_path: str, output_path: str = None) -> str | None:
         """提取音频"""
         if output_path is None:
             output_path = video_path.rsplit('.', 1)[0] + '.wav'
@@ -295,7 +291,7 @@ class VideoAnalyzer:
         return cls._ffmpeg_session.get_video_info(video_path)
     
     @classmethod
-    def extract_frame(cls, video_path: str, timestamp: float) -> Optional[np.ndarray]:
+    def extract_frame(cls, video_path: str, timestamp: float) -> np.ndarray | None:
         """提取指定时间戳的帧"""
         if cls._ffmpeg_session is None:
             cls._ffmpeg_session = FFmpegSession()
@@ -305,9 +301,9 @@ class VideoAnalyzer:
     def extract_frames_batch(
         cls,
         video_path: str,
-        timestamps: List[float],
-        progress_callback: Optional[Callable] = None
-    ) -> List[Tuple[float, np.ndarray]]:
+        timestamps: list[float],
+        progress_callback: Callable | None = None
+    ) -> list[tuple[float, np.ndarray]]:
         """批量提取帧"""
         if cls._ffmpeg_session is None:
             cls._ffmpeg_session = FFmpegSession()
@@ -321,7 +317,7 @@ class VideoAnalyzer:
         video_path: str,
         threshold: float = 30.0,
         min_scene_duration: float = 1.0
-    ) -> List[Tuple[float, float]]:
+    ) -> list[tuple[float, float]]:
         """检测场景变化"""
         try:
             import cv2
@@ -375,7 +371,7 @@ class VideoAnalyzer:
             return []
     
     @classmethod
-    def extract_audio(cls, video_path: str, output_path: str = None) -> Optional[str]:
+    def extract_audio(cls, video_path: str, output_path: str = None) -> str | None:
         """提取音频"""
         if cls._ffmpeg_session is None:
             cls._ffmpeg_session = FFmpegSession()
@@ -428,7 +424,7 @@ class VideoProcessor:
     
     @staticmethod
     def concatenate_videos(
-        input_paths: List[str],
+        input_paths: list[str],
         output_path: str,
         temp_dir: str = None
     ) -> bool:

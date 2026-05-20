@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Voxplore 导出服务
 支持剪映草稿、字幕等格式导出
 """
 import os
 import logging
-from typing import List, Optional, Dict, Any
-from pathlib import Path
+import uuid
+from typing import Any
 from dataclasses import dataclass
 
 # orjson 性能比标准 json 快 5-10 倍
 try:
     import orjson
-    _json_dumps = lambda obj: orjson.dumps(obj, option=orjson.OPT_INDENT_2).decode()
+    def _json_dumps(obj):
+        return orjson.dumps(obj, option=orjson.OPT_INDENT_2).decode()
     _use_orjson = True
 except ImportError:
     import json
-    _json_dumps = lambda obj: json.dumps(obj, ensure_ascii=False, indent=2)
+    def _json_dumps(obj):
+        return json.dumps(obj, ensure_ascii=False, indent=2)
     _use_orjson = False
 
 logger = logging.getLogger(__name__)
@@ -124,7 +125,7 @@ class JianyingExporter:
         
         return draft_dir
     
-    def _copy_materials_parallel(self, project: Any, materials_dir: str, draft_content: Dict):
+    def _copy_materials_parallel(self, project: Any, materials_dir: str, draft_content: dict):
         """并行复制素材文件"""
         from concurrent.futures import ThreadPoolExecutor, as_completed
         import shutil
@@ -156,10 +157,9 @@ class JianyingExporter:
                     except Exception as e:
                         logger.warning(f"Failed to copy {src}: {e}")
     
-    def _build_draft_content(self, project: Any) -> Dict[str, Any]:
+    def _build_draft_content(self, project: Any) -> dict[str, Any]:
         """构建剪映草稿内容"""
         import uuid
-        from datetime import datetime
         
         draft = self.DRAFT_TEMPLATE.copy()
         draft["draft_name"] = project.name or "Voxplore Export"
@@ -219,7 +219,7 @@ class JianyingExporter:
         
         return draft
     
-    def _build_tracks(self, project: Any) -> List[Dict[str, Any]]:
+    def _build_tracks(self, project: Any) -> list[dict[str, Any]]:
         """构建时间线轨道"""
         tracks = []
         
@@ -302,7 +302,7 @@ class SubtitleExporter:
     
     @staticmethod
     def export_srt(
-        subtitles: List[Any],
+        subtitles: list[Any],
         output_path: str
     ) -> bool:
         """
@@ -330,7 +330,7 @@ class SubtitleExporter:
     
     @staticmethod
     def export_vtt(
-        subtitles: List[Any],
+        subtitles: list[Any],
         output_path: str
     ) -> bool:
         """导出 VTT 格式字幕"""
@@ -352,7 +352,7 @@ class SubtitleExporter:
     
     @staticmethod
     def export_lrc(
-        subtitles: List[Any],
+        subtitles: list[Any],
         output_path: str
     ) -> bool:
         """导出 LRC 格式歌词"""
@@ -423,7 +423,6 @@ class VideoExporter:
                 if os.path.exists(seg.video_path):
                     # 计算片段在源视频中的位置
                     start = seg.start_time
-                    duration = seg.end_time - seg.start_time
                     list_file.write(f"file '{seg.video_path}'\n")
                     list_file.write(f"inpoint {start}\n")
                     list_file.write(f"outpoint {seg.end_time}\n")

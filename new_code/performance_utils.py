@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 性能优化工具模块
 提供：
@@ -11,7 +10,7 @@
 """
 import os
 import logging
-from typing import List, Tuple, Optional, Dict, Any
+from typing import Any
 from dataclasses import dataclass
 from enum import Enum
 
@@ -33,7 +32,7 @@ class DeviceInfo:
     name: str
     memory_total: float  # GB
     memory_available: float  # GB
-    compute_capability: Optional[str] = None
+    compute_capability: str | None = None
     is_available: bool = True
 
 
@@ -59,7 +58,7 @@ class PerformanceOptimizer:
         return min(8, cpu_count * 2)
     
     @staticmethod
-    def get_gpu_info() -> List[DeviceInfo]:
+    def get_gpu_info() -> list[DeviceInfo]:
         """
         获取 GPU 信息
         
@@ -132,7 +131,7 @@ class PerformanceOptimizer:
         )
     
     @staticmethod
-    def check_dependencies() -> Dict[str, bool]:
+    def check_dependencies() -> dict[str, bool]:
         """
         检查性能相关依赖
         
@@ -157,19 +156,19 @@ class PerformanceOptimizer:
             pass
         
         try:
-            import cv2
+            import cv2 as _cv2  # noqa: F401
             deps["cv2"] = True
         except ImportError:
             pass
         
         try:
-            import librosa
+            import librosa as _librosa  # noqa: F401
             deps["librosa"] = True
         except ImportError:
             pass
         
         try:
-            import numpy
+            import numpy as _numpy  # noqa: F401
             deps["numpy"] = True
         except ImportError:
             pass
@@ -177,7 +176,7 @@ class PerformanceOptimizer:
         return deps
     
     @staticmethod
-    def get_memory_info() -> Dict[str, float]:
+    def get_memory_info() -> dict[str, float]:
         """
         获取系统内存信息
         
@@ -221,10 +220,10 @@ class BatchProcessor:
     
     def process_batch(
         self,
-        items: List[Any],
+        items: list[Any],
         process_func,
         **kwargs
-    ) -> List[Any]:
+    ) -> list[Any]:
         """
         批量处理
         
@@ -279,7 +278,7 @@ def is_gpu_available() -> bool:
     return PerformanceOptimizer.get_best_device().device_type != DeviceType.CPU
 
 
-def get_system_info() -> Dict[str, Any]:
+def get_system_info() -> dict[str, Any]:
     """获取系统性能信息"""
     return {
         "optimal_workers": PerformanceOptimizer.get_optimal_workers(),
