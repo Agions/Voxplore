@@ -161,8 +161,64 @@ class FFmpegSession:
         progress_callback: Optional[Callable] = None
     ) -> List[Tuple[float, np.ndarray]]:
         """
-        批量提取帧 - 使用管道避免重复打开视频
+        批量提取帧 - 使用 decord 加速（如果可用）
+        decord 比 OpenCV 更快，特别是对于大视频
         """
+        # 尝试使用 decord
+        try:
+            from decord import VideoReader
+            from decord import cpu
+            return self._extract_frames_decord(video_path, timestamps, progress_callback)
+        except ImportError:
+            pass
+        
+        # 回退到 OpenCV
+        return self._extract_frames_opencv(video_path, timestamps, progress_callback)
+    
+    def _extract_frames_decord(
+        self,
+        video_path: str,
+        timestamps: List[float],
+        progress_callback: Optional[Callable] = None
+    ) -> List[Tuple[float, np.ndarray]]:
+        """使用 decord 提取帧"""
+        try:
+            from decord import VideoReader
+            import numpy as np
+            
+            vr = VideoReader(video_path, ctx=cpu(0))
+            fps = vr.get_avg_fps()
+            total_frames = len(vr)
+            duration = total_frames / fps
+            
+            results = []
+            
+            for i, ts in enumerate(timestamps):
+                # 将时间戳转换为帧号
+                frame_idx = min(int(ts * fps), total_frames - 1)
+                frame = vr[frame_idx].asnumpy()  # RGB 格式
+                
+                # 转换为 BGR 格式（OpenCV 兼容）
+                import cv2
+                frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                results.append((ts, frame_bgr))
+                
+                if progress_callback and (i + 1) % 10 == 0:
+                    progress_callback(i + 1, len(timestamps))
+            
+            return results
+            
+        except Exception as e:
+            logger.warning(f"decord extraction failed: {e}, falling back to OpenCV")
+            return self._extract_frames_opencv(video_path, timestamps, progress_callback)
+    
+    def _extract_frames_opencv(
+        self,
+        video_path: str,
+        timestamps: List[float],
+        progress_callback: Optional[Callable] = None
+    ) -> List[Tuple[float, np.ndarray]]:
+        """使用 OpenCV 提取帧（回退方案）"""
         results = []
         
         try:
