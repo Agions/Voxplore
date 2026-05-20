@@ -30,7 +30,7 @@ class ServiceStatus(Enum):
     RATE_LIMITED = "rate_limited"
 
 
-@dataclass
+@dataclass(slots=True)
 class ServiceHealth:
     name: str
     status: ServiceStatus

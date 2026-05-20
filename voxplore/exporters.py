@@ -23,7 +23,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(slots=True)
 class ExportConfig:
     """导出配置"""
     resolution: str = "1920x1080"  # 1920x1080, 1080x1920, 1080x1080

@@ -44,7 +44,7 @@ class TaskStatus(Enum):
     CANCELLED = "cancelled"
 
 
-@dataclass
+@dataclass(slots=True)
 class TaskCheckpoint:
     """任务检查点"""
     task_id: str

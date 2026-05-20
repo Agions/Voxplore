@@ -26,7 +26,7 @@ from .video import VideoAnalyzer, VideoProcessor
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(slots=True)
 class PipelineConfig:
     """流水线配置 V2"""
     min_segment_duration: float = 9.0

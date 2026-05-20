@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-@dataclass
+@dataclass(slots=True)
 class LLMConfig:
     """LLM 提供者配置"""
     name: str
@@ -29,7 +29,7 @@ class LLMConfig:
     burst_size: int = 20
 
 
-@dataclass
+@dataclass(slots=True)
 class TTSConfig:
     """TTS 配音配置"""
     provider: str = "edge"  # edge, f5, openai
@@ -39,7 +39,7 @@ class TTSConfig:
     volume: float = 1.0
 
 
-@dataclass
+@dataclass(slots=True)
 class VideoConfig:
     """视频处理配置"""
     min_segment_duration: float = 9.0  # 最小片段时长（秒）
@@ -50,7 +50,7 @@ class VideoConfig:
     audio_weight: float = 0.3  # 音频权重（分组用）
 
 
-@dataclass
+@dataclass(slots=True)
 class CacheConfig:
     """缓存配置"""
     enabled: bool = True
