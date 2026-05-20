@@ -8,14 +8,17 @@ import argparse
 import logging
 from pathlib import Path
 
-# 添加项目路径
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# 添加项目根目录到路径（用于直接执行脚本或作为入口点）
+if __package__ is None:
+    # 直接执行此脚本时，添加 src/ 目录到路径
+    _src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, _src_dir)
 
-from voxplore.config import get_config
-from voxplore.models import NarrationStyle, EmotionType
-from voxplore.pipeline import VoxplorePipeline, PipelineConfig
-from voxplore.exporters import JianyingExporter, SubtitleExporter, VideoExporter
-from voxplore.ai_services import ai_service_manager
+from core.settings import get_config
+from core.models import NarrationStyle, EmotionType
+from core.pipeline import VoxplorePipeline, PipelineConfig
+from core.exporters import JianyingExporter, SubtitleExporter, VideoExporter
+from core.ai_services import ai_service_manager
 
 
 def setup_logging(verbose: bool = False):
@@ -72,7 +75,7 @@ def init_services():
 
 def cmd_analyze(args):
     """分析视频"""
-    from voxplore.video import VideoAnalyzer
+    from core.video import VideoAnalyzer
     
     print(f"📹 正在分析视频: {args.video}")
     

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from setuptools import setup, find_packages
 
+# src 布局：只从 src/ 目录找包
 setup(
     name="voxplore",
     version="2.0.0",
@@ -9,7 +10,8 @@ setup(
     long_description_content_type="text/markdown",
     author="Voxplore Team",
     url="https://github.com/Agios/Voxplore",
-    packages=find_packages(),
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     python_requires=">=3.8",
     install_requires=[
         "numpy>=1.21.0",
@@ -32,7 +34,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voxplore=voxplore.cli:main",
+            "voxplore=core.cli:main",
         ],
     },
     classifiers=[
