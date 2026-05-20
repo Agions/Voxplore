@@ -589,11 +589,93 @@ class TTSGenerator:
         narrations: List[NarrationBlock],
         output_dir: str,
         voice: str = "zh-CN-XiaoxiaoNeural",
-        progress_callback: Optional[Callable] = None
+        progress_callback: Optional[Callable] = None,
+        use_async: bool = True,
+        max_concurrent: int = 4
     ) -> Optional[AudioTrack]:
+        """
+        生成配音
+        
+        Args:
+            use_async: 使用异步并行生成（默认开启）
+            max_concurrent: 最大并发数
+        """
         import os
+        import asyncio
         
         os.makedirs(output_dir, exist_ok=True)
+        
+        if use_async and hasattr(self.tts, 'generate_batch_async'):
+            # 使用异步并行生成
+            return self._generate_async(narrations, output_dir, voice, progress_callback, max_concurrent)
+        else:
+            # 回退到串行生成
+            return self._generate_sync(narrations, output_dir, voice, progress_callback)
+    
+    def _generate_async(
+        self,
+        narrations: List[NarrationBlock],
+        output_dir: str,
+        voice: str,
+        progress_callback: Optional[Callable],
+        max_concurrent: int
+    ) -> Optional[AudioTrack]:
+        """异步并行生成配音"""
+        import os
+        import asyncio
+        
+        texts = [n.text for n in narrations]
+        output_paths = [
+            os.path.join(output_dir, f"narration_{i:03d}.mp3")
+            for i in range(len(narrations))
+        ]
+        rates = []
+        
+        for i, narration in enumerate(narrations):
+            duration = narration.end_time - narration.start_time
+            text_duration = len(narration.text) / 5.0
+            rate = max(0.5, min(2.0, text_duration / duration))
+            rates.append(rate)
+        
+        # 调用异步批量生成
+        audio_files = asyncio.run(
+            self.tts.generate_batch_async(texts, output_paths, voice, rates)
+        )
+        
+        audio_files = [f for f in audio_files if f and os.path.exists(f)]
+        
+        if not audio_files:
+            logger.warning("No audio files generated")
+            return None
+        
+        total_duration = sum(n.end_time - n.start_time for n in narrations)
+        final_audio = os.path.join(output_dir, "final_narration.mp3")
+        
+        if len(audio_files) == 1:
+            import shutil
+            shutil.copy(audio_files[0], final_audio)
+        else:
+            self._concatenate_audio(audio_files, final_audio)
+        
+        if progress_callback:
+            progress_callback(len(narrations), len(narrations))
+        
+        return AudioTrack(
+            audio_path=final_audio,
+            duration=total_duration,
+            voice=voice,
+            rate=1.0
+        )
+    
+    def _generate_sync(
+        self,
+        narrations: List[NarrationBlock],
+        output_dir: str,
+        voice: str,
+        progress_callback: Optional[Callable]
+    ) -> Optional[AudioTrack]:
+        """串行生成配音（回退方案）"""
+        import os
         
         audio_files = []
         total_duration = 0.0
