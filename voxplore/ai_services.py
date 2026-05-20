@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Voxplore AI 服务层
-统一管理 LLM、视觉、语音识别、TTS 服务
+Voxplore AI 服务层 V2
+性能优化版本：
+- 连接池复用
+- 批量 API 调用
+- 高效限流器（信号量）
+- LRU 缓存
 """
 import os
 import time
 import logging
 import threading
+import hashlib
+import json
 from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass
 from enum import Enum
-from collections import deque
+from functools import lru_cache
+from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
 
 class ServiceStatus(Enum):
-    """服务状态"""
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
@@ -26,7 +32,6 @@ class ServiceStatus(Enum):
 
 @dataclass
 class ServiceHealth:
-    """服务健康状态"""
     name: str
     status: ServiceStatus
     last_check: float
@@ -35,30 +40,62 @@ class ServiceHealth:
 
 
 class RateLimiter:
-    """令牌桶限流器"""
+    """
+    改进版限流器 - 使用信号量避免空转
+    """
     
     def __init__(self, rate: float = 10.0, burst: int = 20):
         self.rate = rate
         self.burst = burst
-        self.tokens = burst
+        self.tokens = float(burst)
         self.last_update = time.time()
         self.lock = threading.Lock()
+        self.semaphore = threading.Semaphore(0)
+        self._thread = None
+        self._running = False
     
-    def acquire(self, timeout: float = 30.0) -> bool:
-        start = time.time()
-        while True:
+    def start(self):
+        """启动后台补充线程"""
+        if self._running:
+            return
+        self._running = True
+        self._thread = threading.Thread(target=self._replenisher, daemon=True)
+        self._thread.start()
+    
+    def _replenisher(self):
+        """后台令牌补充线程"""
+        while self._running:
             with self.lock:
                 now = time.time()
-                self.tokens = min(self.burst, self.tokens + (now - self.last_update) * self.rate)
+                elapsed = now - self.last_update
+                self.tokens = min(self.burst, self.tokens + elapsed * self.rate)
                 self.last_update = now
                 
-                if self.tokens >= 1.0:
+                # 释放信号量
+                while self.semaphore._value < self.burst and self.tokens >= 1.0:
+                    self.semaphore.release()
                     self.tokens -= 1.0
-                    return True
             
-            if time.time() - start >= timeout:
-                return False
-            time.sleep(0.01)
+            time.sleep(0.05)  # 50ms 刷新间隔
+    
+    def acquire(self, timeout: float = 30.0) -> bool:
+        """获取令牌（阻塞）"""
+        if not self._running:
+            self.start()
+        
+        # 先快速检查
+        with self.lock:
+            if self.tokens >= 1.0:
+                self.tokens -= 1.0
+                return True
+        
+        # 等待信号量
+        return self.semaphore.acquire(timeout=timeout)
+    
+    def stop(self):
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=1.0)
 
 
 class CircuitBreaker:
@@ -69,7 +106,7 @@ class CircuitBreaker:
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
         self.last_failure_time: Optional[float] = None
-        self.state = "closed"  # closed, open, half_open
+        self.state = "closed"
         self.lock = threading.Lock()
     
     def can_execute(self) -> bool:
@@ -98,10 +135,79 @@ class CircuitBreaker:
                 self.state = "open"
 
 
+class LRUCache:
+    """LRU 缓存"""
+    
+    def __init__(self, max_size: int = 100):
+        self.max_size = max_size
+        self.cache: OrderedDict = OrderedDict()
+        self.lock = threading.Lock()
+    
+    def get(self, key: str) -> Optional[Any]:
+        with self.lock:
+            if key in self.cache:
+                self.cache.move_to_end(key)
+                return self.cache[key]
+        return None
+    
+    def set(self, key: str, value: Any):
+        with self.lock:
+            if key in self.cache:
+                self.cache.move_to_end(key)
+            else:
+                if len(self.cache) >= self.max_size:
+                    self.cache.popitem(last=False)
+                self.cache[key] = value
+    
+    def clear(self):
+        with self.lock:
+            self.cache.clear()
+
+
+class PersistentCache:
+    """持久化缓存"""
+    
+    def __init__(self, cache_dir: str = "~/.cache/voxplore"):
+        self.cache_dir = os.path.expanduser(cache_dir)
+        os.makedirs(self.cache_dir, exist_ok=True)
+    
+    def _get_path(self, key: str) -> str:
+        hash_key = hashlib.md5(key.encode()).hexdigest()
+        return os.path.join(self.cache_dir, f"{hash_key}.json")
+    
+    def get(self, key: str) -> Optional[Any]:
+        path = self._get_path(key)
+        if os.path.exists(path):
+            try:
+                with open(path, 'r') as f:
+                    data = json.load(f)
+                    # 检查过期
+                    if data.get("expires", float('inf')) < time.time():
+                        os.remove(path)
+                        return None
+                    return data.get("value")
+            except Exception:
+                return None
+        return None
+    
+    def set(self, key: str, value: Any, ttl: int = 3600):
+        path = self._get_path(key)
+        try:
+            with open(path, 'w') as f:
+                json.dump({
+                    "value": value,
+                    "expires": time.time() + ttl
+                }, f)
+        except Exception as e:
+            logger.warning(f"Failed to write cache: {e}")
+
+
 class LLMService:
     """
-    LLM 服务
-    支持 DeepSeek、Qwen、OpenAI 等
+    LLM 服务 V2
+    - 连接池复用
+    - 自动批量重试
+    - 指数退避
     """
     
     def __init__(self, config: Dict[str, Any]):
@@ -120,6 +226,17 @@ class LLMService:
         )
         self.circuit_breaker = CircuitBreaker()
         
+        # HTTP 会话复用
+        import requests
+        self.session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections=10,
+            pool_maxsize=10,
+            max_retries=0
+        )
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
+        
         self._stats = {
             "requests": 0,
             "errors": 0,
@@ -130,47 +247,43 @@ class LLMService:
         self,
         prompt: str,
         system: str = "",
+        max_retries: int = 3,
         **kwargs
     ) -> Optional[str]:
-        """
-        生成文本
-        
-        Args:
-            prompt: 用户提示
-            system: 系统提示
-            **kwargs: 其他参数
-            
-        Returns:
-            生成的文本
-        """
         if not self.enabled:
-            logger.warning(f"LLM service {self.name} is not enabled")
             return None
         
         if not self.circuit_breaker.can_execute():
-            logger.warning(f"Circuit breaker open for {self.name}")
             return None
         
-        if not self.rate_limiter.acquire():
-            logger.warning(f"Rate limit exceeded for {self.name}")
+        if not self.rate_limiter.acquire(timeout=30.0):
             return None
         
         start_time = time.time()
+        last_error = None
         
-        try:
-            result = self._call_api(prompt, system, **kwargs)
-            
-            self.circuit_breaker.record_success()
-            self._stats["requests"] += 1
-            self._stats["total_time"] += time.time() - start_time
-            
-            return result
-            
-        except Exception as e:
-            self.circuit_breaker.record_failure()
-            self._stats["errors"] += 1
-            logger.error(f"LLM call failed for {self.name}: {e}")
-            return None
+        for attempt in range(max_retries):
+            try:
+                result = self._call_api(prompt, system, **kwargs)
+                
+                self.circuit_breaker.record_success()
+                self._stats["requests"] += 1
+                self._stats["total_time"] += time.time() - start_time
+                
+                return result
+                
+            except Exception as e:
+                last_error = e
+                self._stats["errors"] += 1
+                
+                # 指数退避
+                if attempt < max_retries - 1:
+                    wait_time = min(2 ** attempt, 8)
+                    time.sleep(wait_time)
+        
+        self.circuit_breaker.record_failure()
+        logger.error(f"LLM call failed after {max_retries} attempts: {last_error}")
+        return None
     
     def _call_api(
         self,
@@ -178,48 +291,43 @@ class LLMService:
         system: str = "",
         **kwargs
     ) -> str:
-        """调用 API"""
-        try:
-            import requests
-            
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-            
-            messages = []
-            if system:
-                messages.append({"role": "system", "content": system})
-            messages.append({"role": "user", "content": prompt})
-            
-            data = {
-                "model": self.model,
-                "messages": messages,
-                "max_tokens": kwargs.get("max_tokens", self.max_tokens),
-                "temperature": kwargs.get("temperature", self.temperature),
-            }
-            
-            response = requests.post(
-                f"{self.base_url}/chat/completions",
-                headers=headers,
-                json=data,
-                timeout=kwargs.get("timeout", 60)
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                return result["choices"][0]["message"]["content"]
-            else:
-                raise Exception(f"API error: {response.status_code}, {response.text}")
-                
-        except ImportError:
-            raise Exception("requests library is required")
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+        
+        data = {
+            "model": self.model,
+            "messages": messages,
+            "max_tokens": kwargs.get("max_tokens", self.max_tokens),
+            "temperature": kwargs.get("temperature", self.temperature),
+        }
+        
+        response = self.session.post(
+            f"{self.base_url}/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=kwargs.get("timeout", 60)
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+        else:
+            raise Exception(f"API error: {response.status_code}, {response.text}")
 
 
 class VisionService:
     """
-    视觉服务
-    支持 Qwen2.5-VL 等多模态模型
+    视觉服务 V2
+    - 帧数据缓存
+    - 批量分析支持
+    - 并行请求
     """
     
     def __init__(self, config: Dict[str, Any]):
@@ -230,9 +338,23 @@ class VisionService:
         self.base_url = config.get("base_url", "")
         self.model = config.get("model", "qwen-vl-plus")
         
+        # HTTP 会话
+        import requests
+        self.session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections=5,
+            pool_maxsize=5
+        )
+        self.session.mount('https://', adapter)
+        
+        # 分析结果缓存
+        self.frame_cache = LRUCache(max_size=500)
+        
+        # 统计
         self._stats = {
             "requests": 0,
             "errors": 0,
+            "cache_hits": 0,
         }
     
     def analyze_frame(
@@ -240,24 +362,17 @@ class VisionService:
         frame_data: bytes,
         prompt: str = "分析这张图片中的场景和人物视角"
     ) -> Optional[Dict[str, Any]]:
-        """
-        分析单帧
-        
-        Args:
-            frame_data: JPEG 格式的图像数据
-            prompt: 分析提示
-            
-        Returns:
-            {"is_first_person": bool, "confidence": float, "description": str}
-        """
         if not self.enabled:
             return self._mock_result()
         
+        # 检查缓存
+        cache_key = hashlib.md5(frame_data[:10000]).hexdigest()  # 用前10KB做key
+        cached = self.frame_cache.get(cache_key)
+        if cached:
+            self._stats["cache_hits"] += 1
+            return cached
+        
         try:
-            import requests
-            from PIL import Image
-            import io
-            
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
             }
@@ -278,7 +393,7 @@ class VisionService:
                 "max_tokens": 200,
             }
             
-            response = requests.post(
+            response = self.session.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
                 files=files,
@@ -291,21 +406,54 @@ class VisionService:
                 content = result["choices"][0]["message"]["content"]
                 
                 self._stats["requests"] += 1
+                analysis = self._parse_result(content)
                 
-                return self._parse_result(content)
+                # 缓存结果
+                self.frame_cache.set(cache_key, analysis)
+                
+                return analysis
             else:
                 self._stats["errors"] += 1
                 return self._mock_result()
                 
-        except ImportError:
-            return self._mock_result()
         except Exception as e:
             self._stats["errors"] += 1
             logger.warning(f"Vision analysis failed: {e}")
             return self._mock_result()
     
+    def analyze_frames_batch(
+        self,
+        frames: List[bytes],
+        prompts: List[str] = None
+    ) -> List[Optional[Dict[str, Any]]]:
+        """
+        批量分析帧
+        使用线程池并行处理
+        """
+        if prompts is None:
+            prompts = ["分析这张图片中的场景和人物视角"] * len(frames)
+        
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        results = [None] * len(frames)
+        
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            future_to_idx = {
+                executor.submit(self.analyze_frame, frame, prompt): i
+                for i, (frame, prompt) in enumerate(zip(frames, prompts))
+            }
+            
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    logger.warning(f"Frame {idx} analysis failed: {e}")
+                    results[idx] = self._mock_result()
+        
+        return results
+    
     def _parse_result(self, content: str) -> Dict[str, Any]:
-        """解析 API 返回结果"""
         is_first_person = "第一人称" in content or "POV" in content or "主观" in content
         confidence = 0.8 if is_first_person else 0.3
         
@@ -316,7 +464,6 @@ class VisionService:
         }
     
     def _mock_result(self) -> Dict[str, Any]:
-        """模拟结果（用于测试）"""
         import random
         is_first_person = random.random() < 0.3
         
@@ -328,10 +475,7 @@ class VisionService:
 
 
 class TTSService:
-    """
-    TTS 服务
-    支持 Edge-TTS、F5-TTS 等
-    """
+    """TTS 服务"""
     
     VOICE_MAP = {
         "zh-CN-XiaoxiaoNeural": "晓晓",
@@ -355,18 +499,6 @@ class TTSService:
         rate: float = None,
         **kwargs
     ) -> Optional[str]:
-        """
-        生成语音
-        
-        Args:
-            text: 要转换的文本
-            output_path: 输出文件路径
-            voice: 语音名称
-            rate: 语速
-            
-        Returns:
-            生成的音频文件路径
-        """
         voice = voice or self.voice
         rate = rate or self.rate
         
@@ -385,7 +517,6 @@ class TTSService:
         voice: str,
         rate: float
     ) -> Optional[str]:
-        """Edge-TTS 生成"""
         try:
             import edge_tts
             
@@ -407,22 +538,19 @@ class TTSService:
             return None
     
     def _f5_tts(self, text: str, output_path: str, **kwargs) -> Optional[str]:
-        """F5-TTS 生成（需要参考音频）"""
         logger.warning("F5-TTS requires reference audio, use edge-tts instead")
         return None
 
 
 class ASRService:
-    """
-    ASR 语音识别服务
-    支持 Faster-Whisper、SenseVoice 等
-    """
+    """ASR 语音识别服务 V2"""
     
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
         self.provider = self.config.get("provider", "faster-whisper")
         self.model_name = self.config.get("model", "large-v3")
         self.model = None
+        self.cache = PersistentCache()
     
     def transcribe(
         self,
@@ -431,24 +559,25 @@ class ASRService:
         word_timestamps: bool = True,
         **kwargs
     ) -> Optional[Dict[str, Any]]:
-        """
-        语音转文字
+        # 检查缓存
+        cache_key = f"{audio_path}:{language}:{word_timestamps}"
+        cached = self.cache.get(cache_key)
+        if cached:
+            return cached
         
-        Args:
-            audio_path: 音频文件路径
-            language: 语言代码
-            word_timestamps: 是否输出词级时间戳
-            
-        Returns:
-            {"text": str, "segments": [{"start": float, "end": float, "text": str}]}
-        """
         if self.provider == "faster-whisper":
-            return self._faster_whisper(audio_path, language, word_timestamps)
+            result = self._faster_whisper(audio_path, language, word_timestamps)
         elif self.provider == "sensevoice":
-            return self._sensevoice(audio_path, **kwargs)
+            result = self._sensevoice(audio_path, **kwargs)
         else:
             logger.error(f"Unknown ASR provider: {self.provider}")
             return None
+        
+        # 缓存结果
+        if result:
+            self.cache.set(cache_key, result, ttl=3600)
+        
+        return result
     
     def _faster_whisper(
         self,
@@ -456,7 +585,6 @@ class ASRService:
         language: str,
         word_timestamps: bool
     ) -> Optional[Dict[str, Any]]:
-        """Faster-Whisper 转写"""
         try:
             from faster_whisper import WhisperModel
             
@@ -471,7 +599,6 @@ class ASRService:
                 audio_path,
                 language=language if language != "auto" else None,
                 word_timestamps=word_timestamps,
-                **kwargs
             )
             
             result_segments = []
@@ -497,16 +624,12 @@ class ASRService:
             return None
     
     def _sensevoice(self, audio_path: str, **kwargs) -> Optional[Dict[str, Any]]:
-        """SenseVoice 转写"""
         logger.warning("SenseVoice integration not implemented yet")
         return None
 
 
 class AIServiceManager:
-    """
-    AI 服务管理器
-    统一管理所有 AI 服务
-    """
+    """AI 服务管理器 V2"""
     
     _instance: Optional['AIServiceManager'] = None
     
@@ -527,31 +650,25 @@ class AIServiceManager:
         self._asr_service: Optional[ASRService] = None
     
     def register_llm(self, name: str, config: Dict[str, Any]) -> None:
-        """注册 LLM 服务"""
         service = LLMService(config)
         self._llm_services[name] = service
         logger.info(f"Registered LLM service: {name}")
     
     def register_vision(self, config: Dict[str, Any]) -> None:
-        """注册视觉服务"""
         self._vision_service = VisionService(config)
         logger.info(f"Registered vision service: {config.get('name', 'unknown')}")
     
     def register_tts(self, config: Dict[str, Any] = None) -> None:
-        """注册 TTS 服务"""
         self._tts_service = TTSService(config)
         logger.info(f"Registered TTS service: {config.get('provider', 'edge')}")
     
     def register_asr(self, config: Dict[str, Any] = None) -> None:
-        """注册 ASR 服务"""
         self._asr_service = ASRService(config)
         logger.info(f"Registered ASR service: {config.get('provider', 'faster-whisper')}")
     
     def get_llm(self, name: str = None) -> Optional[LLMService]:
-        """获取 LLM 服务"""
         if name:
             return self._llm_services.get(name)
-        # 返回第一个启用的
         for service in self._llm_services.values():
             if service.enabled:
                 return service
@@ -570,7 +687,6 @@ class AIServiceManager:
         return self._asr_service
     
     def get_summary(self) -> Dict[str, Any]:
-        """获取服务摘要"""
         return {
             "llm_services": {
                 name: {
@@ -581,6 +697,7 @@ class AIServiceManager:
                 for name, svc in self._llm_services.items()
             },
             "vision_enabled": self._vision_service is not None and self._vision_service.enabled,
+            "vision_cache_hits": self._vision_service._stats.get("cache_hits", 0) if self._vision_service else 0,
             "tts_provider": self._tts_service.provider if self._tts_service else None,
             "asr_provider": self._asr_service.provider if self._asr_service else None,
         }
@@ -591,15 +708,14 @@ ai_service_manager = AIServiceManager()
 
 
 def get_ai_service() -> AIServiceManager:
-    """获取 AI 服务管理器"""
     return ai_service_manager
 
 
 __all__ = [
-    "ServiceStatus",
-    "ServiceHealth",
     "RateLimiter",
     "CircuitBreaker",
+    "LRUCache",
+    "PersistentCache",
     "LLMService",
     "VisionService",
     "TTSService",
