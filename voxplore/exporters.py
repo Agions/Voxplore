@@ -5,11 +5,20 @@ Voxplore 导出服务
 支持剪映草稿、字幕等格式导出
 """
 import os
-import json
 import logging
 from typing import List, Optional, Dict, Any
 from pathlib import Path
 from dataclasses import dataclass
+
+# orjson 性能比标准 json 快 5-10 倍
+try:
+    import orjson
+    _json_dumps = lambda obj: orjson.dumps(obj, option=orjson.OPT_INDENT_2).decode()
+    _use_orjson = True
+except ImportError:
+    import json
+    _json_dumps = lambda obj: json.dumps(obj, ensure_ascii=False, indent=2)
+    _use_orjson = False
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +115,7 @@ class JianyingExporter:
         # 写入草稿文件
         draft_file = os.path.join(draft_dir, "draft_content.json")
         with open(draft_file, 'w', encoding='utf-8') as f:
-            json.dump(draft_content, f, ensure_ascii=False, indent=2)
+            f.write(_json_dumps(draft_content))
         
         # 并行复制素材文件
         self._copy_materials_parallel(project, materials_dir, draft_content)
