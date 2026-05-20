@@ -15,7 +15,7 @@ block_cipher = None
 # 本地构建时直接用 make build:win/mac/linux，版本号自动从 pyproject.toml 获取
 
 # 分析入口点
-app_main = 'app/main.py'
+app_main = 'src/voxplore/main.py'
 
 a = Analysis(
     [app_main],

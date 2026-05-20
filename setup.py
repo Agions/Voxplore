@@ -9,15 +9,14 @@ setup(
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Voxplore Team",
-    url="https://github.com/Agios/Voxplore",
+    url="https://github.com/Agions/Voxplore",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=[
         "numpy>=1.21.0",
         "Pillow>=9.0.0",
         "opencv-python>=4.5.0",
-        "ffmpeg-python>=0.2.0",
         "requests>=2.28.0",
         "librosa>=0.9.0",
         "PyYAML>=6.0",
@@ -34,7 +33,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "voxplore=core.cli:main",
+            "voxplore=voxplore.cli.main:main",
         ],
     },
     classifiers=[
@@ -42,8 +41,6 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
     ],

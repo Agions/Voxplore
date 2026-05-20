@@ -99,7 +99,7 @@ voxplore = "voxplore.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["voxplore", "voxplore.*"]
+packages = ["voxplore"]
 
 [tool.setuptools.package-data]
 voxplore = ["py.typed"]

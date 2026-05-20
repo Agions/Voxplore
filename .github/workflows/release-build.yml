@@ -87,7 +87,7 @@ jobs:
             --hidden-import=yaml `
             --collect-all=PySide6 `
             --noconfirm `
-            app/main.py
+            src/voxplore/main.py
 
       - name: Package as zip
         run: |
@@ -153,7 +153,7 @@ jobs:
             --hidden-import=yaml \
             --collect-all=PySide6 \
             --noconfirm \
-            app/main.py
+            src/voxplore/main.py
 
       - name: Create app bundle
         run: |
@@ -241,7 +241,7 @@ jobs:
             --hidden-import=yaml \
             --collect-all=PySide6 \
             --noconfirm \
-            app/main.py
+            src/voxplore/main.py
 
       - name: Create app bundle
         run: |
@@ -335,7 +335,7 @@ jobs:
             --hidden-import=yaml \
             --collect-all=PySide6 \
             --noconfirm \
-            app/main.py
+            src/voxplore/main.py
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
