@@ -2,7 +2,7 @@
 """测试异常模块"""
 
 
-from app.core.exceptions import (
+from voxplore.core.exceptions import (
     format_error_message,
     get_error_hint,
     ErrorCode,

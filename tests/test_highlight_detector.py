@@ -2,7 +2,7 @@
 """测试高光检测器"""
 
 import pytest
-from app.services.video import (
+from voxplore.services.video import (
     HighlightDetector,
     HighlightSegment,
     HighlightReason,

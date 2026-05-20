@@ -1,7 +1,7 @@
 """Tests for app.core.service_container - enhanced lifecycle management"""
 
 import pytest
-from app.core.service_container import ServiceContainer, ServiceLifetime
+from voxplore.core.service_container import ServiceContainer, ServiceLifetime
 
 
 class TestServiceLifetime:

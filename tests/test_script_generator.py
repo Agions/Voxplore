@@ -11,7 +11,7 @@ import sys
 # 添加项目路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.services.ai.script_generator import (
+from voxplore.services.ai.script_generator import (
     ScriptStyle,
     VoiceTone,
     ScriptConfig,

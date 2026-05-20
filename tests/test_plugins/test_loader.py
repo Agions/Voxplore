@@ -2,8 +2,8 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from app.plugins.loader import PluginLoader
-from app.plugins.interfaces.base import PluginManifest, PluginType
+from voxplore.plugins.loader import PluginLoader
+from voxplore.plugins.interfaces.base import PluginManifest, PluginType
 
 
 class TestPluginLoaderEntryPoints:

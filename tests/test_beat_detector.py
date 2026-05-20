@@ -2,7 +2,7 @@
 """Test Beat Detector"""
 
 
-from app.services.audio.beat_detector import (
+from voxplore.services.audio.beat_detector import (
     BeatStrength,
     MusicSection,
     BeatInfo,

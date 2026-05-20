@@ -5,8 +5,8 @@ import os
 import tempfile
 from unittest.mock import Mock, patch
 
-from app.services.video_tools.ffmpeg_tool import FFmpegTool
-from app.utils.security import SecurityError
+from voxplore.services.video_tools.ffmpeg_tool import FFmpegTool
+from voxplore.utils.security import SecurityError
 
 
 class TestFFmpegToolBasic:

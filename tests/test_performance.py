@@ -2,7 +2,7 @@
 """Test performance utilities"""
 
 import time
-from app.utils.performance import LazyLoader, MemoryCache, cached, timed
+from voxplore.utils.performance import LazyLoader, MemoryCache, cached, timed
 
 
 class TestLazyLoader:

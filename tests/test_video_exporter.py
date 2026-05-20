@@ -2,7 +2,7 @@
 """Test Video Exporter"""
 
 
-from app.services.export.video_exporter import (
+from voxplore.services.export.video_exporter import (
     ExportFormat,
     VideoCodec,
     AudioCodec,

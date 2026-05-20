@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from app.services.ai.script_stream import StreamingScriptGenerator
+from voxplore.services.ai.script_stream import StreamingScriptGenerator
 
 
 class TestStreamingScriptGeneratorInit:
@@ -29,7 +29,7 @@ class TestStreamingScriptGeneratorInit:
 
     def test_inherits_from_script_generator(self):
         """测试继承自 ScriptGenerator"""
-        from app.services.ai.script_generator import ScriptGenerator
+        from voxplore.services.ai.script_generator import ScriptGenerator
         assert issubclass(StreamingScriptGenerator, ScriptGenerator)
 
 
@@ -91,11 +91,11 @@ class TestModuleExports:
 
     def test_all_exports(self):
         """测试 __all__ 导出"""
-        from app.services.ai import script_stream as sg_streaming
+        from voxplore.services.ai import script_stream as sg_streaming
         assert "StreamingScriptGenerator" in sg_streaming.__all__
         assert "generate_script_streaming" in sg_streaming.__all__
 
     def test_import_from_package(self):
         """测试从包级别导入"""
-        from app.services.ai import StreamingScriptGenerator
+        from voxplore.services.ai import StreamingScriptGenerator
         assert StreamingScriptGenerator is not None

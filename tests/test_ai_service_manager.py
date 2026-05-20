@@ -2,7 +2,7 @@
 """Test AI Service Manager"""
 
 
-from app.services.ai_service_manager import (
+from voxplore.services.ai_service_manager import (
     ServiceStatus,
     ServiceHealth,
     AIServiceManager,

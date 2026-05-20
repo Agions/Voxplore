@@ -4,7 +4,7 @@
 import logging
 from io import StringIO
 
-from app.core.logger import Logger, LogLevel, LogFormat
+from voxplore.core.logger import Logger, LogLevel, LogFormat
 
 
 class TestLogLevel:

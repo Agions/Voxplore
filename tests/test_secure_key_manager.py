@@ -4,7 +4,7 @@
 from unittest.mock import patch
 from cryptography.fernet import Fernet
 
-from app.core.secure_key_manager import SecureKeyManager
+from voxplore.core.secure_key_manager import SecureKeyManager
 
 
 class TestSecureKeyManager:

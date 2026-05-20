@@ -37,7 +37,6 @@ dependencies = [
     "opencv-python>=4.8.1",
     "numpy>=1.26.0",
     "pillow>=10.1.0",
-    # ffmpeg-python==0.2.0  # 废弃: subprocess 直接调用 ffmpeg CLI
     "pydub>=0.25.0",
     "librosa>=0.10.0",
     "soundfile>=0.12.0",
@@ -45,9 +44,6 @@ dependencies = [
     "faster-whisper>=1.0.0",
     # GPU Support (optional, for faster-whisper)
     "torch>=2.0.0",
-    # SenseVoice (optional, for emotion detection/speaker diarization)
-    # Note: sensevoice requires manual model download
-    # "sensevoice>=0.1.0",
     # Speech Synthesis
     "edge-tts>=6.1.0",
     # Scene Detection
@@ -99,10 +95,14 @@ all = [
 ]
 
 [project.scripts]
-voxplore = "app.main:main"
+voxplore = "voxplore.cli.main:main"
 
 [tool.setuptools]
-packages = ["app"]
+package-dir = {"" = "src"}
+packages = ["voxplore", "voxplore.*"]
+
+[tool.setuptools.package-data]
+voxplore = ["py.typed"]
 
 [tool.black]
 line-length = 88
@@ -124,7 +124,7 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
-files = ["app", "tests"]
+files = ["src/voxplore", "tests"]
 
 [[tool.mypy.overrides]]
 module = "PySide6.*"
@@ -133,4 +133,3 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "psutil.*"
 ignore_missing_imports = true
-

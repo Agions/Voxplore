@@ -1,7 +1,7 @@
 """Tests for app.api.routers._task_store - Redis/in-memory persistence"""
 
 import pytest
-from app.api.routers._task_store import (
+from voxplore.api.routers._task_store import (
     InMemoryTaskStore,
     RedisTaskStore,
     create_task_store,

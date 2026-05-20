@@ -2,8 +2,8 @@
 """Test Cache Manager"""
 
 
-from app.core.cache_manager import MemoryCache
-from app.core.interfaces.cache_interface import CachePolicy
+from voxplore.core.cache_manager import MemoryCache
+from voxplore.core.interfaces.cache_interface import CachePolicy
 
 
 class TestMemoryCache:

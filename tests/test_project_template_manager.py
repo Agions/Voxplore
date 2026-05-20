@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from app.core.project_template_manager import (
+from voxplore.core.project_template_manager import (
     TemplateCategory,
     TemplateInfo,
 )

@@ -2,7 +2,7 @@
 """测试剪映导出器"""
 
 
-from app.services.export.jianying_exporter import (
+from voxplore.services.export.jianying_exporter import (
     TrackType,
     MaterialType,
     TimeRange,
@@ -11,7 +11,7 @@ from app.services.export.jianying_exporter import (
     JianyingDraft,
     JianyingExporter,
 )
-from app.services.export.jianying_models import (
+from voxplore.services.export.jianying_models import (
     JianyingMaterials,
     VideoMaterial,
     AudioMaterial,

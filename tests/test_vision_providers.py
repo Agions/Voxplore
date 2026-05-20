@@ -12,7 +12,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from app.services.ai.vision_providers import (
+from voxplore.services.ai.vision_providers import (
     VisionProvider,
     OpenAIVisionProvider,
     QwenVLProvider,

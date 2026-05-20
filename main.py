@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # 引导到真正的入口
-from app.main import main as app_main
+from voxplore.main import main as app_main
 
 if __name__ == "__main__":
     sys.exit(app_main())

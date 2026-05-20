@@ -4,7 +4,7 @@
 import pytest
 import time
 
-from app.services.ai.cache import (
+from voxplore.services.ai.cache import (
     LLMMemoryCache,
     LLMRetryPolicy,
     with_retry,

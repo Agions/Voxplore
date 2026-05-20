@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试项目设置管理器"""
 
-from app.core.settings_manager import (
+from voxplore.core.settings_manager import (
     SettingType,
     SettingDefinition,
 )

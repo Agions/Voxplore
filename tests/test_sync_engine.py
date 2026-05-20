@@ -2,7 +2,7 @@
 """Test Sync Engine"""
 
 
-from app.services.audio.sync_engine import (
+from voxplore.services.audio.sync_engine import (
     SyncStrategy,
     TransitionType,
     SyncPoint,
