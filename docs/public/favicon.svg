@@ -1,24 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="favGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FDE047"/>
-      <stop offset="50%" stop-color="#F5C842"/>
-      <stop offset="100%" stop-color="#D97706"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#0E0F17"/>
-  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#F5C842" stroke-width="1" opacity="0.4"/>
-  <g transform="translate(32 31) scale(0.24)">
-    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#favGold)"/>
-    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#favGold)"/>
-    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="#FFFBEB" stroke-width="6" stroke-linecap="round"/>
-    <g fill="#FDE047">
-      <rect x="-24" y="-12" width="5" height="22" rx="2"/>
-      <rect x="-14" y="-24" width="5" height="36" rx="2"/>
-      <rect x="-4"  y="-34" width="5" height="50" rx="2"/>
-      <rect x="6"   y="-28" width="5" height="42" rx="2"/>
-      <rect x="16"  y="-16" width="5" height="28" rx="2"/>
-    </g>
-  </g>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <path d="M22 18L46 32L22 46V18Z" fill="white"/>
+  <path d="M18 50 Q26 46 34 48 Q42 50 50 48" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
 </svg>
