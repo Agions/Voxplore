@@ -510,6 +510,72 @@ class TTSService:
             logger.error(f"Unknown TTS provider: {self.provider}")
             return None
     
+    async def generate_speech_async(
+        self,
+        text: str,
+        output_path: str,
+        voice: str = None,
+        rate: float = None,
+        **kwargs
+    ) -> Optional[str]:
+        """
+        异步生成语音（edge-tts 原生支持异步）
+        适合批量并行合成多个音频
+        """
+        voice = voice or self.voice
+        rate = rate or self.rate
+        
+        if self.provider != "edge":
+            # 非 edge provider 回退到同步
+            return self.generate_speech(text, output_path, voice, rate)
+        
+        try:
+            import edge_tts
+            
+            rate_str = f"{int((rate - 1) * 100)}%"
+            communicate = edge_tts.Communicate(text, voice, rate=rate_str)
+            await communicate.save(output_path)
+            return output_path
+            
+        except ImportError:
+            logger.error("edge-tts is not installed")
+            return None
+        except Exception as e:
+            logger.error(f"Edge-TTS async generation failed: {e}")
+            return None
+    
+    @staticmethod
+    async def generate_batch_async(
+        items: List[Tuple[str, str, str]],  # (text, output_path, voice)
+        rate: float = 1.0,
+        max_concurrent: int = 4
+    ) -> List[Optional[str]]:
+        """
+        批量异步生成语音
+        items: [(text, output_path, voice), ...]
+        max_concurrent: 最大并发数
+        """
+        import asyncio
+        import edge_tts
+        
+        semaphore = asyncio.Semaphore(max_concurrent)
+        
+        async def generate_one(text: str, output_path: str, voice: str) -> Optional[str]:
+            async with semaphore:
+                try:
+                    rate_str = f"{int((rate - 1) * 100)}%"
+                    communicate = edge_tts.Communicate(text, voice, rate=rate_str)
+                    await communicate.save(output_path)
+                    return output_path
+                except Exception as e:
+                    logger.error(f"TTS failed for {output_path}: {e}")
+                    return None
+        
+        tasks = [generate_one(text, path, voice) for text, path, voice in items]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        return [r if not isinstance(r, Exception) else None for r in results]
+    
     def _edge_tts(
         self,
         text: str,
@@ -579,6 +645,73 @@ class ASRService:
         
         return result
     
+    def transcribe_batch(
+        self,
+        audio_paths: List[str],
+        language: str = "zh",
+        word_timestamps: bool = True,
+        max_workers: int = 2
+    ) -> List[Optional[Dict[str, Any]]]:
+        """
+        批量转写（并行进程）
+        适合多个音频文件同时转写
+        """
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        
+        results = [None] * len(audio_paths)
+        
+        # 模型实例在每个进程中独立创建
+        def transcribe_one(args: tuple) -> tuple:
+            path, lang, wts, model_name = args
+            try:
+                from faster_whisper import WhisperModel
+                model = WhisperModel(
+                    model_name,
+                    device="cpu",
+                    compute_type="int8"
+                )
+                segments, info = model.transcribe(
+                    path,
+                    language=lang if lang != "auto" else None,
+                    word_timestamps=wts,
+                )
+                result_segments = []
+                for seg in segments:
+                    result_segments.append({
+                        "start": seg.start,
+                        "end": seg.end,
+                        "text": seg.text.strip()
+                    })
+                return {
+                    "text": "".join(s["text"] for s in result_segments),
+                    "segments": result_segments,
+                    "language": info.language,
+                }
+            except Exception as e:
+                logger.error(f"Batch transcription failed for {path}: {e}")
+                return None
+        
+        args_list = [
+            (path, language, word_timestamps, self.model_name)
+            for path in audio_paths
+        ]
+        
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            future_to_idx = {
+                executor.submit(transcribe_one, args): i
+                for i, args in enumerate(args_list)
+            }
+            
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    logger.error(f"Process failed for {audio_paths[idx]}: {e}")
+                    results[idx] = None
+        
+        return results
+    
     def _faster_whisper(
         self,
         audio_path: str,
@@ -595,10 +728,12 @@ class ASRService:
                     compute_type="int8"
                 )
             
+            # 使用 batch_size 提升吞吐量
             segments, info = self.model.transcribe(
                 audio_path,
                 language=language if language != "auto" else None,
                 word_timestamps=word_timestamps,
+                batch_size=8,  # 批量处理提升速度
             )
             
             result_segments = []
