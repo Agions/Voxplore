@@ -8,7 +8,6 @@ Voxplore 任务管理 V2
 - 批量操作优化
 """
 import os
-import json
 import uuid
 import logging
 import threading
@@ -19,6 +18,18 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+
+# orjson 性能比标准 json 快 5-10 倍
+try:
+    import orjson
+    _json_loads = orjson.loads
+    _json_dumps = lambda obj: orjson.dumps(obj, option=orjson.OPT_INDENT_2)
+    _use_orjson = True
+except ImportError:
+    import json
+    _json_loads = json.load
+    _json_dumps = lambda obj: json.dumps(obj, ensure_ascii=False, indent=2)
+    _use_orjson = False
 
 logger = logging.getLogger(__name__)
 
@@ -123,10 +134,14 @@ class TaskManager:
         try:
             for file in Path(self._task_dir).glob("*.json"):
                 try:
-                    with open(file, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                        task = self._dict_to_task(data)
-                        self._tasks[task.task_id] = task
+                    if _use_orjson:
+                        with open(file, 'rb') as f:
+                            data = orjson.loads(f.read())
+                    else:
+                        with open(file, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                    task = self._dict_to_task(data)
+                    self._tasks[task.task_id] = task
                 except Exception as e:
                     logger.warning(f"Failed to load task {file}: {e}")
         except Exception as e:
@@ -137,10 +152,13 @@ class TaskManager:
         def _write():
             try:
                 file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
-                # 先写临时文件再原子移动
                 temp_path = file_path + ".tmp"
-                with open(temp_path, 'w', encoding='utf-8') as f:
-                    json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
+                if _use_orjson:
+                    with open(temp_path, 'wb') as f:
+                        f.write(orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2))
+                else:
+                    with open(temp_path, 'w', encoding='utf-8') as f:
+                        json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
                 os.replace(temp_path, file_path)
             except Exception as e:
                 logger.error(f"Failed to save task: {e}")
@@ -152,8 +170,12 @@ class TaskManager:
         try:
             file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
             temp_path = file_path + ".tmp"
-            with open(temp_path, 'w', encoding='utf-8') as f:
-                json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
+            if _use_orjson:
+                with open(temp_path, 'wb') as f:
+                    f.write(orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2))
+            else:
+                with open(temp_path, 'w', encoding='utf-8') as f:
+                    json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
             os.replace(temp_path, file_path)
         except Exception as e:
             logger.error(f"Failed to save task: {e}")
@@ -386,8 +408,12 @@ class TaskManager:
         
         try:
             temp_path = checkpoint_file + ".tmp"
-            with open(temp_path, 'w', encoding='utf-8') as f:
-                json.dump(checkpoint, f, ensure_ascii=False, indent=2)
+            if _use_orjson:
+                with open(temp_path, 'wb') as f:
+                    f.write(orjson.dumps(checkpoint, option=orjson.OPT_INDENT_2))
+            else:
+                with open(temp_path, 'w', encoding='utf-8') as f:
+                    json.dump(checkpoint, f, ensure_ascii=False, indent=2)
             os.replace(temp_path, checkpoint_file)
         except Exception as e:
             logger.error(f"Failed to save checkpoint: {e}")
@@ -403,8 +429,12 @@ class TaskManager:
             return None
         
         try:
-            with open(checkpoint_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+            if _use_orjson:
+                with open(checkpoint_file, 'rb') as f:
+                    data = orjson.loads(f.read())
+            else:
+                with open(checkpoint_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
             return TaskCheckpoint(**data)
         except Exception as e:
             logger.error(f"Failed to load checkpoint: {e}")

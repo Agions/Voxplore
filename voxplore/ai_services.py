@@ -165,11 +165,20 @@ class LRUCache:
 
 
 class PersistentCache:
-    """持久化缓存"""
+    """持久化缓存（orjson 加速）"""
     
     def __init__(self, cache_dir: str = "~/.cache/voxplore"):
         self.cache_dir = os.path.expanduser(cache_dir)
         os.makedirs(self.cache_dir, exist_ok=True)
+        # orjson 性能比标准 json 快 5-10 倍
+        try:
+            import orjson
+            self._json = orjson
+            self._use_orjson = True
+        except ImportError:
+            import json
+            self._json = json
+            self._use_orjson = False
     
     def _get_path(self, key: str) -> str:
         hash_key = hashlib.md5(key.encode()).hexdigest()
@@ -179,9 +188,11 @@ class PersistentCache:
         path = self._get_path(key)
         if os.path.exists(path):
             try:
-                with open(path, 'r') as f:
-                    data = json.load(f)
-                    # 检查过期
+                with open(path, 'rb' if self._use_orjson else 'r') as f:
+                    if self._use_orjson:
+                        data = orjson.loads(f.read())
+                    else:
+                        data = self._json.load(f)
                     if data.get("expires", float('inf')) < time.time():
                         os.remove(path)
                         return None
@@ -193,11 +204,16 @@ class PersistentCache:
     def set(self, key: str, value: Any, ttl: int = 3600):
         path = self._get_path(key)
         try:
-            with open(path, 'w') as f:
-                json.dump({
-                    "value": value,
-                    "expires": time.time() + ttl
-                }, f)
+            cache_data = {
+                "value": value,
+                "expires": time.time() + ttl
+            }
+            if self._use_orjson:
+                with open(path, 'wb') as f:
+                    f.write(orjson.dumps(cache_data))
+            else:
+                with open(path, 'w') as f:
+                    self._json.dump(cache_data, f)
         except Exception as e:
             logger.warning(f"Failed to write cache: {e}")
 
