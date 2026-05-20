@@ -78,7 +78,7 @@ class JianyingExporter:
         draft_name: str = None
     ) -> str:
         """
-        导出剪映草稿
+        导出剪映草稿（优化版）
         
         Args:
             project: VideoProject 对象
@@ -108,9 +108,44 @@ class JianyingExporter:
         with open(draft_file, 'w', encoding='utf-8') as f:
             json.dump(draft_content, f, ensure_ascii=False, indent=2)
         
+        # 并行复制素材文件
+        self._copy_materials_parallel(project, materials_dir, draft_content)
+        
         logger.info(f"Exported Jianying draft to: {draft_dir}")
         
         return draft_dir
+    
+    def _copy_materials_parallel(self, project: Any, materials_dir: str, draft_content: Dict):
+        """并行复制素材文件"""
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        import shutil
+        
+        copy_tasks = []
+        
+        # 收集需要复制的文件
+        for i, seg in enumerate(project.segments):
+            if os.path.exists(seg.video_path):
+                video_name = f"video_{i:03d}.mp4"
+                dst = os.path.join(materials_dir, "videos", video_name)
+                copy_tasks.append((seg.video_path, dst))
+        
+        if project.audio_track and os.path.exists(project.audio_track.audio_path):
+            audio_name = os.path.basename(project.audio_track.audio_path)
+            dst = os.path.join(materials_dir, "audios", audio_name)
+            copy_tasks.append((project.audio_track.audio_path, dst))
+        
+        # 并行复制
+        if copy_tasks:
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                futures = {executor.submit(shutil.copy, src, dst): (src, dst) 
+                          for src, dst in copy_tasks}
+                
+                for future in as_completed(futures):
+                    src, dst = futures[future]
+                    try:
+                        future.result()
+                    except Exception as e:
+                        logger.warning(f"Failed to copy {src}: {e}")
     
     def _build_draft_content(self, project: Any) -> Dict[str, Any]:
         """构建剪映草稿内容"""

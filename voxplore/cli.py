@@ -173,7 +173,7 @@ def export_project(project, args):
 
 
 def cmd_batch(args):
-    """批量处理"""
+    """批量处理（优化版 - 并行）"""
     init_services()
     
     video_files = []
@@ -188,18 +188,57 @@ def cmd_batch(args):
     
     print(f"📁 找到 {len(video_files)} 个视频文件")
     
-    pipeline = VoxplorePipeline()
+    # 根据文件数量决定并行度
+    max_workers = min(args.workers or 4, len(video_files))
     
-    for i, video in enumerate(video_files):
-        print(f"\n[{i+1}/{len(video_files)}] 处理: {video}")
-        
+    pipeline = VoxplorePipeline()
+    results = []
+    completed = 0
+    
+    def process_one(video: str) -> tuple:
         try:
             project = pipeline.process(video)
-            print(f"   ✅ 完成: {len(project.segments)} 个片段")
+            return (video, True, len(project.segments), None)
         except Exception as e:
-            print(f"   ❌ 失败: {e}")
+            return (video, False, 0, str(e))
     
-    return 0
+    # 并行处理
+    if max_workers > 1 and len(video_files) > 1:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        print(f"⚡ 使用 {max_workers} 个 worker 并行处理")
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(process_one, v): v for v in video_files}
+            
+            for future in as_completed(futures):
+                video, success, count, error = future.result()
+                completed += 1
+                
+                if success:
+                    print(f"[{completed}/{len(video_files)}] ✅ {video}: {count} 个片段")
+                else:
+                    print(f"[{completed}/{len(video_files)}] ❌ {video}: {error}")
+                
+                results.append((video, success))
+    else:
+        # 串行处理
+        for i, video in enumerate(video_files):
+            print(f"\n[{i+1}/{len(video_files)}] 处理: {video}")
+            
+            try:
+                project = pipeline.process(video)
+                print(f"   ✅ 完成: {len(project.segments)} 个片段")
+                results.append((video, True))
+            except Exception as e:
+                print(f"   ❌ 失败: {e}")
+                results.append((video, False))
+    
+    # 汇总
+    success_count = sum(1 for _, s in results if s)
+    print(f"\n📊 完成: {success_count}/{len(video_files)} 成功")
+    
+    return 0 if success_count == len(video_files) else 1
 
 
 def main():
@@ -238,6 +277,7 @@ def main():
     # batch 命令
     batch_parser = subparsers.add_parser("batch", help="批量处理")
     batch_parser.add_argument("patterns", nargs="+", help="文件匹配模式，如 *.mp4")
+    batch_parser.add_argument("-w", "--workers", type=int, default=4, help="并行 worker 数")
     
     args = parser.parse_args()
     

@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Voxplore 任务管理
+Voxplore 任务管理 V2
 支持任务暂停、恢复、取消、断点续传
+- 异步保存（不阻塞主线程）
+- JSON 序列化（跨平台兼容）
+- 批量操作优化
 """
 import os
 import json
 import uuid
 import logging
 import threading
-import pickle
+import asyncio
 from typing import Optional, Dict, Any, List, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +86,11 @@ class Task:
 
 class TaskManager:
     """
-    任务管理器
+    任务管理器 V2
     支持任务的创建、暂停、恢复、取消、断点续传
+    - 异步保存，不阻塞主线程
+    - JSON 序列化替代 pickle
+    - 批量操作支持
     """
     
     _instance: Optional['TaskManager'] = None
@@ -100,7 +107,8 @@ class TaskManager:
         
         self._initialized = True
         self._tasks: Dict[str, Task] = {}
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()  # 可重入锁
+        self._executor = ThreadPoolExecutor(max_workers=2)  # 异步保存线程池
         self._task_dir = os.path.expanduser("~/.cache/voxplore/tasks")
         self._checkpoints_dir = os.path.join(self._task_dir, "checkpoints")
         
@@ -124,12 +132,29 @@ class TaskManager:
         except Exception as e:
             logger.warning(f"Failed to load tasks: {e}")
     
+    def _save_task_async(self, task: Task):
+        """异步保存任务到磁盘"""
+        def _write():
+            try:
+                file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
+                # 先写临时文件再原子移动
+                temp_path = file_path + ".tmp"
+                with open(temp_path, 'w', encoding='utf-8') as f:
+                    json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
+                os.replace(temp_path, file_path)
+            except Exception as e:
+                logger.error(f"Failed to save task: {e}")
+        
+        self._executor.submit(_write)
+    
     def _save_task(self, task: Task):
-        """保存任务到磁盘"""
+        """同步保存任务到磁盘（保留兼容性）"""
         try:
             file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
-            with open(file_path, 'w', encoding='utf-8') as f:
+            temp_path = file_path + ".tmp"
+            with open(temp_path, 'w', encoding='utf-8') as f:
                 json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
+            os.replace(temp_path, file_path)
         except Exception as e:
             logger.error(f"Failed to save task: {e}")
     
@@ -344,24 +369,26 @@ class TaskManager:
         step_name: str,
         data: Dict[str, Any]
     ):
-        """保存检查点"""
-        checkpoint = TaskCheckpoint(
-            task_id=task_id,
-            step=step,
-            step_name=step_name,
-            progress=0.0,
-            data=data,
-            timestamp=datetime.now().timestamp()
-        )
+        """保存检查点（JSON 格式）"""
+        checkpoint = {
+            "task_id": task_id,
+            "step": step,
+            "step_name": step_name,
+            "progress": 0.0,
+            "data": data,
+            "timestamp": datetime.now().timestamp()
+        }
         
         checkpoint_file = os.path.join(
             self._checkpoints_dir,
-            f"{task_id}_checkpoint_{step}.pkl"
+            f"{task_id}_checkpoint_{step}.json"
         )
         
         try:
-            with open(checkpoint_file, 'wb') as f:
-                pickle.dump(checkpoint, f)
+            temp_path = checkpoint_file + ".tmp"
+            with open(temp_path, 'w', encoding='utf-8') as f:
+                json.dump(checkpoint, f, ensure_ascii=False, indent=2)
+            os.replace(temp_path, checkpoint_file)
         except Exception as e:
             logger.error(f"Failed to save checkpoint: {e}")
     
@@ -369,15 +396,16 @@ class TaskManager:
         """加载检查点"""
         checkpoint_file = os.path.join(
             self._checkpoints_dir,
-            f"{task_id}_checkpoint_{step}.pkl"
+            f"{task_id}_checkpoint_{step}.json"
         )
         
         if not os.path.exists(checkpoint_file):
             return None
         
         try:
-            with open(checkpoint_file, 'rb') as f:
-                return pickle.load(f)
+            with open(checkpoint_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return TaskCheckpoint(**data)
         except Exception as e:
             logger.error(f"Failed to load checkpoint: {e}")
             return None
