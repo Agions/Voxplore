@@ -10,9 +10,9 @@ from PySide6.QtWidgets import (
     QGraphicsOpacityEffect, QSizePolicy
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont, QPainter
+from PySide6.QtGui import QFont
 
-from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
+from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
 
 
 # ═══════════════════════════════════════════════════════════════════════

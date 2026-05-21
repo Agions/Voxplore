@@ -5,14 +5,14 @@ AI 分析步骤页面
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QProgressBar, QCheckBox, QSpinBox, QSlider
+    QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QPushButton, QFrame, QProgressBar, QCheckBox, QSpinBox
 )
-from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 
 from voxplore.ui.main.pages.step_base import StepPage, ContentCard
-from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
+from voxplore.ui.theme.ds_tokens import Colors, FontSizes, Radii
 
 
 class AIOptionCard(QFrame):
@@ -235,7 +235,7 @@ class StepAnalysisPage(StepPage):
         self._simulate_progress()
 
     def _simulate_progress(self):
-        from PySide6.QtCore import QTimer
+        from PySide6.QtCore import QTimer  # noqa: F811  # local import needed to avoid top-level Qt overhead
 
         self._stage_idx = 0
         self._timer = QTimer(self)
