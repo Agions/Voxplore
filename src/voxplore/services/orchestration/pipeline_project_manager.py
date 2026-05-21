@@ -33,20 +33,13 @@ from enum import Enum
 from datetime import datetime
 import uuid
 
+from voxplore.models.project_models import ProjectType
+
 # 获取 logger
 logger = logging.getLogger(__name__)
 
 # ============ 常量 ============
 HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
-
-
-class ProjectType(Enum):
-    """项目类型"""
-    COMMENTARY = "commentary"         # AI 解说
-    MASHUP = "mashup"               # 视频混剪
-    BEAT_SYNC = "beat_sync"         # Beat-sync 混剪
-    MONOLOGUE = "monologue"          # 第一人称独白
-    RAW = "raw"                      # 原始项目
 
 
 class ProjectVersion(Enum):

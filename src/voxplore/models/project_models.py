@@ -32,12 +32,19 @@ class ProjectStatus(Enum):
 
 class ProjectType(Enum):
     """项目类型枚举"""
+    # ── 基础/业务层类型 ────────────────────────────────────────
     VIDEO_EDITING = ("video_editing", "视频剪辑", "基础视频剪辑模式")
     AI_ENHANCEMENT = ("ai_enhancement", "AI 增强", "AI 智能增强画质和音效")
     COMPILATION = ("compilation", "混剪合成", "多素材智能混剪")
     COMMENTARY = ("commentary", "AI 解说", "自动生成解说配音")
     STORY_ANALYSIS = ("story_analysis", "剧情分析", "AI 分析视频剧情并智能剪辑")
     MULTIMEDIA = ("multimedia", "多媒体", "综合多媒体项目")
+
+    # ── 导出器/编排层类型 ────────────────────────────────────────
+    RAW = ("raw", "原始项目", "未分类的原始项目")
+    MASHUP = ("mashup", "视频混剪", "多素材混剪拼接")
+    BEAT_SYNC = ("beat_sync", "Beat-sync 混剪", "按节拍同步的混剪")
+    MONOLOGUE = ("monologue", "第一人称独白", "第一人称叙事独白视频")
 
     def __init__(self, value: str, display_name: str, description: str):
         self._value_ = value
