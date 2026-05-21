@@ -229,7 +229,7 @@ class ThemeManager(QObject):
 
         if self.current_mode == "voxplore":
             # Voxplore 专用主题
-            stylesheet_path = os.path.join(os.path.dirname(__file__), "voxplore.qss")
+            stylesheet_path = os.path.join(os.path.dirname(__file__), "theme.qss")
         elif self.current_mode == "dark":
             # 使用外部深色主题样式表
             stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "dark_theme.qss")
