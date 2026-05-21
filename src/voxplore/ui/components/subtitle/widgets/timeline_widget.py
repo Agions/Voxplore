@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+字幕时间线组件
+
+管理字幕编辑时间线视图，整合轨道、时间尺和字幕块。
+"""
+
 from typing import Optional
 
 from PySide6.QtWidgets import (

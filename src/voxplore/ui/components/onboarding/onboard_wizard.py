@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+Onboarding 向导组件
+
+提供新用户首次使用的引导流程界面，包含欢迎页和功能介绍。
+"""
+
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
                              QPushButton, QFrame)
 from PySide6.QtCore import Qt, Signal

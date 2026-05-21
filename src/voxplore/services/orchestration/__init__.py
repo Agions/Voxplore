@@ -26,14 +26,13 @@ from .pipe_models import (
 
 from .pipeline_project_manager import (
     ProjectManager,
-    ProjectType,
-    ProjectVersion,
     ProjectMetadata,
     ProjectSource,
     ProjectConfig,
     VoxploreProject,
     save_project,
     load_project,
+    _NarrafiilmVersion,  # 仅内部使用，不对外公开
 )
 
 __all__ = [
@@ -52,12 +51,11 @@ __all__ = [
     "WorkflowCallbacks",
     # 项目管理
     "ProjectManager",
-    "ProjectType",
-    "ProjectVersion",
     "ProjectMetadata",
     "ProjectSource",
     "ProjectConfig",
     "VoxploreProject",
     "save_project",
     "load_project",
+    "_NarrafiilmVersion",
 ]

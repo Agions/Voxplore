@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+字幕块组件
+
+表示时间线上单个字幕片段，支持拖拽调整时间范围。
+"""
+
 from typing import Optional
 
 from PySide6.QtWidgets import QWidget

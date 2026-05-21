@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+模型申请对话框
+
+引导用户申请使用特定 AI 模型的向导式对话框。
+"""
+
 from PySide6.QtWidgets import QWizard
 
 from ...icon_manager import get_icon

@@ -12,7 +12,7 @@ Voxplore 项目文件管理
 - 支持版本兼容性和向后兼容
 
 使用示例:
-    from voxplore.services.orchestration import ProjectManager, ProjectType
+    from voxplore.services.orchestration import ProjectManager
 
     manager = ProjectManager()
 
@@ -35,6 +35,7 @@ import uuid
 
 from voxplore.models.project_models import ProjectType
 
+
 # 获取 logger
 logger = logging.getLogger(__name__)
 
@@ -42,8 +43,8 @@ logger = logging.getLogger(__name__)
 HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
 
 
-class ProjectVersion(Enum):
-    """项目版本"""
+class _NarrafiilmVersion(Enum):
+    """narrafiilm 项目文件版本（内部使用）"""
     V1 = "1.0"
     V2 = "2.0"  # 当前版本，支持更多元数据
 

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+字幕轨道组件
+
+显示和管理同一轨道的所有字幕块。
+"""
+
 from typing import Optional
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+字幕时间尺组件
+
+在字幕编辑时间线上显示时间刻度，支持缩放和拖拽定位。
+"""
+
 from typing import List, Optional, Tuple
 
 from PySide6.QtWidgets import QWidget
