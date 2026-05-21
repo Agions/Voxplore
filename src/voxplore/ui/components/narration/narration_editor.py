@@ -120,6 +120,7 @@ class NarrationSegmentItem(QFrame):
         """)
 
     def _load_data(self):
+        # TODO: 从 segment 加载编辑数据
         pass
 
     def _format_time(self, seconds: float) -> str:

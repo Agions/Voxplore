@@ -73,7 +73,7 @@ class ProjectCard(QFrame):
         # 尝试加载缩略图
         thumbnail_path = self._project_data.get("thumbnail_path")
         if thumbnail_path:
-            # 实际应该加载图片
+            # TODO: 实际加载并显示缩略图
             pass
 
         # 放置图标

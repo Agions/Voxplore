@@ -541,14 +541,32 @@ class VoxploreMainWindow(QMainWindow):
         self.statusbar.set_status(f"当前: {title}")
 
     def _on_action(self, action_id: str):
-        if action_id == "undo":
-            pass
-        elif action_id == "redo":
-            pass
-        elif action_id == "export":
-            pass
-        elif action_id == "search":
-            pass
+        handlers = {
+            "undo": self._handle_undo,
+            "redo": self._handle_redo,
+            "export": self._handle_export,
+            "search": self._handle_search,
+        }
+        handler = handlers.get(action_id)
+        if handler:
+            handler()
+        # 未知的 action_id 静默忽略（topbar 可能发送框架级 action）
+
+    def _handle_undo(self):
+        # TODO: 实现撤销功能
+        pass
+
+    def _handle_redo(self):
+        # TODO: 实现重做功能
+        pass
+
+    def _handle_export(self):
+        # TODO: 实现导出功能
+        pass
+
+    def _handle_search(self):
+        # TODO: 实现搜索功能
+        pass
 
     def _apply_global_style(self):
         self.setStyleSheet(f"""
