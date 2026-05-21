@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试配置管理器"""
 
-from voxplore.core.config_manager import (
+from voxplore.config_manager import (
     LLMProviderType,
     LLMConfig,
     CacheConfig,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试项目管理器"""
 
-from voxplore.core.project_manager import (
+from voxplore.project_manager import (
     ProjectStatus,
     ProjectType,
     ProjectMetadata,

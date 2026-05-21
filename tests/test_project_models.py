@@ -1,5 +1,5 @@
 """Test project_models data classes"""
-from voxplore.core.models.project_models import (
+from voxplore.models.project_models import (
     ProjectStatus,
     ProjectType,
     ProjectMetadata,

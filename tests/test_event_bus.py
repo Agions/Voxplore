@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试事件总线"""
 
-from voxplore.core.event_bus import EventBus
+from voxplore.event_bus import EventBus
 
 
 class TestEventBus:
