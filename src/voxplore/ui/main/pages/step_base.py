@@ -326,5 +326,7 @@ class StepPage(QFrame):
         anim.setStartValue(0)
         anim.setEndValue(1)
         anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        anim.start()
         anim.finished.connect(lambda: self.setGraphicsEffect(None))
+        anim.start()
+        # 保持引用防止被 GC 回收
+        self._fade_anim = anim

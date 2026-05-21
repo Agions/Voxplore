@@ -303,8 +303,10 @@ class ContentArea(QFrame):
         anim.setStartValue(0)
         anim.setEndValue(1)
         anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        anim.start()
         anim.finished.connect(lambda: widget.setGraphicsEffect(None))
+        anim.start()
+        # 保持引用防止被 GC 回收
+        widget._fade_anim = anim
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -370,8 +372,6 @@ class PropertiesPanel(QFrame):
         anim.setEndValue(target)
         anim.start()
         self._width_anim_target = target
-
-        anim.start()
 
     def showEvent(self, event):
         super().showEvent(event)
