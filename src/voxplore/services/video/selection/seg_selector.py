@@ -100,12 +100,13 @@ class SegmentSelector:
 
         min_duration, max_duration = target_duration
 
-        if strategy == SelectionStrategy.NARRATIVE_FIRST:
-            return self._select_narrative_first(segments, min_duration, max_duration)
-        elif strategy == SelectionStrategy.EMOTION_PEAK:
-            return self._select_emotion_peak(segments, min_duration, max_duration)
-        else:  # HYBRID
-            return self._select_hybrid(segments, min_duration, max_duration)
+        _SELECTOR_MAP = {
+            SelectionStrategy.NARRATIVE_FIRST: self._select_narrative_first,
+            SelectionStrategy.EMOTION_PEAK: self._select_emotion_peak,
+            SelectionStrategy.HYBRID: self._select_hybrid,
+        }
+        selector = _SELECTOR_MAP.get(strategy, self._select_hybrid)
+        return selector(segments, min_duration, max_duration)
 
     def _select_narrative_first(
         self,

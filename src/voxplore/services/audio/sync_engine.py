@@ -113,17 +113,13 @@ class SyncEngine:
             strategy=strategy,
         )
 
-        if strategy == SyncStrategy.BEAT_SYNC:
-            self._beat_sync(plan, audio_analysis, num_clips,
-                           min_clip_duration, max_clip_duration)
-        elif strategy == SyncStrategy.PHRASE_SYNC:
-            self._phrase_sync(plan, audio_analysis, num_clips)
-        elif strategy == SyncStrategy.ENERGY_SYNC:
-            self._energy_sync(plan, audio_analysis, num_clips,
-                             min_clip_duration, max_clip_duration)
-        else:  # HYBRID
-            self._hybrid_sync(plan, audio_analysis, num_clips,
-                             min_clip_duration, max_clip_duration)
+        _SYNC_MAP = {
+            SyncStrategy.BEAT_SYNC: lambda: self._beat_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
+            SyncStrategy.PHRASE_SYNC: lambda: self._phrase_sync(plan, audio_analysis, num_clips),
+            SyncStrategy.ENERGY_SYNC: lambda: self._energy_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
+            SyncStrategy.HYBRID: lambda: self._hybrid_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
+        }
+        _SYNC_MAP.get(strategy, _SYNC_MAP[SyncStrategy.HYBRID])()
 
         # 生成速度曲线
         plan.speed_curve = self._generate_speed_curve(audio_analysis)

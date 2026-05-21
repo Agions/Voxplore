@@ -174,14 +174,12 @@ class EdgeTTSProvider(TTSProvider):
         voices = self.CHINESE_VOICES.get(gender_key, self.CHINESE_VOICES["female"])
 
         # 根据风格选择
-        if config.style == VoiceStyle.NEWSCAST:
-            return "zh-CN-YunyangNeural"  # 新闻播报
-        elif config.style == VoiceStyle.CHEERFUL:
-            return "zh-CN-XiaoxuanNeural"  # 活泼
-        elif config.style == VoiceStyle.CONVERSATIONAL:
-            return "zh-CN-XiaoxiaoNeural"  # 对话
-        else:
-            return voices[0][0]  # 默认第一个
+        _STYLE_VOICE_MAP = {
+            VoiceStyle.NEWSCAST: "zh-CN-YunyangNeural",
+            VoiceStyle.CHEERFUL: "zh-CN-XiaoxuanNeural",
+            VoiceStyle.CONVERSATIONAL: "zh-CN-XiaoxiaoNeural",
+        }
+        return _STYLE_VOICE_MAP.get(config.style, voices[0][0])
 
     def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
         """列出可用声音"""
