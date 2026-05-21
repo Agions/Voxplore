@@ -15,7 +15,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from threading import Lock
 
-from voxplore.core.interfaces.cache_interface import (
+from voxplore.interfaces.cache_interface import (
     ICache, CacheEntry, CacheStats, CachePolicy,
 )
 

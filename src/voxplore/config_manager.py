@@ -13,7 +13,7 @@ from pathlib import Path
 from dataclasses import dataclass, field, asdict
 from enum import Enum
 
-from voxplore.core.exceptions import ConfigError
+from voxplore.exceptions import ConfigError
 
 
 class LLMProviderType(Enum):

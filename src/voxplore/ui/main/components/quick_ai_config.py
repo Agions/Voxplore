@@ -16,8 +16,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer, Signal
 
-from voxplore.core.config_manager import ConfigManager
-from voxplore.core.logger import Logger
+from voxplore.config_manager import ConfigManager
+from voxplore.logger import Logger
 from voxplore.ui.icon_manager import get_icon
 from ..dialogs.model_app_dialog import ModelApplicationDialog
 

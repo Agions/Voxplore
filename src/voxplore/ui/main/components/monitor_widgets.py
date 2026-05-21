@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import Qt, Signal, QPoint
 from PySide6.QtGui import QPixmap, QColor, QCursor, QPen, QBrush, QPainter, QPainterPath
 
-from ....core.icon_manager import get_icon
+from voxplore.ui.icon_manager import get_icon
 from ....services import ServiceStatus
 
 

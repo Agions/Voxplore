@@ -36,7 +36,7 @@ class MainWindowEventHandler:
 
     def on_state_changed(self, state: Any):
         """处理应用状态变化"""
-        from voxplore.core.application import ApplicationState
+        from voxplore.application import ApplicationState
 
         status_messages = {
             ApplicationState.INITIALIZING: "正在初始化...",

@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 from voxplore.ui.components import (
     MacElevatedCard, MacSearchBox, MacScrollArea,
 )
-from voxplore.core.project_manager import ProjectType, ProjectStatus
+from voxplore.project_manager import ProjectType, ProjectStatus
 from .project_cards import ProjectCard
 
 logger = logging.getLogger(__name__)

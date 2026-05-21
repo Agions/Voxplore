@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any
 import logging
 from dataclasses import dataclass
 
-from voxplore.core._signals import QObject, Signal
+from voxplore._signals import QObject, Signal
 
 from .version_models import ProjectVersion, ProjectBranch
 

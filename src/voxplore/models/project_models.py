@@ -14,7 +14,7 @@
 - Project: 完整项目模型
 
 使用示例:
-    from voxplore.core.models.project_models import Project, ProjectType, ProjectMetadata
+    from voxplore.models.project_models import Project, ProjectType, ProjectMetadata
 """
 
 from dataclasses import dataclass, field, asdict

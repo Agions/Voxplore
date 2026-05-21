@@ -13,8 +13,8 @@ from voxplore.ui.components import (
     MacPrimaryButton, MacSecondaryButton, MacIconButton,
     MacTitleLabel,
 )
-from voxplore.core.project_manager import Project
-from voxplore.core.settings_manager import ProjectSettingsManager
+from voxplore.project_manager import Project
+from voxplore.settings_manager import ProjectSettingsManager
 
 
 class ProjectSettingsDialog(QDialog):

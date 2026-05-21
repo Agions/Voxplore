@@ -14,7 +14,7 @@ from voxplore.services.export.export_manager import (
     ExportFormat,
     ExportConfig,
 )
-from voxplore.core.exceptions import ExportError
+from voxplore.exceptions import ExportError
 
 router = APIRouter()
 

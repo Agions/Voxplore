@@ -14,7 +14,7 @@ from voxplore.ui.components import (
     MacPrimaryButton, MacSecondaryButton, MacTitleLabel, MacLabel,
     MacSearchBox, MacScrollArea,
 )
-from voxplore.core.project_template_manager import ProjectTemplateManager
+from voxplore.project_template_manager import ProjectTemplateManager
 
 from .project_cards import TemplateCard
 

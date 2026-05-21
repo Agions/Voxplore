@@ -9,7 +9,7 @@ from typing import Optional
 from PySide6.QtCore import QObject, Signal
 
 from voxplore.services.video.monologue_maker import MonologueMaker, MonologueProject
-from voxplore.core.logger import Logger
+from voxplore.logger import Logger
 
 
 class PipelineStage(Enum):

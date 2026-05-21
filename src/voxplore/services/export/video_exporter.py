@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional, List
 from dataclasses import dataclass
 from enum import Enum
-from ...core.exceptions import ExportError
+from voxplore.exceptions import ExportError
 from ...utils.security import get_ffmpeg_executor
 
 

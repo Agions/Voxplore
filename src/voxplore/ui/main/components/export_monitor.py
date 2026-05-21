@@ -18,7 +18,7 @@ from voxplore.ui.components.design_system import Colors
 from voxplore.ui.main.components.export_stats import ExportStatisticsWidget
 from voxplore.ui.main.components.monitor_widgets import PerformanceChart
 from ...export.export_system import ExportTask, ExportStatus
-from ...core.logger import Logger
+from voxplore.logger import Logger
 
 
 class ExportProgressWidget(QWidget):

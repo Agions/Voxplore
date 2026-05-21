@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QGroupBox, QFormLayout,
                             QDialogButtonBox)
 
 from ....export.export_system import ExportPreset
-from ....core.logger import Logger
+from voxplore.logger import Logger
 
 
 class ExportSettingsDialog(QDialog):

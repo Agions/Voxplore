@@ -14,7 +14,7 @@ from dataclasses import asdict
 from pathlib import Path
 import logging
 
-from voxplore.core._signals import QObject, Signal
+from voxplore._signals import QObject, Signal
 
 from .config_manager import ConfigManager
 from .secure_key_manager import get_secure_key_manager

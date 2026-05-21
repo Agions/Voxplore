@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-from voxplore.core._signals import QObject, Signal
+from voxplore._signals import QObject, Signal
 
 logger = logging.getLogger(__name__)
 

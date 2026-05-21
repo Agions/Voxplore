@@ -6,7 +6,7 @@ PySide6 兼容桥接层
 - 无 PySide6 时：提供无头环境兼容的桩
 
 用法：
-    from voxplore.core._signals import QObject, Signal
+    from voxplore._signals import QObject, Signal
 
 这样 core 层就可以在 CI / 无头环境下导入而不报 ImportError。
 """

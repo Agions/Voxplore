@@ -14,11 +14,11 @@ if __package__ is None:
     _src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, _src_dir)
 
-from voxplore.core.settings import get_config
-from voxplore.core.models import NarrationStyle, EmotionType
-from voxplore.core.pipeline import VoxplorePipeline, PipelineConfig
-from voxplore.core.exporters import JianyingExporter, SubtitleExporter, VideoExporter
-from voxplore.core.ai_services import ai_service_manager
+from voxplore.settings import get_config
+from voxplore.models import NarrationStyle, EmotionType
+from voxplore.pipeline import VoxplorePipeline, PipelineConfig
+from voxplore.exporters import JianyingExporter, SubtitleExporter, VideoExporter
+from voxplore.ai_services import ai_service_manager
 
 
 def setup_logging(verbose: bool = False):
@@ -75,7 +75,7 @@ def init_services():
 
 def cmd_analyze(args):
     """分析视频"""
-    from voxplore.core.video import VideoAnalyzer
+    from voxplore.video import VideoAnalyzer
 
     print(f"📹 正在分析视频: {args.video}")
 

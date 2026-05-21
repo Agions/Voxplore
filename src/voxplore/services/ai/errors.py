@@ -9,10 +9,10 @@ LLM Provider 异常兼容模块 ⚠️ 已废弃
 
 迁移指南:
     # 旧 (废弃) → from voxplore.services.ai.errors import ProviderError
-    # 新 (推荐) → from voxplore.core.exceptions import ProviderError
+    # 新 (推荐) → from voxplore.exceptions import ProviderError
 """
 
-from voxplore.core.exceptions import (
+from voxplore.exceptions import (
     ProviderError,
     RateLimitError,
     CircuitOpenError,

@@ -68,7 +68,7 @@ def main():
     # 启动 GUI
     try:
         from voxplore.ui.main.main_window import MainWindow
-        from voxplore.core.application import Application
+        from voxplore.application import Application
         from PySide6.QtWidgets import QApplication
 
         qt_app = QApplication(sys.argv)

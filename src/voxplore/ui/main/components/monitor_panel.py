@@ -17,9 +17,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QTimer, Signal, Qt
 from PySide6.QtGui import QColor
 
-from ....core.logger import Logger
-from ....core.icon_manager import get_icon
-from ....core.application import Application
+from voxplore.logger import Logger
+from voxplore.ui.icon_manager import get_icon
+from voxplore.application import Application
 from ....services import ServiceStatus
 
 from .monitor_models import MonitorMode, AlertData

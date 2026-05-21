@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont, QAction, QCursor
-from voxplore.core.project_manager import ProjectManager
+from voxplore.project_manager import ProjectManager
 
 
 class ProjectCard(QFrame):

@@ -13,7 +13,7 @@ from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QColor
 
 from ....export.export_system import ExportTask
-from ....core.logger import Logger
+from voxplore.logger import Logger
 
 
 class ExportQueueWidget(QWidget):

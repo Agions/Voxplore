@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from voxplore.api.routers import projects, pipeline, export, health, plugins
-from voxplore.core.exceptions import VoxploreError
+from voxplore.exceptions import VoxploreError
 
 
 def create_app() -> FastAPI:
