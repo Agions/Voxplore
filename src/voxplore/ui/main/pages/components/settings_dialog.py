@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QWidget, QTabWidget, QComboBox, QCheckBox, QScrollArea, QGroupBox, QDialog
 )
 
-from voxplore.ui.components import (
+from ....components import (
     MacPrimaryButton, MacSecondaryButton, MacIconButton,
     MacTitleLabel,
 )

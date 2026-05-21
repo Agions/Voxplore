@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve, QTimer, QRect
 from PySide6.QtGui import QFont, QKeySequence, QAction
 
-from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
+from ..theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -522,8 +522,8 @@ class VoxploreMainWindow(QMainWindow):
         self.setStatusBar(self.statusbar)
 
     def _lazy_load_pages(self):
-        from voxplore.ui.main.pages.home_page import HomePage
-        from voxplore.ui.main.pages.settings_page import SettingsPage
+        from ..main.pages.home_page import HomePage
+        from ..main.pages.settings_page import SettingsPage
 
         self.content.add_page("home",     HomePage())
         self.content.add_page("create",   PlaceholderPage("创作台", "＋"))

@@ -18,7 +18,7 @@ from PySide6.QtCore import QTimer, Signal, Qt
 from PySide6.QtGui import QColor
 
 from voxplore.logger import Logger
-from voxplore.ui.icon_manager import get_icon
+from ...icon_manager import get_icon
 from voxplore.application import Application
 from ....services import ServiceStatus
 

@@ -14,12 +14,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 
-from voxplore.ui.components import (
+from ....components import (
     MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
     MacDangerButton, MacTitleLabel, MacLabel, MacBadge,
     MacScrollArea, MacEmptyState,
 )
-from voxplore.ui.common.macos_components import create_icon_text_row
+from ....common.macos_components import create_icon_text_row
 from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
 

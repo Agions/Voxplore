@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QPainter, QLinearGradient, QColor
 
-from voxplore.ui.components.design_system import Colors
+from ..components.design_system import Colors
 
 # OKLCH色彩系统 - 使用design_system的Colors类
 # QColor不支持oklch()，paintEvent中直接使用hex fallback

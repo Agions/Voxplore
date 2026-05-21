@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QLabel, QScrollArea, QFrame, QProgressBar
 )
 from PySide6.QtCore import Signal
-from voxplore.ui.windows.base_step_window import BaseStepWindow
+from .base_step_window import BaseStepWindow
 
 
 class SceneWindow(BaseStepWindow):

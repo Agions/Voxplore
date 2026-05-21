@@ -18,11 +18,11 @@ from PySide6.QtCore import Qt, QTimer, Signal
 
 from voxplore.config_manager import ConfigManager
 from voxplore.logger import Logger
-from voxplore.ui.icon_manager import get_icon
+from ...icon_manager import get_icon
 from ..dialogs.model_app_dialog import ModelApplicationDialog
 
 # 导入标准化 macOS 组件
-from voxplore.ui.common.macos_components import (
+from ...common.macos_components import (
     MacCard, MacSecondaryButton,
     MacIconButton, MacTitleLabel, MacLabel, MacBadge,
     MacEmptyState,

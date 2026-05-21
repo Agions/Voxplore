@@ -20,7 +20,7 @@ from PySide6.QtCore import (
     Qt
 )
 
-from voxplore.ui.icon_manager import get_icon
+from ...icon_manager import get_icon
 
 
 class ApplicationStep(Enum):

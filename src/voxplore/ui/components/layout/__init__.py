@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 
-from voxplore.ui.components.design_system import Colors
+from ..components.design_system import Colors
 
 
 class MacScrollArea(QScrollArea):

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QGraphicsOpacityEffect
 
-from voxplore.ui.theme.animation_helper import AnimationHelper
+from .theme.animation_helper import AnimationHelper
 
 
 # ─── OKLCH 色彩系统 ────────────────────────────────────────

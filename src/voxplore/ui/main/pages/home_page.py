@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QFont, QPainter, QLinearGradient, QColor
 
-from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
+from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
 
 
 # ═══════════════════════════════════════════════════════════════════════

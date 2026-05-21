@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBu
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QColor, QPainter
 
-from voxplore.ui.components.design_system import Colors
+from .components.design_system import Colors
 
 
 # 预定义主题配色方案

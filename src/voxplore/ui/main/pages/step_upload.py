@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
 
-from voxplore.ui.main.pages.step_base import StepPage, ContentCard
-from voxplore.ui.theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
+from ...main.pages.step_base import StepPage, ContentCard
+from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
 
 
 class VideoDropZone(QFrame):

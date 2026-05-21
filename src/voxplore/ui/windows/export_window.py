@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QRadioButton, QButtonGroup
 )
 from PySide6.QtCore import Qt, Signal
-from voxplore.ui.windows.base_step_window import BaseStepWindow
+from .base_step_window import BaseStepWindow
 
 
 class ExportWindow(BaseStepWindow):

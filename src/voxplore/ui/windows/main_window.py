@@ -6,12 +6,12 @@ from PySide6.QtWidgets import (
     QMessageBox
 )
 
-from voxplore.ui.components.step_indicator import StepIndicator
-from voxplore.ui.windows.upload_window import UploadWindow
-from voxplore.ui.windows.scene_window import SceneWindow
-from voxplore.ui.windows.narration_window import NarrationWindow
-from voxplore.ui.windows.export_window import ExportWindow
-from voxplore.ui.windows.projects_window import ProjectsWindow
+from ...components.step_indicator import StepIndicator
+from .upload_window import UploadWindow
+from .scene_window import SceneWindow
+from .narration_window import NarrationWindow
+from .export_window import ExportWindow
+from .projects_window import ProjectsWindow
 from voxplore.orchestration.pipeline_controller import PipelineController
 
 

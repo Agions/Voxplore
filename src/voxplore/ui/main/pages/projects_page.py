@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QSplitter, QWidget
 from PySide6.QtCore import Qt
 
 from .base_page import BasePage
-from voxplore.ui.components import MacPageToolbar, MacPrimaryButton, MacSecondaryButton, MacIconButton
+from ...components import MacPageToolbar, MacPrimaryButton, MacSecondaryButton, MacIconButton
 
 
 class ProjectsPage(BasePage):

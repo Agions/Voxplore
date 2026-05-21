@@ -14,9 +14,9 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont
 
-from voxplore.ui.components.design_system import Colors
-from voxplore.ui.main.components.export_stats import ExportStatisticsWidget
-from voxplore.ui.main.components.monitor_widgets import PerformanceChart
+from ...components.design_system import Colors
+from ...main.components.export_stats import ExportStatisticsWidget
+from ...main.components.monitor_widgets import PerformanceChart
 from ...export.export_system import ExportTask, ExportStatus
 from voxplore.logger import Logger
 

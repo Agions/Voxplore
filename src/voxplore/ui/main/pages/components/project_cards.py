@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 
-from voxplore.ui.components import MacCard, MacIconButton, MacLabel, MacBadge
+from ....components import MacCard, MacIconButton, MacLabel, MacBadge
 
 
 class ProjectCard(MacCard):

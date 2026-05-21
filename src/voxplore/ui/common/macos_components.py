@@ -4,7 +4,7 @@ macOS 设计系统 - 通用组件库
 """
 
 # 从新模块导入所有组件，保持向后兼容
-from voxplore.ui.components.labels import MacLabel, MacBadge
+from .components.labels import MacLabel, MacBadge
 
 # 保留自定义辅助函数
 from typing import Optional

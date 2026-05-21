@@ -3,7 +3,7 @@
 
 from PySide6.QtWidgets import QWizard
 
-from voxplore.ui.icon_manager import get_icon
+from ...icon_manager import get_icon
 from .model_app_pages import (
     ProviderInfo,
     ProviderSelectionPage,

@@ -3,7 +3,7 @@ Narration Components Package
 解说编辑器相关组件
 """
 
-from voxplore.ui.components.narration.narration_editor import (
+from ..components.narration.narration_editor import (
     NarrationEditor,
     NarrationSegmentItem,
 )

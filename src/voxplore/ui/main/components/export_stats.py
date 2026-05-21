@@ -12,7 +12,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 import logging
 
-from voxplore.ui.components.design_system import Colors
+from ...components.design_system import Colors
 from voxplore.services.export.batch_export_manager import ExportStatus
 
 logger = logging.getLogger(__name__)

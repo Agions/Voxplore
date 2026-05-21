@@ -6,4 +6,4 @@
 """
 
 # 如需使用组件，请直接从 pro_components 导入:
-# from voxplore.ui.components.pro_components import GradientButton, GlassCard, etc.
+# from .components.pro_components import GradientButton, GlassCard, etc.

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from PySide6.QtCore import QObject, Signal, QTimer
 
 # OKLCH Design Token source — all ThemeColors must reference these.
-from voxplore.ui.theme.tokens import COLORS, LIGHT_TOKENS, DARK_TOKENS
+from .theme.tokens import COLORS, LIGHT_TOKENS, DARK_TOKENS
 
 
 def _oklch(key: str, mode: str = "dark") -> str:

@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QRect
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QFont, QMouseEvent, QPaintEvent
 
-from voxplore.ui.components.design_system import Colors
+from ...components.design_system import Colors
 
 
 class TimelineClip:

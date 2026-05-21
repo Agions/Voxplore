@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor
 
-from voxplore.ui.components.design_system import Colors
+from .components.design_system import Colors
 
 
 class GradientButton(QPushButton):

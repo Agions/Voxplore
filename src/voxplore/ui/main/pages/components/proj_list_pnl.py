@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QComboBox, QSpacerItem, QSizePolicy,
 )
 
-from voxplore.ui.components import (
+from ....components import (
     MacElevatedCard, MacSearchBox, MacScrollArea,
 )
 from voxplore.project_manager import ProjectType, ProjectStatus

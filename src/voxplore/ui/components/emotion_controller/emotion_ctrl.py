@@ -12,7 +12,7 @@ Emotion Controller Component
 - 信号发射: emotion_changed, curve_confirmed
 
 使用示例:
-    from voxplore.ui.components.emotion_controller import EmotionController
+    from ..components.emotion_controller import EmotionController
 
     controller = EmotionController()
     controller.emotion_changed.connect(on_emotion_changed)
