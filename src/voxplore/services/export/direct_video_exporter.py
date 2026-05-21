@@ -337,7 +337,9 @@ class DirectVideoExporter:
         list_file = temp_path / "concat_list.txt"
         with open(list_file, 'w') as f:
             for segment in segment_files:
-                f.write(f"file '{segment}'\n")
+                # 转义路径中的单引号，防止 FFmpeg concat 注入
+                escaped = str(segment).replace("'", "'\\''")
+                f.write(f"file '{escaped}'\n")
         return list_file
 
     def _concat_videos(

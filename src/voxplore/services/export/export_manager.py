@@ -60,6 +60,7 @@ class ExportManager:
             ExportFormat.MOV: DirectVideoExporter(),
             ExportFormat.GIF: DirectVideoExporter(),
         }
+        self._last_error: Optional[str] = None
 
     def export(
         self,
@@ -90,9 +91,12 @@ class ExportManager:
         # 执行导出
         try:
             return exporter.export(project_data, config)
+        except ExportError:
+            raise  # 已是对应异常，直接重新抛出
         except Exception as e:
             logger.error(f"导出失败: {e}")
-            return False
+            self._last_error = str(e)
+            raise ExportError(f"导出失败: {e}")
 
     def _generate_output_path(self, config: ExportConfig) -> str:
         """生成输出路径"""

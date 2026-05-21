@@ -77,7 +77,12 @@ class RedisTaskStore(TaskStore):
 
     def __init__(self, url: str = "redis://localhost:6379/0", prefix: str = "voxplore:task:"):
         import redis
-        self._client = redis.from_url(url, decode_responses=True)
+        self._client = redis.from_url(
+            url,
+            decode_responses=True,
+            socket_connect_timeout=5,
+            socket_timeout=5,
+        )
         self._prefix = prefix
         self._ttl = 7 * 24 * 3600  # 7天过期
 

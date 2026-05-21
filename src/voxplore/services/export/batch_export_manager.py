@@ -271,27 +271,23 @@ class BatchExportManager:
 
             # 执行实际导出
             manager = ExportManager()
-            success = manager.export(project_data, config)
+            manager.export(project_data, config)  # 异常会直接传播，不再被吞
 
             if task.id in self._cancelled:
                 raise ExportError("任务已取消")
 
-            if success:
-                task.progress = 100.0
-                task.completed_at = time.time()
-                logger.info(f"导出完成: {task.name}")
-                return True, None
-            else:
-                raise ExportError(
-                    "导出失败",
-                    details={"reason": "ExportManager returned False"}
-                )
+            task.progress = 100.0
+            task.completed_at = time.time()
+            logger.info(f"导出完成: {task.name}")
+            return True, None
 
+        except ExportError:
+            raise  # 保留原始 ExportError
         except Exception as e:
             task.error = str(e)
             task.completed_at = time.time()
             logger.error(f"导出失败: {task.name}, {e}")
-            return False, str(e)
+            raise ExportError(f"导出失败: {e}")
 
     def cancel_task(self, task_id: str) -> bool:
         """取消单个任务"""
