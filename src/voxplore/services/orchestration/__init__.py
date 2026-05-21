@@ -4,7 +4,7 @@
 子模块：
 - enums.py        工作流枚举（WorkflowStep/CreationMode/WorkflowStatus/ExportFormat）
 - pipe_models.py  工作流数据模型（VideoSource/ScriptData/TimelineData 等）
-- pipeline_proj_mgr.py  项目管理
+- pipeline_project_manager.py  项目管理
 """
 
 from .enums import (
@@ -24,7 +24,7 @@ from .pipe_models import (
     WorkflowCallbacks,
 )
 
-from .pipeline_proj_mgr import (
+from .pipeline_project_manager import (
     ProjectManager,
     ProjectType,
     ProjectVersion,

@@ -39,7 +39,7 @@ from ..ai.voice_generator import VoiceGenerator, VoiceConfig
 from ..ai.voice_models import VoiceStyle
 from ..video_tools.caption_gen import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from ..export.jianying_models import JianyingDraft
+from ..export.jianying_adapter import JianyingDraft
 from .track_builder import build_monologue_tracks, CAPTION_STYLES
 
 logger = logging.getLogger(__name__)

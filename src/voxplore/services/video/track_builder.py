@@ -9,7 +9,7 @@
 
 from pathlib import Path
 
-from voxplore.services.export.jianying_models import (
+from voxplore.services.export.jianying_adapter import (
     JianyingDraft,
     Track,
     TrackType,

@@ -13,7 +13,7 @@ from .export_utils import (
     get_video_duration, get_video_resolution, copy_material_to_folder,
 )
 from .jianying_exporter import JianyingExporter
-from .jianying_models import (
+from .jianying_adapter import (
     JianyingDraft, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,

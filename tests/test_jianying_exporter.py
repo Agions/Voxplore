@@ -11,7 +11,7 @@ from voxplore.services.export.jianying_exporter import (
     JianyingDraft,
     JianyingExporter,
 )
-from voxplore.services.export.jianying_models import (
+from voxplore.services.export.jianying_adapter import (
     JianyingMaterials,
     VideoMaterial,
     AudioMaterial,

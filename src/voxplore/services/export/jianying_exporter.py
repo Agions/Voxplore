@@ -20,7 +20,7 @@
     draft_path = exporter.export(project, output_dir)
     logger.info(f"草稿已导出: {draft_path}")
 
-数据模型已拆分到 jianying_models.py，导出器保持单一职责。
+数据模型已拆分到 jianying_adapter.py，导出器保持单一职责。
 """
 
 import logging
@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from .jianying_models import (
+from .jianying_adapter import (
     TrackType,
     MaterialType,  # noqa: F401  # intentionally re-exported for tests
     TimeRange,

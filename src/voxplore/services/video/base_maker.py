@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..export.jianying_exporter import JianyingExporter
-from ..export.jianying_models import (
+from ..export.jianying_adapter import (
     JianyingDraft, JianyingConfig,
     Track, TrackType, Segment, TimeRange,
     VideoMaterial, AudioMaterial, TextMaterial,
