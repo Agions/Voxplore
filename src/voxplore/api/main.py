@@ -52,15 +52,14 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception):
-        # 暴露详细错误（开发环境）
-        import traceback
+        import os, traceback
         return JSONResponse(
             status_code=500,
             content={
                 "error": "InternalServerError",
                 "message": str(exc),
                 "type": exc.__class__.__name__,
-                "traceback": traceback.format_exc(),
+                "traceback": traceback.format_exc() if os.getenv("DEBUG") == "1" else None,
             },
         )
 

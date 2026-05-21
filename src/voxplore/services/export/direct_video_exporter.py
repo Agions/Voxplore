@@ -366,26 +366,45 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> str:
         """添加字幕到视频"""
-        # 收集所有字幕
-        all_captions = []
-        for segment in project.segments:
-            all_captions.extend(segment.captions)
+        from voxplore.exporters import SubtitleExporter
 
-        # 生成 ASS 文件（注释：可扩展为从 all_captions 生成真实 ASS）
-        # 简化实现：使用 filter_complex 添加字幕
-        with tempfile.TemporaryDirectory():
+        # 收集所有字幕
+        all_subtitles = []
+        for segment in project.segments:
+            if hasattr(segment, 'captions'):
+                for cap in segment.captions:
+                    if hasattr(cap, 'text') and hasattr(cap, 'start_time') and hasattr(cap, 'end_time'):
+                        from voxplore.models import SubtitleItem
+                        all_subtitles.append(SubtitleItem(
+                            text=cap.text,
+                            start_time=cap.start_time,
+                            end_time=cap.end_time,
+                        ))
+
+        if not all_subtitles:
+            # 无字幕，直接复制视频
+            shutil.copy2(video_path, output_path)
+            return output_path
+
+        # 生成 SRT 字幕文件
+        tmpdir = Path(tempfile.mkdtemp(prefix="voxplore_subtitles_"))
+        try:
+            subtitle_file = str(tmpdir / "subtitles.srt")
+            SubtitleExporter.export_srt(all_subtitles, subtitle_file)
+
             cmd = [
                 'ffmpeg', '-y',
                 '-i', video_path,
-                '-vf', 'subtitles=temp/subtitles.ass:force_style=FontSize=24,PrimaryColour=&H00FFFFFF',
+                '-vf', f'subtitles={subtitle_file}:force_style=FontSize=24',
                 '-c:v', self._get_video_codec(config),
                 '-preset', config.preset,
                 '-crf', str(config.crf),
                 '-c:a', 'copy',
                 output_path,
             ]
-
             self._executor.run(cmd, timeout=600)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
         return output_path
 

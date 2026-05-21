@@ -362,7 +362,7 @@ class BaseLLMProvider(ABC):
         self.base_url = base_url
 
         # 初始化安全组件
-        self._rate_limiter = RateLimiter()
+        self._rate_limiter = RateLimiter(rate=10.0, capacity=20)
         self._circuit_breaker = CircuitBreaker()
 
         # 初始化请求缓存（减少重复 API 调用，TTL=24h）
