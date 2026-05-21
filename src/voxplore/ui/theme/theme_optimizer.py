@@ -231,12 +231,13 @@ class ThemePresets:
     @classmethod
     def get_theme_names(cls, theme_type: str = None):
         """获取主题名称列表"""
-        if theme_type == "dark":
-            return list(cls.DARK_THEMES.keys())
-        elif theme_type == "light":
-            return list(cls.LIGHT_THEMES.keys())
-        else:
-            return list(cls.DARK_THEMES.keys()) + list(cls.LIGHT_THEMES.keys())
+        _THEME_MAP = {
+            "dark": cls.DARK_THEMES,
+            "light": cls.LIGHT_THEMES,
+        }
+        if theme_type in _THEME_MAP:
+            return list(_THEME_MAP[theme_type].keys())
+        return list(cls.DARK_THEMES.keys()) + list(cls.LIGHT_THEMES.keys())
 
 
 class ThemePresetSelector(QWidget):

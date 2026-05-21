@@ -452,23 +452,19 @@ class SubtitleImporter:
 
         suffix = path.suffix.lower()
 
-        if suffix == '.srt':
-            track = cls.from_srt(content, track_name=path.stem)
-            return track
-        elif suffix == '.vtt':
-            track = cls.from_vtt(content, track_name=path.stem)
-            return track
-        elif suffix == '.ass':
-            track = cls.from_ass(content, track_name=path.stem)
-            return track
-        elif suffix == '.json':
+        _LOADER_MAP = {
+            '.srt': lambda: cls.from_srt(content, track_name=path.stem),
+            '.vtt': lambda: cls.from_vtt(content, track_name=path.stem),
+            '.ass': lambda: cls.from_ass(content, track_name=path.stem),
+            '.json': lambda: cls.from_json(content),
+        }
+        if suffix in _LOADER_MAP:
+            return _LOADER_MAP[suffix]()
+        # 尝试作为JSON处理
+        try:
             return cls.from_json(content)
-        else:
-            # 尝试作为JSON处理
-            try:
-                return cls.from_json(content)
-            except json.JSONDecodeError:
-                raise ValueError(f"不支持的文件格式: {suffix}")
+        except json.JSONDecodeError:
+            raise ValueError(f"不支持的文件格式: {suffix}")
 
     @classmethod
     def import_to_editor(

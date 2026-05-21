@@ -199,14 +199,15 @@ class AnimationHelper:
         original_geometry = widget.geometry()
 
         # 设置起始位置
-        if direction == "left":
-            widget.move(original_geometry.x() - original_geometry.width(), original_geometry.y())
-        elif direction == "right":
-            widget.move(original_geometry.x() + original_geometry.width(), original_geometry.y())
-        elif direction == "top":
-            widget.move(original_geometry.x(), original_geometry.y() - original_geometry.height())
-        elif direction == "bottom":
-            widget.move(original_geometry.x(), original_geometry.y() + original_geometry.height())
+        _DIR_OFFSET = {
+            "left": lambda g: (g.x() - g.width(), g.y()),
+            "right": lambda g: (g.x() + g.width(), g.y()),
+            "top": lambda g: (g.x(), g.y() - g.height()),
+            "bottom": lambda g: (g.x(), g.y() + g.height()),
+        }
+        if direction in _DIR_OFFSET:
+            nx, ny = _DIR_OFFSET[direction](original_geometry)
+            widget.move(nx, ny)
 
         widget.show()
 
@@ -320,12 +321,14 @@ class PageTransition:
         current_widget = self.stacked_widget.currentWidget()
         target_widget = self.stacked_widget.widget(index)
 
-        if animation_type == "fade":
-            self._fade_transition(current_widget, target_widget)
-        elif animation_type == "slide":
-            self._slide_transition(current_widget, target_widget)
-        elif animation_type == "scale":
-            self._scale_transition(current_widget, target_widget)
+        _TRANSITION_MAP = {
+            "fade": self._fade_transition,
+            "slide": self._slide_transition,
+            "scale": self._scale_transition,
+        }
+        transition = _TRANSITION_MAP.get(animation_type)
+        if transition:
+            transition(current_widget, target_widget)
         else:
             self.stacked_widget.setCurrentIndex(index)
 

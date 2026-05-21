@@ -166,15 +166,14 @@ class PipelineController(QObject):
         self._is_running = True
 
         try:
-            if stage == PipelineStage.SCRIPT:
-                self._set_stage(PipelineStage.SCRIPT)
-                self._maker.generate_script(self._project)
-            elif stage == PipelineStage.VOICE:
-                self._set_stage(PipelineStage.VOICE)
-                self._maker.generate_voice(self._project)
-            elif stage == PipelineStage.CAPTION:
-                self._set_stage(PipelineStage.CAPTION)
-                self._maker.generate_captions(self._project)
+            _STAGE_MAP = {
+                PipelineStage.SCRIPT: (PipelineStage.SCRIPT, self._maker.generate_script),
+                PipelineStage.VOICE: (PipelineStage.VOICE, self._maker.generate_voice),
+                PipelineStage.CAPTION: (PipelineStage.CAPTION, self._maker.generate_captions),
+            }
+            if stage in _STAGE_MAP:
+                self._set_stage(_STAGE_MAP[stage][0])
+                _STAGE_MAP[stage][1](self._project)
 
             self._is_running = False
         except Exception as e:
