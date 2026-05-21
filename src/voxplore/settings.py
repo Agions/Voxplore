@@ -76,24 +76,24 @@ class ConfigManager:
     配置管理器
     负责加载、验证和管理所有配置
     """
-    
+
     _instance: Optional['ConfigManager'] = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
-    
+
     def __init__(self):
         if self._initialized:
             return
-        
+
         self._initialized = True
         self._config: AppConfig | None = None
         self._config_file = Path(__file__).parent.parent / "config" / "app_config.yaml"
         self._load_config()
-    
+
     def _load_config(self):
         """加载配置文件"""
         config_data = {
@@ -151,7 +151,7 @@ class ConfigManager:
             },
             "default_llm": "deepseek",
         }
-        
+
         # 从 YAML 文件加载（如果存在）
         if self._config_file.exists():
             try:
@@ -160,9 +160,9 @@ class ConfigManager:
                     self._merge_config(config_data, yaml_config)
             except Exception as e:
                 print(f"Warning: Failed to load config file: {e}")
-        
+
         self._config = self._parse_config(config_data)
-    
+
     def _merge_config(self, base: dict, update: dict):
         """深度合并配置"""
         for key, value in update.items():
@@ -170,17 +170,17 @@ class ConfigManager:
                 self._merge_config(base[key], value)
             else:
                 base[key] = value
-    
+
     def _parse_config(self, data: dict) -> AppConfig:
         """解析配置为 dataclass"""
         cache = CacheConfig(**data.get("cache", {}))
         video = VideoConfig(**data.get("video", {}))
         tts = TTSConfig(**data.get("tts", {}))
-        
+
         llm_providers = {}
         for name, llm_data in data.get("llm_providers", {}).items():
             llm_providers[name] = LLMConfig(name=name, **llm_data)
-        
+
         return AppConfig(
             name=data.get("name", "Voxplore"),
             version=data.get("version", "2.0.0"),
@@ -191,34 +191,34 @@ class ConfigManager:
             llm_providers=llm_providers,
             default_llm=data.get("default_llm", "deepseek"),
         )
-    
+
     @property
     def config(self) -> AppConfig:
         """获取应用配置"""
         return self._config
-    
+
     def get_llm_config(self, provider: str = None) -> LLMConfig | None:
         """获取指定 LLM 配置"""
         if provider is None:
             provider = self._config.default_llm
         return self._config.llm_providers.get(provider)
-    
+
     def get_enabled_llm(self) -> list[LLMConfig]:
         """获取所有启用的 LLM"""
         return [
             cfg for cfg in self._config.llm_providers.values()
             if cfg.enabled
         ]
-    
+
     def reload(self):
         """重新加载配置"""
         self._load_config()
-    
+
     def save(self, config_file: str = None):
         """保存配置到文件"""
         file_path = Path(config_file) if config_file else self._config_file
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         config_data = {
             "name": self._config.name,
             "version": self._config.version,
@@ -257,7 +257,7 @@ class ConfigManager:
             },
             "default_llm": self._config.default_llm,
         }
-        
+
         with open(file_path, 'w', encoding='utf-8') as f:
             yaml.dump(config_data, f, allow_unicode=True, default_flow_style=False)
 

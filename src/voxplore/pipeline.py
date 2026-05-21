@@ -40,11 +40,11 @@ class EmotionPeakDetector:
     情感峰值检测器 V2
     支持并行分析
     """
-    
+
     def __init__(self, config: PipelineConfig = None):
         self.config = config or PipelineConfig()
         self._cache = {}
-    
+
     def detect(
         self,
         segments: list[VideoSegment],
@@ -52,7 +52,7 @@ class EmotionPeakDetector:
     ) -> list[EmotionPeak]:
         peaks = []
         total = len(segments)
-        
+
         if self.config.enable_parallel and total > 1:
             # 并行处理
             with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
@@ -60,12 +60,12 @@ class EmotionPeakDetector:
                     executor.submit(self._analyze_segment, seg): i
                     for i, seg in enumerate(segments)
                 }
-                
+
                 for i, future in enumerate(as_completed(futures)):
                     result = future.result()
                     if result:
                         peaks.append(result)
-                    
+
                     if progress_callback:
                         progress_callback(i + 1, total)
         else:
@@ -74,31 +74,31 @@ class EmotionPeakDetector:
                 result = self._analyze_segment(seg)
                 if result:
                     peaks.append(result)
-                
+
                 if progress_callback:
                     progress_callback(i + 1, total)
-        
+
         # 按评分降序排列
         peaks.sort(key=lambda p: p.peak_score, reverse=True)
-        
+
         return peaks
-    
+
     def _analyze_segment(self, segment: VideoSegment) -> EmotionPeak | None:
         """分析单个片段"""
         cache_key = f"{segment.video_path}:{segment.start_time}:{segment.end_time}"
         if cache_key in self._cache:
             return self._cache[cache_key]
-        
+
         visual_score = self._analyze_visual_complexity(segment)
         audio_score = self._analyze_audio_emotion(segment)
-        
+
         peak_score = (
             self.config.visual_weight * visual_score +
             self.config.audio_weight * audio_score
         )
-        
+
         reason = self._determine_reason(visual_score, audio_score)
-        
+
         peak = EmotionPeak(
             segment=segment,
             peak_score=peak_score,
@@ -106,37 +106,37 @@ class EmotionPeakDetector:
             visual_score=visual_score,
             audio_score=audio_score
         )
-        
+
         self._cache[cache_key] = peak
         return peak
-    
+
     def _analyze_visual_complexity(self, segment: VideoSegment) -> float:
         """分析视觉复杂度"""
         try:
             import cv2
             import numpy as np
-            
+
             cap = cv2.VideoCapture(segment.video_path)
             if not cap.isOpened():
                 return 0.5
-            
+
             fps = cap.get(cv2.CAP_PROP_FPS)
             start_frame = int(segment.start_time * fps)
             end_frame = int(segment.end_time * fps)
-            
+
             # 采样间隔
             sample_interval = max(1, int(fps * 0.5))
             diffs = []
             prev_gray = None
-            
+
             # 最多采样100帧
             max_samples = 100
             sampled = 0
-            
+
             for f in range(start_frame, min(end_frame, start_frame + max_samples * sample_interval), sample_interval):
                 if sampled >= max_samples:
                     break
-                    
+
                 cap.set(cv2.CAP_PROP_POS_FRAMES, f)
                 ret, frame = cap.read()
                 if ret:
@@ -146,40 +146,40 @@ class EmotionPeakDetector:
                         diffs.append(diff)
                     prev_gray = gray
                     sampled += 1
-            
+
             cap.release()
-            
+
             if diffs:
                 avg_diff = np.mean(diffs)
                 return min(1.0, avg_diff / 30.0)
-            
+
         except ImportError:
             pass
         except Exception as e:
             logger.warning(f"Visual analysis failed: {e}")
-        
+
         return 0.3 + (hash(f"{segment.video_path}{segment.start_time}") % 50) / 100.0
-    
+
     def _analyze_audio_emotion(self, segment: VideoSegment) -> float:
         """分析音频情绪"""
         try:
             import librosa
             import numpy as np
-            
+
             y, sr = librosa.load(
                 segment.video_path,
                 offset=segment.start_time,
                 duration=segment.duration,
                 sr=16000
             )
-            
+
             if len(y) < sr:
                 return 0.5
-            
+
             # 能量计算
             energy = np.sum(y ** 2) / len(y)
             energy_norm = min(1.0, float(energy ** 0.5) * 5)
-            
+
             # 音调计算
             try:
                 pitches, _ = librosa.piptrack(y=y, sr=sr)
@@ -190,16 +190,16 @@ class EmotionPeakDetector:
                     pitch_norm = 0.5
             except Exception:
                 pitch_norm = 0.5
-            
+
             return energy_norm * 0.6 + pitch_norm * 0.4
-            
+
         except ImportError:
             pass
         except Exception as e:
             logger.warning(f"Audio analysis failed: {e}")
-        
+
         return 0.5
-    
+
     def _determine_reason(self, visual: float, audio: float) -> str:
         """判断峰值原因"""
         if visual > audio * 1.5:
@@ -225,12 +225,12 @@ class FirstPersonExtractor:
     第一人称视角提取器 V2
     支持批量帧分析和平行处理
     """
-    
+
     def __init__(self, config: PipelineConfig = None):
         self.config = config or PipelineConfig()
         self.emotion_detector = EmotionPeakDetector(config)
         self._frame_cache = {}
-    
+
     def extract(
         self,
         video_path: str,
@@ -240,41 +240,41 @@ class FirstPersonExtractor:
     ) -> list[VideoSegment]:
         video_info = VideoAnalyzer.get_video_info(video_path)
         duration = video_info["duration"]
-        
+
         # 生成采样时间点（自适应间隔）
         timestamps = self._generate_timestamps(duration)
-        
+
         logger.info(f"Analyzing {len(timestamps)} frames in {video_path}")
-        
+
         # 批量分析帧
         first_person_frames = self._analyze_frames_parallel(
             video_path, timestamps, progress_callback
         )
-        
+
         # 聚类连续片段
         segments = self._cluster_frames(first_person_frames)
-        
+
         # 过滤和验证
         segments = self._filter_segments(segments)
-        
+
         # 设置分组 ID 和视频路径
         for seg in segments:
             seg.group_id = group_id
             seg.video_path = video_path
-        
+
         return segments
-    
+
     def _generate_timestamps(self, duration: float) -> list[float]:
         """生成采样时间点"""
         timestamps = []
         current = 0.0
-        
+
         while current < duration:
             timestamps.append(current)
             current += self.config.frame_sample_interval
-        
+
         return timestamps
-    
+
     def _analyze_frames_parallel(
         self,
         video_path: str,
@@ -285,37 +285,37 @@ class FirstPersonExtractor:
         # 批量提取帧
         batch_size = self.config.batch_size
         frames_data = []
-        
+
         logger.info(f"Extracting frames from {video_path}")
-        
+
         for i in range(0, len(timestamps), batch_size):
             batch_ts = timestamps[i:i + batch_size]
             frames = VideoAnalyzer.extract_frames_batch(video_path, batch_ts)
-            
+
             for ts, frame in frames:
                 if frame is not None:
                     frames_data.append((ts, frame))
-            
+
             if progress_callback and (i + batch_size) % 50 == 0:
                 progress_callback(i + batch_size, len(timestamps))
-        
+
         logger.info(f"Extracted {len(frames_data)} frames")
-        
+
         # 并行分析
         first_person_frames = []
-        
+
         if self.config.enable_parallel and len(frames_data) > 1:
             with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
                 futures = {
                     executor.submit(self._analyze_single_frame, video_path, ts, frame): ts
                     for ts, frame in frames_data
                 }
-                
+
                 for i, future in enumerate(as_completed(futures)):
                     result = future.result()
                     if result and result.get("is_first_person"):
                         first_person_frames.append(result)
-                    
+
                     if progress_callback and (i + 1) % 20 == 0:
                         progress_callback(i + 1, len(frames_data))
         else:
@@ -323,12 +323,12 @@ class FirstPersonExtractor:
                 result = self._analyze_single_frame(video_path, ts, frame)
                 if result and result.get("is_first_person"):
                     first_person_frames.append(result)
-                
+
                 if progress_callback and (i + 1) % 20 == 0:
                     progress_callback(i + 1, len(frames_data))
-        
+
         return first_person_frames
-    
+
     def _analyze_single_frame(
         self,
         video_path: str,
@@ -339,44 +339,44 @@ class FirstPersonExtractor:
         try:
             import cv2
             import numpy as np
-            
+
             # 编码为 JPEG
             encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
             cv2.imencode('.jpg', frame, encode_param)
-            
+
             # 简化分析：基于图像复杂度
-            
+
             # 简单的"第一人称"判断
             # 实际项目中应该用 Qwen2.5-VL 等模型
             laplacian_var = cv2.Laplacian(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
             is_poi = laplacian_var > 100 and np.random.random() < 0.3
-            
+
             confidence = 0.75 if is_poi else 0.35
-            
+
             return {
                 "timestamp": timestamp,
                 "confidence": confidence,
                 "description": "第一人称镜头" if is_poi else "其他视角",
                 "is_first_person": is_poi
             }
-            
+
         except Exception as e:
             logger.warning(f"Frame analysis failed at {timestamp}: {e}")
             return None
-    
+
     def _cluster_frames(self, frames: list[dict]) -> list[VideoSegment]:
         """聚类连续的第一人称帧"""
         if not frames:
             return []
-        
+
         frames.sort(key=lambda f: f["timestamp"])
-        
+
         segments = []
         current_start = frames[0]["timestamp"]
         current_conf = frames[0]["confidence"]
         current_desc = frames[0]["description"]
         last_time = frames[0]["timestamp"]
-        
+
         for frame in frames[1:]:
             if frame["timestamp"] - last_time < 2.0:  # 2秒内连续
                 current_conf = (current_conf + frame["confidence"]) / 2
@@ -393,7 +393,7 @@ class FirstPersonExtractor:
                 current_conf = frame["confidence"]
                 current_desc = frame["description"]
                 last_time = frame["timestamp"]
-        
+
         # 最后一个片段
         segments.append(VideoSegment(
             video_path="",
@@ -402,35 +402,35 @@ class FirstPersonExtractor:
             confidence=current_conf,
             description=current_desc
         ))
-        
+
         return segments
-    
+
     def _filter_segments(self, segments: list[VideoSegment]) -> list[VideoSegment]:
         """过滤片段"""
         filtered = []
-        
+
         for seg in segments:
             duration = seg.end_time - seg.start_time
-            
+
             if duration < 3.0:
                 continue
-            
+
             if duration > self.config.max_segment_duration:
                 sub_segments = self._split_long_segment(seg)
                 filtered.extend(sub_segments)
             else:
                 filtered.append(seg)
-        
+
         filtered.sort(key=lambda s: s.confidence, reverse=True)
-        
+
         return filtered
-    
+
     def _split_long_segment(self, segment: VideoSegment) -> list[VideoSegment]:
         """拆分过长片段"""
         duration = segment.end_time - segment.start_time
         num_splits = int(duration / self.config.max_segment_duration) + 1
         sub_duration = duration / num_splits
-        
+
         return [
             VideoSegment(
                 video_path=segment.video_path,
@@ -445,7 +445,7 @@ class FirstPersonExtractor:
 
 class ScriptGenerator:
     """解说文案生成器 V2"""
-    
+
     STYLE_PROMPTS = {
         NarrationStyle.HEALING: "温暖治愈的风格，像朋友在耳边轻声诉说",
         NarrationStyle.MYSTERIOUS: "神秘悬疑的风格，营造紧张氛围",
@@ -455,11 +455,11 @@ class ScriptGenerator:
         NarrationStyle.HUMOROUS: "幽默活泼的风格，让人轻松愉快",
         NarrationStyle.DOCUMENTARY: "沉稳纪录片的风格，客观叙述",
     }
-    
+
     def __init__(self, llm_service=None):
         from .ai_services import ai_service_manager
         self.llm = llm_service or ai_service_manager.get_llm()
-    
+
     def generate(
         self,
         segments: list[VideoSegment],
@@ -471,19 +471,19 @@ class ScriptGenerator:
         if not self.llm:
             logger.warning("No LLM service available, using default script")
             return self._generate_default(len(segments))
-        
+
         blocks = []
         total = len(segments)
-        
+
         for i, seg in enumerate(segments):
             prompt = self._build_prompt(seg, context, emotion, style)
-            
+
             try:
                 result = self.llm.generate(
                     prompt=prompt,
                     system="你是一个专业的影视解说文案撰写师，擅长第一人称视角的叙事风格。"
                 )
-                
+
                 if result:
                     text = result.strip()
                 else:
@@ -491,7 +491,7 @@ class ScriptGenerator:
             except Exception as e:
                 logger.warning(f"LLM generation failed: {e}")
                 text = self._get_default_text(i, style)
-            
+
             blocks.append(NarrationBlock(
                 text=text,
                 start_time=seg.start_time,
@@ -499,12 +499,12 @@ class ScriptGenerator:
                 emotion=emotion,
                 style=style
             ))
-            
+
             if progress_callback:
                 progress_callback(i + 1, total)
-        
+
         return blocks
-    
+
     def _build_prompt(
         self,
         segment: VideoSegment,
@@ -514,7 +514,7 @@ class ScriptGenerator:
     ) -> str:
         duration = segment.end_time - segment.start_time
         style_hint = self.STYLE_PROMPTS.get(style, "")
-        
+
         return f"""为以下视频片段撰写第一人称解说文案：
 
 场景描述：{segment.description}
@@ -530,7 +530,7 @@ class ScriptGenerator:
 4. 有画面感，像在现场一样叙述
 
 解说文案："""
-    
+
     def _generate_default(self, count: int) -> list[NarrationBlock]:
         texts = [
             "这是我记忆中最深刻的时刻。",
@@ -539,7 +539,7 @@ class ScriptGenerator:
             "有些事情，只有自己知道。",
             "那些藏在心底的话，从未对人说起。",
         ]
-        
+
         return [
             NarrationBlock(
                 text=texts[i % len(texts)],
@@ -550,7 +550,7 @@ class ScriptGenerator:
             )
             for i in range(count)
         ]
-    
+
     def _get_default_text(self, index: int, style: NarrationStyle) -> str:
         defaults = {
             NarrationStyle.HEALING: "那一刻，温暖涌上心头。",
@@ -566,11 +566,11 @@ class ScriptGenerator:
 
 class TTSGenerator:
     """TTS 配音生成器 V2"""
-    
+
     def __init__(self, tts_service=None):
         from .ai_services import ai_service_manager
         self.tts = tts_service or ai_service_manager.tts
-    
+
     def generate(
         self,
         narrations: list[NarrationBlock],
@@ -582,22 +582,22 @@ class TTSGenerator:
     ) -> AudioTrack | None:
         """
         生成配音
-        
+
         Args:
             use_async: 使用异步并行生成（默认开启）
             max_concurrent: 最大并发数
         """
         import os
-        
+
         os.makedirs(output_dir, exist_ok=True)
-        
+
         if use_async and hasattr(self.tts, 'generate_batch_async'):
             # 使用异步并行生成
             return self._generate_async(narrations, output_dir, voice, progress_callback, max_concurrent)
         else:
             # 回退到串行生成
             return self._generate_sync(narrations, output_dir, voice, progress_callback)
-    
+
     def _generate_async(
         self,
         narrations: list[NarrationBlock],
@@ -609,50 +609,50 @@ class TTSGenerator:
         """异步并行生成配音"""
         import os
         import asyncio
-        
+
         texts = [n.text for n in narrations]
         output_paths = [
             os.path.join(output_dir, f"narration_{i:03d}.mp3")
             for i in range(len(narrations))
         ]
         rates = []
-        
+
         for i, narration in enumerate(narrations):
             duration = narration.end_time - narration.start_time
             text_duration = len(narration.text) / 5.0
             rate = max(0.5, min(2.0, text_duration / duration))
             rates.append(rate)
-        
+
         # 调用异步批量生成
         audio_files = asyncio.run(
             self.tts.generate_batch_async(texts, output_paths, voice, rates)
         )
-        
+
         audio_files = [f for f in audio_files if f and os.path.exists(f)]
-        
+
         if not audio_files:
             logger.warning("No audio files generated")
             return None
-        
+
         total_duration = sum(n.end_time - n.start_time for n in narrations)
         final_audio = os.path.join(output_dir, "final_narration.mp3")
-        
+
         if len(audio_files) == 1:
             import shutil
             shutil.copy(audio_files[0], final_audio)
         else:
             self._concatenate_audio(audio_files, final_audio)
-        
+
         if progress_callback:
             progress_callback(len(narrations), len(narrations))
-        
+
         return AudioTrack(
             audio_path=final_audio,
             duration=total_duration,
             voice=voice,
             rate=1.0
         )
-    
+
     def _generate_sync(
         self,
         narrations: list[NarrationBlock],
@@ -662,18 +662,18 @@ class TTSGenerator:
     ) -> AudioTrack | None:
         """串行生成配音（回退方案）"""
         import os
-        
+
         audio_files = []
         total_duration = 0.0
-        
+
         for i, narration in enumerate(narrations):
             text = narration.text
             output_path = os.path.join(output_dir, f"narration_{i:03d}.mp3")
-            
+
             duration = narration.end_time - narration.start_time
             text_duration = len(text) / 5.0
             rate = max(0.5, min(2.0, text_duration / duration))
-            
+
             if self.tts:
                 result = self.tts.generate_speech(
                     text=text,
@@ -681,7 +681,7 @@ class TTSGenerator:
                     voice=voice,
                     rate=rate
                 )
-                
+
                 if result and os.path.exists(result):
                     audio_files.append(result)
                     total_duration += duration
@@ -689,37 +689,37 @@ class TTSGenerator:
                     logger.warning(f"TTS generation failed for block {i}")
             else:
                 logger.warning("No TTS service available")
-            
+
             if progress_callback:
                 progress_callback(i + 1, len(narrations))
-        
+
         if not audio_files:
             return None
-        
+
         final_audio = os.path.join(output_dir, "final_narration.mp3")
-        
+
         if len(audio_files) == 1:
             import shutil
             shutil.copy(audio_files[0], final_audio)
         else:
             self._concatenate_audio(audio_files, final_audio)
-        
+
         return AudioTrack(
             audio_path=final_audio,
             duration=total_duration,
             voice=voice,
             rate=1.0
         )
-    
+
     def _concatenate_audio(self, audio_files: list[str], output_path: str) -> bool:
         try:
             import subprocess
-            
+
             list_file = output_path + ".list.txt"
             with open(list_file, 'w') as f:
                 for af in audio_files:
                     f.write(f"file '{af}'\n")
-            
+
             subprocess.run([
                 "ffmpeg", "-y",
                 "-f", "concat", "-safe", "0",
@@ -727,10 +727,10 @@ class TTSGenerator:
                 "-c", "copy",
                 output_path
             ], capture_output=True, check=True)
-            
+
             os.remove(list_file)
             return True
-            
+
         except Exception as e:
             logger.error(f"Audio concatenation failed: {e}")
             return False
@@ -741,14 +741,14 @@ class VoxplorePipeline:
     Voxplore 核心处理流水线 V2
     整合所有处理步骤，支持并行和流式处理
     """
-    
+
     def __init__(self, config: PipelineConfig = None):
         self.config = config or PipelineConfig()
         self.extractor = FirstPersonExtractor(config)
         self.emotion_detector = EmotionPeakDetector(config)
         self.script_generator = ScriptGenerator()
         self.tts_generator = TTSGenerator()
-    
+
     def process(
         self,
         video_path: str,
@@ -761,18 +761,18 @@ class VoxplorePipeline:
     ) -> VideoProject:
         if output_dir is None:
             output_dir = os.path.join(os.path.dirname(video_path) or ".", "output")
-        
+
         project = VideoProject(
             name=os.path.basename(video_path),
             source_videos=[video_path],
             style=style,
             emotion=emotion
         )
-        
+
         def report(progress: float, message: str):
             if progress_callback:
                 progress_callback(progress, message)
-        
+
         try:
             # Step 1: 提取第一人称片段
             report(0.05, "正在分析视频...")
@@ -783,11 +783,11 @@ class VoxplorePipeline:
             )
             project.segments = segments
             report(0.25, f"找到 {len(segments)} 个片段")
-            
+
             if not segments:
                 logger.warning("No first-person segments found")
                 return project
-            
+
             # Step 2: 检测情感峰值
             report(0.30, "正在分析情感峰值...")
             peaks = self.emotion_detector.detect(
@@ -796,7 +796,7 @@ class VoxplorePipeline:
             )
             project.emotion_peaks = peaks
             report(0.45, f"找到 {len(peaks)} 个情感峰值")
-            
+
             # Step 3: 生成解说文案
             report(0.50, "正在生成解说文案...")
             narrations = self.script_generator.generate(
@@ -808,7 +808,7 @@ class VoxplorePipeline:
             )
             project.narration_blocks = narrations
             report(0.75, "文案生成完成")
-            
+
             # Step 4: 生成配音
             report(0.80, "正在生成配音...")
             audio_track = self.tts_generator.generate(
@@ -820,13 +820,13 @@ class VoxplorePipeline:
             if audio_track:
                 project.audio_track = audio_track
             report(0.95, "配音生成完成")
-            
+
             report(1.0, "处理完成！")
-            
+
         except Exception as e:
             logger.error(f"Pipeline processing failed: {e}")
             raise
-        
+
         return project
 
 

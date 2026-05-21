@@ -34,14 +34,14 @@ class TimeRange:
     """时间范围"""
     start: float  # 秒
     end: float    # 秒
-    
+
     @property
     def duration(self) -> float:
         return self.end - self.start
-    
+
     def to_dict(self) -> dict[str, float]:
         return {"start": self.start, "end": self.end}
-    
+
     @classmethod
     def from_seconds(cls, start: float, end: float) -> 'TimeRange':
         return cls(start=start, end=end)
@@ -56,15 +56,15 @@ class VideoSegment:
     confidence: float = 0.0
     description: str = ""
     group_id: str = ""
-    
+
     @property
     def duration(self) -> float:
         return self.end_time - self.start_time
-    
+
     @property
     def time_range(self) -> TimeRange:
         return TimeRange(self.start_time, self.end_time)
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "video_path": self.video_path,
@@ -85,7 +85,7 @@ class EmotionPeak:
     reason: str
     visual_score: float = 0.0
     audio_score: float = 0.0
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "segment": self.segment.to_dict(),
@@ -104,11 +104,11 @@ class NarrationBlock:
     end_time: float
     emotion: EmotionType = EmotionType.NEUTRAL
     style: NarrationStyle = NarrationStyle.DOCUMENTARY
-    
+
     @property
     def duration(self) -> float:
         return self.end_time - self.start_time
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "text": self.text,
@@ -127,17 +127,17 @@ class SubtitleItem:
     start_time: float
     end_time: float
     confidence: float = 1.0
-    
+
     @property
     def duration(self) -> float:
         return self.end_time - self.start_time
-    
+
     def to_srt(self, index: int) -> str:
         """转换为 SRT 格式"""
         start = self._format_timestamp(self.start_time)
         end = self._format_timestamp(self.end_time)
         return f"{index}\n{start} --> {end}\n{self.text}\n"
-    
+
     @staticmethod
     def _format_timestamp(seconds: float) -> str:
         """格式化时间戳为 HH:MM:SS,mmm"""
@@ -176,19 +176,19 @@ class VideoProject:
     emotion: EmotionType = EmotionType.NEUTRAL
     created_at: float = field(default_factory=lambda: datetime.now().timestamp)
     updated_at: float = field(default_factory=lambda: datetime.now().timestamp)
-    
+
     def add_segment(self, segment: VideoSegment):
         self.segments.append(segment)
         self.updated_at = datetime.now().timestamp()
-    
+
     def add_narration(self, narration: NarrationBlock):
         self.narration_blocks.append(narration)
         self.updated_at = datetime.now().timestamp()
-    
+
     def set_audio(self, audio: AudioTrack):
         self.audio_track = audio
         self.updated_at = datetime.now().timestamp()
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
@@ -226,11 +226,11 @@ class TaskProgress:
     message: str = ""
     result: Any | None = None
     error: str | None = None
-    
+
     @property
     def progress_percent(self) -> int:
         return int(self.progress * 100)
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "task_id": self.task_id,
@@ -256,10 +256,10 @@ class VideoGroup:
     visual_similarity: float = 0.0
     audio_similarity: float = 0.0
     combined_similarity: float = 0.0
-    
+
     def add_video(self, video_path: str):
         self.video_paths.append(video_path)
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "group_id": self.group_id,

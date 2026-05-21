@@ -93,11 +93,11 @@ class FormatOptionCard(QFrame):
 
         radio = QRadioButton()
         radio.setChecked(self._checked)
-        radio.setStyleSheet(f"""
-            QRadioButton::indicator {{
+        radio.setStyleSheet("""
+            QRadioButton::indicator {
                 width: 18px;
                 height: 18px;
-            }}
+            }
         """)
         radio.toggled.connect(self._on_toggle)
         layout.addWidget(radio)

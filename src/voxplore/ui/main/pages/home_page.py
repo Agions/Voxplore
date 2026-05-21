@@ -499,11 +499,7 @@ class HomePage(QFrame):
     def _on_quick_action(self, action_id: str):
         if action_id == "new":
             self.create_project.emit()
-        elif action_id == "template":
-            self.navigate.emit("create")
-        elif action_id == "import":
-            self.navigate.emit("create")
-        elif action_id == "ai":
+        elif action_id == "template" or action_id == "import" or action_id == "ai":
             self.navigate.emit("create")
 
 

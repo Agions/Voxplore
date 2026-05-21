@@ -203,7 +203,7 @@ class StepUploadPage(StepPage):
         # 文件列表
         self.file_list = QFrame()
         self.file_list.setObjectName("file_list")
-        self.file_list.setStyleSheet(f"#file_list {{ border: none; }}")
+        self.file_list.setStyleSheet("#file_list { border: none; }")
         file_list_layout = QVBoxLayout(self.file_list)
         file_list_layout.setContentsMargins(0, 0, 0, 0)
         file_list_layout.setSpacing(8)
