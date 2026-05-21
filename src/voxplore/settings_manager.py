@@ -171,26 +171,24 @@ class ProjectSettingsManager(QObject):
 
         definition = self.settings_definitions[key]
 
+        # 类型映射表：SettingType → 期望的 Python 类型
+        _TYPE_MAP: dict = {
+            SettingType.STRING: str,
+            SettingType.INTEGER: int,
+            SettingType.FLOAT: (int, float),
+            SettingType.BOOLEAN: bool,
+            SettingType.LIST: list,
+            SettingType.DICT: dict,
+        }
+
         # 类型检查
         try:
-            if definition.setting_type == SettingType.STRING:
-                if not isinstance(value, str):
-                    return False
-            elif definition.setting_type == SettingType.INTEGER:
-                if not isinstance(value, int):
-                    return False
-            elif definition.setting_type == SettingType.FLOAT:
-                if not isinstance(value, (int, float)):
-                    return False
-            elif definition.setting_type == SettingType.BOOLEAN:
-                if not isinstance(value, bool):
-                    return False
-            elif definition.setting_type == SettingType.LIST:
-                if not isinstance(value, list):
-                    return False
-            elif definition.setting_type == SettingType.DICT:
-                if not isinstance(value, dict):
-                    return False
+            expected_type = _TYPE_MAP.get(definition.setting_type)
+            if expected_type is None:
+                self.logger.debug("Unknown setting type: %s", definition.setting_type)
+                return False
+            if not isinstance(value, expected_type):
+                return False
         except Exception as e:
             self.logger.debug(f"Setting validation error: {e}")
             return False

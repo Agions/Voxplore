@@ -389,43 +389,33 @@ class DirectVideoExporter:
 
         return output_path
 
+    # 硬件加速 → ffmpeg -hwaccel 参数值
+    _HWACCEL_ARG: dict = {
+        HWAccel.NVIDIA: "cuda",
+        HWAccel.APPLE: "videotoolbox",
+        HWAccel.INTEL: "qsv",
+        HWAccel.AMD: "amf",
+        HWAccel.VAAPI: "vaapi",
+    }
+
+    # 硬件加速 + 编码器 → ffmpeg 编码器名称
+    _CODEC_MAP: dict = {
+        HWAccel.NVIDIA: {VideoCodec.H265: "hevc_nvenc", VideoCodec.H264: "h264_nvenc"},
+        HWAccel.APPLE: {VideoCodec.H265: "hevc_videotoolbox", VideoCodec.H264: "h264_videotoolbox"},
+        HWAccel.INTEL: {VideoCodec.H265: "hevc_qsv", VideoCodec.H264: "h264_qsv"},
+    }
+
     def _get_video_codec(self, config: VideoExportConfig) -> str:
         """获取视频编码器"""
-        if config.hw_accel == HWAccel.NVIDIA:
-            if config.video_codec == VideoCodec.H265:
-                return "hevc_nvenc"
-            return "h264_nvenc"
-        elif config.hw_accel == HWAccel.APPLE:
-            if config.video_codec == VideoCodec.H265:
-                return "hevc_videotoolbox"
-            return "h264_videotoolbox"
-        elif config.hw_accel == HWAccel.INTEL:
-            if config.video_codec == VideoCodec.H265:
-                return "hevc_qsv"
-            return "h264_qsv"
-        else:
-            return config.video_codec.value
+        return self._CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec) \
+            or config.video_codec.value
 
-    def _add_hw_accel_params(
-        self,
-        cmd: List[str],
-        config: VideoExportConfig,
-    ) -> List[str]:
+    def _add_hw_accel_params(self, cmd: List[str], config: VideoExportConfig) -> List[str]:
         """添加硬件加速参数"""
-        if config.hw_accel == HWAccel.NONE:
-            return cmd
-
-        # 在输入前添加硬件加速设备
-        if config.hw_accel == HWAccel.NVIDIA:
+        hwaccel_arg = self._HWACCEL_ARG.get(config.hw_accel)
+        if hwaccel_arg:
             cmd.insert(1, '-hwaccel')
-            cmd.insert(2, 'cuda')
-        elif config.hw_accel == HWAccel.APPLE:
-            cmd.insert(1, '-hwaccel')
-            cmd.insert(2, 'videotoolbox')
-        elif config.hw_accel == HWAccel.INTEL:
-            cmd.insert(1, '-hwaccel')
-            cmd.insert(2, 'qsv')
-
+            cmd.insert(2, hwaccel_arg)
         return cmd
 
     def export_with_presets(

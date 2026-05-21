@@ -31,60 +31,78 @@ class AnimationHelper:
         if cls._reduced_motion_cache is not None:
             return cls._reduced_motion_cache
 
-        reduced = False
+        # 平台检测函数映射表
+        _PLATFORM_DETECTORS: dict[str, callable] = {
+            "Darwin": cls._detect_macos_reduced_motion,
+            "Windows": cls._detect_windows_reduced_motion,
+            "Linux": cls._detect_linux_reduced_motion,
+        }
 
-        # macOS AppleReduceMotion
-        if platform.system() == "Darwin":
-            try:
-                # 尝试通过 Qt 访问 macOS 系统偏好
-                from PySide6.QtGui import QGuiApplication
-                app = QGuiApplication.instance()
-                if app:
-                    style = app.style()
-                    # QStyle.SH_ReducedAnimation = 44
-                    reduced = style.styleHint(44) == 1
-            except (RuntimeError, AttributeError, TypeError) as e:
-                logger.warning(f"macOS reduced motion detection failed: {e}")
-
-        # Windows: 检查 EaseOfAccess 设置
-        elif platform.system() == "Windows":
-            try:
-                import winreg
-                key = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER,
-                    r"SOFTWARE\Microsoft\Ease of Access Details",
-                    0
-                )
-                # "Show animation" DWORD value: 1 = on, 0 = off
-                value, _ = winreg.QueryValueEx(key, "ShowAnimation")
-                reduced = value == 0
-                winreg.CloseKey(key)
-            except (OSError, FileNotFoundError) as e:
-                logger.warning(f"Windows reduced motion detection failed: {e}")
-
-        # Linux: 检查 GTK 和 Qt 减少动画设置
-        elif platform.system() == "Linux":
-            try:
-                gtk_settings = QSettings(
-                    "org.gnome.desktop.interface",
-                    QSettings.Format.NativeFormat
-                )
-                reduced = not gtk_settings.value("enable-animations", True, bool)
-            except (TypeError, RuntimeError) as e:
-                logger.warning("Linux GTK reduced motion detection failed: %s", e)
-            if not reduced:
-                try:
-                    # KDE 设置
-                    kwin_settings = QSettings(
-                        "KDE Animation Speed",
-                        QSettings.Format.NativeFormat
-                    )
-                    reduced = kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
-                except (TypeError, RuntimeError) as e:
-                    logger.warning("Linux KDE reduced motion detection failed: %s", e)
+        system = platform.system()
+        detector = _PLATFORM_DETECTORS.get(system)
+        reduced = detector() if detector else False
 
         cls._reduced_motion_cache = reduced
         return reduced
+
+    # ── 平台专用检测逻辑 ──────────────────────────────────────────
+
+    @classmethod
+    def _detect_macos_reduced_motion(cls) -> bool:
+        """macOS: 通过 QStyle.SH_ReducedAnimation 检测"""
+        try:
+            from PySide6.QtGui import QGuiApplication
+            app = QGuiApplication.instance()
+            if app:
+                # QStyle.SH_ReducedAnimation = 44
+                return app.style().styleHint(44) == 1
+        except (RuntimeError, AttributeError, TypeError) as e:
+            logger.warning("macOS reduced motion detection failed: %s", e)
+        return False
+
+    @classmethod
+    def _detect_windows_reduced_motion(cls) -> bool:
+        """Windows: 检查 EaseOfAccess ShowAnimation 注册表项"""
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"SOFTWARE\Microsoft\Ease of Access Details",
+                0
+            )
+            # "Show animation" DWORD: 1 = on, 0 = off
+            value, _ = winreg.QueryValueEx(key, "ShowAnimation")
+            reduced = value == 0
+            winreg.CloseKey(key)
+            return reduced
+        except (OSError, FileNotFoundError) as e:
+            logger.warning("Windows reduced motion detection failed: %s", e)
+        return False
+
+    @classmethod
+    def _detect_linux_reduced_motion(cls) -> bool:
+        """Linux: 检查 GNOME gtk-enable-animations / KDE AnimationSpeedMultiplier"""
+        # GNOME GTK
+        try:
+            gtk_settings = QSettings(
+                "org.gnome.desktop.interface",
+                QSettings.Format.NativeFormat
+            )
+            if not gtk_settings.value("enable-animations", True, bool):
+                return True
+        except (TypeError, RuntimeError) as e:
+            logger.warning("Linux GTK reduced motion detection failed: %s", e)
+
+        # KDE
+        try:
+            kwin_settings = QSettings(
+                "KDE Animation Speed",
+                QSettings.Format.NativeFormat
+            )
+            return kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
+        except (TypeError, RuntimeError) as e:
+            logger.warning("Linux KDE reduced motion detection failed: %s", e)
+        return False
 
     @classmethod
     def _get_reduced_duration(cls, duration: int) -> int:

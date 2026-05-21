@@ -30,38 +30,36 @@ class SecureKeyManager:
         # 尝试初始化系统密钥库
         self._init_keyring()
 
+    # 平台密钥库后端映射表：平台 → [(backend_module, KeyringClass, fallback_name), ...]
+    _KEYRING_BACKENDS: dict[str, list[tuple]] = {
+        "Darwin": [
+            ("keyring.backends.macOS", "Keyring", "OSX"),
+            ("keyring.backends.OSX", "Keyring", None),
+        ],
+        "Windows": [
+            ("keyring.backends.Windows", "WinVaultKeyring", None),
+        ],
+        "Linux": [
+            ("keyring.backends.SecretService", "Keyring", "Gnome"),
+            ("keyring.backends.Gnome", "Keyring", None),
+        ],
+    }
+
     def _init_keyring(self) -> None:
         """初始化系统密钥库"""
         try:
-            # 检查系统密钥库可用性
-            if platform.system() == "Darwin":  # macOS
-                # 使用安全的方式初始化macOS密钥库
+            # 遍历该平台的所有后端，按优先级尝试
+            for backend_path, class_name, fallback_name in self._KEYRING_BACKENDS.get(platform.system(), []):
                 try:
-                    from keyring.backends import macOS
-                    keyring.set_keyring(macOS.Keyring())
-                except (ImportError, AttributeError):
-                    # 尝试另一种方式
-                    try:
-                        from keyring.backends import OSX
-                        keyring.set_keyring(OSX.Keyring())
-                    except (ImportError, AttributeError):
-                        self.logger.debug("macOS keyring backend (OSX) init failed, skipping")
-            elif platform.system() == "Windows":
-                try:
-                    from keyring.backends import Windows
-                    keyring.set_keyring(Windows.WinVaultKeyring())
-                except (ImportError, AttributeError):
-                    self.logger.debug("Windows keyring backend init failed, skipping")
-            elif platform.system() == "Linux":
-                try:
-                    from keyring.backends import SecretService
-                    keyring.set_keyring(SecretService.Keyring())
-                except (ImportError, AttributeError):
-                    try:
-                        from keyring.backends import Gnome
-                        keyring.set_keyring(Gnome.Keyring())
-                    except (ImportError, AttributeError):
-                        self.logger.debug("Linux keyring backend (Gnome) init failed, skipping")
+                    module = __import__(backend_path, fromlist=[class_name])
+                    keyring_class = getattr(module, class_name)
+                    keyring.set_keyring(keyring_class())
+                    self.logger.debug("Keyring backend initialized: %s", backend_path)
+                    break
+                except (ImportError, AttributeError) as e:
+                    self.logger.debug("Keyring backend %s unavailable: %s, trying fallback", backend_path, e)
+            else:
+                self.logger.debug("No keyring backend available for this platform")
 
             # 测试密钥库功能
             test_key = f"{self.app_name}_test"
