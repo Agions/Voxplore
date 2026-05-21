@@ -79,7 +79,14 @@ async def create_export_task(
     # 验证输出路径
     output_path = request.output_path
     if output_path:
-        output_dir = str(Path(output_path).parent)
+        # 安全检查：防止路径遍历
+        output_p = Path(output_path).resolve()
+        if ".." in output_p.parts:
+            raise HTTPException(
+                status_code=400,
+                detail="无效的路径: 不允许路径遍历",
+            )
+        output_dir = str(output_p.parent)
         if not Path(output_dir).is_dir():
             raise HTTPException(
                 status_code=400,

@@ -22,10 +22,12 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json",
     )
 
-    # CORS 配置
+    # CORS 配置（生产环境应通过 CORS_ORIGINS 环境变量限制）
+    import os
+    cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # 生产环境应限制
+        allow_origins=cors_origins if cors_origins != ["*"] else ["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
