@@ -17,6 +17,7 @@ from typing import List, Optional, Tuple
 
 from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
 from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video_tools.base import get_seg_attr
 from ...utils.security import get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
@@ -116,10 +117,10 @@ class SpeechSubtitleExtractor:
         if hasattr(response, 'segments') and response.segments:
             for seg in response.segments:
                 segments.append(SubtitleSegment(
-                    start=seg.get("start", seg.start) if isinstance(seg, dict) else seg.start,
-                    end=seg.get("end", seg.end) if isinstance(seg, dict) else seg.end,
-                    text=(seg.get("text", "") if isinstance(seg, dict) else seg.text).strip(),
-                    confidence=seg.get("avg_logprob", 0) if isinstance(seg, dict) else getattr(seg, 'avg_logprob', 0),
+                    start=get_seg_attr(seg, "start", getattr(seg, "start", 0)),
+                    end=get_seg_attr(seg, "end", getattr(seg, "end", 0)),
+                    text=get_seg_attr(seg, "text", getattr(seg, "text", "")).strip(),
+                    confidence=get_seg_attr(seg, "avg_logprob", getattr(seg, "avg_logprob", 0)),
                     source="speech",
                 ))
         elif hasattr(response, 'text'):

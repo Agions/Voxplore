@@ -6,7 +6,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 from pathlib import Path
 import logging
 logger = logging.getLogger(__name__)
@@ -32,6 +32,72 @@ class ProcessingResult:
     output_path: str = ""
     error: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+# =========== 通用工具函数 ===========
+
+def get_seg_attr(seg: Union[Dict, object], key: str, default: Any = None) -> Any:
+    """
+    从片段获取属性，兼容 dict 和对象两种格式
+
+    Args:
+        seg: 片段（可能是 dict 或带属性的对象）
+        key: 属性名
+        default: 默认值
+
+    Returns:
+        属性值或默认值
+    """
+    if isinstance(seg, dict):
+        return seg.get(key, default)
+    return getattr(seg, key, default)
+
+
+def parse_fps(fps_str: str) -> float:
+    """
+    解析 FPS 字符串（如 '30000/1001'）为浮点数
+
+    Args:
+        fps_str: FPS 字符串
+
+    Returns:
+        FPS 浮点数值
+    """
+    if not fps_str or fps_str == '0/0':
+        return 0.0
+    if '/' in fps_str:
+        num, den = fps_str.split('/')
+        return float(num) / float(den) if float(den) != 0 else 0.0
+    return float(fps_str)
+
+
+def extract_video_metadata(info: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    从 FFmpegTool.get_video_info() 结果中提取视频元数据
+
+    Args:
+        info: FFmpegTool.get_video_info() 返回的原始信息
+
+    Returns:
+        包含 width, height, duration, fps 的字典
+    """
+    video_stream = next(
+        (s for s in info.get('streams', []) if s.get('codec_type') == 'video'),
+        {}
+    )
+    format_info = info.get('format', {})
+
+    duration = float(format_info.get('duration') or 0)
+    width = video_stream.get('width', 0) or 0
+    height = video_stream.get('height', 0) or 0
+    fps = parse_fps(video_stream.get('r_frame_rate', '0/1'))
+
+    return {
+        'width': width,
+        'height': height,
+        'duration': duration,
+        'fps': fps,
+    }
 
 
 class IVideoProcessor(ABC):
@@ -91,14 +157,8 @@ class BaseVideoProcessor(IVideoProcessor):
         from .ffmpeg_tool import FFmpegTool
 
         info = FFmpegTool.get_video_info(video_path)
-        video_stream = next((s for s in info.get('streams', []) if s.get('codec_type') == 'video'), {})
+        meta = extract_video_metadata(info)
         format_info = info.get('format', {})
-        duration = float(format_info.get('duration') or 0)
-        width = video_stream.get('width', 0) or 0
-        height = video_stream.get('height', 0) or 0
-        fps_str = video_stream.get('r_frame_rate', '0/1')
-        num, denom = fps_str.split('/')
-        fps = float(num) / float(denom) if float(denom) != 0 else 0.0
 
         # 获取文件大小
         size_bytes = 0
@@ -111,10 +171,10 @@ class BaseVideoProcessor(IVideoProcessor):
 
         return VideoMetadata(
             path=video_path,
-            duration=duration,
-            width=width,
-            height=height,
-            fps=fps,
+            duration=meta['duration'],
+            width=meta['width'],
+            height=meta['height'],
+            fps=meta['fps'],
             bitrate=bitrate,
             size_bytes=size_bytes,
         )

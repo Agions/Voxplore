@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video_tools.base import extract_video_metadata
 from .jianying_adapter import (
     TrackType,
     MaterialType,  # noqa: F401  # intentionally re-exported for tests
@@ -419,15 +420,11 @@ class JianyingExporter:
         """
         try:
             info = FFmpegTool.get_video_info(video_path)
-            video_stream = next((s for s in info.get('streams', []) if s.get('codec_type') == 'video'), {})
-            duration_str = info.get('format', {}).get('duration', '0')
-            duration = float(duration_str) if duration_str else 0.0
-            width = int(video_stream.get('width', 1920))
-            height = int(video_stream.get('height', 1080))
+            meta = extract_video_metadata(info)
             return {
-                'width': width,
-                'height': height,
-                'duration': TimeRange.from_seconds(0, duration).duration,
+                'width': meta['width'],
+                'height': meta['height'],
+                'duration': TimeRange.from_seconds(0, meta['duration']).duration,
             }
         except Exception as e:
             logger.error(f"获取视频信息失败: {e}")

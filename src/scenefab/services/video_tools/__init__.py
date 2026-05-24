@@ -13,6 +13,9 @@ from .base import (
     BaseVideoProcessor,
     VideoMetadata,
     ProcessingResult,
+    get_seg_attr,
+    parse_fps,
+    extract_video_metadata,
 )
 from .caption_gen import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
 
