@@ -37,6 +37,9 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 from ...utils.security import SecurityError
 
+# 性能优化：缩放目标尺寸 (160x90 ≈ 14K像素，相比HD图减少约95%数据量)
+_TARGET_SIZE = (160, 90)
+
 logger = logging.getLogger(__name__)
 
 # 可选依赖，用于帧分析
@@ -204,14 +207,15 @@ class HighlightDetector:
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
 
     def _extract_frames(self, video_path: Path, prefix: str) -> List[Path]:
-        """提取视频帧到临时目录，返回帧文件列表"""
+        """提取视频帧到临时目录，返回帧文件列表（已缩放到小尺寸）"""
         temp_dir = video_path.parent / ".scenefab_highlight_cache"
         temp_dir.mkdir(exist_ok=True)
         output_prefix = temp_dir / f"{video_path.stem}_{prefix}"
+        # 性能优化：在 FFmpeg 中直接缩放，避免处理大图
         cmd = [
             'ffmpeg', '-y',
             '-i', str(video_path),
-            '-vf', f"fps={self.config.fps}",
+            '-vf', f"fps={self.config.fps},scale={_TARGET_SIZE[0]}:{_TARGET_SIZE[1]}",
             '-q:v', '2',
             f"{output_prefix}%04d.jpg",
         ]
@@ -236,18 +240,25 @@ class HighlightDetector:
 
         changes = []
         try:
+            import numpy as np
             from PIL import Image
-            import math
 
             prev_hist = None
             for i, frame_path in enumerate(frame_files):
                 timestamp = i / self.config.fps
+                # 性能优化：小图已由 FFmpeg 缩放，直接转 numpy 计算直方图
                 img = Image.open(frame_path)
-                hist = img.histogram()
+                arr = np.array(img, dtype=np.int32)
+                # 合并 RGB 通道直方图（与原 PIL histogram() 等效）
+                if arr.ndim == 3:
+                    hist = np.concatenate([np.histogram(arr[:, :, c], bins=256, range=(0, 256))[0]
+                                           for c in range(arr.shape[2])])
+                else:
+                    hist = np.histogram(arr, bins=256, range=(0, 256))[0]
 
                 if prev_hist is not None:
-                    # 计算直方图差异
-                    diff = sum(math.sqrt((a - b) ** 2) for a, b in zip(hist, prev_hist))
+                    # 计算直方图差异（向量化）
+                    diff = np.sum(np.sqrt((hist - prev_hist).astype(np.float64) ** 2))
                     diff /= len(hist) * 255.0  # 归一化
 
                     if diff > 0.3:  # 阈值
@@ -342,6 +353,7 @@ class HighlightDetector:
         prev_data = None
         for i, frame_path in enumerate(frame_files):
             timestamp = i / self.config.fps
+            # 性能优化：小图已由 FFmpeg 缩放，直接加载灰度
             img = Image.open(frame_path).convert('L')
             data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
 
@@ -374,6 +386,7 @@ class HighlightDetector:
 
         for i, frame_path in enumerate(frame_files):
             timestamp = i / self.config.fps
+            # 性能优化：小图已由 FFmpeg 缩放，直接加载 RGB
             img = Image.open(frame_path).convert('RGB')
             arr = np.array(img, dtype=np.float32)  # (h, w, 3)
 

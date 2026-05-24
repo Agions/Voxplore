@@ -12,6 +12,7 @@
 import os
 import logging
 from typing import Dict, List, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
 
@@ -67,7 +68,8 @@ class SubtitleTranslator:
                  subtitle_result: SubtitleExtractionResult,
                  target_lang: str = "en",
                  source_lang: str = "auto",
-                 batch_size: int = 20) -> SubtitleExtractionResult:
+                 batch_size: int = 20,
+                 max_concurrent_batches: int = 5) -> SubtitleExtractionResult:
         """
         翻译字幕
 
@@ -76,6 +78,7 @@ class SubtitleTranslator:
             target_lang: 目标语言代码
             source_lang: 源语言代码，"auto" 表示自动检测
             batch_size: 每批处理的字幕片段数
+            max_concurrent_batches: 最大并发批次数（仅对 OpenAI 有效）
 
         Returns:
             翻译后的字幕结果
@@ -96,7 +99,7 @@ class SubtitleTranslator:
 
         if self._provider == "openai":
             translated_texts = self._translate_openai(
-                all_texts, target_lang, source_lang, batch_size
+                all_texts, target_lang, source_lang, batch_size, max_concurrent_batches
             )
         elif self._provider == "deepl":
             translated_texts = self._translate_deepl(
@@ -122,36 +125,86 @@ class SubtitleTranslator:
         translated.full_text = " ".join(t.text for t in translated.segments)
         return translated
 
+    async def translate_async(self,
+                 subtitle_result: SubtitleExtractionResult,
+                 target_lang: str = "en",
+                 source_lang: str = "auto",
+                 batch_size: int = 20,
+                 max_concurrent_batches: int = 5) -> SubtitleExtractionResult:
+        """
+        异步翻译字幕（仅支持 OpenAI）
+
+        Args:
+            subtitle_result: 原始字幕结果
+            target_lang: 目标语言代码
+            source_lang: 源语言代码，"auto" 表示自动检测
+            batch_size: 每批处理的字幕片段数
+            max_concurrent_batches: 最大并发批次数
+
+        Returns:
+            翻译后的字幕结果
+        """
+        import asyncio
+
+        if not subtitle_result.segments:
+            return subtitle_result
+
+        if self._provider != "openai":
+            # 非 OpenAI 提供商，回退到同步方法
+            return self.translate(subtitle_result, target_lang, source_lang, batch_size)
+
+        # 创建翻译结果
+        translated = SubtitleExtractionResult(
+            video_path=subtitle_result.video_path,
+            duration=subtitle_result.duration,
+            language=target_lang,
+            method=f"translated_{subtitle_result.method}",
+        )
+
+        all_texts = [seg.text for seg in subtitle_result.segments]
+
+        # 使用线程池执行翻译，保持顺序
+        loop = asyncio.get_event_loop()
+        translated_texts = await loop.run_in_executor(
+            None,
+            self._translate_openai,
+            all_texts, target_lang, source_lang, batch_size, max_concurrent_batches
+        )
+
+        # 构建翻译后的字幕片段
+        for i, seg in enumerate(subtitle_result.segments):
+            translated.segments.append(SubtitleSegment(
+                start=seg.start,
+                end=seg.end,
+                text=translated_texts[i] if i < len(translated_texts) else seg.text,
+                confidence=seg.confidence,
+                source=f"translated_{seg.source}",
+            ))
+
+        translated.full_text = " ".join(t.text for t in translated.segments)
+        return translated
+
     def _translate_openai(self, texts: List[str],
                          target_lang: str,
                          source_lang: str,
-                         batch_size: int) -> List[str]:
-        """使用 OpenAI GPT 翻译"""
+                         batch_size: int,
+                         max_concurrent_batches: int = 5) -> List[str]:
+        """使用 OpenAI GPT 翻译（并行批次）"""
         from openai import OpenAI
 
         client = OpenAI(api_key=self._api_key)
         target_name = self.SUPPORTED_LANGUAGES.get(target_lang, target_lang)
         source_name = self.SUPPORTED_LANGUAGES.get(source_lang, source_lang) if source_lang != "auto" else "源语言"
 
-        translated = []
-
-        # 分批处理
+        # 准备批次
+        batches = []
         for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
+            batches.append((i, texts[i:i + batch_size]))
 
-            # 构建提示词
-            if source_lang == "auto":
-                prompt = f"""将以下{len(batch)}段字幕翻译成{target_name}。
-只返回翻译后的文本，每行一段，不要加任何解释或序号。
-
-原文:
-{chr(10).join(batch)}"""
-            else:
-                prompt = f"""将以下{len(batch)}段从{source_name}翻译成{target_name}。
-只返回翻译后的文本，每行一段，不要加任何解释或序号。
-
-原文:
-{chr(10).join(batch)}"""
+        def translate_batch(batch_info):
+            """翻译单个批次"""
+            batch_idx, batch = batch_info
+            prompt = self._build_translate_prompt(batch, target_name, source_name, source_lang)
 
             try:
                 response = client.chat.completions.create(
@@ -162,26 +215,54 @@ class SubtitleTranslator:
                 )
 
                 result_text = response.choices[0].message.content.strip()
-
-                # 解析结果（每行一段）
                 lines = result_text.split('\n')
+                translated_lines = []
                 for line in lines:
                     line = line.strip()
-                    # 去除可能的序号
                     if line and line[0].isdigit() and '.' in line[:3]:
                         line = line.split('.', 1)[-1].strip()
-                    translated.append(line)
+                    translated_lines.append(line)
+                return batch_idx, translated_lines
 
             except Exception as e:
-                logger.error(f"OpenAI 翻译批次 {i//batch_size + 1} 失败: {e}")
-                # 失败时返回原文
-                translated.extend(batch)
+                logger.error(f"OpenAI 翻译批次 {batch_idx // batch_size + 1} 失败: {e}")
+                return batch_idx, batch  # 失败时返回原文
+
+        # 并行翻译批次
+        results = {}
+        with ThreadPoolExecutor(max_workers=max_concurrent_batches) as executor:
+            futures = {executor.submit(translate_batch, batch): batch for batch in batches}
+            for future in as_completed(futures):
+                batch_idx, translated_lines = future.result()
+                results[batch_idx] = translated_lines
+
+        # 按原始顺序合并结果
+        translated = []
+        for i in range(0, len(texts), batch_size):
+            if i in results:
+                translated.extend(results[i])
 
         # 确保数量一致
         while len(translated) < len(texts):
             translated.append(texts[len(translated)])
 
         return translated[:len(texts)]
+
+    def _build_translate_prompt(self, batch: List[str], target_name: str,
+                                source_name: str, source_lang: str) -> str:
+        """构建翻译提示词"""
+        if source_lang == "auto":
+            return f"""将以下{len(batch)}段字幕翻译成{target_name}。
+只返回翻译后的文本，每行一段，不要加任何解释或序号。
+
+原文:
+{chr(10).join(batch)}"""
+        else:
+            return f"""将以下{len(batch)}段从{source_name}翻译成{target_name}。
+只返回翻译后的文本，每行一段，不要加任何解释或序号。
+
+原文:
+{chr(10).join(batch)}"""
 
     def _translate_deepl(self, texts: List[str],
                         target_lang: str,

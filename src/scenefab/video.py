@@ -14,6 +14,7 @@ import tempfile
 import shutil
 from collections import OrderedDict
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from pathlib import Path
 from typing import Optional
@@ -226,7 +227,7 @@ class VideoFrameCache:
         progress_callback: Optional[Callable[[int, int], None]] = None,
     ) -> dict[str, np.ndarray]:
         """
-        批量预提取关键帧
+        批量预提取关键帧（并行）
         
         Args:
             video_path: 视频路径
@@ -237,23 +238,36 @@ class VideoFrameCache:
         Returns:
             {缓存键: 帧数组} 字典
         """
-        results = {}
         total = len(timestamps)
         
-        for i, ts in enumerate(timestamps):
+        # 第一步：并行提取所有缺失帧
+        def extract_missing(ts: float) -> tuple[str, Optional[np.ndarray]]:
             key = self._generate_key(video_path, ts)
+            # 检查缓存（只用于跳过，不阻塞其他线程）
+            if self.get(key) is not None:
+                return key, None
+            frame = extract_func(video_path, ts)
+            if frame is not None:
+                return key, frame
+            return key, None
+        
+        # 使用线程池并行提取，最多 max_workers 个并发
+        max_workers = min(8, max(1, total))
+        results = {}
+        extracted_count = 0
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(extract_missing, ts): ts for ts in timestamps}
             
-            # 尝试从缓存获取
-            frame = self.get(key)
-            if frame is None:
-                # 提取帧
-                frame = extract_func(video_path, ts)
+            for i, future in enumerate(futures):
+                key, frame = future.result()
                 if frame is not None:
                     self.set(key, frame)
                     results[key] = frame
-            
-            if progress_callback and (i + 1) % 10 == 0:
-                progress_callback(i + 1, total)
+                    extracted_count += 1
+                
+                if progress_callback and (i + 1) % 10 == 0:
+                    progress_callback(i + 1, total)
         
         return results
 
