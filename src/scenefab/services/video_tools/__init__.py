@@ -7,7 +7,7 @@
 - BaseVideoProcessor / IVideoProcessor  视频处理基类
 """
 
-from .ffmpeg_tool import FFmpegTool
+from .ffmpeg_tool import FFmpegTool, HWAccelType
 from .base import (
     IVideoProcessor,
     BaseVideoProcessor,
@@ -19,6 +19,7 @@ from .caption_gen import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
 __all__ = [
     # 工具
     "FFmpegTool",
+    "HWAccelType",
 
     # 基类
     "IVideoProcessor",

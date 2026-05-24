@@ -6,13 +6,71 @@ FFmpeg 工具模块
 
 import json
 import logging
+import platform
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+from enum import Enum
 
 from ...utils.security import get_ffmpeg_executor, SecurityError
 
 logger = logging.getLogger(__name__)
+
+
+class HWAccelType(Enum):
+    """硬件加速类型"""
+    NONE = "none"
+    NVIDIA = "nvenc"           # NVIDIA NVENC
+    INTEL = "qsv"              # Intel Quick Sync
+    AMD = "amf"                # AMD AMF
+    APPLE = "videotoolbox"     # Apple VideoToolbox (macOS)
+    VAAPI = "vaapi"            # Linux VAAPI
+
+    @property
+    def ffmpeg_hwaccel(self) -> Optional[str]:
+        """获取 ffmpeg -hwaccel 参数值"""
+        mapping = {
+            HWAccelType.NVIDIA: "cuda",
+            HWAccelType.APPLE: "videotoolbox",
+            HWAccelType.INTEL: "qsv",
+            HWAccelType.AMD: "amf",
+            HWAccelType.VAAPI: "vaapi",
+        }
+        return mapping.get(self)
+
+    def get_encoder(self, codec: str) -> Optional[str]:
+        """获取硬件加速的编码器名称
+
+        Args:
+            codec: 原始编码器 (libx264, libx265 等)
+
+        Returns:
+            硬件加速编码器名称或 None
+        """
+        encoder_map = {
+            HWAccelType.NVIDIA: {
+                "libx264": "h264_nvenc",
+                "libx265": "hevc_nvenc",
+            },
+            HWAccelType.APPLE: {
+                "libx264": "h264_videotoolbox",
+                "libx265": "hevc_videotoolbox",
+            },
+            HWAccelType.INTEL: {
+                "libx264": "h264_qsv",
+                "libx265": "hevc_qsv",
+            },
+            HWAccelType.AMD: {
+                "libx264": "h264_amf",
+                "libx265": "hevc_amf",
+            },
+            HWAccelType.VAAPI: {
+                "libx264": "h264_vaapi",
+                "libx265": "hevc_vaapi",
+            },
+        }
+        return encoder_map.get(self, {}).get(codec)
 
 
 class FFmpegTool:
@@ -35,6 +93,125 @@ class FFmpegTool:
                 raise RuntimeError("FFmpeg 不可用")
         except FileNotFoundError:
             raise RuntimeError("FFmpeg 未安装，请安装后重试")
+
+    # ========== 硬件加速检测 ==========
+
+    @staticmethod
+    def detect_hw_accel() -> HWAccelType:
+        """自动检测可用的硬件加速
+
+        优先级: NVENC > VAAPI > VideoToolbox > QSV > CPU
+
+        Returns:
+            HWAccelType: 检测到的硬件加速类型
+        """
+        system = platform.system()
+
+        # macOS - 优先 VideoToolbox
+        if system == "Darwin":
+            return HWAccelType.APPLE
+
+        # Linux - 检测 VAAPI 和 NVENC
+        if system == "Linux":
+            # 优先检测 NVIDIA
+            if FFmpegTool._check_nvidia_smi():
+                return HWAccelType.NVIDIA
+
+            # 检测 VAAPI
+            if FFmpegTool._check_vaapi():
+                return HWAccelType.VAAPI
+
+        # Windows - 优先 NVENC
+        if system == "Windows":
+            if FFmpegTool._check_nvidia_smi():
+                return HWAccelType.NVIDIA
+
+            # 检测 Intel QSV (通过 CPU 检测)
+            if FFmpegTool._check_intel_cpu():
+                return HWAccelType.INTEL
+
+        return HWAccelType.NONE
+
+    @staticmethod
+    def _check_nvidia_smi() -> bool:
+        """检测 NVIDIA GPU 和 NVENC 支持"""
+        try:
+            result = subprocess.run(
+                ['nvidia-smi'],
+                capture_output=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                # 进一步检查 FFmpeg 是否支持 h264_nvenc
+                enc_result = subprocess.run(
+                    ['ffmpeg', '-hide_banner', '-encoders'],
+                    capture_output=True,
+                    timeout=10,
+                )
+                if 'h264_nvenc' in enc_result.stdout.decode('utf-8', errors='ignore'):
+                    return True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+        return False
+
+    @staticmethod
+    def _check_vaapi() -> bool:
+        """检测 VAAPI 支持"""
+        try:
+            # 检查 /dev/dri/ 是否存在 (Linux 硬件设备)
+            if Path('/dev/dri/').exists():
+                # 检查 FFmpeg 是否支持 vaapi
+                result = subprocess.run(
+                    ['ffmpeg', '-hide_banner', '-encoders'],
+                    capture_output=True,
+                    timeout=10,
+                )
+                if 'vaapi' in result.stdout.decode('utf-8', errors='ignore'):
+                    return True
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+        return False
+
+    @staticmethod
+    def _check_intel_cpu() -> bool:
+        """检测 Intel CPU (用于 QSV)"""
+        try:
+            if platform.system() == "Windows":
+                result = subprocess.run(
+                    ['wmic', 'cpu', 'get', 'name'],
+                    capture_output=True,
+                    timeout=5,
+                )
+                return "Intel" in result.stdout.decode('utf-8', errors='ignore')
+            else:
+                # Linux/macOS 下检测 /proc/cpuinfo
+                with open('/proc/cpuinfo', 'r') as f:
+                    return 'genuineintel' in f.read().lower()
+        except Exception:
+            pass
+        return False
+
+    @staticmethod
+    def get_hw_accel_encoder(codec: str = "libx264") -> Tuple[str, Optional[str]]:
+        """获取最佳可用的视频编码器
+
+        Args:
+            codec: 原始编码器 (libx264, libx265)
+
+        Returns:
+            (encoder_name, hwaccel_arg) 元组，如果无硬件加速则返回 (codec, None)
+        """
+        hw_type = FFmpegTool.detect_hw_accel()
+
+        if hw_type == HWAccelType.NONE:
+            return codec, None
+
+        # 获取对应的硬件编码器
+        hw_encoder = hw_type.get_encoder(codec)
+        if hw_encoder:
+            return hw_encoder, hw_type.ffmpeg_hwaccel
+
+        return codec, None
 
     # ========== 视频信息获取 ==========
 
@@ -475,6 +652,7 @@ class FFmpegTool:
         video_codec: str = "libx264",
         audio_codec: str = "aac",
         preset: str = "medium",
+        use_hw_accel: bool = True,
     ) -> bool:
         """
         转换视频格式
@@ -485,18 +663,30 @@ class FFmpegTool:
             video_codec: 视频编码
             audio_codec: 音频编码
             preset: 编码预设 (ultrafast/slow 等)
+            use_hw_accel: 是否使用硬件加速
 
         Returns:
             是否成功
         """
-        cmd = [
-            'ffmpeg', '-y',
-            '-i', input_path,
-            '-c:v', video_codec,
-            '-c:a', audio_codec,
-            '-preset', preset,
-            output_path,
-        ]
+        cmd = ['ffmpeg', '-y']
+
+        # 自动检测硬件加速
+        if use_hw_accel:
+            encoder, hwaccel = FFmpegTool.get_hw_accel_encoder(video_codec)
+            if hwaccel:
+                cmd.extend(['-hwaccel', hwaccel])
+            cmd.extend(['-c:v', encoder])
+        else:
+            cmd.extend(['-c:v', video_codec])
+
+        cmd.extend(['-i', input_path])
+        cmd.extend(['-c:a', audio_codec])
+
+        # 仅在 CPU 编码时使用 preset，硬件编码器有自己的质量设置
+        if not use_hw_accel or FFmpegTool.detect_hw_accel() == HWAccelType.NONE:
+            cmd.extend(['-preset', preset])
+
+        cmd.append(output_path)
 
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)
@@ -506,4 +696,4 @@ class FFmpegTool:
 
     # ========== 辅助方法 ==========
 
-__all__ = ["FFmpegTool"]
+__all__ = ["FFmpegTool", "HWAccelType"]

@@ -123,6 +123,8 @@ class ScriptGenerator:
         use_llm_manager: bool = False,
         llm_config: Optional[Dict[str, Any]] = None,
         llm_config_file: Optional[str] = None,
+        batch_size: int = 4,  # 批量生成的段数
+        min_words_for_batch: int = 50,  # 小于此字数的短请求优先合并
     ):
         """
         初始化文案生成器
@@ -132,9 +134,13 @@ class ScriptGenerator:
             use_llm_manager: 是否使用 LLMManager（新架构）
             llm_config: LLM 配置字典
             llm_config_file: LLM 配置文件路径
+            batch_size: 批量生成的最大段数
+            min_words_for_batch: 小于此字数的请求会被合并
         """
         self.use_llm_manager = use_llm_manager
         self.llm_manager: Optional[LLMManager] = None
+        self.batch_size = batch_size
+        self.min_words_for_batch = min_words_for_batch
 
         if use_llm_manager:
             # 使用新架构
@@ -251,6 +257,287 @@ class ScriptGenerator:
         provider_name = response.model.split("-")[0] if "-" in response.model else response.model
 
         return response.content, provider_name
+
+    def generate_batch(
+        self,
+        requests: List[tuple[str, ScriptConfig]],
+    ) -> List[GeneratedScript]:
+        """
+        批量生成多段文案（合并 API 调用）
+
+        Args:
+            requests: [(topic, config), ...] 请求列表
+
+        Returns:
+            生成的文案列表
+        """
+        if not requests:
+            return []
+
+        if self.use_llm_manager:
+            async def _run():
+                results = await self._generate_batch_async(requests)
+                await self.llm_manager.close_all()
+                return results
+
+            try:
+                asyncio.get_running_loop()
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    results = pool.submit(asyncio.run, _run()).result()
+            except RuntimeError:
+                results = asyncio.run(_run())
+        else:
+            results = [self.generate(topic, config) for topic, config in requests]
+
+        return results
+
+    async def _generate_batch_async(
+        self,
+        requests: List[tuple[str, ScriptConfig]],
+    ) -> List[GeneratedScript]:
+        """
+        异步批量生成（使用 LLMManager）
+
+        策略:
+        1. 短请求（字数 < min_words_for_batch）优先合并
+        2. 合并后每批最多 batch_size 个请求
+        3. 长请求单独调用
+
+        Args:
+            requests: [(topic, config), ...]
+
+        Returns:
+            生成的文案列表
+        """
+        if not self.llm_manager:
+            raise ValueError("LLMManager 未初始化")
+
+        # 分类：短请求 vs 长请求
+        short_reqs = []  # 需要合并的短请求
+        long_reqs = []   # 单独处理的长请求
+
+        for topic, config in requests:
+            if config.target_words < self.min_words_for_batch:
+                short_reqs.append((topic, config))
+            else:
+                long_reqs.append((topic, config))
+
+        results: List[GeneratedScript] = []
+
+        # 处理长请求（单独调用）
+        for topic, config in long_reqs:
+            system_prompt = self.STYLE_PROMPTS.get(
+                config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+            )
+            user_prompt = self._build_prompt(topic, config)
+
+            request = LLMRequest(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                model=config.model,
+                max_tokens=config.target_words * 2,
+                temperature=0.7,
+            )
+
+            try:
+                response = await self.llm_manager.generate(request)
+                script = self._parse_response(response.content, config)
+                script.provider_used = response.model.split("-")[0] if "-" in response.model else response.model
+                results.append(script)
+            except Exception as e:
+                logger.warning(f"长请求生成失败: {e}")
+                script = self._generate_single_fallback(topic, config)
+                results.append(script)
+
+        # 处理短请求（批量合并调用）
+        if short_reqs:
+            # 分批：每批最多 batch_size 个
+            for i in range(0, len(short_reqs), self.batch_size):
+                batch = short_reqs[i:i + self.batch_size]
+                if len(batch) == 1:
+                    topic, config = batch[0]
+                    script = self._generate_single_fallback(topic, config)
+                    results.append(script)
+                else:
+                    batch_result = await self._generate_batch_single_call(batch)
+                    results.extend(batch_result)
+
+        return results
+
+    async def _generate_batch_single_call(
+        self,
+        batch: List[tuple[str, ScriptConfig]],
+    ) -> List[GeneratedScript]:
+        """
+        单次 API 调用生成多个短请求
+
+        Args:
+            batch: [(topic, config), ...] 同风格的短请求
+
+        Returns:
+            生成的文案列表
+        """
+        if not batch:
+            return []
+
+        if len(batch) == 1:
+            topic, config = batch[0]
+            return [self._generate_single_fallback(topic, config)]
+
+        # 使用第一个请求的风格作为基础
+        first_topic, first_config = batch[0]
+        style = first_config.style
+
+        system_prompt = self.STYLE_PROMPTS.get(style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY])
+
+        # 构建批量请求的提示词
+        user_prompt = self._build_batch_prompt(batch)
+
+        # 计算总字数需求
+        total_words = sum(config.target_words for _, config in batch)
+        max_tokens = int(total_words * 2 * 1.2)
+
+        request = LLMRequest(
+            prompt=user_prompt,
+            system_prompt=system_prompt,
+            model=first_config.model,
+            max_tokens=max_tokens,
+            temperature=0.7,
+        )
+
+        try:
+            response = await self.llm_manager.generate(request)
+            return self._parse_batch_response(response.content, batch)
+        except Exception as e:
+            logger.warning(f"批量生成失败，回退到逐段调用: {e}")
+            return [self._generate_single_fallback(topic, config) for topic, config in batch]
+
+    def _build_batch_prompt(self, batch: List[tuple[str, ScriptConfig]]) -> str:
+        """
+        构建批量请求的提示词
+        """
+        if not batch:
+            return ""
+
+        parts = ["请为以下多个主题分别生成视频文案。\n"]
+
+        for i, (topic, config) in enumerate(batch, 1):
+            parts.append(f"\n=== 段落 {i} ===")
+            parts.append(f"主题: {topic}")
+            parts.append(f"字数要求: 约 {config.target_words} 字")
+
+            tone_map = {
+                VoiceTone.NEUTRAL: "中性、客观",
+                VoiceTone.EXCITED: "兴奋、激动",
+                VoiceTone.CALM: "平静、舒缓",
+                VoiceTone.MYSTERIOUS: "神秘、悬疑",
+                VoiceTone.EMOTIONAL: "情感、深情",
+                VoiceTone.HUMOROUS: "幽默、轻松",
+            }
+            parts.append(f"语气风格: {tone_map.get(config.tone, '中性')}")
+
+            if config.include_hook:
+                parts.append("要求: 开头3秒必须有吸引力的「钩子」")
+
+            if config.keywords:
+                parts.append(f"必须包含关键词: {', '.join(config.keywords)}")
+
+            parts.append("")
+
+        parts.append("""
+输出格式要求：
+1. 用空行分隔各段落
+2. 每个段落前标注【段落N】
+3. 每个段落独立成篇，有完整的开头和结尾
+4. 不要在段落之间添加标题或解释
+""")
+
+        return "\n".join(parts)
+
+    def _parse_batch_response(
+        self,
+        content: str,
+        batch: List[tuple[str, ScriptConfig]],
+    ) -> List[GeneratedScript]:
+        """
+        解析批量生成的响应
+        """
+        content = content.strip()
+
+        scripts = []
+        for i, (topic, config) in enumerate(batch):
+            segment = self._extract_segment(content, i + 1, config)
+            if segment:
+                script = self._parse_response(segment, config)
+            else:
+                script = self._parse_response(content if i == 0 else "", config)
+            scripts.append(script)
+
+        return scripts
+
+    def _extract_segment(
+        self,
+        content: str,
+        segment_num: int,
+        config: ScriptConfig,
+    ) -> str:
+        """
+        从批量响应中提取指定段落
+        """
+        import re
+
+        # 尝试查找【段落N】标记
+        pattern = rf"【段落{segment_num}】\s*(.*?)(?=【段落\d+】|$)"
+        match = re.search(pattern, content, re.DOTALL)
+
+        if match:
+            text = match.group(1).strip()
+            text = re.sub(r"^【段落\d+】\s*", "", text, flags=re.MULTILINE)
+            return text
+
+        # 回退：按段落数量平均分割
+        positions = []
+        for m in re.finditer(r"【段落\d+】", content):
+            positions.append(m.start())
+
+        if len(positions) > segment_num:
+            start = positions[segment_num - 1]
+            end = positions[segment_num] if segment_num < len(positions) else len(content)
+            text = content[start:end]
+            text = re.sub(r"^【段落\d+】\s*", "", text, flags=re.MULTILINE)
+            return text.strip()
+
+        return ""
+
+    def _generate_single_fallback(
+        self,
+        topic: str,
+        config: ScriptConfig,
+    ) -> GeneratedScript:
+        """
+        单独生成单个文案（回退方法）
+        """
+        if self.use_llm_manager and self.llm_manager:
+            async def _run():
+                result = await self._generate_async(topic, config)
+                await self.llm_manager.close_all()
+                return result
+
+            try:
+                asyncio.get_running_loop()
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    raw_content, provider_used = pool.submit(asyncio.run, _run()).result()
+            except RuntimeError:
+                raw_content, provider_used = asyncio.run(_run())
+
+            script = self._parse_response(raw_content, config)
+            script.provider_used = provider_used
+            return script
+        else:
+            raw_content = self._generate_openai(topic, config)
+            return self._parse_response(raw_content, config)
 
     def _generate_openai(
         self,
