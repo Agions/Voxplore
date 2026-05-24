@@ -4,7 +4,7 @@
 from unittest.mock import patch
 from cryptography.fernet import Fernet
 
-from voxplore.secure_key_manager import SecureKeyManager
+from scenefab.secure_key_manager import SecureKeyManager
 
 
 class TestSecureKeyManager:
@@ -18,7 +18,7 @@ class TestSecureKeyManager:
         
         manager = SecureKeyManager()
         
-        assert manager.app_name == "Voxplore"
+        assert manager.app_name == "SceneFab"
         assert manager._encryption_key is None
         assert manager._master_password is None
 

@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from voxplore.project_template_manager import (
+from scenefab.project_template_manager import (
     TemplateCategory,
     TemplateInfo,
 )

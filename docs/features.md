@@ -1,13 +1,13 @@
 ---
 title: 功能介绍
-description: Voxplore 全部功能的详细说明。
+description: SceneFab 全部功能的详细说明。
 ---
 
 # 功能介绍
 
 ## 核心定位
 
-**Voxplore** — 多视频智能合并解说专家。
+**SceneFab** — 多视频智能合并解说专家。
 
 - **输入**：批量视频（文件夹 / Ctrl 多选）
 - **输出**：模块化成品（合并版完整叙事 + 高光片段）

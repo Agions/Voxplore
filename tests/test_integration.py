@@ -10,11 +10,11 @@ from typing import Optional
 # 需要真实 API 密钥才能运行这些测试
 # 使用 pytest -m "integration" 运行
 
-from voxplore.services.ai.llm_manager import LLMManager
-from voxplore.services.ai.providers.qwen import QwenProvider
-from voxplore.services.ai.providers.kimi import KimiProvider
-from voxplore.services.ai.providers.glm5 import GLM5Provider
-from voxplore.services.ai.base_llm_provider import LLMRequest, LLMResponse
+from scenefab.services.ai.llm_manager import LLMManager
+from scenefab.services.ai.providers.qwen import QwenProvider
+from scenefab.services.ai.providers.kimi import KimiProvider
+from scenefab.services.ai.providers.glm5 import GLM5Provider
+from scenefab.services.ai.base_llm_provider import LLMRequest, LLMResponse
 
 
 class SkipIfNoAPIKey:
@@ -258,12 +258,12 @@ class TestScriptGeneratorIntegration:
     )
     async def test_generate_commentary(self, manager: LLMManager):
         """测试生成解说文案"""
-        from voxplore.services.ai.script_generator import ScriptGenerator
+        from scenefab.services.ai.script_generator import ScriptGenerator
 
         # 确保有可用的 LLM 管理器
         if manager.available_providers():
             # 设置管理器到生成器中
-            from voxplore.services.ai import llm_manager
+            from scenefab.services.ai import llm_manager
             llm_manager.manager = manager
 
         generator = ScriptGenerator(use_llm_manager=True)
@@ -286,10 +286,10 @@ class TestScriptGeneratorIntegration:
     )
     async def test_generate_monologue(self, manager: LLMManager):
         """测试生成独白文案"""
-        from voxplore.services.ai.script_generator import ScriptGenerator
+        from scenefab.services.ai.script_generator import ScriptGenerator
 
         if manager.available_providers():
-            from voxplore.services.ai import llm_manager
+            from scenefab.services.ai import llm_manager
             llm_manager.manager = manager
 
         generator = ScriptGenerator(use_llm_manager=True)

@@ -3,7 +3,7 @@
 
 import pytest
 
-from voxplore.services.export.export_utils import (
+from scenefab.services.export.export_utils import (
     seconds_to_microseconds,
     microseconds_to_seconds,
     seconds_to_ticks,

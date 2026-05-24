@@ -1,5 +1,5 @@
 """Test project_models data classes"""
-from voxplore.models.project_models import (
+from scenefab.models.project_models import (
     ProjectStatus,
     ProjectType,
     ProjectMetadata,

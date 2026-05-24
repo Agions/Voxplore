@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试项目设置管理器"""
 
-from voxplore.settings_manager import (
+from scenefab.settings_manager import (
     SettingType,
     SettingDefinition,
 )

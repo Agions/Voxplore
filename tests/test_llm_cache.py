@@ -4,7 +4,7 @@
 import pytest
 import time
 
-from voxplore.services.ai.cache import (
+from scenefab.services.ai.cache import (
     LLMMemoryCache,
     LLMRetryPolicy,
     with_retry,

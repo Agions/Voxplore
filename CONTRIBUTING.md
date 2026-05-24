@@ -1,13 +1,13 @@
 # 贡献指南
 
-感谢你对 Voxplore 的关注！我们欢迎任何形式的贡献 🎉
+感谢你对 SceneFab 的关注！我们欢迎任何形式的贡献 🎉
 
 ---
 
 ## 贡献方式
 
-- 🐛 **报告 Bug** — [提交 Issue](https://github.com/Agions/Voxplore/issues/new?template=bug_report.md)
-- 💡 **功能建议** — [提交 Feature Request](https://github.com/Agions/Voxplore/issues/new?template=feature_request.md)
+- 🐛 **报告 Bug** — [提交 Issue](https://github.com/Agions/scene-fab/issues/new?template=bug_report.md)
+- 💡 **功能建议** — [提交 Feature Request](https://github.com/Agions/scene-fab/issues/new?template=feature_request.md)
 - 📝 **改进文档** — 修正错别字、补充说明
 - 🔧 **提交代码** — Bug 修复、新功能实现
 - ⭐ **推广项目** — 分享给更多人
@@ -18,8 +18,8 @@
 
 ```bash
 # 1. Fork 并克隆
-git clone https://github.com/YOUR_USERNAME/Voxplore.git
-cd Voxplore
+git clone https://github.com/YOUR_USERNAME/SceneFab.git
+cd SceneFab
 
 # 2. 创建虚拟环境
 python -m venv .venv
@@ -97,8 +97,8 @@ ruff check app/
 
 ## 交流
 
-- 提问和讨论：[GitHub Discussions](https://github.com/Agions/Voxplore/discussions)
-- Bug 报告：[GitHub Issues](https://github.com/Agions/Voxplore/issues)
+- 提问和讨论：[GitHub Discussions](https://github.com/Agions/scene-fab/discussions)
+- Bug 报告：[GitHub Issues](https://github.com/Agions/scene-fab/issues)
 
 ---
 

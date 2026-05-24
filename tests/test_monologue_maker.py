@@ -3,7 +3,7 @@
 
 import pytest
 
-from voxplore.services.video.monologue_maker import (
+from scenefab.services.video.monologue_maker import (
     MonologueStyle,
     EmotionType,
     MonologueSegment,

@@ -41,7 +41,7 @@ class TestPerformanceBenchmarks:
     
     def test_cache_performance(self):
         """缓存性能测试"""
-        from voxplore.utils.performance import MemoryCache
+        from scenefab.utils.performance import MemoryCache
         
         cache = MemoryCache(max_size=1000, ttl=60)
         
@@ -65,7 +65,7 @@ class TestPerformanceBenchmarks:
 
     def test_task_creation(self):
         """任务创建性能"""
-        from voxplore.utils.task_manager import Task
+        from scenefab.utils.task_manager import Task
         
         start = time.perf_counter()
         for i in range(1000):
@@ -82,7 +82,7 @@ class TestMemoryBenchmarks:
     
     def test_cache_memory(self):
         """缓存内存使用"""
-        from voxplore.utils.performance import MemoryCache
+        from scenefab.utils.performance import MemoryCache
         
         cache = MemoryCache(max_size=10000, ttl=60)
         

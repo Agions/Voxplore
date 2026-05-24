@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Voxplore - AI Video Editor
+SceneFab - AI Video Editor
 入口点：将启动工作委托给 app.main
 
 用法:
@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # 引导到真正的入口
-from voxplore.main import main as app_main
+from scenefab.main import main as app_main
 
 if __name__ == "__main__":
     sys.exit(app_main())

@@ -3,11 +3,11 @@
 """测试片段选择服务"""
 
 
-from voxplore.services.video.selection.seg_selector import (
+from scenefab.services.video.selection.seg_selector import (
     SelectionStrategy,
     SegmentSelector,
 )
-from voxplore.services.video.extraction.first_person import VideoSegment
+from scenefab.services.video.extraction.first_person import VideoSegment
 
 
 class TestSelectionStrategy:

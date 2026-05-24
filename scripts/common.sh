@@ -1,5 +1,5 @@
 #!/bin/bash
-# Voxplore 构建脚本公共函数
+# SceneFab 构建脚本公共函数
 # 由 build_macos.sh / build_linux.sh 等 source 调用
 
 set -e

@@ -2,7 +2,7 @@
 """Test Video Exporter"""
 
 
-from voxplore.services.export.video_exporter import (
+from scenefab.services.export.video_exporter import (
     ExportFormat,
     VideoCodec,
     AudioCodec,

@@ -6,8 +6,8 @@ import pytest
 import tempfile
 import os
 
-from voxplore.services.ai.model_registry import ProviderRegistry
-from voxplore.services.ai.interfaces import (
+from scenefab.services.ai.model_registry import ProviderRegistry
+from scenefab.services.ai.interfaces import (
     VisionProvider,
     LLMProvider,
     TTSProvider,

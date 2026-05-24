@@ -1,5 +1,5 @@
 #!/bin/bash
-# Voxplore macOS 构建脚本
+# SceneFab macOS 构建脚本
 # 用法: ./build_macos.sh [x64|arm64]
 #   默认 x64（Intel）
 #   arm64 = Apple Silicon
@@ -10,12 +10,12 @@ source scripts/common.sh
 
 ARCH=${1:-x64}
 PLATFORM="macos-${ARCH}"
-OUTPUT_NAME="Voxplore-${VERSION}-${PLATFORM}.dmg"
-APP_BUNDLE="Voxplore.app"
-PY_NAME="Voxplore-${VERSION}-${PLATFORM}"
+OUTPUT_NAME="SceneFab-${VERSION}-${PLATFORM}.dmg"
+APP_BUNDLE="SceneFab.app"
+PY_NAME="SceneFab-${VERSION}-${PLATFORM}"
 
 info "========================================"
-info "  Voxplore macOS 构建"
+info "  SceneFab macOS 构建"
 info "  版本: ${VERSION}"
 info "  架构: ${ARCH}"
 info "========================================"
@@ -85,11 +85,11 @@ cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key><string>zh_CN</string>
-    <key>CFBundleExecutable</key><string>Voxplore</string>
-    <key>CFBundleIdentifier</key><string>com.voxplore.app</string>
+    <key>CFBundleExecutable</key><string>SceneFab</string>
+    <key>CFBundleIdentifier</key><string>com.scenefab.app</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
-    <key>CFBundleName</key><string>Voxplore</string>
-    <key>CFBundleDisplayName</key><string>Voxplore</string>
+    <key>CFBundleName</key><string>SceneFab</string>
+    <key>CFBundleDisplayName</key><string>SceneFab</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>$VERSION</string>
     <key>CFBundleVersion</key><string>1</string>
@@ -108,7 +108,7 @@ chmod +x "${APP_BUNDLE}/Contents/MacOS/"* 2>/dev/null || true
 step "[6/6] 打包 DMG..."
 if command -v create-dmg &> /dev/null; then
     create-dmg \
-        --volname "Voxplore" \
+        --volname "SceneFab" \
         --window-pos 200 120 \
         --window-size 600 400 \
         --icon-size 100 \
@@ -118,7 +118,7 @@ if command -v create-dmg &> /dev/null; then
         "${APP_BUNDLE}"
 else
     hdiutil create \
-        -volname "Voxplore" \
+        -volname "SceneFab" \
         -srcfolder "${APP_BUNDLE}" \
         -ov -format UDZO \
         "${OUTPUT_NAME}"

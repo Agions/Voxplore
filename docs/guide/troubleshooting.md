@@ -1,16 +1,16 @@
 ---
 title: 疑难排查
-description: Voxplore 常见问题与解决方案。
+description: SceneFab 常见问题与解决方案。
 ---
 
 # 疑难排查
 
 ## 启动问题
 
-### 提示 "No module named 'PySide6'"
+### 提示 "No module named 'scenefab'"
 
 ```bash
-pip install PySide6
+pip install scenefab
 ```
 
 ### 提示 "ffmpeg not found"
@@ -27,19 +27,13 @@ brew install ffmpeg
 sudo apt install ffmpeg
 ```
 
-### 提示 "QApplication: No such file or package"
-
-```bash
-pip install PySide6
-```
-
 ---
 
 ## AI 服务问题
 
 ### DeepSeek API Key 无效
 
-1. 确认 Key 格式正确（sk-开头）
+1. 确认 Key 格式正确（sk- 开头）
 2. 检查 Key 是否已过期或被删除
 3. 确认 Key 已正确填入设置页
 
@@ -76,7 +70,7 @@ pip install PySide6
 
 ### 导出进度卡在 0%
 
-- 检查临时目录空间（通常在 `C:\Users\xxx\AppData\Local\Temp`）
+- 检查临时目录空间
 - 确认输出目录有写入权限
 
 ### 导出文件无声
@@ -91,17 +85,15 @@ pip install PySide6
 ### 窗口显示异常
 
 ```
-Voxplore > 设置 > 界面 > 重置窗口布局
+SceneFab > 设置 > 界面 > 重置窗口布局
 ```
 
 ### 侧边栏点击无反应
 
 - 升级到最新版本
-- 删除配置文件：`~/.config/voxplore/config.json`
-
----
+- 删除配置文件：`~/.config/scenefab/config.json`
 
 :::tip
 找不到解决方案？
-👉 [提交 Issue](https://github.com/Agions/Voxplore/issues)
+👉 [提交 Issue](https://github.com/Agions/scene-fab/issues)
 :::

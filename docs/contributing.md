@@ -1,19 +1,19 @@
 ---
 title: 贡献指南
-description: 如何参与 Voxplore 的开发与贡献。
+description: 如何参与 SceneFab 的开发与贡献。
 ---
 
 # 贡献指南
 
 ## 欢迎贡献
 
-Voxplore 采用 MIT 协议开源，欢迎任何形式的贡献！
+SceneFab 采用 MIT 协议开源，欢迎任何形式的贡献！
 
 ## 开发环境
 
 ```bash
-git clone https://github.com/Agions/Voxplore.git
-cd Voxplore
+git clone https://github.com/Agions/scene-fab.git
+cd SceneFab
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -e ".[dev]"

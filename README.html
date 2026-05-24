@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voxplore - AI 影视解说工具</title>
+  <title>SceneFab - AI 影视解说工具</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -678,7 +678,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-badge">v2.0.0 Release</div>
-    <h1 class="hero-title">Voxplore</h1>
+    <h1 class="hero-title">SceneFab</h1>
     <p class="hero-subtitle">AI 影视解说工具 — 第一人称视角视频创作平台，让你的故事更有电影感</p>
     <div class="hero-scenarios">
       <span class="scenario-tag">🎬 旅游 vlog</span>
@@ -693,7 +693,7 @@
         </svg>
         快速开始
       </a>
-      <a href="https://github.com/Agions/Voxplore" class="btn btn-secondary" target="_blank">
+      <a href="https://github.com/Agions/scene-fab" class="btn btn-secondary" target="_blank">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
         </svg>
@@ -701,7 +701,7 @@
       </a>
     </div>
     <div class="stars-badge">
-      <a href="https://github.com/Agions/Voxplore" target="_blank">
+      <a href="https://github.com/Agions/scene-fab" target="_blank">
         ⭐ 给个项目 Star
       </a>
     </div>
@@ -811,8 +811,8 @@
       </div>
       <div class="code-content">
         <pre><code><span class="code-comment"># 1. 安装依赖</span>
-git clone https://github.com/Agions/Voxplore.git
-<span class="code-function">cd</span> Voxplore
+git clone https://github.com/Agions/scene-fab.git
+<span class="code-function">cd</span> SceneFab
 pip install -r requirements.txt
 
 <span class="code-comment"># 2. 配置 API Key（创建 .env 文件）</span>
@@ -834,19 +834,19 @@ pip install -r requirements.txt
       </div>
       <div class="code-content">
         <pre><code><span class="code-comment"># 分析视频，查看第一人称片段</span>
-python -m voxplore analyze video.mp4
+python -m scenefab analyze video.mp4
 
 <span class="code-comment"># 检测所有场景</span>
-python -m voxplore analyze video.mp4 <span class="code-variable">--scenes</span>
+python -m scenefab analyze video.mp4 <span class="code-variable">--scenes</span>
 
 <span class="code-comment"># 处理视频（生成解说）</span>
-python -m voxplore process video.mp4 <span class="code-variable">--style documentary</span> <span class="code-variable">--emotion neutral</span>
+python -m scenefab process video.mp4 <span class="code-variable">--style documentary</span> <span class="code-variable">--emotion neutral</span>
 
 <span class="code-comment"># 批量处理</span>
-python -m voxplore batch <span class="code-string">"*.mp4"</span>
+python -m scenefab batch <span class="code-string">"*.mp4"</span>
 
 <span class="code-comment"># 导出为剪映草稿</span>
-python -m voxplore process video.mp4 <span class="code-variable">--export --format jianying</span></code></pre>
+python -m scenefab process video.mp4 <span class="code-variable">--export --format jianying</span></code></pre>
       </div>
     </div>
   </section>
@@ -866,15 +866,15 @@ python -m voxplore process video.mp4 <span class="code-variable">--export --form
         <span class="code-title">example.py</span>
       </div>
       <div class="code-content">
-        <pre><code><span class="code-keyword">from</span> voxplore.pipeline <span class="code-keyword">import</span> VoxplorePipeline, PipelineConfig
-<span class="code-keyword">from</span> voxplore.models <span class="code-keyword">import</span> NarrationStyle, EmotionType
+        <pre><code><span class="code-keyword">from</span> scenefab.pipeline <span class="code-keyword">import</span> SceneFabPipeline, PipelineConfig
+<span class="code-keyword">from</span> scenefab.models <span class="code-keyword">import</span> NarrationStyle, EmotionType
 
 <span class="code-comment"># 创建流水线</span>
 config = PipelineConfig(
     min_segment_duration=<span class="code-number">9.0</span>,   <span class="code-comment"># 最小片段（秒）</span>
     max_segment_duration=<span class="code-number">60.0</span>,  <span class="code-comment"># 最大片段（秒）</span>
 )
-pipeline = VoxplorePipeline(config)
+pipeline = SceneFabPipeline(config)
 
 <span class="code-comment"># 处理视频</span>
 project = pipeline.process(
@@ -1023,14 +1023,14 @@ project = pipeline.process(
       </div>
       <div class="code-content">
         <pre><code><span class="code-comment"># 导出为剪映草稿</span>
-<span class="code-keyword">from</span> voxplore.exporters <span class="code-keyword">import</span> JianyingExporter
+<span class="code-keyword">from</span> scenefab.exporters <span class="code-keyword">import</span> JianyingExporter
 
 exporter = JianyingExporter()
 draft_path = exporter.export(project, output_dir=<span class="code-string">"./output"</span>)
 <span class="code-function">print</span>(f<span class="code-string">"草稿已导出: </span>{draft_path}<span class="code-string">"</span>)
 
 <span class="code-comment"># 导出多种字幕格式</span>
-<span class="code-keyword">from</span> voxplore.exporters <span class="code-keyword">import</span> SubtitleExporter
+<span class="code-keyword">from</span> scenefab.exporters <span class="code-keyword">import</span> SubtitleExporter
 
 SubtitleExporter.<span class="code-function">export_srt</span>(project.subtitles, <span class="code-string">"output.srt"</span>)
 SubtitleExporter.<span class="code-function">export_vtt</span>(project.subtitles, <span class="code-string">"output.vtt"</span>)
@@ -1076,9 +1076,9 @@ SubtitleExporter.<span class="code-function">export_lrc</span>(project.subtitles
 
   <!-- CTA Section -->
   <section class="cta-section">
-    <h2>开始使用 Voxplore</h2>
+    <h2>开始使用 SceneFab</h2>
     <p>一个专注于第一人称视角视频解说的 AI 工具，让你的故事更有电影感</p>
-    <a href="https://github.com/Agions/Voxplore" class="btn btn-primary" target="_blank">
+    <a href="https://github.com/Agions/scene-fab" class="btn btn-primary" target="_blank">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
       </svg>
@@ -1089,11 +1089,11 @@ SubtitleExporter.<span class="code-function">export_lrc</span>(project.subtitles
   <!-- Footer -->
   <footer>
     <div class="footer-links">
-      <a href="https://github.com/Agions/Voxplore" target="_blank">GitHub</a>
+      <a href="https://github.com/Agions/scene-fab" target="_blank">GitHub</a>
       <a href="#features">文档</a>
       <a href="https://opensource.org/licenses/MIT" target="_blank">许可证 (MIT)</a>
     </div>
-    <p>© 2024 Voxplore Team. Released under MIT License.</p>
+    <p>© 2024 SceneFab Team. Released under MIT License.</p>
   </footer>
 
   <script>

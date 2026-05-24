@@ -1,97 +1,160 @@
 ---
-title: AI 配置指南
-description: 配置 DeepSeek Qwen VL Edge TTS 等 AI 服务
+title: AI 服务配置
+description: 配置 SceneFab 所使用的 AI 服务（DeepSeek / Qwen VL / Edge-TTS）。
 ---
 
-# AI 配置指南
+# AI 服务配置
 
-## 支持的 AI 服务
+SceneFab 支持配置多个 AI 服务商，所有配置在本地存储，绝不外传。
 
-Voxplore 采用多模型协作架构，每个环节使用最适合的服务。
+---
 
 ## DeepSeek（解说稿生成）
 
-**必填** | 生成电影感第一人称解说稿
-
-| 参数 | 值 |
-|------|----|
-| 模型 | `deepseek-chat` |
-| 上下文 | 32K tokens |
-| 成本 | ¥0.1 / 1M tokens（缓存后 ¥0.01） |
-
 ### 获取 API Key
 
-1. 访问 [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys)
-2. 创建新 Key，设置限额
-3. 妥善保存，勿泄露
+1. 访问 [platform.deepseek.com](https://platform.deepseek.com) → API Keys → Create
+2. 推荐使用 **DeepSeek-V4** 模型（性价比最高）
+
+### 配置项
+
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| API Key | 你的 DeepSeek API Key | - |
+| 模型 | DeepSeek-V4 / DeepSeek-Coder | DeepSeek-V4 |
+| Base URL | API 端点 | https://api.deepseek.com |
+| Max Tokens | 单次最大输出 | 4096 |
+| Temperature | 创造性（0=确定输出，1=最大随机） | 0.7 |
 
 ### 费用估算
 
-| 视频时长 | 解说字数 | 成本 |
-|---------|---------|------|
-| 5 分钟 | ~300 字 | ¥0.0003 |
-| 30 分钟 | ~2000 字 | ¥0.002 |
-| 60 分钟 | ~4000 字 | ¥0.004 |
+| 操作 | tokens 消耗 | 费用 |
+|------|------------|------|
+| 5 分钟视频解说生成 | ~50K tokens | ~0.05 元 |
+| 2 小时电影解说生成 | ~500K tokens | ~0.5 元 |
 
-## Qwen VL（视频帧分析）
+---
 
-**必填** | 逐帧分析判断第一人称视角
+## Qwen VL（视频语义分析）
 
-| 参数 | 值 |
-|------|----|
-| 模型 | `qwen-vl-plus` |
-| 输入 | 视频关键帧截图 |
-| 成本 | ¥0.05 / 次 |
+### 获取 API Key
 
-### 配置方式
+1. 访问 [阿里云百炼](https://bailian.console.aliyun.com/) → API Keys → 创建
+2. 选择 **qwen-vl-max** 模型
+
+### 配置项
+
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| API Key | 你的阿里云 API Key | - |
+| 模型 | qwen-vl-max / qwen-vl-plus | qwen-vl-max |
+| Base URL | API 端点 | https://dashscope.aliyuncs.com |
+
+### 费用估算
+
+| 操作 | 调用次数 | 费用 |
+|------|---------|------|
+| 5 分钟视频分析 | ~300 次 | ~0.03 元 |
+| 2 小时电影分析 | ~2000 次 | ~0.2 元 |
+
+---
+
+## Edge TTS（配音合成）
+
+**免费使用，无需 API Key！**
+
+微软官方 TTS 引擎，50+ 音色，支持中文。
+
+### 推荐音色
+
+| 音色 ID | 名称 | 适用风格 |
+|--------|------|---------|
+| zh-CN-XiaoxiaoNeural | 晓晓 | 治愈、浪漫、怀旧 |
+| zh-CN-YunxiNeural | 云希 | 悬疑、励志 |
+| zh-CN-YunyangNeural | 云扬 | 纪录片、正式 |
+| zh-CN-XiaoyiNeural | 小艺 | 幽默、轻松 |
+
+### 高级参数
+
+| 参数 | 范围 | 说明 |
+|------|------|------|
+| 语速 | 0.5x – 2.0x | 默认 1.0x |
+| 音调 | -50% – +50% | 默认 0 |
+| 音量 | -50% – +50% | 默认 0 |
+
+---
+
+## F5-TTS（音色克隆，可选）
+
+### 安装
 
 ```bash
-# .env 文件
-QWEN_API_KEY=your_qwen_api_key
-```
-
-## Edge TTS（文字转语音）
-
-**推荐** | 微软文字转语音，免费低延迟
-
-```bash
-# Edge TTS 自带，无需配置
-# 可在设置中选择音色：
-# - 女声：zh-CN-XiaoxiaoNeural
-# - 男声：zh-CN-YunxiNeural
-# - 其他角色音
-```
-
-## F5-TTS（音色克隆）
-
-**可选** | 零样本音色克隆，需本地部署
-
-```bash
-# 安装
 pip install f5-tts
-
-# 在设置中启用
-# 支持自定义音色参考音频
 ```
 
-## 模型对比
+### 使用方式
 
-| 配音方案 | 质量 | 延迟 | 成本 | 部署 |
-|---------|------|------|------|------|
-| Edge TTS | ⭐⭐⭐⭐ | <500ms | 免费 | 云端 |
-| F5-TTS | ⭐⭐⭐⭐⭐ | 1-3s | 仅 GPU | 本地 |
-| GPT-SoVITS | ⭐⭐⭐⭐⭐ | 2-5s | 仅 GPU | 本地 |
+1. 准备参考音频（MP3/WAV，15–30 秒，说话清晰）
+2. 设置 → 配音配置 → F5-TTS → 上传参考音频
+3. AI 自动克隆音色，后续配音使用克隆音色
 
-## 常见问题
+### 费用
 
-:::warning
-**API Key 泄露怎么办？**
-立即在平台控制台删除该 Key，重新生成并替换。
-:::
+完全本地运行，GPU 加速，无 API 费用。
 
-:::tip
-**如何降低费用？**
-- 开启 DeepSeek 上下文缓存（命中后降 90%）
-- 减少视频分析采样帧数
-- 使用 Edge TTS 代替 F5-TTS
-:::
+---
+
+## 一键配置模板
+
+在项目根目录创建 `.env` 文件：
+
+```bash
+# DeepSeek（解说稿生成）
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
+
+# 阿里云 Qwen VL（视频分析）
+QWEN_API_KEY=sk-xxxxxxxxxxxxxxxx
+
+# 可选：自定义 API 端点（用于代理）
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+QWEN_BASE_URL=https://dashscope.aliyuncs.com
+```
+
+---
+
+## 多服务商支持
+
+SceneFab 预留了多服务商扩展接口，可同时配置：
+
+| 服务 | 支持状态 | 说明 |
+|------|---------|------|
+| DeepSeek | ✅ 正式支持 | 推荐，性价比最高 |
+| OpenAI GPT-4 | ✅ 可配置 | 需自行修改端点 |
+| Anthropic Claude | 🔜 计划中 | 即将支持 |
+| Qwen VL | ✅ 正式支持 | 视频理解必选 |
+| 阿里通义 | ✅ 正式支持 | 备选视频理解方案 |
+| Edge TTS | ✅ 内置免费 | 配音合成 |
+| F5-TTS | ✅ 本地运行 | 音色克隆 |
+
+---
+
+## 故障排查
+
+### 401 Unauthorized
+
+API Key 无效或已过期，检查 Key 是否正确复制。
+
+### 429 Rate Limit
+
+触发了 API 限流，1 分钟后重试，或在服务商控制台升级套餐。
+
+### 视频分析超时
+
+长视频（1 小时+）建议分段处理，或降低抽帧频率（设置 → AI 配置 → 抽帧间隔改为 2 秒）。
+
+---
+
+## 相关文档
+
+- [快速开始](./quick-start) — 5 分钟上手
+- [AI 工作流详解](./ai-video-guide) — 深入理解 AI 处理流程

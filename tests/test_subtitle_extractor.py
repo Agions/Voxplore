@@ -3,7 +3,7 @@
 
 from dataclasses import asdict
 
-from voxplore.services.ai.subtitle_extractor import (
+from scenefab.services.ai.subtitle_extractor import (
     SubtitleSegment,
     SubtitleExtractionResult,
 )

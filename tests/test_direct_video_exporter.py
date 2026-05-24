@@ -2,7 +2,7 @@
 """Test Direct Video Exporter"""
 
 
-from voxplore.services.export.direct_video_exporter import (
+from scenefab.services.export.direct_video_exporter import (
     Resolution,
     VideoCodec,
     VideoFormat,

@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from voxplore.services.video.grouping.smart_grouper import (
+from scenefab.services.video.grouping.smart_grouper import (
     SmartGrouper,
     VideoGroup,
 )

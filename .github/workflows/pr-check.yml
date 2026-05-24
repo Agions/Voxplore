@@ -20,7 +20,7 @@ jobs:
           cache: 'pip'
       - run: pip install ruff
       - run: |
-          ruff check src/voxplore/ tests/ --output-format=github \
+          ruff check src/scenefab/ tests/ --output-format=github \
             --ignore E501,F401 \
             --ignore E402 \
             --ignore F541,F811 \
@@ -39,4 +39,4 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
       - run: pip install -e ".[all,dev]"
-      - run: pytest tests/ -v --tb=short --cov=voxplore --cov-report=term-missing --ignore=tests/test_project_manager.py --ignore=tests/test_application.py --ignore=tests/test_ui_components.py --ignore=tests/test_page_loader.py --ignore=tests/test_project_settings_manager.py --ignore=tests/test_project_version_manager.py --ignore=tests/test_icon_manager.py --ignore=tests/test_project_template_manager.py
+      - run: pytest tests/ -v --tb=short --cov=scenefab --cov-report=term-missing --ignore=tests/test_project_manager.py --ignore=tests/test_application.py --ignore=tests/test_ui_components.py --ignore=tests/test_page_loader.py --ignore=tests/test_project_settings_manager.py --ignore=tests/test_project_version_manager.py --ignore=tests/test_icon_manager.py --ignore=tests/test_project_template_manager.py

@@ -2,7 +2,7 @@
 """Test Caption Generator"""
 
 
-from voxplore.services.video_tools.caption_gen import (
+from scenefab.services.video_tools.caption_gen import (
     CaptionStyle,
     EmotionLevel,
     Word,

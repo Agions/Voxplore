@@ -1,11 +1,11 @@
 ---
 title: 5 分钟快速开始
-description: 最快 5 分钟上手 Voxplore，开始你的 AI 视频解说创作。
+description: 最快 5 分钟上手 SceneFab，开始你的 AI 影视解说创作。
 ---
 
 # 5 分钟快速开始
 
-本指南帮助你最快的体验 Voxplore。
+本指南帮助你最快的体验 SceneFab。
 
 ## 环境要求
 
@@ -13,7 +13,7 @@ description: 最快 5 分钟上手 Voxplore，开始你的 AI 视频解说创作
 |------|------|
 | 操作系统 | Windows 10+ / macOS 12+ / Ubuntu 20.04+ |
 | 内存 | ≥ 8 GB（推荐 16 GB） |
-| 显存 | ≥ 4 GB（用于 Qwen2.5-VL OCR） |
+| 显存 | ≥ 4 GB（用于 Qwen2.5-VL，如无则自动用 CPU） |
 | 磁盘 | ≥ 5 GB 可用空间 |
 
 ## 安装方式
@@ -21,51 +21,51 @@ description: 最快 5 分钟上手 Voxplore，开始你的 AI 视频解说创作
 :::code-group
 
 ```bash [Homebrew (macOS/Linux)]
-brew install voxplore
-voxplore
+brew install scenefab
+scenefab
 ```
 
 ```bash [pip]
-pip install voxplore
-voxplore
+pip install scenefab
+scenefab
 ```
 
 ```bash [源码]
-git clone https://github.com/Agions/Voxplore.git
-cd Voxplore
+git clone https://github.com/Agions/scene-fab.git
+cd SceneFab
 pip install -e .
-voxplore
+scenefab
 ```
 
 :::
 
 ## 配置 API Key
 
-Voxplore 需要以下 API Key：
+SceneFab 需要以下 API Key：
 
 | 服务 | 用途 | 必填 | 费用 |
 |------|------|------|------|
 | DeepSeek | 解说稿生成 | ✅ | ~¥7/月 |
-| Qwen VL | 视频帧分析 | ✅ | ¥0.1/千次 |
+| Qwen VL | 视频帧语义分析 | ✅ | ¥0.1/千次 |
 | Edge TTS | 配音生成 | ✅ | 免费 |
 
-> 💡 **提示**：处理一个 5 分钟视频，DeepSeek 成本约 **0.3 分钱**。
+> 💡 **提示**：处理一部 2 小时电影解说，DeepSeek 成本约 **3 分钱**，Qwen VL 约 **¥0.5**，合计不足 **1 元**。
 
 ### 获取 DeepSeek API Key
 
 1. 访问 [platform.deepseek.com](https://platform.deepseek.com)
 2. 注册/登录后进入 **API Keys** 页面
 3. 点击 **Create API Key**
-4. 复制 Key 并填入 Voxplore 设置页
+4. 复制 Key 并填入 SceneFab 设置页
 
 ### 配置方式
 
-启动 Voxplore 后，进入 **设置 → AI 服务**，填入对应 Key。
+启动 SceneFab 后，进入 **设置 → AI 服务**，填入对应 Key。
 
 ## 创建第一个项目
 
 ```
-1. 启动 Voxplore
+1. 启动 SceneFab
 2. 点击「新建项目」
 3. 选择包含视频的文件夹
 4. 等待 AI 分析完成（约 2-5 分钟）

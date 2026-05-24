@@ -1,1 +1,0 @@
-# Voxplore UI Theme

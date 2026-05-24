@@ -4,7 +4,7 @@
 import logging
 from io import StringIO
 
-from voxplore.logger import Logger, LogLevel, LogFormat
+from scenefab.logger import Logger, LogLevel, LogFormat
 
 
 class TestLogLevel:

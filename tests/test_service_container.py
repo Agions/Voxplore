@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试服务容器"""
 
-from voxplore.service_container import ServiceContainer
+from scenefab.service_container import ServiceContainer
 
 
 class TestServiceContainer:

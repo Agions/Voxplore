@@ -2,13 +2,13 @@
 
 import pytest
 from unittest.mock import patch, MagicMock
-from voxplore.plugins.loader import PluginLoader
-from voxplore.plugins.interfaces.base import PluginManifest, PluginType
+from scenefab.plugins.loader import PluginLoader
+from scenefab.plugins.interfaces.base import PluginManifest, PluginType
 
 
 class TestPluginLoaderEntryPoints:
     def test_entry_point_group_name(self):
-        assert PluginLoader.ENTRY_POINT_GROUP == "voxplore.plugins"
+        assert PluginLoader.ENTRY_POINT_GROUP == "scenefab.plugins"
 
     def test_discover_via_entry_points_empty(self):
         """When no entry_points match, should return empty list"""
@@ -28,7 +28,7 @@ class TestPluginLoaderEntryPoints:
         fake_ep.attr = "MyPlugin"
         fake_ep.name = "my-plugin"
         fake_ep.value = "my_plugin:MyPlugin"
-        fake_ep.group = "voxplore.plugins"
+        fake_ep.group = "scenefab.plugins"
 
         fake_class = type("MyPlugin", (), {"__name__": "MyPlugin"})
         fake_ep.load.return_value = fake_class

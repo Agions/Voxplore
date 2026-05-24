@@ -2,7 +2,7 @@
 """测试 LLM 提供商基类和混入"""
 
 
-from voxplore.services.ai.base_llm_provider import (
+from scenefab.services.ai.base_llm_provider import (
     LLMRequest,
     LLMResponse,
     ProviderError,

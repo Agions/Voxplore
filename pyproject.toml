@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "voxplore"
-version = "1.0.1"
-description = "Voxplore - AI-Powered Video Creation Desktop App"
+name = "scenefab"
+version = "2.0.0"
+description = "SceneFab - AI 影视解说视频创作工具，一键完成智能拆条 · 解说生成 · 配音合成"
 license = {text = "MIT"}
 authors = [
     {name = "Agions", email = "agions@qq.com"}
@@ -26,8 +26,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Multimedia :: Video",
     "Topic :: Multimedia :: Video :: Non-Linear Editor",
+    "Topic :: Artificial Intelligence",
 ]
-keywords = ["video", "editing", "AI", "multimedia", "PySide6"]
+keywords = ["video", "AI", "film-commentary", "scene-detection", "TTS", "PySide6", "短视频", "影视解说"]
 requires-python = ">=3.10"
 dependencies = [
     # Core UI
@@ -95,14 +96,14 @@ all = [
 ]
 
 [project.scripts]
-voxplore = "voxplore.cli.main:main"
+scenefab = "scenefab.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["voxplore"]
+packages = ["scenefab"]
 
 [tool.setuptools.package-data]
-voxplore = ["py.typed"]
+scenefab = ["py.typed"]
 
 [tool.black]
 line-length = 88
@@ -124,7 +125,7 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
-files = ["src/voxplore", "tests"]
+files = ["src/scenefab", "tests"]
 
 [[tool.mypy.overrides]]
 module = "PySide6.*"

@@ -1,6 +1,6 @@
 ---
 title: 模型更新日志
-description: Voxplore AI 模型的更新历史与版本变化。
+description: SceneFab AI 模型的更新历史与版本变化。
 ---
 
 # 模型更新日志

@@ -1,6 +1,6 @@
 ---
 title: 配置参考
-description: Voxplore 配置文件详解和环境变量完整参考。
+description: SceneFab 配置文件详解和环境变量完整参考。
 ---
 
 # 配置参考
@@ -28,7 +28,7 @@ description: Voxplore 配置文件详解和环境变量完整参考。
 | `DASHSCOPE_MODEL` | `qwen2.5-vl-7b-instruct` | 视频理解模型 |
 | `TTS_ENGINE` | `edge-tts` | TTS 引擎：`edge-tts` / `f5-tts` / `openai` |
 | `DEFAULT_EMOTION` | `heal` | 默认情感风格 |
-| `OUTPUT_DIR` | `~/Videos/Voxplore` | 默认输出目录 |
+| `OUTPUT_DIR` | `~/Videos/SceneFab` | 默认输出目录 |
 | `FFMPEG_PATH` | `ffmpeg` | FFmpeg 可执行文件路径 |
 | `HTTP_PROXY` | — | HTTP 代理地址（如需） |
 | `HTTPS_PROXY` | — | HTTPS 代理地址 |
@@ -57,7 +57,7 @@ TTS_ENGINE=edge-tts
 DEFAULT_EMOTION=heal
 
 # 输出配置
-OUTPUT_DIR=~/Videos/Voxplore
+OUTPUT_DIR=~/Videos/SceneFab
 
 # FFmpeg（通常无需配置）
 FFMPEG_PATH=ffmpeg
@@ -71,7 +71,7 @@ FFMPEG_PATH=ffmpeg
 
 ## 配置文件
 
-Voxplore 使用以下配置文件（位于 `~/.narrafiilm/`）：
+SceneFab 使用以下配置文件（位于 `~/.narrafiilm/`）：
 
 | 文件 | 说明 |
 |------|------|
@@ -98,7 +98,7 @@ video:
   temp_dir: /tmp/narrafiilm
 
 export:
-  output_dir: ~/Videos/Voxplore
+  output_dir: ~/Videos/SceneFab
   quality_preset: high   # low / medium / high
   include_subtitles: true
 ```
@@ -159,7 +159,7 @@ python app/main.py --debug
 
 ### API Key 安全存储
 
-Voxplore 优先使用 OS Keychain 存储 Key：
+SceneFab 优先使用 OS Keychain 存储 Key：
 
 | 系统 | 存储方式 |
 |------|----------|

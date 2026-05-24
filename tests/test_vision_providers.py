@@ -12,7 +12,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from voxplore.services.ai.vision_providers import (
+from scenefab.services.ai.vision_providers import (
     VisionProvider,
     OpenAIVisionProvider,
     QwenVLProvider,

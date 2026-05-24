@@ -2,8 +2,8 @@
 """Test Cache Manager"""
 
 
-from voxplore.cache_manager import MemoryCache
-from voxplore.interfaces.cache_interface import CachePolicy
+from scenefab.cache_manager import MemoryCache
+from scenefab.interfaces.cache_interface import CachePolicy
 
 
 class TestMemoryCache:

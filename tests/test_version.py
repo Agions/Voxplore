@@ -12,7 +12,7 @@ from pathlib import Path
 # 添加项目路径
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from voxplore.utils.version import Version, get_version, get_version_string
+from scenefab.utils.version import Version, get_version, get_version_string
 
 
 class TestVersion:

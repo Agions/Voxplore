@@ -1,6 +1,6 @@
 {
-  "include": ["app"],
-  "exclude": ["app/ui/**"],
+  "include": ["src/scenefab"],
+  "exclude": ["src/scenefab/ui/**"],
   "pythonVersion": "3.10",
   "typeCheckingMode": "basic",
   "stubPath": ""

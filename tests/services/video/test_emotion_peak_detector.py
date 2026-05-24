@@ -3,11 +3,11 @@
 """测试情感峰值检测服务"""
 
 
-from voxplore.services.video.extraction.emotion_peak import (
+from scenefab.services.video.extraction.emotion_peak import (
     EmotionPeak,
     EmotionPeakDetector,
 )
-from voxplore.services.video.extraction.first_person import VideoSegment
+from scenefab.services.video.extraction.first_person import VideoSegment
 
 
 class TestEmotionPeak:

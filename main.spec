@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-Voxplore PyInstaller 构建配置
+SceneFab PyInstaller 构建配置
 使用方法: pyinstaller main.spec
 
 版本: 自动从 pyproject.toml 读取（CI/CD 使用 workflows，本地推荐 make build:win）
@@ -15,7 +15,7 @@ block_cipher = None
 # 本地构建时直接用 make build:win/mac/linux，版本号自动从 pyproject.toml 获取
 
 # 分析入口点
-app_main = 'src/voxplore/main.py'
+app_main = 'src/scenefab/main.py'
 
 a = Analysis(
     [app_main],
@@ -63,7 +63,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name=f'Voxplore-{VERSION}',
+    name=f'SceneFab-{VERSION}',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -78,5 +78,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name=f'Voxplore-{VERSION}',
+    name=f'SceneFab-{VERSION}',
 )

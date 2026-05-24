@@ -1,5 +1,5 @@
 #!/bin/bash
-# Voxplore Linux 构建脚本（Nuitka + AppImage）
+# SceneFab Linux 构建脚本（Nuitka + AppImage）
 # 用法: ./build_linux.sh
 
 set -e
@@ -7,12 +7,12 @@ cd "$(dirname "$0")/.."
 source scripts/common.sh
 
 PLATFORM="linux-x86_64"
-APPIMAGE_NAME="Voxplore-${VERSION}-${PLATFORM}.AppImage"
-APP_DIR="Voxplore-${VERSION}-${PLATFORM}.AppDir"
-PY_NAME="Voxplore-${VERSION}-${PLATFORM}"
+APPIMAGE_NAME="SceneFab-${VERSION}-${PLATFORM}.AppImage"
+APP_DIR="SceneFab-${VERSION}-${PLATFORM}.AppDir"
+PY_NAME="SceneFab-${VERSION}-${PLATFORM}"
 
 info "========================================"
-info "  Voxplore Linux 构建（Nuitka）"
+info "  SceneFab Linux 构建（Nuitka）"
 info "  版本: ${VERSION}"
 info "========================================"
 
@@ -64,27 +64,27 @@ cat > "${APP_DIR}/AppRun" << 'APPRUN'
 #!/bin/bash
 SELF=$(readlink -f "$0")
 DIR=$(dirname "$SELF")
-exec "${DIR}/Voxplore-${VERSION}-${PLATFORM}" "$@"
+exec "${DIR}/SceneFab-${VERSION}-${PLATFORM}" "$@"
 APPRUN
 chmod +x "${APP_DIR}/AppRun"
 
-# Voxplore.desktop（桌面快捷方式）
-cat > "${APP_DIR}/Voxplore.desktop" << 'DESKTOP'
+# SceneFab.desktop（桌面快捷方式）
+cat > "${APP_DIR}/SceneFab.desktop" << 'DESKTOP'
 [Desktop Entry]
-Name=Voxplore
+Name=SceneFab
 Comment=AI First-Person Video Narrator
-Exec=Voxplore-${VERSION}-${PLATFORM}
-Icon=Voxplore
+Exec=SceneFab-${VERSION}-${PLATFORM}
+Icon=SceneFab
 Type=Application
 Categories=AudioVideo;Video;Audio;Graphics;
 DESKTOP
 
 # AppImage.yml
 cat > "${APP_DIR}/AppImage.yml" << 'YML'
-appid: com.voxplore.app
+appid: com.scenefab.app
 version: "${VERSION}"
-name: Voxplore
-exec: Voxplore-${VERSION}-${PLATFORM}
+name: SceneFab
+exec: SceneFab-${VERSION}-${PLATFORM}
 DESKTOP
 
 # ── 打包 AppImage ───────────────────────────────────────────────

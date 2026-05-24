@@ -1,4 +1,4 @@
-# Voxplore AI LLM 配置
+# SceneFab AI LLM 配置
 
 LLM:
   # 默认提供商 (qwen | kimi | glm5 | openai | deepseek | claude | gemini | local | doubao | hunyuan)

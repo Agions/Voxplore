@@ -1,6 +1,6 @@
-# Voxplore Windows 构建脚本 (PowerShell)
+# SceneFab Windows 构建脚本 (PowerShell)
 # 用法: .\build_windows.ps1
-# 输出: Voxplore-{version}-windows-x64.zip
+# 输出: SceneFab-{version}-windows-x64.zip
 
 param(
     [string]$Version
@@ -14,11 +14,11 @@ if (-not $Version) {
 }
 
 $Platform = "windows-x64"
-$OutputZip = "Voxplore-${Version}-${Platform}.zip"
-$AppDir = "dist\Voxplore-${Version}-${Platform}"
+$OutputZip = "SceneFab-${Version}-${Platform}.zip"
+$AppDir = "dist\SceneFab-${Version}-${Platform}"
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Voxplore Windows 构建 (PyInstaller)" -ForegroundColor Cyan
+Write-Host "  SceneFab Windows 构建 (PyInstaller)" -ForegroundColor Cyan
 Write-Host "  版本: ${Version}" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
@@ -46,7 +46,7 @@ Write-Host "[4/5] PyInstaller 构建..." -ForegroundColor Yellow
 pyinstaller `
     --clean `
     --onedir `
-    --name "Voxplore-${Version}-${Platform}" `
+    --name "SceneFab-${Version}-${Platform}" `
     --add-data "resources;resources" `
     --hidden-import=PySide6 `
     --hidden-import=PySide6.QtCore `
