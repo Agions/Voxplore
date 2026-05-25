@@ -27,26 +27,26 @@ logger = logging.getLogger(__name__)
 class VideoFrameCache:
     """
     视频帧 LRU 缓存，支持内存限制和磁盘回退
-    
+
     特性：
     - LRU 淘汰策略
     - 最大帧数限制（max_frames=100）
     - 最大内存限制（max_memory_mb=500）
     - 磁盘回退：超限帧写入临时目录
     - 批量预提取关键帧支持
-    
+
     使用示例：
         cache = VideoFrameCache.get_shared()
-        
+
         # 存储帧
         cache.set("video_001@10.5", frame_array)
-        
+
         # 获取帧（自动 LRU 更新）
         frame = cache.get("video_001@10.5")
-        
+
         # 批量预提取
         cache.prefetch_batch("video_001", [0.0, 1.0, 2.0, ...], extract_func)
-        
+
         # 获取缓存统计
         stats = cache.get_stats()
     """
@@ -74,7 +74,7 @@ class VideoFrameCache:
     ):
         """
         初始化视频帧缓存
-        
+
         Args:
             max_frames: 最大缓存帧数
             max_memory_mb: 最大内存使用（MB）
@@ -84,21 +84,21 @@ class VideoFrameCache:
         self._max_frames = max_frames
         self._max_memory_bytes = max_memory_mb * 1024 * 1024
         self._disk_fallback = disk_fallback
-        
+
         # 内存缓存：OrderedDict 实现 LRU
         self._memory_cache: OrderedDict[str, np.ndarray] = OrderedDict()
         self._memory_usage = 0
-        
+
         # 磁盘缓存路径
         if temp_dir:
             self._disk_dir = Path(temp_dir) / "video_frame_cache"
         else:
             self._disk_dir = Path(tempfile.gettempdir()) / "video_frame_cache"
         self._disk_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # 锁
         self._lock = Lock()
-        
+
         # 统计
         self._hit_count = 0
         self._miss_count = 0
@@ -125,10 +125,10 @@ class VideoFrameCache:
     def get(self, key: str) -> Optional[np.ndarray]:
         """
         获取缓存帧
-        
+
         Args:
             key: 缓存键
-            
+
         Returns:
             帧数组或 None
         """
@@ -139,7 +139,7 @@ class VideoFrameCache:
                 self._memory_cache.move_to_end(key)
                 self._hit_count += 1
                 return self._memory_cache[key]
-            
+
             # 2. 尝试从磁盘缓存获取
             if self._disk_fallback:
                 disk_path = self._get_disk_path(key)
@@ -149,59 +149,59 @@ class VideoFrameCache:
                             frame = pickle.load(f)
                         self._disk_read_count += 1
                         self._hit_count += 1
-                        
+
                         # 回读到内存（如果空间允许）
                         frame_size = self._estimate_frame_size(frame)
                         if self._memory_usage + frame_size <= self._max_memory_bytes:
                             self._memory_cache[key] = frame
                             self._memory_cache.move_to_end(key)
                             self._memory_usage += frame_size
-                        
+
                         return frame
                     except Exception as e:
                         logger.debug(f"磁盘缓存读取失败: {e}")
-            
+
             self._miss_count += 1
             return None
 
     def set(self, key: str, frame: np.ndarray) -> bool:
         """
         设置缓存帧
-        
+
         Args:
             key: 缓存键
             frame: 帧数组
-            
+
         Returns:
             是否设置成功
         """
         frame_size = self._estimate_frame_size(frame)
-        
+
         # 如果单个帧就超过限制，直接丢弃
         if frame_size > self._max_memory_bytes:
             logger.warning(f"帧大小 {frame_size} 超过限制，跳过缓存")
             return False
-        
+
         with self._lock:
             # 如果已存在，先移除旧值
             if key in self._memory_cache:
                 old_size = self._estimate_frame_size(self._memory_cache[key])
                 self._memory_usage -= old_size
                 del self._memory_cache[key]
-            
+
             # 清理空间直到满足新帧
             while (len(self._memory_cache) >= self._max_frames or
                    self._memory_usage + frame_size > self._max_memory_bytes):
-                
+
                 if not self._memory_cache:
                     break
-                
+
                 # 淘汰最旧的帧
                 oldest_key, oldest_frame = self._memory_cache.popitem(last=False)
                 evicted_size = self._estimate_frame_size(oldest_frame)
                 self._memory_usage -= evicted_size
                 self._eviction_count += 1
-                
+
                 # 磁盘回退：写入磁盘而不是删除
                 if self._disk_fallback:
                     try:
@@ -211,12 +211,12 @@ class VideoFrameCache:
                         self._disk_write_count += 1
                     except Exception as e:
                         logger.debug(f"磁盘回退写入失败: {e}")
-            
+
             # 存储到内存
             self._memory_cache[key] = frame
             self._memory_cache.move_to_end(key)
             self._memory_usage += frame_size
-            
+
             return True
 
     def prefetch_batch(
@@ -228,18 +228,18 @@ class VideoFrameCache:
     ) -> dict[str, np.ndarray]:
         """
         批量预提取关键帧（并行）
-        
+
         Args:
             video_path: 视频路径
             timestamps: 时间戳列表
             extract_func: 提取函数，签名 (video_path, timestamp) -> np.ndarray
             progress_callback: 进度回调 (current, total)
-            
+
         Returns:
             {缓存键: 帧数组} 字典
         """
         total = len(timestamps)
-        
+
         # 第一步：并行提取所有缺失帧
         def extract_missing(ts: float) -> tuple[str, Optional[np.ndarray]]:
             key = self._generate_key(video_path, ts)
@@ -250,25 +250,25 @@ class VideoFrameCache:
             if frame is not None:
                 return key, frame
             return key, None
-        
+
         # 使用线程池并行提取，最多 max_workers 个并发
         max_workers = min(8, max(1, total))
         results = {}
         extracted_count = 0
-        
+
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {executor.submit(extract_missing, ts): ts for ts in timestamps}
-            
+
             for i, future in enumerate(futures):
                 key, frame = future.result()
                 if frame is not None:
                     self.set(key, frame)
                     results[key] = frame
                     extracted_count += 1
-                
+
                 if progress_callback and (i + 1) % 10 == 0:
                     progress_callback(i + 1, total)
-        
+
         return results
 
     def get_stats(self) -> dict:
@@ -295,7 +295,7 @@ class VideoFrameCache:
         with self._lock:
             self._memory_cache.clear()
             self._memory_usage = 0
-            
+
             # 清理磁盘缓存
             if self._disk_dir.exists():
                 shutil.rmtree(self._disk_dir)
@@ -310,7 +310,7 @@ class VideoFrameCache:
 
 class VideoCache:
     """视频帧缓存（兼容旧接口）"""
-    
+
     # 全局共享缓存实例
     _shared_cache: Optional[VideoFrameCache] = None
 
@@ -443,12 +443,12 @@ class FFmpegSession:
     def extract_frame(self, video_path: str, timestamp: float) -> np.ndarray | None:
         """提取单帧（带缓存）"""
         cache_key = f"{video_path}@{timestamp:.3f}"
-        
+
         # 尝试从缓存获取
         cached = self._frame_cache.get(cache_key)
         if cached is not None:
             return cached
-        
+
         # 提取帧
         try:
             import cv2
