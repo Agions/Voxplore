@@ -1,0 +1,12 @@
+{
+  "name": "scenefab-docs",
+  "version": "1.0.0",
+  "description": "SceneFab documentation",
+  "scripts": {
+    "docs:build": "vitepress build",
+    "docs:dev": "vitepress dev"
+  },
+  "devDependencies": {
+    "vitepress": "^1.5.0"
+  }
+}
