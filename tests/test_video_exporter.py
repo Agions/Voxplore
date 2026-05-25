@@ -22,7 +22,7 @@ class TestExportFormat:
             ExportFormat.WEBM,
             ExportFormat.GIF,
         ]
-        
+
         assert len(formats) == 4
         assert ExportFormat.MP4.value == "mp4"
 
@@ -38,7 +38,7 @@ class TestVideoCodec:
             VideoCodec.VP9,
             VideoCodec.PRORES,
         ]
-        
+
         assert len(codecs) == 4
         assert VideoCodec.H264.value == "libx264"
 
@@ -53,7 +53,7 @@ class TestAudioCodec:
             AudioCodec.MP3,
             AudioCodec.OPUS,
         ]
-        
+
         assert len(codecs) == 3
         assert AudioCodec.AAC.value == "aac"
 
@@ -64,7 +64,7 @@ class TestExportConfig:
     def test_default_config(self):
         """Test default config"""
         config = ExportConfig()
-        
+
         assert config.format == ExportFormat.MP4
         assert config.video_codec == VideoCodec.H264
         assert config.width == 1080
@@ -77,7 +77,7 @@ class TestExportConfig:
             width=1920,
             height=1080,
         )
-        
+
         assert config.format == ExportFormat.WEBM
         assert config.width == 1920
         assert config.height == 1080
@@ -89,7 +89,7 @@ class TestVideoExporter:
     def test_init(self):
         """Test initialization"""
         exporter = VideoExporter()
-        
+
         assert exporter.config is not None
         assert isinstance(exporter.config, ExportConfig)
 
@@ -97,5 +97,5 @@ class TestVideoExporter:
         """Test custom config initialization"""
         config = ExportConfig(format=ExportFormat.MOV)
         exporter = VideoExporter(config)
-        
+
         assert exporter.config.format == ExportFormat.MOV

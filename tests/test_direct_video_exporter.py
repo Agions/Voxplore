@@ -67,7 +67,7 @@ class TestVideoExportConfig:
     def test_default_config(self):
         """Test default config"""
         config = VideoExportConfig()
-        
+
         assert config.resolution == Resolution.FHD_1080P
         assert config.format == VideoFormat.MP4
         assert config.fps == 30.0
@@ -78,7 +78,7 @@ class TestVideoExportConfig:
             resolution=Resolution.VERTICAL_1080P,
             fps=60.0,
         )
-        
+
         assert config.resolution == Resolution.VERTICAL_1080P
         assert config.fps == 60.0
 
@@ -89,7 +89,7 @@ class TestDirectVideoExporter:
     def test_init(self):
         """Test initialization"""
         exporter = DirectVideoExporter()
-        
+
         assert exporter.config is not None
         assert isinstance(exporter.config, VideoExportConfig)
 
@@ -97,5 +97,5 @@ class TestDirectVideoExporter:
         """Test custom config initialization"""
         config = VideoExportConfig(resolution=Resolution.UHD_4K)
         exporter = DirectVideoExporter(config)
-        
+
         assert exporter.config.resolution == Resolution.UHD_4K

@@ -46,14 +46,14 @@ class TestLogger:
         """测试获取日志器"""
         logger1 = Logger.get_logger("test1")
         logger2 = Logger.get_logger("test1")
-        
+
         # 应该是同一个实例或同名的logger
         assert logger1.logger.name == logger2.logger.name
 
     def test_debug_message(self):
         """测试调试消息"""
         logger = Logger("test_debug", level=logging.DEBUG)
-        
+
         # 不应抛出异常
         logger.debug("debug message")
         logger.info("info message")
@@ -73,15 +73,15 @@ class TestLoggerIntegration:
     def test_log_to_stdout(self):
         """测试输出到标准输出"""
         logger = Logger("stdout_test", level=logging.INFO)
-        
+
         # 应该能正常输出而不崩溃
         output = StringIO()
         handler = logging.StreamHandler(output)
         handler.setLevel(logging.INFO)
-        
+
         logger.logger.addHandler(handler)
         logger.info("test message")
-        
+
         # 验证消息被写入
         result = output.getvalue()
         assert "test message" in result

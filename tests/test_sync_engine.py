@@ -22,7 +22,7 @@ class TestSyncStrategy:
             SyncStrategy.ENERGY_SYNC,
             SyncStrategy.HYBRID,
         ]
-        
+
         assert len(strategies) == 4
         assert SyncStrategy.BEAT_SYNC.value == "beat_sync"
 
@@ -50,7 +50,7 @@ class TestSyncPoint:
             clip_index=0,
             transition=TransitionType.HARD_CUT,
         )
-        
+
         assert point.timestamp == 1.5
         assert point.transition == TransitionType.HARD_CUT
         assert point.clip_index == 0
@@ -67,7 +67,7 @@ class TestSyncPlan:
             strategy=SyncStrategy.BEAT_SYNC,
             sync_points=[],
         )
-        
+
         assert plan.total_duration == 60.0
         assert plan.bpm == 120.0
         assert plan.strategy == SyncStrategy.BEAT_SYNC
@@ -80,5 +80,5 @@ class TestSyncEngine:
     def test_init(self):
         """Test initialization"""
         engine = SyncEngine()
-        
+
         assert engine is not None

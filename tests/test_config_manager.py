@@ -34,7 +34,7 @@ class TestLLMConfig:
     def test_default(self):
         """测试默认值"""
         config = LLMConfig()
-        
+
         assert config.enabled is False
         assert config.api_key == ""
         assert config.model == ""
@@ -44,19 +44,19 @@ class TestLLMConfig:
     def test_is_valid_disabled(self):
         """测试禁用时无效"""
         config = LLMConfig(enabled=False)
-        
+
         assert config.is_valid() is False
 
     def test_is_valid_no_api_key(self):
         """测试无 API key 时无效"""
         config = LLMConfig(enabled=True, model="test")
-        
+
         assert config.is_valid() is False
 
     def test_is_valid_no_model(self):
         """测试无模型时无效"""
         config = LLMConfig(enabled=True, api_key="key")
-        
+
         assert config.is_valid() is False
 
     def test_is_valid_complete(self):
@@ -66,7 +66,7 @@ class TestLLMConfig:
             api_key="test_key",
             model="test_model"
         )
-        
+
         assert config.is_valid() is True
 
 
@@ -76,7 +76,7 @@ class TestCacheConfig:
     def test_default(self):
         """测试默认值"""
         config = CacheConfig()
-        
+
         assert config.enabled is True
         assert config.max_size == 100
         assert config.ttl == 3600
@@ -84,23 +84,23 @@ class TestCacheConfig:
     def test_is_valid_enabled(self):
         """测试启用时有效"""
         config = CacheConfig(enabled=True, max_size=10, ttl=100)
-        
+
         assert config.is_valid() is True
 
     def test_is_valid_disabled(self):
         """测试禁用时无效"""
         config = CacheConfig(enabled=False)
-        
+
         assert config.is_valid() is False
 
     def test_is_valid_zero_max_size(self):
         """测试零大小时无效"""
         config = CacheConfig(enabled=True, max_size=0)
-        
+
         assert config.is_valid() is False
 
     def test_is_valid_zero_ttl(self):
         """测试零 TTL 时无效"""
         config = CacheConfig(enabled=True, ttl=0)
-        
+
         assert config.is_valid() is False

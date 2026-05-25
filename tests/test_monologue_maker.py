@@ -26,7 +26,7 @@ class TestMonologueStyle:
             MonologueStyle.PHILOSOPHICAL,
             MonologueStyle.HEALING,
         ]
-        
+
         assert len(styles) == 7
         assert MonologueStyle.MELANCHOLIC.value == "melancholic"
 
@@ -41,7 +41,7 @@ class TestEmotionType:
             EmotionType.SAD,
             EmotionType.HAPPY,
         ]
-        
+
         assert len(types) == 3
         assert EmotionType.NEUTRAL.value == "neutral"
 
@@ -75,7 +75,7 @@ class TestMonologueProject:
             context="测试背景",
             emotion="惆怅",
         )
-        
+
         assert project.name == "测试独白"
         assert project.context == "测试背景"
 
@@ -86,7 +86,7 @@ class TestMonologueMaker:
     def test_init(self):
         """测试初始化"""
         maker = MonologueMaker()
-        
+
         assert maker.scene_analyzer is not None
 
     def test_init_custom_style(self):

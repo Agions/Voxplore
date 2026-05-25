@@ -88,7 +88,7 @@ class TestSegmentSelector:
 
         # 计算总时长
         total_duration = sum(s.end_time - s.start_time for s in selected)
-        
+
         assert 40.0 <= total_duration <= 65.0, \
             f"总时长 {total_duration:.1f}s 应在 40-65s 范围内"
         assert len(selected) <= len(segments)
@@ -133,7 +133,7 @@ class TestSegmentSelector:
         ]
 
         selector = SegmentSelector()
-        
+
         selected = selector.select_segments(
             segments,
             strategy=SelectionStrategy.HYBRID,
@@ -191,10 +191,10 @@ class TestSegmentSelector:
         ]
 
         selector = SegmentSelector()
-        
+
         # 使用默认 target_duration=(60, 180)
         selected = selector.select_segments(segments)
-        
+
         assert isinstance(selected, list)
 
 
@@ -232,7 +232,7 @@ class TestSegmentSelectorDuration:
         ]
 
         selector = SegmentSelector()
-        
+
         selected = selector.select_segments(
             segments,
             strategy=SelectionStrategy.EMOTION_PEAK,

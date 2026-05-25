@@ -51,13 +51,13 @@ class TestProjectMetadata:
             name="测试项目",
             description="这是一个测试项目"
         )
-        
+
         assert metadata.name == "测试项目"
         assert metadata.description == "这是一个测试项目"
 
     def test_default_values(self):
         metadata = ProjectMetadata(name="测试")
-        
+
         assert metadata.created_at is not None
         assert metadata.modified_at is not None
         assert metadata.version == "1.0.0"
@@ -70,9 +70,9 @@ class TestProjectMetadata:
             description="描述",
             author="作者"
         )
-        
+
         d = metadata.to_dict()
-        
+
         assert d["name"] == "测试"
         assert d["description"] == "描述"
         assert d["author"] == "作者"

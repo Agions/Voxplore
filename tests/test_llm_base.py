@@ -18,7 +18,7 @@ class TestLLMDataClasses:
     def test_llm_request_defaults(self):
         """测试请求默认值为"""
         req = LLMRequest(prompt="test prompt")
-        
+
         assert req.prompt == "test prompt"
         assert req.system_prompt == ""
         assert req.model == "default"
@@ -51,7 +51,7 @@ class TestLLMDataClasses:
     def test_llm_response_defaults(self):
         """测试响应默认值"""
         resp = LLMResponse(content="Hello", model="gpt-4")
-        
+
         assert resp.content == "Hello"
         assert resp.model == "gpt-4"
         assert resp.tokens_used == 0
@@ -102,13 +102,13 @@ class TestProviderWithMixins:
         """测试 HTTP 客户端混入初始化"""
         class TestProvider(HTTPClientMixin):
             pass
-        
+
         provider = TestProvider(
             api_key="test-key",
             base_url="https://api.example.com",
             timeout=30.0
         )
-        
+
         assert provider.api_key == "test-key"
         assert provider.base_url == "https://api.example.com"
         assert provider.timeout == 30.0
@@ -121,9 +121,9 @@ class TestProviderWithMixins:
                 "gpt-3.5": {"name": "GPT-3.5", "max_tokens": 4000},
             }
             DEFAULT_MODEL = "gpt-4"
-        
+
         provider = TestProvider()
-        
+
         assert "gpt-4" in provider.MODELS
         assert provider.DEFAULT_MODEL == "gpt-4"
         assert provider.get_model_info("gpt-4") == {"name": "GPT-4", "max_tokens": 8000}

@@ -84,7 +84,7 @@ class TestSmartGrouper:
     def test_group_videos_same_scene_high_confidence(self):
         """测试：2个视频同一场景 → 高置信度同组"""
         video_paths = ["/test/scene1_video1.mp4", "/test/scene1_video2.mp4"]
-        
+
         # 相同场景的视觉 embedding（高度相似）
         same_embedding = [0.1] * 128
         vision_embeddings = {vp: same_embedding for vp in video_paths}
@@ -105,7 +105,7 @@ class TestSmartGrouper:
     def test_group_videos_different_scene_low_confidence(self):
         """测试：2个视频不同场景 → 低置信度不同组"""
         video_paths = ["/test/scene1.mp4", "/test/scene2.mp4"]
-        
+
         # 不同场景的视觉 embedding（随机，不相似）
         vision_embeddings = {vp: list(np.random.randn(128)) for vp in video_paths}
         audio_embeddings = {vp: [np.random.rand()] * 64 for vp in video_paths}
@@ -125,11 +125,11 @@ class TestSmartGrouper:
         """测试：3个视频混合 → 正确分2组"""
         # video_a, video_b 同一场景；video_c 不同场景
         video_paths = ["/test/video_a.mp4", "/test/video_b.mp4", "/test/video_c.mp4"]
-        
+
         # video_a 和 video_b 相似，video_c 不相似
         ab_embedding = [0.5] * 128
         c_embedding = [-0.5] * 128
-        
+
         vision_embeddings = {
             "/test/video_a.mp4": ab_embedding,
             "/test/video_b.mp4": ab_embedding,
@@ -144,7 +144,7 @@ class TestSmartGrouper:
         groups = grouper.group_videos(video_paths)
 
         assert len(groups) == 2
-        
+
         # 找到包含 video_a 和 video_b 的组
         ab_group = None
         c_group = None

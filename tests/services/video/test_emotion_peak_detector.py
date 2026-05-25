@@ -22,7 +22,7 @@ class TestEmotionPeak:
             confidence=0.85,
             description="测试片段"
         )
-        
+
         peak = EmotionPeak(
             segment=segment,
             peak_score=0.95,

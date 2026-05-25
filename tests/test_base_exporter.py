@@ -71,14 +71,14 @@ class TestBaseTrack:
     def test_default_creation(self):
         """测试默认创建"""
         track = BaseTrack()
-        
+
         assert track.id != ""
         assert track.type == "video"
 
     def test_custom_creation(self):
         """测试自定义创建"""
         track = BaseTrack(type="audio")
-        
+
         assert track.type == "audio"
 
 
@@ -88,7 +88,7 @@ class TestBaseSegment:
     def test_default_creation(self):
         """测试默认创建"""
         segment = BaseSegment()
-        
+
         assert segment.id != ""
         assert segment.material_id == ""
         assert segment.start == 0.0
@@ -100,7 +100,7 @@ class TestBaseSegment:
             start=1.5,
             duration=2.0,
         )
-        
+
         assert segment.material_id == "mat123"
         assert segment.start == 1.5
         assert segment.duration == 2.0

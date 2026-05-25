@@ -49,7 +49,7 @@ class TestSettingDefinition:
             setting_type=SettingType.STRING,
             default_value="默认值"
         )
-        
+
         assert definition.key == "test_key"
         assert definition.name == "测试设置"
         assert definition.setting_type == SettingType.STRING
@@ -62,7 +62,7 @@ class TestSettingDefinition:
             setting_type=SettingType.BOOLEAN,
             default_value=False
         )
-        
+
         assert definition.category == "general"
         assert definition.subcategory == ""
         assert definition.advanced is False
@@ -76,7 +76,7 @@ class TestSettingDefinition:
             default_value="dark",
             options=["light", "dark", "auto"]
         )
-        
+
         assert definition.options == ["light", "dark", "auto"]
 
     def test_with_range(self):
@@ -89,6 +89,6 @@ class TestSettingDefinition:
             min_value=0.1,
             max_value=1.0
         )
-        
+
         assert definition.min_value == 0.1
         assert definition.max_value == 1.0

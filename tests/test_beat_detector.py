@@ -34,7 +34,7 @@ class TestMusicSection:
             MusicSection.BRIDGE,
             MusicSection.OUTRO,
         ]
-        
+
         assert len(sections) == 5
 
 
@@ -48,7 +48,7 @@ class TestBeatInfo:
             strength=BeatStrength.STRONG,
             bar_position=1,
         )
-        
+
         assert beat.timestamp == 1.5
         assert beat.strength == BeatStrength.STRONG
         assert beat.bar_position == 1
@@ -65,7 +65,7 @@ class TestSectionInfo:
             section_type=MusicSection.INTRO,
             energy=0.8,
         )
-        
+
         assert section.start == 0.0
         assert section.end == 10.0
         assert section.section_type == MusicSection.INTRO
@@ -83,7 +83,7 @@ class TestAudioAnalysisResult:
             sample_rate=44100,
             bpm=120.0,
         )
-        
+
         assert result.file_path == "/test.mp3"
         assert result.duration == 180.0
         assert result.sample_rate == 44100
@@ -96,11 +96,11 @@ class TestBeatDetector:
     def test_init(self):
         """Test initialization"""
         detector = BeatDetector()
-        
+
         assert detector._hop_length == 512
 
     def test_init_custom_hop_length(self):
         """Test custom hop length"""
         detector = BeatDetector(hop_length=1024)
-        
+
         assert detector._hop_length == 1024

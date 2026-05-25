@@ -47,7 +47,7 @@ class TestSceneFabError:
             code=ErrorCode.UNKNOWN_ERROR,
             message="测试错误"
         )
-        
+
         assert err.code == ErrorCode.UNKNOWN_ERROR
         assert err.message == "测试错误"
         assert err.details == {}
@@ -61,7 +61,7 @@ class TestSceneFabError:
             details={"path": "/test/file.mp4"},
             hint="检查文件路径"
         )
-        
+
         assert err.details["path"] == "/test/file.mp4"
         assert err.hint == "检查文件路径"
 
@@ -71,7 +71,7 @@ class TestSceneFabError:
             code=ErrorCode.CONFIG_MISSING,
             message="配置缺失"
         )
-        
+
         err_str = str(err)
         assert "CFG001" in err_str
         assert "配置缺失" in err_str
@@ -83,7 +83,7 @@ class TestLLMError:
     def test_rate_limit_detection(self):
         """测试速率限制检测"""
         err = LLMError("Rate limit exceeded")
-        
+
         assert err.code == ErrorCode.LLM_RATE_LIMIT
         assert err.hint is not None
         assert "稍后重试" in err.hint
@@ -91,13 +91,13 @@ class TestLLMError:
     def test_invalid_key_detection(self):
         """测试无效密钥检测"""
         err = LLMError("Invalid API key")
-        
+
         assert err.code == ErrorCode.LLM_KEY_MISSING
 
     def test_connection_error_detection(self):
         """测试连接错误检测"""
         err = LLMError("Connection failed")
-        
+
         assert err.code == ErrorCode.LLM_CONNECTION_FAILED
 
     def test_with_provider_info(self):
@@ -107,7 +107,7 @@ class TestLLMError:
             provider="openai",
             model="gpt-4"
         )
-        
+
         assert err.details["provider"] == "openai"
         assert err.details["model"] == "gpt-4"
 
@@ -118,14 +118,14 @@ class TestConfigError:
     def test_missing_config(self):
         """测试缺失配置"""
         err = ConfigError("API Key 未设置", key="openai_key")
-        
+
         assert err.code == ErrorCode.CONFIG_MISSING
         assert err.details["key"] == "openai_key"
 
     def test_invalid_config(self):
         """测试无效配置"""
         err = ConfigError("配置格式错误")
-        
+
         assert err.code == ErrorCode.CONFIG_INVALID
 
 
@@ -139,7 +139,7 @@ class TestFileError:
             path="/test/video.mp4",
             operation="read"
         )
-        
+
         assert err.details["path"] == "/test/video.mp4"
         assert err.details["operation"] == "read"
 
@@ -150,7 +150,7 @@ class TestVideoError:
     def test_format_error(self):
         """测试格式错误"""
         err = VideoError("不支持的视频格式", format="avi")
-        
+
         assert err.code == ErrorCode.VIDEO_FORMAT_ERROR
         assert err.details["format"] == "avi"
 
@@ -161,7 +161,7 @@ class TestNetworkError:
     def test_basic_creation(self):
         """测试基本创建"""
         err = NetworkError("网络连接超时")
-        
+
         assert err.code == ErrorCode.NETWORK_ERROR
 
 

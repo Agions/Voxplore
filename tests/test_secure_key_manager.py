@@ -15,9 +15,9 @@ class TestSecureKeyManager:
     def test_init_default(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试默认初始化"""
         mock_platform.return_value = "Linux"
-        
+
         manager = SecureKeyManager()
-        
+
         assert manager.app_name == "SceneFab"
         assert manager._encryption_key is None
         assert manager._master_password is None
@@ -27,9 +27,9 @@ class TestSecureKeyManager:
     def test_init_custom_app_name(self, mock_keyring, mock_platform):  # noqa: ARG001
         """测试自定义应用名称"""
         mock_platform.return_value = "Linux"
-        
+
         manager = SecureKeyManager(app_name="MyApp")
-        
+
         assert manager.app_name == "MyApp"
 
     @patch('scenefab.secure_key_manager.platform.system')
@@ -80,7 +80,7 @@ class TestSecureKeyManagerPlatform:
     def test_darwin_platform(self, mock_platform):
         """测试 macOS 平台"""
         mock_platform.return_value = "Darwin"
-        
+
         # 不应该抛出异常
         try:
             _ = SecureKeyManager()
@@ -91,7 +91,7 @@ class TestSecureKeyManagerPlatform:
     def test_windows_platform(self, mock_platform):
         """测试 Windows 平台"""
         mock_platform.return_value = "Windows"
-        
+
         try:
             _ = SecureKeyManager()
         except Exception:
@@ -101,7 +101,7 @@ class TestSecureKeyManagerPlatform:
     def test_linux_platform(self, mock_platform):
         """测试 Linux 平台"""
         mock_platform.return_value = "Linux"
-        
+
         try:
             _ = SecureKeyManager()
         except Exception:

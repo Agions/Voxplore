@@ -53,7 +53,7 @@ class MockVisionModel:
         if video_path not in self._responses:
             # 默认非第一人称
             return {"is_first_person": False, "confidence": 0.3, "description": ""}
-        
+
         for start, end, conf in self._responses[video_path]:
             if start <= timestamp <= end:
                 return {
@@ -61,7 +61,7 @@ class MockVisionModel:
                     "confidence": conf,
                     "description": f"第一人称视角 @ {timestamp}s"
                 }
-        
+
         return {"is_first_person": False, "confidence": 0.2, "description": ""}
 
 
@@ -83,7 +83,7 @@ class TestFirstPersonExtractor:
     def test_extract_single_video_returns_multiple_segments(self):
         """测试：单个视频 → 返回多个候选片段"""
         video_path = "/test/first_person_video.mp4"
-        
+
         # 模拟：视频有两个第一人称片段
         # [0-10s] 非第一人称, [10-25s] 第一人称, [25-40s] 非, [40-55s] 第一人称, [55-60s] 非
         fp_segments = {
@@ -107,7 +107,7 @@ class TestFirstPersonExtractor:
     def test_extract_segments_duration_9_to_60_seconds(self):
         """测试：片段时长 9-60 秒（符合短视频长度）"""
         video_path = "/test/fp_video2.mp4"
-        
+
         fp_segments = {
             video_path: [
                 (5.0, 20.0, 0.9),   # 15s → OK
@@ -130,7 +130,7 @@ class TestFirstPersonExtractor:
     def test_extract_segments_sorted_by_confidence(self):
         """测试：置信度排序（最高在前）"""
         video_path = "/test/fp_video3.mp4"
-        
+
         fp_segments = {
             video_path: [
                 (0.0, 15.0, 0.6),   # 低置信度
@@ -152,7 +152,7 @@ class TestFirstPersonExtractor:
     def test_extract_no_first_person(self):
         """测试：无第一人称片段"""
         video_path = "/test/third_person.mp4"
-        
+
         # 无第一人称片段
         fp_segments = {}
 
@@ -167,7 +167,7 @@ class TestFirstPersonExtractor:
     def test_extract_with_group_id(self):
         """测试：group_id 被正确传递（用于未来多视频联合分析）"""
         video_path = "/test/fp_video.mp4"
-        
+
         fp_segments = {
             video_path: [
                 (10.0, 30.0, 0.9),
@@ -178,7 +178,7 @@ class TestFirstPersonExtractor:
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
         segments = extractor.extract_first_person_segments(
-            video_path, 
+            video_path,
             group_id="test_group_123"
         )
 
@@ -198,7 +198,7 @@ class TestVideoSegmentDataclass:
             confidence=0.88,
             description="测试片段"
         )
-        
+
         d = asdict(segment)
         assert d["video_path"] == "/test/video.mp4"
         assert d["start_time"] == 10.0

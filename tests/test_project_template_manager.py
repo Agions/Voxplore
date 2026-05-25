@@ -20,7 +20,7 @@ class TestTemplateCategory:
             icon="video",
             color="#FF0000",
         )
-        
+
         assert category.name == "视频编辑"
         assert category.icon == "video"
         assert category.color == "#FF0000"
@@ -31,7 +31,7 @@ class TestTemplateCategory:
             name="测试",
             description="测试描述",
         )
-        
+
         assert category.icon == "folder"
         assert category.color == "#2196F3"
 
@@ -53,7 +53,7 @@ class TestTemplateInfo:
             updated_at=now,
             file_size=1024,
         )
-        
+
         assert info.id == "template_1"
         assert info.name == "测试模板"
         assert info.version == "1.0.0"
@@ -72,7 +72,7 @@ class TestTemplateInfo:
             updated_at=now,
             file_size=100,
         )
-        
+
         assert info.preview_image is None
         assert info.tags == []
         assert info.rating == 0.0
@@ -92,8 +92,8 @@ class TestTemplateInfo:
             updated_at=now,
             file_size=100,
         )
-        
+
         d = info.to_dict()
-        
+
         assert d["id"] == "test"
         assert d["name"] == "测试"

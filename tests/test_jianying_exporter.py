@@ -31,7 +31,7 @@ class TestTrackType:
             TrackType.STICKER,
             TrackType.EFFECT,
         ]
-        
+
         assert len(types) == 5
         assert TrackType.VIDEO.value == "video"
 
@@ -48,7 +48,7 @@ class TestMaterialType:
             MaterialType.IMAGE,
             MaterialType.SOUND_CHANNEL,
         ]
-        
+
         assert len(types) == 5
         assert MaterialType.VIDEO.value == "video"
 
@@ -62,7 +62,7 @@ class TestTimeRange:
             start=1000000,  # 1秒 = 1000000微秒
             duration=500000,  # 0.5秒
         )
-        
+
         assert tr.start == 1000000
         assert tr.duration == 500000
 

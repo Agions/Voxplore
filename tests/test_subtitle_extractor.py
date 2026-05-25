@@ -21,7 +21,7 @@ class TestSubtitleSegment:
             confidence=0.95,
             source="speech",
         )
-        
+
         assert segment.start == 0.0
         assert segment.end == 3.5
         assert segment.text == "第一句台词"
@@ -35,7 +35,7 @@ class TestSubtitleSegment:
             end=1.0,
             text="测试",
         )
-        
+
         assert segment.confidence == 1.0
         assert segment.source == ""
 
@@ -46,9 +46,9 @@ class TestSubtitleSegment:
             end=1.0,
             text="测试",
         )
-        
+
         d = asdict(segment)
-        
+
         assert d["start"] == 0.0
         assert d["text"] == "测试"
 
@@ -62,7 +62,7 @@ class TestSubtitleExtractionResult:
             SubtitleSegment(0.0, 1.0, "第一句"),
             SubtitleSegment(1.0, 2.0, "第二句"),
         ]
-        
+
         result = SubtitleExtractionResult(
             video_path="/test/video.mp4",
             duration=120.0,
@@ -71,7 +71,7 @@ class TestSubtitleExtractionResult:
             language="zh",
             method="speech",
         )
-        
+
         assert result.video_path == "/test/video.mp4"
         assert result.duration == 120.0
         assert len(result.segments) == 2
@@ -83,7 +83,7 @@ class TestSubtitleExtractionResult:
             video_path="/test.mp4",
             duration=60.0,
         )
-        
+
         assert result.segments == []
         assert result.full_text == ""
         assert result.language == "zh"
@@ -95,13 +95,13 @@ class TestSubtitleExtractionResult:
             SubtitleSegment(0.0, 1.0, "你好"),
             SubtitleSegment(1.0, 2.0, "世界"),
         ]
-        
+
         result = SubtitleExtractionResult(
             video_path="/test.mp4",
             duration=2.0,
             segments=segments,
         )
-        
+
         # Should be able to combine text from segments
         full_text = " ".join(s.text for s in result.segments)
         assert "你好" in full_text

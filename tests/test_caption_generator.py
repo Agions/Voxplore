@@ -23,7 +23,7 @@ class TestCaptionStyle:
             CaptionStyle.SUBTITLE,
             CaptionStyle.FLOATING,
         ]
-        
+
         assert len(styles) == 4
         assert CaptionStyle.VIRAL.value == "viral"
 
@@ -51,7 +51,7 @@ class TestWord:
             is_keyword=True,
             emotion=EmotionLevel.HIGH,
         )
-        
+
         assert word.text == "测试"
         assert word.start_time == 0.0
         assert word.end_time == 0.5
@@ -67,7 +67,7 @@ class TestCaption:
         words = [
             Word("测试", 0.0, 0.5, False, EmotionLevel.NEUTRAL),
         ]
-        
+
         caption = Caption(
             text="测试",
             start_time=0.0,
@@ -76,7 +76,7 @@ class TestCaption:
             style=CaptionStyle.VIRAL,
             position="bottom",
         )
-        
+
         assert caption.text == "测试"
         assert len(caption.words) == 1
         assert caption.style == CaptionStyle.VIRAL
@@ -89,7 +89,7 @@ class TestCaptionConfig:
     def test_default_config(self):
         """Test default config"""
         config = CaptionConfig()
-        
+
         assert config.style == CaptionStyle.VIRAL
         assert config.font_family == "PingFang SC"
         assert config.base_font_size == 48
@@ -101,7 +101,7 @@ class TestCaptionConfig:
             base_font_size=24,
             primary_color="#FFFFFF",
         )
-        
+
         assert config.style == CaptionStyle.MINIMAL
         assert config.base_font_size == 24
         assert config.primary_color == "#FFFFFF"
@@ -113,7 +113,7 @@ class TestCaptionGenerator:
     def test_init(self):
         """Test initialization"""
         generator = CaptionGenerator()
-        
+
         assert generator.config.style == CaptionStyle.VIRAL
 
     def test_init_custom_config(self):
@@ -122,18 +122,18 @@ class TestCaptionGenerator:
             style=CaptionStyle.SUBTITLE,
             base_font_size=28,
         )
-        
+
         generator = CaptionGenerator(config)
-        
+
         assert generator.config.style == CaptionStyle.SUBTITLE
         assert generator.config.base_font_size == 28
 
     def test_word_segmentation(self):
         """Test word segmentation"""
         generator = CaptionGenerator()
-        
+
         words = generator._segment_words("你好世界")
-        
+
         assert isinstance(words, list)
 
 

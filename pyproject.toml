@@ -142,6 +142,9 @@ ignore = [
     "SIM108",  # ternary operator
     "SIM118",  # enumerate in loop
     "W292",   # newline at end of file
+    "W293",   # blank line contains whitespace (legacy files)
+    "F841",   # local variable assigned but never used
+    "SIM113", # use enumerate() for index variable (legacy code)
     "E401",   # multiple imports on one line
     "E701",   # multiple statements
     "N806",   # variable in function should be lowercase
