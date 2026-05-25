@@ -10,5 +10,5 @@ def mock_ffmpeg_check():
     CI environments lack FFmpeg, but tests only verify initialization
     and configuration — they don't need real FFmpeg binary.
     """
-    with patch("app.services.video_tools.ffmpeg_tool.FFmpegTool.check_ffmpeg"):
+    with patch("scenefab.services.video_tools.ffmpeg_tool.FFmpegTool.check_ffmpeg"):
         yield
