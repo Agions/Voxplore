@@ -4,12 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scenefab"
-dynamic = ["version"]
+version = "3.0.0"
 description = "SceneFab - AI 影视解说视频创作工具，一键完成智能拆条 · 解说生成 · 配音合成"
+readme = "README.md"
 license = {text = "MIT"}
 authors = [
     {name = "Agions", email = "agions@qq.com"}
 ]
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: X11 Applications :: Qt",
@@ -29,7 +31,6 @@ classifiers = [
     "Topic :: Artificial Intelligence",
 ]
 keywords = ["video", "AI", "film-commentary", "scene-detection", "TTS", "PySide6", "短视频", "影视解说"]
-requires-python = ">=3.10"
 dependencies = [
     # Core UI
     "PySide6>=6.9.0",
@@ -104,14 +105,9 @@ Repository = "https://github.com/Agions/scene-fab.git"
 Issues = "https://github.com/Agions/scene-fab/issues"
 Changelog = "https://github.com/Agions/scene-fab/releases"
 
-readme = "README.md"
-
 [tool.setuptools]
 package-dir = {"" = "src"}
 packages = ["scenefab"]
-
-[tool.setuptools.dynamic]
-version = {attr = "scenefab.__version__"}
 
 [tool.setuptools.package-data]
 scenefab = ["py.typed"]

@@ -2,7 +2,7 @@ include README.md
 include LICENSE
 include pyproject.toml
 recursive-include src/scenefab *.py
-recursive-include config *.yaml
 recursive-include src/scenefab/templates *.html *.json *.yaml
 include src/scenefab/py.typed
 recursive-include resources *
+recursive-include config *.yaml *.conf
