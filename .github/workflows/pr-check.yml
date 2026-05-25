@@ -19,8 +19,8 @@ jobs:
           python-version: '3.11'
           enable-cache: true
           cache-dependency-glob: 'pyproject.toml'
-      - run: uv pip install --system ruff
-      - run: ruff check src/scenefab/ tests/ --output-format=github
+      - run: uv sync --frozen
+      - run: uv run ruff check src/scenefab/ tests/ --output-format=github
 
   test:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
           python-version: '3.11'
           enable-cache: true
           cache-dependency-glob: 'pyproject.toml'
-      - run: uv pip install --system -e ".[all,dev]"
+      - run: uv sync --extra all --extra dev --frozen
       - run: |
           pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=term-missing \
             --ignore=tests/test_project_manager.py \

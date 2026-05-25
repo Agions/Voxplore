@@ -59,13 +59,14 @@ jobs:
           enable-cache: true
           cache-dependency-glob: pyproject.toml
 
-      - name: Install dependencies
+      - name: Sync dependencies and install pyinstaller
         run: |
-          uv pip install --system -e ".[all]" pyinstaller
+          uv sync --extra all
+          uv pip install pyinstaller
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller \
+          uv run pyinstaller \
             --clean \
             --onedir \
             --name "SceneFab-${{ env.VERSION }}-windows-x64" \
@@ -121,16 +122,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
 
-      - name: Install dependencies
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
+
+      - name: Sync dependencies and install pyinstaller
         run: |
-          uv pip install --system -e ".[all]" pyinstaller
+          uv sync --extra all
+          uv pip install pyinstaller
           brew install create-dmg || true
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller \
+          uv run pyinstaller \
             --clean \
             --onedir \
             --name "SceneFab-${{ env.VERSION }}-macos-x64" \
@@ -209,16 +215,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
 
-      - name: Install dependencies
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
+
+      - name: Sync dependencies and install pyinstaller
         run: |
-          uv pip install --system -e ".[all]" pyinstaller
+          uv sync --extra all
+          uv pip install pyinstaller
           brew install create-dmg || true
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller \
+          uv run pyinstaller \
             --clean \
             --onedir \
             --name "SceneFab-${{ env.VERSION }}-macos-arm64" \
@@ -307,13 +318,14 @@ jobs:
             libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 \
             patchelf
 
-      - name: Install dependencies
+      - name: Sync dependencies and install pyinstaller
         run: |
-          uv pip install --system -e ".[all]" pyinstaller
+          uv sync --extra all
+          uv pip install pyinstaller
 
       - name: Build with PyInstaller (onefile)
         run: |
-          pyinstaller \
+          uv run pyinstaller \
             --clean \
             --onefile \
             --name "SceneFab-${{ env.VERSION }}-linux-x86_64" \
