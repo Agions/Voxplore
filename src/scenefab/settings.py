@@ -191,7 +191,7 @@ class ConfigManager:
 
         return AppConfig(
             name=data.get("name", "SceneFab"),
-            version=data.get("version", "2.0.0"),
+            version=data.get("version", "3.0.0"),
             debug=data.get("debug", False),
             cache=cache,
             video=video,
