@@ -145,6 +145,8 @@ ignore = [
     "W293",   # blank line contains whitespace (legacy files)
     "F841",   # local variable assigned but never used
     "SIM113", # use enumerate() for index variable (legacy code)
+    "C420",   # unnecessary dict comprehension (legacy code)
+    "N999",   # invalid module name in test files
     "E401",   # multiple imports on one line
     "E701",   # multiple statements
     "N806",   # variable in function should be lowercase
