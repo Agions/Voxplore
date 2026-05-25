@@ -18,10 +18,10 @@ class PageLoader:
     def get_page_class(page_class_name: str):
         """获取页面类"""
         mapping = {
-            "CreationWizardPage": "app.ui.main.pages.creation_wizard_page",
-            "SettingsPage": "app.ui.main.pages.settings_page",
-            "ProjectsPage": "app.ui.main.pages.projects_page",
-            "VideoEditorPage": "app.ui.main.pages.video_editor_page",
+            "CreationWizardPage": "scenefab.ui.main.pages.creation_wizard_page",
+            "SettingsPage": "scenefab.ui.main.pages.settings_page",
+            "ProjectsPage": "scenefab.ui.main.pages.projects_page",
+            "VideoEditorPage": "scenefab.ui.main.pages.video_editor_page",
         }
 
         module_path = mapping.get(page_class_name)

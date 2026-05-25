@@ -297,7 +297,7 @@ def _handle_server_command(args) -> int:
         try:
             import uvicorn
             uvicorn.run(
-                "app.api.main:app",
+                "scenefab.api.main:app",
                 host=args.host,
                 port=args.port,
                 reload=args.reload,

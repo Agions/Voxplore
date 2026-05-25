@@ -1,4 +1,4 @@
-"""Tests for app.api.routers._task_store - Redis/in-memory persistence"""
+"""Tests for scenefab.api.routers._task_store - Redis/in-memory persistence"""
 
 import pytest
 from scenefab.api.routers._task_store import (
@@ -54,7 +54,7 @@ class TestCreateTaskStore:
     def test_redis_when_url_provided(self):
         """When REDIS_URL is set and redis available, use RedisTaskStore"""
         with patch.dict("os.environ", {"REDIS_URL": "redis://localhost:6379/0"}):
-            with patch("app.api.routers._task_store.RedisTaskStore") as mock_redis:
+            with patch("scenefab.api.routers._task_store.RedisTaskStore") as mock_redis:
                 mock_redis.return_value = mock_redis
                 _store = create_task_store()
                 # create_task_store tries RedisTaskStore; on connection fail falls back

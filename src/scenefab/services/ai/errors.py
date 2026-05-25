@@ -4,7 +4,7 @@
 """
 LLM Provider 异常兼容模块 ⚠️ 已废弃
 
-所有异常已统一迁移至 app.core.exceptions。
+所有异常已统一迁移至 scenefab.core.exceptions。
 此文件仅作兼容层，未来版本移除。
 
 迁移指南:
