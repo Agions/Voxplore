@@ -40,7 +40,7 @@ scenefab
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3.10-venv ffmpeg libsm6 libxext6 libgl1
 git clone https://github.com/Agions/scene-fab.git
-cd SceneFab
+cd scene-fab
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .
@@ -75,7 +75,7 @@ sudo apt install -y python3.10 python3-pip python3.10-venv ffmpeg libsm6 libxext
 
 # 克隆并安装
 git clone https://github.com/Agions/scene-fab.git
-cd SceneFab
+cd scene-fab
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .

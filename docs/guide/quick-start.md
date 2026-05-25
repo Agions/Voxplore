@@ -32,7 +32,7 @@ scenefab
 
 ```bash [源码]
 git clone https://github.com/Agions/scene-fab.git
-cd SceneFab
+cd scene-fab
 pip install -e .
 scenefab
 ```

@@ -11,7 +11,7 @@ _root_dir = _src_dir.parent
 if str(_root_dir) not in sys.path:
     sys.path.insert(0, str(_root_dir))
 
-from scenefab.cli.main import main
+from scenefab.main import main
 
 if __name__ == "__main__":
     sys.exit(main())

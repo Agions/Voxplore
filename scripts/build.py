@@ -101,13 +101,22 @@ def build_exe(platform="auto"):
     print(f"✓ 构建完成: dist/{platform}/SceneFab")
 
 
+def _get_version() -> str:
+    """从 scenefab.__version__ 读取版本号"""
+    try:
+        import scenefab
+        return scenefab.__version__
+    except Exception:
+        return "3.0.0"
+
+
 def create_portable():
     """创建便携版"""
     print("创建便携版...")
-    
+
     import zipfile
-    
-    version = "1.0.1"
+
+    version = _get_version()
     archive_name = f"SceneFab-{version}-portable.zip"
     
     with zipfile.ZipFile(archive_name, 'w', zipfile.ZIP_DEFLATED) as zf:

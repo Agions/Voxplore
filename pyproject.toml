@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scenefab"
-version = "1.0.0"
+dynamic = ["version"]
 description = "SceneFab - AI 影视解说视频创作工具，一键完成智能拆条 · 解说生成 · 配音合成"
 license = {text = "MIT"}
 authors = [
@@ -83,7 +83,6 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-timeout>=2.1.0",
     "black>=23.11.0",
-    "flake8>=6.1.0",
     "mypy>=1.7.0",
     "ruff>=0.1.0",
     "types-requests>=2.31.0",
@@ -96,11 +95,23 @@ all = [
 ]
 
 [project.scripts]
-scenefab = "scenefab.cli.main:main"
+scenefab = "scenefab.main:main"
+
+[project.urls]
+Homepage = "https://github.com/Agions/scene-fab"
+Documentation = "https://agions.github.io/scene-fab/"
+Repository = "https://github.com/Agions/scene-fab.git"
+Issues = "https://github.com/Agions/scene-fab/issues"
+Changelog = "https://github.com/Agions/scene-fab/releases"
+
+readme = "README.md"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 packages = ["scenefab"]
+
+[tool.setuptools.dynamic]
+version = {attr = "scenefab.__version__"}
 
 [tool.setuptools.package-data]
 scenefab = ["py.typed"]
@@ -108,6 +119,45 @@ scenefab = ["py.typed"]
 [tool.black]
 line-length = 88
 target-version = ['py312']
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+fix = false
+show-fixes = false
+output-format = "grouped"
+
+[tool.ruff.lint]
+select = ["E", "F", "N", "W", "B", "C4", "SIM"]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "F401",   # unused import (many intentional)
+    "F811",   # redefinition of name
+    "E402",   # module-level import not at top of file
+    "F541",   # f-string without placeholder
+    "N802",   # invalid function name
+    "B904",   # raise from lack of exception context
+    "B007",   # unused loop control variable
+    "SIM102",  # nested if statements
+    "SIM108",  # ternary operator
+    "SIM118",  # enumerate in loop
+    "W292",   # newline at end of file
+    "E401",   # multiple imports on one line
+    "E701",   # multiple statements
+    "N806",   # variable in function should be lowercase
+    "N812",   # imported as alias
+    "SIM103",  # simplify condition
+    "SIM105",  # use contextlib.suppress
+    "SIM110",  # use else to remove assignment
+    "SIM117",  # nested with statements
+    "B027",   # empty method body (abstract classes)
+    "B905",   # zip without strict=True
+    "C408",   # unnecessary dict call
+    "N815",   # invalid class name
+    "N817",   # invalid convention name
+    "SIM115",  # use contextlib
+    "B024",   # abstract class without abstract method
+]
 
 [tool.isort]
 profile = "black"
@@ -119,12 +169,28 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 asyncio_mode = "auto"
+addopts = "-v --tb=short"
+norecursedirs = ["tests/_legacy", ".venv", ".git", "dist", "build", "*.egg-info", "*_ascm_temp"]
+markers = [
+    "integration: 需要真实 API 密钥的集成测试",
+    "slow: 运行较慢的测试",
+    "unit: 单元测试",
+]
 
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_no_return = true
+show_error_codes = true
+pretty = true
+warn_unreachable = true
+strict_equality = true
 files = ["src/scenefab", "tests"]
 
 [[tool.mypy.overrides]]
@@ -134,3 +200,19 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "psutil.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "opencv-python.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "cv2.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_missing_imports = true
+
+[tool.uv]
+# uv workspace members (for monorepo support in future)
+# members = []

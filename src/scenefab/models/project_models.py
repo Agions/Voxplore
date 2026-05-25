@@ -22,6 +22,14 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 
+def _get_version() -> str:
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 class ProjectStatus(Enum):
     """项目状态枚举"""
     ACTIVE = "active"
@@ -70,7 +78,7 @@ class ProjectMetadata:
     name: str = ""
     description: str = ""
     author: str = ""
-    version: str = "1.0.1"
+    version: str = field(default_factory=_get_version)
     created_at: str = ""
     modified_at: str = ""
     tags: List[str] = field(default_factory=list)

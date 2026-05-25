@@ -17,7 +17,7 @@
     container.register_transient(ProjectManager)
 
     # 注册厂方法
-    container.register_factory("logger", lambda: logging.getLogger("app"))
+    container.register_factory("logger", lambda: logging.getLogger("scenefab"))
 
     # 获取
     cfg = container.get(ConfigManager)

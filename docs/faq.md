@@ -14,7 +14,7 @@ description: SceneFab 使用中的常见问题解答。
 GitHub Releases 国内访问较慢，可使用代理：
 ```bash
 # 使用 ghproxy
-wget https://ghproxy.com/https://github.com/Agions/scene-fab/releases/download/v2.0.0/SceneFab-x.x.x.AppImage
+wget https://ghproxy.com/https://github.com/Agions/scene-fab/releases/download/v3.0.0/SceneFab-x.x.x.AppImage
 ```
 
 ### macOS 提示"无法打开，因为无法验证开发者"？

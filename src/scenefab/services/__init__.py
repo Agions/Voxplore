@@ -8,8 +8,6 @@ SceneFab 服务模块
 - export: 导出服务（剪映、PR、FCP、DaVinci）
 - video_tools: 视频处理工具（字幕、节奏分析）
 - orchestration: 编排服务（工作流、撤销管理、批量处理）
-- publish: 多平台发布 [暂时关闭]
-- ui: UI 图形界面（位于 app/ui/）
 """
 
 # 子模块
@@ -19,7 +17,6 @@ from . import audio
 from . import export
 from . import video_tools
 from . import orchestration
-
 
 
 # 兼容层
@@ -35,7 +32,6 @@ __all__ = [
     "export",
     "video_tools",
     "orchestration",
-
     # 兼容层
     "AIServiceManager",
     "ServiceStatus",

@@ -14,29 +14,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
-      - run: pip install ruff
-      - run: |
-          ruff check src/scenefab/ tests/ --output-format=github \
-            --ignore E501,F401 \
-            --ignore E402 \
-            --ignore F541,F811 \
-            --ignore N802 \
-            --ignore B904,B007 \
-            --ignore SIM102,SIM103,SIM105,SIM108,SIM110,SIM117,SIM118 \
-            --ignore W292,E401,E701 \
-            --ignore N806,N812
+          enable-cache: true
+          cache-dependency-glob: 'pyproject.toml'
+      - run: uv pip install --system ruff
+      - run: ruff check src/scenefab/ tests/ --output-format=github
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
-      - run: pip install -e ".[all,dev]"
-      - run: pytest tests/ -v --tb=short --cov=scenefab --cov-report=term-missing --ignore=tests/test_project_manager.py --ignore=tests/test_application.py --ignore=tests/test_ui_components.py --ignore=tests/test_page_loader.py --ignore=tests/test_project_settings_manager.py --ignore=tests/test_project_version_manager.py --ignore=tests/test_icon_manager.py --ignore=tests/test_project_template_manager.py
+          enable-cache: true
+          cache-dependency-glob: 'pyproject.toml'
+      - run: uv pip install --system -e ".[all,dev]"
+      - run: |
+          pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=term-missing \
+            --ignore=tests/test_project_manager.py \
+            --ignore=tests/test_application.py \
+            --ignore=tests/test_ui_components.py \
+            --ignore=tests/test_page_loader.py \
+            --ignore=tests/test_project_settings_manager.py \
+            --ignore=tests/test_project_version_manager.py \
+            --ignore=tests/test_icon_manager.py \
+            --ignore=tests/test_project_template_manager.py

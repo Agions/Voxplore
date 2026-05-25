@@ -4,11 +4,11 @@
 
 set -e
 
-# ── 版本号（单一真相来源：pyproject.toml）───────────────────────
-VERSION=$(grep '^version = ' pyproject.toml 2>/dev/null | sed 's/version = "//;s/"//' | tr -d '[:space:]')
+# ── 版本号（单一真相来源：src/scenefab/__init__.py）─────────────
+VERSION=$(grep '__version__' src/scenefab/__init__.py 2>/dev/null | sed "s/.*__version__ = ['\"]//;s/['\"]//" | tr -d '[:space:]')
 
 if [ -z "$VERSION" ]; then
-    echo "❌ 无法从 pyproject.toml 读取版本号"
+    echo "❌ 无法从 src/scenefab/__init__.py 读取版本号"
     exit 1
 fi
 

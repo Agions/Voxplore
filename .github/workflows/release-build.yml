@@ -29,10 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract version from pyproject.toml
+      - name: Extract version from git tag
         id: version
         run: |
-          VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "//;s/"//')
+          VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "version_tag=v${VERSION}" >> $GITHUB_OUTPUT
           echo "📦 Building SceneFab v${VERSION}"
@@ -53,18 +53,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
 
       - name: Install dependencies
         run: |
-          pip install -e ".[all]" pyinstaller
+          uv pip install --system -e ".[all]" pyinstaller
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller `
-            --clean `
-            --onedir `
-            --name "SceneFab-${{ env.VERSION }}-windows-x64" `
+          pyinstaller \
+            --clean \
+            --onedir \
+            --name "SceneFab-${{ env.VERSION }}-windows-x64" \
             --add-data "resources;resources" `
             --hidden-import=PySide6 `
             --hidden-import=PySide6.QtCore `
@@ -121,7 +125,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[all]" pyinstaller
+          uv pip install --system -e ".[all]" pyinstaller
           brew install create-dmg || true
 
       - name: Build with PyInstaller
@@ -209,7 +213,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[all]" pyinstaller
+          uv pip install --system -e ".[all]" pyinstaller
           brew install create-dmg || true
 
       - name: Build with PyInstaller
@@ -305,7 +309,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[all]" pyinstaller
+          uv pip install --system -e ".[all]" pyinstaller
 
       - name: Build with PyInstaller (onefile)
         run: |

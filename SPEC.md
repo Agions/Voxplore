@@ -277,8 +277,8 @@ scenefab batch ./videos/ --style 悬疑 --parallel 4
 - [x] 解说生成引擎（DeepSeek-V4）
 - [x] TTS 配音合成（Edge-TTS）
 - [x] 剪映草稿导出
-- [ ] 完成 CLI Agent 模式
-- [ ] 完成批量处理
+- [x] 完成 CLI commentary 命令（create-movie / create-drama）
+- [x] 完成批量处理（batch 命令）
 
 ### Phase 2: 功能增强
 - [ ] F5-TTS 音色克隆

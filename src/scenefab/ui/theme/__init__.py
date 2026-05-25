@@ -1,1 +1,3 @@
-# SceneFab UI Theme
+"""SceneFab UI Theme"""
+
+__all__ = []

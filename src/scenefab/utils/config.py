@@ -12,16 +12,24 @@ import os
 import json
 from pathlib import Path
 from typing import Any, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 import logging
 import threading
 logger = logging.getLogger(__name__)
+def _get_version() -> str:
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 @dataclass
 class AppConfig:
     """应用配置"""
     # 应用信息
     name: str = "SceneFab"
-    version: str = "1.0.1"
+    version: str = field(default_factory=_get_version)
     debug: bool = False
 
     # 路径配置

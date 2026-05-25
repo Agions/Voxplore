@@ -140,11 +140,18 @@ class WelcomeScreen(QWidget):
     get_started = Signal()  # 开始使用信号
     skip = Signal()  # 跳过信号
 
-    def __init__(self, app_name: str = "SceneFab", version: str = "v1.0.1", parent=None):
+    def __init__(self, app_name: str = "SceneFab", version: str | None = None, parent=None):
         super().__init__(parent)
         self._app_name = app_name
-        self._version = version
+        self._version = version or self._get_version()
         self._setup_ui()
+
+    def _get_version(self) -> str:
+        try:
+            from scenefab import __version__
+            return f"v{__version__}"
+        except Exception:
+            return "v3.0.0"
 
     def _setup_ui(self):
         """设置 UI"""

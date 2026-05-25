@@ -174,6 +174,80 @@ def export_project(project, args):
         print(f"   字幕路径: {output_path}")
 
 
+def cmd_commentary(args):
+    """解说生成（对应 SPEC 定义的 commentary 命令）"""
+    import json
+
+    init_services()
+
+    style_map = {
+        "纪录片": NarrationStyle.DOCUMENTARY,
+        "悬疑": NarrationStyle.MYSTERIOUS,
+        "治愈": NarrationStyle.HEALING,
+        "励志": NarrationStyle.INSPIRATIONAL,
+        "幽默": NarrationStyle.HUMOROUS,
+    }
+    emotion_map = {
+        "neutral": EmotionType.NEUTRAL,
+        "calm": EmotionType.CALM,
+        "excited": EmotionType.EXCITED,
+        "emotional": EmotionType.EMOTIONAL,
+        "mysterious": EmotionType.MYSTERIOUS,
+    }
+
+    style = style_map.get(args.style, NarrationStyle.DOCUMENTARY)
+    emotion = emotion_map.get(args.emotion, EmotionType.NEUTRAL)
+
+    pipeline_config = PipelineConfig(
+        min_segment_duration=9.0,
+        max_segment_duration=60.0,
+        frame_sample_interval=1.0,
+    )
+    pipeline = SceneFabPipeline(pipeline_config)
+
+    def progress_callback(progress, message):
+        bar = "█" * int(progress * 30) + "░" * (30 - int(progress * 30))
+        print(f"\r[{bar}] {progress*100:.0f}% {message}", end="", flush=True)
+
+    try:
+        project = pipeline.process(
+            video_path=args.video,
+            context=args.context or "",
+            emotion=emotion,
+            style=style,
+            voice=args.voice,
+            progress_callback=progress_callback,
+            output_dir=args.output or "./output",
+        )
+        print()
+
+        result = {
+            "success": True,
+            "segments": len(project.segments),
+            "emotion_peaks": len(project.emotion_peaks),
+            "narration_blocks": len(project.narration_blocks),
+        }
+
+        if args.format == "json":
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            print(f"\n✅ commentary 创建完成!")
+            print(f"   视频: {args.video}")
+            print(f"   风格: {args.style}")
+            print(f"   片段: {result['segments']} | 情感峰值: {result['emotion_peaks']} | 解说块: {result['narration_blocks']}")
+            if args.export:
+                export_project(project, args)
+
+        return 0
+
+    except Exception as e:
+        if args.format == "json":
+            print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"\n❌ commentary 创建失败: {e}")
+        return 1
+
+
 def cmd_batch(args):
     """批量处理（优化版 - 并行）"""
     init_services()
@@ -281,6 +355,29 @@ def main():
     batch_parser.add_argument("patterns", nargs="+", help="文件匹配模式，如 *.mp4")
     batch_parser.add_argument("-w", "--workers", type=int, default=4, help="并行 worker 数")
 
+    # commentary 命令（对应 SPEC 定义）
+    commentary_parser = subparsers.add_parser("commentary", help="生成视频解说")
+    commentary_subparsers = commentary_parser.add_subparsers(
+        dest="commentary_action", help="解说子命令"
+    )
+
+    for sub_cmd in ["create-movie", "create-drama"]:
+        sub = commentary_subparsers.add_parser(sub_cmd, help=f"{sub_cmd} - 生成解说")
+        sub.add_argument("video", help="视频文件路径")
+        sub.add_argument("--style", default="纪录片",
+                        choices=["纪录片", "悬疑", "治愈", "励志", "幽默"],
+                        help="解说风格（默认：纪录片）")
+        sub.add_argument("--emotion", default="neutral",
+                        choices=["neutral", "calm", "excited", "emotional", "mysterious"],
+                        help="情感类型")
+        sub.add_argument("--voice", default="zh-CN-XiaoxiaoNeural", help="配音语音")
+        sub.add_argument("-o", "--output", help="输出目录")
+        sub.add_argument("--context", help="背景上下文")
+        sub.add_argument("--export", action="store_true", help="处理后导出")
+        sub.add_argument("--format", default="jianying",
+                        choices=["jianying", "mp4", "srt", "json"],
+                        help="导出格式（默认：jianying）")
+
     args = parser.parse_args()
 
     setup_logging(args.verbose)
@@ -293,6 +390,8 @@ def main():
         return cmd_analyze(args)
     elif args.command == "process":
         return cmd_process(args)
+    elif args.command == "commentary":
+        return cmd_commentary(args)
     elif args.command == "batch":
         return cmd_batch(args)
 

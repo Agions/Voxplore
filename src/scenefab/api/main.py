@@ -13,10 +13,18 @@ from scenefab.exceptions import SceneFabError
 
 def create_app() -> FastAPI:
     """创建并配置 FastAPI 应用"""
+
+    def _get_version() -> str:
+        try:
+            from scenefab import __version__
+            return __version__
+        except Exception:
+            return "3.0.0"
+
     app = FastAPI(
         title="SceneFab API",
         description="AI 第一人称视频解说 API - 让视频讲述你的故事",
-        version="1.0.1",
+        version=_get_version(),
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
@@ -94,7 +102,7 @@ app = create_app()
 async def root():
     return {
         "name": "SceneFab API",
-        "version": "1.0.1",
+        "version": "3.0.0",
         "docs": "/docs",
         "health": "/api/v1/health"
     }

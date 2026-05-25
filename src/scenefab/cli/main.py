@@ -17,6 +17,15 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+def _get_version() -> str:
+    """动态获取版本号，避免循环导入"""
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 def create_parser() -> argparse.ArgumentParser:
     """创建 CLI 参数解析器"""
     parser = argparse.ArgumentParser(
@@ -41,7 +50,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version="%(prog)s 1.0.0"
+        version=f"%(prog)s {_get_version()}"
     )
 
     # 子命令

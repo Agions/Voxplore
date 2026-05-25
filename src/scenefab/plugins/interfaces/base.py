@@ -36,7 +36,7 @@ class PluginManifest:
     dependencies: Dict[str, str] = field(default_factory=dict)  # 依赖
     entry_point: str = ""                  # 入口点 "module.path:ClassName"
     permissions: List[str] = field(default_factory=list)          # 权限列表
-    min_app_version: str = "1.0.1"         # 最低应用版本
+    min_app_version: str = "3.0.0"         # 最低应用版本
     tags: List[str] = field(default_factory=list)                # 标签
 
     @classmethod
@@ -78,11 +78,19 @@ class PluginManifest:
         return getattr(module, class_name)
 
 
+def _get_version() -> str:
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 @dataclass
 class AppContext:
     """应用上下文，插件通过此获取应用服务"""
     app_name: str = "SceneFab"
-    app_version: str = "1.0.1"
+    app_version: str = field(default_factory=_get_version)
     data_dir: str = ""                    # 用户数据目录
     config_dir: str = ""                  # 配置目录
     cache_dir: str = ""                   # 缓存目录

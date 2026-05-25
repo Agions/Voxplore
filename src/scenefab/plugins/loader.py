@@ -35,6 +35,14 @@ class PluginLoader:
     # entry_points 中的组名
     ENTRY_POINT_GROUP = "scenefab.plugins"
 
+    @staticmethod
+    def _get_version() -> str:
+        try:
+            from scenefab import __version__
+            return __version__
+        except Exception:
+            return "3.0.0"
+
     def __init__(self, registry: PluginRegistry = None):
         self._registry = registry if registry is not None else PluginRegistry()
         self._plugin_dirs: List[Path] = []
@@ -175,7 +183,7 @@ class PluginLoader:
         return PluginManifest(
             id=plugin_id,
             name=plugin_class.__name__.replace("_", " ").replace("-", " ").title(),
-            version="1.0.0",
+            version=PluginLoader._get_version(),
             author="Unknown",
             description=f"Discovered via entry_points: {ep.module}:{ep.attr}",
             plugin_type=plugin_type,

@@ -9,13 +9,21 @@ from scenefab.api.schemas.models import HealthResponse
 router = APIRouter()
 
 
+def _get_version() -> str:
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
     """健康检查"""
     # 实际应检测各服务状态
     return HealthResponse(
         status="healthy",
-        version="1.0.1",
+        version=_get_version(),
         services={
             "api": "up",
             "video_processor": "up",

@@ -13,7 +13,7 @@ SceneFab 采用 MIT 协议开源，欢迎任何形式的贡献！
 
 ```bash
 git clone https://github.com/Agions/scene-fab.git
-cd SceneFab
+cd scene-fab
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -e ".[dev]"

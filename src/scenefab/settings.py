@@ -58,11 +58,19 @@ class CacheConfig:
     cache_dir: str = "~/.cache/scenefab"
 
 
+def _get_version() -> str:
+    try:
+        from scenefab import __version__
+        return __version__
+    except Exception:
+        return "3.0.0"
+
+
 @dataclass
 class AppConfig:
     """应用配置"""
     name: str = "SceneFab"
-    version: str = "2.0.0"
+    version: str = field(default_factory=_get_version)
     debug: bool = False
     cache: CacheConfig = field(default_factory=CacheConfig)
     video: VideoConfig = field(default_factory=VideoConfig)
@@ -98,14 +106,14 @@ class ConfigManager:
         """加载配置文件"""
         config_data = {
             "name": "SceneFab",
-            "version": "2.0.0",
-            "debug": os.getenv("VOXPLORE_DEBUG", "false").lower() == "true",
+            "version": _get_version(),
+            "debug": os.getenv("SCENEFAB_DEBUG", "false").lower() == "true",
             "cache": {
                 "enabled": True,
                 "max_size": 100,
                 "ttl": 3600,
                 "cache_dir": os.path.expanduser(
-                    os.getenv("VOXPLORE_CACHE_DIR", "~/.cache/scenefab")
+                    os.getenv("SCENEFAB_CACHE_DIR", "~/.cache/scenefab")
                 ),
             },
             "video": {

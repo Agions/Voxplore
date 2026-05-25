@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 
 # 版本号
 if (-not $Version) {
-    $Version = (Select-String -Path "pyproject.toml" -Pattern '^version = "(.+)"' | ForEach-Object { $_.Matches.Groups[1].Value })
+    $Version = (Select-String -Path "src/scenefab/__init__.py" -Pattern '__version__\s*=\s*"([^"]+)"' | ForEach-Object { $_.Matches.Groups[1].Value })
 }
 
 $Platform = "windows-x64"
