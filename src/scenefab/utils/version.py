@@ -98,7 +98,7 @@ def get_version() -> Version:
         print(f"Warning: Failed to read version from pyproject.toml: {e}")
 
     # 后备方案: 返回默认版本
-    return Version(2, 0, 0, prerelease="rc.1")
+    return Version(3, 0, 0)
 
 
 def get_version_string() -> str:
