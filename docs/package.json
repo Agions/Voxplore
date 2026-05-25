@@ -2,6 +2,7 @@
   "name": "scenefab-docs",
   "version": "1.0.0",
   "description": "SceneFab documentation",
+  "type": "module",
   "scripts": {
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev"
