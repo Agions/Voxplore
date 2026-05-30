@@ -7,33 +7,27 @@ description: SceneFab 常见问题与解决方案。
 
 ## 启动问题
 
-### 提示 "No module named 'scenefab'"
+### "No module named 'scenefab'"
 
 ```bash
 pip install scenefab
 ```
 
-### 提示 "ffmpeg not found"
+### "ffmpeg not found"
 
-**Windows**：下载 [FFmpeg](https://ffmpeg.org/download.html)，添加到 PATH
-
-**macOS**：
-```bash
-brew install ffmpeg
-```
-
-**Linux**：
-```bash
-sudo apt install ffmpeg
-```
+| 系统 | 解决方法 |
+|------|----------|
+| Windows | 下载 [FFmpeg](https://ffmpeg.org/download.html)，添加到 PATH |
+| macOS | `brew install ffmpeg` |
+| Linux | `sudo apt install ffmpeg` |
 
 ---
 
 ## AI 服务问题
 
-### DeepSeek API Key 无效
+### DeepSeek API Key 无效（401）
 
-1. 确认 Key 格式正确（sk- 开头）
+1. 确认 Key 格式正确（`sk-` 开头）
 2. 检查 Key 是否已过期或被删除
 3. 确认 Key 已正确填入设置页
 
@@ -61,7 +55,7 @@ sudo apt install ffmpeg
 ### 分析时间过长
 
 - 减少视频数量
-- 在设置中降低分析帧率
+- 在设置中降低分析帧率（抽帧间隔改为 2 秒）
 - 确认网络连接正常（API 调用需联网）
 
 ---
@@ -91,9 +85,8 @@ SceneFab > 设置 > 界面 > 重置窗口布局
 ### 侧边栏点击无反应
 
 - 升级到最新版本
-- 删除配置文件：`~/.config/scenefab/config.json`
+- 删除配置文件：`~/.scenefab/config.json`
 
-:::tip
-找不到解决方案？
-👉 [提交 Issue](https://github.com/Agions/scene-fab/issues)
+::: tip
+找不到解决方案？ → [提交 Issue](https://github.com/Agions/scene-fab/issues)
 :::
