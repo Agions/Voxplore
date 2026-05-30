@@ -228,12 +228,18 @@ class FirstPersonExtractor:
     """
     第一人称视角提取器 V2
     支持批量帧分析和平行处理
+    支持依赖注入 vision_provider
     """
 
-    def __init__(self, config: PipelineConfig = None):
+    def __init__(
+        self,
+        config: PipelineConfig = None,
+        vision_provider=None,
+    ):
         self.config = config or PipelineConfig()
         self.emotion_detector = EmotionPeakDetector(config)
         self._frame_cache = {}
+        self._vision_provider = vision_provider  # 依赖注入，可选
 
     def extract(
         self,
@@ -308,12 +314,14 @@ class FirstPersonExtractor:
         logger.info(f"Extracted {len(frames_data)} frames")
 
         # 获取 Vision Provider（优先 Qwen2.5-VL）
-        try:
-            from .services.ai import VisionAnalyzerFactory
-            factory = VisionAnalyzerFactory(self.config.__dict__)
-            provider = factory.get_provider(preferred="qwen25")
-        except Exception as e:
-            logger.warning(f"VisionAnalyzerFactory initialization failed: {e}")
+        provider = self._vision_provider
+        if provider is None:
+            try:
+                from .services.ai import VisionAnalyzerFactory
+                factory = VisionAnalyzerFactory(self.config.__dict__)
+                provider = factory.get_provider(preferred="qwen25")
+            except Exception as e:
+                logger.warning(f"VisionAnalyzerFactory initialization failed: {e}")
             provider = None
 
         if provider is None:
@@ -837,14 +845,21 @@ class SceneFabPipeline:
     """
     SceneFab 核心处理流水线 V2
     整合所有处理步骤，支持并行和流式处理
+    支持依赖注入 vision_provider
     """
 
-    def __init__(self, config: PipelineConfig = None):
+    def __init__(
+        self,
+        config: PipelineConfig = None,
+        vision_provider=None,
+        tts_service=None,
+        llm_service=None,
+    ):
         self.config = config or PipelineConfig()
-        self.extractor = FirstPersonExtractor(config)
+        self.extractor = FirstPersonExtractor(config, vision_provider)
         self.emotion_detector = EmotionPeakDetector(config)
-        self.script_generator = ScriptGenerator()
-        self.tts_generator = TTSGenerator()
+        self.script_generator = ScriptGenerator(llm_service)
+        self.tts_generator = TTSGenerator(tts_service)
 
     def process(
         self,
