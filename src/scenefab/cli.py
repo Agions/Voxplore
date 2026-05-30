@@ -18,7 +18,7 @@ from scenefab.settings import get_config
 from scenefab.models import NarrationStyle, EmotionType
 from scenefab.pipeline import SceneFabPipeline, PipelineConfig
 from scenefab.exporters import JianyingExporter, SubtitleExporter, VideoExporter
-from scenefab.ai_services import ai_service_manager
+from scenefab.services import get_ai_service_manager
 
 
 def setup_logging(verbose: bool = False):
@@ -34,6 +34,7 @@ def setup_logging(verbose: bool = False):
 def init_services():
     """初始化 AI 服务"""
     config = get_config()
+    ai_service_manager = get_ai_service_manager()
 
     # 注册 LLM 服务
     for name, llm_config in config.llm_providers.items():

@@ -521,7 +521,8 @@ class ScriptGenerator:
     }
 
     def __init__(self, llm_service=None):
-        from .ai_services import ai_service_manager
+        from scenefab.services import get_ai_service_manager
+        ai_service_manager = get_ai_service_manager()
         self.llm = llm_service or ai_service_manager.get_llm()
 
     def generate(
@@ -632,7 +633,8 @@ class TTSGenerator:
     """TTS 配音生成器 V2"""
 
     def __init__(self, tts_service=None):
-        from .ai_services import ai_service_manager
+        from scenefab.services import get_ai_service_manager
+        ai_service_manager = get_ai_service_manager()
         self.tts = tts_service or ai_service_manager.tts
 
     def generate(
