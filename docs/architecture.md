@@ -1,6 +1,6 @@
 ---
 title: 架构概览
-description: SceneFab 整体架构与模块设计。
+description: SceneFab 整体架构与模块设计（v3.0.0 重构版）。
 ---
 
 # 架构概览
@@ -24,6 +24,7 @@ Qwen2.5-VL                 视觉 0.6 + 音频 0.4
         │   Step 3 · 解说稿生成         │
         │   DeepSeek-V4                │
         │   7 种情感风格                │
+        │   多版本备选                  │
         └──────────────────────────────┘
                       ↓
         ┌──────────────────────────────┐
@@ -33,7 +34,7 @@ Qwen2.5-VL                 视觉 0.6 + 音频 0.4
         └──────────────────────────────┘
                       ↓
         ┌──────────────────────────────┐
-        │   Step 5 · 视频合成导出       │
+        │   Step 5 · 视频合成导出        │
         │   FFmpeg H.264/H.265         │
         │   MP4 直出 / 剪映草稿 JSON   │
         └──────────────────────────────┘
@@ -45,19 +46,19 @@ Qwen2.5-VL                 视觉 0.6 + 音频 0.4
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                      SceneFab App                            │
-├──────────────────────────────────────────────────────────────┤
-│  UI Layer (PySide6)          │  CLI Layer                    │
-│  · MainWindow / Step Pages    │  · Command-first              │
-│  · 步骤式引导（4 步）          │  · Agent-ready (SKILL.md)     │
-├───────────────────────────────┴──────────────────────────────┤
-│                    Business Logic Layer                       │
-│  VideoMgr · SceneFabPipeline · Orchestration · ExportEngine  │
+│                      SceneFab App (PySide6)                  │
+├────────────────────────────┬─────────────────────────────────┤
+│  UI Layer                  │  CLI Layer (Agent-ready)         │
+│  · MainWindow / Step Pages │  · Command-first interface      │
+│  · 步骤式引导（4 步）        │  · SKILL.md for Agent workflows│
+├────────────────────────────┴─────────────────────────────────┤
+│                  Business Logic Layer                         │
+│  Pipeline · Orchestration · VideoMgr · ExportEngine         │
 ├─────────────────────────────────────────────────────────────┤
-│                      AI Service Layer                         │
-│  Qwen2.5-VL · DeepSeek-V4 · Edge-TTS · SenseVoice / Whisper │
+│                    AI Service Layer                          │
+│  LLMService · VisionService · TTSService · ASRService      │
 ├─────────────────────────────────────────────────────────────┤
-│                   Platform Layer (FFmpeg / OS)               │
+│                  Platform Layer (FFmpeg / OS)               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -124,12 +125,12 @@ Qwen2.5-VL                 视觉 0.6 + 音频 0.4
 
 ---
 
-## LLM 多Provider 架构
+## LLM 多 Provider 架构
 
 SceneFab 内置统一 LLM 管理器，支持自动切换：
 
 ```
-LLMManager
+AIServiceManager
 ├── DeepSeek Provider（主力，解说生成）
 ├── Qwen Provider（通义千问，视觉理解）
 ├── Kimi Provider（月之暗面）
@@ -158,19 +159,109 @@ LLMManager
 
 ---
 
-## 目录结构
+## 目录结构（v3.0.0 重构版）
 
 ```
 src/scenefab/
-├── cli/               # 命令行入口（Agent-ready）
-├── services/
-│   ├── ai/           # AI 服务封装（LLM / VL / TTS / ASR）
-│   │   └── providers/ # 9 种 LLM Provider
-│   ├── video/        # 视频处理（拆条/分组/选段）
-│   ├── audio/        # 音频处理（节拍检测/音画同步）
-│   ├── export/       # 导出器（MP4 / 剪映 / 字幕）
-│   └── orchestration/ # 流程编排层
-├── pipeline.py       # 核心 5 步流水线
-├── ui/               # PySide6 桌面 UI 组件
-└── plugins/          # 插件系统
+├── core/                       # 核心基础设施（非业务）
+│   ├── state.py                # ApplicationState 状态机
+│   ├── context.py              # ApplicationContext 应用上下文
+│   ├── events/                 # 事件系统（EventBus）
+│   ├── container/              # ServiceContainer 依赖注入容器
+│   ├── exceptions.py           # 统一异常体系
+│   ├── patterns.py             # 单例/装饰器等设计模式
+│   └── callbacks.py            # 公共回调定义
+│
+├── models/                      # 数据模型（按域拆分）
+│   ├── narration.py            # NarrationStyle, EmotionType, NarrationBlock
+│   ├── video.py                # TimeRange, VideoSegment, EmotionPeak
+│   ├── media.py                # SubtitleItem, AudioTrack
+│   └── project.py              # VideoProject, VideoGroup, TaskProgress
+│
+├── services/                     # 业务服务
+│   ├── ai/                     # AI 服务（已拆分）
+│   │   ├── infra/              # RateLimiter, CircuitBreaker, LRUCache, PersistentCache
+│   │   ├── base.py            # BaseAIService 基类
+│   │   ├── llm.py             # LLMService（DeepSeek/Claude/GPT 等）
+│   │   ├── vision.py         # VisionService（Qwen2.5-VL）
+│   │   ├── tts.py             # TTSService（Edge-TTS / F5-TTS）
+│   │   ├── asr.py            # ASRService（SenseVoice / Whisper）
+│   │   └── manager.py        # AIServiceManager 单例
+│   │
+│   ├── video/                  # 视频服务（已拆分）
+│   │   ├── cache/             # VideoFrameCache, VideoCache（适配器）
+│   │   ├── session.py        # FFmpegSession 单例
+│   │   ├── analyzer.py       # VideoAnalyzer 场景检测
+│   │   └── processor.py     # VideoProcessor 剪切/合并
+│   │
+│   ├── audio/                  # 音频处理
+│   ├── export/                 # 导出器（MP4 / 剪映 / 字幕）
+│   └── orchestration/         # 工作流编排
+│
+├── config/                      # 配置层（合并后单一入口）
+│   ├── defs.py                 # dataclass 配置定义
+│   ├── loader.py               # YAML / ENV 加载器
+│   └── validator.py            # 配置校验器
+│
+├── utils/                       # 工具函数
+│   ├── time.py                 # 时间格式化
+│   ├── file.py                 # 文件操作
+│   └── path.py                 # 路径处理
+│
+├── ui/                          # PySide6 桌面 UI
+│   ├── main/                   # MainWindow + 组件
+│   └── settings/               # 设置页
+│
+├── cli/                         # 命令行入口
+│   └── commands.py             # CLI 命令定义
+│
+├── pipeline.py                 # 核心 5 步流水线
+├── application.py             # Application 生命周期管理
+├── settings.py               # ConfigManager 单一配置入口
+├── service_container.py      # ServiceContainer（代理至 core/container/）
+├── engine.py                 # engine 兼容层（→ core/events/）
+├── event_bus.py              # EventBus 事件总线
+└── exceptions.py             # 顶层异常导出
 ```
+
+### 模块职责速查
+
+| 模块 | 职责 | 关键类 |
+|------|------|--------|
+| `core/state` | 应用状态机 | `ApplicationState` |
+| `core/events` | 事件驱动 | `EventBus`, `EventEmitter` |
+| `core/container` | 依赖注入 | `ServiceContainer` |
+| `models/narration` | 解说风格/情感 | `NarrationStyle`, `NarrationBlock` |
+| `models/video` | 视频片段 | `VideoSegment`, `TimeRange` |
+| `services/ai/llm` | LLM 调用 | `LLMService` |
+| `services/ai/vision` | 视频视觉理解 | `VisionService` |
+| `services/ai/tts` | 配音合成 | `TTSService` |
+| `services/video/analyzer` | 场景检测 | `VideoAnalyzer` |
+| `services/video/processor` | 视频处理 | `VideoProcessor` |
+
+---
+
+## 关键设计决策
+
+### 1. 依赖注入容器
+
+`ServiceContainer` 统一管理所有服务生命周期，支持：
+- 按需延迟初始化
+- 单例模式（AI Services）
+- 线程安全
+
+### 2. 事件驱动架构
+
+`EventBus` 解耦各模块，通过事件通知状态变化：
+- `VideoAnalyzed`, `NarrationGenerated`, `TTSCompleted` 等
+- 各服务无需直接引用 Pipeline
+
+### 3. 配置单一入口
+
+`settings.py` 的 `ConfigManager` 是唯一配置出口：
+- 所有配置文件统一由 `ConfigManager` 读取
+- 其他模块禁止直接读 YAML/ENV
+
+:::tip
+详细使用说明请参考 [配置参考](/config)。
+:::
