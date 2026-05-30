@@ -76,7 +76,7 @@ def init_services():
 
 def cmd_analyze(args):
     """分析视频"""
-    from scenefab.video import VideoAnalyzer
+    from scenefab.services.video import VideoAnalyzer
 
     print(f"📹 正在分析视频: {args.video}")
 
