@@ -55,43 +55,11 @@ SceneFab 的 AI 模型分三层：**视频理解**、**解说生成**、**配音
 
 ## 配音合成模型（TTS）
 
-负责将解说稿转化为自然语音。
-
 | 模型 | 质量 | 费用 | 特点 |
 |------|------|------|------|
 | **Edge-TTS** | ⭐⭐⭐⭐⭐ | 免费 | 低延迟，多音色，SceneFab 默认 |
 | **F5-TTS** | ⭐⭐⭐⭐ | 免费 | 零样本音色克隆，需 15–30s 参考音频 |
 | **OpenAI TTS** | ⭐⭐⭐⭐⭐ | 付费 | 超自然，但需付费 |
-
----
-
-## 快速配置
-
-### DeepSeek（默认，推荐）
-
-```bash
-# 获取 Key：https://platform.deepseek.com
-export DEEPSEEK_API_KEY=sk-xxx...xxxx
-```
-
-### OpenAI GPT-4o
-
-```bash
-export OPENAI_API_KEY=sk-xxx...xxxx
-```
-
-### Claude Sonnet 4
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant...xxxx
-```
-
-### 阿里云百炼（Qwen2.5-VL）
-
-```bash
-# https://bailian.console.aliyun.com
-export DASHSCOPE_API_KEY=sk-xxx...xxxx
-```
 
 ---
 
@@ -109,7 +77,7 @@ export DASHSCOPE_API_KEY=sk-xxx...xxxx
 ## 安全提示
 
 ::: warning ⚠️ 重要
-- **不要** 将 API Key 提交到代码仓库
-- 使用 `.env` 文件（已加入 .gitignore）或系统 Keychain 存储
+- **不要**将 API Key 提交到代码仓库
+- 使用 `.env` 文件（已加入 `.gitignore`）或系统 Keychain 存储
 - 定期检查用量异常
 :::
