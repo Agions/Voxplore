@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
+from pathlib import Path
 
 from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
 
