@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer, Signal
 
-from scenefab.config_manager import ConfigManager
+from scenefab.settings import ConfigManager
 from scenefab.logger import Logger
 from ...icon_manager import get_icon
 from ..dialogs.model_app_dialog import ModelApplicationDialog
