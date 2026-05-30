@@ -459,8 +459,8 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 for i, seg, path in tasks
             }
             for future in as_completed(futures):
-                i, audio_path, duration = future.result()
-                results[i] = (audio_path, duration)
+                i, audio_path, duration, timestamps = future.result()
+                results[i] = (audio_path, duration, timestamps)
                 completed += 1
                 self._report_progress("生成配音", completed / len(tasks))
 
