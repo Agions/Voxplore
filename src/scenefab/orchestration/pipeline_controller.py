@@ -43,6 +43,8 @@ class PipelineController(QObject):
     finished = Signal(str)
     # Pipeline 错误: (error_message)
     error_occurred = Signal(str)
+    # 阶段日志: (stage, message)
+    stage_log = Signal(str, str)
 
     # ====== 内部阶段映射 ======
     _STAGE_LABELS = {
@@ -146,6 +148,7 @@ class PipelineController(QObject):
             err_msg = f"{type(e).__name__}: {e}\n{traceback.format_exc()}"
             self.logger.error(f"Pipeline 执行出错: {err_msg}")
             self._set_stage(PipelineStage.ERROR)
+            self.stage_log.emit("error", f"[错误] {type(e).__name__}: {e}")
             self.error_occurred.emit(str(e))
 
     def retry_stage(self, stage: PipelineStage) -> None:
@@ -199,6 +202,7 @@ class PipelineController(QObject):
         self._current_stage = stage
         label = self._STAGE_LABELS.get(stage, stage.value)
         self.stage_changed.emit(stage.value, label)
+        self.stage_log.emit(stage.value, f"[开始] {label}")
         if stage != PipelineStage.DONE and stage != PipelineStage.ERROR:
             self.stage_progress.emit(stage.value, 0.0)
 
@@ -216,3 +220,4 @@ class PipelineController(QObject):
         }
         stage = mapping.get(stage_label, self._current_stage)
         self.stage_progress.emit(stage.value, progress)
+        self.stage_log.emit(stage.value, f"{stage_label} {int(progress * 100)}%")

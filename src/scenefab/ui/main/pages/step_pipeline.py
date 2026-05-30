@@ -285,6 +285,7 @@ class StepPipeline(QWidget):
 
     def bind_controller(self, controller):
         self._controller = controller
+        controller.stage_log.connect(self.append_log)
 
     def _on_retry(self):
         if self._controller:
