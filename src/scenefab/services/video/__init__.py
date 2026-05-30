@@ -9,6 +9,12 @@
 - perspective_mapper.py  第一人称视角映射器
 - video_interleaver.py   视频穿插逻辑处理器
 
+Phase 3 模块化拆分：
+- cache/          视频帧缓存（LRU + 磁盘回退）
+- session.py     FFmpeg 会话管理
+- analyzer.py    视频分析器
+- processor.py   视频处理器
+
 Phase 4 模块化拆分：
 - extraction/   第一人称提取、情感峰值检测
 - selection/    片段选择策略
@@ -73,6 +79,13 @@ from .highlight_detector import (
 from .pipeline_integrator import PipelineIntegrator
 from .scene_converter import SceneConverter, EmotionCurveGenerator
 
+# Phase 3 新增：视频处理模块
+from .cache import VideoFrameCache
+from .cache.legacy_cache import VideoCache
+from .session import FFmpegSession
+from .analyzer import VideoAnalyzer
+from .processor import VideoProcessor
+
 __all__ = [
     # 原有
     "BaseVideoMaker",
@@ -117,4 +130,10 @@ __all__ = [
     "EmotionCurveGenerator",
     # 流水线集成
     "PipelineIntegrator",
+    # Phase 3 视频处理
+    "VideoFrameCache",
+    "VideoCache",
+    "FFmpegSession",
+    "VideoAnalyzer",
+    "VideoProcessor",
 ]

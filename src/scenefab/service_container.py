@@ -205,4 +205,7 @@ class ServiceContainer:
         self._services_by_name.clear()
 
 
-__all__ = ["ServiceContainer", "ServiceLifetime"]
+__all__ = ["ServiceContainer", "ServiceLifetime", "service_container"]
+
+# 全局服务容器实例
+service_container = ServiceContainer()

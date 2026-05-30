@@ -29,16 +29,14 @@ from .video.monologue_maker import MonologueMaker
 # 导出服务
 from .export.export_manager import ExportManager
 
-# AI Services V2 (from ai_services.py)
-from ..ai_services import (
-    LLMService,
-    VisionService,
-    TTSService,
-    ASRService,
-    AIServiceManager as AIServiceManagerV2,
-    ServiceStatus as ServiceStatusV2,
-    ServiceHealth as ServiceHealthV2,
-)
+# AI Services (split from ai_services.py)
+from scenefab.services.ai.llm import LLMService
+from scenefab.services.ai.vision import VisionService
+from scenefab.services.ai.tts import TTSService
+from scenefab.services.ai.asr import ASRService
+from scenefab.services.ai.manager import AIServiceManager as AIServiceManagerV2
+from scenefab.services.ai.base import ServiceStatus as ServiceStatusV2
+from scenefab.services.ai.base import ServiceHealth as ServiceHealthV2
 
 
 class ServiceStatus(Enum):
