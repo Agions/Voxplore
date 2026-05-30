@@ -313,7 +313,54 @@ class SettingsPage(QFrame):
 
         container_layout.addWidget(shortcuts)
 
-        # ── 关于 ─────────────────────────────────
+        # ── 插件管理 ───────────────────────────────
+        plugins_grp = SettingsGroup("插件管理", "🧩")
+        plugins_layout = plugins_grp.layout()
+
+        from scenefab.plugins.loader import PluginLoader
+        from scenefab.plugins.registry import PluginRegistry
+
+        loader = PluginLoader(PluginRegistry())
+        try:
+            loader.add_plugin_directory(
+                str(Path(__file__).parent.parent.parent.parent / "plugins" / "examples")
+            )
+            manifests = loader.discover_plugins()
+        except Exception:
+            manifests = []
+
+        if manifests:
+            for m in manifests:
+                info = QLabel(f"<b>{m.name}</b> v{m.version} — {m.description}")
+                info.setFont(QFont("", FontSizes.sm))
+                info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+                plugins_layout.insertWidget(plugins_layout.count() - 1, info)
+        else:
+            empty_info = QLabel("暂无已安装插件")
+            empty_info.setFont(QFont("", FontSizes.sm))
+            empty_info.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+            plugins_layout.insertWidget(0, empty_info)
+
+        install_btn = QPushButton("浏览插件商店")
+        install_btn.setObjectName("btn_secondary")
+        install_btn.setFixedSize(120, 32)
+        install_btn.setStyleSheet(f"""
+            QPushButton#btn_secondary {{
+                background: transparent;
+                color: {Colors.PRIMARY_400};
+                border: 1px solid {Colors.PRIMARY_500};
+                border-radius: {Radii.base};
+                font-size: {FontSizes.sm};
+            }}
+            QPushButton#btn_secondary:hover {{
+                background: rgba(139, 92, 246, 0.1);
+            }}
+        """)
+        plugins_layout.insertWidget(plugins_layout.count() - 1, install_btn)
+
+        container_layout.addWidget(plugins_grp)
+
+        # ── 关于 ─────────────────────────────
         about = SettingsGroup("关于", "ℹ")
         about_layout = about.layout()
 
