@@ -1,27 +1,20 @@
-#!/usr/bin/env python3
 """
-SceneFab 配置管理器（兼容层 - 已废弃）
-请直接导入 scenefab.settings
+配置管理器（兼容层）
+
+已迁移至 scenefab.settings
 """
-import warnings
 from enum import Enum
 from dataclasses import dataclass
 from typing import Optional
 
-warnings.warn(
-    "scenefab.config_manager is deprecated. "
-    "Use scenefab.settings.ConfigManager or scenefab.settings.config_manager.",
-    DeprecationWarning,
-    stacklevel=2,
-)
-
 from scenefab.settings import (
-    ConfigManager as ConfigManager,
+    ConfigManager,
     AppConfig,
     config_manager,
     get_config,
     get_llm_config,
 )
+from scenefab.settings import LLMConfig as _LLMConfig, CacheConfig as _CacheConfig
 
 
 class LLMProviderType(Enum):
@@ -34,7 +27,7 @@ class LLMProviderType(Enum):
 
 @dataclass
 class LLMConfig:
-    """LLM 配置（兼容旧接口）"""
+    """LLM 配置"""
     enabled: bool = False
     api_key: str = ""
     model: str = ""
@@ -43,54 +36,27 @@ class LLMConfig:
     max_tokens: int = 2000
 
     def is_valid(self) -> bool:
-        """检查配置是否有效"""
-        if not self.enabled:
-            return False
-        if not self.api_key:
-            return False
-        if not self.model:
-            return False
-        return True
+        return self.enabled and bool(self.api_key) and bool(self.model)
 
 
 @dataclass
 class CacheConfig:
-    """缓存配置（兼容旧接口）"""
+    """缓存配置"""
     enabled: bool = True
     max_size: int = 100
     ttl: int = 3600
 
     def is_valid(self) -> bool:
-        """检查配置是否有效"""
         return self.enabled and self.max_size > 0 and self.ttl > 0
-
-
-@dataclass
-class RetryConfig:
-    """重试配置"""
-    max_retries: int = 3
-    base_delay: float = 1.0
-    max_delay: float = 60.0
-    backoff_factor: float = 2.0
-
-    def is_valid(self) -> bool:
-        """检查配置是否有效"""
-        return (
-            self.max_retries > 0 and
-            self.base_delay > 0 and
-            self.max_delay > 0 and
-            self.backoff_factor > 0
-        )
 
 
 __all__ = [
     "ConfigManager",
     "AppConfig",
-    "LLMConfig",
-    "CacheConfig",
-    "RetryConfig",
-    "LLMProviderType",
     "config_manager",
     "get_config",
     "get_llm_config",
+    "LLMProviderType",
+    "LLMConfig",
+    "CacheConfig",
 ]
