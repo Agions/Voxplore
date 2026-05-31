@@ -2,7 +2,7 @@ name: Release Build
 
 # ============================================================
 # 触发条件：
-#   - push tag: v*  （如 v4.0.0）
+#   - push tag: v*  （如 v1.0.0）
 #   - 手动触发（workflow_dispatch）
 # ============================================================
 on:
@@ -36,6 +36,28 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "version_tag=v${VERSION}" >> $GITHUB_OUTPUT
           echo "📦 Building SceneFab v${VERSION}"
+
+  # ─────────────────────────────────────────────
+  # Job 2: 发布到 PyPI
+  # ─────────────────────────────────────────────
+  publish-pypi:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
+
+      - name: Build wheel and sdist
+        run: uv build
+
+      - name: Publish to PyPI
+        run: uv publish --token ${{ secrets.PYPI_API_TOKEN }}
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
 
   # ─────────────────────────────────────────────
   # Job 2: Windows x64（PyInstaller）
