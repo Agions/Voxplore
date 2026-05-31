@@ -28,7 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Multimedia :: Video",
     "Topic :: Multimedia :: Video :: Non-Linear Editor",
-    "Topic :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 keywords = ["video", "AI", "film-commentary", "scene-detection", "TTS", "PySide6", "短视频", "影视解说"]
 dependencies = [

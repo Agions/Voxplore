@@ -87,33 +87,34 @@ jobs:
           uv pip install pyinstaller
 
       - name: Build with PyInstaller
+        shell: bash
         run: |
           uv run pyinstaller \
             --clean \
             --onedir \
             --name "SceneFab-${{ env.VERSION }}-windows-x64" \
-            --add-data "resources;resources" `
-            --hidden-import=PySide6 `
-            --hidden-import=PySide6.QtCore `
-            --hidden-import=PySide6.QtGui `
-            --hidden-import=PySide6.QtWidgets `
-            --hidden-import=PySide6.QtMultimedia `
-            --hidden-import=cv2 `
-            --hidden-import=numpy `
-            --hidden-import=PIL `
-            --hidden-import=librosa `
-            --hidden-import=soundfile `
-            --hidden-import=pydub `
-            --hidden-import=faster_whisper `
-            --hidden-import=edge_tts `
-            --hidden-import=openai `
-            --hidden-import=cryptography `
-            --hidden-import=keyring `
-            --hidden-import=httpx `
-            --hidden-import=dotenv `
-            --hidden-import=yaml `
-            --collect-all=PySide6 `
-            --noconfirm `
+            --add-data "resources;resources" \
+            --hidden-import=PySide6 \
+            --hidden-import=PySide6.QtCore \
+            --hidden-import=PySide6.QtGui \
+            --hidden-import=PySide6.QtWidgets \
+            --hidden-import=PySide6.QtMultimedia \
+            --hidden-import=cv2 \
+            --hidden-import=numpy \
+            --hidden-import=PIL \
+            --hidden-import=librosa \
+            --hidden-import=soundfile \
+            --hidden-import=pydub \
+            --hidden-import=faster_whisper \
+            --hidden-import=edge_tts \
+            --hidden-import=openai \
+            --hidden-import=cryptography \
+            --hidden-import=keyring \
+            --hidden-import=httpx \
+            --hidden-import=dotenv \
+            --hidden-import=yaml \
+            --collect-all=PySide6 \
+            --noconfirm \
             src/scenefab/main.py
 
       - name: Package as zip
@@ -330,7 +331,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: pyproject.toml
 
       - name: Install system dependencies
         run: |
