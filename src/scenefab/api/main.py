@@ -19,7 +19,7 @@ def create_app() -> FastAPI:
             from scenefab import __version__
             return __version__
         except Exception:
-            return "3.0.0"
+            return "1.0.0"
 
     app = FastAPI(
         title="SceneFab API",
@@ -102,7 +102,7 @@ app = create_app()
 async def root():
     return {
         "name": "SceneFab API",
-        "version": "3.0.0",
+        "version": "1.0.0",
         "docs": "/docs",
         "health": "/api/v1/health"
     }

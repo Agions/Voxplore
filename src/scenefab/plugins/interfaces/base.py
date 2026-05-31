@@ -36,7 +36,7 @@ class PluginManifest:
     dependencies: Dict[str, str] = field(default_factory=dict)  # 依赖
     entry_point: str = ""                  # 入口点 "module.path:ClassName"
     permissions: List[str] = field(default_factory=list)          # 权限列表
-    min_app_version: str = "3.0.0"         # 最低应用版本
+    min_app_version: str = "1.0.0"         # 最低应用版本
     tags: List[str] = field(default_factory=list)                # 标签
 
     @classmethod
@@ -83,7 +83,7 @@ def _get_version() -> str:
         from scenefab import __version__
         return __version__
     except Exception:
-        return "3.0.0"
+        return "1.0.0"
 
 
 @dataclass

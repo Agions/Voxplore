@@ -41,7 +41,7 @@ class PluginLoader:
             from scenefab import __version__
             return __version__
         except Exception:
-            return "3.0.0"
+            return "1.0.0"
 
     def __init__(self, registry: PluginRegistry = None):
         self._registry = registry if registry is not None else PluginRegistry()

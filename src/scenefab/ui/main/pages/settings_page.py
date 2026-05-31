@@ -366,7 +366,7 @@ class SettingsPage(QFrame):
         about_layout = about.layout()
 
         about_info = QLabel(
-            "<b>SceneFab</b> v3.0.0<br>"
+            "<b>SceneFab</b> v1.0.0<br>"
             "智能视频创作平台<br><br>"
             "© 2025 Agions. MIT License."
         )

@@ -63,7 +63,7 @@ def _get_version() -> str:
         from scenefab import __version__
         return __version__
     except Exception:
-        return "3.0.0"
+        return "1.0.0"
 
 
 @dataclass
@@ -191,7 +191,7 @@ class ConfigManager:
 
         return AppConfig(
             name=data.get("name", "SceneFab"),
-            version=data.get("version", "3.0.0"),
+            version=data.get("version", "1.0.0"),
             debug=data.get("debug", False),
             cache=cache,
             video=video,

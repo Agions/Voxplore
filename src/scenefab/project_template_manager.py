@@ -35,7 +35,7 @@ class ProjectTemplateManager(QObject):
             from scenefab import __version__
             return __version__
         except Exception:
-            return "3.0.0"
+            return "1.0.0"
 
     template_deleted = Signal(str)      # 模板删除信号
     template_imported = Signal(str)     # 模板导入信号

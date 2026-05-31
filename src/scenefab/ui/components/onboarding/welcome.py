@@ -151,7 +151,7 @@ class WelcomeScreen(QWidget):
             from scenefab import __version__
             return f"v{__version__}"
         except Exception:
-            return "v3.0.0"
+            return "v1.0.0"
 
     def _setup_ui(self):
         """设置 UI"""

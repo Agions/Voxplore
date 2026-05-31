@@ -107,7 +107,7 @@ def _get_version() -> str:
         import scenefab
         return scenefab.__version__
     except Exception:
-        return "3.0.0"
+        return "1.0.0"
 
 
 def create_portable():
