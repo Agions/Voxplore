@@ -5,6 +5,7 @@ SceneFab 配置管理
 """
 import os
 import yaml
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass, field
@@ -12,6 +13,14 @@ from dotenv import load_dotenv
 
 # 加载 .env 文件
 load_dotenv()
+
+
+class LLMProviderType(Enum):
+    """LLM 提供商类型"""
+    QWEN = "qwen"
+    KIMI = "kimi"
+    GLM5 = "glm5"
+    OPENAI = "openai"
 
 
 @dataclass(slots=True)
@@ -26,6 +35,10 @@ class LLMConfig:
     temperature: float = 0.7
     requests_per_second: float = 10.0
     burst_size: int = 20
+
+    def is_valid(self) -> bool:
+        """检查 LLM 配置是否完整可用"""
+        return self.enabled and bool(self.api_key) and bool(self.model)
 
 
 @dataclass(slots=True)
@@ -56,6 +69,10 @@ class CacheConfig:
     max_size: int = 100
     ttl: int = 3600
     cache_dir: str = "~/.cache/scenefab"
+
+    def is_valid(self) -> bool:
+        """检查缓存配置是否有效"""
+        return self.enabled and self.max_size > 0 and self.ttl > 0
 
 
 def _get_version() -> str:

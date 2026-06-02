@@ -1,33 +1,14 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-SceneFab 导出服务（兼容性重导出）
+字幕导出器（支持 SRT / VTT / LRC 格式）
 
-.. deprecated::
-    请使用 ``scenefab.services.export`` 模块下的对应类。
-    本模块保留用于向后兼容，未来版本将移除。
-
-    新代码请改用::
-
-        from scenefab.services.export import JianyingExporter, VideoExporter
-
-    字幕导出请使用 ``scenefab.services.export`` 中的 SubtitleExporter
-    （已迁移至 scenefab.services.export.subtitle_exporter）。
+.. note::
+    历史：原位于 scenefab.exporters 兼容层，Phase 2 重构中迁移至
+    scenefab.services.export.subtitle_exporter。
 """
-from scenefab.services.export.jianying_exporter import (
-    JianyingExporter,
-    JianyingConfig,
-)
-from scenefab.services.export.video_exporter import (
-    VideoExporter,
-    ExportConfig,
-    ExportFormat,
-)
-from scenefab.services.export.jianying_adapter import (
-    Track, TrackType, Segment, TimeRange,
-    VideoMaterial, AudioMaterial, TextMaterial,
-)
 
-# SubtitleExporter 保留本地（自包含，未迁移到 services.export）
 import logging
 from typing import Any
 
@@ -87,14 +68,4 @@ class SubtitleExporter:
         return f"{hours:02d}:{minutes:02d}:{secs:02d}.{millis:03d}"
 
 
-__all__ = [
-    "ExportConfig",
-    "JianyingExporter",
-    "JianyingConfig",
-    "SubtitleExporter",
-    "VideoExporter",
-    "ExportFormat",
-    # 剪映模型
-    "Track", "TrackType", "Segment", "TimeRange",
-    "VideoMaterial", "AudioMaterial", "TextMaterial",
-]
+__all__ = ["SubtitleExporter"]

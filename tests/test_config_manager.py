@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试配置管理器"""
 
-from scenefab.config_manager import (
+from scenefab.settings import (
     LLMProviderType,
     LLMConfig,
     CacheConfig,
@@ -33,35 +33,36 @@ class TestLLMConfig:
 
     def test_default(self):
         """测试默认值"""
-        config = LLMConfig()
+        config = LLMConfig(name="test")
 
         assert config.enabled is False
         assert config.api_key == ""
         assert config.model == ""
         assert config.temperature == 0.7
-        assert config.max_tokens == 2000
+        assert config.max_tokens == 8000
 
     def test_is_valid_disabled(self):
         """测试禁用时无效"""
-        config = LLMConfig(enabled=False)
+        config = LLMConfig(name="test", enabled=False)
 
         assert config.is_valid() is False
 
     def test_is_valid_no_api_key(self):
         """测试无 API key 时无效"""
-        config = LLMConfig(enabled=True, model="test")
+        config = LLMConfig(name="test", enabled=True, model="test")
 
         assert config.is_valid() is False
 
     def test_is_valid_no_model(self):
         """测试无模型时无效"""
-        config = LLMConfig(enabled=True, api_key="key")
+        config = LLMConfig(name="test", enabled=True, api_key="key")
 
         assert config.is_valid() is False
 
     def test_is_valid_complete(self):
         """测试完整配置有效"""
         config = LLMConfig(
+            name="test",
             enabled=True,
             api_key="test_key",
             model="test_model"

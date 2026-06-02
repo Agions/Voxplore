@@ -17,10 +17,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any
 
-from .models import (
-    VideoSegment, EmotionPeak, NarrationBlock, AudioTrack, VideoProject, NarrationStyle, EmotionType
-)
-from .video import VideoAnalyzer
+from .models.video import VideoSegment, EmotionPeak
+from .models.narration import NarrationBlock, NarrationStyle, EmotionType
+from .models.media import AudioTrack
+from .models.project import VideoProject
+from .services.video.analyzer import VideoAnalyzer
 
 logger = logging.getLogger(__name__)
 

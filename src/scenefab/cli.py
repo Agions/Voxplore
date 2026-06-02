@@ -15,9 +15,11 @@ if __package__ is None:
     sys.path.insert(0, _src_dir)
 
 from scenefab.settings import get_config
-from scenefab.models import NarrationStyle, EmotionType
+from scenefab.models.narration import NarrationStyle, EmotionType
 from scenefab.pipeline import SceneFabPipeline, PipelineConfig
-from scenefab.exporters import JianyingExporter, SubtitleExporter, VideoExporter
+from scenefab.services.export.jianying_exporter import JianyingExporter
+from scenefab.services.export.subtitle_exporter import SubtitleExporter
+from scenefab.services.export.video_exporter import VideoExporter
 from scenefab.services import get_ai_service_manager
 
 

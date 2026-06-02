@@ -344,7 +344,7 @@ class Application(QObject):
     def _init_config_manager(self) -> bool:
         """初始化配置管理器"""
         try:
-            from .config_manager import ConfigManager
+            from .settings import ConfigManager
 
             # 创建配置管理器
             config_manager = ConfigManager()
@@ -423,7 +423,7 @@ class Application(QObject):
             from .project_manager import ProjectManager
             from .project_template_manager import ProjectTemplateManager
             from .settings_manager import ProjectSettingsManager
-            from .config_manager import ConfigManager
+            from .settings import ConfigManager
 
             # 创建配置管理器实例（如果不存在）
             config_manager = self.get_service_by_name("config_manager")

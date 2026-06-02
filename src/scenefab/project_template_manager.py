@@ -18,7 +18,7 @@ import logging
 from scenefab._signals import QObject, Signal
 
 from .project_manager import Project, ProjectType
-from .config_manager import ConfigManager
+from .settings import ConfigManager
 from .template_models import TemplateInfo, TemplateCategory, TemplateMetadata
 
 

@@ -141,7 +141,7 @@ class PipelineIntegrator(MonologueMaker):
     def _extract_keyframes(self, project: MonologueProject) -> List:
         """提取关键帧列表（使用 LRU 缓存）"""
         from .models.perspective import KeyFrame
-        from scenefab.video import VideoFrameCache
+        from scenefab.services.video.cache.frame_cache import VideoFrameCache
 
         # 获取共享缓存
         cache = VideoFrameCache.get_shared()

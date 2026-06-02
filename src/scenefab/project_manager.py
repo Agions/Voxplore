@@ -19,7 +19,7 @@ import logging
 
 from scenefab._signals import QObject, Signal
 
-from .config_manager import ConfigManager
+from .settings import ConfigManager
 from .secure_key_manager import get_secure_key_manager
 from .models.project_models import (
     ProjectStatus, ProjectType,

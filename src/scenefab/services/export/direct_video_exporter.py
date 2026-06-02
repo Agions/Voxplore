@@ -368,7 +368,7 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> str:
         """添加字幕到视频"""
-        from scenefab.exporters import SubtitleExporter
+        from scenefab.services.export.subtitle_exporter import SubtitleExporter
 
         # 收集所有字幕
         all_subtitles = []
@@ -376,7 +376,7 @@ class DirectVideoExporter:
             if hasattr(segment, 'captions'):
                 for cap in segment.captions:
                     if hasattr(cap, 'text') and hasattr(cap, 'start_time') and hasattr(cap, 'end_time'):
-                        from scenefab.models import SubtitleItem
+                        from scenefab.models.media import SubtitleItem
                         all_subtitles.append(SubtitleItem(
                             text=cap.text,
                             start_time=cap.start_time,
