@@ -25,14 +25,6 @@ logger = logging.getLogger(__name__)
 
 # ============ 枚举定义 ============
 
-class ErrorSeverity(Enum):
-    """错误严重程度"""
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
-
-
 class ErrorCategory(Enum):
     """错误类别"""
     NETWORK = "network"          # 网络错误

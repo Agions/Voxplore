@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any
 import logging
 from dataclasses import dataclass
 
-from scenefab._signals import QObject, Signal
+from scenefab.signals_bridge import QObject, Signal
 
 from .version_models import ProjectVersion, ProjectBranch
 

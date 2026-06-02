@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-from scenefab._signals import QObject, Signal
+from scenefab.signals_bridge import QObject, Signal
 
 logger = logging.getLogger(__name__)
 

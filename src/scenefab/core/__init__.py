@@ -14,15 +14,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ApplicationState(Enum):
-    """应用状态"""
-    INITIALIZING = "initializing"
-    STARTING = "starting"
-    READY = "ready"
-    RUNNING = "running"
-    PAUSED = "paused"
-    SHUTTING_DOWN = "shutting_down"
-    ERROR = "error"
+# ApplicationState 已统一到 scenefab.application（Phase 5 重构）
+# 旧定义保留导入以保持向后兼容
+from scenefab.application import ApplicationState
 
 
 @dataclass

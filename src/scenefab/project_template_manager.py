@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 import logging
 
-from scenefab._signals import QObject, Signal
+from scenefab.signals_bridge import QObject, Signal
 
 from .project_manager import Project, ProjectType
 from .settings import ConfigManager

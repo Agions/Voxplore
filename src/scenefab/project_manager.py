@@ -17,7 +17,7 @@ from dataclasses import asdict
 from typing import Dict, List, Optional, Any
 import logging
 
-from scenefab._signals import QObject, Signal
+from scenefab.signals_bridge import QObject, Signal
 
 from .settings import ConfigManager
 from .secure_key_manager import get_secure_key_manager
