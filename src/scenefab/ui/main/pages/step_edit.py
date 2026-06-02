@@ -6,13 +6,13 @@
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QSlider, QComboBox
+    QLabel, QPushButton, QFrame, QComboBox
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 
 from ...main.pages.step_base import StepPage, ContentCard
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 
 class TimelinePreview(QFrame):

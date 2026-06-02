@@ -14,10 +14,6 @@ warnings.warn(
     stacklevel=2,
 )
 
-from enum import Enum
-from typing import Dict, Any, Optional
-from dataclasses import dataclass
-import threading
 
 from scenefab.services.ai.base import ServiceStatus, ServiceHealth
 from scenefab.services.ai.manager import AIServiceManager

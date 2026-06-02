@@ -7,7 +7,7 @@
 包含视频项目、视频分组、任务进度等。
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 

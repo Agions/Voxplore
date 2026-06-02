@@ -4,7 +4,7 @@ AI 服务基类
 """
 import time
 import logging
-from typing import Any, Optional
+from typing import Any
 from dataclasses import dataclass
 from enum import Enum
 

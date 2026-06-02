@@ -5,15 +5,14 @@ SceneFab 设置页 — 分类清晰的信息架构
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QScrollArea, QComboBox,
-    QCheckBox, QLineEdit, QSpinBox, QGroupBox, QTabWidget
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QScrollArea, QComboBox,
+    QLineEdit
 )
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from pathlib import Path
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
+from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 
 # ═══════════════════════════════════════════════════════════════

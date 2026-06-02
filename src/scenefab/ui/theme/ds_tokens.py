@@ -5,7 +5,6 @@ SceneFab Design System v6
 语义化色彩体系 + 组件级变量
 """
 
-from PySide6.QtGui import QColor
 
 
 # ═══════════════════════════════════════════════════════════════════

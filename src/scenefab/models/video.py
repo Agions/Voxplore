@@ -10,7 +10,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from .narration import EmotionType
 
 
 @dataclass(slots=True)

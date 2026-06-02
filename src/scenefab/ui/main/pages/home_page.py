@@ -10,13 +10,12 @@ SceneFab 首页 v6 — 沉浸式创作中心
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QScrollArea, QSizePolicy
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QScrollArea
 )
-from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont, QPainter, QLinearGradient, QColor
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
+from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
 
 
 # ═══════════════════════════════════════════════════════════════════════

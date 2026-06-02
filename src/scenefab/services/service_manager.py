@@ -12,8 +12,7 @@
 """
 
 from typing import Dict, Type, Optional, Any
-from dataclasses import dataclass, field
-from enum import Enum
+from dataclasses import dataclass
 import threading
 
 # AI 服务
@@ -30,10 +29,6 @@ from .video.monologue_maker import MonologueMaker
 from .export.export_manager import ExportManager
 
 # AI Services (split from ai_services.py)
-from scenefab.services.ai.llm import LLMService
-from scenefab.services.ai.vision import VisionService
-from scenefab.services.ai.tts import TTSService
-from scenefab.services.ai.asr import ASRService
 from scenefab.services.ai.manager import AIServiceManager as AIServiceManagerV2
 # 统一从 ai.base 导入权威 ServiceStatus/ServiceHealth
 from scenefab.services.ai.base import ServiceStatus, ServiceHealth

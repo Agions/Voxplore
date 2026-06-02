@@ -8,7 +8,7 @@ from typing import Optional, List, Dict
 from enum import Enum
 
 from scenefab.services.export.export_manager import ExportFormat as ManagerExportFormat
-from scenefab.models.narration import EmotionType, NarrationStyle
+from scenefab.models.narration import EmotionType
 
 
 # ─────────────────────────────────────────────────────────────

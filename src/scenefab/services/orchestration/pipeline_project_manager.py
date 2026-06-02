@@ -29,14 +29,13 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict, field
-from enum import Enum
 from datetime import datetime
 import uuid
 
 from scenefab.models.project_models import ProjectType
 from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
-    _NarrafiilmVersion,
+    _NarrafiilmVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
 
 

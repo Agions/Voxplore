@@ -11,16 +11,14 @@ SceneFab 主窗口 — 现代极简布局 v6
   - 全局快捷键支持
 """
 
-import os
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QStackedWidget, QStatusBar, QFrame, QLabel, QPushButton,
-    QToolButton, QGraphicsOpacityEffect
+    QStackedWidget, QFrame, QLabel, QToolButton, QGraphicsOpacityEffect
 )
-from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve, QTimer, QRect
-from PySide6.QtGui import QFont, QKeySequence, QAction
+from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtGui import QFont
 
-from ..theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii, Shadows
+from ..theme.ds_tokens import Colors, FontSizes, Radii
 
 
 # ═══════════════════════════════════════════════════════════════════════

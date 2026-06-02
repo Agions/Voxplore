@@ -402,42 +402,8 @@ class FirstPersonExtractor:
 
         return first_person_frames
 
-    def _analyze_single_frame(
-        self,
-        video_path: str,
-        timestamp: float,
-        frame
-    ) -> dict | None:
-        """分析单帧"""
-        try:
-            import cv2
-            import numpy as np
 
-            # 编码为 JPEG
-            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
-            cv2.imencode('.jpg', frame, encode_param)
-
-            # 简化分析：基于图像复杂度
-
-            # 简单的"第一人称"判断
-            # 实际项目中应该用 Qwen2.5-VL 等模型
-            laplacian_var = cv2.Laplacian(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var()
-            is_poi = laplacian_var > 100 and np.random.random() < 0.3
-
-            confidence = 0.75 if is_poi else 0.35
-
-            return {
-                "timestamp": timestamp,
-                "confidence": confidence,
-                "description": "第一人称镜头" if is_poi else "其他视角",
-                "is_first_person": is_poi
-            }
-
-        except Exception as e:
-            logger.warning(f"Frame analysis failed at {timestamp}: {e}")
-            return None
-
-    def _cluster_frames(self, frames: list[dict]) -> list[VideoSegment]:
+    def _cluster_frames(self, frames: list[dict]) -> list:
         """聚类连续的第一人称帧"""
         if not frames:
             return []

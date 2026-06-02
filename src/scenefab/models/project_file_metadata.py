@@ -17,9 +17,9 @@
 提取为独立模型类。
 """
 
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 class _NarrafiilmVersion(Enum):

@@ -5,14 +5,13 @@
 """
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QFileDialog, QListWidget, QListWidgetItem
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QFileDialog
 )
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
 
 from ...main.pages.step_base import StepPage, ContentCard
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Spacing, Radii
+from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 
 class VideoDropZone(QFrame):

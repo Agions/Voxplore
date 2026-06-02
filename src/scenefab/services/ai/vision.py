@@ -1,7 +1,6 @@
 """
 Vision 视觉服务
 """
-import time
 import logging
 import hashlib
 from typing import Any
