@@ -24,7 +24,7 @@
     logger = container.get_by_name("logger")
 """
 
-from typing import Dict, Any, Optional, Type, Callable, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
 
 class ServiceLifetime:

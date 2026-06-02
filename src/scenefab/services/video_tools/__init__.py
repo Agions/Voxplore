@@ -7,17 +7,17 @@
 - BaseVideoProcessor / IVideoProcessor  视频处理基类
 """
 
-from .ffmpeg_tool import FFmpegTool, HWAccelType
 from .base import (
-    IVideoProcessor,
     BaseVideoProcessor,
-    VideoMetadata,
+    IVideoProcessor,
     ProcessingResult,
+    VideoMetadata,
+    extract_video_metadata,
     get_seg_attr,
     parse_fps,
-    extract_video_metadata,
 )
-from .caption_gen import CaptionGenerator, Caption, CaptionConfig, CaptionStyle
+from .caption_gen import Caption, CaptionConfig, CaptionGenerator, CaptionStyle
+from .ffmpeg_tool import FFmpegTool, HWAccelType
 
 __all__ = [
     # 工具

@@ -7,8 +7,13 @@ PageTransition — 页面切换动画管理器
 历史：原位于 scenefab.ui.theme.animation_helper，Phase 3 重构中
 拆分为独立模块。
 """
+from PySide6.QtCore import (
+    QEasingCurve,
+    QGraphicsOpacityEffect,
+    QPropertyAnimation,
+    QTimer,
+)
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import QTimer, QPropertyAnimation, QGraphicsOpacityEffect, QEasingCurve
 
 from ._animation_helper import AnimationHelper
 

@@ -1,9 +1,11 @@
 """Tests for app.plugins.loader - entry_points discovery"""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from scenefab.plugins.loader import PluginLoader
+
 from scenefab.plugins.interfaces.base import PluginManifest, PluginType
+from scenefab.plugins.loader import PluginLoader
 
 
 class TestPluginLoaderEntryPoints:

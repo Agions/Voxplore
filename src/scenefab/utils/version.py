@@ -6,9 +6,9 @@ SceneFab 版本管理
 从 pyproject.toml 读取版本信息
 """
 
+import re
 from pathlib import Path
 from typing import NamedTuple
-import re
 
 
 def _safe_import():

@@ -7,20 +7,21 @@ SceneFab 核心处理流水线 V2
 - 流式处理
 - 进度实时反馈
 """
-import os
-import logging
-import cv2
-import numpy as np
 import base64
+import logging
+import os
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any
 
-from .models.video import VideoSegment, EmotionPeak
-from .models.narration import NarrationBlock, NarrationStyle, EmotionType
+import cv2
+import numpy as np
+
 from .models.media import AudioTrack
+from .models.narration import EmotionType, NarrationBlock, NarrationStyle
 from .models.project import VideoProject
+from .models.video import EmotionPeak, VideoSegment
 from .services.video.analyzer import VideoAnalyzer
 
 logger = logging.getLogger(__name__)
@@ -648,8 +649,8 @@ class TTSGenerator:
         max_concurrent: int
     ) -> AudioTrack | None:
         """异步并行流式生成配音（边生成边通知进度）"""
-        import os
         import asyncio
+        import os
 
         texts = [n.text for n in narrations]
         output_paths = [

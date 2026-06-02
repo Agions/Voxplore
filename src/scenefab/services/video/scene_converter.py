@@ -12,12 +12,11 @@ import uuid
 from typing import List, Optional
 
 from scenefab.services.ai.scene_models import SceneInfo, SceneType
+from scenefab.services.video.models.monologue import EmotionType, MonologueSegment
 from scenefab.services.video.models.perspective import (
     NarrationSegment,
     SceneSegment,
 )
-from scenefab.services.video.models.monologue import EmotionType, MonologueSegment
-
 
 # ─────────────────────────────────────────────────────────────
 # 辅助映射

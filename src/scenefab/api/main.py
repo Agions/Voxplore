@@ -3,11 +3,11 @@ SceneFab FastAPI Application
 Web API 层入口
 """
 
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from scenefab.api.routers import projects, pipeline, export, health, plugins
+from scenefab.api.routers import export, health, pipeline, plugins, projects
 from scenefab.exceptions import SceneFabError
 
 

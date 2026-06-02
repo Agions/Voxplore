@@ -10,20 +10,20 @@
 - 延迟统计 ✅
 """
 
+import logging
 import time
+
 import httpx
 
 from ..base_llm_provider import (
     BaseLLMProvider,
+    HTTPClientMixin,
     LLMRequest,
     LLMResponse,
-    ProviderError,
-    HTTPClientMixin,
     ModelManagerMixin,
+    ProviderError,
 )
 
-
-import logging
 logger = logging.getLogger(__name__)
 class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     """

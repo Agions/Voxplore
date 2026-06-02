@@ -7,8 +7,7 @@ LLM 管理器
 """
 
 import logging
-from typing import Dict, Optional, List, Any, AsyncIterator
-
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 from .base_llm_provider import (
     BaseLLMProvider,
@@ -17,15 +16,15 @@ from .base_llm_provider import (
     ProviderError,
     ProviderType,  # 从基础模块导入
 )
-from .providers.qwen import QwenProvider
-from .providers.kimi import KimiProvider
-from .providers.glm5 import GLM5Provider
 from .providers.claude import ClaudeProvider
-from .providers.gemini import GeminiProvider
-from .providers.local import LocalProvider
 from .providers.deepseek import DeepSeekProvider
 from .providers.doubao import DoubaoProvider
+from .providers.gemini import GeminiProvider
+from .providers.glm5 import GLM5Provider
 from .providers.hunyuan import HunyuanProvider
+from .providers.kimi import KimiProvider
+from .providers.local import LocalProvider
+from .providers.qwen import QwenProvider
 
 logger = logging.getLogger(__name__)
 

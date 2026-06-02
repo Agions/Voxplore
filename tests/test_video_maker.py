@@ -6,8 +6,8 @@ from unittest.mock import Mock
 
 from scenefab.services.video.base_maker import (
     BaseProject,
-    ProgressMixin,
     BaseVideoMaker,
+    ProgressMixin,
 )
 
 

@@ -8,16 +8,16 @@
 使用公共混入类减少重复代码
 """
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from ..base_llm_provider import (
+    DEFAULT_LOCAL_TIMEOUT,
     BaseLLMProvider,
+    HTTPClientMixin,
     LLMRequest,
     LLMResponse,
-    ProviderError,
-    HTTPClientMixin,
     ModelManagerMixin,
-    DEFAULT_LOCAL_TIMEOUT,
+    ProviderError,
 )
 
 

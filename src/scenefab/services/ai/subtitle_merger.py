@@ -12,8 +12,7 @@
 import bisect
 import logging
 
-from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
-
+from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 
 logger = logging.getLogger(__name__)
 

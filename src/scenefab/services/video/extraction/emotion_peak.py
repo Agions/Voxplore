@@ -10,9 +10,9 @@ EmotionPeakDetector - 情感峰值检测服务
 4. 返回峰值片段（降序排列）
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
-import logging
 
 from scenefab.services.video.extraction.first_person import VideoSegment
 

@@ -39,17 +39,20 @@ AI/媒体层：
 # ── 应用层 ──────────────────────────────────────────────
 from scenefab.application import (
     ApplicationState,
-    ErrorType,
     ErrorSeverity,
+    ErrorType,
 )
+
+# ── 媒体/AI ─────────────────────────────────────────────
+from scenefab.models.narration import EmotionType, NarrationStyle
+from scenefab.models.project_models import ProjectStatus, ProjectType
 
 # ── 服务层 ──────────────────────────────────────────────
 from scenefab.service_container import ServiceLifetime
-from scenefab.services.ai.base import ServiceStatus, ServiceHealth  # noqa: F401  # re-exported
-
-# ── 媒体/AI ─────────────────────────────────────────────
-from scenefab.models.narration import NarrationStyle, EmotionType
-from scenefab.models.project_models import ProjectStatus, ProjectType
+from scenefab.services.ai.base import (  # noqa: F401  # re-exported
+    ServiceHealth,
+    ServiceStatus,
+)
 
 # ── 管道 ────────────────────────────────────────────────
 # PipelineStage 暂不集中（pipeline_controller 强依赖 PySide6，

@@ -2,9 +2,9 @@
 """测试配置管理器"""
 
 from scenefab.settings import (
-    LLMProviderType,
-    LLMConfig,
     CacheConfig,
+    LLMConfig,
+    LLMProviderType,
 )
 
 

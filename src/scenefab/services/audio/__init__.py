@@ -9,22 +9,21 @@ SceneFab 音频分析服务
 from dataclasses import dataclass
 
 from .beat_detector import (
+    AudioAnalysisResult,
     BeatDetector,
     BeatInfo,
     BeatStrength,
     BeatSyncCutpoint,
     MusicSection,
     SectionInfo,
-    AudioAnalysisResult,
 )
 from .sync_engine import (
     SyncEngine,
-    SyncPoint,
     SyncPlan,
+    SyncPoint,
     SyncStrategy,
     TransitionType,
 )
-
 
 # ============ 配置类 ============
 

@@ -8,13 +8,12 @@ SceneFab 图标管理器
 """
 
 import threading
-from typing import Optional, Dict
 from pathlib import Path
+from typing import Dict, Optional
 
-from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
-
 
 # PyQt 标准图标映射
 STANDARD_ICONS = {

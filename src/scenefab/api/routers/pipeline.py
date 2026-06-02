@@ -3,15 +3,14 @@ Pipeline Router
 流水线 API - 核心的视频解说生成接口
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Optional
-import uuid
 import asyncio
 import threading
+import uuid
+from typing import Optional
 
-from scenefab.api.schemas.models import (
-    NarrationRequest, PipelineStatus
-)
+from fastapi import APIRouter, HTTPException
+
+from scenefab.api.schemas.models import NarrationRequest, PipelineStatus
 from scenefab.services.video.pipeline_integrator import PipelineIntegrator
 
 router = APIRouter()

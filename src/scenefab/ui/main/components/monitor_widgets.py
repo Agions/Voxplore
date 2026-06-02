@@ -5,15 +5,15 @@
 AI监控面板 - 可复用组件
 """
 
-from typing import Dict, Any
 from datetime import datetime, timedelta
+from typing import Any, Dict
 
-from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout
-from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import QPixmap, QColor, QCursor, QPen, QBrush, QPainter, QPainterPath
+from PySide6.QtCore import QPoint, Qt, Signal
+from PySide6.QtGui import QBrush, QColor, QCursor, QPainter, QPainterPath, QPen, QPixmap
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ...icon_manager import get_icon
 from ....services import ServiceStatus
+from ...icon_manager import get_icon
 
 
 class ServiceStatusWidget(QWidget):

@@ -11,7 +11,7 @@ from typing import Optional
 
 import httpx
 
-from scenefab.utils.version import get_version_string, Version
+from scenefab.utils.version import Version, get_version_string
 
 logger = logging.getLogger(__name__)
 

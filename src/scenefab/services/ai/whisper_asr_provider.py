@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, AsyncIterator
+from typing import AsyncIterator, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -237,8 +237,9 @@ class WhisperASRProvider:
         language: str,
     ) -> TranscriptionResult:
         """OpenAI Whisper API 转写（需要网络）"""
-        import httpx
         import os
+
+        import httpx
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:

@@ -11,7 +11,7 @@
 
 import json
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 class TaskStore(ABC):

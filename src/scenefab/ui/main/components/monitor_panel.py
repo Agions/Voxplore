@@ -7,24 +7,31 @@ AI状态监控面板
 """
 
 import time as time_module
-from typing import Dict, List
 from datetime import datetime
+from typing import Dict, List
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFrame, QStackedWidget,
-    QPushButton, QLabel, QMessageBox, QTableWidgetItem
-)
-from PySide6.QtCore import QTimer, Signal, Qt
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QStackedWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-from scenefab.logger import Logger
-from ...icon_manager import get_icon
 from scenefab.application import Application
-from ....services import ServiceStatus
+from scenefab.logger import Logger
 
-from .monitor_models import MonitorMode, AlertData
-from .monitor_widgets import ServiceStatusWidget, AlertWidget
+from ....services import ServiceStatus
+from ...icon_manager import get_icon
+from .monitor_models import AlertData, MonitorMode
 from .monitor_pages import MonitorPages
+from .monitor_widgets import AlertWidget, ServiceStatusWidget
 
 
 class AIMonitorPanel(QWidget):

@@ -12,7 +12,7 @@ PySide6 兼容桥接层
 """
 
 try:
-    from PySide6.QtCore import QObject, Signal, QTimer, QSettings
+    from PySide6.QtCore import QObject, QSettings, QTimer, Signal
     _HAS_PYSIDE6 = True
 except ImportError:
     _HAS_PYSIDE6 = False

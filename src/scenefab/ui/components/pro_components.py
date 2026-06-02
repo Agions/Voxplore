@@ -6,12 +6,17 @@
 视频创作应用专用组件
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QLabel, QPushButton, QFrame, QVBoxLayout,
-    QHBoxLayout, QLineEdit
-)
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QFont, QCursor, QPainter, QLinearGradient, QColor
+from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .components.design_system import Colors
 

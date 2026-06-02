@@ -7,17 +7,28 @@
 """
 
 import webbrowser
-from typing import List
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QLabel, QFrame, QWidget,
-    QGroupBox, QLineEdit, QTextEdit, QComboBox, QCheckBox, QMessageBox,
-    QListWidget, QFormLayout, QWizardPage
-)
-from PySide6.QtCore import (
-    Qt
+    QCheckBox,
+    QComboBox,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMessageBox,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+    QWizardPage,
 )
 
 from ...icon_manager import get_icon

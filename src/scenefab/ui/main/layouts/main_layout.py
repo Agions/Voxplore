@@ -2,10 +2,8 @@
 主窗口布局 - 负责管理主窗口的整体布局
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout
-)
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 
 class MainLayout(QVBoxLayout):

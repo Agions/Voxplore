@@ -4,8 +4,8 @@
 from dataclasses import asdict
 
 from scenefab.services.ai.subtitle_extractor import (
-    SubtitleSegment,
     SubtitleExtractionResult,
+    SubtitleSegment,
 )
 
 

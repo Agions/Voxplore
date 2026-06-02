@@ -20,13 +20,11 @@
 
 import logging
 import re
-
 from pathlib import Path
 from typing import List, Optional
 
-from .scene_models import SceneType, SceneInfo, AnalysisConfig
 from ...utils.security import get_ffmpeg_executor
-
+from .scene_models import AnalysisConfig, SceneInfo, SceneType
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +93,7 @@ class SceneAnalyzer:
     def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
         """使用 PySceneDetect 检测场景变化"""
         try:
-            from scenedetect import open_video, SceneManager
+            from scenedetect import SceneManager, open_video
             from scenedetect.detectors import ContentDetector, ThresholdDetector
 
             video = open_video(video_path)

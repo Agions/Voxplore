@@ -3,12 +3,12 @@
 
 
 from scenefab.services.audio.beat_detector import (
-    BeatStrength,
-    MusicSection,
-    BeatInfo,
-    SectionInfo,
     AudioAnalysisResult,
     BeatDetector,
+    BeatInfo,
+    BeatStrength,
+    MusicSection,
+    SectionInfo,
 )
 
 

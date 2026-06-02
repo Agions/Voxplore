@@ -13,16 +13,16 @@ LLM Provider 异常兼容模块 ⚠️ 已废弃
 """
 
 from scenefab.exceptions import (
-    ProviderError,
-    RateLimitError,
     CircuitOpenError,
+    ConfigError,
     LLMError,
     NetworkError,
-    ConfigError,
-    ServiceError,
-    ServiceNotFoundError,
+    ProviderError,
+    RateLimitError,
     ServiceDependencyError,
+    ServiceError,
     ServiceInitializationError,
+    ServiceNotFoundError,
     ServiceTimeoutError,
 )
 

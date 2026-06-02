@@ -6,10 +6,10 @@ SceneFab 应用程序核心类
 负责应用程序的生命周期管理、服务管理和状态控制
 """
 
-from typing import Dict, List, Optional, Any, Callable
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
+from typing import Any, Callable, Dict, List, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
@@ -422,8 +422,8 @@ class Application(QObject):
             # 初始化项目管理相关服务
             from .project_manager import ProjectManager
             from .project_template_manager import ProjectTemplateManager
-            from .settings_manager import ProjectSettingsManager
             from .settings import ConfigManager
+            from .settings_manager import ProjectSettingsManager
 
             # 创建配置管理器实例（如果不存在）
             config_manager = self.get_service_by_name("config_manager")

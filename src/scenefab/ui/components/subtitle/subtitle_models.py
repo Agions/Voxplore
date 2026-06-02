@@ -14,18 +14,17 @@ Subtitle Exporter and Importer
 - 剪映草稿格式
 """
 
-import re
 import json
+import re
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 from .subtitle_core import (
+    DEFAULT_PRESETS,
+    MultiTrackSubtitleEditor,
     SubtitleBlock,
     SubtitleTrack,
-    MultiTrackSubtitleEditor,
-    DEFAULT_PRESETS,
 )
-
 
 # ─────────────────────────────────────────────────────────────
 # 字幕导出器

@@ -21,7 +21,6 @@ from ._animation_helper import AnimationHelper
 from ._page_transition import PageTransition
 from ._widgets import AnimatedButton, LoadingAnimation
 
-
 __all__ = [
     "AnimationHelper",
     "PageTransition",

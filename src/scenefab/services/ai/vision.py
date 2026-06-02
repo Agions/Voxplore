@@ -1,8 +1,8 @@
 """
 Vision 视觉服务
 """
-import logging
 import hashlib
+import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)

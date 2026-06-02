@@ -24,20 +24,21 @@ SceneFab 项目文件管理
 """
 
 import json
-import zipfile
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict, field
-from datetime import datetime
 import uuid
+import zipfile
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from scenefab.models.project_models import ProjectType
 from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
+)
+from scenefab.models.project_file_metadata import (
     _NarrafiilmVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
-
+from scenefab.models.project_models import ProjectType
 
 # 获取 logger
 logger = logging.getLogger(__name__)

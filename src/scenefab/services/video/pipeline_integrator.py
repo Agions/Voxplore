@@ -30,21 +30,21 @@ Pipeline Integrator
     maker.apply_interleave_to_project(project, timeline)
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from .monologue_maker import MonologueMaker, MonologueProject, MonologueSegment
-from .perspective_mapper import PerspectiveMapper
-from .scene_converter import SceneConverter, EmotionCurveGenerator
-from .video_interleaver import VideoInterleaver
+from ..ai.scene_models import SceneInfo
 from .models.perspective import (
-    PerspectiveShot,
-    InterleaveTimeline,
-    InterleaveContext,
-    NarrationSegment,
     ClipSegment,
+    InterleaveContext,
+    InterleaveTimeline,
+    NarrationSegment,
+    PerspectiveShot,
     SceneSegment,
 )
-from ..ai.scene_models import SceneInfo
+from .monologue_maker import MonologueMaker, MonologueProject, MonologueSegment
+from .perspective_mapper import PerspectiveMapper
+from .scene_converter import EmotionCurveGenerator, SceneConverter
+from .video_interleaver import VideoInterleaver
 
 
 class PipelineIntegrator(MonologueMaker):
@@ -140,8 +140,9 @@ class PipelineIntegrator(MonologueMaker):
 
     def _extract_keyframes(self, project: MonologueProject) -> List:
         """提取关键帧列表（使用 LRU 缓存）"""
-        from .models.perspective import KeyFrame
         from scenefab.services.video.cache.frame_cache import VideoFrameCache
+
+        from .models.perspective import KeyFrame
 
         # 获取共享缓存
         cache = VideoFrameCache.get_shared()

@@ -2,13 +2,22 @@
 配音编辑窗口(Step 3)
 AI 生成解说词 + 情感控制 + 预览
 """
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QFrame, QTextEdit, QSlider, QGroupBox, QComboBox,
-    QProgressBar
-)
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QSlider,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
 from .base_step_window import BaseStepWindow
 
 

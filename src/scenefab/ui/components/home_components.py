@@ -5,15 +5,19 @@
 首页组件 - 专业视频创作应用
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QFrame, QPushButton
-)
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QCursor
+from PySide6.QtGui import QCursor, QFont
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
-from ..pro_components import GradientButton
 from ..design_system import Colors
+from ..pro_components import GradientButton
 
 
 class QuickActionCard(QFrame):

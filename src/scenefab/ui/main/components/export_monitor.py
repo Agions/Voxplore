@@ -8,17 +8,29 @@
 
 import time
 from typing import Dict, List, Optional
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                            QPushButton, QProgressBar, QSplitter, QGroupBox,
-                            QScrollArea, QDialog, QMessageBox)
+
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
+
+from scenefab.logger import Logger
 
 from ...components.design_system import Colors
+from ...export.export_system import ExportStatus, ExportTask
 from ...main.components.export_stats import ExportStatisticsWidget
 from ...main.components.monitor_widgets import PerformanceChart
-from ...export.export_system import ExportTask, ExportStatus
-from scenefab.logger import Logger
 
 
 class ExportProgressWidget(QWidget):

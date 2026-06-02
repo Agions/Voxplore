@@ -2,7 +2,7 @@
 特效面板组件（占位符）
 """
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QListWidget
+from PySide6.QtWidgets import QLabel, QListWidget, QVBoxLayout, QWidget
 
 
 class EffectsPanel(QWidget):

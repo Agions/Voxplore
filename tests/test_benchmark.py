@@ -5,10 +5,11 @@
 性能基准测试
 """
 
-import pytest
-import time
-import sys
 import os
+import sys
+import time
+
+import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 

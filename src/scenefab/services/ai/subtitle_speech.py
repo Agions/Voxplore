@@ -15,10 +15,10 @@ import tempfile
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
-from ..video_tools.ffmpeg_tool import FFmpegTool
-from ..video_tools.base import get_seg_attr
 from ...utils.security import get_ffmpeg_executor
+from ..video_tools.base import get_seg_attr
+from ..video_tools.ffmpeg_tool import FFmpegTool
+from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 
 logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()

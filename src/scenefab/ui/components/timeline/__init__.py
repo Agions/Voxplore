@@ -4,8 +4,8 @@ Timeline Components Package
 """
 
 from ..components.timeline.timeline_shuttle import (
-    TimelineShuttle,
     TimelineRuler,
+    TimelineShuttle,
     TimelineTrack,
 )
 

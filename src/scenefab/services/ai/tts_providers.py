@@ -6,12 +6,18 @@ TTS 提供者实现
 
 import asyncio
 import logging
-from pathlib import Path
-from typing import List, Dict, Any
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any, Dict, List
 
-from .voice_models import VoiceStyle, VoiceGender, VoiceConfig, VoiceInfo, GeneratedVoice
-from ...utils.security import get_ffmpeg_executor, SecurityError
+from ...utils.security import SecurityError, get_ffmpeg_executor
+from .voice_models import (
+    GeneratedVoice,
+    VoiceConfig,
+    VoiceGender,
+    VoiceInfo,
+    VoiceStyle,
+)
 
 logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()
@@ -187,8 +193,9 @@ class EdgeTTSProvider(TTSProvider):
         Returns:
             GeneratedVoice: 包含时间戳的生成结果
         """
-        import edge_tts
         from pathlib import Path
+
+        import edge_tts
 
         # 选择声音
         voice = config.voice_id or self._select_voice(config)
@@ -405,9 +412,9 @@ class F5TTSProvider(TTSProvider):
         self._f5_tts = None
         self._available = False
         try:
-            from f5_tts import F5TTS
             # 自动检测设备
             import torch
+            from f5_tts import F5TTS
             device = "cuda" if torch.cuda.is_available() else "cpu"
             self._f5_tts = F5TTS(device=device)
             self._available = True

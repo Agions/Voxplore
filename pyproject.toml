@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Multimedia :: Video :: Non-Linear Editor",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["video", "AI", "film-commentary", "scene-detection", "TTS", "PySide6", "短视频", "影视解说"]
+keywords = ["video", "AI", "film-commentary", "scene-detection", "TTS", "短视频", "影视解说"]
 dependencies = [
     # Core UI
     "PySide6>=6.9.0",
@@ -114,7 +114,7 @@ scenefab = ["py.typed"]
 
 [tool.black]
 line-length = 88
-target-version = ['py312']
+target-version = ['py310']
 
 [tool.ruff]
 line-length = 88
@@ -124,7 +124,7 @@ show-fixes = false
 output-format = "grouped"
 
 [tool.ruff.lint]
-select = ["E", "F", "N", "W", "B", "C4", "SIM"]
+select = ["E", "F", "N", "W", "B", "C4", "SIM", "I"]
 ignore = [
     "E501",   # line too long (handled by formatter)
     "F401",   # unused import (many intentional)

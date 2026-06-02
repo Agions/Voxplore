@@ -2,12 +2,17 @@
 视频上传窗口（Step 1）
 支持拖拽上传 + 文件列表管理
 """
-from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QListWidget, QListWidgetItem, QFrame
-)
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QVBoxLayout,
+)
 
 from .base_step_window import BaseStepWindow
 

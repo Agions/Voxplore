@@ -3,14 +3,23 @@
 接入真实 ProjectManager，支持项目 CRUD
 """
 import logging
+
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QAction, QCursor, QFont
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QScrollArea, QFrame, QGridLayout,
-    QInputDialog, QMessageBox,
-    QMenu
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QMenu,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QFont, QAction, QCursor
+
 from scenefab.project_manager import ProjectManager
 
 

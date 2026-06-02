@@ -2,6 +2,7 @@
 """Test performance utilities"""
 
 import time
+
 from scenefab.utils.performance import LazyLoader, MemoryCache, cached, timed
 
 

@@ -9,15 +9,21 @@
 
 from typing import Optional
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
-    QPushButton, QSlider, QScrollArea,
-)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..subtitle_core import MultiTrackSubtitleEditor
-from .time_ruler import TimeRulerWidget
 from .subtitle_track import SubtitleTrackWidget
+from .time_ruler import TimeRulerWidget
 
 
 class SubtitleTimelineWidget(QFrame):

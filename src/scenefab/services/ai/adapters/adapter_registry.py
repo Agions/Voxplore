@@ -3,14 +3,18 @@ AI Provider Registry
 Provider 注册与管理中心
 """
 
-from typing import Dict, List, Optional
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 from .base import (
-    BaseLLMAdapter, ProviderConfig, ProviderMetadata,
-    VideoAnalysisAdapter, ScriptLLMAdapter, TTSAdapter,
-    ProviderType
+    BaseLLMAdapter,
+    ProviderConfig,
+    ProviderMetadata,
+    ProviderType,
+    ScriptLLMAdapter,
+    TTSAdapter,
+    VideoAnalysisAdapter,
 )
 
 logger = logging.getLogger("scenefab.ai")

@@ -11,23 +11,18 @@ SceneFab 服务模块
 """
 
 # 子模块
-from . import ai
-from . import video
-from . import audio
-from . import export
-from . import video_tools
-from . import orchestration
-
+from . import ai, audio, export, orchestration, video, video_tools
+from .service_manager import (
+    AIServiceManagerCompat as AIServiceManager,  # 向后兼容
+)
 
 # 兼容层
 from .service_manager import (
-    ServiceManager,
-    AIServiceManagerCompat as AIServiceManager,  # 向后兼容
-    ServiceStatus,
     ServiceHealth,
+    ServiceManager,
+    ServiceStatus,
     get_ai_service_manager,
 )
-
 
 __all__ = [
     # 子模块

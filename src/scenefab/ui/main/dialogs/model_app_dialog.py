@@ -11,12 +11,13 @@ from PySide6.QtWidgets import QWizard
 
 from ...icon_manager import get_icon
 from .model_app_pages import (
+    ApplicationFormPage,
     ProviderInfo,
     ProviderSelectionPage,
     RequirementsPage,
-    ApplicationFormPage,
     SubmitApplicationPage,
 )
+
 
 class ModelApplicationDialog(QWizard):
     """AI模型申请对话框"""

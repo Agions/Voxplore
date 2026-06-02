@@ -2,11 +2,11 @@
 AI 服务基类
 提供公共接口、重试逻辑、错误处理、统计收集
 """
-import time
 import logging
-from typing import Any
+import time
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 

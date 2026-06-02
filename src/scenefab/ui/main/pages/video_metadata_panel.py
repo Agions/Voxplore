@@ -9,6 +9,7 @@ import json
 import logging
 
 from PySide6.QtWidgets import QFrame, QGridLayout, QLabel
+
 from ...utils.security import get_ffmpeg_executor
 
 _video_executor = get_ffmpeg_executor()

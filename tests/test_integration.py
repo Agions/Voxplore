@@ -3,18 +3,19 @@
 测试 LLMManager 和各提供商的真实 API 调用
 """
 
-import pytest
 import os
 from typing import Optional
 
+import pytest
+
+from scenefab.services.ai.base_llm_provider import LLMRequest, LLMResponse
+
 # 需要真实 API 密钥才能运行这些测试
 # 使用 pytest -m "integration" 运行
-
 from scenefab.services.ai.llm_manager import LLMManager
-from scenefab.services.ai.providers.qwen import QwenProvider
-from scenefab.services.ai.providers.kimi import KimiProvider
 from scenefab.services.ai.providers.glm5 import GLM5Provider
-from scenefab.services.ai.base_llm_provider import LLMRequest, LLMResponse
+from scenefab.services.ai.providers.kimi import KimiProvider
+from scenefab.services.ai.providers.qwen import QwenProvider
 
 
 class SkipIfNoAPIKey:

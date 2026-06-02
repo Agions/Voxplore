@@ -2,6 +2,7 @@
 """测试安全密钥管理器"""
 
 from unittest.mock import patch
+
 from cryptography.fernet import Fernet
 
 from scenefab.secure_key_manager import SecureKeyManager

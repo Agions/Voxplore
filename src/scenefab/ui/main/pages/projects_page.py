@@ -8,11 +8,17 @@ SceneFab 项目管理页面 - 重构版
 
 import logging
 from typing import Optional
-from PySide6.QtWidgets import QSplitter, QWidget
-from PySide6.QtCore import Qt
 
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QSplitter, QWidget
+
+from ...components import (
+    MacIconButton,
+    MacPageToolbar,
+    MacPrimaryButton,
+    MacSecondaryButton,
+)
 from .base_page import BasePage
-from ...components import MacPageToolbar, MacPrimaryButton, MacSecondaryButton, MacIconButton
 
 
 class ProjectsPage(BasePage):
@@ -123,7 +129,8 @@ class ProjectsPage(BasePage):
 
     def _on_new_project(self):
         """新建项目"""
-        from PySide6.QtWidgets import QMessageBox, QDialog
+        from PySide6.QtWidgets import QDialog, QMessageBox
+
         from .components.create_proj_dlg import CreateProjectDialog
 
         if not self._template_manager:

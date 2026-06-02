@@ -7,8 +7,8 @@ AI Provider 接口定义
 实现这些协议即可接入自定义的 AI 模型。
 """
 
-from typing import Protocol, runtime_checkable
 from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
 
 
 @dataclass

@@ -15,11 +15,10 @@ MultiTrack Subtitle System
 - TimeRulerWidget: 时间标尺组件
 """
 
-from dataclasses import dataclass, field, asdict
-from enum import Enum
-from typing import List, Optional, Dict
 import uuid
-
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+from typing import Dict, List, Optional
 
 # ─────────────────────────────────────────────────────────────
 # 字幕样式预设

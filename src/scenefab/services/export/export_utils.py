@@ -9,12 +9,12 @@
 """
 
 import json
+import logging
 import uuid
 from abc import ABC, abstractmethod
-from pathlib import Path
-from typing import Optional, Generic, TypeVar
 from dataclasses import dataclass, field
-import logging
+from pathlib import Path
+from typing import Generic, Optional, TypeVar
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
 

@@ -3,16 +3,23 @@ Narration Editor Component
 解说编辑器组件 - 所见即所得的解说稿编辑
 """
 
-from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QComboBox,
-    QSlider, QFrame, QListWidget, QListWidgetItem
-)
-from PySide6.QtCore import Qt, Signal
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
-from scenefab.services.video.models.perspective import (
-    NarrationSegment
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QSlider,
+    QTextEdit,
+    QVBoxLayout,
 )
+
+from scenefab.services.video.models.perspective import NarrationSegment
 
 
 class NarrationSegmentItem(QFrame):

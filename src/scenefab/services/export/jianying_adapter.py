@@ -13,11 +13,11 @@ JianyingDraft data models — dataclass based
 - JianyingConfig (导出配置)
 """
 
-from dataclasses import dataclass, field, asdict
-from enum import Enum
-from typing import List, Optional, Dict
 import uuid
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional
 
 # ─── 常量定义 ──────────────────────────────────────────────────
 JIANYING_VERSION = 360000  # 剪映版本号

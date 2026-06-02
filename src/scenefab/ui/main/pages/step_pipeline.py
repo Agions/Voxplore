@@ -2,15 +2,22 @@
 # -*- coding: utf-8 -*-
 """Step 2: Pipeline 执行 — OKLCH Design Tokens"""
 
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QCursor, QFont
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QFrame, QTextEdit, QProgressBar
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QFont, QCursor
+
+from scenefab.orchestration.pipeline_controller import PipelineStage
 
 from ...components import MacCard
-from scenefab.orchestration.pipeline_controller import PipelineStage
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

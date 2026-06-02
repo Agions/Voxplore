@@ -9,10 +9,11 @@ AnimationHelper — 通用动画辅助类
 - 淡入 / 淡出 / 滑入 / 缩放 / 脉冲 动画
 - 动画时长自动适配（减少动画时缩短至 10ms 内）
 """
-import platform
 import logging
-from PySide6.QtWidgets import QWidget, QGraphicsOpacityEffect
-from PySide6.QtCore import QPropertyAnimation, QEasingCurve, QSettings
+import platform
+
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSettings
+from PySide6.QtWidgets import QGraphicsOpacityEffect, QWidget
 
 logger = logging.getLogger(__name__)
 

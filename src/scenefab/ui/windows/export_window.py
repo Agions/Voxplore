@@ -2,12 +2,20 @@
 导出窗口（Step 4）
 格式选择 + 预览 + 导出进度
 """
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QFrame, QProgressBar, QGroupBox,
-    QRadioButton, QButtonGroup
-)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QButtonGroup,
+    QFrame,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QRadioButton,
+    QVBoxLayout,
+    QWidget,
+)
+
 from .base_step_window import BaseStepWindow
 
 

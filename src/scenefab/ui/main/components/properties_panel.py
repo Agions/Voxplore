@@ -6,13 +6,22 @@ SceneFab 属性面板
 显示和编辑选中片段的属性（时间/转场/字幕/配音）
 """
 
-from typing import Optional, Dict, Any
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QComboBox, QTextEdit, QGroupBox,
-    QFormLayout, QScrollArea, QSlider,
-    QCheckBox
-)
+from typing import Any, Dict, Optional
+
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QFormLayout,
+    QGroupBox,
+    QLabel,
+    QScrollArea,
+    QSlider,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ...components.design_system import Colors
 

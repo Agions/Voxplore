@@ -7,25 +7,28 @@ SceneFab 项目管理器
 """
 
 import functools
-import os
 import json
+import logging
+import os
 import shutil
 import uuid
 import zipfile
-from datetime import datetime
 from dataclasses import asdict
-from typing import Dict, List, Optional, Any
-import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
-from .settings import ConfigManager
-from .secure_key_manager import get_secure_key_manager
 from .models.project_models import (
-    ProjectStatus, ProjectType,
-    ProjectMetadata, ProjectSettings,
-    ProjectMedia, ProjectTimeline,
+    ProjectMedia,
+    ProjectMetadata,
+    ProjectSettings,
+    ProjectStatus,
+    ProjectTimeline,
+    ProjectType,
 )
+from .secure_key_manager import get_secure_key_manager
+from .settings import ConfigManager
 
 
 # ─── 错误处理装饰器 ────────────────────────────────────────────

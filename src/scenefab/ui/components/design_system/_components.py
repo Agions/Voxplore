@@ -9,17 +9,22 @@ SceneFab 组件封装
 拆分为独立模块以隔离组件定义职责。
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QPushButton, QLabel, QLineEdit, QProgressBar, QFrame,
-    QHBoxLayout
-)
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QGraphicsOpacityEffect
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QProgressBar,
+    QPushButton,
+    QWidget,
+)
 
 from scenefab.ui.theme.animation import AnimationHelper
 
-from ._tokens import Colors
 from ._style_generator import StyleSheet
+from ._tokens import Colors
 
 
 # ─── 组件封装 ──────────────────────────────────────────────

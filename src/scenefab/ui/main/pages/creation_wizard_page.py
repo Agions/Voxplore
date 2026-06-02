@@ -10,17 +10,16 @@ frontend-design-pro: OKLCH色彩 · OutCubic动效 · 脉冲指示器
     横向进度指示器 + 页面切换滑入动画
 """
 
-from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QLabel, QFrame, QStackedWidget
-)
-from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve, QTimer, QPoint
+from PySide6.QtCore import QEasingCurve, QPoint, QPropertyAnimation, Qt, QTimer, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStackedWidget, QVBoxLayout
+
+from scenefab.orchestration.pipeline_controller import PipelineController
 
 from .base_page import BasePage
-from .step_upload import StepUpload
-from .step_pipeline import StepPipeline
 from .step_export import StepExport
-from scenefab.orchestration.pipeline_controller import PipelineController
+from .step_pipeline import StepPipeline
+from .step_upload import StepUpload
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

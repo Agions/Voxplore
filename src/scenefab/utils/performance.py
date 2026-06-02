@@ -8,8 +8,8 @@
 
 import functools
 import time
-from typing import Any, Callable, Optional, Dict, List
 from threading import Lock
+from typing import Any, Callable, Dict, List, Optional
 
 
 class LazyLoader:

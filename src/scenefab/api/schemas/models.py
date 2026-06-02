@@ -3,13 +3,13 @@ API Schemas
 Pydantic 模型定义
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict
 from enum import Enum
+from typing import Dict, List, Optional
 
-from scenefab.services.export.export_manager import ExportFormat as ManagerExportFormat
+from pydantic import BaseModel, Field
+
 from scenefab.models.narration import EmotionType
-
+from scenefab.services.export.export_manager import ExportFormat as ManagerExportFormat
 
 # ─────────────────────────────────────────────────────────────
 # Enums

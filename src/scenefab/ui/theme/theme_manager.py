@@ -2,13 +2,13 @@
 主题管理器 - 管理应用程序主题
 """
 
-from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
-from PySide6.QtCore import QObject, Signal, QTimer
+from PySide6.QtCore import QObject, QTimer, Signal
 
 # OKLCH Design Token source — all ThemeColors must reference these.
-from .theme.tokens import COLORS, LIGHT_TOKENS, DARK_TOKENS
+from .theme.tokens import COLORS, DARK_TOKENS, LIGHT_TOKENS
 
 
 def _oklch(key: str, mode: str = "dark") -> str:
@@ -356,8 +356,8 @@ class ThemeManager(QObject):
     # ─── 新设计系统集成 ────────────────────────────────────
     def apply_design_system(self, widget=None) -> None:
         """应用全新设计系统（简约科技风 + OKLCH tokens）"""
-        from .qss_variables import register_qss_variables
         from .base_styles import get_base_qss
+        from .qss_variables import register_qss_variables
 
         vars_css = register_qss_variables()
         base_css = get_base_qss()

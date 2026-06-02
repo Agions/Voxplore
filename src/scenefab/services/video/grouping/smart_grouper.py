@@ -15,10 +15,11 @@ SmartGrouper - 智能视频分组服务
 - 音频 embedding: AudioEmbedder 协议（未来替换为真实声纹识别）
 """
 
-from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
-from enum import Enum
 import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Protocol, runtime_checkable
+
 import numpy as np
 
 logger = logging.getLogger(__name__)

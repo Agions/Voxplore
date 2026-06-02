@@ -18,26 +18,24 @@ Subtitle Component
 """
 
 from .subtitle_core import (
-    SubtitlePosition,
-    SubtitleAnimation,
-    SubtitleStylePreset,
-    SubtitleBlock,
-    SubtitleTrack,
-    MultiTrackSubtitleEditor,
     DEFAULT_PRESETS,
+    MultiTrackSubtitleEditor,
+    SubtitleAnimation,
+    SubtitleBlock,
+    SubtitlePosition,
+    SubtitleStylePreset,
+    SubtitleTrack,
     export_to_jianying_text_track,
 )
-
 from .subtitle_models import (
     SubtitleExporter,
     SubtitleImporter,
 )
-
 from .widgets import (
-    TimeRulerWidget,
     SubtitleBlockWidget,
-    SubtitleTrackWidget,
     SubtitleTimelineWidget,
+    SubtitleTrackWidget,
+    TimeRulerWidget,
 )
 
 __all__ = [

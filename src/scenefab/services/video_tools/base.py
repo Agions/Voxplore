@@ -4,11 +4,12 @@
 提供视频处理服务的公共基类和接口
 """
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Union
 from pathlib import Path
-import logging
+from typing import Any, Dict, List, Union
+
 logger = logging.getLogger(__name__)
 
 

@@ -3,14 +3,11 @@
 优化为纯 macOS 设计系统风格，移除所有内联样式
 """
 
-from typing import List, Optional
 from dataclasses import dataclass
+from typing import List, Optional
 
-from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QPushButton, QLabel,
-    QSizePolicy
-)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QWidget
 
 
 class NavigationButton(QPushButton):

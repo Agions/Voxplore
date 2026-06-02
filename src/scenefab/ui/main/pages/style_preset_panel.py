@@ -5,11 +5,17 @@
 从 step_preview.py 提取 StylePresetPanel
 """
 
-from PySide6.QtWidgets import (QFrame, QVBoxLayout, QHBoxLayout, QLabel,
-                               QPushButton, QComboBox, QLineEdit)
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
-
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+)
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

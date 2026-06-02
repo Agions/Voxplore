@@ -5,19 +5,20 @@
 视觉提供商测试
 """
 
-import pytest
+import os
+import sys
 from unittest.mock import Mock, patch
 
-import sys
-import os
+import pytest
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from scenefab.services.ai.vision_providers import (
-    VisionProvider,
+    GeminiVisionProvider,
     OpenAIVisionProvider,
     QwenVLProvider,
-    GeminiVisionProvider,
     VisionAnalyzerFactory,
+    VisionProvider,
 )
 
 

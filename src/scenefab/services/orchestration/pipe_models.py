@@ -3,12 +3,11 @@
 
 类型安全的 Pydantic v2 模型，替代原有的 dataclass。
 """
-from typing import Optional, List, Callable
+from typing import Callable, List, Optional
 
 from pydantic import BaseModel, Field
 
-from .enums import WorkflowStep, WorkflowStatus, CreationMode, ExportFormat
-
+from .enums import CreationMode, ExportFormat, WorkflowStatus, WorkflowStep
 
 # ---------------------------------------------------------------------------
 # 内部子类型（TypedDict 风格，保留 dict 接口供序列化兼容）

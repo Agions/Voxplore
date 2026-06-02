@@ -6,20 +6,20 @@
 提供项目设置的统一管理和配置功能
 """
 
-import os
 import json
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import asdict
-from pathlib import Path
 import logging
+import os
+from dataclasses import asdict
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
-from .settings import ConfigManager
 from .secure_key_manager import get_secure_key_manager
-from .settings_types import SettingType, SettingDefinition, ProjectSettingsProfile
+from .settings import ConfigManager
 from .settings_data import get_all_settings_definitions
+from .settings_types import ProjectSettingsProfile, SettingDefinition, SettingType
 
 
 class ProjectSettingsManager(QObject):

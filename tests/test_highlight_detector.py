@@ -2,11 +2,12 @@
 """测试高光检测器"""
 
 import pytest
+
 from scenefab.services.video import (
     HighlightDetector,
-    HighlightSegment,
-    HighlightReason,
     HighlightDetectorConfig,
+    HighlightReason,
+    HighlightSegment,
 )
 
 

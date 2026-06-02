@@ -10,9 +10,9 @@ Kimi (月之暗面 Moonshot AI) 提供商
 
 from ..base_llm_provider import (
     BaseLLMProvider,
+    HTTPClientMixin,
     LLMRequest,
     LLMResponse,
-    HTTPClientMixin,
     ModelManagerMixin,
 )
 

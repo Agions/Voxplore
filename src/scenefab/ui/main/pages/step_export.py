@@ -4,14 +4,22 @@
 导出步骤页面
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QLabel, QPushButton, QFrame, QComboBox, QProgressBar, QRadioButton
-)
-from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QRadioButton,
+    QVBoxLayout,
+    QWidget,
+)
 
-from ...main.pages.step_base import StepPage, ContentCard
+from ...main.pages.step_base import ContentCard, StepPage
 from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 

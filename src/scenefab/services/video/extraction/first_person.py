@@ -13,9 +13,10 @@ FirstPersonExtractor - 第一人称视角提取服务
 - 视觉模型: VisionModel 协议（未来替换为真实 Qwen2.5-VL）
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
-import logging
+
 import numpy as np
 
 logger = logging.getLogger(__name__)

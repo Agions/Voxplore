@@ -12,7 +12,7 @@ import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +177,7 @@ def _handle_commentary_create(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        from scenefab.pipeline import SceneFabPipeline, PipelineConfig
+        from scenefab.pipeline import PipelineConfig, SceneFabPipeline
 
         config = PipelineConfig(
             min_segment_duration=9.0,
@@ -261,7 +261,7 @@ def _handle_batch_create(args) -> int:
     for video in videos:
         logger.info(f"Processing: {video.name}")
         try:
-            from scenefab.pipeline import SceneFabPipeline, PipelineConfig
+            from scenefab.pipeline import PipelineConfig, SceneFabPipeline
 
             config = PipelineConfig(
                 min_segment_duration=9.0,

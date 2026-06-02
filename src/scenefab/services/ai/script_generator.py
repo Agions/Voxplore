@@ -35,20 +35,21 @@ AI 文案生成器 (Script Generator)
 """
 
 
-import os
 import asyncio
-from typing import Optional, List, Dict, Any
+import logging
+import os
+from typing import Any, Dict, List, Optional
 
 from .base_llm_provider import LLMRequest
 from .llm_manager import LLMManager, load_llm_config
 from .script_models import (
-    ScriptStyle,
-    VoiceTone,
+    GeneratedScript,
     ScriptConfig,
     ScriptSegment,
-    GeneratedScript,
+    ScriptStyle,
+    VoiceTone,
 )
-import logging
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["ScriptGenerator", "generate_script"]

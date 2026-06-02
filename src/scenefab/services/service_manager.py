@@ -11,27 +11,28 @@
 - services/service_manager.py 的 ServiceManager 架构
 """
 
-from typing import Dict, Type, Optional, Any
-from dataclasses import dataclass
 import threading
+from dataclasses import dataclass
+from typing import Any, Dict, Optional, Type
+
+# 统一从 ai.base 导入权威 ServiceStatus/ServiceHealth
+from scenefab.services.ai.base import ServiceHealth, ServiceStatus
+
+# AI Services (split from ai_services.py)
+from scenefab.services.ai.manager import AIServiceManager as AIServiceManagerV2
 
 # AI 服务
 from .ai.llm_manager import LLMManager
 from .ai.scene_analyzer import SceneAnalyzer
-from .ai.voice_generator import VoiceGenerator
 from .ai.script_generator import ScriptGenerator
 from .ai.secure_subtitle_extractor import SecureSubtitleExtractor as SubtitleExtractor
-
-# 视频服务
-from .video.monologue_maker import MonologueMaker
+from .ai.voice_generator import VoiceGenerator
 
 # 导出服务
 from .export.export_manager import ExportManager
 
-# AI Services (split from ai_services.py)
-from scenefab.services.ai.manager import AIServiceManager as AIServiceManagerV2
-# 统一从 ai.base 导入权威 ServiceStatus/ServiceHealth
-from scenefab.services.ai.base import ServiceStatus, ServiceHealth
+# 视频服务
+from .video.monologue_maker import MonologueMaker
 
 
 @dataclass

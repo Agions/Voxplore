@@ -2,10 +2,10 @@
 """
 SceneFab 命令行界面
 """
-import os
-import sys
 import argparse
 import logging
+import os
+import sys
 from pathlib import Path
 
 # 添加项目根目录到路径（用于直接执行脚本或作为入口点）
@@ -14,13 +14,13 @@ if __package__ is None:
     _src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(0, _src_dir)
 
-from scenefab.settings import get_config
-from scenefab.models.narration import NarrationStyle, EmotionType
-from scenefab.pipeline import SceneFabPipeline, PipelineConfig
+from scenefab.models.narration import EmotionType, NarrationStyle
+from scenefab.pipeline import PipelineConfig, SceneFabPipeline
+from scenefab.services import get_ai_service_manager
 from scenefab.services.export.jianying_exporter import JianyingExporter
 from scenefab.services.export.subtitle_exporter import SubtitleExporter
 from scenefab.services.export.video_exporter import VideoExporter
-from scenefab.services import get_ai_service_manager
+from scenefab.settings import get_config
 
 
 def setup_logging(verbose: bool = False):

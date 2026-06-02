@@ -2,7 +2,7 @@
 QSS CSS 变量注册
 将 tokens.py 的值注册为 QSS 变量
 """
-from .tokens import COLORS, SPACING, RADIUS, FONT, SHADOW, TRANSITION
+from .tokens import COLORS, FONT, RADIUS, SHADOW, SPACING, TRANSITION
 
 
 def register_qss_variables() -> str:

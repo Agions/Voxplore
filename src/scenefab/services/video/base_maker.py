@@ -7,18 +7,24 @@
 """
 
 import uuid
-from pathlib import Path
-from typing import Optional, List, Dict, Callable, TypeVar, Generic
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable, Dict, Generic, List, Optional, TypeVar
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
-from ..export.jianying_exporter import JianyingExporter
 from ..export.jianying_adapter import (
-    JianyingDraft, JianyingConfig,
-    Track, TrackType, Segment, TimeRange,
-    VideoMaterial, AudioMaterial, TextMaterial,
+    AudioMaterial,
+    JianyingConfig,
+    JianyingDraft,
+    Segment,
+    TextMaterial,
+    TimeRange,
+    Track,
+    TrackType,
+    VideoMaterial,
 )
+from ..export.jianying_exporter import JianyingExporter
 
 
 @dataclass

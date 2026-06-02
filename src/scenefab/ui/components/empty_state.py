@@ -4,11 +4,17 @@ SceneFab 空状态组件 - 品牌升级版
 """
 
 from typing import Optional
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
-)
+
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QPainter, QColor, QLinearGradient
+from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 # 色彩系统 - SceneFab 现代暗色主题
 COLORS = {

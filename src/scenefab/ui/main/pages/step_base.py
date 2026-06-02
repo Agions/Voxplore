@@ -4,16 +4,21 @@
 创作流程页面基类 v6 — 统一的步骤指示器 + 流畅页面切换
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QScrollArea,
-    QGraphicsOpacityEffect, QSizePolicy
-)
-from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QFrame,
+    QGraphicsOpacityEffect,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
-
 
 # ═══════════════════════════════════════════════════════════════════════
 # 步骤指示器

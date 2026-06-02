@@ -2,12 +2,18 @@
 布局组件 - Grid, PageToolbar, EmptyState, ScrollArea
 """
 
-from typing import Optional, List
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QScrollArea, QFrame, QLabel
-)
+from typing import List, Optional
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..components.design_system import Colors
 

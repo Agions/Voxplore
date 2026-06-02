@@ -9,9 +9,9 @@
 
 from typing import List, Optional, Tuple
 
-from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QMouseEvent, QPoint
+from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPoint
+from PySide6.QtWidgets import QWidget
 
 
 class TimeRulerWidget(QWidget):

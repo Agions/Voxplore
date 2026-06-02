@@ -21,27 +21,15 @@ Phase 4 模块化拆分：
 - grouping/     智能视频分组
 """
 
+from .analyzer import VideoAnalyzer
 from .base_maker import BaseVideoMaker
-from .monologue_maker import (
-    MonologueMaker,
-    MonologueProject,
-    MonologueSegment,
-    MonologueStyle,
-)
-from .models.monologue import EmotionType
 
-from .perspective_mapper import PerspectiveMapper
-from .video_interleaver import VideoInterleaver
-from .models.perspective import (
-    SceneSegment,
-    KeyFrame,
-    PerspectiveShot,
-    NarrationSegment,
-    ClipSegment,
-    InterleaveTimeline,
-    InterleaveDecision,
-    InterleaveMode,
-    TransitionType,
+# Phase 3 新增：视频处理模块
+from .cache import VideoFrameCache
+from .cache.legacy_cache import VideoCache
+from .extraction.emotion_peak import (
+    EmotionPeak,
+    EmotionPeakDetector,
 )
 
 # Phase 3 新增（Phase 4 重构至 extraction/）
@@ -50,41 +38,50 @@ from .extraction.first_person import (
     VideoSegment,
 )
 
-from .extraction.emotion_peak import (
-    EmotionPeakDetector,
-    EmotionPeak,
+# Phase 3 新增（Phase 4 重构至 grouping/）
+from .grouping.smart_grouper import (
+    AudioEmbedder,
+    GroupingReason,
+    SmartGrouper,
+    VideoGroup,
+    VisionEmbedder,
 )
+from .highlight_detector import (
+    HighlightDetector,
+    HighlightDetectorConfig,
+    HighlightReason,
+    HighlightSegment,
+)
+from .models.monologue import EmotionType
+from .models.perspective import (
+    ClipSegment,
+    InterleaveDecision,
+    InterleaveMode,
+    InterleaveTimeline,
+    KeyFrame,
+    NarrationSegment,
+    PerspectiveShot,
+    SceneSegment,
+    TransitionType,
+)
+from .monologue_maker import (
+    MonologueMaker,
+    MonologueProject,
+    MonologueSegment,
+    MonologueStyle,
+)
+from .perspective_mapper import PerspectiveMapper
+from .pipeline_integrator import PipelineIntegrator
+from .processor import VideoProcessor
+from .scene_converter import EmotionCurveGenerator, SceneConverter
 
 # Phase 3 新增（Phase 4 重构至 selection/）
 from .selection.seg_selector import (
     SegmentSelector,
     SelectionStrategy,
 )
-
-# Phase 3 新增（Phase 4 重构至 grouping/）
-from .grouping.smart_grouper import (
-    SmartGrouper,
-    VideoGroup,
-    VisionEmbedder,
-    AudioEmbedder,
-    GroupingReason,
-)
-
-from .highlight_detector import (
-    HighlightDetector,
-    HighlightSegment,
-    HighlightReason,
-    HighlightDetectorConfig,
-)
-from .pipeline_integrator import PipelineIntegrator
-from .scene_converter import SceneConverter, EmotionCurveGenerator
-
-# Phase 3 新增：视频处理模块
-from .cache import VideoFrameCache
-from .cache.legacy_cache import VideoCache
 from .session import FFmpegSession
-from .analyzer import VideoAnalyzer
-from .processor import VideoProcessor
+from .video_interleaver import VideoInterleaver
 
 __all__ = [
     # 原有

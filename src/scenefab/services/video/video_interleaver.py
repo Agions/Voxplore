@@ -3,15 +3,21 @@ Video Interleaver
 视频穿插逻辑处理器——决定解说与原片的穿插策略
 """
 
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .models.perspective import (
-    NarrationSegment, ClipSegment, PerspectiveShot,
-    InterleaveDecision, InterleaveTimeline, InterleaveMode,
-    InterleaveContext, TransitionType, SceneSegment,
-    SubjectRole, SubjectPosition
+    ClipSegment,
+    InterleaveContext,
+    InterleaveDecision,
+    InterleaveMode,
+    InterleaveTimeline,
+    NarrationSegment,
+    PerspectiveShot,
+    SceneSegment,
+    SubjectPosition,
+    SubjectRole,
+    TransitionType,
 )
-
 
 __all__ = [
     "VideoInterleaver",

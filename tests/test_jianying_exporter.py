@@ -2,20 +2,20 @@
 """测试剪映导出器"""
 
 
+from scenefab.services.export.jianying_adapter import (
+    AudioMaterial,
+    JianyingMaterials,
+    TextMaterial,
+    VideoMaterial,
+)
 from scenefab.services.export.jianying_exporter import (
-    TrackType,
-    MaterialType,
-    TimeRange,
-    Track,
-    Segment,
     JianyingDraft,
     JianyingExporter,
-)
-from scenefab.services.export.jianying_adapter import (
-    JianyingMaterials,
-    VideoMaterial,
-    AudioMaterial,
-    TextMaterial,
+    MaterialType,
+    Segment,
+    TimeRange,
+    Track,
+    TrackType,
 )
 
 

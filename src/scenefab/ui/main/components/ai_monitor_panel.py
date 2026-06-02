@@ -7,6 +7,6 @@ AI状态监控面板 - 重新导出
 """
 
 # 向后兼容导入
-from .monitor_panel import AIMonitorPanel, MonitorMode, AlertData
+from .monitor_panel import AIMonitorPanel, AlertData, MonitorMode
 
 __all__ = ["AIMonitorPanel", "MonitorMode", "AlertData"]

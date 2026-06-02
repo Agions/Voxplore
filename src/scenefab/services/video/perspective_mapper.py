@@ -3,13 +3,17 @@ Perspective Mapper
 第一人称视角映射器——建立解说与画面的视角关系
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from .models.perspective import (
-    SceneSegment, KeyFrame, PerspectiveShot, ViewpointAnchor,
-    SubjectPosition, SubjectRole, NarrationSegment
+    KeyFrame,
+    NarrationSegment,
+    PerspectiveShot,
+    SceneSegment,
+    SubjectPosition,
+    SubjectRole,
+    ViewpointAnchor,
 )
-
 
 __all__ = [
     "PerspectiveMapper",

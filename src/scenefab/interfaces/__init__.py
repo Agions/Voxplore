@@ -1,9 +1,9 @@
 # Core interfaces
 from .cache_interface import (
-    ICache,
     CacheEntry,
-    CacheStats,
     CachePolicy,
+    CacheStats,
+    ICache,
     generate_cache_key,
 )
 

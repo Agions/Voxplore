@@ -10,16 +10,15 @@
 from pathlib import Path
 
 from scenefab.services.export.jianying_adapter import (
+    AudioMaterial,
     JianyingDraft,
+    Segment,
+    TextMaterial,
+    TimeRange,
     Track,
     TrackType,
     VideoMaterial,
-    AudioMaterial,
-    TextMaterial,
-    Segment,
-    TimeRange,
 )
-
 
 # 字幕样式配置
 CAPTION_STYLES = {

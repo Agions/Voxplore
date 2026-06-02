@@ -6,18 +6,18 @@
 提供项目版本控制、备份和恢复功能
 """
 
-import os
-import json
-import shutil
 import hashlib
-from datetime import datetime
-from typing import Dict, List, Optional, Any
+import json
 import logging
+import os
+import shutil
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
-from .version_models import ProjectVersion, ProjectBranch
+from .version_models import ProjectBranch, ProjectVersion
 
 
 @dataclass

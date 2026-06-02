@@ -2,9 +2,9 @@
 """测试项目管理器"""
 
 from scenefab.project_manager import (
+    ProjectMetadata,
     ProjectStatus,
     ProjectType,
-    ProjectMetadata,
 )
 
 

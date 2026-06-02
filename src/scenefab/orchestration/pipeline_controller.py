@@ -8,8 +8,8 @@ from typing import Optional
 
 from PySide6.QtCore import QObject, Signal
 
-from scenefab.services.video.monologue_maker import MonologueMaker, MonologueProject
 from scenefab.logger import Logger
+from scenefab.services.video.monologue_maker import MonologueMaker, MonologueProject
 
 
 class PipelineStage(Enum):

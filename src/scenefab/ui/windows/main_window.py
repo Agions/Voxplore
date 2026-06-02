@@ -2,17 +2,21 @@
 SceneFab 主窗口 — 完整的窗口管理器 + Pipeline 集成
 """
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QStackedWidget,
-    QMessageBox
+    QMainWindow,
+    QMessageBox,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ...components.step_indicator import StepIndicator
-from .upload_window import UploadWindow
-from .scene_window import SceneWindow
-from .narration_window import NarrationWindow
-from .export_window import ExportWindow
-from .projects_window import ProjectsWindow
 from scenefab.orchestration.pipeline_controller import PipelineController
+
+from ...components.step_indicator import StepIndicator
+from .export_window import ExportWindow
+from .narration_window import NarrationWindow
+from .projects_window import ProjectsWindow
+from .scene_window import SceneWindow
+from .upload_window import UploadWindow
 
 
 class MainWindow(QMainWindow):

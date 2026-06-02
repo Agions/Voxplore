@@ -11,8 +11,8 @@ Emotion Controller Component
     - EmotionPresetButton: 情感预设按钮
 """
 
-from .emotion_ctrl import EmotionController
 from .curve_wgt import EmotionCurveWidget
+from .emotion_ctrl import EmotionController
 from .presets import EMOTION_PRESETS, EmotionPresetButton
 
 __all__ = [

@@ -3,11 +3,11 @@
 """测试片段选择服务"""
 
 
-from scenefab.services.video.selection.seg_selector import (
-    SelectionStrategy,
-    SegmentSelector,
-)
 from scenefab.services.video.extraction.first_person import VideoSegment
+from scenefab.services.video.selection.seg_selector import (
+    SegmentSelector,
+    SelectionStrategy,
+)
 
 
 class TestSelectionStrategy:

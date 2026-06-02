@@ -2,9 +2,15 @@
 首次使用引导组件模块
 """
 
-from .welcome import WelcomeScreen, FeatureCard, GradientLogoWidget
-from .onboard_wizard import OnboardingWizard, WelcomeStep, AIProviderStep, PreferencesStep, CompletionStep
-from .feature_tour import FeatureTourDialog, FeatureTooltip, FeatureHighlight
+from .feature_tour import FeatureHighlight, FeatureTooltip, FeatureTourDialog
+from .onboard_wizard import (
+    AIProviderStep,
+    CompletionStep,
+    OnboardingWizard,
+    PreferencesStep,
+    WelcomeStep,
+)
+from .welcome import FeatureCard, GradientLogoWidget, WelcomeScreen
 
 __all__ = [
     'WelcomeScreen',

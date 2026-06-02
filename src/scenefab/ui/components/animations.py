@@ -12,12 +12,9 @@ frontend-design-pro compliant: OutCubic easing · 微交互 100-150ms · 页面�
 - 禁止 bounce/elastic easing
 """
 
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QRect, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import (
-    QPropertyAnimation, QEasingCurve, QRect, Signal, QTimer
-)
-from PySide6.QtGui import QColor, QPainter, QPen, QPaintEvent
-
 
 # ========================================================================
 # Easing Constants — 所有动画统一使用 OutCubic

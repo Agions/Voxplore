@@ -7,16 +7,17 @@ DeepSeek 提供商
 """
 
 import json
-import httpx
 from typing import AsyncIterator
+
+import httpx
 
 from ..base_llm_provider import (
     BaseLLMProvider,
+    HTTPClientMixin,
     LLMRequest,
     LLMResponse,
-    ProviderError,
-    HTTPClientMixin,
     ModelManagerMixin,
+    ProviderError,
 )
 
 

@@ -6,7 +6,9 @@ Projects Router
 from fastapi import APIRouter, HTTPException
 
 from scenefab.api.schemas.models import (
-    ProjectCreate, ProjectResponse, ProjectListResponse
+    ProjectCreate,
+    ProjectListResponse,
+    ProjectResponse,
 )
 
 router = APIRouter()

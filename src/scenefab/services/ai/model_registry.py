@@ -11,7 +11,7 @@ from pathlib import Path
 
 import yaml
 
-from .interfaces import VisionProvider, LLMProvider, TTSProvider
+from .interfaces import LLMProvider, TTSProvider, VisionProvider
 
 
 class ProviderRegistry:

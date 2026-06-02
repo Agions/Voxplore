@@ -5,13 +5,13 @@
 从 step_upload.py 提取 ThumbnailWorker
 """
 
-import os
 import logging
+import os
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
-from ...utils.security import get_ffmpeg_executor, SecurityError
+from ...utils.security import SecurityError, get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
 _video_executor = get_ffmpeg_executor()

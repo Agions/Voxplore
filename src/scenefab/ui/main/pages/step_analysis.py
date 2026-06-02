@@ -4,14 +4,21 @@
 AI 分析步骤页面
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QFrame, QProgressBar, QCheckBox, QSpinBox
-)
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
-from ...main.pages.step_base import StepPage, ContentCard
+from ...main.pages.step_base import ContentCard, StepPage
 from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 
@@ -235,7 +242,9 @@ class StepAnalysisPage(StepPage):
         self._simulate_progress()
 
     def _simulate_progress(self):
-        from PySide6.QtCore import QTimer  # noqa: F811  # local import needed to avoid top-level Qt overhead
+        from PySide6.QtCore import (
+            QTimer,  # noqa: F811  # local import needed to avoid top-level Qt overhead
+        )
 
         self._stage_idx = 0
         self._timer = QTimer(self)

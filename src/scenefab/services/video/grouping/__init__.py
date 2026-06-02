@@ -4,11 +4,11 @@
 """
 
 from .smart_grouper import (
+    AudioEmbedder,
     GroupingReason,
+    SmartGrouper,
     VideoGroup,
     VisionEmbedder,
-    AudioEmbedder,
-    SmartGrouper,
 )
 
 __all__ = [

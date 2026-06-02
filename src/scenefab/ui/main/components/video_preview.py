@@ -8,17 +8,22 @@ SceneFab 视频预览组件
 
 import os
 from typing import Optional
+
+from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QSlider, QFrame
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, Signal, QUrl
 
 from ...components.design_system import Colors
 
-
 try:
-    from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
+    from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
     from PySide6.QtMultimediaWidgets import QVideoWidget
     HAS_MULTIMEDIA = True
 except ImportError:

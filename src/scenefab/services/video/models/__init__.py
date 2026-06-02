@@ -8,11 +8,10 @@
 """
 
 from .monologue import (
-    MonologueStyle,
     EmotionType,
     MonologueSegment,
+    MonologueStyle,
 )
-
 
 __all__ = [
     "MonologueStyle",

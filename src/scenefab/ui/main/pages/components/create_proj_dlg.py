@@ -6,16 +6,25 @@
 """
 
 from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QDialog, QLineEdit, QComboBox,
-    QMessageBox, QWidget
+    QComboBox,
+    QDialog,
+    QHBoxLayout,
+    QLineEdit,
+    QMessageBox,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ....components import (
-    MacPrimaryButton, MacSecondaryButton, MacTitleLabel, MacLabel,
-    MacSearchBox, MacScrollArea,
-)
 from scenefab.project_template_manager import ProjectTemplateManager
 
+from ....components import (
+    MacLabel,
+    MacPrimaryButton,
+    MacScrollArea,
+    MacSearchBox,
+    MacSecondaryButton,
+    MacTitleLabel,
+)
 from .project_cards import TemplateCard
 
 
@@ -151,8 +160,9 @@ class CreateProjectDialog(QDialog):
 
     def _render_templates(self):
         """渲染模板列表"""
-        from .project_cards import TemplateCard
         from PySide6.QtWidgets import QGridLayout, QWidget
+
+        from .project_cards import TemplateCard
 
         grid = QWidget()
         layout = QGridLayout(grid)

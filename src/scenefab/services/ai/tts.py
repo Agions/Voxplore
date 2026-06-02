@@ -89,6 +89,7 @@ class TTSService:
         max_concurrent: 最大并发数
         """
         import asyncio
+
         import edge_tts
 
         semaphore = asyncio.Semaphore(max_concurrent)
@@ -126,6 +127,7 @@ class TTSService:
             progress_callback: 进度回调，signature: callback(index, total, timestamp_dict)
         """
         import asyncio
+
         import edge_tts
 
         semaphore = asyncio.Semaphore(max_concurrent)

@@ -4,11 +4,11 @@
 import pytest
 
 from scenefab.services.video.monologue_maker import (
-    MonologueStyle,
     EmotionType,
-    MonologueSegment,
-    MonologueProject,
     MonologueMaker,
+    MonologueProject,
+    MonologueSegment,
+    MonologueStyle,
 )
 
 

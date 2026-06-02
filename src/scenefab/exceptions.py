@@ -6,8 +6,8 @@ SceneFab 错误处理和异常模块
 提供自定义异常和错误处理功能
 """
 
-from typing import Optional, Dict, Any
 from enum import Enum
+from typing import Any, Dict, Optional
 
 
 class ErrorCode(Enum):

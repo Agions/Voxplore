@@ -1,8 +1,8 @@
 """
 LLM 服务
 """
-import time
 import logging
+import time
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class LLMService:
     """
 
     def __init__(self, config: dict[str, Any]):
-        from scenefab.services.ai.infra import RateLimiter, CircuitBreaker
+        from scenefab.services.ai.infra import CircuitBreaker, RateLimiter
 
         self.config = config
         self.name = config.get("name", "unknown")

@@ -10,19 +10,18 @@
 两种方式可以组合使用，互相补充。
 """
 
+import logging
 import os
 import tempfile
-import logging
-
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
-from .subtitle_speech import SpeechSubtitleExtractor
-from .subtitle_merger import SubtitleMerger
-from .subtitle_translator import SubtitleTranslator
-from ..video_tools.ffmpeg_tool import FFmpegTool
 from ...utils.security import get_ffmpeg_executor
+from ..video_tools.ffmpeg_tool import FFmpegTool
+from .subtitle_merger import SubtitleMerger
+from .subtitle_speech import SpeechSubtitleExtractor
+from .subtitle_translator import SubtitleTranslator
+from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 
 _video_executor = get_ffmpeg_executor()
 

@@ -2,7 +2,7 @@
 """Test AI Service Manager (V2 权威实现)"""
 
 
-from scenefab.services.ai.base import ServiceStatus, ServiceHealth
+from scenefab.services.ai.base import ServiceHealth, ServiceStatus
 from scenefab.services.ai.manager import AIServiceManager
 
 

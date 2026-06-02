@@ -3,11 +3,11 @@
 提供统一的页面生命周期管理
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 from typing import Any as TypingAny
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout
 from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 
 class BasePage(QWidget):

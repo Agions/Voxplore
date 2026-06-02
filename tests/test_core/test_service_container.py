@@ -1,6 +1,7 @@
 """Tests for app.core.service_container - enhanced lifecycle management"""
 
 import pytest
+
 from scenefab.service_container import ServiceContainer, ServiceLifetime
 
 

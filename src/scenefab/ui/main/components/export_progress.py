@@ -7,13 +7,22 @@
 """
 
 from typing import List, Optional
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                            QPushButton, QTableWidget, QTableWidgetItem)
+
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QColor
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+)
+
+from scenefab.logger import Logger
 
 from ....export.export_system import ExportTask
-from scenefab.logger import Logger
 
 
 class ExportQueueWidget(QWidget):

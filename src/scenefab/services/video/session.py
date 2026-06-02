@@ -164,8 +164,8 @@ class FFmpegSession:
     ) -> list[tuple[float, np.ndarray]]:
         """使用 decord 提取帧"""
         try:
-            from decord import VideoReader, cpu
             import cv2
+            from decord import VideoReader, cpu
 
             vr = VideoReader(video_path, ctx=cpu(0))
             fps = vr.get_avg_fps()

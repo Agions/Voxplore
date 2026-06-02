@@ -3,11 +3,11 @@
 
 
 from scenefab.services.audio.sync_engine import (
+    SyncEngine,
+    SyncPlan,
+    SyncPoint,
     SyncStrategy,
     TransitionType,
-    SyncPoint,
-    SyncPlan,
-    SyncEngine,
 )
 
 

@@ -14,7 +14,7 @@ Monologue 数据模型
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict
+from typing import Dict, List
 
 from scenefab.models.narration import EmotionType
 

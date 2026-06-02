@@ -7,8 +7,17 @@ AI监控面板 - 页面创建
 
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QScrollArea,
-    QPushButton, QLabel, QFrame, QGroupBox, QComboBox, QTableWidget
+    QComboBox,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QTableWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from .monitor_widgets import PerformanceChart

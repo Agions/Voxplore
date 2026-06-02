@@ -7,8 +7,8 @@ LLM Provider 类型定义
 """
 
 from dataclasses import dataclass
-from typing import Dict, Optional, Any, TypeVar
 from enum import Enum
+from typing import Any, Dict, Optional, TypeVar
 
 T = TypeVar("T")
 

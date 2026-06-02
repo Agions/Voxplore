@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 """测试 AI Provider 注册表"""
 
-import pytest
-import tempfile
 import os
+import tempfile
 
-from scenefab.services.ai.model_registry import ProviderRegistry
+import pytest
+
 from scenefab.services.ai.interfaces import (
-    VisionProvider,
+    AudioData,
     LLMProvider,
+    ScriptResult,
     TTSProvider,
     VideoAnalysis,
-    ScriptResult,
-    AudioData,
+    VisionProvider,
 )
-
+from scenefab.services.ai.model_registry import ProviderRegistry
 
 # =============================================================================
 # Mock Providers

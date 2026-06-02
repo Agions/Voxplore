@@ -6,17 +6,17 @@ Plugin Loader
   2. setuptools entry_points - 第三方包插件（新增）
 """
 
-import sys
-import json
 import importlib
 import importlib.util
+import json
 import logging
+import sys
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-from scenefab.plugins.interfaces.base import PluginManifest, PluginType, AppContext
+from scenefab.plugins.interfaces.base import AppContext, PluginManifest, PluginType
 from scenefab.plugins.registry import PluginRegistry
 
 

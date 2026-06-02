@@ -7,18 +7,19 @@ SceneFab 错误处理模块 ✅ 优化版本
 支持异步操作和错误恢复
 """
 
-import sys
-import traceback
 import asyncio
 import logging
 import random
+import sys
+import threading
 import time
-from typing import Optional, Callable, Any, Dict
+import traceback
 from dataclasses import dataclass, field
 from enum import Enum
-from PySide6.QtWidgets import QMessageBox, QWidget
 from functools import wraps
-import threading
+from typing import Any, Callable, Dict, Optional
+
+from PySide6.QtWidgets import QMessageBox, QWidget
 
 logger = logging.getLogger(__name__)
 

@@ -7,13 +7,15 @@
 显示导出任务的统计信息：总任务数、处理中、已完成、失败数。
 """
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
 import logging
 
-from ...components.design_system import Colors
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+
 from scenefab.services.export.batch_export_manager import ExportStatus
+
+from ...components.design_system import Colors
 
 logger = logging.getLogger(__name__)
 

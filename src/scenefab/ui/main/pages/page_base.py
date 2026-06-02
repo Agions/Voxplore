@@ -6,8 +6,8 @@ UI 页面基类扩展
 提供通用页面功能，减少重复代码
 """
 
-from typing import Optional, Dict, Any, TYPE_CHECKING
 from abc import ABC
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from PySide6.QtCore import Signal
 

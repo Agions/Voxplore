@@ -3,11 +3,9 @@
 """
 
 
-from PySide6.QtWidgets import (
-    QStatusBar, QLabel, QProgressBar
-)
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QLabel, QProgressBar, QStatusBar
 
 
 class StatusBar(QStatusBar):

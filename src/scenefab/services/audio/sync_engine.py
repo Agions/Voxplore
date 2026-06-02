@@ -12,13 +12,11 @@
 - HYBRID: 混合策略（推荐）
 """
 
-from typing import List, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import List, Tuple
 
-from .beat_detector import (
-    AudioAnalysisResult, BeatStrength, MusicSection
-)
+from .beat_detector import AudioAnalysisResult, BeatStrength, MusicSection
 
 __all__ = [
     "SyncStrategy",

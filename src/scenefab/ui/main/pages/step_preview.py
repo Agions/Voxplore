@@ -13,17 +13,25 @@ Task 2.3 UX 改善:
 - PreviewTextArea -> preview_text_area.py
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QProgressBar, QSplitter, QMessageBox, QFileDialog
-)
-from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QFont
 import threading
+
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QSizePolicy,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .preview_text_area import PreviewTextArea
 from .style_preset_panel import StylePresetPanel
-
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

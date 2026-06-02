@@ -9,9 +9,8 @@
 - DiskCache: 磁盘持久化缓存
 """
 
-from .memory_cache import MemoryCache
 from .disk_cache import DiskCache
-
+from .memory_cache import MemoryCache
 
 __all__ = [
     "MemoryCache",

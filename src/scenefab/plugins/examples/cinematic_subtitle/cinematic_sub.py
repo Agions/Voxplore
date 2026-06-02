@@ -3,7 +3,7 @@ Cinematic Subtitle Plugin
 电影感字幕插件 - 提供 ASS 格式的电影级字幕样式
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from scenefab.plugins.interfaces.export_plugin import BaseExportPlugin
 

@@ -24,23 +24,23 @@ AI 第一人称独白制作器 (Monologue Maker)
     draft_path = maker.export_to_jianying(project, "/path/to/drafts")
 """
 
-import re
 import logging
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from typing import Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
+from typing import List, Optional
 
-from .base_maker import BaseVideoMaker, BaseProject
-from .models.monologue import MonologueStyle, EmotionType, MonologueSegment
 from ..ai.script_generator import ScriptGenerator, VoiceTone
-from ..ai.voice_generator import VoiceGenerator, VoiceConfig
+from ..ai.voice_generator import VoiceConfig, VoiceGenerator
 from ..ai.voice_models import VoiceStyle
+from ..export.jianying_adapter import JianyingDraft
 from ..video_tools.caption_gen import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from ..export.jianying_adapter import JianyingDraft
-from .track_builder import build_monologue_tracks, CAPTION_STYLES
+from .base_maker import BaseProject, BaseVideoMaker
+from .models.monologue import EmotionType, MonologueSegment, MonologueStyle
+from .track_builder import CAPTION_STYLES, build_monologue_tracks
 
 logger = logging.getLogger(__name__)
 

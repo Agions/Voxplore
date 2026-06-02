@@ -7,15 +7,24 @@
 """
 
 import logging
+
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
-    QComboBox, QSpacerItem, QSizePolicy,
+    QComboBox,
+    QGridLayout,
+    QHBoxLayout,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
 )
 
+from scenefab.project_manager import ProjectStatus, ProjectType
+
 from ....components import (
-    MacElevatedCard, MacSearchBox, MacScrollArea,
+    MacElevatedCard,
+    MacScrollArea,
+    MacSearchBox,
 )
-from scenefab.project_manager import ProjectType, ProjectStatus
 from .project_cards import ProjectCard
 
 logger = logging.getLogger(__name__)

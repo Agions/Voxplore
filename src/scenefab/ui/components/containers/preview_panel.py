@@ -5,16 +5,20 @@
 视频编辑器 - 预览面板组件
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QSlider, QPushButton, QFrame
-)
-
 import logging
+
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont
-from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
-
+from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 logger = logging.getLogger(__name__)
 class PreviewPanel(QWidget):

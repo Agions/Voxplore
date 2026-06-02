@@ -4,10 +4,11 @@ SceneFab 主程序入口
 专业的AI视频编辑器
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 from pathlib import Path
+
 
 # 自动检测无头环境，设置 Qt 平台
 def _setup_headless_platform():
@@ -38,8 +39,9 @@ if not logger.handlers:
 def _check_update_async(window):
     """启动后异步检测更新，有新版本时提示用户（静默失败）"""
     try:
-        from scenefab.update import check_update, format_update_message
         from PySide6.QtWidgets import QMessageBox
+
+        from scenefab.update import check_update, format_update_message
 
         info = check_update()
         if info and info.is_newer:
@@ -67,9 +69,10 @@ def main():
 
     # 启动 GUI
     try:
-        from scenefab.ui.main.main_window import MainWindow
-        from scenefab.application import Application
         from PySide6.QtWidgets import QApplication
+
+        from scenefab.application import Application
+        from scenefab.ui.main.main_window import MainWindow
 
         qt_app = QApplication(sys.argv)
         qt_app.setApplicationName("SceneFab")
@@ -242,8 +245,12 @@ def run_export():
     print("\n--- 剪映草稿导出 ---")
 
     from scenefab.services.export import (
-        JianyingExporter, JianyingConfig,
-        Track, TrackType, Segment, TimeRange,
+        JianyingConfig,
+        JianyingExporter,
+        Segment,
+        TimeRange,
+        Track,
+        TrackType,
         VideoMaterial,
     )
 
@@ -284,10 +291,12 @@ def run_export():
 
 def launch_new_ui():
     """启动全新设计的 UI"""
-    from scenefab.ui.windows.main_window import MainWindow
-    from scenefab.ui.theme.theme_manager import ThemeManager
-    from PySide6.QtWidgets import QApplication
     import sys
+
+    from PySide6.QtWidgets import QApplication
+
+    from scenefab.ui.theme.theme_manager import ThemeManager
+    from scenefab.ui.windows.main_window import MainWindow
 
     app = QApplication(sys.argv)
     theme = ThemeManager()

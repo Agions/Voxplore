@@ -3,16 +3,16 @@ DeepSeek AI Generator Plugin
 DeepSeek AI 生成器插件 - 提供场景分析和脚本生成功能
 """
 
-import uuid
 import json
-from typing import Dict, Any, List, Optional, AsyncIterator
+import uuid
+from typing import Any, AsyncIterator, Dict, List, Optional
 
-from scenefab.plugins.interfaces.base import PluginManifest
 from scenefab.plugins.interfaces.ai_generator import (
     BaseAIGeneratorPlugin,
     SceneAnalysis,
     ScriptGeneration,
 )
+from scenefab.plugins.interfaces.base import PluginManifest
 
 
 class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):

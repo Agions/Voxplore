@@ -1,11 +1,11 @@
 """Test project_models data classes"""
 from scenefab.models.project_models import (
-    ProjectStatus,
-    ProjectType,
+    ProjectMedia,
     ProjectMetadata,
     ProjectSettings,
-    ProjectMedia,
+    ProjectStatus,
     ProjectTimeline,
+    ProjectType,
 )
 
 

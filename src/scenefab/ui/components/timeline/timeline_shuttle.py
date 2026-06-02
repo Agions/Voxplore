@@ -3,17 +3,27 @@ Timeline Shuttle Component
 时间线穿梭器 - 解说与原片时间线对照编辑
 """
 
+from typing import Dict, List, Tuple
+
+from PySide6.QtCore import QPoint, Qt, Signal
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QFrame,
-    QLabel, QPushButton, QSlider, QScrollArea,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
 )
-from PySide6.QtCore import Qt, Signal, QPoint
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush
-from typing import List, Dict, Tuple
 
 from scenefab.services.video.models.perspective import (
-    NarrationSegment, ClipSegment, InterleaveDecision,
-    InterleaveTimeline, TransitionType
+    ClipSegment,
+    InterleaveDecision,
+    InterleaveTimeline,
+    NarrationSegment,
+    TransitionType,
 )
 
 

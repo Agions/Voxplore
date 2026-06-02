@@ -7,8 +7,8 @@
 提供项目管理页面中使用的统计相关 UI 组件。
 """
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from ....components import MacLabel
 

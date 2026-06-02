@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Test LLM Cache and Retry Policy"""
 
-import pytest
 import time
+
+import pytest
 
 from scenefab.services.ai.cache import (
     LLMMemoryCache,
-    LLMRetryPolicy,
-    with_retry,
     LLMPerformanceMonitor,
+    LLMRetryPolicy,
     get_global_cache,
     get_global_monitor,
+    with_retry,
 )
 
 

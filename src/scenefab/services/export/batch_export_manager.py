@@ -3,14 +3,15 @@
 支持多个项目或多个片段的批量导出
 """
 
-import os
 import logging
-from typing import List, Dict, Any, Optional, Callable
+import os
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
-import threading
+from typing import Any, Callable, Dict, List, Optional
+
 from scenefab.exceptions import ExportError
 
 logger = logging.getLogger(__name__)
@@ -249,7 +250,7 @@ class BatchExportManager:
                     project_data = {"source": str(project_path)}
 
             # 构建导出配置
-            from .export_manager import ExportManager, ExportFormat, ExportConfig
+            from .export_manager import ExportConfig, ExportFormat, ExportManager
 
             fmt_map = {
                 "mp4": ExportFormat.MP4,

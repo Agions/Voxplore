@@ -4,6 +4,7 @@ Health Router
 """
 
 from fastapi import APIRouter
+
 from scenefab.api.schemas.models import HealthResponse
 
 router = APIRouter()

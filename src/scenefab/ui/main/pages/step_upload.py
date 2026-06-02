@@ -4,13 +4,19 @@
 上传步骤页面
 """
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QFileDialog
-)
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QDragEnterEvent, QDropEvent
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QFont
+from PySide6.QtWidgets import (
+    QFileDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
-from ...main.pages.step_base import StepPage, ContentCard
+from ...main.pages.step_base import ContentCard, StepPage
 from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 

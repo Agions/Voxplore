@@ -11,15 +11,21 @@ SceneFab 主窗口 — 现代极简布局 v6
   - 全局快捷键支持
 """
 
-from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QStackedWidget, QFrame, QLabel, QToolButton, QGraphicsOpacityEffect
-)
-from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
+    QFrame,
+    QGraphicsOpacityEffect,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QStackedWidget,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..theme.ds_tokens import Colors, FontSizes, Radii
-
 
 # ═══════════════════════════════════════════════════════════════════════
 # 导航配置
@@ -643,6 +649,7 @@ class SceneFabMainWindow(QMainWindow):
 
 def main():
     import sys
+
     from PySide6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     app.setStyle("Fusion")

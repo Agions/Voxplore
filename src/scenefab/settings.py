@@ -4,11 +4,12 @@ SceneFab 配置管理
 统一管理系统配置、环境变量、参数设置
 """
 import os
-import yaml
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field
+
+import yaml
 from dotenv import load_dotenv
 
 # 加载 .env 文件

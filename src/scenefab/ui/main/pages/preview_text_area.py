@@ -6,16 +6,21 @@
 包含完整解说文案预览区 + 分段编辑功能
 """
 
-from PySide6.QtWidgets import (
-    QFrame, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox,
-    QScrollArea, QTextEdit, QTabWidget, QWidget
-)
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QScrollArea,
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from .narration_segment_card import NarrationSegmentCard
-
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

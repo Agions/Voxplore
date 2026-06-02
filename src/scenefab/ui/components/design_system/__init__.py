@@ -15,29 +15,27 @@ SceneFab Design System — OKLCH 感知均匀色彩系统
 """
 
 # 设计 Tokens
-from ._tokens import (
-    Colors,
-    Radius,
-    Fonts,
-    Motion,
-    Shadows,
+# 组件封装
+from ._components import (
+    CFButton,
+    CFCard,
+    CFInput,
+    CFLabel,
+    CFNavButton,
+    CFPanel,
+    CFProgressBar,
+    CFToastNotification,
 )
 
 # 样式生成器
 from ._style_generator import StyleSheet
-
-# 组件封装
-from ._components import (
-    CFButton,
-    CFLabel,
-    CFCard,
-    CFPanel,
-    CFInput,
-    CFProgressBar,
-    CFNavButton,
-    CFToastNotification,
+from ._tokens import (
+    Colors,
+    Fonts,
+    Motion,
+    Radius,
+    Shadows,
 )
-
 
 __all__ = [
     # Tokens

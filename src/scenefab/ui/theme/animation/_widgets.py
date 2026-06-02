@@ -55,7 +55,7 @@ class LoadingAnimation:
         当系统启用了 prefers-reduced-motion 时：
         - 使用静态显示代替动画
         """
-        from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
+        from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
         container = QWidget(parent)
         layout = QHBoxLayout(container)

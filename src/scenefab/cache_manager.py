@@ -14,13 +14,12 @@
 """
 
 import logging
-from typing import Any, Optional, Dict
 from threading import Lock
+from typing import Any, Dict, Optional
 
-from .interfaces.cache_interface import CacheStats
-from .cache_impl.memory_cache import MemoryCache
 from .cache_impl.disk_cache import DiskCache
-
+from .cache_impl.memory_cache import MemoryCache
+from .interfaces.cache_interface import CacheStats
 
 logger = logging.getLogger(__name__)
 

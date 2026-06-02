@@ -23,17 +23,18 @@ AI 配音生成器 (Voice Generator)
 import logging
 import os
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from .voice_models import VoiceConfig, VoiceInfo, GeneratedVoice
 from ...utils.security import get_ffmpeg_executor
+from .voice_models import GeneratedVoice, VoiceConfig, VoiceInfo
 
 logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()
 
 
 
-from .tts_providers import EdgeTTSProvider, OpenAITTSProvider, F5TTSProvider
+from .tts_providers import EdgeTTSProvider, F5TTSProvider, OpenAITTSProvider
+
 
 class VoiceGenerator:
     """

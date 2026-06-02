@@ -2,11 +2,18 @@
 场景理解窗口（Step 2）
 AI 分析视频场景，生成场景描述卡片
 """
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-    QLabel, QScrollArea, QFrame, QProgressBar
-)
 from PySide6.QtCore import Signal
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
+
 from .base_step_window import BaseStepWindow
 
 

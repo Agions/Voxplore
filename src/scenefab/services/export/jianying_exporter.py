@@ -23,29 +23,28 @@
 数据模型已拆分到 jianying_adapter.py，导出器保持单一职责。
 """
 
-import logging
 import json
+import logging
 import shutil
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from ..video_tools.ffmpeg_tool import FFmpegTool
 from ..video_tools.base import extract_video_metadata
+from ..video_tools.ffmpeg_tool import FFmpegTool
+from .export_utils import safe_filename
 from .jianying_adapter import (
-    TrackType,
+    AudioMaterial,
+    CanvasConfig,
+    JianyingConfig,
+    JianyingDraft,
     MaterialType,  # noqa: F401  # intentionally re-exported for tests
+    Segment,
+    TextMaterial,
     TimeRange,
     Track,
-    Segment,
+    TrackType,
     VideoMaterial,
-    AudioMaterial,
-    TextMaterial,
-    JianyingDraft,
-    JianyingConfig,
-    CanvasConfig,
 )
-from .export_utils import safe_filename
-
 
 logger = logging.getLogger(__name__)
 

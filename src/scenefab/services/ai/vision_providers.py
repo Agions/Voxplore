@@ -6,13 +6,13 @@
 支持 Qwen2.5-VL (72B SOTA)、GPT-5 Vision、Gemini 3 Vision 等多种 Vision 模型
 """
 
-import os
 import json
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Callable
-from dataclasses import dataclass, field
-
 import logging
+import os
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional
+
 logger = logging.getLogger(__name__)
 
 

@@ -7,16 +7,32 @@
 """
 
 import os
-from typing import Dict, List, Any
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                            QPushButton, QComboBox, QSpinBox, QTableWidget, QTableWidgetItem,
-                            QFileDialog, QMessageBox, QTabWidget, QGroupBox,
-                            QLineEdit, QCheckBox, QDialog, QFormLayout)
-from PySide6.QtCore import Qt, Signal
+from typing import Any, Dict, List
 
-from ...export.export_system import ExportPreset
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QFileDialog,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
 from scenefab.logger import Logger
 
+from ...export.export_system import ExportPreset
 from .export_format_selector import ExportSettingsDialog
 from .export_progress import ExportQueueWidget
 

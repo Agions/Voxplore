@@ -9,11 +9,11 @@ import logging
 import platform
 import subprocess
 import tempfile
-from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from ...utils.security import get_ffmpeg_executor, SecurityError
+from ...utils.security import SecurityError, get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
 

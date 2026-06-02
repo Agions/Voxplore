@@ -15,7 +15,7 @@ warnings.warn(
 )
 
 
-from scenefab.services.ai.base import ServiceStatus, ServiceHealth
+from scenefab.services.ai.base import ServiceHealth, ServiceStatus
 from scenefab.services.ai.manager import AIServiceManager
 
 # 重新导出以保持向后兼容

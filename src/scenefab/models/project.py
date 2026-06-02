@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from .narration import NarrationStyle, EmotionType, NarrationBlock
-from .video import VideoSegment, EmotionPeak
-from .media import SubtitleItem, AudioTrack
+from .media import AudioTrack, SubtitleItem
+from .narration import EmotionType, NarrationBlock, NarrationStyle
+from .video import EmotionPeak, VideoSegment
 
 
 @dataclass

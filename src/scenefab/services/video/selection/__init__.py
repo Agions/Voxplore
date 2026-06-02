@@ -4,8 +4,8 @@
 """
 
 from .seg_selector import (
-    SelectionStrategy,
     SegmentSelector,
+    SelectionStrategy,
 )
 
 __all__ = [

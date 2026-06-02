@@ -8,18 +8,32 @@
 
 import logging
 from pathlib import Path
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-    QStackedWidget, QMessageBox, QDialog,
-)
-from PySide6.QtCore import Qt
 
-from ....components import (
-    MacCard, MacElevatedCard, MacPrimaryButton, MacSecondaryButton,
-    MacDangerButton, MacTitleLabel, MacLabel, MacBadge,
-    MacScrollArea, MacEmptyState,
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
 )
+
 from ....common.macos_components import create_icon_text_row
+from ....components import (
+    MacBadge,
+    MacCard,
+    MacDangerButton,
+    MacElevatedCard,
+    MacEmptyState,
+    MacLabel,
+    MacPrimaryButton,
+    MacScrollArea,
+    MacSecondaryButton,
+    MacTitleLabel,
+)
 from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
 

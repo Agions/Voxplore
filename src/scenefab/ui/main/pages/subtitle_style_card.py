@@ -5,11 +5,9 @@
 从 step_export.py 提取 SubtitleStyleCard
 """
 
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QLabel
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
-from PySide6.QtCore import Qt
-
+from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

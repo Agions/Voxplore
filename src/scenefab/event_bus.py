@@ -7,8 +7,9 @@ SceneFab 事件总线模块
 """
 
 import threading
-from typing import Dict, List, Callable, Any, Optional
 from contextlib import contextmanager
+from typing import Any, Callable, Dict, List, Optional
+
 from .logger import Logger
 
 

@@ -1,13 +1,15 @@
 """Tests for scenefab.api.routers._task_store - Redis/in-memory persistence"""
 
+from unittest.mock import patch
+
 import pytest
+
 from scenefab.api.routers._task_store import (
     InMemoryTaskStore,
     RedisTaskStore,
-    create_task_store,
     TaskStore,
+    create_task_store,
 )
-from unittest.mock import patch
 
 
 class TestInMemoryTaskStore:

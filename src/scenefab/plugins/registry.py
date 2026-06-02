@@ -5,11 +5,16 @@ Plugin Registry
 
 import json
 import os
-from typing import Dict, List, Optional, Callable
 from dataclasses import dataclass
 from enum import Enum
+from typing import Callable, Dict, List, Optional
 
-from scenefab.plugins.interfaces.base import BasePlugin, PluginManifest, PluginType, AppContext
+from scenefab.plugins.interfaces.base import (
+    AppContext,
+    BasePlugin,
+    PluginManifest,
+    PluginType,
+)
 
 
 class PluginState(Enum):

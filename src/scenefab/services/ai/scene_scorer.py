@@ -11,8 +11,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from .scene_models import SceneType, SceneInfo
-
+from .scene_models import SceneInfo, SceneType
 
 # =============================================================================
 # 场景类型优先级（数值越高越重要）

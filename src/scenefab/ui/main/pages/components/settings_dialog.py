@@ -6,15 +6,26 @@
 """
 
 from PySide6.QtWidgets import (
-    QVBoxLayout, QHBoxLayout, QWidget, QTabWidget, QComboBox, QCheckBox, QScrollArea, QGroupBox, QDialog
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QGroupBox,
+    QHBoxLayout,
+    QScrollArea,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ....components import (
-    MacPrimaryButton, MacSecondaryButton, MacIconButton,
-    MacTitleLabel,
-)
 from scenefab.project_manager import Project
 from scenefab.settings_manager import ProjectSettingsManager
+
+from ....components import (
+    MacIconButton,
+    MacPrimaryButton,
+    MacSecondaryButton,
+    MacTitleLabel,
+)
 
 
 class ProjectSettingsDialog(QDialog):

@@ -9,11 +9,10 @@
 """
 
 import logging
+from typing import Callable, List, Optional
 
-from typing import List, Optional, Callable
-
-from .scene_models import SceneType, SceneInfo, AnalysisConfig
 from .scene_analyzer import SceneAnalyzer
+from .scene_models import AnalysisConfig, SceneInfo, SceneType
 from .scene_scorer import SceneScorer
 
 logger = logging.getLogger(__name__)

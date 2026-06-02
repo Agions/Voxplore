@@ -3,21 +3,21 @@
 使用安全工具确保命令执行安全
 """
 
-import os
 import logging
+import os
 from typing import Optional
 
-from .subtitle_extractor import (
-    SubtitleExtractionResult,
-    OCRSubtitleExtractor,
-    SpeechSubtitleExtractor
-)
 from ...utils.security import (
-    SecureExecutor,
-    PathValidator,
+    ALLOWED_VIDEO_EXTENSIONS,
     InputSanitizer,
+    PathValidator,
+    SecureExecutor,
     SecurityError,
-    ALLOWED_VIDEO_EXTENSIONS
+)
+from .subtitle_extractor import (
+    OCRSubtitleExtractor,
+    SpeechSubtitleExtractor,
+    SubtitleExtractionResult,
 )
 
 logger = logging.getLogger(__name__)

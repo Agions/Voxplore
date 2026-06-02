@@ -4,9 +4,9 @@ AI Provider 注册中心 - 替代硬编码的 Provider 列表
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, AsyncIterator
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, AsyncIterator, Dict, List, Optional
 
 
 class ProviderType(Enum):

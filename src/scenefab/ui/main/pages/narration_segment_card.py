@@ -5,10 +5,16 @@
 从 step_preview.py 提取 NarrationSegmentCard
 """
 
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
-
+from PySide6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+)
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

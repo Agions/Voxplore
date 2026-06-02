@@ -14,9 +14,9 @@ Emotion Presets Data
 """
 
 from typing import Dict, List
-from PySide6.QtWidgets import QPushButton
-from PySide6.QtGui import QColor
 
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QPushButton
 
 # 情感预设数据结构
 EMOTION_PRESET = {

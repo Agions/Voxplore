@@ -9,13 +9,12 @@
 3. Google Translate（免费，但有限制）
 """
 
-import os
 import logging
-from typing import Dict, List, Optional
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, List, Optional
 
-from .subtitle_types import SubtitleSegment, SubtitleExtractionResult
-
+from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 
 logger = logging.getLogger(__name__)
 

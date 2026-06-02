@@ -10,9 +10,10 @@ import logging
 from pathlib import Path
 from threading import Lock
 from typing import Optional
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QFile, QTextStream, Signal, QObject
+
+from PySide6.QtCore import QFile, QObject, QTextStream, Signal
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication
 
 
 class MacOSThemeManager(QObject):

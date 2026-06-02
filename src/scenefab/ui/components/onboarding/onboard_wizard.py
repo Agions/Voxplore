@@ -7,17 +7,20 @@ Onboarding 向导组件
 提供新用户首次使用的引导流程界面，包含欢迎页和功能介绍。
 """
 
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
-                             QPushButton, QFrame)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QPushButton, QVBoxLayout, QWidget
+
+from .feature_tour import COLORS
 
 # Re-export step classes for wizard's internal use
 from .onboard_steps import (
+    AIProviderStep,
+    CompletionStep,
+    PreferencesStep,
     StepIndicator,
-    WelcomeStep, AIProviderStep,
-    PreferencesStep, CompletionStep,
+    WelcomeStep,
 )
-from .feature_tour import COLORS
+
 
 class OnboardingWizard(QWidget):
     """首次使用引导向导"""

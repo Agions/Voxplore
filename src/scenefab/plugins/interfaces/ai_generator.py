@@ -4,8 +4,9 @@ AI 生成器插件接口
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, AsyncIterator
 from dataclasses import dataclass
+from typing import AsyncIterator, Dict, List, Optional
+
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 
 

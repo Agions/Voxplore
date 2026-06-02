@@ -6,10 +6,11 @@ MacButton — REDESIGNED
 统一按钮样式，frontend-design-pro compliant
 """
 
-from PySide6.QtWidgets import QPushButton
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QPushButton
 
-from .common_styles import ColorPalette as CP, ButtonStyles
+from .common_styles import ButtonStyles
+from .common_styles import ColorPalette as CP
 
 
 class MacButton(QPushButton):

@@ -18,25 +18,27 @@ LLM 提供商抽象基类
 - 指数退避
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Any, AsyncIterator
-import json
-from .errors import (
-    ProviderError,
-    RateLimitError,
-    CircuitOpenError,
-)
-from .retry import (
-    RetryHandler,
-    RateLimiter,
-    CircuitBreaker,
-)
-from .provider_types import ProviderType, LLMRequest, LLMResponse
 import asyncio
-import httpx
+import hashlib
+import json
 import logging
 import time
-import hashlib
+from abc import ABC, abstractmethod
+from typing import Any, AsyncIterator, Dict, List, Optional
+
+import httpx
+
+from .errors import (
+    CircuitOpenError,
+    ProviderError,
+    RateLimitError,
+)
+from .provider_types import LLMRequest, LLMResponse, ProviderType
+from .retry import (
+    CircuitBreaker,
+    RateLimiter,
+    RetryHandler,
+)
 
 logger = logging.getLogger(__name__)
 

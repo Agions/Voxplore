@@ -17,12 +17,17 @@ Emotion Curve Widget
 
 from typing import List, Optional
 
-from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import QSize, Qt, Signal, QPoint, QRect, QPropertyAnimation
+from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, QSize, Qt, Signal
 from PySide6.QtGui import (
-    QPainter, QColor, QPen, QBrush, QLinearGradient,
-    QPainterPath, QMouseEvent
+    QBrush,
+    QColor,
+    QLinearGradient,
+    QMouseEvent,
+    QPainter,
+    QPainterPath,
+    QPen,
 )
+from PySide6.QtWidgets import QWidget
 
 
 class EmotionCurveWidget(QWidget):

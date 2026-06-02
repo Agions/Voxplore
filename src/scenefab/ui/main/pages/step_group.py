@@ -10,15 +10,25 @@ Task 2.2 UX 改善:
 
 import json
 import logging
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton,
-    QFrame, QScrollArea, QSizePolicy, QProgressBar, QLineEdit
-)
+
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QDrag
+from PySide6.QtGui import QDrag, QFont
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QProgressBar,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 # 导入拖拽辅助组件
-from .components.drag_helpers import _GroupThumbItem, _VideoMimeData, MIME_TYPE
+from .components.drag_helpers import MIME_TYPE, _GroupThumbItem, _VideoMimeData
 
 logger = logging.getLogger(__name__)
 

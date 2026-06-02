@@ -3,12 +3,12 @@
 
 
 from scenefab.services.video_tools.caption_gen import (
-    CaptionStyle,
-    EmotionLevel,
-    Word,
     Caption,
     CaptionConfig,
     CaptionGenerator,
+    CaptionStyle,
+    EmotionLevel,
+    Word,
 )
 
 

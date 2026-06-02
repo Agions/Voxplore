@@ -31,10 +31,11 @@ __all__ = ["HighlightReason", "HighlightSegment", "HighlightDetectorConfig", "Hi
 
 import logging
 import subprocess
+from dataclasses import asdict, dataclass
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple
-from enum import Enum
-from dataclasses import dataclass, asdict
+
 from ...utils.security import SecurityError
 
 # 性能优化：缩放目标尺寸 (160x90 ≈ 14K像素，相比HD图减少约95%数据量)

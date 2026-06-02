@@ -4,12 +4,12 @@ SceneFab UI Windows
 """
 
 from .base_step_window import BaseStepWindow
-from .upload_window import UploadWindow
-from .scene_window import SceneWindow
-from .narration_window import NarrationWindow
 from .export_window import ExportWindow
 from .main_window import MainWindow, SceneFabApp
-from .projects_window import ProjectsWindow, ProjectCard
+from .narration_window import NarrationWindow
+from .projects_window import ProjectCard, ProjectsWindow
+from .scene_window import SceneWindow
+from .upload_window import UploadWindow
 
 __all__ = [
     "BaseStepWindow",

@@ -8,13 +8,14 @@
 集中管理所有配置项
 """
 
-import os
 import json
+import logging
+import os
+import threading
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Optional
-from dataclasses import dataclass, field, asdict
-import logging
-import threading
+
 logger = logging.getLogger(__name__)
 def _get_version() -> str:
     try:

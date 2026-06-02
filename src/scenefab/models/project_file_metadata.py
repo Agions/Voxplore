@@ -17,7 +17,7 @@
 提取为独立模型类。
 """
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any, Dict
 

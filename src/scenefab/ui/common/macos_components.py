@@ -4,11 +4,12 @@ macOS 设计系统 - 通用组件库
 """
 
 # 从新模块导入所有组件，保持向后兼容
-from .components.labels import MacLabel, MacBadge
-
 # 保留自定义辅助函数
 from typing import Optional
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
+
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
+
+from .components.labels import MacBadge, MacLabel
 
 
 def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None) -> QWidget:
