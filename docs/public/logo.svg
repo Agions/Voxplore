@@ -1,19 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 256 256"
+     role="img"
+     aria-label="SceneFab - AI 影视解说视频创作工具">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0A84FF"/>
-      <stop offset="50%" stop-color="#0060D0"/>
-      <stop offset="100%" stop-color="#8B5CF6"/>
+    <!-- Deep space background -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0c29"/>
+      <stop offset="50%" stop-color="#1a1a3e"/>
+      <stop offset="100%" stop-color="#24243e"/>
     </linearGradient>
-    <linearGradient id="play" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#C4D8FF"/>
+    <!-- Film strip warm gradient -->
+    <linearGradient id="filmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff8a5b"/>
+      <stop offset="100%" stop-color="#e63946"/>
     </linearGradient>
+    <!-- AI neural pulse cool gradient -->
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4cc9f0"/>
+      <stop offset="100%" stop-color="#7209b7"/>
+    </linearGradient>
+    <!-- Center play disc -->
+    <radialGradient id="discGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a1a3e"/>
+      <stop offset="100%" stop-color="#0f0c29"/>
+    </radialGradient>
   </defs>
+
   <!-- Background rounded square -->
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <!-- Play button triangle -->
-  <path d="M22 18L46 32L22 46V18Z" fill="url(#play)"/>
-  <!-- Subtle wave accent -->
-  <path d="M18 48 Q26 44 34 46 Q42 48 50 46" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <rect width="256" height="256" rx="56" ry="56" fill="url(#bgGrad)"/>
+
+  <!-- Subtle starfield (corner sparkles) -->
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="32" cy="36" r="1.5"/>
+    <circle cx="222" cy="48" r="2"/>
+    <circle cx="44" cy="218" r="1.5"/>
+    <circle cx="220" cy="210" r="2"/>
+    <circle cx="208" cy="32" r="1"/>
+    <circle cx="36" cy="220" r="1"/>
+  </g>
+
+  <!-- Film strip (45° tilt) -->
+  <g transform="rotate(-22 128 128)">
+    <rect x="32" y="108" width="192" height="40" fill="url(#filmGrad)" rx="4"/>
+    <!-- Top perforations row -->
+    <g fill="#0f0c29" opacity="0.85">
+      <rect x="42" y="114" width="8" height="6" rx="1"/>
+      <rect x="62" y="114" width="8" height="6" rx="1"/>
+      <rect x="82" y="114" width="8" height="6" rx="1"/>
+      <rect x="102" y="114" width="8" height="6" rx="1"/>
+      <rect x="122" y="114" width="8" height="6" rx="1"/>
+      <rect x="142" y="114" width="8" height="6" rx="1"/>
+      <rect x="162" y="114" width="8" height="6" rx="1"/>
+      <rect x="182" y="114" width="8" height="6" rx="1"/>
+      <rect x="202" y="114" width="8" height="6" rx="1"/>
+    </g>
+    <!-- Bottom perforations row -->
+    <g fill="#0f0c29" opacity="0.85">
+      <rect x="42" y="136" width="8" height="6" rx="1"/>
+      <rect x="62" y="136" width="8" height="6" rx="1"/>
+      <rect x="82" y="136" width="8" height="6" rx="1"/>
+      <rect x="102" y="136" width="8" height="6" rx="1"/>
+      <rect x="122" y="136" width="8" height="6" rx="1"/>
+      <rect x="142" y="136" width="8" height="6" rx="1"/>
+      <rect x="162" y="136" width="8" height="6" rx="1"/>
+      <rect x="182" y="136" width="8" height="6" rx="1"/>
+      <rect x="202" y="136" width="8" height="6" rx="1"/>
+    </g>
+  </g>
+
+  <!-- AI neural pulse line crossing through the film -->
+  <path d="M 32 168 Q 64 152 96 168 T 160 168 T 224 168"
+        stroke="url(#aiGrad)"
+        stroke-width="3.5"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.9"/>
+  <!-- Pulse echo (secondary) -->
+  <path d="M 32 184 Q 64 176 96 184 T 160 184 T 224 184"
+        stroke="url(#aiGrad)"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        fill="none"
+        opacity="0.5"/>
+
+  <!-- Center play triangle on dark disc -->
+  <g transform="translate(128 128)">
+    <circle r="42" fill="url(#discGrad)" opacity="0.92"/>
+    <path d="M -12 -18 L 18 0 L -12 18 Z" fill="url(#aiGrad)"/>
+  </g>
 </svg>

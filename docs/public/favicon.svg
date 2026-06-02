@@ -1,11 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 64 64"
+     role="img"
+     aria-label="SceneFab">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0A84FF"/>
-      <stop offset="100%" stop-color="#8B5CF6"/>
+    <linearGradient id="bgFav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0c29"/>
+      <stop offset="100%" stop-color="#24243e"/>
     </linearGradient>
+    <linearGradient id="aiFav" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4cc9f0"/>
+      <stop offset="100%" stop-color="#7209b7"/>
+    </linearGradient>
+    <radialGradient id="discFav" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a1a3e"/>
+      <stop offset="100%" stop-color="#0f0c29"/>
+    </radialGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <path d="M22 18L46 32L22 46V18Z" fill="white"/>
-  <path d="M18 50 Q26 46 34 48 Q42 50 50 48" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- Rounded square background -->
+  <rect width="64" height="64" rx="14" ry="14" fill="url(#bgFav)"/>
+
+  <!-- Simplified AI pulse (thicker for small-pixel rendering) -->
+  <path d="M 8 42 Q 18 36 28 42 T 48 42 T 56 42"
+        stroke="url(#aiFav)"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- Center play triangle on dark disc (enlarged for 16x16 legibility) -->
+  <g transform="translate(32 28)">
+    <circle r="13" fill="url(#discFav)" opacity="0.95"/>
+    <path d="M -4 -6 L 6 0 L -4 6 Z" fill="url(#aiFav)"/>
+  </g>
 </svg>
