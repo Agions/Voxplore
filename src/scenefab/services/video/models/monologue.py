@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Dict
 
+from scenefab.models.narration import EmotionType
+
 
 class MonologueStyle(Enum):
     """独白风格"""
@@ -26,17 +28,6 @@ class MonologueStyle(Enum):
     NOSTALGIC = "nostalgic"        # 怀旧/追忆
     PHILOSOPHICAL = "philosophical"  # 哲思/沉思
     HEALING = "healing"            # 治愈/温暖
-
-
-class EmotionType(Enum):
-    """情感类型"""
-    NEUTRAL = "neutral"
-    SAD = "sad"
-    HAPPY = "happy"
-    ANGRY = "angry"
-    CALM = "calm"
-    EXCITED = "excited"
-    TENDER = "tender"
 
 
 @dataclass

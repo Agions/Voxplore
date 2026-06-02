@@ -23,13 +23,31 @@ class NarrationStyle(Enum):
     DOCUMENTARY = "documentary"  # 纪录片
 
 
-class EmotionType(Enum):
-    """情感类型"""
+class EmotionType(str, Enum):
+    """情感类型（统一权威定义）
+
+    涵盖所有场景：解说、API、第一人称独白。
+    继承 str 以保证 API JSON 序列化兼容性。
+    """
+    # 基础情感（来自原 narration.py）
+    NEUTRAL = "neutral"
     CALM = "calm"
     EXCITED = "excited"
     EMOTIONAL = "emotional"
     MYSTERIOUS = "mysterious"
-    NEUTRAL = "neutral"
+
+    # 扩展情感（来自 monologue.py）
+    SAD = "sad"
+    HAPPY = "happy"
+    ANGRY = "angry"
+    TENDER = "tender"
+
+    # API 情感（来自 api/schemas/models.py）
+    HEALING = "healing"
+    SUSPENSE = "suspense"
+    MOTIVATIONAL = "motivational"
+    NOSTALGIC = "nostalgic"
+    ROMANTIC = "romantic"
 
 
 @dataclass(slots=True)

@@ -34,6 +34,10 @@ from datetime import datetime
 import uuid
 
 from scenefab.models.project_models import ProjectType
+from scenefab.models.project_file_metadata import (
+    ProjectFileMetadata as ProjectMetadata,
+    _NarrafiilmVersion,
+)
 
 
 # 获取 logger
@@ -43,33 +47,10 @@ logger = logging.getLogger(__name__)
 HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
 
 
-class _NarrafiilmVersion(Enum):
-    """narrafiilm 项目文件版本（内部使用）"""
-    V1 = "1.0"
-    V2 = "2.0"  # 当前版本，支持更多元数据
-
-
-@dataclass
-class ProjectMetadata:
-    """项目元数据"""
-    id: str = ""                    # 项目唯一ID
-    name: str = "未命名项目"         # 项目名称
-    version: str = "2.0"            # 项目格式版本
-    project_type: str = "raw"       # 项目类型
-    created_at: str = ""            # 创建时间
-    modified_at: str = ""           # 修改时间
-    author: str = ""                # 作者
-    description: str = ""           # 项目描述
-
-    # 软件信息
-    app_version: str = "2.0.0"      # SceneFab 版本
-    platform: str = "windows"      # 平台
-
-    # 输出设置
-    output_width: int = 1920
-    output_height: int = 1080
-    output_fps: float = 30.0
-    output_format: str = "mp4"
+# 模块内别名：旧名 ProjectMetadata = 新名 ProjectFileMetadata（仅本文件内）
+# 注意：models.project_models.ProjectMetadata 是不同的类（运行时项目元数据），
+# 而本文件历史上的 ProjectMetadata 是文件持久化元数据。重构后已重命名为
+# ProjectFileMetadata 以避免歧义，旧名仅在本模块内保留为兼容别名。
 
 
 @dataclass

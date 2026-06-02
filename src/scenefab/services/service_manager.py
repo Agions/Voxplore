@@ -35,27 +35,8 @@ from scenefab.services.ai.vision import VisionService
 from scenefab.services.ai.tts import TTSService
 from scenefab.services.ai.asr import ASRService
 from scenefab.services.ai.manager import AIServiceManager as AIServiceManagerV2
-from scenefab.services.ai.base import ServiceStatus as ServiceStatusV2
-from scenefab.services.ai.base import ServiceHealth as ServiceHealthV2
-
-
-class ServiceStatus(Enum):
-    """服务状态"""
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    ERROR = "error"
-    MAINTENANCE = "maintenance"
-    RATE_LIMITED = "rate_limited"
-
-
-@dataclass
-class ServiceHealth:
-    """服务健康状态"""
-    service_name: str
-    status: ServiceStatus
-    last_check: float
-    response_time: float = 0.0
-    error_message: str = ""
+# 统一从 ai.base 导入权威 ServiceStatus/ServiceHealth
+from scenefab.services.ai.base import ServiceStatus, ServiceHealth
 
 
 @dataclass

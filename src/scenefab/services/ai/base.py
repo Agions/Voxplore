@@ -12,9 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceStatus(Enum):
+    """服务状态（统一权威定义）
+
+    涵盖所有场景：AI 服务、通用服务。
+    """
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
+    MAINTENANCE = "maintenance"
     RATE_LIMITED = "rate_limited"
 
 

@@ -8,18 +8,14 @@ from typing import Optional, List, Dict
 from enum import Enum
 
 from scenefab.services.export.export_manager import ExportFormat as ManagerExportFormat
+from scenefab.models.narration import EmotionType, NarrationStyle
 
 
 # ─────────────────────────────────────────────────────────────
 # Enums
 # ─────────────────────────────────────────────────────────────
 
-class EmotionType(str, Enum):
-    HEALING = "healing"       # 治愈
-    SUSPENSE = "suspense"    # 悬疑
-    MOTIVATIONAL = "motivational"  # 励志
-    NOSTALGIC = "nostalgic"   # 怀旧
-    ROMANTIC = "romantic"     # 浪漫
+# EmotionType 已统一到 scenefab.models.narration
 
 
 class InterleaveModeAPI(str, Enum):
