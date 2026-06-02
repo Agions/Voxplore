@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 直接视频导出器 (Direct Video Exporter)
@@ -27,10 +26,11 @@
 import logging
 import shutil
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.ffmpeg_tool import FFmpegTool
@@ -156,7 +156,7 @@ class DirectVideoExporter:
         )
     """
 
-    def __init__(self, config: Optional[VideoExportConfig] = None):
+    def __init__(self, config: VideoExportConfig | None = None):
         """
         初始化导出器
 
@@ -180,8 +180,8 @@ class DirectVideoExporter:
         self,
         commentary_project: Any,
         output_path: str,
-        resolution: Optional[Resolution] = None,
-        config: Optional[VideoExportConfig] = None,
+        resolution: Resolution | None = None,
+        config: VideoExportConfig | None = None,
     ) -> str:
         """
         导出解说视频
@@ -244,7 +244,7 @@ class DirectVideoExporter:
         project: Any,
         temp_path: Path,
         config: VideoExportConfig,
-    ) -> List[Path]:
+    ) -> list[Path]:
         """准备解说视频片段"""
         segment_files = []
 
@@ -332,7 +332,7 @@ class DirectVideoExporter:
 
     def _create_concat_list(
         self,
-        segment_files: List[Path],
+        segment_files: list[Path],
         temp_path: Path,
     ) -> Path:
         """创建拼接列表"""
@@ -433,7 +433,7 @@ class DirectVideoExporter:
         return self._CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec) \
             or config.video_codec.value
 
-    def _add_hw_accel_params(self, cmd: List[str], config: VideoExportConfig) -> List[str]:
+    def _add_hw_accel_params(self, cmd: list[str], config: VideoExportConfig) -> list[str]:
         """添加硬件加速参数"""
         hwaccel_arg = self._HWACCEL_ARG.get(config.hw_accel)
         if hwaccel_arg:
@@ -446,8 +446,8 @@ class DirectVideoExporter:
         project: Any,
         output_dir: str,
         project_name: str,
-        presets: List[Resolution] = None,
-    ) -> Dict[str, str]:
+        presets: list[Resolution] = None,
+    ) -> dict[str, str]:
         """
         使用多个预设导出视频
 

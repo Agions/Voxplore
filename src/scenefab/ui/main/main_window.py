@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SceneFab 主窗口 — 现代极简布局 v6
 设计改进:

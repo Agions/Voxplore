@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 国产模型快捷申请页面
@@ -9,7 +8,6 @@
 import webbrowser
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -54,17 +52,17 @@ class ProviderInfo:
     description: str
     application_url: str
     documentation_url: str
-    requirements: List[str]
+    requirements: list[str]
     estimated_time: str
     difficulty: str  # easy, medium, hard
-    features: List[str]
+    features: list[str]
     pricing: str
 
 
 class ProviderSelectionPage(QWizardPage):
     """提供商选择页面"""
 
-    def __init__(self, providers: List[ProviderInfo]):
+    def __init__(self, providers: list[ProviderInfo]):
         super().__init__()
         self.providers = providers
         self.selected_provider = None

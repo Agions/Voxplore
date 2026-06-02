@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 图标管理器
@@ -9,7 +8,7 @@ SceneFab 图标管理器
 
 import threading
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
@@ -45,12 +44,12 @@ STANDARD_ICONS = {
 class IconManager:
     """图标管理器 - 支持自定义图标和 PyQt 标准图标"""
 
-    def __init__(self, icon_dir: Optional[str] = None):
+    def __init__(self, icon_dir: str | None = None):
         self.icon_dir = Path(icon_dir or "resources/icons")
-        self._icon_cache: Dict[str, QIcon] = {}
+        self._icon_cache: dict[str, QIcon] = {}
         self._current_theme = "light"
 
-    def get_icon(self, icon_name: str, size: int = 24, theme: Optional[str] = None) -> QIcon:
+    def get_icon(self, icon_name: str, size: int = 24, theme: str | None = None) -> QIcon:
         """获取图标"""
         if theme is None:
             theme = self._current_theme
@@ -106,7 +105,7 @@ class IconManager:
             # 如果找不到，返回空图标
             return QIcon()
 
-    def get_multi_size_icon(self, icon_name: str, theme: Optional[str] = None) -> QIcon:
+    def get_multi_size_icon(self, icon_name: str, theme: str | None = None) -> QIcon:
         """获取多尺寸图标 - 用于应用图标"""
         if theme is None:
             theme = self._current_theme
@@ -164,11 +163,11 @@ class IconManager:
 
 
 # 全局图标管理器实例
-_icon_manager: Optional[IconManager] = None
+_icon_manager: IconManager | None = None
 _icon_lock = threading.Lock()
 
 
-def get_icon_manager(icon_dir: Optional[str] = None) -> IconManager:
+def get_icon_manager(icon_dir: str | None = None) -> IconManager:
     """获取全局图标管理器"""
     global _icon_manager
     if _icon_manager is None:
@@ -186,13 +185,13 @@ def init_icon_manager(icon_dir: str) -> IconManager:
 
 
 # 便捷函数
-def get_icon(icon_name: str, size: int = 24, theme: Optional[str] = None) -> QIcon:
+def get_icon(icon_name: str, size: int = 24, theme: str | None = None) -> QIcon:
     """获取图标的便捷函数"""
     manager = get_icon_manager()
     return manager.get_icon(icon_name, size, theme)
 
 
-def get_multi_size_icon(icon_name: str, theme: Optional[str] = None) -> QIcon:
+def get_multi_size_icon(icon_name: str, theme: str | None = None) -> QIcon:
     """获取多尺寸图标的便捷函数"""
     manager = get_icon_manager()
     return manager.get_multi_size_icon(icon_name, theme)

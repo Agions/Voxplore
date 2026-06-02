@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 class MacLabel(QLabel):
     """macOS 风格标签"""
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None, css_class: str = "label"):
+    def __init__(self, text: str = "", parent: QWidget | None = None, css_class: str = "label"):
         super().__init__(text, parent)
         if css_class:
             self.setProperty("class", css_class)
@@ -21,7 +21,7 @@ class MacLabel(QLabel):
 class MacTitleLabel(MacLabel):
     """标题标签"""
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent: QWidget | None = None):
         super().__init__(text, parent)
         self.setFont(QFont("", 18, QFont.Weight.Bold))
         self.setProperty("class", "title")
@@ -30,7 +30,7 @@ class MacTitleLabel(MacLabel):
 class MacBadge(QLabel):
     """徽章标签"""
 
-    def __init__(self, text: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, text: str = "", parent: QWidget | None = None):
         super().__init__(text, parent)
         self.setProperty("class", "badge")
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -39,7 +39,7 @@ class MacBadge(QLabel):
 class MacStatLabel(QWidget):
     """统计标签"""
 
-    def __init__(self, label: str = "", value: str = "", parent: Optional[QWidget] = None):
+    def __init__(self, label: str = "", value: str = "", parent: QWidget | None = None):
         super().__init__(parent)
         self._setup_ui(label, value)
 

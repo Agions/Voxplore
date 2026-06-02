@@ -12,7 +12,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class PluginLoader:
 
     def __init__(self, registry: PluginRegistry = None):
         self._registry = registry if registry is not None else PluginRegistry()
-        self._plugin_dirs: List[Path] = []
+        self._plugin_dirs: list[Path] = []
 
     def add_plugin_directory(self, directory: str) -> None:
         """添加插件搜索目录"""
@@ -58,7 +58,7 @@ class PluginLoader:
         """获取插件注册表实例"""
         return self._registry
 
-    def discover_plugins(self) -> List[PluginManifest]:
+    def discover_plugins(self) -> list[PluginManifest]:
         """
         扫描所有插件目录，发现插件（目录扫描 + entry_points）
 
@@ -85,7 +85,7 @@ class PluginLoader:
 
         return discovered
 
-    def _discover_via_entry_points(self) -> List[PluginManifest]:
+    def _discover_via_entry_points(self) -> list[PluginManifest]:
         """
         通过 setuptools entry_points 发现已安装的第三方插件
 
@@ -123,7 +123,7 @@ class PluginLoader:
 
         return manifests
 
-    def _load_manifest_from_entry_point(self, ep) -> Optional[PluginManifest]:
+    def _load_manifest_from_entry_point(self, ep) -> PluginManifest | None:
         """
         从 entry_point 加载插件清单
 
@@ -160,7 +160,7 @@ class PluginLoader:
             logger.warning("Failed to load entry_point %s: %s", ep, e)
             return None
 
-    def _infer_manifest_from_ep(self, ep, plugin_class) -> Optional[PluginManifest]:
+    def _infer_manifest_from_ep(self, ep, plugin_class) -> PluginManifest | None:
         """从 entry_point 信息推断最小清单"""
         # 从类名推断插件类型
         plugin_type = PluginType.AI_GENERATOR  # 默认类型
@@ -190,7 +190,7 @@ class PluginLoader:
             entry_point=f"{ep.module}:{ep.attr}",
         )
 
-    def _discover_plugin_in_dir(self, plugin_path: Path) -> Optional[PluginManifest]:
+    def _discover_plugin_in_dir(self, plugin_path: Path) -> PluginManifest | None:
         """
         在指定目录中发现插件
 
@@ -215,7 +215,7 @@ class PluginLoader:
             return None
 
         try:
-            with open(manifest_path, "r", encoding="utf-8") as f:
+            with open(manifest_path, encoding="utf-8") as f:
                 data = json.load(f)
 
             if isinstance(data.get("plugin_type"), str):
@@ -316,8 +316,8 @@ class PluginLoader:
     def load_all_discovered(
         self,
         context: AppContext,
-        enabled_plugins: Optional[List[str]] = None,
-    ) -> Dict[str, bool]:
+        enabled_plugins: list[str] | None = None,
+    ) -> dict[str, bool]:
         """
         加载所有发现的插件
         """
@@ -354,7 +354,7 @@ class PluginLoader:
 
         return results
 
-    def _find_plugin_dir(self, plugin_id: str) -> Optional[Path]:
+    def _find_plugin_dir(self, plugin_id: str) -> Path | None:
         """根据插件 ID 查找目录"""
         parts = plugin_id.split(".")
         for plugin_dir in self._plugin_dirs:
@@ -366,8 +366,8 @@ class PluginLoader:
     def validate_dependencies(
         self,
         manifest: PluginManifest,
-        available_packages: Dict[str, str],
-    ) -> List[str]:
+        available_packages: dict[str, str],
+    ) -> list[str]:
         """验证插件依赖是否满足"""
         missing = []
         for package, version_spec in manifest.dependencies.items():

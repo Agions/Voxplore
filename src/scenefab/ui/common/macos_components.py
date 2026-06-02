@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 from .components.labels import MacBadge, MacLabel
 
 
-def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None) -> QWidget:
+def create_icon_text_row(icon: str, text: str, parent: QWidget | None = None) -> QWidget:
     """创建图标+文字行"""
     widget = QWidget(parent)
     layout = QHBoxLayout(widget)
@@ -28,7 +28,7 @@ def create_icon_text_row(icon: str, text: str, parent: Optional[QWidget] = None)
     return widget
 
 
-def create_status_badge_row(status: str, parent: Optional[QWidget] = None) -> QWidget:
+def create_status_badge_row(status: str, parent: QWidget | None = None) -> QWidget:
     """创建状态徽章行"""
     widget = QWidget(parent)
     layout = QHBoxLayout(widget)

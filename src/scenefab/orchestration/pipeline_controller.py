@@ -62,7 +62,7 @@ class PipelineController(QObject):
         super().__init__(parent)
         self.logger = Logger("PipelineController")
         self._maker = MonologueMaker()
-        self._project: Optional[MonologueProject] = None
+        self._project: MonologueProject | None = None
         self._current_stage = PipelineStage.IDLE
         self._is_running = False
         self._is_paused = False
@@ -77,7 +77,7 @@ class PipelineController(QObject):
     def is_running(self) -> bool:
         return self._is_running
 
-    def current_project(self) -> Optional[MonologueProject]:
+    def current_project(self) -> MonologueProject | None:
         return self._project
 
     def current_stage(self) -> PipelineStage:

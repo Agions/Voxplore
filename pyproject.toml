@@ -124,7 +124,7 @@ show-fixes = false
 output-format = "grouped"
 
 [tool.ruff.lint]
-select = ["E", "F", "N", "W", "B", "C4", "SIM", "I"]
+select = ["E", "F", "N", "W", "B", "C4", "SIM", "I", "UP"]
 ignore = [
     "E501",   # line too long (handled by formatter)
     "F401",   # unused import (many intentional)

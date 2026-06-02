@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 字幕轨道组件
@@ -37,14 +36,14 @@ class SubtitleTrackWidget(QFrame):
         track: SubtitleTrack,
         style,  # SubtitleStylePreset - imported but unused in this file
         scale: float = 50.0,
-        parent: Optional[QWidget] = None
+        parent: QWidget | None = None
     ):
         super().__init__(parent)
 
         self._track = track
         self._style = style
         self._scale = scale
-        self._selected_block_id: Optional[str] = None
+        self._selected_block_id: str | None = None
 
         self._setup_ui()
         self._setup_styles()
@@ -97,7 +96,7 @@ class SubtitleTrackWidget(QFrame):
         self._scale = scale
         self._update_blocks()
 
-    def set_selected_block(self, block_id: Optional[str]) -> None:
+    def set_selected_block(self, block_id: str | None) -> None:
         """设置选中的字幕块"""
         self._selected_block_id = block_id
         self._update_blocks()

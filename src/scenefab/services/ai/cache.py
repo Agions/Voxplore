@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab LLM 缓存和重试机制
@@ -10,9 +9,10 @@ import hashlib
 import json
 import logging
 import time
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class LLMMemoryCache:
             max_size: 最大缓存条目数
             ttl: 缓存过期时间 (秒)
         """
-        self.cache: Dict[str, Dict[str, Any]] = {}
+        self.cache: dict[str, dict[str, Any]] = {}
         self.max_size = max_size
         self.ttl = ttl
         self.access_order: list = []
@@ -37,7 +37,7 @@ class LLMMemoryCache:
         self,
         messages: list,
         model: str,
-        temperature: Optional[float] = None
+        temperature: float | None = None
     ) -> str:
         """生成缓存键"""
         # 创建包含所有参数的字符串
@@ -55,8 +55,8 @@ class LLMMemoryCache:
         self,
         messages: list,
         model: str,
-        temperature: Optional[float] = None
-    ) -> Optional[str]:
+        temperature: float | None = None
+    ) -> str | None:
         """获取缓存响应"""
         key = self._generate_key(messages, model, temperature)
 
@@ -84,7 +84,7 @@ class LLMMemoryCache:
         messages: list,
         model: str,
         response: str,
-        temperature: Optional[float] = None
+        temperature: float | None = None
     ) -> None:
         """设置缓存"""
         key = self._generate_key(messages, model, temperature)
@@ -108,7 +108,7 @@ class LLMMemoryCache:
         self.cache.clear()
         self.access_order.clear()
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """获取缓存统计信息"""
         return {
             "size": len(self.cache),
@@ -164,13 +164,13 @@ class LLMDiskCache:
         conn.commit()
         conn.close()
 
-    def _generate_key(self, messages: list, model: str, temperature: Optional[float] = None) -> str:
+    def _generate_key(self, messages: list, model: str, temperature: float | None = None) -> str:
         """生成缓存键"""
         data = {"messages": messages, "model": model, "temperature": temperature}
         data_str = json.dumps(data, sort_keys=True, ensure_ascii=False)
         return hashlib.md5(data_str.encode()).hexdigest()
 
-    def get(self, messages: list, model: str, temperature: Optional[float] = None) -> Optional[Dict]:
+    def get(self, messages: list, model: str, temperature: float | None = None) -> dict | None:
         """获取缓存响应"""
         key = self._generate_key(messages, model, temperature)
         import sqlite3
@@ -193,7 +193,7 @@ class LLMDiskCache:
         messages: list,
         model: str,
         content: str,
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         provider: str = "",
         tokens_used: int = 0,
         latency_ms: float = 0.0
@@ -244,7 +244,7 @@ class LLMDiskCache:
         conn.close()
         return count
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取缓存统计"""
         import sqlite3
         conn = sqlite3.connect(str(self._db_path))
@@ -300,9 +300,9 @@ class LLMRetryPolicy:
 
 
 def with_retry(
-    policy: Optional[LLMRetryPolicy] = None,
+    policy: LLMRetryPolicy | None = None,
     exceptions: tuple = (Exception,),
-    on_retry: Optional[Callable[[int, Exception], None]] = None
+    on_retry: Callable[[int, Exception], None] | None = None
 ):
     """
     装饰器: 为函数添加重试功能
@@ -364,8 +364,8 @@ class LLMPerformanceMonitor:
     def record_request(
         self,
         success: bool,
-        tokens: Optional[int] = None,
-        time_taken: Optional[float] = None
+        tokens: int | None = None,
+        time_taken: float | None = None
     ) -> None:
         """记录请求"""
         self.metrics["total_requests"] += 1
@@ -387,7 +387,7 @@ class LLMPerformanceMonitor:
         """记录缓存未命中"""
         self.metrics["cache_misses"] += 1
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         stats = self.metrics.copy()
 

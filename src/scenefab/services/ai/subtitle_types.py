@@ -5,7 +5,6 @@
 """
 
 from dataclasses import dataclass, field
-from typing import List
 
 __all__ = ["SubtitleSegment", "SubtitleExtractionResult"]
 
@@ -25,7 +24,7 @@ class SubtitleExtractionResult:
     """字幕提取结果"""
     video_path: str
     duration: float
-    segments: List[SubtitleSegment] = field(default_factory=list)
+    segments: list[SubtitleSegment] = field(default_factory=list)
     full_text: str = ""
     language: str = "zh"
     method: str = ""       # "ocr" / "speech" / "both"

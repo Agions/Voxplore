@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """解说预览 + 编辑页面
 
 Task 2.3 UX 改善:

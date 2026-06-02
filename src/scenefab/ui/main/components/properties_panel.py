@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 属性面板
 显示和编辑选中片段的属性（时间/转场/字幕/配音）
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -34,7 +33,7 @@ class PropertiesPanel(QWidget):
     def __init__(self, application=None):
         super().__init__(application)
         self.application = application
-        self._current_clip: Optional[Dict[str, Any]] = None
+        self._current_clip: dict[str, Any] | None = None
 
         self._setup_ui()
 
@@ -198,7 +197,7 @@ class PropertiesPanel(QWidget):
         self._subtitle_group.hide()
         self._audio_group.hide()
 
-    def load_clip(self, clip_data: Dict[str, Any]):
+    def load_clip(self, clip_data: dict[str, Any]):
         """加载选中片段的属性"""
         self._current_clip = clip_data
         clip_type = clip_data.get("track_type", "video")

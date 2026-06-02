@@ -10,7 +10,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class SecurityCheckResult:
     """安全检查结果"""
     passed: bool
     message: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 # ============================================
@@ -86,7 +86,7 @@ class SecurityCheckResult:
 class PathValidator:
     """路径安全验证器"""
 
-    def __init__(self, allowed_base_dirs: Optional[List[str]] = None):
+    def __init__(self, allowed_base_dirs: list[str] | None = None):
         """
         初始化路径验证器
 
@@ -162,7 +162,7 @@ class PathValidator:
 class CommandValidator:
     """命令安全验证器"""
 
-    def __init__(self, allowed_commands: Optional[List[str]] = None):
+    def __init__(self, allowed_commands: list[str] | None = None):
         """
         初始化命令验证器
 
@@ -171,7 +171,7 @@ class CommandValidator:
         """
         self.allowed_commands = allowed_commands or ['ffmpeg', 'ffprobe']
 
-    def validate(self, cmd: List[str]) -> SecurityCheckResult:
+    def validate(self, cmd: list[str]) -> SecurityCheckResult:
         """
         验证命令安全性
 
@@ -215,18 +215,18 @@ class SecureExecutor:
 
     def __init__(
         self,
-        allowed_base_dirs: Optional[List[str]] = None,
-        allowed_commands: Optional[List[str]] = None
+        allowed_base_dirs: list[str] | None = None,
+        allowed_commands: list[str] | None = None
     ):
         self.path_validator = PathValidator(allowed_base_dirs)
         self.command_validator = CommandValidator(allowed_commands)
 
     def run(
         self,
-        cmd: List[str],
+        cmd: list[str],
         timeout: int = 30,
-        cwd: Optional[str] = None,
-        env: Optional[Dict[str, str]] = None
+        cwd: str | None = None,
+        env: dict[str, str] | None = None
     ) -> subprocess.CompletedProcess:
         """
         安全执行命令
@@ -275,7 +275,7 @@ class SecureExecutor:
         except Exception as e:
             raise SecurityError(f"命令执行失败: {e}")
 
-    def _sanitize_env(self, env: Optional[Dict[str, str]]) -> Optional[Dict[str, str]]:
+    def _sanitize_env(self, env: dict[str, str] | None) -> dict[str, str] | None:
         """清理环境变量，移除危险变量"""
         if env is None:
             return None
@@ -370,8 +370,8 @@ class SecureFileHandler:
 
     def __init__(
         self,
-        allowed_base_dirs: Optional[List[str]] = None,
-        allowed_extensions: Optional[Dict[str, set]] = None
+        allowed_base_dirs: list[str] | None = None,
+        allowed_extensions: dict[str, set] | None = None
     ):
         self.path_validator = PathValidator(allowed_base_dirs)
         self.allowed_extensions = allowed_extensions or {
@@ -474,7 +474,7 @@ class SecurityError(Exception):
 # 便捷函数
 # ============================================
 
-def create_secure_executor(allowed_dirs: Optional[List[str]] = None) -> SecureExecutor:
+def create_secure_executor(allowed_dirs: list[str] | None = None) -> SecureExecutor:
     """创建安全的命令执行器"""
     return SecureExecutor(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")],
@@ -482,14 +482,14 @@ def create_secure_executor(allowed_dirs: Optional[List[str]] = None) -> SecureEx
     )
 
 
-def create_secure_file_handler(allowed_dirs: Optional[List[str]] = None) -> SecureFileHandler:
+def create_secure_file_handler(allowed_dirs: list[str] | None = None) -> SecureFileHandler:
     """创建安全的文件处理器"""
     return SecureFileHandler(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")]
     )
 
 
-def validate_video_path(path: str, base_dir: Optional[str] = None) -> SecurityCheckResult:
+def validate_video_path(path: str, base_dir: str | None = None) -> SecurityCheckResult:
     """验证视频路径"""
     handler = SecureFileHandler(
         allowed_base_dirs=[base_dir] if base_dir else None
@@ -505,7 +505,7 @@ def validate_video_path(path: str, base_dir: Optional[str] = None) -> SecurityCh
 
 # ============ 全局 FFmpeg Executor 单例 ============
 # 所有使用 ffmpeg/ffprobe 的模块统一使用此单例，避免重复实例化
-_FFMPEG_EXECUTOR: Optional[SecureExecutor] = None
+_FFMPEG_EXECUTOR: SecureExecutor | None = None
 
 
 def get_ffmpeg_executor() -> SecureExecutor:

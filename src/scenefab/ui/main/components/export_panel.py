@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 导出面板
@@ -7,7 +6,7 @@
 """
 
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -52,7 +51,7 @@ class ExportPanel(QWidget):
         self.export_system = application.export_system
         self.logger = Logger.get_logger(__name__)
         self.current_project_id = None
-        self.presets: List[Any] = []
+        self.presets: list[Any] = []
         self.setup_ui()
         self.connect_signals()
 
@@ -297,7 +296,7 @@ class ExportPanel(QWidget):
         # 队列信号
         self.queue_widget.task_action.connect(self.handle_queue_action)
 
-    def set_current_project(self, project_id: str, project_info: Dict[str, Any]):
+    def set_current_project(self, project_id: str, project_info: dict[str, Any]):
         """设置当前项目"""
         self.current_project_id = project_id
         self.project_name_label.setText(project_info.get("name", "未知项目"))
@@ -444,7 +443,7 @@ class ExportPanel(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "错误", f"批量导出失败: {str(e)}")
 
-    def get_selected_projects(self) -> List[Dict[str, Any]]:
+    def get_selected_projects(self) -> list[dict[str, Any]]:
         """获取选中的项目"""
         selected_projects = []
         for i in range(self.batch_projects_table.rowCount()):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 错误处理和异常模块
@@ -7,7 +6,7 @@ SceneFab 错误处理和异常模块
 """
 
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 class ErrorCode(Enum):
@@ -54,8 +53,8 @@ class SceneFabError(Exception):
         self,
         code: ErrorCode,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
-        hint: Optional[str] = None
+        details: dict[str, Any] | None = None,
+        hint: str | None = None
     ):
         self.code = code
         self.message = message
@@ -82,9 +81,9 @@ class LLMError(SceneFabError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
+        provider: str | None = None,
+        model: str | None = None,
+        details: dict[str, Any] | None = None
     ):
         code = ErrorCode.LLM_API_ERROR
         hint = None
@@ -119,7 +118,7 @@ class LLMError(SceneFabError):
 class ConfigError(SceneFabError):
     """配置错误"""
 
-    def __init__(self, message: str, key: Optional[str] = None):
+    def __init__(self, message: str, key: str | None = None):
         code = ErrorCode.CONFIG_MISSING if "未设置" in message else ErrorCode.CONFIG_INVALID
         hint = "请检查配置文件 config/llm.yaml" if key else None
 
@@ -137,8 +136,8 @@ class FileError(SceneFabError):
     def __init__(
         self,
         message: str,
-        path: Optional[str] = None,
-        operation: Optional[str] = None
+        path: str | None = None,
+        operation: str | None = None
     ):
         code = ErrorCode.FILE_NOT_FOUND
         hint = None
@@ -165,8 +164,8 @@ class VideoError(SceneFabError):
     def __init__(
         self,
         message: str,
-        video_path: Optional[str] = None,
-        format: Optional[str] = None,
+        video_path: str | None = None,
+        format: str | None = None,
     ):
         # Auto-detect format error from message or format param
         if format and ("不支持" in message or "unsupported" in message.lower()):
@@ -176,7 +175,7 @@ class VideoError(SceneFabError):
 
         hint = "请确保 FFmpeg 已正确安装" if "ffmpeg" in message.lower() else None
 
-        details: Dict[str, Any] = {}
+        details: dict[str, Any] = {}
         if video_path:
             details["video_path"] = video_path
         if format:
@@ -193,7 +192,7 @@ class VideoError(SceneFabError):
 class TTSError(SceneFabError):
     """语音合成错误"""
 
-    def __init__(self, message: str, voice: Optional[str] = None):
+    def __init__(self, message: str, voice: str | None = None):
         hint = "请检查 TTS API 配置" if "api" in message.lower() else None
 
         super().__init__(
@@ -207,7 +206,7 @@ class TTSError(SceneFabError):
 class NetworkError(SceneFabError):
     """网络错误"""
 
-    def __init__(self, message: str, url: Optional[str] = None):
+    def __init__(self, message: str, url: str | None = None):
         hint = "请检查网络连接" if "connection" in message.lower() else None
 
         super().__init__(
@@ -224,13 +223,13 @@ class ProviderError(SceneFabError):
     def __init__(
         self,
         message: str,
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
+        provider: str | None = None,
+        model: str | None = None,
     ):
         code = ErrorCode.LLM_API_ERROR
         hint = "请检查 Provider 配置和 API 密钥"
 
-        details: Dict[str, Any] = {}
+        details: dict[str, Any] = {}
         if provider:
             details["provider"] = provider
         if model:
@@ -250,10 +249,10 @@ class RateLimitError(ProviderError):
     def __init__(
         self,
         message: str = "API 速率限制",
-        provider: Optional[str] = None,
-        retry_after: Optional[float] = None,
+        provider: str | None = None,
+        retry_after: float | None = None,
     ):
-        details: Dict[str, Any] = {"retry_after": retry_after} if retry_after else {}
+        details: dict[str, Any] = {"retry_after": retry_after} if retry_after else {}
         if provider:
             details["provider"] = provider
 
@@ -270,10 +269,10 @@ class CircuitOpenError(ProviderError):
     def __init__(
         self,
         message: str = "服务熔断器已打开",
-        provider: Optional[str] = None,
-        failure_count: Optional[int] = None,
+        provider: str | None = None,
+        failure_count: int | None = None,
     ):
-        details: Dict[str, Any] = {}
+        details: dict[str, Any] = {}
         if failure_count is not None:
             details["failure_count"] = failure_count
         if provider:
@@ -289,7 +288,7 @@ class CircuitOpenError(ProviderError):
 class SecurityError(SceneFabError):
     """安全错误（路径遍历、格式验证等）"""
 
-    def __init__(self, message: str, path: Optional[str] = None):
+    def __init__(self, message: str, path: str | None = None):
         super().__init__(
             code=ErrorCode.FILE_NOT_FOUND,
             message=message,
@@ -304,12 +303,12 @@ class ExportError(SceneFabError):
     def __init__(
         self,
         message: str,
-        format: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        format: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         hint = "请检查 FFmpeg 是否正确安装" if "ffmpeg" in message.lower() else None
 
-        export_details: Dict[str, Any] = dict(details or {})
+        export_details: dict[str, Any] = dict(details or {})
         if format:
             export_details["format"] = format
 
@@ -327,8 +326,8 @@ class ProjectError(SceneFabError):
     def __init__(
         self,
         message: str,
-        project_id: Optional[str] = None,
-        operation: Optional[str] = None,
+        project_id: str | None = None,
+        operation: str | None = None,
     ):
         hint = None
         code = ErrorCode.FILE_NOT_FOUND
@@ -378,10 +377,10 @@ class ServiceDependencyError(ServiceError):
     def __init__(
         self,
         message: str,
-        service: Optional[str] = None,
-        dependency: Optional[str] = None,
+        service: str | None = None,
+        dependency: str | None = None,
     ):
-        details: Dict[str, Any] = {}
+        details: dict[str, Any] = {}
         if service:
             details["service"] = service
         if dependency:

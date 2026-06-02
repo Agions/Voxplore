@@ -8,7 +8,7 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class PluginType(Enum):
@@ -31,13 +31,13 @@ class PluginManifest:
     author: str                            # 作者
     description: str                       # 描述
     plugin_type: PluginType                # 插件类型
-    homepage: Optional[str] = None         # 主页
+    homepage: str | None = None         # 主页
     license: str = "MIT"                  # 许可证
-    dependencies: Dict[str, str] = field(default_factory=dict)  # 依赖
+    dependencies: dict[str, str] = field(default_factory=dict)  # 依赖
     entry_point: str = ""                  # 入口点 "module.path:ClassName"
-    permissions: List[str] = field(default_factory=list)          # 权限列表
+    permissions: list[str] = field(default_factory=list)          # 权限列表
     min_app_version: str = "1.0.0"         # 最低应用版本
-    tags: List[str] = field(default_factory=list)                # 标签
+    tags: list[str] = field(default_factory=list)                # 标签
 
     @classmethod
     def from_json(cls, json_str: str) -> "PluginManifest":
@@ -52,7 +52,7 @@ class PluginManifest:
         data["plugin_type"] = self.plugin_type.value
         return json.dumps(data, indent=2, ensure_ascii=False)
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """
         验证清单完整性
         Returns: 错误列表，空则验证通过
@@ -95,7 +95,7 @@ class AppContext:
     config_dir: str = ""                  # 配置目录
     cache_dir: str = ""                   # 缓存目录
     plugin_dir: str = ""                  # 插件目录
-    services: Optional[Dict[str, Any]] = field(default_factory=dict)  # 可用服务
+    services: dict[str, Any] | None = field(default_factory=dict)  # 可用服务
 
 
 class BasePlugin(ABC):
@@ -115,8 +115,8 @@ class BasePlugin(ABC):
         self.manifest = manifest
         self._enabled = False
         self._initialized = False
-        self._context: Optional[AppContext] = None
-        self._logger: Optional[Any] = None
+        self._context: AppContext | None = None
+        self._logger: Any | None = None
 
     @property
     def id(self) -> str:
@@ -202,7 +202,7 @@ class BasePlugin(ABC):
     # ─────────────────────────────────────────────────────────────
 
     @abstractmethod
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """
         获取插件元数据
 

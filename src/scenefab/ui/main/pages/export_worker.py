@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """导出工作线程组件
 
 从 step_export.py 提取 ExportWorker

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Whisper ASR 提供者（离线语音识别）
 
@@ -22,9 +21,10 @@ Whisper ASR 提供者（离线语音识别）
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import AsyncIterator, List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class TranscriptSegment:
     start: float   # 秒
     end: float     # 秒
     text: str
-    language: Optional[str] = None
+    language: str | None = None
     confidence: float = 1.0
 
 
@@ -45,8 +45,8 @@ class TranscriptSegment:
 class TranscriptionResult:
     """完整识别结果"""
     text: str
-    segments: List[TranscriptSegment]
-    language: Optional[str] = None
+    segments: list[TranscriptSegment]
+    language: str | None = None
     duration: float = 0.0
 
 
@@ -64,7 +64,7 @@ class WhisperASRProvider:
         self,
         model_size: str = "medium",
         device: str = "auto",
-        language: Optional[str] = "zh",
+        language: str | None = "zh",
         batch_size: int = 8,
     ):
         """
@@ -126,7 +126,7 @@ class WhisperASRProvider:
     def transcribe(
         self,
         audio_path: str,
-        language: Optional[str] = None,
+        language: str | None = None,
         vad_filter: bool = False,
     ) -> TranscriptionResult:
         """
@@ -177,8 +177,8 @@ class WhisperASRProvider:
             batch_size=self._batch_size,
         )
 
-        result_segments: List[TranscriptSegment] = []
-        full_text_parts: List[str] = []
+        result_segments: list[TranscriptSegment] = []
+        full_text_parts: list[str] = []
 
         for seg in segments:
             ts = TranscriptSegment(

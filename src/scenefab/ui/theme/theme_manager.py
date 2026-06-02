@@ -3,7 +3,7 @@
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
@@ -100,7 +100,7 @@ class ThemeManager(QObject):
         self.theme_config = theme_config
         self.current_mode = theme_config.mode
         self.colors = ThemeColors.from_mode(theme_config.mode)
-        self.theme_presets: List[ThemePreset] = []
+        self.theme_presets: list[ThemePreset] = []
 
         # 初始化主题预设
         self._initialize_theme_presets()
@@ -166,11 +166,11 @@ class ThemeManager(QObject):
             ThemePreset("SceneFab 声视界", "scenefab", dark_colors),
         ]
 
-    def get_available_themes(self) -> List[str]:
+    def get_available_themes(self) -> list[str]:
         """获取可用主题列表"""
         return [preset.name for preset in self.theme_presets]
 
-    def get_theme_preset(self, theme_name: str) -> Optional[ThemePreset]:
+    def get_theme_preset(self, theme_name: str) -> ThemePreset | None:
         """获取指定主题预设"""
         for preset in self.theme_presets:
             if preset.name == theme_name:
@@ -238,7 +238,7 @@ class ThemeManager(QObject):
             stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "light_theme.qss")
 
         try:
-            with open(stylesheet_path, "r", encoding="utf-8") as f:
+            with open(stylesheet_path, encoding="utf-8") as f:
                 return f.read()
         except FileNotFoundError:
             # 如果外部样式表不存在，使用默认样式
@@ -345,7 +345,7 @@ class ThemeManager(QObject):
         self.theme_changed.emit(original_mode)
         self.theme_applied.emit()
 
-    def get_current_theme_info(self) -> Dict[str, Any]:
+    def get_current_theme_info(self) -> dict[str, Any]:
         """获取当前主题信息"""
         return {
             "mode": self.current_mode,

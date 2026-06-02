@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Monologue 数据模型
@@ -14,7 +13,6 @@ Monologue 数据模型
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List
 
 from scenefab.models.narration import EmotionType
 
@@ -43,10 +41,10 @@ class MonologueSegment:
     # 音频
     audio_path: str = ""
     audio_duration: float = 0.0
-    sentence_timestamps: List[Dict] = field(default_factory=list)  # EdgeTTS 句子级时间戳
+    sentence_timestamps: list[dict] = field(default_factory=list)  # EdgeTTS 句子级时间戳
 
     # 字幕
-    captions: List[Dict] = field(default_factory=list)
+    captions: list[dict] = field(default_factory=list)
 
 
 __all__ = [

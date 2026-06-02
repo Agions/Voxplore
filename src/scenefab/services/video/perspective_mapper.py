@@ -3,7 +3,7 @@ Perspective Mapper
 第一人称视角映射器——建立解说与画面的视角关系
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .models.perspective import (
     KeyFrame,
@@ -35,7 +35,7 @@ class PerspectiveMapper:
     - 输出: PerspectiveShot 列表
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
         # 默认配置
         self.focal_length = self.config.get("focal_length", 50)  # 焦距 mm
@@ -44,11 +44,11 @@ class PerspectiveMapper:
 
     def map_scenes_to_perspective(
         self,
-        scenes: List[SceneSegment],
-        narration_segments: List[NarrationSegment],
-        video_keyframes: List[KeyFrame],
-        emotion_curve: Optional[List[float]] = None,
-    ) -> List[PerspectiveShot]:
+        scenes: list[SceneSegment],
+        narration_segments: list[NarrationSegment],
+        video_keyframes: list[KeyFrame],
+        emotion_curve: list[float] | None = None,
+    ) -> list[PerspectiveShot]:
         """
         将场景与第一人称视角映射
 
@@ -108,7 +108,7 @@ class PerspectiveMapper:
     def _extract_viewpoint(
         self,
         scene: SceneSegment,
-        keyframes: List[KeyFrame],
+        keyframes: list[KeyFrame],
         _scene_index: int,  # unused — kept for protocol compatibility
     ) -> ViewpointAnchor:
         """
@@ -153,14 +153,14 @@ class PerspectiveMapper:
             narration_pov="first"
         )
 
-    def _find_protagonist(self, subjects: List[SubjectPosition]) -> Optional[SubjectPosition]:
+    def _find_protagonist(self, subjects: list[SubjectPosition]) -> SubjectPosition | None:
         """找到主角（Protagonist）"""
         for subject in subjects:
             if subject.role == SubjectRole.PROTAGONIST:
                 return subject
         return None
 
-    def _find_primary_subject(self, scene: SceneSegment) -> Optional[SubjectPosition]:
+    def _find_primary_subject(self, scene: SceneSegment) -> SubjectPosition | None:
         """找到场景中的主要主体"""
         if not scene.subjects:
             return None
@@ -244,7 +244,7 @@ class PerspectiveMapper:
     def determine_viewpoint_anchor(
         self,
         frame,
-        subject_positions: List[SubjectPosition],
+        subject_positions: list[SubjectPosition],
     ) -> ViewpointAnchor:
         """
         确定单帧的视角锚点

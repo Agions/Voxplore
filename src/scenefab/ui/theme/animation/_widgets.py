@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AnimatedButton & LoadingAnimation — 按钮/加载动画辅助

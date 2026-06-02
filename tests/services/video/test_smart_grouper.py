@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """测试智能视频分组服务"""
 
 import numpy as np

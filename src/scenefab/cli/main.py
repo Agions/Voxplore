@@ -12,7 +12,7 @@ import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -305,7 +305,7 @@ def _handle_project_command(args) -> int:
         if not os.path.exists(pf):
             return None
         try:
-            with open(pf, "r", encoding="utf-8") as f:
+            with open(pf, encoding="utf-8") as f:
                 return json.load(f).get("metadata", {})
         except Exception:
             return None
@@ -480,7 +480,7 @@ def create_cli() -> argparse.ArgumentParser:
     return create_parser()
 
 
-def run(argv: Optional[List[str]] = None) -> int:
+def run(argv: list[str] | None = None) -> int:
     """Run CLI"""
     parser = create_parser()
     args = parser.parse_args(argv)

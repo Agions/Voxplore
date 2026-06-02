@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 LLM 提供商抽象基类
@@ -24,7 +23,8 @@ import json
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any, Optional
 
 import httpx
 
@@ -62,7 +62,7 @@ class RequestCache:
     def __init__(self, max_size: int = 1000, ttl: float = DEFAULT_CACHE_TTL):
         self.max_size = max_size
         self.ttl = ttl
-        self._cache: Dict[str, tuple] = {}  # key -> (value, expiry)
+        self._cache: dict[str, tuple] = {}  # key -> (value, expiry)
         self._lock = asyncio.Lock()
         self._hits = 0
         self._misses = 0
@@ -71,12 +71,12 @@ class RequestCache:
         """生成缓存键"""
         content = f"{request.model}:{request.prompt[:100]}:{request.temperature}"
         return hashlib.md5(content.encode()).hexdigest()
-    async def get(self, request: LLMRequest) -> Optional[LLMResponse]:
+    async def get(self, request: LLMRequest) -> LLMResponse | None:
         """获取缓存的响应（通过 request 对象）"""
         key = self._make_key(request)
         return await self.get_from_key(key)
 
-    async def get_from_key(self, key: str) -> Optional[LLMResponse]:
+    async def get_from_key(self, key: str) -> LLMResponse | None:
         """获取缓存的响应（通过缓存键）"""
         async with self._lock:
             if key in self._cache:
@@ -128,7 +128,7 @@ class RequestCache:
         async with self._lock:
             self._cache.clear()
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """获取缓存统计"""
         total = self._hits + self._misses
         hit_rate = (self._hits / total * 100) if total > 0 else 0
@@ -149,8 +149,8 @@ class HTTPClientMixin:
         self.api_key = api_key
         self.base_url = base_url
         self.timeout = timeout
-        self.http_client: Optional[httpx.AsyncClient] = None
-        self._default_headers: Dict[str, str] = {}
+        self.http_client: httpx.AsyncClient | None = None
+        self._default_headers: dict[str, str] = {}
         # ✅ 新增：重试处理器
         self._retry_handler = RetryHandler(
             max_attempts=3,
@@ -158,7 +158,7 @@ class HTTPClientMixin:
             max_delay=DEFAULT_RETRY_MAX_DELAY
         )
 
-    def _init_http_client(self, headers: Optional[Dict[str, str]] = None):
+    def _init_http_client(self, headers: dict[str, str] | None = None):
         """初始化HTTP客户端"""
         merged_headers = {**self._default_headers}
         if headers:
@@ -181,7 +181,7 @@ class HTTPClientMixin:
         if self.http_client:
             await self.http_client.aclose()
 
-    def _build_messages(self, request: LLMRequest) -> List[Dict[str, str]]:
+    def _build_messages(self, request: LLMRequest) -> list[dict[str, str]]:
         """构建消息列表"""
         messages = []
         if request.system_prompt:
@@ -189,7 +189,7 @@ class HTTPClientMixin:
         messages.append({"role": "user", "content": request.prompt})
         return messages
 
-    def _parse_response(self, data: Dict[str, Any], model: str, latency_ms: float = 0) -> LLMResponse:
+    def _parse_response(self, data: dict[str, Any], model: str, latency_ms: float = 0) -> LLMResponse:
         """解析标准OpenAI格式的响应"""
         if "error" in data:
             raise ProviderError(data["error"]["message"])
@@ -244,7 +244,7 @@ class HTTPClientMixin:
             logger.debug(f"Failed to parse error response: {e}")
         return ProviderError(error_msg)
 
-    async def _call_api(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+    async def _call_api(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """
         通用非流式 API 调用（含统一错误包装）。
 
@@ -263,7 +263,7 @@ class HTTPClientMixin:
         self,
         request: "LLMRequest",
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         endpoint: str = "/chat/completions",
     ) -> LLMResponse:
         """
@@ -317,7 +317,7 @@ class ModelManagerMixin:
     """模型管理混入类 - 提供通用的模型管理功能"""
 
     # 子类需要定义: MODELS, DEFAULT_MODEL
-    MODELS: Dict[str, Dict[str, Any]] = {}
+    MODELS: dict[str, dict[str, Any]] = {}
     DEFAULT_MODEL: str = ""
 
     def _get_model_name(self, model: str) -> str:
@@ -328,11 +328,11 @@ class ModelManagerMixin:
             return model
         raise ValueError(f"Unknown model: {model}")
 
-    def get_available_models(self) -> List[str]:
+    def get_available_models(self) -> list[str]:
         """获取可用模型列表"""
         return list(self.MODELS.keys())
 
-    def get_model_info(self, model: str) -> Dict[str, Any]:
+    def get_model_info(self, model: str) -> dict[str, Any]:
         """获取模型信息"""
         return self.MODELS.get(model, {})
 
@@ -443,11 +443,11 @@ class BaseLLMProvider(ABC):
 
     async def generate_batch(
         self,
-        requests: List[LLMRequest],
+        requests: list[LLMRequest],
         max_concurrency: int = 5,
         use_cache: bool = True,
         deduplicate: bool = True,
-    ) -> List[LLMResponse]:
+    ) -> list[LLMResponse]:
         """
         批量生成文本 ✅ 优化：asyncio.gather 并发 + 请求缓存 + 请求去重
 
@@ -462,9 +462,9 @@ class BaseLLMProvider(ABC):
         """
         if deduplicate:
             # 去重：记录每个唯一请求的首次出现索引
-            seen: Dict[str, int] = {}
-            unique_requests: List[LLMRequest] = []
-            index_map: List[int] = []  # 结果列表中的位置映射
+            seen: dict[str, int] = {}
+            unique_requests: list[LLMRequest] = []
+            index_map: list[int] = []  # 结果列表中的位置映射
 
             for req in requests:
                 key = self._make_cache_key(req)
@@ -518,7 +518,7 @@ async def gather_with_concurrency(
     n: int,
     *tasks,
     return_exceptions: bool = True
-) -> List[Any]:
+) -> list[Any]:
     """
     控制并发数的 asyncio.gather ✅ 新增
 

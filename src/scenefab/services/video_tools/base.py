@@ -8,7 +8,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +32,12 @@ class ProcessingResult:
     success: bool
     output_path: str = ""
     error: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # =========== 通用工具函数 ===========
 
-def get_seg_attr(seg: Union[Dict, object], key: str, default: Any = None) -> Any:
+def get_seg_attr(seg: dict | object, key: str, default: Any = None) -> Any:
     """
     从片段获取属性，兼容 dict 和对象两种格式
 
@@ -72,7 +72,7 @@ def parse_fps(fps_str: str) -> float:
     return float(fps_str)
 
 
-def extract_video_metadata(info: Dict[str, Any]) -> Dict[str, Any]:
+def extract_video_metadata(info: dict[str, Any]) -> dict[str, Any]:
     """
     从 FFmpegTool.get_video_info() 结果中提取视频元数据
 
@@ -137,7 +137,7 @@ class BaseVideoProcessor(IVideoProcessor):
         self._supported_formats = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
 
     @property
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         """支持的视频格式"""
         return self._supported_formats
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 字幕时间线组件
@@ -49,15 +48,15 @@ class SubtitleTimelineWidget(QFrame):
 
     def __init__(
         self,
-        editor: Optional[MultiTrackSubtitleEditor] = None,
-        parent: Optional[QWidget] = None
+        editor: MultiTrackSubtitleEditor | None = None,
+        parent: QWidget | None = None
     ):
         super().__init__(parent)
 
         self._editor = editor or MultiTrackSubtitleEditor()
         self._scale = 50.0  # px/sec
         self._position = 0.0
-        self._selected_block_id: Optional[str] = None
+        self._selected_block_id: str | None = None
 
         self._setup_ui()
         self._setup_styles()

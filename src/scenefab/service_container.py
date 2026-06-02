@@ -24,7 +24,8 @@
     logger = container.get_by_name("logger")
 """
 
-from typing import Any, Callable, Dict, Optional, Type, Union
+from collections.abc import Callable
+from typing import Any, Optional, Union
 
 
 class ServiceLifetime:
@@ -41,8 +42,8 @@ class _ServiceEntry:
         self,
         lifetime: str,
         instance: Any = None,
-        service_type: Optional[Type] = None,
-        factory: Optional[Callable] = None,
+        service_type: type | None = None,
+        factory: Callable | None = None,
     ):
         self.lifetime = lifetime
         self.instance = instance  # 仅 SINGLETON 使用
@@ -54,12 +55,12 @@ class ServiceContainer:
     """增强版服务容器"""
 
     def __init__(self):
-        self._services: Dict[Type, _ServiceEntry] = {}
-        self._services_by_name: Dict[str, _ServiceEntry] = {}
+        self._services: dict[type, _ServiceEntry] = {}
+        self._services_by_name: dict[str, _ServiceEntry] = {}
 
     # ─── 注册 ───────────────────────────────────────────────
 
-    def register(self, service_type: Type, instance: Any) -> None:
+    def register(self, service_type: type, instance: Any) -> None:
         """注册服务实例（默认单例）"""
         self._services[service_type] = _ServiceEntry(
             lifetime=ServiceLifetime.SINGLETON,
@@ -76,8 +77,8 @@ class ServiceContainer:
 
     def register_singleton(
         self,
-        service_type: Union[Type, str],
-        instance_or_type: Union[Any, Type],
+        service_type: type | str,
+        instance_or_type: Any | type,
     ) -> None:
         """注册单例服务"""
         if isinstance(service_type, str):
@@ -94,8 +95,8 @@ class ServiceContainer:
 
     def register_transient(
         self,
-        service_type: Union[Type, str],
-        factory_or_type: Union[Type, Callable],
+        service_type: type | str,
+        factory_or_type: type | Callable,
     ) -> None:
         """注册瞬态服务（类或工厂函数）"""
         if isinstance(service_type, str):
@@ -112,7 +113,7 @@ class ServiceContainer:
 
     def register_factory(
         self,
-        service_type: Union[Type, str],
+        service_type: type | str,
         factory: Callable,
     ) -> None:
         """注册工厂方法服务"""
@@ -129,21 +130,21 @@ class ServiceContainer:
 
     # ─── 获取 ───────────────────────────────────────────────
 
-    def get(self, service_type: Type) -> Optional[Any]:
+    def get(self, service_type: type) -> Any | None:
         """获取服务实例"""
         entry = self._services.get(service_type)
         if entry is None:
             return None
         return self._resolve(entry)
 
-    def get_by_name(self, name: str) -> Optional[Any]:
+    def get_by_name(self, name: str) -> Any | None:
         """按名称获取服务实例"""
         entry = self._services_by_name.get(name)
         if entry is None:
             return None
         return self._resolve(entry)
 
-    def get_or_create(self, service_type: Type, factory: Callable) -> Any:
+    def get_or_create(self, service_type: type, factory: Callable) -> Any:
         """获取服务，若不存在则用工厂创建（作为单例）"""
         entry = self._services.get(service_type)
         if entry is None:
@@ -176,7 +177,7 @@ class ServiceContainer:
 
     # ─── 查询 ───────────────────────────────────────────────
 
-    def has(self, service_type: Type) -> bool:
+    def has(self, service_type: type) -> bool:
         """检查服务是否存在"""
         return service_type in self._services
 
@@ -184,14 +185,14 @@ class ServiceContainer:
         """按名称检查服务是否存在"""
         return name in self._services_by_name
 
-    def get_lifetime(self, service_type: Type) -> Optional[str]:
+    def get_lifetime(self, service_type: type) -> str | None:
         """获取服务生命周期类型"""
         entry = self._services.get(service_type)
         return entry.lifetime if entry else None
 
     # ─── 移除 / 清空 ─────────────────────────────────────────
 
-    def remove(self, service_type: Type) -> None:
+    def remove(self, service_type: type) -> None:
         """移除服务"""
         self._services.pop(service_type, None)
 

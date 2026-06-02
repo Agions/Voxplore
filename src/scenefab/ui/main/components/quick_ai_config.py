@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 快捷AI配置组件 - macOS 设计系统优化版
@@ -8,7 +7,7 @@
 """
 
 import webbrowser
-from typing import Any, Dict, List
+from typing import Any
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
@@ -169,7 +168,7 @@ class QuickAIConfigWidget(QWidget):
         self.refresh_timer.timeout.connect(self.refresh_status)
         self.refresh_timer.start(30000)  # 每30秒刷新一次
 
-    def _get_configured_models(self) -> List[str]:
+    def _get_configured_models(self) -> list[str]:
         """获取已配置的模型列表"""
         try:
             ai_configs = self.config_manager.get_value("ai_models", {})
@@ -178,7 +177,7 @@ class QuickAIConfigWidget(QWidget):
             self.logger.error(f"获取已配置模型失败: {e}")
             return []
 
-    def _get_recent_models(self) -> List[tuple]:
+    def _get_recent_models(self) -> list[tuple]:
         """获取最近使用的模型"""
         try:
             recent_models = self.config_manager.get_value("recent_ai_models", [])
@@ -308,7 +307,7 @@ class QuickAIConfigWidget(QWidget):
             )
             self.recent_layout.addWidget(empty)
 
-    def _create_model_item(self, model_name: str, model_info: Dict[str, Any]) -> QWidget:
+    def _create_model_item(self, model_name: str, model_info: dict[str, Any]) -> QWidget:
         """创建模型项 - 使用标准卡片样式"""
         item = MacCard()
         item.setProperty("class", "card project-item")

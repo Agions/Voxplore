@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 LLM Provider 类型定义
@@ -8,7 +7,7 @@ LLM Provider 类型定义
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -51,7 +50,7 @@ class LLMResponse:
     model: str                           # 使用的模型
     tokens_used: int = 0                # 使用的 token 数量
     finish_reason: str = "stop"          # 结束原因
-    raw_response: Optional[Dict] = None  # 原始响应
+    raw_response: dict | None = None  # 原始响应
     latency_ms: float = 0.0              # 延迟（毫秒）✅ 新增
-    usage: Optional[Dict[str, Any]] = None  # 用量详情 (prompt_tokens, completion_tokens, total_tokens)
+    usage: dict[str, Any] | None = None  # 用量详情 (prompt_tokens, completion_tokens, total_tokens)
 

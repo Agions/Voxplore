@@ -165,7 +165,7 @@ def run_cli_mode():
         except KeyboardInterrupt:
             print("\n\n再见! 👋")
             break
-        except (EOFError, IOError):
+        except (OSError, EOFError):
             print("\n\n再见! 👋")
             break
         except Exception as e:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 字幕提取模块
@@ -14,7 +13,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.ffmpeg_tool import FFmpegTool
@@ -47,7 +46,7 @@ class OCRSubtitleExtractor:
     从视频关键帧中通过 Vision API 识别画面中的字幕文字
     """
 
-    def __init__(self, api_key: Optional[str] = None,
+    def __init__(self, api_key: str | None = None,
                  provider: str = "openai"):
         self._api_key = api_key or os.getenv("OPENAI_API_KEY")
         self._provider = provider
@@ -155,7 +154,7 @@ class OCRSubtitleExtractor:
         return text
 
     def _extract_frames(self, video_path: str, duration: float,
-                        interval: float, max_frames: int) -> List[Tuple[float, str]]:
+                        interval: float, max_frames: int) -> list[tuple[float, str]]:
         """提取关键帧"""
         tmpdir = tempfile.mkdtemp(prefix="narrafiilm_ocr_")
         frames = []
@@ -182,7 +181,7 @@ class OCRSubtitleExtractor:
 
 def extract_subtitles(video_path: str,
                       method: str = "speech",
-                      api_key: Optional[str] = None,
+                      api_key: str | None = None,
                       language: str = "zh") -> SubtitleExtractionResult:
     """
     提取字幕的便捷函数
@@ -221,7 +220,7 @@ def translate_subtitles(subtitle_result: SubtitleExtractionResult,
                        target_lang: str = "en",
                        source_lang: str = "auto",
                        provider: str = "openai",
-                       api_key: Optional[str] = None) -> SubtitleExtractionResult:
+                       api_key: str | None = None) -> SubtitleExtractionResult:
     """
     翻译字幕的便捷函数
 

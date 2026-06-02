@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 项目版本管理器
@@ -13,7 +12,7 @@ import os
 import shutil
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
@@ -43,8 +42,8 @@ class ProjectVersionManager(QObject):
         os.makedirs(self.version_dir, exist_ok=True)
 
         # 加载版本信息
-        self.versions: Dict[str, ProjectVersion] = {}
-        self.branches: Dict[str, ProjectBranch] = {}
+        self.versions: dict[str, ProjectVersion] = {}
+        self.branches: dict[str, ProjectBranch] = {}
         self._load_version_info()
 
     def _load_version_info(self) -> None:
@@ -53,7 +52,7 @@ class ProjectVersionManager(QObject):
             # 加载版本信息
             versions_file = os.path.join(self.version_dir, 'versions.json')
             if os.path.exists(versions_file):
-                with open(versions_file, 'r', encoding='utf-8') as f:
+                with open(versions_file, encoding='utf-8') as f:
                     versions_data = json.load(f)
                     for version_id, version_data in versions_data.items():
                         self.versions[version_id] = ProjectVersion.from_dict(version_data)
@@ -61,7 +60,7 @@ class ProjectVersionManager(QObject):
             # 加载分支信息
             branches_file = os.path.join(self.version_dir, 'branches.json')
             if os.path.exists(branches_file):
-                with open(branches_file, 'r', encoding='utf-8') as f:
+                with open(branches_file, encoding='utf-8') as f:
                     branches_data = json.load(f)
                     for branch_name, branch_data in branches_data.items():
                         self.branches[branch_name] = ProjectBranch.from_dict(branch_data)
@@ -94,7 +93,7 @@ class ProjectVersionManager(QObject):
         branches_file = os.path.join(self.version_dir, 'branches.json')
         self._save_json_file(branches_file, {name: b.to_dict() for name, b in self.branches.items()})
 
-    def _save_json_file(self, file_path: str, data: Dict) -> None:
+    def _save_json_file(self, file_path: str, data: dict) -> None:
         """安全保存 JSON 文件"""
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
@@ -140,9 +139,9 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to copy project files: {e}")
             return False
 
-    def create_version(self, description: str, changes: List[str],
-                      tags: List[str] = None, is_major: bool = False,
-                      is_auto_backup: bool = False) -> Optional[str]:
+    def create_version(self, description: str, changes: list[str],
+                      tags: list[str] = None, is_major: bool = False,
+                      is_auto_backup: bool = False) -> str | None:
         """创建新版本"""
         try:
             # 生成版本ID
@@ -255,15 +254,15 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to delete version {version_id}: {e}")
             return False
 
-    def get_version(self, version_id: str) -> Optional[ProjectVersion]:
+    def get_version(self, version_id: str) -> ProjectVersion | None:
         """获取版本信息"""
         return self.versions.get(version_id)
 
-    def get_all_versions(self) -> List[ProjectVersion]:
+    def get_all_versions(self) -> list[ProjectVersion]:
         """获取所有版本"""
         return sorted(self.versions.values(), key=lambda v: v.timestamp, reverse=True)
 
-    def get_versions_by_branch(self, branch_name: str) -> List[ProjectVersion]:
+    def get_versions_by_branch(self, branch_name: str) -> list[ProjectVersion]:
         """获取指定分支的版本"""
         if branch_name not in self.branches:
             return []
@@ -359,19 +358,19 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to delete branch {branch_name}: {e}")
             return False
 
-    def get_branch(self, branch_name: str) -> Optional[ProjectBranch]:
+    def get_branch(self, branch_name: str) -> ProjectBranch | None:
         """获取分支信息"""
         return self.branches.get(branch_name)
 
-    def get_all_branches(self) -> List[ProjectBranch]:
+    def get_all_branches(self) -> list[ProjectBranch]:
         """获取所有分支"""
         return list(self.branches.values())
 
-    def get_current_branch(self) -> Optional[ProjectBranch]:
+    def get_current_branch(self) -> ProjectBranch | None:
         """获取当前分支"""
         return self.branches.get(self.current_branch)
 
-    def get_version_diff(self, version_id1: str, version_id2: str) -> Dict[str, Any]:
+    def get_version_diff(self, version_id1: str, version_id2: str) -> dict[str, Any]:
         """获取版本差异"""
         try:
             if version_id1 not in self.versions or version_id2 not in self.versions:
@@ -457,7 +456,7 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to export version {version_id}: {e}")
             return False
 
-    def import_version(self, import_path: str, description: str = "") -> Optional[str]:
+    def import_version(self, import_path: str, description: str = "") -> str | None:
         """导入版本"""
         try:
             # 检查导入信息
@@ -465,7 +464,7 @@ class ProjectVersionManager(QObject):
             if not os.path.exists(info_file):
                 return None
 
-            with open(info_file, 'r') as f:
+            with open(info_file) as f:
                 import_info = json.load(f)
 
             version_data = import_info['version']
@@ -501,7 +500,7 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to import version from {import_path}: {e}")
             return None
 
-    def get_version_statistics(self) -> Dict[str, Any]:
+    def get_version_statistics(self) -> dict[str, Any]:
         """获取版本统计信息"""
         try:
             total_versions = len(self.versions)

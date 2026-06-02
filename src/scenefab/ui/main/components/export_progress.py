@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 导出进度组件
 显示导出队列和任务状态
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QColor
@@ -34,7 +33,7 @@ class ExportQueueWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.logger = Logger.get_logger(__name__)
-        self.tasks: List[ExportTask] = []
+        self.tasks: list[ExportTask] = []
         self.setup_ui()
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.update_queue_display)
@@ -84,7 +83,7 @@ class ExportQueueWidget(QWidget):
         layout.addWidget(self.task_table)
         layout.addLayout(actions_layout)
 
-    def update_tasks(self, tasks: List[ExportTask]):
+    def update_tasks(self, tasks: list[ExportTask]):
         """更新任务列表"""
         self.tasks = tasks
         self.update_queue_display()
@@ -178,7 +177,7 @@ class ExportQueueWidget(QWidget):
         """清除已完成的任务"""
         self.task_action.emit("clear_completed", "")
 
-    def get_selected_task_id(self) -> Optional[str]:
+    def get_selected_task_id(self) -> str | None:
         """获取选中的任务ID"""
         selected_items = self.task_table.selectedItems()
         if selected_items:

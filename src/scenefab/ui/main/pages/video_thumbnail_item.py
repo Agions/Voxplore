@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """视频缩略图列表项组件
 
 从 step_upload.py 提取 VideoThumbnailItem

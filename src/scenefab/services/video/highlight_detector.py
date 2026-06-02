@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 高光检测器 (Highlight Detector)
@@ -34,7 +33,7 @@ import subprocess
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from ...utils.security import SecurityError
 
@@ -136,7 +135,7 @@ class HighlightDetector:
     通过多维度分析自动识别视频中的高光片段。
     """
 
-    def __init__(self, config: Optional[HighlightDetectorConfig] = None):
+    def __init__(self, config: HighlightDetectorConfig | None = None):
         """
         初始化高光检测器
 
@@ -148,8 +147,8 @@ class HighlightDetector:
     def detect(
         self,
         video_path: str,
-        min_confidence: Optional[float] = None,
-    ) -> List[HighlightSegment]:
+        min_confidence: float | None = None,
+    ) -> list[HighlightSegment]:
         """
         检测视频中的高光片段
 
@@ -194,7 +193,7 @@ class HighlightDetector:
 
         return highlights
 
-    def _run_ffmpeg(self, cmd: List[str], timeout: int = 60) -> subprocess.CompletedProcess:
+    def _run_ffmpeg(self, cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
         """执行 ffmpeg 命令"""
         try:
             result = _get_executor().run(cmd, timeout=timeout)
@@ -207,7 +206,7 @@ class HighlightDetector:
             logger.debug(f"FFmpeg 执行失败: {e}")
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
 
-    def _extract_frames(self, video_path: Path, prefix: str) -> List[Path]:
+    def _extract_frames(self, video_path: Path, prefix: str) -> list[Path]:
         """提取视频帧到临时目录，返回帧文件列表（已缩放到小尺寸）"""
         temp_dir = video_path.parent / ".scenefab_highlight_cache"
         temp_dir.mkdir(exist_ok=True)
@@ -223,12 +222,12 @@ class HighlightDetector:
         self._run_ffmpeg(cmd)
         return sorted(temp_dir.glob(f"{video_path.stem}_{prefix}*.jpg"))
 
-    def _cleanup_frames(self, frame_files: List[Path]) -> None:
+    def _cleanup_frames(self, frame_files: list[Path]) -> None:
         """清理临时帧文件"""
         for f in frame_files:
             f.unlink(missing_ok=True)
 
-    def _detect_scene_changes(self, video_path: Path) -> List[Tuple[float, float]]:
+    def _detect_scene_changes(self, video_path: Path) -> list[tuple[float, float]]:
         """
         检测场景突变（镜头切换）
 
@@ -282,7 +281,7 @@ class HighlightDetector:
         self._cleanup_frames(frame_files)
         return changes
 
-    def _detect_audio_peaks(self, video_path: Path) -> List[Tuple[float, float]]:
+    def _detect_audio_peaks(self, video_path: Path) -> list[tuple[float, float]]:
         """检测音频能量峰值（高能量 = 可能的高光）"""
         temp_dir = video_path.parent / ".scenefab_highlight_cache"
         temp_dir.mkdir(exist_ok=True)
@@ -334,7 +333,7 @@ class HighlightDetector:
 
         return peaks
 
-    def _detect_motion_intensity(self, video_path: Path) -> List[Tuple[float, float]]:
+    def _detect_motion_intensity(self, video_path: Path) -> list[tuple[float, float]]:
         """
         检测画面运动强度
 
@@ -368,7 +367,7 @@ class HighlightDetector:
         self._cleanup_frames(frame_files)
         return motions
 
-    def _detect_color_vibrancy(self, video_path: Path) -> List[Tuple[float, float]]:
+    def _detect_color_vibrancy(self, video_path: Path) -> list[tuple[float, float]]:
         """
         检测色彩鲜艳程度
 
@@ -412,11 +411,11 @@ class HighlightDetector:
 
     def _merge_highlights(
         self,
-        scene_changes: List[Tuple[float, float]],
-        audio_peaks: List[Tuple[float, float]],
-        motion_intense: List[Tuple[float, float]],
-        color_vibrant: List[Tuple[float, float]],
-    ) -> List[HighlightSegment]:
+        scene_changes: list[tuple[float, float]],
+        audio_peaks: list[tuple[float, float]],
+        motion_intense: list[tuple[float, float]],
+        color_vibrant: list[tuple[float, float]],
+    ) -> list[HighlightSegment]:
         """
         合并多种检测结果，加权评分
         """
@@ -474,8 +473,8 @@ class HighlightDetector:
 
     def _merge_overlapping(
         self,
-        highlights: List[HighlightSegment],
-    ) -> List[HighlightSegment]:
+        highlights: list[HighlightSegment],
+    ) -> list[HighlightSegment]:
         """
         合并重叠的高光片段
         """
@@ -518,9 +517,9 @@ class HighlightDetector:
     def detect_with_beat_sync(
         self,
         video_path: str,
-        beat_info: List,
+        beat_info: list,
         min_confidence: float = 0.5,
-    ) -> List[HighlightSegment]:
+    ) -> list[HighlightSegment]:
         """
         结合节拍信息检测高光（节奏同步剪辑用）
 

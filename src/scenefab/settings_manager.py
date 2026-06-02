@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 项目设置管理器
@@ -12,7 +11,7 @@ import os
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
@@ -40,9 +39,9 @@ class ProjectSettingsManager(QObject):
         self.secure_key_manager = get_secure_key_manager()
 
         # 设置存储
-        self.settings: Dict[str, Any] = {}
-        self.settings_definitions: Dict[str, SettingDefinition] = {}
-        self.profiles: Dict[str, ProjectSettingsProfile] = {}
+        self.settings: dict[str, Any] = {}
+        self.settings_definitions: dict[str, SettingDefinition] = {}
+        self.profiles: dict[str, ProjectSettingsProfile] = {}
 
         # 设置文件路径
         self.settings_file = os.path.expanduser("~/SceneFab/settings/project_settings.json")
@@ -68,7 +67,7 @@ class ProjectSettingsManager(QObject):
 
             # 从文件加载设置
             if os.path.exists(self.settings_file):
-                with open(self.settings_file, 'r', encoding='utf-8') as f:
+                with open(self.settings_file, encoding='utf-8') as f:
                     loaded_settings = json.load(f)
                     self._update_settings(loaded_settings)
 
@@ -81,7 +80,7 @@ class ProjectSettingsManager(QObject):
         """加载配置文件"""
         try:
             if os.path.exists(self.profiles_file):
-                with open(self.profiles_file, 'r', encoding='utf-8') as f:
+                with open(self.profiles_file, encoding='utf-8') as f:
                     profiles_data = json.load(f)
                     for name, profile_data in profiles_data.items():
                         profile = ProjectSettingsProfile(**profile_data)
@@ -155,7 +154,7 @@ class ProjectSettingsManager(QObject):
             if profile.name not in self.profiles:
                 self.profiles[profile.name] = profile
 
-    def _update_settings(self, new_settings: Dict[str, Any]) -> None:
+    def _update_settings(self, new_settings: dict[str, Any]) -> None:
         """更新设置"""
         for key, value in new_settings.items():
             if key in self.settings_definitions:
@@ -241,7 +240,7 @@ class ProjectSettingsManager(QObject):
 
         return True
 
-    def get_settings_by_category(self, category: str) -> Dict[str, Any]:
+    def get_settings_by_category(self, category: str) -> dict[str, Any]:
         """按类别获取设置"""
         category_settings = {}
         for key, definition in self.settings_definitions.items():
@@ -252,7 +251,7 @@ class ProjectSettingsManager(QObject):
                 }
         return category_settings
 
-    def get_all_settings(self) -> Dict[str, Any]:
+    def get_all_settings(self) -> dict[str, Any]:
         """获取所有设置"""
         return self.settings.copy()
 
@@ -287,7 +286,7 @@ class ProjectSettingsManager(QObject):
             self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
     def create_profile(self, name: str, description: str,
-                     settings_filter: List[str] = None) -> bool:
+                     settings_filter: list[str] = None) -> bool:
         """创建配置文件"""
         try:
             if name in self.profiles and not self.profiles[name].is_builtin:
@@ -373,15 +372,15 @@ class ProjectSettingsManager(QObject):
             self.logger.error(f"Failed to delete profile {profile_name}: {e}")
             return False
 
-    def get_profile(self, profile_name: str) -> Optional[ProjectSettingsProfile]:
+    def get_profile(self, profile_name: str) -> ProjectSettingsProfile | None:
         """获取配置文件"""
         return self.profiles.get(profile_name)
 
-    def get_all_profiles(self) -> List[ProjectSettingsProfile]:
+    def get_all_profiles(self) -> list[ProjectSettingsProfile]:
         """获取所有配置文件"""
         return list(self.profiles.values())
 
-    def get_builtin_profiles(self) -> List[ProjectSettingsProfile]:
+    def get_builtin_profiles(self) -> list[ProjectSettingsProfile]:
         """获取内置配置文件"""
         return [p for p in self.profiles.values() if p.is_builtin]
 
@@ -425,7 +424,7 @@ class ProjectSettingsManager(QObject):
     def import_settings(self, import_path: str, merge: bool = True) -> bool:
         """导入设置"""
         try:
-            with open(import_path, 'r', encoding='utf-8') as f:
+            with open(import_path, encoding='utf-8') as f:
                 import_data = json.load(f)
 
             imported_settings = import_data.get('settings', {})
@@ -447,22 +446,22 @@ class ProjectSettingsManager(QObject):
             self.logger.error(f"Failed to import settings: {e}")
             return False
 
-    def get_setting_definition(self, key: str) -> Optional[SettingDefinition]:
+    def get_setting_definition(self, key: str) -> SettingDefinition | None:
         """获取设置定义"""
         return self.settings_definitions.get(key)
 
-    def get_all_setting_definitions(self) -> Dict[str, SettingDefinition]:
+    def get_all_setting_definitions(self) -> dict[str, SettingDefinition]:
         """获取所有设置定义"""
         return self.settings_definitions.copy()
 
-    def get_categories(self) -> List[str]:
+    def get_categories(self) -> list[str]:
         """获取所有设置类别"""
         categories = set()
         for definition in self.settings_definitions.values():
             categories.add(definition.category)
         return sorted(categories)
 
-    def search_settings(self, query: str) -> List[Dict[str, Any]]:
+    def search_settings(self, query: str) -> list[dict[str, Any]]:
         """搜索设置"""
         results = []
         query_lower = query.lower()
@@ -479,7 +478,7 @@ class ProjectSettingsManager(QObject):
 
         return results
 
-    def validate_settings(self) -> Dict[str, List[str]]:
+    def validate_settings(self) -> dict[str, list[str]]:
         """验证所有设置"""
         validation_result = {}
 
@@ -492,7 +491,7 @@ class ProjectSettingsManager(QObject):
 
         return validation_result
 
-    def get_settings_summary(self) -> Dict[str, Any]:
+    def get_settings_summary(self) -> dict[str, Any]:
         """获取设置摘要"""
         try:
             # 按类别统计设置

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 音画同步引擎
@@ -14,7 +13,6 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Tuple
 
 from .beat_detector import AudioAnalysisResult, BeatStrength, MusicSection
 
@@ -59,8 +57,8 @@ class SyncPlan:
     total_duration: float
     bpm: float
     strategy: SyncStrategy
-    sync_points: List[SyncPoint] = field(default_factory=list)
-    speed_curve: List[Tuple[float, float]] = field(default_factory=list)  # (time, speed)
+    sync_points: list[SyncPoint] = field(default_factory=list)
+    speed_curve: list[tuple[float, float]] = field(default_factory=list)  # (time, speed)
 
 
 class SyncEngine:
@@ -293,7 +291,7 @@ class SyncEngine:
 
     def _generate_speed_curve(
         self, audio: AudioAnalysisResult
-    ) -> List[Tuple[float, float]]:
+    ) -> list[tuple[float, float]]:
         """
         根据音频能量生成速度曲线
 

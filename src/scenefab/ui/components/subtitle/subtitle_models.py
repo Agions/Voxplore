@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Subtitle Exporter and Importer
@@ -17,7 +16,6 @@ Subtitle Exporter and Importer
 import json
 import re
 from pathlib import Path
-from typing import Dict, List
 
 from .subtitle_core import (
     DEFAULT_PRESETS,
@@ -201,7 +199,7 @@ class SubtitleExporter:
         return json.dumps(editor.to_dict(), ensure_ascii=False, indent=indent)
 
     @staticmethod
-    def to_jianying(editor: MultiTrackSubtitleEditor, track_id: str = None) -> List[Dict]:
+    def to_jianying(editor: MultiTrackSubtitleEditor, track_id: str = None) -> list[dict]:
         """
         导出为剪映字幕格式
 
@@ -446,7 +444,7 @@ class SubtitleImporter:
         if not path.exists():
             raise FileNotFoundError(f"文件不存在: {file_path}")
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             content = f.read()
 
         suffix = path.suffix.lower()

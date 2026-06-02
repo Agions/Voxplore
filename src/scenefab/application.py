@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 应用程序核心类
@@ -7,9 +6,10 @@ SceneFab 应用程序核心类
 """
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.signals_bridge import QObject, Signal
 
@@ -60,8 +60,8 @@ class ErrorInfo:
     error_type: ErrorType
     severity: ErrorSeverity
     message: str
-    details: Optional[str] = None
-    exception: Optional[Exception] = None
+    details: str | None = None
+    exception: Exception | None = None
     timestamp: float = field(default_factory=lambda: (__import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication.instance() or {}).get('timestamp', 0))
 
 
@@ -90,11 +90,11 @@ class Application(QObject):
         self._service_container = ServiceContainer()
 
         # 事件系统
-        self._event_handlers: Dict[str, List[Callable]] = {}
+        self._event_handlers: dict[str, list[Callable]] = {}
 
         # 定时器和任务
-        self._timers: Dict[str, object] = {}
-        self._tasks: List[Callable] = []
+        self._timers: dict[str, object] = {}
+        self._tasks: list[Callable] = []
 
         # 初始化顺序
         self._init_sequence = [
@@ -106,7 +106,7 @@ class Application(QObject):
             ("services", self._init_services)
         ]
 
-    def initialize(self, argv: List[str]) -> bool:
+    def initialize(self, argv: list[str]) -> bool:
         """初始化应用程序"""
         try:
             self._set_state(ApplicationState.INITIALIZING)
@@ -214,14 +214,14 @@ class Application(QObject):
             self.error_occurred.emit("RUN_ERROR", f"Run failed: {str(e)}")
             return 1
 
-    def get_service(self, service_type: type) -> Optional[object]:
+    def get_service(self, service_type: type) -> object | None:
         """获取指定类型的服务"""
         try:
             return self._service_container.get(service_type)
         except ValueError:
             return None
 
-    def get_service_by_name(self, service_name: str) -> Optional[object]:
+    def get_service_by_name(self, service_name: str) -> object | None:
         """获取指定名称的服务"""
         try:
             return self._service_container.get_by_name(service_name)

@@ -3,7 +3,8 @@
 
 类型安全的 Pydantic v2 模型，替代原有的 dataclass。
 """
-from typing import Callable, List, Optional
+from collections.abc import Callable
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -97,11 +98,11 @@ class VideoSource(BaseModel):
 
 class AnalysisResult(BaseModel):
     """视频分析结果"""
-    scenes: List[SceneInfo] = Field(default_factory=list, description="场景列表")
-    characters: List[str] = Field(default_factory=list, description="识别的人物列表")
-    emotions: List[EmotionInfo] = Field(default_factory=list, description="情感片段列表")
+    scenes: list[SceneInfo] = Field(default_factory=list, description="场景列表")
+    characters: list[str] = Field(default_factory=list, description="识别的人物列表")
+    emotions: list[EmotionInfo] = Field(default_factory=list, description="情感片段列表")
     summary: str = Field(default="", description="分析摘要")
-    tags: List[str] = Field(default_factory=list, description="标签列表")
+    tags: list[str] = Field(default_factory=list, description="标签列表")
 
 
 class ScriptData(BaseModel):
@@ -109,7 +110,7 @@ class ScriptData(BaseModel):
     id: str = Field(default="", description="脚本ID")
     title: str = Field(default="", description="脚本标题")
     content: str = Field(default="", description="完整文案")
-    segments: List[ScriptSegmentInfo] = Field(default_factory=list, description="分段文案")
+    segments: list[ScriptSegmentInfo] = Field(default_factory=list, description="分段文案")
     word_count: int = Field(default=0, ge=0, description="总字数")
     estimated_duration: float = Field(default=0.0, ge=0, description="预估时长（秒）")
     style: str = Field(default="", description="文风/风格")
@@ -118,15 +119,15 @@ class ScriptData(BaseModel):
 
 class TimelineData(BaseModel):
     """时间线数据"""
-    video_track: List[VideoTrackClip] = Field(default_factory=list, description="视频轨道")
-    audio_track: List[AudioTrackClip] = Field(default_factory=list, description="音频轨道")
-    subtitle_track: List[SubtitleTrackClip] = Field(default_factory=list, description="字幕轨道")
+    video_track: list[VideoTrackClip] = Field(default_factory=list, description="视频轨道")
+    audio_track: list[AudioTrackClip] = Field(default_factory=list, description="音频轨道")
+    subtitle_track: list[SubtitleTrackClip] = Field(default_factory=list, description="字幕轨道")
     total_duration: float = Field(default=0.0, ge=0, description="总时长（秒）")
 
 
 class VoiceoverData(BaseModel):
     """配音数据"""
-    segments: List[VoiceoverSegment] = Field(default_factory=list, description="配音片段列表")
+    segments: list[VoiceoverSegment] = Field(default_factory=list, description="配音片段列表")
     voice_style: str = Field(default="", description="声音风格")
     beat_sync: bool = Field(default=False, description="是否启用节拍同步")
 
@@ -138,30 +139,30 @@ class WorkflowState(BaseModel):
     status: WorkflowStatus = Field(default=WorkflowStatus.IDLE, description="工作流状态")
     progress: float = Field(default=0.0, ge=0, le=1, description="完成进度")
     error: str = Field(default="", description="错误信息")
-    mode: Optional[CreationMode] = Field(default=None, description="创作模式")
-    sources: List[VideoSource] = Field(default_factory=list, description="素材列表")
-    analysis: Optional[AnalysisResult] = Field(default=None, description="分析结果")
-    script: Optional[ScriptData] = Field(default=None, description="脚本数据")
-    timeline: Optional[TimelineData] = Field(default=None, description="时间线数据")
-    voiceover: Optional[VoiceoverData] = Field(default=None, description="配音数据")
+    mode: CreationMode | None = Field(default=None, description="创作模式")
+    sources: list[VideoSource] = Field(default_factory=list, description="素材列表")
+    analysis: AnalysisResult | None = Field(default=None, description="分析结果")
+    script: ScriptData | None = Field(default=None, description="脚本数据")
+    timeline: TimelineData | None = Field(default=None, description="时间线数据")
+    voiceover: VoiceoverData | None = Field(default=None, description="配音数据")
     export_path: str = Field(default="", description="导出路径")
-    export_format: Optional[ExportFormat] = Field(default=None, description="导出格式")
+    export_format: ExportFormat | None = Field(default=None, description="导出格式")
 
 
 class WorkflowCallbacks(BaseModel):
     """工作流回调函数集合"""
-    on_step_change: Optional[Callable[[WorkflowStep], None]] = Field(
+    on_step_change: Callable[[WorkflowStep], None] | None = Field(
         default=None, description="步骤变化回调"
     )
-    on_progress: Optional[Callable[[float], None]] = Field(
+    on_progress: Callable[[float], None] | None = Field(
         default=None, description="进度回调"
     )
-    on_status_change: Optional[Callable[[WorkflowStatus], None]] = Field(
+    on_status_change: Callable[[WorkflowStatus], None] | None = Field(
         default=None, description="状态变化回调"
     )
-    on_error: Optional[Callable[[str], None]] = Field(
+    on_error: Callable[[str], None] | None = Field(
         default=None, description="错误回调"
     )
-    on_complete: Optional[Callable[[], None]] = Field(
+    on_complete: Callable[[], None] | None = Field(
         default=None, description="完成回调"
     )

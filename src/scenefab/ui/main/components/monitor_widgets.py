@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AI监控面板 - 可复用组件
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any
 
 from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QCursor, QPainter, QPainterPath, QPen, QPixmap
@@ -19,7 +18,7 @@ from ...icon_manager import get_icon
 class ServiceStatusWidget(QWidget):
     """服务状态部件"""
 
-    def __init__(self, service_name: str, status: ServiceStatus, health_data: Dict[str, Any]):
+    def __init__(self, service_name: str, status: ServiceStatus, health_data: dict[str, Any]):
         super().__init__()
         self.service_name = service_name
         self.status = status
@@ -102,7 +101,7 @@ class ServiceStatusWidget(QWidget):
         }
         return status_text_map.get(self.status, "未知")
 
-    def update_status(self, status: ServiceStatus, health_data: Dict[str, Any]):
+    def update_status(self, status: ServiceStatus, health_data: dict[str, Any]):
         """更新状态"""
         self.status = status
         self.health_data = health_data

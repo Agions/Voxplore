@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 导出进度监控组件
@@ -7,7 +6,7 @@
 """
 
 import time
-from typing import Dict, List, Optional
+from typing import Optional
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QFont
@@ -165,7 +164,7 @@ class ExportProgressWidget(QWidget):
         }
         return colors.get(self.task.status, Colors.TextMuted)
 
-    def _format_time(self, timestamp: Optional[float]) -> str:
+    def _format_time(self, timestamp: float | None) -> str:
         """格式化时间"""
         if not timestamp:
             return ""
@@ -209,8 +208,8 @@ class ExportMonitorWidget(QWidget):
         super().__init__(parent)
         self.export_system = export_system
         self.logger = Logger.get_logger(__name__)
-        self.tasks: List[ExportTask] = []
-        self.active_task_widgets: Dict[str, ExportProgressWidget] = {}
+        self.tasks: list[ExportTask] = []
+        self.active_task_widgets: dict[str, ExportProgressWidget] = {}
         self.setup_ui()
         self.setup_timer()
 
@@ -284,7 +283,7 @@ class ExportMonitorWidget(QWidget):
         except Exception as e:
             self.logger.error(f"Failed to update monitor display: {e}")
 
-    def update_active_tasks(self, tasks: List[ExportTask]):
+    def update_active_tasks(self, tasks: list[ExportTask]):
         """更新活动任务显示"""
         # 创建任务ID到任务的映射
         current_task_ids = {task.id for task in tasks}
@@ -314,7 +313,7 @@ class ExportMonitorWidget(QWidget):
                 widget.task = task
                 widget.update_display()
 
-    def update_speed_chart(self, tasks: List[ExportTask]):
+    def update_speed_chart(self, tasks: list[ExportTask]):
         """更新速度图表"""
         # 计算总体导出速度
         total_speed = 0

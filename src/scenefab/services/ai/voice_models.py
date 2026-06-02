@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 语音生成数据模型
@@ -9,7 +8,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 
 class VoiceStyle(Enum):
@@ -67,7 +66,7 @@ class VoiceInfo:
     name: str
     gender: VoiceGender
     language: str
-    styles: List[str] = field(default_factory=list)
+    styles: list[str] = field(default_factory=list)
     description: str = ""
 
 
@@ -83,7 +82,7 @@ class GeneratedVoice:
     sample_rate: int = 24000
     format: str = "mp3"
     start_time: float = 0.0        # 片段起始时间(用于批量生成)
-    sentence_timestamps: List[Dict[str, Any]] = None  # 句子级时间戳
+    sentence_timestamps: list[dict[str, Any]] = None  # 句子级时间戳
 
     def __post_init__(self):
         if self.sentence_timestamps is None:

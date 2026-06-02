@@ -7,10 +7,11 @@ import logging
 import os
 import threading
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.exceptions import ExportError
 
@@ -44,9 +45,9 @@ class ExportTask:
     quality: str = "high"
     status: ExportStatus = ExportStatus.PENDING
     progress: float = 0.0
-    error: Optional[str] = None
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
+    error: str | None = None
+    started_at: float | None = None
+    completed_at: float | None = None
 
 
 @dataclass
@@ -57,7 +58,7 @@ class BatchExportResult:
     failed: int
     cancelled: int
     total_time: float
-    results: List[Dict[str, Any]] = field(default_factory=list)
+    results: list[dict[str, Any]] = field(default_factory=list)
 
 
 class BatchExportManager:
@@ -66,8 +67,8 @@ class BatchExportManager:
     def __init__(
         self,
         max_parallel: int = 2,
-        on_progress: Optional[Callable[[str, float], None]] = None,
-        on_complete: Optional[Callable[[str, bool, Optional[str]], None]] = None
+        on_progress: Callable[[str, float], None] | None = None,
+        on_complete: Callable[[str, bool, str | None], None] | None = None
     ):
         """
         初始化批量导出管理器
@@ -80,9 +81,9 @@ class BatchExportManager:
         self.max_parallel = max_parallel
         self.on_progress = on_progress
         self.on_complete = on_complete
-        self._tasks: Dict[str, ExportTask] = {}
+        self._tasks: dict[str, ExportTask] = {}
         self._executor = ThreadPoolExecutor(max_workers=max_parallel)
-        self._running_tasks: Dict[str, Any] = {}
+        self._running_tasks: dict[str, Any] = {}
         self._cancelled: set = set()
 
     def add_task(
@@ -108,11 +109,11 @@ class BatchExportManager:
 
     def add_tasks_from_projects(
         self,
-        projects: List[Dict[str, Any]],
+        projects: list[dict[str, Any]],
         output_dir: str,
         format: str = "mp4",
         quality: str = "high"
-    ) -> List[ExportTask]:
+    ) -> list[ExportTask]:
         """
         从项目列表添加批量任务
 
@@ -224,7 +225,7 @@ class BatchExportManager:
             results=results
         )
 
-    def _export_single(self, task: ExportTask) -> tuple[bool, Optional[str]]:
+    def _export_single(self, task: ExportTask) -> tuple[bool, str | None]:
         """执行单个导出任务"""
         task.status = ExportStatus.RUNNING
         task.started_at = time.time()
@@ -238,13 +239,13 @@ class BatchExportManager:
 
             project_path = Path(task.project_path)
             if project_path.exists() and project_path.suffix == '.json':
-                with open(project_path, 'r', encoding='utf-8') as f:
+                with open(project_path, encoding='utf-8') as f:
                     project_data = json.load(f)
             else:
                 # 如果是目录，尝试读取 project.json
                 proj_file = project_path / 'project.json'
                 if proj_file.exists():
-                    with open(proj_file, 'r', encoding='utf-8') as f:
+                    with open(proj_file, encoding='utf-8') as f:
                         project_data = json.load(f)
                 else:
                     project_data = {"source": str(project_path)}
@@ -302,15 +303,15 @@ class BatchExportManager:
         for task_id in self._tasks:
             self._cancelled.add(task_id)
 
-    def get_task(self, task_id: str) -> Optional[ExportTask]:
+    def get_task(self, task_id: str) -> ExportTask | None:
         """获取任务状态"""
         return self._tasks.get(task_id)
 
-    def get_all_tasks(self) -> List[ExportTask]:
+    def get_all_tasks(self) -> list[ExportTask]:
         """获取所有任务"""
         return list(self._tasks.values())
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """获取总体进度"""
         total = len(self._tasks)
         if total == 0:
@@ -356,7 +357,7 @@ class BatchExportManager:
 
 
 # 全局实例
-_batch_export_manager: Optional[BatchExportManager] = None
+_batch_export_manager: BatchExportManager | None = None
 _batch_lock = threading.Lock()
 
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 字幕块组件
@@ -35,7 +34,7 @@ class SubtitleBlockWidget(QWidget):
         block: SubtitleBlock,
         style: SubtitleStylePreset,
         scale: float = 50.0,
-        parent: Optional[QWidget] = None
+        parent: QWidget | None = None
     ):
         super().__init__(parent)
 

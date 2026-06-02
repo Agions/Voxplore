@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 LLM Provider 异常兼容模块 ⚠️ 已废弃

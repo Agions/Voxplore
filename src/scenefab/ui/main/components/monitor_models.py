@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AI监控面板 - 数据模型
@@ -8,7 +7,7 @@ AI监控面板 - 数据模型
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 class MonitorMode:
@@ -29,7 +28,7 @@ class AlertData:
     message: str
     timestamp: float
     resolved: bool = False
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 __all__ = [

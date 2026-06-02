@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 设置类型定义
@@ -10,7 +9,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 
 class SettingType(Enum):
@@ -34,14 +33,14 @@ class SettingDefinition:
     description: str
     setting_type: SettingType
     default_value: Any
-    min_value: Optional[Union[int, float]] = None
-    max_value: Optional[Union[int, float]] = None
-    options: Optional[List[str]] = None
+    min_value: int | float | None = None
+    max_value: int | float | None = None
+    options: list[str] | None = None
     category: str = "general"
     subcategory: str = ""
     advanced: bool = False
     restart_required: bool = False
-    validator: Optional[str] = None  # 验证函数名
+    validator: str | None = None  # 验证函数名
 
 
 @dataclass
@@ -49,10 +48,10 @@ class ProjectSettingsProfile:
     """项目设置配置文件"""
     name: str
     description: str
-    settings: Dict[str, Any]
+    settings: dict[str, Any]
     created_at: str
     modified_at: str
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     is_builtin: bool = False
 
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 场景分析器 (Scene Analyzer)
@@ -21,7 +20,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 from .scene_models import AnalysisConfig, SceneInfo, SceneType
@@ -43,7 +42,7 @@ class SceneAnalyzer:
     优先使用 PySceneDetect（更准确），回退到 FFmpeg 方法。
     """
 
-    def __init__(self, config: Optional[AnalysisConfig] = None):
+    def __init__(self, config: AnalysisConfig | None = None):
         self.config = config or AnalysisConfig()
         self._pyscenect_available = self._check_pyscenect()
         self._executor = get_ffmpeg_executor()
@@ -53,7 +52,7 @@ class SceneAnalyzer:
         import importlib.util
         return importlib.util.find_spec("scenedetect") is not None
 
-    def analyze(self, video_path: str) -> List[SceneInfo]:
+    def analyze(self, video_path: str) -> list[SceneInfo]:
         """
         分析视频场景
 
@@ -90,7 +89,7 @@ class SceneAnalyzer:
 
         return scenes
 
-    def _detect_scenes_pyscenect(self, video_path: str) -> List[float]:
+    def _detect_scenes_pyscenect(self, video_path: str) -> list[float]:
         """使用 PySceneDetect 检测场景变化"""
         try:
             from scenedetect import SceneManager, open_video
@@ -147,7 +146,7 @@ class SceneAnalyzer:
             logger.error(f"PySceneDetect 场景检测失败: {e}")
             return self._detect_scene_changes(video_path)
 
-    def _detect_scene_changes(self, video_path: str) -> List[float]:
+    def _detect_scene_changes(self, video_path: str) -> list[float]:
         """使用 FFmpeg 检测场景变化时间点（回退方法）"""
         threshold = self.config.scene_threshold
 
@@ -179,7 +178,7 @@ class SceneAnalyzer:
             logger.error(f"场景检测失败: {e}")
             return [0.0]
 
-    def _build_scenes(self, scene_times: List[float], total_duration: float) -> List[SceneInfo]:
+    def _build_scenes(self, scene_times: list[float], total_duration: float) -> list[SceneInfo]:
         """根据场景变化时间点构建场景列表"""
         scenes = []
 
@@ -315,7 +314,7 @@ class SceneAnalyzer:
         else:
             return SceneType.B_ROLL
 
-    def _extract_keyframes(self, video_path: str, scenes: List[SceneInfo]) -> None:
+    def _extract_keyframes(self, video_path: str, scenes: list[SceneInfo]) -> None:
         """为每个场景提取关键帧"""
         if not self.config.keyframe_dir:
             keyframe_dir = Path(video_path).parent / "keyframes"

@@ -19,7 +19,7 @@ router = APIRouter()
 _tasks: dict = {}
 
 # 全局 PipelineIntegrator 实例
-_integrator: Optional[PipelineIntegrator] = None
+_integrator: PipelineIntegrator | None = None
 _integrator_lock = threading.Lock()
 
 

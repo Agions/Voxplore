@@ -26,5 +26,5 @@ class WindowConfig:
     height: int = 800
     min_width: int = 800
     min_height: int = 600
-    icon_path: Optional[str] = None
+    icon_path: str | None = None
     style: str = "Fusion"

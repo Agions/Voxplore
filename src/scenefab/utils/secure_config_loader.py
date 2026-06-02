@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import threading
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import yaml
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class SecureConfigLoader:
     """安全配置加载器"""
 
-    def __init__(self, allowed_dirs: Optional[list] = None, env_file: Optional[str] = None):
+    def __init__(self, allowed_dirs: list | None = None, env_file: str | None = None):
         """
         初始化安全配置加载器
 
@@ -60,7 +60,7 @@ class SecureConfigLoader:
             'private_key', 'public_key'
         }
 
-    def _load_environment(self, env_file: Optional[str] = None) -> None:
+    def _load_environment(self, env_file: str | None = None) -> None:
         """
         加载环境变量 ✅ 新增
 
@@ -85,7 +85,7 @@ class SecureConfigLoader:
                 load_dotenv(env_path, override=True)
                 logger.debug(f"自动加载环境变量: {env_path}")
 
-    def get_env(self, key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
+    def get_env(self, key: str, default: str | None = None, required: bool = False) -> str | None:
         """
         获取环境变量 ✅ 新增便捷方法
 
@@ -104,7 +104,7 @@ class SecureConfigLoader:
 
         return value
 
-    def get_api_key(self, provider: str, env_var: Optional[str] = None) -> str:
+    def get_api_key(self, provider: str, env_var: str | None = None) -> str:
         """
         安全获取 API Key ✅ 新增便捷方法
 
@@ -148,7 +148,7 @@ class SecureConfigLoader:
             f"请设置环境变量：{possible_keys[0]}"
         )
 
-    def load_yaml(self, config_path: str, resolve_env: bool = True) -> Dict[str, Any]:
+    def load_yaml(self, config_path: str, resolve_env: bool = True) -> dict[str, Any]:
         """
         安全加载 YAML 配置文件
 
@@ -186,7 +186,7 @@ class SecureConfigLoader:
 
         # 安全加载 YAML
         try:
-            with open(clean_path, 'r', encoding='utf-8') as f:
+            with open(clean_path, encoding='utf-8') as f:
                 # 使用 safe_load 防止代码执行
                 config = yaml.safe_load(f)
 
@@ -205,7 +205,7 @@ class SecureConfigLoader:
         except Exception as e:
             raise SecurityError(f"配置加载失败: {e}")
 
-    def load_json(self, config_path: str, resolve_env: bool = True) -> Dict[str, Any]:
+    def load_json(self, config_path: str, resolve_env: bool = True) -> dict[str, Any]:
         """
         安全加载 JSON 配置文件
 
@@ -232,7 +232,7 @@ class SecureConfigLoader:
 
         # 加载 JSON
         try:
-            with open(clean_path, 'r', encoding='utf-8') as f:
+            with open(clean_path, encoding='utf-8') as f:
                 config = json.load(f)
 
             config = self._validate_config(config)
@@ -296,7 +296,7 @@ class SecureConfigLoader:
         # 匹配 ${VAR} 或 ${VAR:-default}
         return re.sub(r'\$\{([^}]+)\}', replacer, value)
 
-    def _validate_config(self, config: Any) -> Dict[str, Any]:
+    def _validate_config(self, config: Any) -> dict[str, Any]:
         """
         验证配置结构
 
@@ -339,7 +339,7 @@ class SecureConfigLoader:
             return "***"
         return value[:4] + "***" + value[-4:]
 
-    def save_yaml(self, config: Dict[str, Any], config_path: str) -> None:
+    def save_yaml(self, config: dict[str, Any], config_path: str) -> None:
         """
         安全保存 YAML 配置
 
@@ -383,7 +383,7 @@ class SecureConfigLoader:
 
 # ============ 全局实例 ============
 
-_config_loader: Optional[SecureConfigLoader] = None
+_config_loader: SecureConfigLoader | None = None
 _config_loader_lock = threading.Lock()
 
 
@@ -397,17 +397,17 @@ def get_config_loader() -> SecureConfigLoader:
     return _config_loader
 
 
-def safe_load_yaml(config_path: str) -> Dict[str, Any]:
+def safe_load_yaml(config_path: str) -> dict[str, Any]:
     """安全加载 YAML 配置的便捷函数"""
     return get_config_loader().load_yaml(config_path)
 
 
-def safe_load_json(config_path: str) -> Dict[str, Any]:
+def safe_load_json(config_path: str) -> dict[str, Any]:
     """安全加载 JSON 配置的便捷函数"""
     return get_config_loader().load_json(config_path)
 
 
-def safe_save_yaml(config: Dict[str, Any], config_path: str) -> None:
+def safe_save_yaml(config: dict[str, Any], config_path: str) -> None:
     """安全保存 YAML 配置的便捷函数"""
     get_config_loader().save_yaml(config, config_path)
 

@@ -4,7 +4,7 @@ Pydantic 模型定义
 """
 
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -32,20 +32,20 @@ class InterleaveModeAPI(str, Enum):
 
 class ProjectCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class ProjectResponse(BaseModel):
     id: str
     name: str
-    description: Optional[str]
+    description: str | None
     created_at: str
     updated_at: str
     status: str
 
 
 class ProjectListResponse(BaseModel):
-    projects: List[ProjectResponse]
+    projects: list[ProjectResponse]
     total: int
 
 
@@ -58,8 +58,8 @@ class NarrationRequest(BaseModel):
     video_url: str                      # 视频 URL 或本地路径
     emotion: EmotionType = EmotionType.HEALING
     interleave_mode: InterleaveModeAPI = InterleaveModeAPI.CINEMATIC
-    voice_id: Optional[str] = None       # 指定音色
-    max_duration: Optional[float] = None  # 最大解说时长（秒）
+    voice_id: str | None = None       # 指定音色
+    max_duration: float | None = None  # 最大解说时长（秒）
 
 
 class PipelineStatus(BaseModel):
@@ -67,9 +67,9 @@ class PipelineStatus(BaseModel):
     status: str                          # pending, processing, completed, failed
     progress: float = 0.0                 # 0-100
     current_step: str                     # 当前步骤
-    estimated_remaining: Optional[float]  # 预估剩余时间（秒）
-    result_url: Optional[str] = None      # 完成后的结果 URL
-    error: Optional[str] = None
+    estimated_remaining: float | None  # 预估剩余时间（秒）
+    result_url: str | None = None      # 完成后的结果 URL
+    error: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────
@@ -83,14 +83,14 @@ class ExportRequest(BaseModel):
     resolution: str = "1080p"            # 720p, 1080p, 4k
     fps: int = 30
     codec: str = "h264"                 # h264, h265, vp9
-    output_path: Optional[str] = None
+    output_path: str | None = None
 
 
 class ExportResponse(BaseModel):
     task_id: str
     status: str
     progress: float
-    download_url: Optional[str] = None
+    download_url: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────
@@ -100,4 +100,4 @@ class ExportResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
-    services: Dict[str, str]
+    services: dict[str, str]

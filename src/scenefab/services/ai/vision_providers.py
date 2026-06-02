@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 多模型视觉分析适配器
@@ -10,8 +9,9 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class VisionAnalysisResult:
     """视觉分析结果"""
     description: str = ""
     content_type: str = "unknown"
-    objects: List[str] = field(default_factory=list)
+    objects: list[str] = field(default_factory=list)
     text_content: str = ""
     emotion: str = "neutral"
     color_tone: str = "neutral"
@@ -88,7 +88,7 @@ class VisionProvider(ABC):
 
     @abstractmethod
     def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
         """分析图片，返回解析后的字典"""
         pass
 
@@ -97,7 +97,7 @@ class VisionProvider(ABC):
         pass
 
     @staticmethod
-    def _parse_json_response(content: str) -> Dict[str, Any]:
+    def _parse_json_response(content: str) -> dict[str, Any]:
         """从可能包含 markdown 的响应中提取 JSON"""
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
@@ -116,7 +116,7 @@ class OpenAIVisionProvider(VisionProvider):
     """OpenAI GPT-5 Vision"""
 
     def __init__(self, api_key: str, model: str = "gpt-4o",
-                 base_url: Optional[str] = None):
+                 base_url: str | None = None):
         self.api_key = api_key
         self.model = model
         self.base_url = base_url
@@ -125,7 +125,7 @@ class OpenAIVisionProvider(VisionProvider):
         return f"OpenAI/{self.model}"
 
     def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
         from openai import OpenAI
         kwargs = {"api_key": self.api_key}
         if self.base_url:
@@ -166,7 +166,7 @@ class QwenVLProvider(VisionProvider):
         return f"Qwen/{self.model}"
 
     def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
         from openai import OpenAI
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         response = client.chat.completions.create(
@@ -207,7 +207,7 @@ class Qwen25VLProvider(VisionProvider):
         return f"Qwen2.5-VL/{self.model}"
 
     def analyze_image(self, image_base64: str,
-                      prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                      prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> dict[str, Any]:
         """
         使用 Qwen2.5-VL 进行第一人称解说专用分析。
         默认 prompt 使用 FIRST_PERSON_ANALYSIS_PROMPT。
@@ -229,8 +229,8 @@ class Qwen25VLProvider(VisionProvider):
         )
         return self._parse_json_response(response.choices[0].message.content)
 
-    def analyze_video_frames(self, frames: List[Dict[str, Any]],
-                            narrative_prompt: Optional[str] = None) -> List[Dict[str, Any]]:
+    def analyze_video_frames(self, frames: list[dict[str, Any]],
+                            narrative_prompt: str | None = None) -> list[dict[str, Any]]:
         """
         分析多帧视频（支持 Native 视频输入模式）。
 
@@ -279,10 +279,10 @@ class Qwen25VLProvider(VisionProvider):
 
     def analyze_frames_batch(
         self,
-        frames: List[Dict[str, Any]],
+        frames: list[dict[str, Any]],
         batch_size: int = 6,
-        progress_callback: Optional[Callable[[int, int], None]] = None
-    ) -> List[Dict[str, Any]]:
+        progress_callback: Callable[[int, int], None] | None = None
+    ) -> list[dict[str, Any]]:
         """
         批量分析帧（优化版，减少 60% API 延迟）
 
@@ -298,7 +298,7 @@ class Qwen25VLProvider(VisionProvider):
             return []
 
         total_frames = len(frames)
-        total_results: List[Dict[str, Any]] = []
+        total_results: list[dict[str, Any]] = []
         completed = 0
 
         # 分批处理
@@ -355,7 +355,7 @@ class GeminiVisionProvider(VisionProvider):
         return f"Gemini/{self.model}"
 
     def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
         import httpx
 
         url = (f"https://generativelanguage.googleapis.com/v1beta/"
@@ -405,9 +405,9 @@ class VisionAnalyzerFactory:
         "gemini": GeminiVisionProvider,
     }
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self._config = config
-        self._providers: List[VisionProvider] = []
+        self._providers: list[VisionProvider] = []
         self._init_providers()
 
     def _init_providers(self):
@@ -447,7 +447,7 @@ class VisionAnalyzerFactory:
                 model="gemini-2.5-flash-preview-0506",
             ))
 
-    def get_provider(self, preferred: Optional[str] = None) -> Optional[VisionProvider]:
+    def get_provider(self, preferred: str | None = None) -> VisionProvider | None:
         """获取可用的 Vision 提供者（优先返回指定的）"""
         if preferred:
             for p in self._providers:
@@ -456,7 +456,7 @@ class VisionAnalyzerFactory:
         return self._providers[0] if self._providers else None
 
     def analyze_with_fallback(self, image_base64: str,
-                               prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> Dict[str, Any]:
+                               prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> dict[str, Any]:
         """带 fallback 的分析，自动切换提供者直到成功"""
         last_error = None
         tried = []
@@ -475,5 +475,5 @@ class VisionAnalyzerFactory:
             f"最后错误: {last_error}"
         )
 
-    def get_available_providers(self) -> List[str]:
+    def get_available_providers(self) -> list[str]:
         return [p.get_name() for p in self._providers]

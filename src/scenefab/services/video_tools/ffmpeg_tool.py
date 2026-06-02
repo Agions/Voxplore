@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
 
@@ -28,7 +28,7 @@ class HWAccelType(Enum):
     VAAPI = "vaapi"            # Linux VAAPI
 
     @property
-    def ffmpeg_hwaccel(self) -> Optional[str]:
+    def ffmpeg_hwaccel(self) -> str | None:
         """获取 ffmpeg -hwaccel 参数值"""
         mapping = {
             HWAccelType.NVIDIA: "cuda",
@@ -39,7 +39,7 @@ class HWAccelType(Enum):
         }
         return mapping.get(self)
 
-    def get_encoder(self, codec: str) -> Optional[str]:
+    def get_encoder(self, codec: str) -> str | None:
         """获取硬件加速的编码器名称
 
         Args:
@@ -185,14 +185,14 @@ class FFmpegTool:
                 return "Intel" in result.stdout.decode('utf-8', errors='ignore')
             else:
                 # Linux/macOS 下检测 /proc/cpuinfo
-                with open('/proc/cpuinfo', 'r') as f:
+                with open('/proc/cpuinfo') as f:
                     return 'genuineintel' in f.read().lower()
         except Exception:
             pass
         return False
 
     @staticmethod
-    def get_hw_accel_encoder(codec: str = "libx264") -> Tuple[str, Optional[str]]:
+    def get_hw_accel_encoder(codec: str = "libx264") -> tuple[str, str | None]:
         """获取最佳可用的视频编码器
 
         Args:
@@ -216,7 +216,7 @@ class FFmpegTool:
     # ========== 视频信息获取 ==========
 
     @staticmethod
-    def _run_ffprobe_json(cmd: List[str], timeout: int = 30) -> Optional[dict]:
+    def _run_ffprobe_json(cmd: list[str], timeout: int = 30) -> dict | None:
         """Run ffprobe command and return parsed JSON, or None on failure."""
         try:
             result = FFmpegTool._executor.run(cmd, timeout=timeout)
@@ -240,7 +240,7 @@ class FFmpegTool:
         return float(data.get('format', {}).get('duration', 0))
 
     @staticmethod
-    def get_resolution(video_path: str) -> Tuple[int, int]:
+    def get_resolution(video_path: str) -> tuple[int, int]:
         """获取视频分辨率 (width, height)"""
         cmd = [
             'ffprobe', '-v', 'error',
@@ -290,7 +290,7 @@ class FFmpegTool:
         return int(data.get('format', {}).get('bit_rate', 0))
 
     @staticmethod
-    def get_video_info(video_path: str) -> Dict[str, Any]:
+    def get_video_info(video_path: str) -> dict[str, Any]:
         """获取完整视频信息"""
         cmd = [
             'ffprobe', '-v', 'quiet',
@@ -337,7 +337,7 @@ class FFmpegTool:
 
     @staticmethod
     def concat_videos(
-        input_paths: List[str],
+        input_paths: list[str],
         output_path: str,
         method: str = "concat",
     ) -> bool:

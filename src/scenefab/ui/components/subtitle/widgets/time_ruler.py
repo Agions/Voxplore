@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 字幕时间尺组件
@@ -7,7 +6,7 @@
 在字幕编辑时间线上显示时间刻度，支持缩放和拖拽定位。
 """
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPoint
@@ -26,13 +25,13 @@ class TimeRulerWidget(QWidget):
 
     position_changed = Signal(float)
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
 
         self._duration: float = 0.0
         self._position: float = 0.0
         self._scale: float = 50.0  # px/sec
-        self._markers: List[Tuple[float, str]] = []
+        self._markers: list[tuple[float, str]] = []
 
         self.setMinimumHeight(30)
         self.setMaximumHeight(30)
@@ -54,7 +53,7 @@ class TimeRulerWidget(QWidget):
         self._scale = scale
         self.update()
 
-    def set_markers(self, markers: List[Tuple[float, str]]) -> None:
+    def set_markers(self, markers: list[tuple[float, str]]) -> None:
         """设置标记点"""
         self._markers = markers
         self.update()

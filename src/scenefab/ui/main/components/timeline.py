@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 时间线组件
 多轨时间线编辑器：视频轨 / 音频轨 / 字幕轨
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from PySide6.QtCore import QRect, Qt, Signal
 from PySide6.QtGui import (
@@ -59,10 +58,10 @@ class TimelineTrackWidget(QFrame):
         self.track_type = track_type
         self.track_label = label
         self.track_color = QColor(color)
-        self.clips: List[TimelineClip] = []
+        self.clips: list[TimelineClip] = []
         self.total_duration = 60.0  # 默认60秒
         self.pixels_per_second = 10.0
-        self._drag_clip: Optional[TimelineClip] = None
+        self._drag_clip: TimelineClip | None = None
         self._drag_offset = 0.0
 
         self.setFixedHeight(48)
@@ -213,7 +212,7 @@ class Timeline(QWidget):
     def __init__(self, application=None):
         super().__init__(application)
         self.application = application
-        self._tracks: List[TimelineTrackWidget] = []
+        self._tracks: list[TimelineTrackWidget] = []
         self._duration = 60.0
         self._pps = 10.0  # pixels per second
         self._playback_pos = 0.0
@@ -308,7 +307,7 @@ class Timeline(QWidget):
         m, s = divmod(int(self._duration), 60)
         self.time_label.setText(f"00:00 / {m:02d}:{s:02d}")
 
-    def load_timeline_data(self, data: Dict[str, Any]):
+    def load_timeline_data(self, data: dict[str, Any]):
         """从 WorkflowEngine 的 TimelineData 加载"""
         duration = data.get("total_duration", 60)
         self.set_duration(duration)

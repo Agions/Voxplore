@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 统一服务管理器
@@ -13,7 +12,7 @@
 
 import threading
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Type
+from typing import Any, Optional
 
 # 统一从 ai.base 导入权威 ServiceStatus/ServiceHealth
 from scenefab.services.ai.base import ServiceHealth, ServiceStatus
@@ -39,8 +38,8 @@ from .video.monologue_maker import MonologueMaker
 class ServiceInfo:
     """服务信息"""
     name: str
-    service_class: Type
-    instance: Optional[Any] = None
+    service_class: type
+    instance: Any | None = None
 
 
 class ServiceManager:
@@ -50,14 +49,14 @@ class ServiceManager:
     提供服务的注册、获取和生命周期管理
     """
 
-    _services: Dict[str, ServiceInfo] = {}
+    _services: dict[str, ServiceInfo] = {}
     _initialized: bool = False
 
     # AIServiceManager V2 实例 (委托目标)
     _ai_manager: Optional['AIServiceManagerCompat'] = None
 
     @classmethod
-    def register(cls, name: str, service_class: Type):
+    def register(cls, name: str, service_class: type):
         """注册服务"""
         cls._services[name] = ServiceInfo(
             name=name,
@@ -65,7 +64,7 @@ class ServiceManager:
         )
 
     @classmethod
-    def get(cls, name: str) -> Optional[Any]:
+    def get(cls, name: str) -> Any | None:
         """获取服务实例"""
         if name not in cls._services:
             return None
@@ -100,7 +99,7 @@ class ServiceManager:
         cls._initialized = True
 
     @classmethod
-    def get_all_services(cls) -> Dict[str, Any]:
+    def get_all_services(cls) -> dict[str, Any]:
         """获取所有服务"""
         cls.initialize()
         return {
@@ -133,8 +132,8 @@ class AIServiceManagerCompat:
     """
 
     def __init__(self):
-        self._services: Dict[str, Any] = {}
-        self._service_health: Dict[str, ServiceHealth] = {}
+        self._services: dict[str, Any] = {}
+        self._service_health: dict[str, ServiceHealth] = {}
         self.service_health_updated = None  # Signal placeholder
         self.stats_updated = None  # Signal placeholder
 
@@ -145,11 +144,11 @@ class AIServiceManagerCompat:
         """注册服务"""
         self._services[name] = service
 
-    def get_service(self, name: str) -> Optional[Any]:
+    def get_service(self, name: str) -> Any | None:
         """获取服务"""
         return self._services.get(name)
 
-    def get_all_services(self) -> Dict[str, Any]:
+    def get_all_services(self) -> dict[str, Any]:
         """获取所有服务"""
         services = self._services.copy()
         # 添加 V2 管理器的服务
@@ -159,16 +158,16 @@ class AIServiceManagerCompat:
         services["asr"] = self._v2_manager.asr
         return services
 
-    def get_service_health(self, service_name: str) -> Optional[ServiceHealth]:
+    def get_service_health(self, service_name: str) -> ServiceHealth | None:
         """获取服务健康状态"""
         return self._service_health.get(service_name)
 
     @property
-    def service_health(self) -> Dict[str, ServiceHealth]:
+    def service_health(self) -> dict[str, ServiceHealth]:
         """获取所有服务健康状态"""
         return self._service_health
 
-    def get_usage_stats(self, service_name: str) -> Dict[str, Any]:
+    def get_usage_stats(self, service_name: str) -> dict[str, Any]:
         """获取使用统计"""
         if service_name in self._services:
             service = self._services[service_name]
@@ -180,7 +179,7 @@ class AIServiceManagerCompat:
             "avg_response_time": 0.0,
         }
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """获取摘要"""
         return self._v2_manager.get_summary()
 
@@ -222,7 +221,7 @@ class AIServiceManagerCompat:
 
 
 # 全局实例
-_service_manager: Optional[AIServiceManagerCompat] = None
+_service_manager: AIServiceManagerCompat | None = None
 _service_lock = threading.Lock()
 
 
@@ -241,7 +240,7 @@ ServiceManager.initialize()
 
 
 # 便捷访问
-def get_service(name: str) -> Optional[Any]:
+def get_service(name: str) -> Any | None:
     """获取服务"""
     return ServiceManager.get(name)
 

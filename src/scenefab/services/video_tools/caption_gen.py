@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class Caption:
     text: str                # 完整文本
     start_time: float        # 开始时间
     end_time: float          # 结束时间
-    words: List[Word]        # 分词列表
+    words: list[Word]        # 分词列表
     style: CaptionStyle      # 样式
     position: str            # 位置（'top', 'center', 'bottom'）
 
@@ -96,7 +96,7 @@ class CaptionGenerator:
         '惊讶', '意外', '有趣'
     }
 
-    def __init__(self, config: Optional[CaptionConfig] = None):
+    def __init__(self, config: CaptionConfig | None = None):
         """
         初始化字幕生成器
 
@@ -109,7 +109,7 @@ class CaptionGenerator:
         self,
         text: str,
         start_time: float = 0.0,
-        duration: Optional[float] = None
+        duration: float | None = None
     ) -> Caption:
         """
         从文本生成字幕
@@ -152,8 +152,8 @@ class CaptionGenerator:
 
     def generate_from_transcript(
         self,
-        transcript: List[Dict[str, any]]
-    ) -> List[Caption]:
+        transcript: list[dict[str, any]]
+    ) -> list[Caption]:
         """
         从转录结果生成字幕
 
@@ -215,7 +215,7 @@ class CaptionGenerator:
 
         return captions
 
-    def to_ass_format(self, captions: List[Caption], output_path: str) -> None:
+    def to_ass_format(self, captions: list[Caption], output_path: str) -> None:
         """
         导出为 ASS 字幕格式（支持高级样式）
 
@@ -240,7 +240,7 @@ class CaptionGenerator:
         # 写入文件
         output_path.write_text(ass_content, encoding='utf-8-sig')
 
-    def to_srt_format(self, captions: List[Caption], output_path: str) -> None:
+    def to_srt_format(self, captions: list[Caption], output_path: str) -> None:
         """
         导出为 SRT 字幕格式（基础格式）
 
@@ -269,7 +269,7 @@ class CaptionGenerator:
 
         output_path.write_text('\n'.join(srt_content), encoding='utf-8')
 
-    def _segment_words(self, text: str) -> List[str]:
+    def _segment_words(self, text: str) -> list[str]:
         """
         分词（简化版中文分词）
 
@@ -280,10 +280,10 @@ class CaptionGenerator:
 
     def _assign_timestamps(
         self,
-        words: List[str],
+        words: list[str],
         start_time: float,
         end_time: float
-    ) -> List[Word]:
+    ) -> list[Word]:
         """为每个词分配时间戳"""
         duration = end_time - start_time
         word_count = len(words)
@@ -309,7 +309,7 @@ class CaptionGenerator:
 
         return word_objects
 
-    def _mark_keywords_and_emotions(self, words: List[Word]) -> List[Word]:
+    def _mark_keywords_and_emotions(self, words: list[Word]) -> list[Word]:
         """标记关键词和情绪词"""
         full_text = ''.join(w.text for w in words)
 

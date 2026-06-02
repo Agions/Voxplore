@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 场景分析器 V2 (Scene Analyzer V2)
@@ -9,7 +8,8 @@
 """
 
 import logging
-from typing import Callable, List, Optional
+from collections.abc import Callable
+from typing import Optional
 
 from .scene_analyzer import SceneAnalyzer
 from .scene_models import AnalysisConfig, SceneInfo, SceneType
@@ -26,7 +26,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
     适合用于 AI 解说和智能混剪场景。
     """
 
-    def __init__(self, config: Optional[AnalysisConfig] = None):
+    def __init__(self, config: AnalysisConfig | None = None):
         """
         初始化场景分析器 V2
 
@@ -46,8 +46,8 @@ class SceneAnalyzerV2(SceneAnalyzer):
     def analyze_with_importance(
         self,
         video_path: str,
-        narration_importance_fn: Optional[Callable[[SceneInfo], float]] = None,
-    ) -> List[SceneInfo]:
+        narration_importance_fn: Callable[[SceneInfo], float] | None = None,
+    ) -> list[SceneInfo]:
         """
         分析视频场景并计算重要性评分
 
@@ -89,10 +89,10 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
     def extract_key_moments(
         self,
-        scenes: List[SceneInfo],
+        scenes: list[SceneInfo],
         top_k: int = 5,
         min_score: float = 30.0,
-    ) -> List[SceneInfo]:
+    ) -> list[SceneInfo]:
         """提取关键时刻（得分最高的场景）"""
         filtered = [s for s in scenes if s.suitability_score >= min_score]
 
@@ -106,10 +106,10 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
     def extract_key_moments_by_type(
         self,
-        scenes: List[SceneInfo],
+        scenes: list[SceneInfo],
         scene_type: SceneType,
         top_k: int = 3,
-    ) -> List[SceneInfo]:
+    ) -> list[SceneInfo]:
         """按场景类型提取关键时刻"""
         filtered = [s for s in scenes if s.type == scene_type]
 
@@ -121,7 +121,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
         return sorted_scenes[:top_k]
 
-    def generate_scene_context_prompt(self, scenes: List[SceneInfo]) -> str:
+    def generate_scene_context_prompt(self, scenes: list[SceneInfo]) -> str:
         """生成场景上下文提示（用于 ScriptGenerator）"""
         if not scenes:
             return "## 场景列表\n\n*暂无场景数据*"
@@ -160,7 +160,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
     def generate_brief_scene_summary(
         self,
-        scenes: List[SceneInfo],
+        scenes: list[SceneInfo],
         max_scenes: int = 10,
     ) -> str:
         """生成简短场景摘要（适用于提示词）"""

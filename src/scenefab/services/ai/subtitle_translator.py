@@ -12,7 +12,7 @@
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Optional
+from typing import Optional
 
 from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 
@@ -52,7 +52,7 @@ class SubtitleTranslator:
         "uk": "乌克兰语",
     }
 
-    def __init__(self, api_key: Optional[str] = None,
+    def __init__(self, api_key: str | None = None,
                  provider: str = "openai"):
         """
         Args:
@@ -183,11 +183,11 @@ class SubtitleTranslator:
         translated.full_text = " ".join(t.text for t in translated.segments)
         return translated
 
-    def _translate_openai(self, texts: List[str],
+    def _translate_openai(self, texts: list[str],
                          target_lang: str,
                          source_lang: str,
                          batch_size: int,
-                         max_concurrent_batches: int = 5) -> List[str]:
+                         max_concurrent_batches: int = 5) -> list[str]:
         """使用 OpenAI GPT 翻译（并行批次）"""
         from openai import OpenAI
 
@@ -247,7 +247,7 @@ class SubtitleTranslator:
 
         return translated[:len(texts)]
 
-    def _build_translate_prompt(self, batch: List[str], target_name: str,
+    def _build_translate_prompt(self, batch: list[str], target_name: str,
                                 source_name: str, source_lang: str) -> str:
         """构建翻译提示词"""
         if source_lang == "auto":
@@ -263,9 +263,9 @@ class SubtitleTranslator:
 原文:
 {chr(10).join(batch)}"""
 
-    def _translate_deepl(self, texts: List[str],
+    def _translate_deepl(self, texts: list[str],
                         target_lang: str,
-                        source_lang: str) -> List[str]:
+                        source_lang: str) -> list[str]:
         """使用 DeepL API 翻译"""
         import deepl
 
@@ -309,9 +309,9 @@ class SubtitleTranslator:
             logger.error(f"DeepL 翻译失败: {e}")
             return texts
 
-    def _translate_google(self, texts: List[str],
+    def _translate_google(self, texts: list[str],
                           target_lang: str,
-                          source_lang: str) -> List[str]:
+                          source_lang: str) -> list[str]:
         """使用 Google Translate 翻译"""
         try:
             from googletrans import Translator
@@ -351,6 +351,6 @@ class SubtitleTranslator:
 
             return translated
 
-    def get_supported_languages(self) -> Dict[str, str]:
+    def get_supported_languages(self) -> dict[str, str]:
         """获取支持的语言列表"""
         return self.SUPPORTED_LANGUAGES.copy()

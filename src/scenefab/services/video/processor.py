@@ -61,7 +61,7 @@ class VideoProcessor:
     def concatenate_videos(
         input_paths: list[str],
         output_path: str,
-        temp_dir: Optional[str] = None
+        temp_dir: str | None = None
     ) -> bool:
         """合并多个视频"""
         if not input_paths:

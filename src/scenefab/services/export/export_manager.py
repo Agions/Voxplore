@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 统一导出管理器
@@ -10,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.exceptions import ExportError
 
@@ -44,7 +43,7 @@ class ExportConfig:
     codec: str = "h264"         # h264/h265/vp9
     audio_codec: str = "aac"
     bitrate: str = "8M"
-    output_path: Optional[str] = None
+    output_path: str | None = None
     progress_callback: Any = None
 
     # 特定格式配置
@@ -61,11 +60,11 @@ class ExportManager:
             ExportFormat.MOV: DirectVideoExporter(),
             ExportFormat.GIF: DirectVideoExporter(),
         }
-        self._last_error: Optional[str] = None
+        self._last_error: str | None = None
 
     def export(
         self,
-        project_data: Dict[str, Any],
+        project_data: dict[str, Any],
         config: ExportConfig
     ) -> bool:
         """
@@ -111,11 +110,11 @@ class ExportManager:
         import time
         return str(output_dir / f"export_{int(time.time())}.{suffix}")
 
-    def get_supported_formats(self) -> List[ExportFormat]:
+    def get_supported_formats(self) -> list[ExportFormat]:
         """获取支持的导出格式"""
         return list(self.exporters.keys())
 
-    def get_format_info(self, format_type: ExportFormat) -> Dict[str, Any]:
+    def get_format_info(self, format_type: ExportFormat) -> dict[str, Any]:
         """获取格式信息"""
         info = {
             ExportFormat.JIANYING: {

@@ -3,7 +3,7 @@ Narration Editor Component
 解说编辑器组件 - 所见即所得的解说稿编辑
 """
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -183,8 +183,8 @@ class NarrationEditor(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.segments: Dict[str, NarrationSegment] = {}
-        self.selected_id: Optional[str] = None
+        self.segments: dict[str, NarrationSegment] = {}
+        self.selected_id: str | None = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -291,7 +291,7 @@ class NarrationEditor(QFrame):
     # Public API
     # ─────────────────────────────────────────────────────────────
 
-    def set_segments(self, segments: List[NarrationSegment]) -> None:
+    def set_segments(self, segments: list[NarrationSegment]) -> None:
         """设置解说片段列表"""
         self.segments = {s.segment_id: s for s in segments}
         self._refresh_list()
@@ -310,7 +310,7 @@ class NarrationEditor(QFrame):
                 self.editor_panel.setVisible(False)
             self._refresh_list()
 
-    def get_segment(self, segment_id: str) -> Optional[NarrationSegment]:
+    def get_segment(self, segment_id: str) -> NarrationSegment | None:
         """获取片段"""
         return self.segments.get(segment_id)
 

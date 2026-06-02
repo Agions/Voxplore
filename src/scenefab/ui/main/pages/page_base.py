@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 UI 页面基类扩展
@@ -7,7 +6,7 @@ UI 页面基类扩展
 """
 
 from abc import ABC
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from PySide6.QtCore import Signal
 
@@ -19,7 +18,7 @@ class PageState:
     """页面状态管理"""
 
     def __init__(self):
-        self._state: Dict[str, Any] = {}
+        self._state: dict[str, Any] = {}
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._state.get(key, default)
@@ -47,7 +46,7 @@ class PageBase(ABC):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._main_window: Optional["MainWindow"] = None
+        self._main_window: MainWindow | None = None
         self._page_state = PageState()
         self._is_initialized = False
         self._is_visible = False
@@ -148,7 +147,7 @@ class PageBase(ABC):
 class PageRegistry:
     """页面注册表"""
 
-    _pages: Dict[str, type] = {}
+    _pages: dict[str, type] = {}
 
     @classmethod
     def register(cls, page_id: str, page_class: type):
@@ -156,12 +155,12 @@ class PageRegistry:
         cls._pages[page_id] = page_class
 
     @classmethod
-    def get(cls, page_id: str) -> Optional[type]:
+    def get(cls, page_id: str) -> type | None:
         """获取页面类"""
         return cls._pages.get(page_id)
 
     @classmethod
-    def list_pages(cls) -> Dict[str, type]:
+    def list_pages(cls) -> dict[str, type]:
         """列出所有页面"""
         return cls._pages.copy()
 

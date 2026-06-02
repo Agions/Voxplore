@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 内存缓存实现 (MemoryCache)
@@ -12,7 +11,7 @@ import pickle
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from threading import Lock
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from scenefab.interfaces.cache_interface import (
     CacheEntry,
@@ -52,7 +51,7 @@ class MemoryCache(ICache):
         self._miss_count = 0
         self._eviction_count = 0
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """
         获取缓存值
 
@@ -85,8 +84,8 @@ class MemoryCache(ICache):
             self._hit_count += 1
             return entry.value
 
-    def set(self, key: str, value: Any, ttl: Optional[int] = None,
-            metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None,
+            metadata: dict[str, Any] | None = None) -> bool:
         """
         设置缓存值
 
@@ -203,7 +202,7 @@ class MemoryCache(ICache):
                 policy=self._policy
             )
 
-    def get_entry(self, key: str) -> Optional[CacheEntry]:
+    def get_entry(self, key: str) -> CacheEntry | None:
         """
         获取完整缓存条目
 
@@ -219,7 +218,7 @@ class MemoryCache(ICache):
                 return entry
             return None
 
-    def keys(self, pattern: Optional[str] = None) -> list[str]:
+    def keys(self, pattern: str | None = None) -> list[str]:
         """
         获取所有键
 

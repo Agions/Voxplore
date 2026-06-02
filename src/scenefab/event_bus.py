@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 事件总线模块
@@ -7,8 +6,9 @@ SceneFab 事件总线模块
 """
 
 import threading
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 from .logger import Logger
 
@@ -18,7 +18,7 @@ class EventBus:
 
     def __init__(self):
         """初始化事件总线"""
-        self._handlers: Dict[str, List[Callable]] = {}
+        self._handlers: dict[str, list[Callable]] = {}
         self._lock = threading.RLock()
         self.logger = Logger("EventBus")
 
@@ -113,7 +113,7 @@ class EventBus:
         """
         self.publish(event_name, data)
 
-    def clear_handlers(self, event_name: Optional[str] = None) -> None:
+    def clear_handlers(self, event_name: str | None = None) -> None:
         """清除事件处理器（线程安全）
 
         Args:
@@ -142,7 +142,7 @@ class EventBus:
                 return count
             return 0
 
-    def get_handler_count(self, event_name: Optional[str] = None) -> int:
+    def get_handler_count(self, event_name: str | None = None) -> int:
         """获取事件处理器数量（线程安全）
 
         Args:
@@ -169,7 +169,7 @@ class EventBus:
         with self._lock:
             return event_name in self._handlers and len(self._handlers[event_name]) > 0
 
-    def get_registered_events(self) -> List[str]:
+    def get_registered_events(self) -> list[str]:
         """获取所有已注册的事件名称列表（线程安全）
 
         Returns:

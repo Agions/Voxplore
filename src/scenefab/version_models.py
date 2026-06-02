@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 项目版本管理数据模型
@@ -9,7 +8,7 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -18,14 +17,14 @@ class ProjectVersion:
     version_id: str
     timestamp: datetime
     description: str
-    changes: List[str]
+    changes: list[str]
     file_hash: str
     size: int
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     is_auto_backup: bool = False
     is_major: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             'version_id': self.version_id,
             'timestamp': self.timestamp.isoformat(),
@@ -39,7 +38,7 @@ class ProjectVersion:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectVersion':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectVersion':
         return cls(
             version_id=data['version_id'],
             timestamp=datetime.fromisoformat(data['timestamp']),
@@ -59,11 +58,11 @@ class ProjectBranch:
     name: str
     created_at: datetime
     description: str
-    parent_branch: Optional[str] = None
+    parent_branch: str | None = None
     is_active: bool = True
-    versions: List[str] = field(default_factory=list)  # version_id列表
+    versions: list[str] = field(default_factory=list)  # version_id列表
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             'name': self.name,
             'created_at': self.created_at.isoformat(),
@@ -74,7 +73,7 @@ class ProjectBranch:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectBranch':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectBranch':
         return cls(
             name=data['name'],
             created_at=datetime.fromisoformat(data['created_at']),

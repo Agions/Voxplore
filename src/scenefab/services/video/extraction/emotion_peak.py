@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 EmotionPeakDetector - 情感峰值检测服务
 

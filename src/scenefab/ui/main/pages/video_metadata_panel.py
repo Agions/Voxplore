@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """视频元数据面板组件
 
 从 step_upload.py 提取 VideoMetadataPanel

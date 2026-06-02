@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 macOS 主题管理器 - 负责应用和切换 macOS 设计系统
@@ -166,7 +165,7 @@ _theme_manager_instance = None
 _theme_lock = Lock()
 
 
-def get_theme_manager(app: Optional[QApplication] = None) -> MacOSThemeManager:
+def get_theme_manager(app: QApplication | None = None) -> MacOSThemeManager:
     """获取主题管理器单例（线程安全）"""
     global _theme_manager_instance
     if _theme_manager_instance is None:

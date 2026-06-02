@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 剪映草稿数据模型
@@ -17,7 +16,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Optional
 
 # ─── 常量定义 ──────────────────────────────────────────────────
 JIANYING_VERSION = 360000  # 剪映版本号
@@ -86,7 +85,7 @@ class Segment:
     speed: float = 1.0
 
     # 字幕专用
-    caption_info: Optional[Dict] = None
+    caption_info: dict | None = None
 
     def to_dict(self) -> dict:
         """转换为剪映 JSON 格式"""
@@ -110,7 +109,7 @@ class Track:
     """
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     type: TrackType = TrackType.VIDEO
-    segments: List[Segment] = field(default_factory=list)
+    segments: list[Segment] = field(default_factory=list)
 
     # 轨道属性
     attribute: int = 0  # 0=普通, 1=主轨道
@@ -186,9 +185,9 @@ class TextMaterial:
 @dataclass
 class JianyingMaterials:
     """素材集合"""
-    videos: List[VideoMaterial] = field(default_factory=list)
-    audios: List[AudioMaterial] = field(default_factory=list)
-    texts: List[TextMaterial] = field(default_factory=list)
+    videos: list[VideoMaterial] = field(default_factory=list)
+    audios: list[AudioMaterial] = field(default_factory=list)
+    texts: list[TextMaterial] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -216,7 +215,7 @@ class JianyingDraft:
     duration: int = 0  # 总时长（微秒）
 
     # 轨道
-    tracks: List[Track] = field(default_factory=list)
+    tracks: list[Track] = field(default_factory=list)
 
     # 素材
     materials: JianyingMaterials = field(default_factory=JianyingMaterials)

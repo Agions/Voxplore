@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 项目文件管理
@@ -30,7 +29,7 @@ import zipfile
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
@@ -96,11 +95,11 @@ class SceneFabProject:
     完整的项目数据结构
     """
     metadata: ProjectMetadata = field(default_factory=ProjectMetadata)
-    sources: List[ProjectSource] = field(default_factory=list)
+    sources: list[ProjectSource] = field(default_factory=list)
     config: ProjectConfig = field(default_factory=ProjectConfig)
 
     # 项目特定数据（JSON 格式存储）
-    project_data: Dict[str, Any] = field(default_factory=dict)
+    project_data: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         # 生成唯一ID
@@ -125,8 +124,8 @@ class ProjectManager:
     PROJECT_EXTENSIONS = [".narrafiilm", ".vfproj"]
 
     def __init__(self):
-        self.current_project: Optional[SceneFabProject] = None
-        self._last_save_path: Optional[Path] = None
+        self.current_project: SceneFabProject | None = None
+        self._last_save_path: Path | None = None
 
     def create_project(
         self,
@@ -218,7 +217,7 @@ class ProjectManager:
 
         return project
 
-    def _project_to_dict(self, project: SceneFabProject) -> Dict:
+    def _project_to_dict(self, project: SceneFabProject) -> dict:
         """将项目转换为字典"""
         return {
             "metadata": asdict(project.metadata),
@@ -227,7 +226,7 @@ class ProjectManager:
             "project_data": project.project_data,
         }
 
-    def _dict_to_project(self, data: Dict) -> SceneFabProject:
+    def _dict_to_project(self, data: dict) -> SceneFabProject:
         """将字典转换为项目"""
         metadata = ProjectMetadata(**data.get("metadata", {}))
         sources = [ProjectSource(**s) for s in data.get("sources", [])]
@@ -242,7 +241,7 @@ class ProjectManager:
 
         return project
 
-    def _save_json(self, data: Dict, output_path: Path) -> str:
+    def _save_json(self, data: dict, output_path: Path) -> str:
         """保存为 JSON 文件"""
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -250,9 +249,9 @@ class ProjectManager:
         self._last_save_path = output_path
         return str(output_path)
 
-    def _load_json(self, project_path: Path) -> Dict:
+    def _load_json(self, project_path: Path) -> dict:
         """从 JSON 文件加载"""
-        with open(project_path, 'r', encoding='utf-8') as f:
+        with open(project_path, encoding='utf-8') as f:
             data = json.load(f)
 
         # 版本兼容性处理
@@ -262,7 +261,7 @@ class ProjectManager:
 
     def _save_compressed(
         self,
-        data: Dict,
+        data: dict,
         output_path: Path,
         include_sources: bool
     ) -> str:
@@ -279,7 +278,7 @@ class ProjectManager:
         self._last_save_path = output_path
         return str(output_path)
 
-    def _load_compressed(self, project_path: Path) -> Dict:
+    def _load_compressed(self, project_path: Path) -> dict:
         """从压缩文件加载"""
         with zipfile.ZipFile(project_path, 'r') as zf:
             # 读取主项目文件
@@ -299,7 +298,7 @@ class ProjectManager:
             self.logger.debug(f"Zipfile check failed: {e}")
             return False
 
-    def _migrate_if_needed(self, data: Dict) -> Dict:
+    def _migrate_if_needed(self, data: dict) -> dict:
         """项目版本迁移"""
         version = data.get("metadata", {}).get("version", "1.0")
 
@@ -309,7 +308,7 @@ class ProjectManager:
 
         return data
 
-    def _migrate_v1_to_v2(self, data: Dict) -> Dict:
+    def _migrate_v1_to_v2(self, data: dict) -> dict:
         """从 1.0 迁移到 2.0"""
         # 添加新的元数据字段
         metadata = data.get("metadata", {})
@@ -377,7 +376,7 @@ class ProjectManager:
             self.logger.debug(f"Hash computation failed: {e}")
             return ""
 
-    def get_recent_projects(self, count: int = 10) -> List[Dict]:
+    def get_recent_projects(self, count: int = 10) -> list[dict]:
         """
         获取最近的项目列表
 

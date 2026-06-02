@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AI 文案生成数据模型
@@ -9,7 +8,7 @@ AI 文案生成数据模型
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 
 class ScriptStyle(Enum):
@@ -42,7 +41,7 @@ class ScriptConfig:
     words_per_second: float = 3.0  # 语速（每秒字数）
 
     # LLM 控制
-    provider: Optional[str] = None  # 指定提供商 (qwen/kimi/glm5/openai)
+    provider: str | None = None  # 指定提供商 (qwen/kimi/glm5/openai)
     model: str = "default"           # 模型名称
 
     # 内容控制
@@ -53,7 +52,7 @@ class ScriptConfig:
     language: str = "zh-CN"        # 语言
 
     # 关键词
-    keywords: List[str] = field(default_factory=list)  # 必须包含的关键词
+    keywords: list[str] = field(default_factory=list)  # 必须包含的关键词
 
     @property
     def target_words(self) -> int:
@@ -75,7 +74,7 @@ class ScriptSegment:
 class GeneratedScript:
     """生成的文案"""
     content: str                   # 完整文案
-    segments: List[ScriptSegment] = field(default_factory=list)  # 分段文案
+    segments: list[ScriptSegment] = field(default_factory=list)  # 分段文案
 
     # 元数据
     style: ScriptStyle = ScriptStyle.COMMENTARY
@@ -85,7 +84,7 @@ class GeneratedScript:
 
     # 爆款元素
     hook: str = ""                 # 开头钩子
-    keywords: List[str] = field(default_factory=list)  # 关键词
+    keywords: list[str] = field(default_factory=list)  # 关键词
 
     def __post_init__(self):
         if not self.word_count:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SceneFab 首页 v6 — 沉浸式创作中心
 设计特点:

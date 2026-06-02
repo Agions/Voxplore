@@ -3,7 +3,7 @@ Video Interleaver
 视频穿插逻辑处理器——决定解说与原片的穿插策略
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from .models.perspective import (
     ClipSegment,
@@ -44,18 +44,18 @@ class VideoInterleaver:
     - 生成最终穿插决策
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
         self.default_mode = InterleaveMode.CINEMATIC
 
     def decide_interleave(
         self,
-        narration_timeline: List[NarrationSegment],
-        original_clips: List[ClipSegment],
-        perspective_shots: List[PerspectiveShot],
-        scene_segments: List[SceneSegment],
-        emotion_curve: List[float],
-        context: Optional[InterleaveContext] = None,
+        narration_timeline: list[NarrationSegment],
+        original_clips: list[ClipSegment],
+        perspective_shots: list[PerspectiveShot],
+        scene_segments: list[SceneSegment],
+        emotion_curve: list[float],
+        context: InterleaveContext | None = None,
     ) -> InterleaveTimeline:
         """
         生成最终穿插时间线
@@ -72,7 +72,7 @@ class VideoInterleaver:
             InterleaveTimeline: 包含所有片段的排列和转场
         """
         ctx = context or InterleaveContext()
-        decisions: List[InterleaveDecision] = []
+        decisions: list[InterleaveDecision] = []
 
         # 遍历解说片段
         for i, narration in enumerate(narration_timeline):
@@ -128,8 +128,8 @@ class VideoInterleaver:
         self,
         start: float,
         end: float,
-        clips: List[ClipSegment],
-    ) -> List[ClipSegment]:
+        clips: list[ClipSegment],
+    ) -> list[ClipSegment]:
         """查找与给定时间范围重叠的原片片段"""
         return [
             clip for clip in clips
@@ -138,11 +138,11 @@ class VideoInterleaver:
 
     def _select_best_clip(
         self,
-        overlapping: List[ClipSegment],
+        overlapping: list[ClipSegment],
         narration: NarrationSegment,
-        shot: Optional[PerspectiveShot],
+        shot: PerspectiveShot | None,
         emotional_intensity: float,
-    ) -> Optional[ClipSegment]:
+    ) -> ClipSegment | None:
         """从多个重叠片段中选择最佳片段"""
         if not overlapping:
             return None
@@ -172,8 +172,8 @@ class VideoInterleaver:
     def _make_interleave_decision(
         self,
         narration: NarrationSegment,
-        clip: Optional[ClipSegment],
-        shot: Optional[PerspectiveShot],
+        clip: ClipSegment | None,
+        shot: PerspectiveShot | None,
         emotional_intensity: float,
         ctx: InterleaveContext,
     ) -> InterleaveDecision:
@@ -229,7 +229,7 @@ class VideoInterleaver:
         self,
         emotional_intensity: float,
         show_original: bool,
-        clip: Optional[ClipSegment],
+        clip: ClipSegment | None,
     ) -> TransitionType:
         """决定转场类型"""
         if not show_original:
@@ -251,7 +251,7 @@ class VideoInterleaver:
         self,
         original_weight: float,
         ctx: InterleaveContext,
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """决定解说和原片音量"""
         # 解说音量恒定为 1.0
         narration_volume = 1.0
@@ -265,7 +265,7 @@ class VideoInterleaver:
         self,
         subject,  # SubjectPosition
         ctx: InterleaveContext,
-    ) -> Tuple[float, Optional[Tuple[float, float, float, float]]]:
+    ) -> tuple[float, tuple[float, float, float, float] | None]:
         """决定是否放大高亮主体"""
         if not ctx.allow_zoom_highlight:
             return 1.0, None
@@ -354,7 +354,7 @@ class VideoInterleaver:
         else:
             return "minimal"
 
-    def _infer_interleave_mode(self, emotion_curve: List[float]) -> InterleaveMode:
+    def _infer_interleave_mode(self, emotion_curve: list[float]) -> InterleaveMode:
         """从情感曲线推断整体穿插模式"""
         if not emotion_curve:
             return self.default_mode

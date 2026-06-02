@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """视频预览播放器组件
 
 从 step_upload.py 提取 VideoPreviewWidget

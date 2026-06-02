@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 FirstPersonExtractor - 第一人称视角提取服务
 

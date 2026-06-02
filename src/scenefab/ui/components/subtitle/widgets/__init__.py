@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Subtitle Widgets - 字幕编辑器 UI 组件

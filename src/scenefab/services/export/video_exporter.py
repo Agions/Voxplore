@@ -18,7 +18,7 @@ import warnings
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from scenefab.exceptions import ExportError
 
@@ -103,9 +103,9 @@ class VideoExporter:
     def export(
         self,
         video_path: str,
-        audio_path: Optional[str] = None,
+        audio_path: str | None = None,
         output_path: str = "output.mp4",
-        subtitles_path: Optional[str] = None,
+        subtitles_path: str | None = None,
     ) -> str:
         """
         导出视频
@@ -191,7 +191,7 @@ class VideoExporter:
         "qsv": (["-c:v", "h264_qsv"], ["-preset", "medium"]),
     }
 
-    def _get_hw_accel_params(self) -> List[str]:
+    def _get_hw_accel_params(self) -> list[str]:
         """获取硬件加速参数"""
         hw_config = self._HW_ACCEL_PARAMS.get(self.config.hw_accel_type)
         if hw_config:
@@ -208,7 +208,7 @@ class VideoExporter:
 
     def concat_videos(
         self,
-        video_paths: List[str],
+        video_paths: list[str],
         output_path: str,
     ) -> str:
         """

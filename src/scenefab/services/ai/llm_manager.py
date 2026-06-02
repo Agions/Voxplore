@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 LLM 管理器
@@ -7,7 +6,8 @@ LLM 管理器
 """
 
 import logging
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any, Optional
 
 from .base_llm_provider import (
     BaseLLMProvider,
@@ -52,10 +52,10 @@ class LLMManager:
     3. 配置驱动
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.providers: Dict[ProviderType, BaseLLMProvider] = {}
-        self._default_provider: Optional[ProviderType] = None
+        self.providers: dict[ProviderType, BaseLLMProvider] = {}
+        self._default_provider: ProviderType | None = None
         self._init_providers()
 
     def _init_providers(self):
@@ -90,7 +90,7 @@ class LLMManager:
     async def generate(
         self,
         request: LLMRequest,
-        provider: Optional[ProviderType] = None,
+        provider: ProviderType | None = None,
     ) -> LLMResponse:
         """
         生成内容（单次）
@@ -117,7 +117,7 @@ class LLMManager:
     async def _try_fallback(
         self,
         request: LLMRequest,
-        failed_provider: Optional[ProviderType],
+        failed_provider: ProviderType | None,
     ) -> LLMResponse:
         """尝试备用提供商"""
         for p, provider in self.providers.items():
@@ -132,11 +132,11 @@ class LLMManager:
         """获取指定类型的 Provider"""
         return self.providers.get(provider_type)
 
-    def get_available_providers(self) -> List[ProviderType]:
+    def get_available_providers(self) -> list[ProviderType]:
         """获取所有可用的 Provider 类型"""
         return list(self.providers.keys())
 
-    def health_check(self) -> Dict[ProviderType, bool]:
+    def health_check(self) -> dict[ProviderType, bool]:
         """检查所有 Provider 健康状态"""
         return {
             p: provider.health_check()
@@ -146,7 +146,7 @@ class LLMManager:
     async def stream_generate(
         self,
         request: LLMRequest,
-        provider: Optional[ProviderType] = None,
+        provider: ProviderType | None = None,
     ) -> AsyncIterator[str]:
         """
         流式生成
@@ -184,7 +184,7 @@ class LLMManager:
     async def _stream_fallback(
         self,
         request: LLMRequest,
-        failed_provider: Optional[ProviderType],
+        failed_provider: ProviderType | None,
     ) -> AsyncIterator[str]:
         """流式回退"""
         for p in self.providers:
@@ -207,12 +207,12 @@ class LLMManager:
         for provider in self.providers.values():
             await provider.close()
 
-    def generate_sync(self, request: LLMRequest, provider: Optional[ProviderType] = None) -> LLMResponse:
+    def generate_sync(self, request: LLMRequest, provider: ProviderType | None = None) -> LLMResponse:
         """同步生成（内部使用）"""
         import asyncio
         return asyncio.run(self.generate(request, provider))
 
-    def ask(self, question: str, context: str = "", provider: Optional[ProviderType] = None) -> str:
+    def ask(self, question: str, context: str = "", provider: ProviderType | None = None) -> str:
         """快捷方法：简单问答"""
         request = LLMRequest(
             prompt=question,
@@ -231,11 +231,11 @@ class LLMManager:
         await self.close_all()
 
 
-def load_llm_config(config_file: str = "config/llm.yaml") -> Dict[str, Any]:
+def load_llm_config(config_file: str = "config/llm.yaml") -> dict[str, Any]:
     """加载 LLM 配置"""
     import yaml
     try:
-        with open(config_file, "r", encoding="utf-8") as f:
+        with open(config_file, encoding="utf-8") as f:
             config = yaml.safe_load(f)
             return config or {}
     except FileNotFoundError:

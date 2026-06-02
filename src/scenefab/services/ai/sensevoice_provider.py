@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SenseVoice 语音理解服务
 提供情感检测、说话人分离、音频事件检测等高级语音分析功能
@@ -18,7 +17,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -44,7 +43,7 @@ class Emotion(str, Enum):
     SURPRISED = "surprised"
 
 
-EMOTION_KEYWORDS: dict[Emotion, List[str]] = {
+EMOTION_KEYWORDS: dict[Emotion, list[str]] = {
     Emotion.HAPPY: ["哈哈", "开心", "高兴", "太好了", "哈哈哈", "笑",
                     "happy", "great", "awesome"],
     Emotion.SAD: ["难过", "伤心", "悲伤", "哭了", "sad", "unhappy", "terrible"],
@@ -172,7 +171,7 @@ class SenseVoiceProvider:
                 self._available = False
                 raise RuntimeError("所有语音分析方案均不可用") from e
 
-    def _get_model_path(self) -> Optional[str]:
+    def _get_model_path(self) -> str | None:
         """获取本地模型路径"""
         # 优先从环境变量读取
         import os
@@ -184,7 +183,7 @@ class SenseVoiceProvider:
         self,
         audio_path: str,
         segment_duration: float = 3.0
-    ) -> List[EmotionSegment]:
+    ) -> list[EmotionSegment]:
         """
         提取音频情感
 
@@ -214,7 +213,7 @@ class SenseVoiceProvider:
         self,
         audio_path: str,
         segment_duration: float = 3.0
-    ) -> List[EmotionSegment]:
+    ) -> list[EmotionSegment]:
         """
         基于 librosa 声学特征的轻量情感分析（公开方法）。
 
@@ -231,7 +230,7 @@ class SenseVoiceProvider:
         self,
         audio_path: str,
         segment_duration: float = 3.0
-    ) -> List[EmotionSegment]:
+    ) -> list[EmotionSegment]:
         """基于声学特征的轻量情感分析"""
         import librosa
 
@@ -242,7 +241,7 @@ class SenseVoiceProvider:
             return []
 
         duration = len(y) / sr
-        results: List[EmotionSegment] = []
+        results: list[EmotionSegment] = []
 
         # 提取声学特征
         for start in np.arange(0, duration - segment_duration, segment_duration):
@@ -298,7 +297,7 @@ class SenseVoiceProvider:
         energy: float,
         tempo: float,
         energy_delta: float
-    ) -> Tuple[Optional[Emotion], float]:
+    ) -> tuple[Emotion | None, float]:
         """根据声学特征推断情感"""
         if tempo > 160 and energy > 0.15:
             return Emotion.HAPPY, min(0.9, 0.5 + tempo / 400)
@@ -318,8 +317,8 @@ class SenseVoiceProvider:
     def diarize(
         self,
         audio_path: str,
-        num_speakers: Optional[int] = None
-    ) -> List[SpeakerSegment]:
+        num_speakers: int | None = None
+    ) -> list[SpeakerSegment]:
         """
         说话人分离
 
@@ -347,8 +346,8 @@ class SenseVoiceProvider:
     def diarize_librosa(
         self,
         audio_path: str,
-        num_speakers: Optional[int] = None
-    ) -> List[SpeakerSegment]:
+        num_speakers: int | None = None
+    ) -> list[SpeakerSegment]:
         """
         基于 librosa MFCC 特征的轻量说话人分离（公开方法）。
 
@@ -364,8 +363,8 @@ class SenseVoiceProvider:
     def _diarize_librosa(
         self,
         audio_path: str,
-        num_speakers: Optional[int] = None
-    ) -> List[SpeakerSegment]:
+        num_speakers: int | None = None
+    ) -> list[SpeakerSegment]:
         """
         基于 MFCC 特征的轻量说话人分离。
 
@@ -389,7 +388,7 @@ class SenseVoiceProvider:
         window_sec = 1.5
         hop_sec = 0.75  # 50% overlap
         duration = len(y) / sr
-        results: List[SpeakerSegment] = []
+        results: list[SpeakerSegment] = []
 
         if duration < 2.0:
             # 音频太短，不做分离
@@ -454,7 +453,7 @@ class SenseVoiceProvider:
         self,
         audio_path: str,
         energy_threshold: float = 0.05
-    ) -> List[AudioEvent]:
+    ) -> list[AudioEvent]:
         """
         检测音频事件（笑声、掌声、静音、音乐等）
 
@@ -485,7 +484,7 @@ class SenseVoiceProvider:
         rms = librosa.feature.rms(y=y, hop_length=hop_length)[0]
         times = librosa.times_like(rms, sr=sr, hop_length=hop_length)
 
-        events: List[AudioEvent] = []
+        events: list[AudioEvent] = []
 
         # 检测静音区间
         silence_regions = self._detect_silence_regions(times, rms, energy_threshold)
@@ -504,9 +503,9 @@ class SenseVoiceProvider:
         times: np.ndarray,
         rms: np.ndarray,
         threshold: float
-    ) -> List[AudioEvent]:
+    ) -> list[AudioEvent]:
         """检测静音区间"""
-        events: List[AudioEvent] = []
+        events: list[AudioEvent] = []
         in_silence = rms[0] < threshold
 
         if in_silence:
@@ -535,9 +534,9 @@ class SenseVoiceProvider:
         rms: np.ndarray,
         sr: int,
         hop_length: int
-    ) -> List[AudioEvent]:
+    ) -> list[AudioEvent]:
         """检测高能量爆发（笑声/掌声）"""
-        events: List[AudioEvent] = []
+        events: list[AudioEvent] = []
         mean_energy = float(np.mean(rms))
         std_energy = float(np.std(rms))
         burst_threshold = mean_energy + 2 * std_energy
@@ -569,6 +568,6 @@ class SenseVoiceProvider:
     # ── Utility ─────────────────────────────────────────────────────────────
 
     @staticmethod
-    def get_supported_languages() -> List[str]:
+    def get_supported_languages() -> list[str]:
         """获取支持的语言列表"""
         return ["zh", "en", "yue", "ja", "ko", "nospeech"]

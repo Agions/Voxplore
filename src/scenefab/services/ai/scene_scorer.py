@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 场景评分器 (Scene Scorer)
@@ -9,14 +8,13 @@
 """
 
 from dataclasses import dataclass
-from typing import Dict
 
 from .scene_models import SceneInfo, SceneType
 
 # =============================================================================
 # 场景类型优先级（数值越高越重要）
 # =============================================================================
-SCENE_TYPE_PRIORITY: Dict[SceneType, int] = {
+SCENE_TYPE_PRIORITY: dict[SceneType, int] = {
     SceneType.LANDSCAPE: 10,     # 风景画面 - 最适合展示
     SceneType.B_ROLL: 8,         # 素材画面 - 适合混剪
     SceneType.ACTION: 6,         # 动作场景
@@ -131,7 +129,7 @@ class SceneScorer:
     def calculate_importance(
         self,
         scene: SceneInfo,
-        weights: Dict[str, float],
+        weights: dict[str, float],
     ) -> float:
         """
         计算场景重要性综合评分 (0-100)

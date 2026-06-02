@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AI状态监控面板
@@ -8,7 +7,6 @@ AI状态监控面板
 
 import time as time_module
 from datetime import datetime
-from typing import Dict, List
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor
@@ -48,8 +46,8 @@ class AIMonitorPanel(QWidget):
         self.logger = application.get_service(Logger)
         self.ai_service_manager = None
         self.current_mode = MonitorMode.OVERVIEW
-        self.alerts: List[AlertData] = []
-        self.performance_data: Dict[str, List[float]] = {}
+        self.alerts: list[AlertData] = []
+        self.performance_data: dict[str, list[float]] = {}
 
         # 获取AI服务管理器
         self._get_ai_service_manager()

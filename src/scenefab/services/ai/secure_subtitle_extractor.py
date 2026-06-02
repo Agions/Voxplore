@@ -85,7 +85,7 @@ class SecureSubtitleExtractor:
         video_path: str,
         method: str = "whisper",
         language: str = "zh",
-        api_key: Optional[str] = None
+        api_key: str | None = None
     ) -> SubtitleExtractionResult:
         """
         安全提取字幕
@@ -128,7 +128,7 @@ class SecureSubtitleExtractor:
     def extract_with_ocr(
         self,
         video_path: str,
-        api_key: Optional[str] = None
+        api_key: str | None = None
     ) -> SubtitleExtractionResult:
         """安全的 OCR 字幕提取"""
         safe_path = self._validate_video_path(video_path)
@@ -144,8 +144,8 @@ class SecureSubtitleExtractor:
     def extract_both(
         self,
         video_path: str,
-        whisper_api_key: Optional[str] = None,
-        ocr_api_key: Optional[str] = None,
+        whisper_api_key: str | None = None,
+        ocr_api_key: str | None = None,
         language: str = "zh"
     ) -> SubtitleExtractionResult:
         """安全地结合 OCR 和语音识别"""

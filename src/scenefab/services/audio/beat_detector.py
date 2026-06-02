@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 节拍检测器
@@ -17,7 +16,7 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 
@@ -83,22 +82,22 @@ class AudioAnalysisResult:
     beat_interval: float = 0.0  # 节拍间隔（秒）
 
     # 节拍
-    beats: List[BeatInfo] = field(default_factory=list)
+    beats: list[BeatInfo] = field(default_factory=list)
 
     # 能量包络 onset
-    onsets: List[float] = field(default_factory=list)  # onset 时间点
+    onsets: list[float] = field(default_factory=list)  # onset 时间点
 
     # 音乐段落
-    sections: List[SectionInfo] = field(default_factory=list)
+    sections: list[SectionInfo] = field(default_factory=list)
 
     # RMS 能量曲线（采样）
-    energy_curve: List[Tuple[float, float]] = field(default_factory=list)  # (time, energy)
+    energy_curve: list[tuple[float, float]] = field(default_factory=list)  # (time, energy)
 
     # 频谱特征
     spectral_centroid_mean: float = 0.0  # 平均频谱质心（亮度感）
 
     # Beat-sync 剪辑点
-    beat_sync_cutpoints: List[BeatSyncCutpoint] = field(default_factory=list)
+    beat_sync_cutpoints: list[BeatSyncCutpoint] = field(default_factory=list)
 
 
 class BeatDetector:
@@ -219,7 +218,7 @@ class BeatDetector:
 
         return result
 
-    def _detect_sections(self, y, sr, duration, rms) -> List[SectionInfo]:
+    def _detect_sections(self, y, sr, duration, rms) -> list[SectionInfo]:
         """基于能量和频谱变化检测音乐段落"""
         import librosa
         import numpy as np
@@ -288,7 +287,7 @@ class BeatDetector:
         min_interval: float = 0.5,
         prefer_strong_beats: bool = True,
         energy_threshold: float = 0.3,
-    ) -> List[BeatSyncCutpoint]:
+    ) -> list[BeatSyncCutpoint]:
         """
         获取 Beat-sync 剪辑点
 
@@ -359,7 +358,7 @@ class BeatDetector:
 
         return cutpoints
 
-    def sync_analysis(self, result: AudioAnalysisResult) -> Dict[str, any]:
+    def sync_analysis(self, result: AudioAnalysisResult) -> dict[str, any]:
         """
         生成节拍同步分析报告
 
@@ -396,7 +395,7 @@ class BeatDetector:
         return report
 
     def extract_audio_from_video(self, video_path: str,
-                                  output_path: Optional[str] = None) -> str:
+                                  output_path: str | None = None) -> str:
         """从视频中提取音频"""
         if output_path is None:
             output_path = str(Path(video_path).with_suffix('.wav'))

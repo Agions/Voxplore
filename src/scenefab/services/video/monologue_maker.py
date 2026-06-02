@@ -30,7 +30,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceConfig, VoiceGenerator
@@ -59,7 +59,7 @@ class MonologueProject(BaseProject):
     context: str = ""              # 场景/情境描述
     emotion: str = ""              # 情感基调
     full_script: str = ""          # 完整独白
-    segments: List[MonologueSegment] = field(default_factory=list)
+    segments: list[MonologueSegment] = field(default_factory=list)
 
     # 配置
     style: MonologueStyle = MonologueStyle.MELANCHOLIC
@@ -75,7 +75,7 @@ class MonologueProject(BaseProject):
     #  持久化 (.narrafiilm JSON)                                        #
     # ------------------------------------------------------------------ #
 
-    def save(self, path: Optional[str] = None) -> str:
+    def save(self, path: str | None = None) -> str:
         """
         将项目保存为 .narrafiilm 文件（JSON）。
 
@@ -267,9 +267,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         source_video: str,
         context: str,
         emotion: str = "neutral",
-        name: Optional[str] = None,
+        name: str | None = None,
         style: MonologueStyle = MonologueStyle.MELANCHOLIC,
-        output_dir: Optional[str] = None,
+        output_dir: str | None = None,
         **kwargs,
     ) -> MonologueProject:
         """创建独白项目"""
@@ -297,7 +297,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     def generate_script(
         self,
         project: MonologueProject,
-        custom_script: Optional[str] = None,
+        custom_script: str | None = None,
     ) -> None:
         """
         生成独白文案
@@ -407,7 +407,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     def generate_voice(
         self,
         project: MonologueProject,
-        voice_config: Optional[VoiceConfig] = None,
+        voice_config: VoiceConfig | None = None,
     ) -> None:
         """
         生成 AI 配音（并行多 segment，max_workers=4）

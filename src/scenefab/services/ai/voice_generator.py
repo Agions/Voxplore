@@ -23,7 +23,7 @@ AI 配音生成器 (Voice Generator)
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ...utils.security import get_ffmpeg_executor
 from .voice_models import GeneratedVoice, VoiceConfig, VoiceInfo
@@ -71,7 +71,7 @@ class VoiceGenerator:
     def __init__(
         self,
         provider: str = "edge",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         **kwargs,
     ):
         """
@@ -105,7 +105,7 @@ class VoiceGenerator:
         self,
         text: str,
         output_path: str,
-        config: Optional[VoiceConfig] = None,
+        config: VoiceConfig | None = None,
     ) -> GeneratedVoice:
         """
         生成配音
@@ -127,10 +127,10 @@ class VoiceGenerator:
 
     def generate_segments(
         self,
-        segments: List[Dict[str, Any]],
+        segments: list[dict[str, Any]],
         output_dir: str,
-        config: Optional[VoiceConfig] = None,
-    ) -> List[GeneratedVoice]:
+        config: VoiceConfig | None = None,
+    ) -> list[GeneratedVoice]:
         """
         批量生成配音片段
 
@@ -164,7 +164,7 @@ class VoiceGenerator:
 
         return results
 
-    def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
         """列出可用声音"""
         return self._provider.list_voices(language)
 
@@ -185,7 +185,7 @@ def generate_voice(
     text: str,
     output_path: str,
     provider: str = "edge",
-    voice: Optional[str] = None,
+    voice: str | None = None,
     rate: float = 1.0,
 ) -> GeneratedVoice:
     """

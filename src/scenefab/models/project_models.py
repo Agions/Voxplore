@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 项目管理器数据模型
@@ -19,7 +18,7 @@
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 def _get_version() -> str:
@@ -81,20 +80,20 @@ class ProjectMetadata:
     version: str = field(default_factory=_get_version)
     created_at: str = ""
     modified_at: str = ""
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     project_type: ProjectType = ProjectType.VIDEO_EDITING
     thumbnail: str = ""
     status: ProjectStatus = ProjectStatus.ACTIVE
     file_path: str = ""  # 项目文件路径
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["project_type"] = self.project_type.value if isinstance(self.project_type, Enum) else self.project_type
         d["status"] = self.status.value
         return d
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMetadata':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectMetadata':
         status_val = data.get("status", "active")
         if isinstance(status_val, str):
             status = ProjectStatus(status_val)
@@ -133,11 +132,11 @@ class ProjectSettings:
     sample_rate: int = 44100
     channels: int = 2
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectSettings':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectSettings':
         return cls(
             resolution=data.get("resolution", "1920x1080"),
             fps=data.get("fps", 30),
@@ -164,11 +163,11 @@ class ProjectMedia:
     codec: str = ""
     created_at: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectMedia':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectMedia':
         return cls(
             id=data.get("id", ""),
             name=data.get("name", ""),
@@ -187,16 +186,16 @@ class ProjectMedia:
 @dataclass
 class ProjectTimeline:
     """项目时间线"""
-    tracks: List[Dict[str, Any]] = field(default_factory=list)
+    tracks: list[dict[str, Any]] = field(default_factory=list)
     duration: float = 0.0  # 总时长（秒）
     in_point: float = 0.0
     out_point: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectTimeline':
+    def from_dict(cls, data: dict[str, Any]) -> 'ProjectTimeline':
         return cls(
             tracks=data.get("tracks", []),
             duration=data.get("duration", 0.0),

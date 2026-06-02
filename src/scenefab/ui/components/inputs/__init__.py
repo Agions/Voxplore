@@ -14,7 +14,7 @@ class MacSearchBox(QWidget):
     search_signal = Signal(str)
     searchRequested = search_signal  # Alias for compatibility
 
-    def __init__(self, placeholder: str = "搜索...", parent: Optional[QWidget] = None):
+    def __init__(self, placeholder: str = "搜索...", parent: QWidget | None = None):
         super().__init__(parent)
         self.placeholder = placeholder
         self._setup_ui()

@@ -11,7 +11,7 @@ import os
 import platform
 import threading
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import keyring
 from cryptography.fernet import Fernet
@@ -25,8 +25,8 @@ class SecureKeyManager:
     def __init__(self, app_name: str = "SceneFab"):
         self.app_name = app_name
         self.logger = logging.getLogger(__name__)
-        self._encryption_key: Optional[bytes] = None
-        self._master_password: Optional[str] = None
+        self._encryption_key: bytes | None = None
+        self._master_password: str | None = None
 
         # 尝试初始化系统密钥库
         self._init_keyring()
@@ -126,7 +126,7 @@ class SecureKeyManager:
 
         return key
 
-    def store_api_key(self, provider: str, api_key: str, metadata: Dict[str, Any] = None) -> bool:
+    def store_api_key(self, provider: str, api_key: str, metadata: dict[str, Any] = None) -> bool:
         """安全存储API密钥"""
         try:
             key_data = {
@@ -153,7 +153,7 @@ class SecureKeyManager:
             self.logger.error(f"Failed to store API key for {provider}: {e}")
             return False
 
-    def _store_encrypted_key(self, provider: str, key_data: Dict[str, Any]) -> bool:
+    def _store_encrypted_key(self, provider: str, key_data: dict[str, Any]) -> bool:
         """使用加密文件存储API密钥"""
         try:
             encryption_key = self._get_master_key()
@@ -180,7 +180,7 @@ class SecureKeyManager:
             self.logger.error(f"Failed to store encrypted key for {provider}: {e}")
             return False
 
-    def get_api_key(self, provider: str) -> Optional[Dict[str, Any]]:
+    def get_api_key(self, provider: str) -> dict[str, Any] | None:
         """安全获取API密钥"""
         try:
             # 首先尝试系统密钥库
@@ -201,7 +201,7 @@ class SecureKeyManager:
             self.logger.error(f"Failed to get API key for {provider}: {e}")
             return None
 
-    def _get_encrypted_key(self, provider: str) -> Optional[Dict[str, Any]]:
+    def _get_encrypted_key(self, provider: str) -> dict[str, Any] | None:
         """从加密文件获取API密钥"""
         try:
             secure_dir = Path.home() / f".{self.app_name.lower()}" / "keys"
@@ -257,7 +257,7 @@ class SecureKeyManager:
             self.logger.error(f"Failed to delete API key for {provider}: {e}")
             return False
 
-    def list_stored_keys(self) -> List[str]:
+    def list_stored_keys(self) -> list[str]:
         """列出所有存储的密钥提供商"""
         providers = set()
 
@@ -303,7 +303,7 @@ class SecureKeyManager:
             self.logger.error(f"Failed to rotate master key: {e}")
             return False
 
-    def validate_key_integrity(self) -> Dict[str, bool]:
+    def validate_key_integrity(self) -> dict[str, bool]:
         """验证密钥完整性"""
         results = {}
 
@@ -317,7 +317,7 @@ class SecureKeyManager:
 
         return results
 
-    def get_security_status(self) -> Dict[str, Any]:
+    def get_security_status(self) -> dict[str, Any]:
         """获取安全状态"""
         return {
             "keyring_available": self._is_keyring_available(),
@@ -339,7 +339,7 @@ class SecureKeyManager:
 
 
 # 全局安全密钥管理器实例
-_secure_key_manager: Optional[SecureKeyManager] = None
+_secure_key_manager: SecureKeyManager | None = None
 _secure_key_lock = threading.Lock()
 
 

@@ -4,8 +4,9 @@ AI 生成器插件接口
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import AsyncIterator, Dict, List, Optional
+from typing import Optional
 
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 
@@ -17,8 +18,8 @@ class SceneAnalysis:
     scene_type: str           # indoor, outdoor, transition
     location: str             # 地点
     atmosphere: str           # 氛围
-    subjects: List[Dict]       # 主体
-    key_objects: List[str]    # 关键物体
+    subjects: list[dict]       # 主体
+    key_objects: list[str]    # 关键物体
     importance: float          # 叙事重要性 0-1
 
 
@@ -29,7 +30,7 @@ class ScriptGeneration:
     text: str
     emotion: str
     estimated_duration: float
-    style_tags: List[str]
+    style_tags: list[str]
 
 
 class BaseAIGeneratorPlugin(ABC, BasePlugin):
@@ -48,8 +49,8 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
     async def analyze_scene(
         self,
         video_path: str,
-        frame_timestamps: List[float],
-    ) -> List[SceneAnalysis]:
+        frame_timestamps: list[float],
+    ) -> list[SceneAnalysis]:
         """
         分析视频场景
 
@@ -68,7 +69,7 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
         scene_context: str,
         emotion: str,
         style: str,
-        max_duration: Optional[float] = None,
+        max_duration: float | None = None,
     ) -> ScriptGeneration:
         """
         生成解说脚本
@@ -105,7 +106,7 @@ class BaseAIGeneratorPlugin(ABC, BasePlugin):
         ...
 
     @abstractmethod
-    def get_capabilities(self) -> Dict[str, bool]:
+    def get_capabilities(self) -> dict[str, bool]:
         """
         获取插件能力
 

@@ -2,7 +2,7 @@
 页面加载器 - 处理页面动态加载
 """
 
-from typing import Dict
+
 
 
 class PageLoader:
@@ -38,7 +38,7 @@ class PageLoader:
         return PageLoader.PAGES_CONFIG.copy()
 
     @staticmethod
-    def validate_page_config(config: Dict[str, str]) -> bool:
+    def validate_page_config(config: dict[str, str]) -> bool:
         """验证页面配置"""
         required_keys = ["id", "name", "class", "attribute"]
         return all(key in config for key in required_keys)

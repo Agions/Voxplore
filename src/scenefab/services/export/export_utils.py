@@ -113,7 +113,7 @@ class BaseExporter(ABC, Generic[T, C]):
     - 文件操作
     """
 
-    def __init__(self, config: Optional[C] = None):
+    def __init__(self, config: C | None = None):
         self.config = config
 
     @abstractmethod

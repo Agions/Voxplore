@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """风格预设面板组件
 
 从 step_preview.py 提取 StylePresetPanel

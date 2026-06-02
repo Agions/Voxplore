@@ -11,19 +11,19 @@
 
 import json
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 class TaskStore(ABC):
     """任务存储抽象接口"""
 
     @abstractmethod
-    def save(self, task_id: str, task: Dict[str, Any]) -> None:
+    def save(self, task_id: str, task: dict[str, Any]) -> None:
         """保存任务"""
         ...
 
     @abstractmethod
-    def get(self, task_id: str) -> Optional[Dict[str, Any]]:
+    def get(self, task_id: str) -> dict[str, Any] | None:
         """获取任务"""
         ...
 
@@ -47,12 +47,12 @@ class InMemoryTaskStore(TaskStore):
     """进程内内存任务存储（开发用）"""
 
     def __init__(self):
-        self._tasks: Dict[str, Dict[str, Any]] = {}
+        self._tasks: dict[str, dict[str, Any]] = {}
 
-    def save(self, task_id: str, task: Dict[str, Any]) -> None:
+    def save(self, task_id: str, task: dict[str, Any]) -> None:
         self._tasks[task_id] = task
 
-    def get(self, task_id: str) -> Optional[Dict[str, Any]]:
+    def get(self, task_id: str) -> dict[str, Any] | None:
         return self._tasks.get(task_id)
 
     def exists(self, task_id: str) -> bool:
@@ -89,11 +89,11 @@ class RedisTaskStore(TaskStore):
     def _key(self, task_id: str) -> str:
         return f"{self._prefix}{task_id}"
 
-    def save(self, task_id: str, task: Dict[str, Any]) -> None:
+    def save(self, task_id: str, task: dict[str, Any]) -> None:
         key = self._key(task_id)
         self._client.setex(key, self._ttl, json.dumps(task))
 
-    def get(self, task_id: str) -> Optional[Dict[str, Any]]:
+    def get(self, task_id: str) -> dict[str, Any] | None:
         key = self._key(task_id)
         data = self._client.get(key)
         if data is None:
@@ -113,7 +113,7 @@ class RedisTaskStore(TaskStore):
         return [k[prefix_len:] for k in keys]
 
 
-def create_task_store(redis_url: Optional[str] = None) -> TaskStore:
+def create_task_store(redis_url: str | None = None) -> TaskStore:
     """
     工厂函数：根据环境创建合适的 TaskStore
 

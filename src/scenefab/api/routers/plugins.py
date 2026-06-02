@@ -3,7 +3,7 @@ Plugins Router
 插件管理 API
 """
 
-from typing import List
+
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -18,12 +18,12 @@ class PluginInfo(BaseModel):
     description: str
     plugin_type: str
     enabled: bool
-    capabilities: List[str]
+    capabilities: list[str]
 
 
 class PluginListResponse(BaseModel):
     total: int
-    plugins: List[PluginInfo]
+    plugins: list[PluginInfo]
 
 
 class PluginEnableRequest(BaseModel):

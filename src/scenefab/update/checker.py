@@ -51,7 +51,7 @@ def _strip_tag(tag: str) -> str:
     return tag.lstrip("vV")
 
 
-def check_update() -> Optional[UpdateInfo]:
+def check_update() -> UpdateInfo | None:
     """
     检测是否有新版本。
 

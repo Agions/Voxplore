@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 服务注册表数据模型
@@ -8,9 +7,10 @@
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, List, Optional, Type
+from typing import Any, Optional
 
 
 class ServiceState(Enum):
@@ -45,15 +45,15 @@ class ServiceDependency:
 class ServiceDefinition:
     """服务定义"""
     name: str
-    service_type: Type
-    factory: Optional[Callable] = None
+    service_type: type
+    factory: Callable | None = None
     lifetime: ServiceLifetime = ServiceLifetime.SINGLETON
-    dependencies: List[ServiceDependency] = field(default_factory=list)
+    dependencies: list[ServiceDependency] = field(default_factory=list)
     auto_start: bool = False
     priority: int = 0  # 初始化优先级，数值越小优先级越高
-    config_section: Optional[str] = None  # 配置节名称
+    config_section: str | None = None  # 配置节名称
     thread_safe: bool = True  # 是否线程安全
-    health_check: Optional[Callable] = None  # 健康检查函数
+    health_check: Callable | None = None  # 健康检查函数
 
 
 class ServiceLifecycleHook(ABC):

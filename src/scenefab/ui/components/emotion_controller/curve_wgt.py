@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Emotion Curve Widget
@@ -15,7 +14,7 @@ Emotion Curve Widget
 - 平滑动画效果
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, QSize, Qt, Signal
 from PySide6.QtGui import (
@@ -47,7 +46,7 @@ class EmotionCurveWidget(QWidget):
 
     def __init__(
         self,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
         curve_color: str = "#FF9E64",
         background_gradient: bool = True,
     ):
@@ -62,7 +61,7 @@ class EmotionCurveWidget(QWidget):
         super().__init__(parent)
 
         # 曲线数据 (11个点: 0%, 10%, ... 100%)
-        self._curve: List[float] = [0.5] * 11
+        self._curve: list[float] = [0.5] * 11
 
         # 颜色
         self._curve_color = QColor(curve_color)
@@ -82,12 +81,12 @@ class EmotionCurveWidget(QWidget):
         self._is_dragging: bool = False
 
         # 动画
-        self._animation: Optional[QPropertyAnimation] = None
-        self._animated_curve: List[float] = self._curve.copy()
+        self._animation: QPropertyAnimation | None = None
+        self._animated_curve: list[float] = self._curve.copy()
 
         # 悬停状态
-        self._hover_point: Optional[QPoint] = None
-        self._hover_index: Optional[int] = None
+        self._hover_point: QPoint | None = None
+        self._hover_index: int | None = None
 
         # 尺寸提示
         self.setMinimumSize(400, 120)
@@ -103,12 +102,12 @@ class EmotionCurveWidget(QWidget):
         self._show_intensity_grid = True
 
     @property
-    def curve(self) -> List[float]:
+    def curve(self) -> list[float]:
         """获取当前曲线数据"""
         return self._curve.copy()
 
     @curve.setter
-    def curve(self, new_curve: List[float]):
+    def curve(self, new_curve: list[float]):
         """
         设置曲线数据
 
@@ -156,7 +155,7 @@ class EmotionCurveWidget(QWidget):
         self.position_changed.emit(self._current_position)
         self.update()
 
-    def set_curve_from_preset(self, curve_template: List[float], color: str):
+    def set_curve_from_preset(self, curve_template: list[float], color: str):
         """
         从预设设置曲线
 
@@ -172,7 +171,7 @@ class EmotionCurveWidget(QWidget):
             interpolated = self._interpolate_to_11_points(curve_template)
             self.curve = interpolated
 
-    def _interpolate_to_11_points(self, curve: List[float]) -> List[float]:
+    def _interpolate_to_11_points(self, curve: list[float]) -> list[float]:
         """将任意长度的曲线插值到11个点"""
         if len(curve) == 11:
             return curve
@@ -327,7 +326,7 @@ class EmotionCurveWidget(QWidget):
             painter.drawEllipse(pt, 4, 4)
 
     def _draw_curve_fill(
-        self, painter: QPainter, path: QPainterPath, points: List[QPoint],
+        self, painter: QPainter, path: QPainterPath, points: list[QPoint],
         w: int, h: int,
         margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
     ):

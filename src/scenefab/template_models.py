@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 项目模板数据模型
@@ -9,7 +8,7 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .project_manager import ProjectType
 
@@ -35,15 +34,15 @@ class TemplateInfo:
     created_at: datetime
     updated_at: datetime
     file_size: int
-    preview_image: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
+    preview_image: str | None = None
+    tags: list[str] = field(default_factory=list)
     rating: float = 0.0
     download_count: int = 0
     is_builtin: bool = False
     project_type: ProjectType = ProjectType.VIDEO_EDITING
-    requirements: Dict[str, Any] = field(default_factory=dict)
+    requirements: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             'id': self.id,
             'name': self.name,
@@ -64,7 +63,7 @@ class TemplateInfo:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'TemplateInfo':
+    def from_dict(cls, data: dict[str, Any]) -> 'TemplateInfo':
         return cls(
             id=data['id'],
             name=data['name'],
@@ -93,10 +92,10 @@ class TemplateMetadata:
     author: str
     version: str
     category: str
-    tags: List[str] = field(default_factory=list)
-    requirements: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
-    variables: Dict[str, Any] = field(default_factory=dict)  # 模板变量
+    tags: list[str] = field(default_factory=list)
+    requirements: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
+    variables: dict[str, Any] = field(default_factory=dict)  # 模板变量
 
 
 __all__ = [

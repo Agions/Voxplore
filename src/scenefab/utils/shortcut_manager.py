@@ -5,9 +5,10 @@
 
 import logging
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -35,7 +36,7 @@ class ShortcutInfo:
     category: ShortcutCategory
     sequence: str  # 如 "Ctrl+S"
     description: str
-    handler: Optional[Callable] = None
+    handler: Callable | None = None
     enabled: bool = True
 
 
@@ -46,7 +47,7 @@ class ShortcutManager(QObject):
     shortcut_triggered = Signal(str)  # 快捷键触发信号
 
     # 默认快捷键配置
-    DEFAULT_SHORTCUTS: List[ShortcutInfo] = [
+    DEFAULT_SHORTCUTS: list[ShortcutInfo] = [
         # 文件操作
         ShortcutInfo("new_project", "新建项目", ShortcutCategory.FILE, "Ctrl+N", "创建新项目"),
         ShortcutInfo("open_project", "打开项目", ShortcutCategory.FILE, "Ctrl+O", "打开已有项目"),
@@ -95,9 +96,9 @@ class ShortcutManager(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._shortcuts: Dict[str, ShortcutInfo] = {}
-        self._q_shortcuts: Dict[str, QShortcut] = {}
-        self._handlers: Dict[str, Callable] = {}
+        self._shortcuts: dict[str, ShortcutInfo] = {}
+        self._q_shortcuts: dict[str, QShortcut] = {}
+        self._handlers: dict[str, Callable] = {}
         self._enabled = True
 
         # 初始化默认快捷键
@@ -115,7 +116,7 @@ class ShortcutManager(QObject):
         sequence: str,
         category: ShortcutCategory,
         description: str,
-        handler: Optional[Callable] = None
+        handler: Callable | None = None
     ) -> bool:
         """
         注册自定义快捷键
@@ -245,18 +246,18 @@ class ShortcutManager(QObject):
             return True
         return False
 
-    def get_shortcut(self, shortcut_id: str) -> Optional[ShortcutInfo]:
+    def get_shortcut(self, shortcut_id: str) -> ShortcutInfo | None:
         """获取快捷键信息"""
         return self._shortcuts.get(shortcut_id)
 
-    def get_shortcuts_by_category(self, category: ShortcutCategory) -> List[ShortcutInfo]:
+    def get_shortcuts_by_category(self, category: ShortcutCategory) -> list[ShortcutInfo]:
         """获取分类下的所有快捷键"""
         return [
             s for s in self._shortcuts.values()
             if s.category == category
         ]
 
-    def get_all_shortcuts(self) -> List[ShortcutInfo]:
+    def get_all_shortcuts(self) -> list[ShortcutInfo]:
         """获取所有快捷键"""
         return list(self._shortcuts.values())
 
@@ -276,7 +277,7 @@ class ShortcutManager(QObject):
         # 重新初始化
         self._init_default_shortcuts()
 
-    def export_config(self) -> Dict[str, Any]:
+    def export_config(self) -> dict[str, Any]:
         """导出配置"""
         return {
             shortcut_id: {
@@ -286,7 +287,7 @@ class ShortcutManager(QObject):
             for shortcut_id, shortcut in self._shortcuts.items()
         }
 
-    def import_config(self, config: Dict[str, Any]) -> None:
+    def import_config(self, config: dict[str, Any]) -> None:
         """导入配置"""
         for shortcut_id, settings in config.items():
             if shortcut_id in self._shortcuts:
@@ -300,7 +301,7 @@ class ShortcutManager(QObject):
 
 
 # 全局实例
-_shortcut_manager: Optional[ShortcutManager] = None
+_shortcut_manager: ShortcutManager | None = None
 _shortcut_lock = threading.Lock()
 
 

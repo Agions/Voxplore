@@ -30,7 +30,7 @@ Pipeline Integrator
     maker.apply_interleave_to_project(project, timeline)
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ..ai.scene_models import SceneInfo
 from .models.perspective import (
@@ -59,8 +59,8 @@ class PipelineIntegrator(MonologueMaker):
     def __init__(
         self,
         voice_provider: str = "edge",
-        perspective_config: Optional[Dict[str, Any]] = None,
-        interleaver_config: Optional[Dict[str, Any]] = None,
+        perspective_config: dict[str, Any] | None = None,
+        interleaver_config: dict[str, Any] | None = None,
     ):
         """
         初始化整合器
@@ -77,14 +77,14 @@ class PipelineIntegrator(MonologueMaker):
         self.emotion_generator = EmotionCurveGenerator()
 
         # 缓存最新穿插结果
-        self._last_perspective_shots: List[PerspectiveShot] = []
-        self._last_interleave_timeline: Optional[InterleaveTimeline] = None
+        self._last_perspective_shots: list[PerspectiveShot] = []
+        self._last_interleave_timeline: InterleaveTimeline | None = None
 
     # ─────────────────────────────────────────────────────────────────
     # 视角映射
     # ─────────────────────────────────────────────────────────────────
 
-    def run_perspective_mapping(self, project: MonologueProject) -> List[PerspectiveShot]:
+    def run_perspective_mapping(self, project: MonologueProject) -> list[PerspectiveShot]:
         """
         运行视角映射
 
@@ -125,20 +125,20 @@ class PipelineIntegrator(MonologueMaker):
         self._last_perspective_shots = perspective_shots
         return perspective_shots
 
-    def _convert_scenes(self, scenes: List[SceneInfo]) -> List[SceneSegment]:
+    def _convert_scenes(self, scenes: list[SceneInfo]) -> list[SceneSegment]:
         """将 SceneInfo 转换为 SceneSegment（委托给 SceneConverter）"""
         return [SceneConverter.from_scene_info(scene) for scene in scenes]
 
     def _convert_to_narration_segments(
-        self, segments: List[MonologueSegment]
-    ) -> List[NarrationSegment]:
+        self, segments: list[MonologueSegment]
+    ) -> list[NarrationSegment]:
         """将 MonologueSegment 转换为 NarrationSegment（委托给 SceneConverter）"""
         return [
             SceneConverter.from_monologue_segment(seg, segment_id=f"narration_{i}")
             for i, seg in enumerate(segments)
         ]
 
-    def _extract_keyframes(self, project: MonologueProject) -> List:
+    def _extract_keyframes(self, project: MonologueProject) -> list:
         """提取关键帧列表（使用 LRU 缓存）"""
         from scenefab.services.video.cache.frame_cache import VideoFrameCache
 
@@ -169,7 +169,7 @@ class PipelineIntegrator(MonologueMaker):
     def run_video_interleave(
         self,
         project: MonologueProject,
-        perspective_shots: List[PerspectiveShot],
+        perspective_shots: list[PerspectiveShot],
     ) -> InterleaveTimeline:
         """
         运行视频穿插决策
@@ -223,7 +223,7 @@ class PipelineIntegrator(MonologueMaker):
         self._last_interleave_timeline = timeline
         return timeline
 
-    def _build_original_clips(self, project: MonologueProject) -> List[ClipSegment]:
+    def _build_original_clips(self, project: MonologueProject) -> list[ClipSegment]:
         """构建原片片段列表"""
         clips = []
         for i, scene in enumerate(project.scenes):
@@ -294,7 +294,7 @@ class PipelineIntegrator(MonologueMaker):
     # 情感曲线（委托给 scene_converter）
     # ─────────────────────────────────────────────────────────────────
 
-    def generate_emotion_curve(self, segments: List[MonologueSegment]) -> List[float]:
+    def generate_emotion_curve(self, segments: list[MonologueSegment]) -> list[float]:
         """
         生成情感强度曲线（委托给 EmotionCurveGenerator）
 
@@ -370,7 +370,7 @@ class PipelineIntegrator(MonologueMaker):
     # 便捷方法
     # ─────────────────────────────────────────────────────────────────
 
-    def get_pipeline_status(self) -> Dict[str, Any]:
+    def get_pipeline_status(self) -> dict[str, Any]:
         """
         获取流水线状态
 
@@ -401,9 +401,9 @@ class PipelineIntegrator(MonologueMaker):
         source_video: str,
         context: str = "",
         emotion: str = "neutral",
-        name: Optional[str] = None,
+        name: str | None = None,
         include_interleave: bool = True,
-        custom_script: Optional[str] = None,
+        custom_script: str | None = None,
     ) -> MonologueProject:
         """
         一步到位运行完整流水线（创建项目 → 全流程 → 返回项目）
@@ -489,8 +489,8 @@ def _add_interleave_attributes():
         return
 
     MonologueSegment.show_original: bool = False
-    MonologueSegment.original_start: Optional[float] = None
-    MonologueSegment.original_end: Optional[float] = None
+    MonologueSegment.original_start: float | None = None
+    MonologueSegment.original_end: float | None = None
     MonologueSegment.transition_type: TransitionType = TransitionType.CUT
     MonologueSegment.zoom_factor: float = 1.0
     MonologueSegment.highlight_box = None

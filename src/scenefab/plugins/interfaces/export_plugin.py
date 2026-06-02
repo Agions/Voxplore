@@ -5,7 +5,7 @@ Export Plugin Interface
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 
@@ -32,9 +32,9 @@ class BaseExportPlugin(ABC, BasePlugin):
     @abstractmethod
     def export(
         self,
-        project_data: Dict[str, Any],
+        project_data: dict[str, Any],
         output_path: Path,
-        options: Optional[Dict[str, Any]] = None,
+        options: dict[str, Any] | None = None,
     ) -> bool:
         """
         导出项目
@@ -50,7 +50,7 @@ class BaseExportPlugin(ABC, BasePlugin):
         ...
 
     @abstractmethod
-    def get_export_options(self) -> List[Dict[str, Any]]:
+    def get_export_options(self) -> list[dict[str, Any]]:
         """
         获取导出选项定义
 
@@ -66,7 +66,7 @@ class BaseExportPlugin(ABC, BasePlugin):
         """
         ...
 
-    def validate_project(self, project_data: Dict[str, Any]) -> List[str]:
+    def validate_project(self, project_data: dict[str, Any]) -> list[str]:
         """
         验证项目数据是否满足导出要求
 

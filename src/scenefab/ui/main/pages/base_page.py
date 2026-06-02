@@ -3,7 +3,7 @@
 提供统一的页面生命周期管理
 """
 
-from typing import Any, Dict
+from typing import Any
 from typing import Any as TypingAny
 
 from PySide6.QtCore import Signal
@@ -193,11 +193,11 @@ class BasePage(QWidget):
         """检查页面是否激活"""
         return self.is_active
 
-    def get_state(self) -> Dict[str, TypingAny]:
+    def get_state(self) -> dict[str, TypingAny]:
         """获取页面状态"""
         return self.page_state.copy()
 
-    def set_state(self, state: Dict[str, TypingAny]) -> None:
+    def set_state(self, state: dict[str, TypingAny]) -> None:
         """设置页面状态"""
         self.page_state = state.copy()
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 本地 LLM 提供商
@@ -8,7 +7,7 @@
 使用公共混入类减少重复代码
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from ..base_llm_provider import (
     DEFAULT_LOCAL_TIMEOUT,
@@ -181,7 +180,7 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             finish_reason="stop",
         )
 
-    async def list_models(self) -> List[Dict[str, Any]]:
+    async def list_models(self) -> list[dict[str, Any]]:
         """列出本地可用的模型"""
         if self.backend == "ollama":
             data = await self._call_api("GET", f"{self.base_url}/api/tags")
@@ -208,11 +207,11 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         except Exception as e:
             raise ProviderError(f"拉取模型失败: {str(e)}")
 
-    def get_available_models(self) -> List[str]:
+    def get_available_models(self) -> list[str]:
         """获取可用模型列表"""
         return list(self.MODELS.keys())
 
-    def get_model_info(self, model: str) -> Dict[str, Any]:
+    def get_model_info(self, model: str) -> dict[str, Any]:
         """获取模型信息"""
         return self.MODELS.get(model, {})
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 
 
@@ -103,8 +102,8 @@ class ConfigManager:
 
         self.config_dir.mkdir(parents=True, exist_ok=True)
 
-        self._config: Optional[AppConfig] = None
-        self._api_keys: Optional[APIKeys] = None
+        self._config: AppConfig | None = None
+        self._api_keys: APIKeys | None = None
 
     @property
     def config(self) -> AppConfig:
@@ -134,7 +133,7 @@ class ConfigManager:
 
         if path.exists():
             try:
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, encoding='utf-8') as f:
                     data = json.load(f)
                 return AppConfig(**data)
             except (json.JSONDecodeError, TypeError, OSError) as e:
@@ -169,7 +168,7 @@ class ConfigManager:
         # 从文件加载（环境变量优先）
         if path.exists():
             try:
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, encoding='utf-8') as f:
                     data = json.load(f)
                 for key, value in data.items():
                     if not getattr(keys, key, ""):  # 环境变量已设置的值不覆盖
@@ -219,7 +218,7 @@ class ConfigManager:
 
 
 # 全局配置管理器
-_config_manager: Optional[ConfigManager] = None
+_config_manager: ConfigManager | None = None
 _config_lock = threading.Lock()
 
 

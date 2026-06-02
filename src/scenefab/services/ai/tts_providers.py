@@ -8,7 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
 from .voice_models import (
@@ -36,7 +36,7 @@ class TTSProvider(ABC):
         pass
 
     @abstractmethod
-    def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
         """列出可用声音"""
         pass
 
@@ -119,7 +119,7 @@ class EdgeTTSProvider(TTSProvider):
         pitch_str = f"+{int((config.pitch - 1) * 50)}Hz" if config.pitch >= 1 else f"{int((config.pitch - 1) * 50)}Hz"
 
         # 异步生成（同时收集时间戳）
-        sentence_timestamps: List[Dict[str, Any]] = []
+        sentence_timestamps: list[dict[str, Any]] = []
 
         async def _generate():
             communicate = self.edge_tts.Communicate(
@@ -204,7 +204,7 @@ class EdgeTTSProvider(TTSProvider):
         rate_str = f"+{int((config.rate - 1) * 100)}%" if config.rate >= 1 else f"{int((config.rate - 1) * 100)}%"
         pitch_str = f"+{int((config.pitch - 1) * 50)}Hz" if config.pitch >= 1 else f"{int((config.pitch - 1) * 50)}Hz"
 
-        sentence_timestamps: List[Dict[str, Any]] = []
+        sentence_timestamps: list[dict[str, Any]] = []
 
         # 确保输出目录存在
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
@@ -298,7 +298,7 @@ class EdgeTTSProvider(TTSProvider):
         }
         return _STYLE_VOICE_MAP.get(config.style, voices[0][0])
 
-    def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
         """列出可用声音"""
         voices = []
 
@@ -379,7 +379,7 @@ class OpenAITTSProvider(TTSProvider):
             sentence_timestamps=[],
         )
 
-    def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
         """列出可用声音"""
         return [
             VoiceInfo(id=vid, name=name, gender=VoiceGender.FEMALE, language="en-US")
@@ -494,7 +494,7 @@ class F5TTSProvider(TTSProvider):
         ]
         _audio_executor.run(cmd, timeout=60)
 
-    def list_voices(self, language: str = "zh-CN") -> List[VoiceInfo]:
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
         """
         列出可用"声音"(音色克隆模式下实际返回已注册的参考音频)
         F5-TTS 本身无预设声音库,需用户提供参考音频进行克隆。

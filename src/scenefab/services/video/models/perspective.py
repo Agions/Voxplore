@@ -4,7 +4,7 @@ SceneFab Video Perspective & Interleave Models
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Tuple
+from typing import Optional
 
 # ─────────────────────────────────────────────────────────────
 # Perspective Mapper Models
@@ -59,8 +59,8 @@ class SceneSegment:
     scene_type: str              # "indoor", "outdoor", "transition"
     location: str                # 地点描述
     atmosphere: str              # 氛围: "bright", "dark", "mysterious"
-    subjects: List[SubjectPosition] = field(default_factory=list)
-    key_objects: List[str] = field(default_factory=list)  # 关键物体
+    subjects: list[SubjectPosition] = field(default_factory=list)
+    key_objects: list[str] = field(default_factory=list)  # 关键物体
     narration_importance: float = 0.5  # 0-1, 叙事重要性
 
 
@@ -70,7 +70,7 @@ class KeyFrame:
     timestamp: float
     frame_index: int
     image_path: str
-    subjects: List[SubjectPosition] = field(default_factory=list)
+    subjects: list[SubjectPosition] = field(default_factory=list)
     scene_description: str = ""
 
 
@@ -86,8 +86,8 @@ class PerspectiveShot:
     viewpoint: ViewpointAnchor
 
     # 主体关系
-    primary_subject: Optional[SubjectPosition] = None
-    secondary_subjects: List[SubjectPosition] = field(default_factory=list)
+    primary_subject: SubjectPosition | None = None
+    secondary_subjects: list[SubjectPosition] = field(default_factory=list)
 
     # 穿插决策
     show_original_clip: bool = True
@@ -135,7 +135,7 @@ class NarrationSegment:
     end_time: float
     duration: float
     emotion: str = "neutral"
-    emphasis_words: List[str] = field(default_factory=list)  # 重音词
+    emphasis_words: list[str] = field(default_factory=list)  # 重音词
     pause_before: float = 0.0    # 前停顿
     pause_after: float = 0.0     # 后停顿
 
@@ -156,17 +156,17 @@ class ClipSegment:
 class InterleaveDecision:
     """穿插决策"""
     narration_segment: NarrationSegment
-    clip_segment: Optional[ClipSegment]
+    clip_segment: ClipSegment | None
 
     # 穿插时序
     show_original: bool
-    original_start: Optional[float] = None
-    original_end: Optional[float] = None
+    original_start: float | None = None
+    original_end: float | None = None
 
     # 视觉效果
     transition: TransitionType = TransitionType.CUT
     zoom_factor: float = 1.0      # 放大因子
-    highlight_box: Optional[Tuple[float, float, float, float]] = None  # x,y,w,h 百分比
+    highlight_box: tuple[float, float, float, float] | None = None  # x,y,w,h 百分比
 
     # 音频
     narration_volume: float = 1.0
@@ -180,7 +180,7 @@ class InterleaveDecision:
 @dataclass
 class InterleaveTimeline:
     """穿插时间线"""
-    decisions: List[InterleaveDecision]
+    decisions: list[InterleaveDecision]
     total_duration: float
     original_video_duration: float
     narration_duration: float
@@ -191,13 +191,13 @@ class InterleaveTimeline:
 
     # 元数据
     interleave_mode: InterleaveMode = InterleaveMode.CINEMATIC
-    emotion_curve: List[float] = field(default_factory=list)
+    emotion_curve: list[float] = field(default_factory=list)
 
 
 @dataclass
 class InterleaveContext:
     """穿插上下文"""
-    target_duration: Optional[float] = None   # 目标总时长
+    target_duration: float | None = None   # 目标总时长
     max_original_ratio: float = 0.6           # 原片最大占比
     min_narration_ratio: float = 0.3          # 解说最小占比
     emotion_threshold: float = 0.7             # 情绪阈值（超过则展原片）

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 磁盘缓存实现 (DiskCache)
@@ -62,7 +61,7 @@ class DiskCache(ICache):
         """获取元数据文件路径"""
         return cache_path.with_suffix('.meta')
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """获取缓存值"""
         cache_path = self._get_cache_path(key)
         meta_path = self._get_metadata_path(cache_path)
@@ -73,7 +72,7 @@ class DiskCache(ICache):
 
         try:
             # 读取元数据
-            with open(meta_path, 'r') as f:
+            with open(meta_path) as f:
                 metadata = json.load(f)
 
             # 检查过期
@@ -103,8 +102,8 @@ class DiskCache(ICache):
             self._miss_count += 1
             return None
 
-    def set(self, key: str, value: Any, ttl: Optional[int] = None,
-            metadata: Optional[dict] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None,
+            metadata: dict | None = None) -> bool:
         """设置缓存值"""
         try:
             cache_path = self._get_cache_path(key)
@@ -162,7 +161,7 @@ class DiskCache(ICache):
 
         # 检查过期
         try:
-            with open(meta_path, 'r') as f:
+            with open(meta_path) as f:
                 metadata = json.load(f)
 
             expires_at = metadata.get('expires_at')
@@ -210,7 +209,7 @@ class DiskCache(ICache):
             policy=CachePolicy.LRU
         )
 
-    def get_entry(self, key: str) -> Optional[CacheEntry]:
+    def get_entry(self, key: str) -> CacheEntry | None:
         """获取完整缓存条目"""
         cache_path = self._get_cache_path(key)
         meta_path = self._get_metadata_path(cache_path)
@@ -219,7 +218,7 @@ class DiskCache(ICache):
             return None
 
         try:
-            with open(meta_path, 'r') as f:
+            with open(meta_path) as f:
                 metadata = json.load(f)
 
             expires_at = metadata.get('expires_at')
@@ -244,12 +243,12 @@ class DiskCache(ICache):
             logger.warning(f"Failed to load cache entry for key {key!r}: {e}")
             return None
 
-    def keys(self, pattern: Optional[str] = None) -> list[str]:
+    def keys(self, pattern: str | None = None) -> list[str]:
         """获取所有键"""
         keys = []
         for meta_file in self._cache_dir.rglob('*.meta'):
             try:
-                with open(meta_file, 'r') as f:
+                with open(meta_file) as f:
                     metadata = json.load(f)
                 key = metadata.get('key')
                 if key:
@@ -268,7 +267,7 @@ class DiskCache(ICache):
         count = 0
         for meta_file in list(self._cache_dir.rglob('*.meta')):
             try:
-                with open(meta_file, 'r') as f:
+                with open(meta_file) as f:
                     metadata = json.load(f)
 
                 expires_at = metadata.get('expires_at')

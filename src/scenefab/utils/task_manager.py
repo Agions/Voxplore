@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 后台任务管理器
@@ -7,11 +6,12 @@
 """
 
 import logging
+from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Optional
 
 
 class TaskStatus(Enum):
@@ -32,10 +32,10 @@ class Task:
     progress: float = 0.0
     message: str = ""
     result: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     created_at: datetime = field(default_factory=datetime.now)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
 
 class TaskManager:
@@ -47,8 +47,8 @@ class TaskManager:
 
     def __init__(self, max_workers: int = 4):
         self._executor = ThreadPoolExecutor(max_workers=max_workers)
-        self._tasks: Dict[str, Task] = {}
-        self._futures: Dict[str, Future] = {}
+        self._tasks: dict[str, Task] = {}
+        self._futures: dict[str, Future] = {}
         self._logger = logging.getLogger(__name__)
 
     def submit(
@@ -126,15 +126,15 @@ class TaskManager:
             return True
         return False
 
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """获取任务状态"""
         return self._tasks.get(task_id)
 
-    def get_all_tasks(self) -> Dict[str, Task]:
+    def get_all_tasks(self) -> dict[str, Task]:
         """获取所有任务"""
         return self._tasks.copy()
 
-    def get_active_tasks(self) -> Dict[str, Task]:
+    def get_active_tasks(self) -> dict[str, Task]:
         """获取活跃任务"""
         return {
             k: v for k, v in self._tasks.items()
@@ -179,7 +179,7 @@ def run_background(
     return task_manager.submit(task_id, name, func, *args, **kwargs)
 
 
-def get_task_status(task_id: str) -> Optional[Task]:
+def get_task_status(task_id: str) -> Task | None:
     """获取任务状态"""
     return task_manager.get_task(task_id)
 

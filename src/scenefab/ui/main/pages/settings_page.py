@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SceneFab 设置页 — 分类清晰的信息架构
 """

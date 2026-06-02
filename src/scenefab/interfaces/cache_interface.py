@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 
 class CachePolicy(Enum):
@@ -25,11 +25,11 @@ class CacheEntry:
     key: str
     value: Any
     created_at: datetime
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     access_count: int = 0
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
     size_bytes: int = 0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def is_expired(self) -> bool:
@@ -57,13 +57,13 @@ class ICache(ABC):
     """缓存接口"""
 
     @abstractmethod
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """获取缓存值"""
         pass
 
     @abstractmethod
-    def set(self, key: str, value: Any, ttl: Optional[int] = None,
-            metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None,
+            metadata: dict[str, Any] | None = None) -> bool:
         """设置缓存值"""
         pass
 

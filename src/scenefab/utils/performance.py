@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 性能优化模块
@@ -8,8 +7,9 @@
 
 import functools
 import time
+from collections.abc import Callable
 from threading import Lock
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Optional
 
 
 class LazyLoader:
@@ -49,12 +49,12 @@ class MemoryCache:
     """
 
     def __init__(self, max_size: int = 100, ttl: int = 3600):
-        self._cache: Dict[str, Dict] = {}
+        self._cache: dict[str, dict] = {}
         self._max_size = max_size
         self._ttl = ttl  # 秒
         self._lock = Lock()
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """获取缓存"""
         with self._lock:
             if key in self._cache:
@@ -86,7 +86,7 @@ class MemoryCache:
         with self._lock:
             self._cache.clear()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """获取缓存统计"""
         with self._lock:
             total_hits = sum(e['hits'] for e in self._cache.values())
@@ -97,7 +97,7 @@ class MemoryCache:
             }
 
 
-def cached(cache: MemoryCache, key_fn: Optional[Callable] = None):
+def cached(cache: MemoryCache, key_fn: Callable | None = None):
     """
     缓存装饰器
 
@@ -138,7 +138,7 @@ class PerformanceMonitor:
     """
 
     def __init__(self):
-        self._metrics: Dict[str, List[float]] = {}
+        self._metrics: dict[str, list[float]] = {}
         self._lock = Lock()
 
     def record(self, name: str, duration: float):
@@ -162,7 +162,7 @@ class PerformanceMonitor:
             return wrapper
         return decorator
 
-    def get_stats(self, name: str = None) -> Dict:
+    def get_stats(self, name: str = None) -> dict:
         """获取统计数据"""
         with self._lock:
             if name:

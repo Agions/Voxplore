@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 AI Provider 注册表
 
@@ -154,7 +153,7 @@ class ProviderRegistry:
         if not config_path.exists():
             raise FileNotFoundError(f"Config file not found: {config_path}")
 
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(config_path, encoding="utf-8") as f:
             self._config = yaml.safe_load(f)
 
         # 设置默认 Provider

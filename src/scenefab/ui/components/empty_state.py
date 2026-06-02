@@ -171,7 +171,7 @@ class MacEmptyStateV2(QWidget):
         description: str = "",
         primary_action_text: str = "",
         secondary_action_text: str = "",
-        parent: Optional[QWidget] = None
+        parent: QWidget | None = None
     ):
         super().__init__(parent)
         self._icon_type = icon_type

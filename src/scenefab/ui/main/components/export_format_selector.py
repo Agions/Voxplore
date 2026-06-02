@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 导出格式选择器
 提供导出格式和预设设置对话框
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from PySide6.QtWidgets import (
     QComboBox,
@@ -141,7 +140,7 @@ class ExportSettingsDialog(QDialog):
         else:
             self.resolution_combo.setCurrentText("自定义")
 
-    def get_preset_data(self) -> Dict[str, Any]:
+    def get_preset_data(self) -> dict[str, Any]:
         """获取预设数据"""
         return {
             "name": self.name_input.text(),

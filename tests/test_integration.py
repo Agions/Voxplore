@@ -233,7 +233,7 @@ class TestScriptGeneratorIntegration:
     """文案生成器集成测试"""
 
     @pytest.fixture
-    async def manager(self) -> Optional[LLMManager]:
+    async def manager(self) -> LLMManager | None:
         """创建 LLM 管理器（如果可用）"""
 
         providers = []

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SceneFab Design System v6
 语义化色彩体系 + 组件级变量

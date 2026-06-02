@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 缓存管理器
@@ -15,7 +14,7 @@
 
 import logging
 from threading import Lock
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from .cache_impl.disk_cache import DiskCache
 from .cache_impl.memory_cache import MemoryCache
@@ -45,7 +44,7 @@ class CacheManager:
     def __init__(self):
         if not self._initialized:
             self._memory_cache = MemoryCache()
-            self._disk_cache: Optional[DiskCache] = None
+            self._disk_cache: DiskCache | None = None
             self._initialized = True
 
     @classmethod
@@ -63,7 +62,7 @@ class CacheManager:
         """
         self._disk_cache = DiskCache(cache_dir, max_size_mb)
 
-    def get(self, key: str, use_disk: bool = True) -> Optional[Any]:
+    def get(self, key: str, use_disk: bool = True) -> Any | None:
         """
         获取缓存值
 
@@ -91,8 +90,8 @@ class CacheManager:
 
         return None
 
-    def set(self, key: str, value: Any, ttl: Optional[int] = None,
-            use_disk: bool = False, metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def set(self, key: str, value: Any, ttl: int | None = None,
+            use_disk: bool = False, metadata: dict[str, Any] | None = None) -> bool:
         """
         设置缓存值
 
@@ -135,7 +134,7 @@ class CacheManager:
         if clear_disk and self._disk_cache:
             self._disk_cache.clear()
 
-    def get_stats(self) -> Dict[str, CacheStats]:
+    def get_stats(self) -> dict[str, CacheStats]:
         """获取缓存统计"""
         stats = {
             'memory': self._memory_cache.get_stats()
@@ -155,7 +154,7 @@ class CacheManager:
         """获取内存缓存"""
         return self._memory_cache
 
-    def get_disk_cache(self) -> Optional[DiskCache]:
+    def get_disk_cache(self) -> DiskCache | None:
         """获取磁盘缓存"""
         return self._disk_cache
 
@@ -166,7 +165,7 @@ def get_cache_manager() -> CacheManager:
     return CacheManager.get_instance()
 
 
-def cached(ttl: Optional[int] = None, use_disk: bool = False):
+def cached(ttl: int | None = None, use_disk: bool = False):
     """
     缓存装饰器
 

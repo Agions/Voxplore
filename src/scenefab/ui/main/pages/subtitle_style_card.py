@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """字幕样式卡片组件
 
 从 step_export.py 提取 SubtitleStyleCard

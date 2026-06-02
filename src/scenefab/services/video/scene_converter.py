@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 场景转换与情感曲线生成器
@@ -9,7 +8,7 @@
 """
 
 import uuid
-from typing import List, Optional
+from typing import Optional
 
 from scenefab.services.ai.scene_models import SceneInfo, SceneType
 from scenefab.services.video.models.monologue import EmotionType, MonologueSegment
@@ -91,7 +90,7 @@ class SceneConverter:
             atmosphere = "neutral"
 
         # 关键物体从描述中简单提取（逗号分隔）
-        key_objects: List[str] = (
+        key_objects: list[str] = (
             [k.strip() for k in scene_info.description.split(",") if k.strip()]
             if scene_info.description
             else []
@@ -112,7 +111,7 @@ class SceneConverter:
     @staticmethod
     def from_monologue_segment(
         segment: MonologueSegment,
-        segment_id: Optional[str] = None,
+        segment_id: str | None = None,
     ) -> NarrationSegment:
         """
         将 MonologueSegment 转换为 NarrationSegment。
@@ -176,8 +175,8 @@ class EmotionCurveGenerator:
 
     def get_segment_emotions(
         self,
-        segments: List[MonologueSegment],
-    ) -> List[float]:
+        segments: list[MonologueSegment],
+    ) -> list[float]:
         """
         返回每个片段的平均情感强度（不做时间展平与平滑）。
         用于快速检查各片段的情感分布。

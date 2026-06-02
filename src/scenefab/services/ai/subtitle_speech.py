@@ -13,7 +13,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.base import get_seg_attr
@@ -42,7 +42,7 @@ class SpeechSubtitleExtractor:
         "large-v3": {"name": "Whisper Large V3", "params": "~1550M", "VRAM": "~5GB (int8)"},
     }
 
-    def __init__(self, api_key: Optional[str] = None,
+    def __init__(self, api_key: str | None = None,
                  mode: str = "local",
                  local_model: str = "medium"):
         """
@@ -98,7 +98,7 @@ class SpeechSubtitleExtractor:
         return result
 
     def _transcribe_api(self, audio_path: str,
-                        language: str) -> List[SubtitleSegment]:
+                        language: str) -> list[SubtitleSegment]:
         """使用 OpenAI Whisper API 转录"""
         from openai import OpenAI
 
@@ -134,7 +134,7 @@ class SpeechSubtitleExtractor:
         return segments
 
     def _transcribe_local(self, audio_path: str,
-                          language: str) -> List[SubtitleSegment]:
+                          language: str) -> list[SubtitleSegment]:
         """使用本地 faster-whisper 模型转录(CPU/GPU 自动检测)"""
         try:
             from faster_whisper import WhisperModel
@@ -203,7 +203,7 @@ class SpeechSubtitleExtractor:
 
         return segments
 
-    def _detect_device(self) -> Tuple[str, str, Optional[int]]:
+    def _detect_device(self) -> tuple[str, str, int | None]:
         """
         自动检测可用的计算设备
 
@@ -226,7 +226,7 @@ class SpeechSubtitleExtractor:
         # CPU 方案：int8 量化（2.4x 加速 vs fp32）
         return ("cpu", "int8", None)
 
-    def get_available_models(self) -> List[str]:
+    def get_available_models(self) -> list[str]:
         """获取可用的本地模型列表"""
         return list(self.WHISPER_MODELS.keys())
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """智能分组结果展示页面
 
 Task 2.2 UX 改善:

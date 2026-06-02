@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 LLM Provider 标准化 Pydantic 模型
@@ -14,7 +13,7 @@ LLM Provider 标准化 Pydantic 模型
 - ChatResponse   - 聊天响应
 """
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -31,16 +30,16 @@ class ChatMessage(BaseModel):
     content: str = ""
 
     # 可选扩展字段
-    name: Optional[str] = None           # user name (某些 API 支持)
-    tool_calls: Optional[List[Dict]] = None  # function/tool calls
-    tool_call_id: Optional[str] = None   # tool call response
+    name: str | None = None           # user name (某些 API 支持)
+    tool_calls: list[dict] | None = None  # function/tool calls
+    tool_call_id: str | None = None   # tool call response
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转为字典（适配 OpenAI 格式）"""
         return {k: v for k, v in self.model_dump().items() if v is not None}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ChatMessage":
+    def from_dict(cls, data: dict[str, Any]) -> "ChatMessage":
         """从字典创建"""
         return cls(
             role=data.get("role", "user"),
@@ -62,10 +61,10 @@ class UsageInfo(BaseModel):
     total_tokens: int = 0
 
     # 扩展字段（Provider 特有）
-    extra: Dict[str, Any] = Field(default_factory=dict)
+    extra: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
-    def from_openai(cls, data: Dict[str, Any]) -> "UsageInfo":
+    def from_openai(cls, data: dict[str, Any]) -> "UsageInfo":
         """从 OpenAI 格式 usage 创建"""
         return cls(
             prompt_tokens=data.get("prompt_tokens", 0),
@@ -76,7 +75,7 @@ class UsageInfo(BaseModel):
         )
 
     @classmethod
-    def from_claude(cls, data: Dict[str, Any]) -> "UsageInfo":
+    def from_claude(cls, data: dict[str, Any]) -> "UsageInfo":
         """从 Claude 格式 usage 创建"""
         return cls(
             prompt_tokens=data.get("input_tokens", 0),
@@ -87,7 +86,7 @@ class UsageInfo(BaseModel):
         )
 
     @classmethod
-    def from_gemini(cls, data: Dict[str, Any]) -> "UsageInfo":
+    def from_gemini(cls, data: dict[str, Any]) -> "UsageInfo":
         """从 Gemini 格式 usage 创建"""
         return cls(
             prompt_tokens=data.get("promptTokenCount", 0),
@@ -98,7 +97,7 @@ class UsageInfo(BaseModel):
         )
 
     @classmethod
-    def from_hunyuan(cls, data: Dict[str, Any]) -> "UsageInfo":
+    def from_hunyuan(cls, data: dict[str, Any]) -> "UsageInfo":
         """从腾讯混元格式 usage 创建"""
         return cls(
             prompt_tokens=data.get("PromptTokens", 0),
@@ -108,7 +107,7 @@ class UsageInfo(BaseModel):
                    if k not in ("PromptTokens", "CompletionTokens", "TotalTokens")},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转为标准字典"""
         return self.model_dump()
 
@@ -119,18 +118,18 @@ class ChatRequest(BaseModel):
 
     统一各 Provider 的请求格式。
     """
-    messages: List[ChatMessage] = Field(default_factory=list)
+    messages: list[ChatMessage] = Field(default_factory=list)
     model: str = "default"
     temperature: float = 0.7
     max_tokens: int = 2000
     top_p: float = 0.9
     streaming: bool = False
-    stop: Optional[List[str]] = None       # 停止词
-    tools: Optional[List[Dict]] = None      # function calling
-    tool_choice: Optional[str] = None       # auto/none
+    stop: list[str] | None = None       # 停止词
+    tools: list[dict] | None = None      # function calling
+    tool_choice: str | None = None       # auto/none
 
     # 扩展参数
-    extra: Dict[str, Any] = Field(default_factory=dict)
+    extra: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
     def from_llm_request(cls, req: "LLMRequest") -> "ChatRequest":
@@ -157,7 +156,7 @@ class ChatRequest(BaseModel):
             top_p=req.top_p,
         )
 
-    def to_openai_dict(self) -> Dict[str, Any]:
+    def to_openai_dict(self) -> dict[str, Any]:
         """转为 OpenAI API 格式"""
         d = self.model_dump(exclude_unset=True)
         d["messages"] = [m.to_dict() for m in self.messages]
@@ -175,7 +174,7 @@ class ChatResponse(BaseModel):
     model: str = ""
     usage: UsageInfo = Field(default_factory=UsageInfo)
     finish_reason: str = "stop"
-    raw_response: Optional[Dict[str, Any]] = None
+    raw_response: dict[str, Any] | None = None
     latency_ms: float = 0.0
 
     @classmethod
@@ -201,7 +200,7 @@ class ChatResponse(BaseModel):
             latency_ms=resp.latency_ms,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转为标准字典"""
         d = self.model_dump(exclude_none=True)
         d["usage"] = self.usage.to_dict()

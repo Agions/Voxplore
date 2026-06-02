@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 AI 文案生成器 (Script Generator)
@@ -38,7 +37,7 @@ AI 文案生成器 (Script Generator)
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .base_llm_provider import LLMRequest
 from .llm_manager import LLMManager, load_llm_config
@@ -120,10 +119,10 @@ class ScriptGenerator:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         use_llm_manager: bool = False,
-        llm_config: Optional[Dict[str, Any]] = None,
-        llm_config_file: Optional[str] = None,
+        llm_config: dict[str, Any] | None = None,
+        llm_config_file: str | None = None,
         batch_size: int = 4,  # 批量生成的段数
         min_words_for_batch: int = 50,  # 小于此字数的短请求优先合并
     ):
@@ -139,7 +138,7 @@ class ScriptGenerator:
             min_words_for_batch: 小于此字数的请求会被合并
         """
         self.use_llm_manager = use_llm_manager
-        self.llm_manager: Optional[LLMManager] = None
+        self.llm_manager: LLMManager | None = None
         self.batch_size = batch_size
         self.min_words_for_batch = min_words_for_batch
 
@@ -175,7 +174,7 @@ class ScriptGenerator:
     def generate(
         self,
         topic: str,
-        config: Optional[ScriptConfig] = None,
+        config: ScriptConfig | None = None,
     ) -> GeneratedScript:
         """
         生成文案
@@ -261,8 +260,8 @@ class ScriptGenerator:
 
     def generate_batch(
         self,
-        requests: List[tuple[str, ScriptConfig]],
-    ) -> List[GeneratedScript]:
+        requests: list[tuple[str, ScriptConfig]],
+    ) -> list[GeneratedScript]:
         """
         批量生成多段文案（合并 API 调用）
 
@@ -295,8 +294,8 @@ class ScriptGenerator:
 
     async def _generate_batch_async(
         self,
-        requests: List[tuple[str, ScriptConfig]],
-    ) -> List[GeneratedScript]:
+        requests: list[tuple[str, ScriptConfig]],
+    ) -> list[GeneratedScript]:
         """
         异步批量生成（使用 LLMManager）
 
@@ -324,7 +323,7 @@ class ScriptGenerator:
             else:
                 long_reqs.append((topic, config))
 
-        results: List[GeneratedScript] = []
+        results: list[GeneratedScript] = []
 
         # 处理长请求（单独调用）
         for topic, config in long_reqs:
@@ -368,8 +367,8 @@ class ScriptGenerator:
 
     async def _generate_batch_single_call(
         self,
-        batch: List[tuple[str, ScriptConfig]],
-    ) -> List[GeneratedScript]:
+        batch: list[tuple[str, ScriptConfig]],
+    ) -> list[GeneratedScript]:
         """
         单次 API 调用生成多个短请求
 
@@ -414,7 +413,7 @@ class ScriptGenerator:
             logger.warning(f"批量生成失败，回退到逐段调用: {e}")
             return [self._generate_single_fallback(topic, config) for topic, config in batch]
 
-    def _build_batch_prompt(self, batch: List[tuple[str, ScriptConfig]]) -> str:
+    def _build_batch_prompt(self, batch: list[tuple[str, ScriptConfig]]) -> str:
         """
         构建批量请求的提示词
         """
@@ -459,8 +458,8 @@ class ScriptGenerator:
     def _parse_batch_response(
         self,
         content: str,
-        batch: List[tuple[str, ScriptConfig]],
-    ) -> List[GeneratedScript]:
+        batch: list[tuple[str, ScriptConfig]],
+    ) -> list[GeneratedScript]:
         """
         解析批量生成的响应
         """
@@ -628,7 +627,7 @@ class ScriptGenerator:
         self,
         topic: str,
         duration: float = 30.0,
-        keywords: Optional[List[str]] = None,
+        keywords: list[str] | None = None,
     ) -> GeneratedScript:
         """
         生成爆款文案（快捷方法）
@@ -740,7 +739,7 @@ class ScriptGenerator:
         self,
         script: GeneratedScript,
         _max_chars: int = 20,  # reserved for char-based splitting (not yet used)
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         将文案拆分为字幕
 
@@ -808,7 +807,7 @@ def generate_script(
     style: ScriptStyle = ScriptStyle.COMMENTARY,
     duration: float = 60.0,
     use_llm_manager: bool = True,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> GeneratedScript:
     """
     快速生成文案

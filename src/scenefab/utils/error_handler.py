@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 错误处理模块 ✅ 优化版本
@@ -14,10 +13,11 @@ import sys
 import threading
 import time
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Optional
 
 from PySide6.QtWidgets import QMessageBox, QWidget
 
@@ -45,10 +45,10 @@ class ErrorInfo:
     severity: str
     message: str
     category: str = "unknown"     # ✅ 新增：错误类别
-    exception: Optional[Exception] = None
+    exception: Exception | None = None
     details: str = ""
     retry_count: int = 0         # ✅ 新增：重试次数
-    context: Dict[str, Any] = field(default_factory=dict)  # ✅ 新增：上下文
+    context: dict[str, Any] = field(default_factory=dict)  # ✅ 新增：上下文
 
 
 # ============ 错误恢复策略 ============
@@ -118,7 +118,7 @@ class AsyncErrorHandler:
         error_message: str = "异步操作失败",
         on_retry: Callable[[ErrorInfo], None] = None,
         **kwargs
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """
         安全执行异步函数
 
@@ -215,7 +215,7 @@ class ErrorHandler:
 
     def show_error_dialog(
         self,
-        parent: Optional[QWidget],
+        parent: QWidget | None,
         title: str,
         message: str,
         details: str = "",
@@ -257,7 +257,7 @@ class ErrorHandler:
 
     def log_and_show_error(
         self,
-        parent: Optional[QWidget],
+        parent: QWidget | None,
         error_info: ErrorInfo,
         show_dialog: bool = True
     ) -> None:
@@ -279,7 +279,7 @@ class ErrorHandler:
                 error_info.category
             )
 
-    def get_error_summary(self) -> Dict[str, int]:
+    def get_error_summary(self) -> dict[str, int]:
         """获取错误统计摘要"""
         summary = {}
         for error in self._error_history:
@@ -381,7 +381,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 def show_error_dialog(
-    parent: Optional[QWidget],
+    parent: QWidget | None,
     title: str,
     message: str,
     details: str = "",
@@ -444,13 +444,13 @@ def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
 
 def safe_execute(
     func: Callable,
-    parent: Optional[QWidget] = None,
+    parent: QWidget | None = None,
     error_message: str = "操作失败",
     logger = None,
     category: str = "unknown",
     *args,
     **kwargs
-) -> Optional[Any]:
+) -> Any | None:
     """安全执行函数
 
     Args:
@@ -493,7 +493,7 @@ def safe_execute(
 
 # ============ 全局实例 ============
 
-_async_error_handler: Optional[AsyncErrorHandler] = None
+_async_error_handler: AsyncErrorHandler | None = None
 _error_handler_lock = threading.Lock()
 
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 项目管理页面 - 重构版
@@ -35,8 +34,8 @@ class ProjectsPage(BasePage):
         self._settings_manager = application.get_service_by_name("settings_manager")
 
         # 面板引用
-        self._list_panel: Optional[QWidget] = None
-        self._details_panel: Optional[QWidget] = None
+        self._list_panel: QWidget | None = None
+        self._details_panel: QWidget | None = None
 
         self._check_services()
 

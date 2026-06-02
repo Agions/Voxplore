@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Emotion Controller Component
@@ -19,7 +18,7 @@ Emotion Controller Component
     controller.curve_confirmed.connect(on_curve_confirmed)
 """
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
@@ -54,7 +53,7 @@ class EmotionController(QWidget):
     emotion_changed = Signal(str, float)  # emotion_name, intensity
     curve_confirmed = Signal(list)         # curve_data (11 floats)
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         """
         初始化情感控制器
 
@@ -66,17 +65,17 @@ class EmotionController(QWidget):
         # 状态
         self._current_emotion: str = "healing"
         self._current_intensity: float = 0.5
-        self._current_curve: List[float] = EMOTION_PRESETS["healing"]["curve_template"].copy()
+        self._current_curve: list[float] = EMOTION_PRESETS["healing"]["curve_template"].copy()
 
         # 预设按钮
-        self._preset_buttons: Dict[str, EmotionPresetButton] = {}
+        self._preset_buttons: dict[str, EmotionPresetButton] = {}
 
         # UI 组件
-        self._title_label: Optional[QLabel] = None
-        self._state_label: Optional[QLabel] = None
-        self._curve_widget: Optional[EmotionCurveWidget] = None
-        self._intensity_slider: Optional[QSlider] = None
-        self._confirm_button: Optional[QPushButton] = None
+        self._title_label: QLabel | None = None
+        self._state_label: QLabel | None = None
+        self._curve_widget: EmotionCurveWidget | None = None
+        self._intensity_slider: QSlider | None = None
+        self._confirm_button: QPushButton | None = None
 
         self._setup_ui()
         self._setup_styles()
@@ -447,7 +446,7 @@ class EmotionController(QWidget):
         """
         return self._current_intensity
 
-    def get_current_curve(self) -> List[float]:
+    def get_current_curve(self) -> list[float]:
         """
         获取当前曲线数据
 
@@ -493,7 +492,7 @@ class EmotionController(QWidget):
 # 便捷函数
 # ============================================================
 
-def create_emotion_controller(parent: Optional[QWidget] = None) -> EmotionController:
+def create_emotion_controller(parent: QWidget | None = None) -> EmotionController:
     """
     创建情感控制器的便捷函数
 

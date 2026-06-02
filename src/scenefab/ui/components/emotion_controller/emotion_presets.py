@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Emotion Presets Data
@@ -13,7 +12,7 @@ Emotion Presets Data
 - 浪漫 (romantic): 粉红色，曲线柔和流畅
 """
 
-from typing import Dict, List
+
 
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QPushButton
@@ -23,7 +22,7 @@ EMOTION_PRESET = {
     "name": str,           # 英文名
     "name_cn": str,        # 中文名
     "color_hex": str,      # 颜色 (hex)
-    "curve_template": List[float],  # 曲线模板 (10个点, 0.0-1.0)
+    "curve_template": list[float],  # 曲线模板 (10个点, 0.0-1.0)
     "description": str,    # 描述
 }
 
@@ -31,7 +30,7 @@ EMOTION_PRESET = {
 # 10个浮点数代表在 0%, 10%, 20%, ... 90%, 100% 时间点上的情感强度
 # 数值范围 0.0-1.0
 
-EMOTION_PRESETS: Dict[str, EMOTION_PRESET] = {
+EMOTION_PRESETS: dict[str, EMOTION_PRESET] = {
     "healing": {
         "name": "healing",
         "name_cn": "治愈",
@@ -158,7 +157,7 @@ def get_preset_by_name(name: str) -> EMOTION_PRESET:
     raise KeyError(f"未找到情感预设: {name}")
 
 
-def get_all_preset_names() -> List[str]:
+def get_all_preset_names() -> list[str]:
     """
     获取所有预设名称列表
 
@@ -168,7 +167,7 @@ def get_all_preset_names() -> List[str]:
     return list(EMOTION_PRESETS.keys())
 
 
-def interpolate_curve(curve: List[float], num_points: int) -> List[float]:
+def interpolate_curve(curve: list[float], num_points: int) -> list[float]:
     """
     对曲线进行插值，获取更多采样点
 
@@ -203,7 +202,7 @@ def interpolate_curve(curve: List[float], num_points: int) -> List[float]:
     return result
 
 
-def smooth_curve(curve: List[float], iterations: int = 1) -> List[float]:
+def smooth_curve(curve: list[float], iterations: int = 1) -> list[float]:
     """
     平滑曲线
 
@@ -295,7 +294,7 @@ class EmotionPresetButton(QPushButton):
             return QColor(self.preset["color_hex"])
         return QColor("#FFFFFF")
 
-    def get_curve_template(self) -> List[float]:
+    def get_curve_template(self) -> list[float]:
         """获取预设曲线模板"""
         if self.preset:
             return self.preset["curve_template"].copy()

@@ -3,7 +3,7 @@ Cinematic Subtitle Plugin
 电影感字幕插件 - 提供 ASS 格式的电影级字幕样式
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from scenefab.plugins.interfaces.export_plugin import BaseExportPlugin
 
@@ -26,7 +26,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
     def get_file_extension(self) -> str:
         return ".ass"
 
-    def get_export_options(self) -> List[Dict[str, Any]]:
+    def get_export_options(self) -> list[dict[str, Any]]:
         return [
             {
                 "name": "style",
@@ -82,9 +82,9 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
 
     def export(
         self,
-        project_data: Dict[str, Any],
+        project_data: dict[str, Any],
         output_path: str,
-        options: Optional[Dict[str, Any]] = None,
+        options: dict[str, Any] | None = None,
     ) -> bool:
         """
         生成 ASS 字幕文件
@@ -123,7 +123,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
 
     def _generate_ass(
         self,
-        subtitles: List[Dict[str, Any]],
+        subtitles: list[dict[str, Any]],
         style: str,
         font_size: int,
         primary_color: str,
@@ -224,7 +224,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         outline_color: str,
         outline_width: float,
         shadow: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """获取风格参数"""
 
         params = {
@@ -257,7 +257,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         s = seconds % 60
         return f"{h}:{m:02d}:{s:05.2f}"
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "version": self.version,

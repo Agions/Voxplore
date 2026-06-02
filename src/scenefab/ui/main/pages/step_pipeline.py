@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Step 2: Pipeline 执行 — OKLCH Design Tokens"""
 
 from PySide6.QtCore import Qt, QTimer, Signal

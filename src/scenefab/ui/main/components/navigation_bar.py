@@ -4,7 +4,7 @@
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QWidget
@@ -219,7 +219,7 @@ class NavigationBar(QWidget):
 
         self.current_page_id = page_id
 
-    def get_current_page(self) -> Optional[str]:
+    def get_current_page(self) -> str | None:
         """获取当前页面"""
         return self.current_page_id
 
@@ -234,7 +234,7 @@ class NavigationBar(QWidget):
                 item.enabled = enabled
                 break
 
-    def get_navigation_items(self) -> List[NavigationItem]:
+    def get_navigation_items(self) -> list[NavigationItem]:
         """获取所有导航项"""
         return self.navigation_items.copy()
 
@@ -245,7 +245,7 @@ class NavigationBar(QWidget):
 
 
 # 预定义的导航项
-def create_default_navigation_items() -> List[NavigationItem]:
+def create_default_navigation_items() -> list[NavigationItem]:
     """创建默认导航项 - 简化版：首页、项目管理、设置"""
     return [
         NavigationItem(
@@ -269,7 +269,7 @@ def create_default_navigation_items() -> List[NavigationItem]:
     ]
 
 
-def create_navigation_bar(items: List[NavigationItem] = None) -> NavigationBar:
+def create_navigation_bar(items: list[NavigationItem] = None) -> NavigationBar:
     """创建导航栏"""
     nav_bar = NavigationBar()
 

@@ -8,9 +8,10 @@
 
 import uuid
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Generic, List, Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..export.jianying_adapter import (
@@ -35,7 +36,7 @@ class BaseProject:
     source_video: str = ""
     video_duration: float = 0.0
     output_dir: str = ""
-    scenes: List[SceneInfo] = field(default_factory=list)
+    scenes: list[SceneInfo] = field(default_factory=list)
 
 
 T = TypeVar("T", bound=BaseProject)
@@ -45,7 +46,7 @@ class ProgressMixin:
     """进度回调 Mixin"""
 
     def __init__(self):
-        self._progress_callback: Optional[Callable[[str, float], None]] = None
+        self._progress_callback: Callable[[str, float], None] | None = None
 
     def set_progress_callback(self, callback: Callable[[str, float], None]) -> None:
         """设置进度回调"""
@@ -77,8 +78,8 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
     def create_project(
         self,
         source_video: str,
-        name: Optional[str] = None,
-        output_dir: Optional[str] = None,
+        name: str | None = None,
+        output_dir: str | None = None,
         **kwargs,
     ) -> T:
         """创建项目（子类实现）"""
@@ -88,8 +89,8 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
         self,
         project: T,
         source_video: str,
-        name: Optional[str] = None,
-        output_dir: Optional[str] = None,
+        name: str | None = None,
+        output_dir: str | None = None,
     ) -> T:
         """初始化项目公共属性"""
         source_path = Path(source_video)
@@ -154,7 +155,7 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
         draft: JianyingDraft,
         source_video: str,
         duration: float,
-        segments_data: Optional[List[Dict]] = None,
+        segments_data: list[dict] | None = None,
     ) -> Track:
         """创建视频轨道"""
         video_track = Track(type=TrackType.VIDEO, attribute=1)
@@ -174,7 +175,7 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
         draft: JianyingDraft,
         audio_path: str,
         duration: float,
-        segments_data: Optional[List[Dict]] = None,
+        segments_data: list[dict] | None = None,
     ) -> Track:
         """创建音频轨道"""
         audio_track = Track(type=TrackType.AUDIO)
@@ -192,7 +193,7 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
 
 def _add_segments_to_track(
-    track: Track, material_id: str, segments_data: Optional[List[Dict]]
+    track: Track, material_id: str, segments_data: list[dict] | None
 ) -> None:
     """Add segments to a track from segments_data dict"""
     if not segments_data:
@@ -213,8 +214,8 @@ def _add_segments_to_track(
     def _create_text_track(
         self,
         draft: JianyingDraft,
-        captions: List[Dict],
-        caption_style: Optional[Dict] = None,
+        captions: list[dict],
+        caption_style: dict | None = None,
     ) -> Track:
         """创建字幕轨道"""
         text_track = Track(type=TrackType.TEXT)

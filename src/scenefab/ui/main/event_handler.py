@@ -4,7 +4,7 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 class MainWindowEventHandler:
@@ -15,7 +15,7 @@ class MainWindowEventHandler:
         self.logger = logging.getLogger(__name__)
 
         # 状态消息映射
-        self._status_messages: Dict[str, str] = {
+        self._status_messages: dict[str, str] = {
             "initializing": "正在初始化...",
             "ready": "就绪",
             "loading": "正在加载...",

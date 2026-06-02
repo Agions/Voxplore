@@ -3,7 +3,7 @@ Timeline Shuttle Component
 时间线穿梭器 - 解说与原片时间线对照编辑
 """
 
-from typing import Dict, List, Tuple
+
 
 from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
@@ -40,7 +40,7 @@ class TimelineRuler(QWidget):
         self.duration = 0.0       # 总时长（秒）
         self.position = 0.0       # 当前播放位置
         self.scale = 50.0          # 每秒像素数
-        self.markers: List[Tuple[float, str]] = []  # (时间, 标签)
+        self.markers: list[tuple[float, str]] = []  # (时间, 标签)
 
         self.setMinimumHeight(30)
         self.setMaximumHeight(30)
@@ -161,7 +161,7 @@ class TimelineTrack(QWidget):
         super().__init__(parent)
         self.name = name
         self.track_type = track_type
-        self.segments: List[Dict] = []
+        self.segments: list[dict] = []
         self.duration = 0.0
         self.scale = 50.0
         self.height_hint = 40
@@ -169,7 +169,7 @@ class TimelineTrack(QWidget):
         self.setMinimumHeight(self.height_hint)
         self.setMaximumHeight(self.height_hint)
 
-    def set_segments(self, segments: List[Dict]):
+    def set_segments(self, segments: list[dict]):
         """设置轨道片段"""
         self.segments = segments
         self.update()
@@ -256,9 +256,9 @@ class TimelineShuttle(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.narration_segments: List[NarrationSegment] = []
-        self.original_clips: List[ClipSegment] = []
-        self.decisions: List[InterleaveDecision] = []
+        self.narration_segments: list[NarrationSegment] = []
+        self.original_clips: list[ClipSegment] = []
+        self.decisions: list[InterleaveDecision] = []
         self.duration = 0.0
         self.position = 0.0
         self.scale = 50.0  # px/sec
@@ -477,7 +477,7 @@ class TimelineShuttle(QFrame):
 
         self._update_time_label()
 
-    def set_narration_segments(self, segments: List[NarrationSegment]) -> None:
+    def set_narration_segments(self, segments: list[NarrationSegment]) -> None:
         """设置解说片段"""
         self.narration_segments = segments
         self.duration = max(d.end_time for (d) in segments) if segments else 0
@@ -495,7 +495,7 @@ class TimelineShuttle(QFrame):
         self.narration_track.set_duration(self.duration)
         self.narration_track.set_scale(self.scale)
 
-    def set_original_clips(self, clips: List[ClipSegment]) -> None:
+    def set_original_clips(self, clips: list[ClipSegment]) -> None:
         """设置原片片段"""
         self.original_clips = clips
 

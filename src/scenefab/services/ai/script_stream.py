@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 流式文案生成器 (Streaming Script Generator)
@@ -25,7 +24,8 @@
 import asyncio
 import json
 import logging
-from typing import Any, AsyncIterator, Callable, Dict, Optional
+from collections.abc import AsyncIterator, Callable
+from typing import Any, Optional
 
 from .script_generator import ScriptGenerator
 from .script_models import (
@@ -58,10 +58,10 @@ class StreamingScriptGenerator(ScriptGenerator):
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         use_llm_manager: bool = True,
-        llm_config: Optional[Dict[str, Any]] = None,
-        llm_config_file: Optional[str] = None,
+        llm_config: dict[str, Any] | None = None,
+        llm_config_file: str | None = None,
         stream_enabled: bool = True,
     ):
         """
@@ -85,9 +85,9 @@ class StreamingScriptGenerator(ScriptGenerator):
     def generate_streaming(
         self,
         topic: str,
-        config: Optional[ScriptConfig] = None,
-        callback: Optional[Callable[[str], None]] = None,
-        sentiment_callback: Optional[Callable[[str, float], None]] = None,
+        config: ScriptConfig | None = None,
+        callback: Callable[[str], None] | None = None,
+        sentiment_callback: Callable[[str, float], None] | None = None,
     ) -> GeneratedScript:
         """
         流式生成文案
@@ -126,8 +126,8 @@ class StreamingScriptGenerator(ScriptGenerator):
         self,
         topic: str,
         config: ScriptConfig,
-        callback: Optional[Callable[[str], None]],
-        sentiment_callback: Optional[Callable[[str, float], None]],
+        callback: Callable[[str], None] | None,
+        sentiment_callback: Callable[[str, float], None] | None,
     ) -> GeneratedScript:
         """
         使用 LLMManager 进行流式生成
@@ -165,8 +165,8 @@ class StreamingScriptGenerator(ScriptGenerator):
         self,
         topic: str,
         config: ScriptConfig,
-        callback: Optional[Callable[[str], None]],
-        sentiment_callback: Optional[Callable[[str, float], None]],
+        callback: Callable[[str], None] | None,
+        sentiment_callback: Callable[[str, float], None] | None,
     ) -> GeneratedScript:
         """
         异步流式生成（内部方法）
@@ -212,7 +212,7 @@ class StreamingScriptGenerator(ScriptGenerator):
     async def _stream_generate(
         self,
         request,
-        provider_type: Optional[Any],
+        provider_type: Any | None,
     ) -> AsyncIterator[str]:
         """
         异步流式生成
@@ -235,7 +235,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             logger.error(f"流式生成错误: {e}")
             yield ""
 
-    def _provider_supports_streaming(self, provider_type: Optional[Any]) -> bool:
+    def _provider_supports_streaming(self, provider_type: Any | None) -> bool:
         """检查 provider 是否支持流式 API"""
         if provider_type is None:
             return True
@@ -279,7 +279,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         self,
         topic: str,
         config: ScriptConfig,
-        callback: Optional[Callable[[str], None]],
+        callback: Callable[[str], None] | None,
     ) -> GeneratedScript:
         """
         回退的流式生成（模拟流式效果）
@@ -316,9 +316,9 @@ class StreamingScriptGenerator(ScriptGenerator):
     def generate_streaming_async(
         self,
         topic: str,
-        config: Optional[ScriptConfig] = None,
-        callback: Optional[Callable[[str], None]] = None,
-        sentiment_callback: Optional[Callable[[str, float], None]] = None,
+        config: ScriptConfig | None = None,
+        callback: Callable[[str], None] | None = None,
+        sentiment_callback: Callable[[str, float], None] | None = None,
     ) -> asyncio.Future:
         """异步流式生成（返回 Future）"""
         loop = asyncio.get_event_loop()
@@ -333,7 +333,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         context: str,
         emotion: str = "neutral",
         duration: float = 30.0,
-        callback: Optional[Callable[[str], None]] = None,
+        callback: Callable[[str], None] | None = None,
     ) -> GeneratedScript:
         """流式生成独白文案"""
         config = ScriptConfig(
@@ -349,7 +349,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         topic: str,
         duration: float = 60.0,
         tone: VoiceTone = VoiceTone.NEUTRAL,
-        callback: Optional[Callable[[str], None]] = None,
+        callback: Callable[[str], None] | None = None,
     ) -> GeneratedScript:
         """流式生成解说文案"""
         config = ScriptConfig(
@@ -363,7 +363,7 @@ class StreamingScriptGenerator(ScriptGenerator):
     def generate_sse_stream(
         self,
         topic: str,
-        config: Optional[ScriptConfig] = None,
+        config: ScriptConfig | None = None,
     ) -> AsyncIterator[str]:
         """生成 SSE (Server-Sent Events) 格式的流"""
         cfg = config if config is not None else ScriptConfig()
@@ -423,8 +423,8 @@ class StreamingScriptGenerator(ScriptGenerator):
     def stream_to_iterator(
         self,
         topic: str,
-        config: Optional[ScriptConfig] = None,
-    ) -> AsyncIterator[Dict[str, Any]]:
+        config: ScriptConfig | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
         """生成流式输出的异步迭代器"""
         cfg = config if config is not None else ScriptConfig()
 
@@ -450,8 +450,8 @@ class StreamingScriptGenerator(ScriptGenerator):
 
 def generate_script_streaming(
     topic: str,
-    config: Optional[ScriptConfig] = None,
-    callback: Optional[Callable[[str], None]] = None,
+    config: ScriptConfig | None = None,
+    callback: Callable[[str], None] | None = None,
 ) -> GeneratedScript:
     """流式生成文案的便捷函数"""
     generator = StreamingScriptGenerator(use_llm_manager=True)

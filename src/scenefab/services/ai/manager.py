@@ -25,9 +25,9 @@ class AIServiceManager:
 
         self._initialized = True
         self._llm_services: dict[str, Any] = {}
-        self._vision_service: Optional[Any] = None
-        self._tts_service: Optional[Any] = None
-        self._asr_service: Optional[Any] = None
+        self._vision_service: Any | None = None
+        self._tts_service: Any | None = None
+        self._asr_service: Any | None = None
 
     def register_llm(self, name: str, config: dict[str, Any]) -> None:
         from scenefab.services.ai.llm import LLMService
@@ -50,7 +50,7 @@ class AIServiceManager:
         self._asr_service = ASRService(config)
         logger.info(f"Registered ASR service: {config.get('provider', 'faster-whisper') if config else 'faster-whisper'}")
 
-    def get_llm(self, name: str = None) -> Optional[Any]:
+    def get_llm(self, name: str = None) -> Any | None:
         if name:
             return self._llm_services.get(name)
         for service in self._llm_services.values():
@@ -59,15 +59,15 @@ class AIServiceManager:
         return None
 
     @property
-    def vision(self) -> Optional[Any]:
+    def vision(self) -> Any | None:
         return self._vision_service
 
     @property
-    def tts(self) -> Optional[Any]:
+    def tts(self) -> Any | None:
         return self._tts_service
 
     @property
-    def asr(self) -> Optional[Any]:
+    def asr(self) -> Any | None:
         return self._asr_service
 
     def get_summary(self) -> dict[str, Any]:

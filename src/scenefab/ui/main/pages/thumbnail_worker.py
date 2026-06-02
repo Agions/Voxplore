@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """缩略图生成线程组件
 
 从 step_upload.py 提取 ThumbnailWorker

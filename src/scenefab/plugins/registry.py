@@ -5,9 +5,10 @@ Plugin Registry
 
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, Dict, List, Optional
+from typing import Optional
 
 from scenefab.plugins.interfaces.base import (
     AppContext,
@@ -33,8 +34,8 @@ class PluginEntry:
     """插件条目"""
     manifest: PluginManifest
     state: PluginState = PluginState.UNINSTALLED
-    instance: Optional[BasePlugin] = None
-    error_message: Optional[str] = None
+    instance: BasePlugin | None = None
+    error_message: str | None = None
     load_order: int = 0  # 加载优先级
 
 
@@ -49,13 +50,13 @@ class PluginRegistry:
     """
 
     def __init__(self):
-        self._plugins: Dict[str, PluginEntry] = {}
-        self._hooks: Dict[str, List[Callable]] = {
+        self._plugins: dict[str, PluginEntry] = {}
+        self._hooks: dict[str, list[Callable]] = {
             "plugin_enabled": [],
             "plugin_disabled": [],
             "plugin_error": [],
         }
-        self._context: Optional[AppContext] = None
+        self._context: AppContext | None = None
 
     def set_context(self, context: AppContext) -> None:
         """设置应用上下文"""
@@ -191,27 +192,27 @@ class PluginRegistry:
     # Query
     # ─────────────────────────────────────────────────────────────
 
-    def get_plugin(self, plugin_id: str) -> Optional[BasePlugin]:
+    def get_plugin(self, plugin_id: str) -> BasePlugin | None:
         """获取插件实例"""
         entry = self._plugins.get(plugin_id)
         return entry.instance if entry else None
 
-    def get_manifest(self, plugin_id: str) -> Optional[PluginManifest]:
+    def get_manifest(self, plugin_id: str) -> PluginManifest | None:
         """获取插件清单"""
         entry = self._plugins.get(plugin_id)
         return entry.manifest if entry else None
 
-    def get_state(self, plugin_id: str) -> Optional[PluginState]:
+    def get_state(self, plugin_id: str) -> PluginState | None:
         """获取插件状态"""
         entry = self._plugins.get(plugin_id)
         return entry.state if entry else None
 
     def list_plugins(
         self,
-        plugin_type: Optional[PluginType] = None,
-        state: Optional[PluginState] = None,
+        plugin_type: PluginType | None = None,
+        state: PluginState | None = None,
         enabled_only: bool = False,
-    ) -> List[PluginManifest]:
+    ) -> list[PluginManifest]:
         """列出插件"""
         result = []
         for entry in self._plugins.values():
@@ -224,7 +225,7 @@ class PluginRegistry:
             result.append(entry.manifest)
         return result
 
-    def list_enabled_plugins(self) -> List[BasePlugin]:
+    def list_enabled_plugins(self) -> list[BasePlugin]:
         """列出所有已启用的插件"""
         return [
             entry.instance
@@ -232,7 +233,7 @@ class PluginRegistry:
             if entry.instance and entry.instance.is_enabled
         ]
 
-    def list_plugins_by_type(self, plugin_type: PluginType) -> List[PluginManifest]:
+    def list_plugins_by_type(self, plugin_type: PluginType) -> list[PluginManifest]:
         """按类型列出插件"""
         return self.list_plugins(plugin_type=plugin_type)
 
@@ -262,11 +263,11 @@ class PluginRegistry:
     # Persistence
     # ─────────────────────────────────────────────────────────────
 
-    def load_enabled_list(self, path: str) -> List[str]:
+    def load_enabled_list(self, path: str) -> list[str]:
         """从文件加载已启用的插件列表"""
         if not os.path.exists(path):
             return []
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     def save_enabled_list(self, path: str) -> None:

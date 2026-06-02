@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 剪映草稿导出器 (Jianying Exporter)
@@ -27,7 +26,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ..video_tools.base import extract_video_metadata
 from ..video_tools.ffmpeg_tool import FFmpegTool
@@ -82,7 +81,7 @@ class JianyingExporter:
         draft_path = exporter.export(draft, "/path/to/output")
     """
 
-    def __init__(self, config: Optional[JianyingConfig] = None):
+    def __init__(self, config: JianyingConfig | None = None):
         self.config = config or JianyingConfig()
 
     def create_draft(self, name: str) -> JianyingDraft:
@@ -208,8 +207,8 @@ class JianyingExporter:
         material: Any,
         source_timerange: TimeRange,
         target_timerange: TimeRange,
-        volume: Optional[float] = None,
-        caption_info: Optional[Dict] = None,
+        volume: float | None = None,
+        caption_info: dict | None = None,
         attribute: int = 0,
     ) -> Segment:
         """统一的片段添加逻辑"""
@@ -233,7 +232,7 @@ class JianyingExporter:
 
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        def _copy_single(src_path: str, materials_folder: Path) -> Optional[str]:
+        def _copy_single(src_path: str, materials_folder: Path) -> str | None:
             """复制单个素材，返回新路径"""
             src = Path(src_path)
             if not src.exists():
@@ -244,7 +243,7 @@ class JianyingExporter:
             return str(dst)
 
         # 收集所有待复制的素材
-        tasks: List[str] = []
+        tasks: list[str] = []
 
         for video in draft.materials.videos:
             if video.path:
@@ -256,7 +255,7 @@ class JianyingExporter:
 
         # 并行复制所有素材
         if tasks:
-            results: Dict[str, str] = {}
+            results: dict[str, str] = {}
             with ThreadPoolExecutor(max_workers=4) as executor:
                 futures = {
                     executor.submit(_copy_single, src, materials_folder): src

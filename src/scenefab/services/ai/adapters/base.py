@@ -4,9 +4,10 @@ AI Provider 注册中心 - 替代硬编码的 Provider 列表
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, AsyncIterator, Dict, List, Optional
+from typing import Any, Optional
 
 
 class ProviderType(Enum):
@@ -20,13 +21,13 @@ class ProviderType(Enum):
 class ProviderConfig:
     """Provider 配置"""
     name: str
-    api_key: Optional[str] = None
-    base_url: Optional[str] = None
+    api_key: str | None = None
+    base_url: str | None = None
     model: str = ""
     enabled: bool = True
     timeout: int = 120
     max_retries: int = 3
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -36,11 +37,11 @@ class ProviderMetadata:
     name: str
     provider_type: ProviderType
     description: str
-    capabilities: List[str]
-    models: List[str]
+    capabilities: list[str]
+    models: list[str]
     requires_api_key: bool
     is_local: bool = False
-    homepage: Optional[str] = None
+    homepage: str | None = None
 
 
 class BaseLLMAdapter(ABC):
@@ -55,7 +56,7 @@ class BaseLLMAdapter(ABC):
 
     def __init__(self, config: ProviderConfig):
         self.config = config
-        self._client: Optional[Any] = None
+        self._client: Any | None = None
 
     @property
     @abstractmethod
@@ -116,7 +117,7 @@ class VideoAnalysisAdapter(BaseLLMAdapter):
     provider_type = ProviderType.VIDEO_ANALYSIS
 
     @abstractmethod
-    async def analyze_video(self, video_path: str, frames: List[float]) -> Dict[str, Any]:
+    async def analyze_video(self, video_path: str, frames: list[float]) -> dict[str, Any]:
         """
         分析视频
 
@@ -140,7 +141,7 @@ class ScriptLLMAdapter(BaseLLMAdapter):
         context: str,
         emotion: str,
         style: str,
-        max_tokens: Optional[int] = None,
+        max_tokens: int | None = None,
     ) -> str:
         """生成解说脚本"""
         ...
@@ -164,8 +165,8 @@ class TTSAdapter(BaseLLMAdapter):
     async def synthesize(
         self,
         text: str,
-        voice_id: Optional[str] = None,
-        output_path: Optional[str] = None,
+        voice_id: str | None = None,
+        output_path: str | None = None,
     ) -> str:
         """
         合成语音
@@ -181,6 +182,6 @@ class TTSAdapter(BaseLLMAdapter):
         ...
 
     @abstractmethod
-    async def list_voices(self, language: Optional[str] = None) -> List[Dict[str, str]]:
+    async def list_voices(self, language: str | None = None) -> list[dict[str, str]]:
         """列出可用音色"""
         ...

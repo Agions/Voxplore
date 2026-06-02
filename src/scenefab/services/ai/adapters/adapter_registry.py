@@ -5,7 +5,7 @@ Provider 注册与管理中心
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Optional
 
 from .base import (
     BaseLLMAdapter,
@@ -39,9 +39,9 @@ class LLMProviderRegistry:
     """
 
     def __init__(self):
-        self._video_providers: Dict[str, RegistryEntry] = {}
-        self._script_providers: Dict[str, RegistryEntry] = {}
-        self._tts_providers: Dict[str, RegistryEntry] = {}
+        self._video_providers: dict[str, RegistryEntry] = {}
+        self._script_providers: dict[str, RegistryEntry] = {}
+        self._tts_providers: dict[str, RegistryEntry] = {}
         self._initialized = False
 
     def register(
@@ -62,7 +62,7 @@ class LLMProviderRegistry:
 
         logger.info(f"Registered provider: {adapter.provider_id} ({adapter.provider_type.value})")
 
-    def get_video_provider(self, name: Optional[str] = None) -> Optional[VideoAnalysisAdapter]:
+    def get_video_provider(self, name: str | None = None) -> VideoAnalysisAdapter | None:
         """获取视频分析 Provider"""
         if name and name in self._video_providers:
             return self._video_providers[name].adapter
@@ -73,7 +73,7 @@ class LLMProviderRegistry:
                 return entry.adapter
         return next(iter(self._video_providers.values())).adapter if self._video_providers else None
 
-    def get_script_provider(self, name: Optional[str] = None) -> Optional[ScriptLLMAdapter]:
+    def get_script_provider(self, name: str | None = None) -> ScriptLLMAdapter | None:
         """获取脚本生成 Provider"""
         if name and name in self._script_providers:
             return self._script_providers[name].adapter
@@ -83,7 +83,7 @@ class LLMProviderRegistry:
                 return entry.adapter
         return next(iter(self._script_providers.values())).adapter if self._script_providers else None
 
-    def get_tts_provider(self, name: Optional[str] = None) -> Optional[TTSAdapter]:
+    def get_tts_provider(self, name: str | None = None) -> TTSAdapter | None:
         """获取 TTS Provider"""
         if name and name in self._tts_providers:
             return self._tts_providers[name].adapter
@@ -95,8 +95,8 @@ class LLMProviderRegistry:
 
     def list_providers(
         self,
-        provider_type: Optional[ProviderType] = None
-    ) -> List[ProviderMetadata]:
+        provider_type: ProviderType | None = None
+    ) -> list[ProviderMetadata]:
         """列出所有 Provider"""
         result = []
         targets = {
@@ -113,7 +113,7 @@ class LLMProviderRegistry:
 
         return result
 
-    def get_default_provider(self, provider_type: ProviderType) -> Optional[BaseLLMAdapter]:
+    def get_default_provider(self, provider_type: ProviderType) -> BaseLLMAdapter | None:
         """获取默认 Provider"""
         if provider_type == ProviderType.VIDEO_ANALYSIS:
             return self.get_video_provider()

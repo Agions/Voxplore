@@ -5,7 +5,8 @@ DeepSeek AI 生成器插件 - 提供场景分析和脚本生成功能
 
 import json
 import uuid
-from typing import Any, AsyncIterator, Dict, List, Optional
+from collections.abc import AsyncIterator
+from typing import Any, Optional
 
 from scenefab.plugins.interfaces.ai_generator import (
     BaseAIGeneratorPlugin,
@@ -27,7 +28,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
     def __init__(self, manifest: PluginManifest):
         super().__init__(manifest)
-        self._api_key: Optional[str] = None
+        self._api_key: str | None = None
         self._base_url: str = "https://api.deepseek.com"
         self._model: str = "deepseek-chat"
         self._client = None
@@ -44,7 +45,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         """获取 AI Provider 名称"""
         return "DeepSeek"
 
-    def get_capabilities(self) -> Dict[str, bool]:
+    def get_capabilities(self) -> dict[str, bool]:
         """
         获取插件能力
         """
@@ -58,8 +59,8 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
     async def analyze_scene(
         self,
         video_path: str,
-        frame_timestamps: List[float],
-    ) -> List[SceneAnalysis]:
+        frame_timestamps: list[float],
+    ) -> list[SceneAnalysis]:
         """
         分析视频场景
 
@@ -83,7 +84,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             return []
 
     def _build_scene_analysis_prompt(
-        self, video_path: str, frame_timestamps: List[float]
+        self, video_path: str, frame_timestamps: list[float]
     ) -> str:
         """构建场景分析提示词"""
         timestamps_str = ", ".join(f"{t:.2f}s" for t in frame_timestamps)
@@ -104,8 +105,8 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 请以JSON数组格式返回结果。"""
 
     def _parse_scene_analysis_response(
-        self, response: str, frame_timestamps: List[float]
-    ) -> List[SceneAnalysis]:
+        self, response: str, frame_timestamps: list[float]
+    ) -> list[SceneAnalysis]:
         """解析场景分析响应"""
         scenes = []
 
@@ -151,7 +152,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         scene_context: str,
         emotion: str,
         style: str,
-        max_duration: Optional[float] = None,
+        max_duration: float | None = None,
     ) -> ScriptGeneration:
         """
         生成解说脚本
@@ -187,7 +188,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         scene_context: str,
         emotion: str,
         style: str,
-        max_duration: Optional[float] = None,
+        max_duration: float | None = None,
     ) -> str:
         """构建脚本生成提示词"""
         duration_hint = f"建议时长: {max_duration:.1f}秒" if max_duration else ""
@@ -295,7 +296,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
 
-    def _extract_json(self, text: str) -> Optional[str]:
+    def _extract_json(self, text: str) -> str | None:
         """从文本中提取 JSON"""
         import re
 
@@ -311,7 +312,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
         return None
 
-    def configure(self, api_key: str, base_url: Optional[str] = None, model: Optional[str] = None) -> None:
+    def configure(self, api_key: str, base_url: str | None = None, model: str | None = None) -> None:
         """
         配置插件参数
 
@@ -326,7 +327,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         if model:
             self._model = model
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "version": self.version,

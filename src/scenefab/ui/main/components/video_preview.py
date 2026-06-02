@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 SceneFab 视频预览组件
@@ -39,7 +38,7 @@ class VideoPreview(QWidget):
     def __init__(self, application=None):
         super().__init__(application)
         self.application = application
-        self.current_video: Optional[str] = None
+        self.current_video: str | None = None
         self._is_playing = False
         self._duration_ms = 0
 

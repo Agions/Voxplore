@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """测试第一人称视角提取服务"""
 
 from dataclasses import asdict

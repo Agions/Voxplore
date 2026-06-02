@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 MultiTrack Subtitle System
@@ -18,7 +17,7 @@ MultiTrack Subtitle System
 import uuid
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Optional
 
 # ─────────────────────────────────────────────────────────────
 # 字幕样式预设
@@ -169,7 +168,7 @@ class SubtitleBlock:
     style_id: str = ""
 
     # 元数据
-    emphasis_words: List[str] = field(default_factory=list)  # 重音词
+    emphasis_words: list[str] = field(default_factory=list)  # 重音词
     translation: str = ""                                    # 翻译
     notes: str = ""                                          # 备注
 
@@ -216,7 +215,7 @@ class SubtitleTrack:
     style_id: str = "cinematic"
 
     # 字幕块列表
-    blocks: List[SubtitleBlock] = field(default_factory=list)
+    blocks: list[SubtitleBlock] = field(default_factory=list)
 
     # 轨道颜色（用于UI显示）
     color: str = "#6366F1"
@@ -234,14 +233,14 @@ class SubtitleTrack:
                 return True
         return False
 
-    def get_block_at(self, time: float) -> Optional[SubtitleBlock]:
+    def get_block_at(self, time: float) -> SubtitleBlock | None:
         """获取指定时间的字幕块"""
         for block in self.blocks:
             if block.start_time <= time < block.end_time:
                 return block
         return None
 
-    def get_blocks_in_range(self, start: float, end: float) -> List[SubtitleBlock]:
+    def get_blocks_in_range(self, start: float, end: float) -> list[SubtitleBlock]:
         """获取指定时间范围内的字幕块"""
         result = []
         for block in self.blocks:
@@ -281,17 +280,17 @@ class MultiTrackSubtitleEditor:
     name: str = "多轨道字幕编辑器"
 
     # 轨道列表
-    tracks: List[SubtitleTrack] = field(default_factory=list)
+    tracks: list[SubtitleTrack] = field(default_factory=list)
 
     # 样式预设
-    presets: Dict[str, SubtitleStylePreset] = field(default_factory=dict)
+    presets: dict[str, SubtitleStylePreset] = field(default_factory=dict)
 
     # 项目设置
     duration: float = 0.0       # 总时长（秒）
     fps: float = 30.0
 
     # 当前状态
-    current_track_id: Optional[str] = None
+    current_track_id: str | None = None
     current_time: float = 0.0
 
     def __post_init__(self):
@@ -317,7 +316,7 @@ class MultiTrackSubtitleEditor:
                 return True
         return False
 
-    def get_track(self, track_id: str) -> Optional[SubtitleTrack]:
+    def get_track(self, track_id: str) -> SubtitleTrack | None:
         """获取轨道"""
         return next((t for t in self.tracks if t.id == track_id), None)
 
@@ -349,7 +348,7 @@ class MultiTrackSubtitleEditor:
                 return True
         return False
 
-    def get_block(self, block_id: str) -> Optional[SubtitleBlock]:
+    def get_block(self, block_id: str) -> SubtitleBlock | None:
         """获取字幕块"""
         for track in self.tracks:
             for block in track.blocks:
@@ -357,7 +356,7 @@ class MultiTrackSubtitleEditor:
                     return block
         return None
 
-    def get_all_blocks_at(self, time: float) -> List[SubtitleBlock]:
+    def get_all_blocks_at(self, time: float) -> list[SubtitleBlock]:
         """获取指定时间的所有轨道字幕块"""
         result = []
         for track in self.tracks:
@@ -378,7 +377,7 @@ class MultiTrackSubtitleEditor:
         self.presets[preset_id] = preset
         return preset_id
 
-    def get_preset(self, preset_id: str) -> Optional[SubtitleStylePreset]:
+    def get_preset(self, preset_id: str) -> SubtitleStylePreset | None:
         """获取样式预设"""
         return self.presets.get(preset_id)
 
@@ -432,7 +431,7 @@ class MultiTrackSubtitleEditor:
 def export_to_jianying_text_track(
     editor: MultiTrackSubtitleEditor,
     track: SubtitleTrack,
-) -> List[Dict]:
+) -> list[dict]:
     """
     导出轨道为剪映字幕格式
 
