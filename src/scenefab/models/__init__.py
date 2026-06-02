@@ -15,36 +15,48 @@
 - 旧的 from scenefab.models import ... 导入仍可正常工作
 """
 
-from .narration import (
-    NarrationStyle,
-    EmotionType,
-    NarrationBlock,
-)
-from .video import (
-    TimeRange,
-    VideoSegment,
-    EmotionPeak,
+from .enums import (
+    ApplicationState,
+    ErrorSeverity,
+    ErrorType,
+    ServiceHealth,
+    ServiceStatus,
 )
 from .media import (
-    SubtitleItem,
     AudioTrack,
+    SubtitleItem,
+)
+from .narration import (
+    EmotionType,
+    NarrationBlock,
+    NarrationStyle,
 )
 from .project import (
-    VideoProject,
     TaskProgress,
     VideoGroup,
+    VideoProject,
 )
 from .project_models import (
-    ProjectStatus,
-    ProjectType,
+    ProjectMedia,
     ProjectMetadata,
     ProjectSettings,
-    ProjectMedia,
+    ProjectStatus,
     ProjectTimeline,
+    ProjectType,
+)
+from .video import (
+    EmotionPeak,
+    TimeRange,
+    VideoSegment,
 )
 
-
 __all__ = [
+    # enums (集中定义)
+    "ServiceStatus",
+    "ServiceHealth",
+    "ApplicationState",
+    "ErrorSeverity",
+    "ErrorType",
     # narration
     "NarrationStyle",
     "EmotionType",
