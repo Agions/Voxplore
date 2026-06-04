@@ -43,6 +43,8 @@ jobs:
   publish-pypi:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +52,15 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: pyproject.toml
+
+      - name: Sync version with git tag
+        run: |
+          # 确保 pyproject.toml 版本与 git tag 一致（避免 1.1.0 残留）
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          sed -i "s/__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/scenefab/__init__.py
+          echo "✅ Synced version to ${VERSION}"
+          grep -E "^version" pyproject.toml
+          grep "__version__" src/scenefab/__init__.py
 
       - name: Build wheel and sdist
         run: uv build
