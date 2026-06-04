@@ -1,18 +1,32 @@
 """
-SceneFab 核心模块
-包含应用状态、事件总线、错误信息等基础组件
+SceneFab 核心模块 v2.0
+
+基础组件：
+- application: 应用程序生命周期
+- base_worker: 统一 Worker 基类 (v2.0)
+- audit: 操作审计日志 (v2.0)
+- pipeline_engine: DAG 并行流水线引擎 (v2.0)
+- ffmpeg_safe: FFmpeg 安全封装 (v2.0)
+- batch_processor: 批量任务处理器 (v2.0)
+- short_drama: 短剧解说特化 (v2.0)
+- platform_adapter: 多平台智能适配 (v2.0)
+- streaming_llm_worker: LLM 流式输出 Worker (v2.0)
 """
+
 import logging
 import threading
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+# ============================================
+# v1.x 公开 API（保留以确保向后兼容）
+# ============================================
 
 # ApplicationState 已统一到 scenefab.application（Phase 5 重构）
 # 旧定义保留导入以保持向后兼容
@@ -22,6 +36,7 @@ from scenefab.application import ApplicationState
 @dataclass
 class ErrorInfo:
     """错误信息"""
+
     error_type: str
     severity: str  # LOW, MEDIUM, HIGH, CRITICAL
     message: str
@@ -98,12 +113,12 @@ class EventEmitter:
     def __init__(self):
         self._events = EventBus()
 
-    def on(self, event: str, handler: Callable) -> 'EventEmitter':
+    def on(self, event: str, handler: Callable) -> "EventEmitter":
         """订阅事件（链式调用）"""
         self._events.subscribe(event, handler)
         return self
 
-    def off(self, event: str, handler: Callable) -> 'EventEmitter':
+    def off(self, event: str, handler: Callable) -> "EventEmitter":
         """取消订阅（链式调用）"""
         self._events.unsubscribe(event, handler)
         return self
@@ -117,10 +132,93 @@ class EventEmitter:
 event_bus = EventBus()
 
 
+# ============================================
+# v2.0 新增模块（保持平铺 re-export）
+# ============================================
+
+from scenefab.core.audit import AuditEntry, AuditLogger
+from scenefab.core.base_worker import BaseWorker, WorkerResult
+from scenefab.core.batch_processor import (
+    BatchCheckpoint,
+    BatchConfig,
+    BatchProcessor,
+    BatchTask,
+)
+from scenefab.core.batch_processor import (
+    TaskStatus as BatchTaskStatus,
+)
+from scenefab.core.ffmpeg_safe import (
+    FFmpegResult,
+    FFmpegSecurityError,
+    SafeFFmpegCommand,
+    is_safe_path,
+)
+from scenefab.core.pipeline_engine import (
+    PipelineConfig,
+    PipelineEngine,
+    PipelineStep,
+    StepResult,
+    StepStatus,
+)
+from scenefab.core.platform_adapter import (
+    PLATFORM_CONFIGS,
+    CoverGenerator,
+    CoverStyle,
+    CropRegion,
+    MultiPlatformExporter,
+    Platform,
+    PlatformConfig,
+    SmartCropper,
+)
+from scenefab.core.short_drama import (
+    EpisodeInfo,
+    SeriesContext,
+    ShortDramaNarrator,
+    ShortDramaPreset,
+    ShortDramaStyle,
+    TropeType,
+)
+from scenefab.core.streaming_llm_worker import StreamingLLMWorker
+
 __all__ = [
+    # v1.x 公开 API
     "ApplicationState",
     "ErrorInfo",
     "EventBus",
     "EventEmitter",
     "event_bus",
+    # v2.0 新增
+    "BaseWorker",
+    "WorkerResult",
+    "AuditLogger",
+    "AuditEntry",
+    "PipelineEngine",
+    "PipelineStep",
+    "PipelineConfig",
+    "StepStatus",
+    "StepResult",
+    "SafeFFmpegCommand",
+    "FFmpegResult",
+    "FFmpegSecurityError",
+    "is_safe_path",
+    "BatchProcessor",
+    "BatchConfig",
+    "BatchTask",
+    "BatchCheckpoint",
+    "BatchTaskStatus",
+    "ShortDramaStyle",
+    "ShortDramaPreset",
+    "ShortDramaNarrator",
+    "TropeType",
+    "EpisodeInfo",
+    "SeriesContext",
+    "Platform",
+    "PlatformConfig",
+    "PLATFORM_CONFIGS",
+    "CropRegion",
+    "SmartCropper",
+    "CoverStyle",
+    "CoverGenerator",
+    "MultiPlatformExporter",
+    "StreamingLLMWorker",
 ]
