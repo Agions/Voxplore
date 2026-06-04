@@ -10,6 +10,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 2.0.0). If empty, auto-detect from latest tag.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -28,14 +33,20 @@ jobs:
       version_tag: ${{ steps.version.outputs.version_tag }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要 git describe 看到所有 tag
+          fetch-tags: true
 
       - name: Extract version from git tag
         id: version
         run: |
-          # 支持两种触发方式：
-          #   1. push tag:  GITHUB_REF = refs/tags/v2.0.0
-          #   2. workflow_dispatch: 从 git describe 拿最新 tag
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+          # 优先级：
+          #   1. workflow_dispatch inputs.version
+          #   2. push tag:  GITHUB_REF = refs/tags/v2.0.0
+          #   3. git describe 拿最新 tag
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
           else
             VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
