@@ -64,12 +64,12 @@ class TestPerformanceBenchmarks:
         assert read_time < 0.5   # 读取应在0.5秒内
 
     def test_task_creation(self):
-        """任务创建性能"""
-        from scenefab.utils.task_manager import Task
+        """任务创建性能（v2.1 - 用 scenefab.core.task_model.UnifiedTask）"""
+        from scenefab.core.task_model import UnifiedTask
 
         start = time.perf_counter()
         for i in range(1000):
-            _ = Task(id=f"task_{i}", name=f"Task {i}")
+            _ = UnifiedTask(task_id=f"task_{i}", name=f"Task {i}")
         duration = time.perf_counter() - start
 
         print(f"1000 task creations: {duration*1000:.2f}ms")
