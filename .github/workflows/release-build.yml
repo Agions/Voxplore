@@ -32,7 +32,18 @@ jobs:
       - name: Extract version from git tag
         id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          # 支持两种触发方式：
+          #   1. push tag:  GITHUB_REF = refs/tags/v2.0.0
+          #   2. workflow_dispatch: 从 git describe 拿最新 tag
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+            if [ -z "${VERSION}" ]; then
+              echo "❌ ERROR: No git tag found, cannot determine VERSION"
+              exit 1
+            fi
+          fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "version_tag=v${VERSION}" >> $GITHUB_OUTPUT
           echo "📦 Building SceneFab v${VERSION}"
