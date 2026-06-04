@@ -449,7 +449,8 @@ jobs:
           tag_name: ${{ env.VERSION_TAG }}
           name: SceneFab ${{ env.VERSION_TAG }}
           draft: false
-          generate_release_notes: true
+          # 不自动 generate release notes（保留 release body 模板）
+          generate_release_notes: false
           files: |
             artifacts/*.zip
             artifacts/*.dmg
