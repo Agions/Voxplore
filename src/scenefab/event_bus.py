@@ -1,179 +1,128 @@
 #!/usr/bin/env python3
 
 """
-SceneFab 事件总线模块
-提供事件发布/订阅功能
+SceneFab 事件总线模块 (v1.x 兼容层)
+
+⚠️ v2.1 变更：内部实现委托给 scenefab.core.unified_event_bus.UnifiedEventBus。
+所有 v1.x 公开 API（subscribe / publish / emit / on / off / clear / clear_handlers /
+unsubscribe_all / has_handlers / get_handler_count / get_registered_events /
+contextmanager 形式的 `temporary_subscription` 等）保持不变。
+
+用法（v1.x 兼容）::
+
+    from scenefab.event_bus import EventBus, event_bus
+    bus = EventBus()
+    bus.subscribe("video.analyzed", handler)
+    bus.publish("video.analyzed", data)
+
+新用法（v2.1 推荐）::
+
+    from scenefab.core.unified_event_bus import get_event_bus
+    bus = get_event_bus()
+    bus.publish_event(PipelineStarted(...))
 """
 
-import threading
-from collections.abc import Callable
-from contextlib import contextmanager
-from typing import Any, Optional
+from __future__ import annotations
 
-from .logger import Logger
+import logging
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
+from typing import Any
+
+from scenefab.core.unified_event_bus import (
+    EventLog,
+    EventRecord,
+    UnifiedEventBus,
+    get_event_bus as _get_unified,
+)
+
+logger = logging.getLogger(__name__)
+
+
+# ──────────────────────────────────────────────────────────
+# v1.x EventBus 兼容类（委托到 UnifiedEventBus）
+# ──────────────────────────────────────────────────────────
 
 
 class EventBus:
-    """事件总线（线程安全）"""
+    """
+    事件总线 v1.x 兼容类（v2.1 委托实现）
+
+    所有方法都委托到内部 UnifiedEventBus 实例，因此：
+    - v1.x 用法不变
+    - 全局所有 EventBus 实例共享同一份事件状态（除非显式传入 backend）
+    - 支持 v2.1 强类型事件 publish_event()
+    """
 
     def __init__(self):
-        """初始化事件总线"""
-        self._handlers: dict[str, list[Callable]] = {}
-        self._lock = threading.RLock()
-        self.logger = Logger("EventBus")
+        self._backend: UnifiedEventBus = _get_unified()
+
+    # ── 订阅 / 退订 ──
 
     def subscribe(self, event_name: str, handler: Callable) -> None:
-        """订阅事件（线程安全）
-
-        Args:
-            event_name: 事件名称
-            handler: 事件处理函数
-        """
-        with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-
-            # 避免重复订阅
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+        self._backend.subscribe(event_name, handler)
 
     def unsubscribe(self, event_name: str, handler: Callable) -> None:
-        """取消订阅事件（线程安全）
-
-        Args:
-            event_name: 事件名称
-            handler: 事件处理函数
-        """
-        with self._lock:
-            if event_name in self._handlers:
-                try:
-                    self._handlers[event_name].remove(handler)
-                except ValueError:
-                    self.logger.debug("Handler not found for removal, ignoring")
-
-    def publish(self, event_name: str, data: Any = None) -> None:
-        """发布事件（线程安全）
-
-        Args:
-            event_name: 事件名称
-            data: 事件数据，可选
-        """
-        with self._lock:
-            handlers = self._handlers.get(event_name, []).copy()
-
-        for handler in handlers:
-            try:
-                handler(data)
-            except Exception as e:
-                self.logger.error(f"事件 {event_name} 处理错误: {e}")
-
-    def subscribe_once(self, event_name: str, handler: Callable) -> None:
-        """订阅事件，但只在第一次发布时触发，之后自动取消订阅（线程安全）
-
-        Args:
-            event_name: 事件名称
-            handler: 事件处理函数
-        """
-        def wrapper(data):
-            try:
-                handler(data)
-            finally:
-                self.unsubscribe(event_name, wrapper)
-
-        with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            self._handlers[event_name].append(wrapper)
+        self._backend.unsubscribe(event_name, handler)
 
     @contextmanager
-    def temporary_handler(self, event_name: str, handler: Callable):
-        """上下文管理器：临时添加事件处理器，退出时自动移除
-
-        Args:
-            event_name: 事件名称
-            handler: 事件处理函数
-
-        Usage:
-            with event_bus.temporary_handler("my_event", my_handler):
-                event_bus.publish("my_event", data)
-            # handler 已自动移除
-        """
-        self.subscribe(event_name, handler)
+    def temporary_subscription(
+        self, event_name: str, handler: Callable
+    ) -> Generator[None, None, None]:
+        """临时订阅（上下文退出时自动取消）"""
+        unsubscribe_fn = self._backend.subscribe(event_name, handler)
         try:
             yield
         finally:
-            self.unsubscribe(event_name, handler)
+            unsubscribe_fn()
+
+    # ── 发布 ──
+
+    def publish(self, event_name: str, data: Any = None) -> None:
+        self._backend.publish(event_name, data)
 
     def emit(self, event_name: str, data: Any = None) -> None:
-        """发布事件（emit是publish的别名，保持API兼容性）
+        """emit 是 publish 的别名（保持 API 兼容性）"""
+        self._backend.publish(event_name, data)
 
-        Args:
-            event_name: 事件名称
-            data: 事件数据，可选
-        """
-        self.publish(event_name, data)
+    # ── 清理 / 查询 ──
+
+    def clear(self, event_name: str | None = None) -> None:
+        self._backend.clear_handlers(event_name)
 
     def clear_handlers(self, event_name: str | None = None) -> None:
-        """清除事件处理器（线程安全）
-
-        Args:
-            event_name: 可选，指定事件名称，若为None则清除所有事件处理器
-        """
-        with self._lock:
-            if event_name:
-                if event_name in self._handlers:
-                    self._handlers[event_name].clear()
-            else:
-                self._handlers.clear()
+        self._backend.clear_handlers(event_name)
 
     def unsubscribe_all(self, event_name: str) -> int:
-        """取消订阅指定事件的所有处理器（线程安全）
-
-        Args:
-            event_name: 事件名称
-
-        Returns:
-            int: 被移除的处理器数量
-        """
-        with self._lock:
-            if event_name in self._handlers:
-                count = len(self._handlers[event_name])
-                self._handlers[event_name].clear()
-                return count
-            return 0
-
-    def get_handler_count(self, event_name: str | None = None) -> int:
-        """获取事件处理器数量（线程安全）
-
-        Args:
-            event_name: 可选，指定事件名称，若为None则返回所有事件处理器总数
-
-        Returns:
-            int: 事件处理器数量
-        """
-        with self._lock:
-            if event_name:
-                return len(self._handlers.get(event_name, []))
-            else:
-                return sum(len(handlers) for handlers in self._handlers.values())
+        """取消指定事件的所有处理器，返回移除数量"""
+        count = self._backend.handler_count(event_name)
+        self._backend.clear_handlers(event_name)
+        return count
 
     def has_handlers(self, event_name: str) -> bool:
-        """检查事件是否有处理器（线程安全）
+        return self._backend.has_handlers(event_name)
 
-        Args:
-            event_name: 事件名称
-
-        Returns:
-            bool: 若事件有处理器则返回True，否则返回False
-        """
-        with self._lock:
-            return event_name in self._handlers and len(self._handlers[event_name]) > 0
+    def get_handler_count(self, event_name: str | None = None) -> int:
+        return self._backend.handler_count(event_name)
 
     def get_registered_events(self) -> list[str]:
-        """获取所有已注册的事件名称列表（线程安全）
+        return self._backend.registered_events()
 
-        Returns:
-            List[str]: 事件名称列表
-        """
-        with self._lock:
-            return list(self._handlers.keys())
+    # ── v2.1 新能力 ──
+
+    def publish_event(self, event: Any) -> None:
+        """发布类型化 DomainEvent"""
+        self._backend.publish_event(event)
+
+    def replay_all(self) -> int:
+        return self._backend.replay_all()
+
+    def stats(self) -> dict[str, Any]:
+        return self._backend.stats()
+
+
+# 全局事件总线实例（v1.x 兼容名）
+event_bus = EventBus()
+
+
+__all__ = ["EventBus", "event_bus"]

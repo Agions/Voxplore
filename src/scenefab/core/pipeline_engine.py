@@ -43,11 +43,25 @@ DAG 并行流水线引擎 — v2.0 重构
 
 import logging
 import time
+import uuid
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
+
+# v2.1: 领域事件发布（可选，未注入则跳过）
+try:
+    from scenefab.core.unified_event_bus import UnifiedEventBus
+    from scenefab.core.event_types import (
+        PipelineStarted,
+        PipelineStepStarted,
+        PipelineStepCompleted,
+        PipelineCompleted,
+    )
+    _HAS_V21_PIPELINE_EVENTS = True
+except ImportError:  # pragma: no cover
+    _HAS_V21_PIPELINE_EVENTS = False
 
 from scenefab.core.audit import AuditLogger
 
@@ -138,13 +152,23 @@ class PipelineEngine:
     5. 直至所有步骤状态终态
     """
 
-    def __init__(self, max_workers: int = 2, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        max_workers: int = 2,
+        *,
+        event_bus: Any = None,  # v2.1: UnifiedEventBus 可选注入
+        pipeline_id: str | None = None,  # v2.1: 自定义 pipeline ID
+        **kwargs: Any,
+    ) -> None:
         self.config = PipelineConfig(max_workers=max_workers, **kwargs)
         self.steps: dict[str, PipelineStep] = {}
         self.states: dict[str, StepStatus] = {}
         self.results: dict[str, StepResult] = {}
         self._lock = __import__("threading").RLock()
         self._audit = AuditLogger()
+        # v2.1: 事件总线（None 时不发布事件）
+        self._event_bus = event_bus
+        self._pipeline_id = pipeline_id or str(uuid.uuid4())[:8]
 
     # ==============================================================
     # 注册
@@ -227,6 +251,19 @@ class PipelineEngine:
         )
         overall_start = time.time()
 
+        # v2.1: 发布 PipelineStarted
+        if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
+            try:
+                self._event_bus.publish_event(
+                    PipelineStarted(
+                        pipeline_id=self._pipeline_id,
+                        total_steps=len(self.steps),
+                        inputs=context.get("input", {}),
+                    )
+                )
+            except Exception:
+                logger.debug("PipelineStarted event publish failed", exc_info=True)
+
         with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
             pending_futures: dict[Future, PipelineStep] = {}
 
@@ -305,6 +342,20 @@ class PipelineEngine:
             f"Pipeline finished: {completed} completed, {failed} failed, "
             f"{total_duration}ms total"
         )
+
+        # v2.1: 发布 PipelineCompleted
+        if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
+            try:
+                self._event_bus.publish_event(
+                    PipelineCompleted(
+                        pipeline_id=self._pipeline_id,
+                        total_duration_ms=total_duration,
+                        success_count=completed,
+                        failure_count=failed,
+                    )
+                )
+            except Exception:
+                logger.debug("PipelineCompleted event publish failed", exc_info=True)
 
         self._audit.log_action(
             action="pipeline_run",
@@ -418,6 +469,21 @@ class PipelineEngine:
             )
             logger.info(f"Step '{step.id}' completed in {duration_ms}ms")
 
+            # v2.1: 发布 PipelineStepCompleted
+            if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
+                try:
+                    self._event_bus.publish_event(
+                        PipelineStepCompleted(
+                            pipeline_id=self._pipeline_id,
+                            step_id=step.id,
+                            status="success",
+                            duration_ms=duration_ms,
+                            result=output,
+                        )
+                    )
+                except Exception:
+                    logger.debug("PipelineStepCompleted event publish failed", exc_info=True)
+
         except Exception as e:
             import traceback
 
@@ -445,6 +511,21 @@ class PipelineEngine:
                 step_id=step.id,
             )
             logger.error(f"Step '{step.id}' failed: {err_type}: {e}\n{tb}")
+
+            # v2.1: 发布 PipelineStepCompleted (failed)
+            if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
+                try:
+                    self._event_bus.publish_event(
+                        PipelineStepCompleted(
+                            pipeline_id=self._pipeline_id,
+                            step_id=step.id,
+                            status="failed",
+                            duration_ms=duration_ms,
+                            error=str(e)[:500],
+                        )
+                    )
+                except Exception:
+                    logger.debug("PipelineStepCompleted(failed) event publish failed", exc_info=True)
 
     def _mark_skipped(self) -> None:
         """将所有 PENDING 步骤标记为 SKIPPED（保留 always_run 步骤以便执行）"""

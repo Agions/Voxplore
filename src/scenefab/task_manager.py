@@ -5,6 +5,7 @@ SceneFab 任务管理 V2
 - 异步保存（不阻塞主线程）
 - JSON 序列化（跨平台兼容）
 - 批量操作优化
+- **v2.1 增强**：发布 DomainEvent 到 UnifiedEventBus（订阅者可观察任务生命周期）
 """
 import logging
 import os
@@ -16,6 +17,18 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
+
+# v2.1: 桥接事件总线（DomainEvent 发布）
+try:
+    from scenefab.core.unified_event_bus import get_event_bus
+    from scenefab.core.event_types import (
+        TaskCreated as _TaskCreatedEvent,
+        TaskProgressUpdated as _TaskProgressEvent,
+        TaskStatusChanged as _TaskStatusEvent,
+    )
+    _HAS_V21_BUS = True
+except ImportError:
+    _HAS_V21_BUS = False
 
 # orjson 性能比标准 json 快 5-10 倍
 try:
@@ -248,6 +261,19 @@ class TaskManager:
 
         logger.info(f"Created task: {task_id} - {name}")
 
+        # v2.1: 发布 TaskCreated 领域事件
+        if _HAS_V21_BUS:
+            try:
+                get_event_bus().publish_event(
+                    _TaskCreatedEvent(
+                        task_id=task_id,
+                        task_name=name,
+                        metadata=metadata or {},
+                    )
+                )
+            except Exception as e:
+                logger.debug(f"TaskCreated event publish failed: {e}")
+
         return task_id
 
     def get_task(self, task_id: str) -> Task | None:
@@ -296,6 +322,20 @@ class TaskManager:
 
             self._save_task(task)
 
+        # v2.1: 发布 TaskProgressUpdated 领域事件
+        if _HAS_V21_BUS:
+            try:
+                get_event_bus().publish_event(
+                    _TaskProgressEvent(
+                        task_id=task_id,
+                        progress=progress,
+                        current_step=step or "",
+                        step_index=step_index if step_index is not None else 0,
+                    )
+                )
+            except Exception as e:
+                logger.debug(f"TaskProgressUpdated event publish failed: {e}")
+
     def set_status(
         self,
         task_id: str,
@@ -309,6 +349,7 @@ class TaskManager:
             if not task:
                 return
 
+            old_status = task.status
             task.status = status
             task.updated_at = datetime.now().timestamp()
 
@@ -318,6 +359,21 @@ class TaskManager:
                 task.result = result
 
             self._save_task(task)
+
+        # v2.1: 发布 TaskStatusChanged 领域事件
+        if _HAS_V21_BUS:
+            try:
+                get_event_bus().publish_event(
+                    _TaskStatusEvent(
+                        task_id=task_id,
+                        old_status=old_status.value,
+                        new_status=status.value,
+                        error=error,
+                        result_path=str(result) if isinstance(result, str) else None,
+                    )
+                )
+            except Exception as e:
+                logger.debug(f"TaskStatusChanged event publish failed: {e}")
 
     def pause(self, task_id: str) -> bool:
         """暂停任务"""

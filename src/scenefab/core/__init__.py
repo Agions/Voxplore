@@ -45,63 +45,47 @@ class ErrorInfo:
     timestamp: float = field(default_factory=lambda: datetime.now().timestamp())
 
 
+# EventBus v1.x 兼容类（v2.1 委托到 UnifiedEventBus）
+# 单源真相：scenefab.core.unified_event_bus.UnifiedEventBus
+from scenefab.core.unified_event_bus import (
+    UnifiedEventBus as _UnifiedEventBus,
+)
+
+
+# v1.x 兼容类 - 薄包装，委托到 UnifiedEventBus 单例
 class EventBus:
     """
-    事件总线
-    提供松耦合的组件通信
+    事件总线（v1.x 兼容 - v2.1 委托实现）
+
+    ⚠️ v2.1 内部实现统一到 scenefab.core.unified_event_bus.UnifiedEventBus。
+    所有 v1.x 公开 API 完全保持兼容，但所有 EventBus 实例共享同一份事件状态。
+    新能力（type-safe events / replay / stats）通过 publish_event() 暴露。
     """
 
     def __init__(self):
-        self._handlers: dict[str, list[Callable]] = {}
-        self._lock = threading.Lock()
+        self._backend: _UnifiedEventBus = _UnifiedEventBus.get_default()
 
     def subscribe(self, event_name: str, handler: Callable) -> None:
-        """订阅事件"""
-        with self._lock:
-            if event_name not in self._handlers:
-                self._handlers[event_name] = []
-            if handler not in self._handlers[event_name]:
-                self._handlers[event_name].append(handler)
+        self._backend.subscribe(event_name, handler)
 
     def unsubscribe(self, event_name: str, handler: Callable) -> None:
-        """取消订阅"""
-        with self._lock:
-            if event_name in self._handlers:
-                if handler in self._handlers[event_name]:
-                    self._handlers[event_name].remove(handler)
+        self._backend.unsubscribe(event_name, handler)
 
     def publish(self, event_name: str, data: Any = None) -> None:
-        """发布事件（优化版 - 并行调用处理器）"""
-        handlers = []
-        with self._lock:
-            handlers = self._handlers.get(event_name, []).copy()
-
-        if not handlers:
-            return
-
-        # 并行调用所有处理器
-        if len(handlers) > 1:
-            with ThreadPoolExecutor(max_workers=min(len(handlers), 4)) as executor:
-                futures = [executor.submit(self._safe_call, h, data) for h in handlers]
-                for f in futures:
-                    f.result()  # 等待完成以捕获异常
-        else:
-            self._safe_call(handlers[0], data)
-
-    def _safe_call(self, handler: Callable, data: Any):
-        """安全调用处理器"""
-        try:
-            handler(data)
-        except Exception as e:
-            logger.error(f"Event handler failed: {e}")
+        self._backend.publish(event_name, data)
 
     def clear(self, event_name: str | None = None) -> None:
-        """清除事件处理器"""
-        with self._lock:
-            if event_name:
-                self._handlers.pop(event_name, None)
-            else:
-                self._handlers.clear()
+        self._backend.clear_handlers(event_name)
+
+    # v2.1 新增
+    def publish_event(self, event: Any) -> None:
+        self._backend.publish_event(event)
+
+    def replay_all(self) -> int:
+        return self._backend.replay_all()
+
+    def stats(self) -> dict[str, Any]:
+        return self._backend.stats()
 
 
 class EventEmitter:
@@ -180,6 +164,79 @@ from scenefab.core.short_drama import (
 )
 from scenefab.core.streaming_llm_worker import StreamingLLMWorker
 
+# ============================================
+# v2.1 架构升级
+# ============================================
+
+from scenefab.core.event_types import (
+    DomainEvent,
+    FFmpegExecuted,
+    LLMTokenGenerated,
+    PipelineCompleted,
+    PipelineStarted,
+    PipelineStepCompleted,
+    PipelineStepStarted,
+    TaskCreated,
+    TaskProgressUpdated,
+    TaskStatusChanged,
+)
+from scenefab.core.unified_event_bus import (
+    AsyncEventHandler,
+    EventHandler,
+    EventLog,
+    EventRecord,
+    EventStats,
+    UnifiedEventBus,
+    get_event_bus,
+    set_event_bus,
+)
+from scenefab.core.task_model import (
+    CancelToken,
+    IllegalTransitionError,
+    TaskSource,
+    TaskStatus,
+    TaskStep,
+    UnifiedTask,
+    can_transition,
+)
+from scenefab.core.di_container import DIContainer, get_app_container, set_app_container
+from scenefab.core.task_store import (
+    InMemoryTaskStore,
+    SQLiteTaskStore,
+    TaskStore,
+    create_task_store,
+    get_task_store,
+    set_task_store,
+)
+from scenefab.core.event_store import (
+    EventStore,
+    InMemoryEventStore,
+    SQLiteEventStore,
+    create_event_store,
+    get_event_store,
+    install_event_store_into_bus,
+    set_event_store,
+)
+from scenefab.core.config_v2 import (
+    APISettings,
+    AppProfile,
+    LLMProviderConfig,
+    LLMProviderName,
+    LLMSettings,
+    PipelineSettings,
+    SecuritySettings,
+    SettingsV2,
+    StorageSettings,
+    TaskStoreBackend,
+    TTSProviderConfig,
+    TTSProviderName,
+    TTSSettings,
+    get_settings,
+    is_settings_v2_available,
+    set_settings,
+)
+from scenefab.core.ws_hub import WSHub, WSConnection, get_ws_hub, set_ws_hub
+
 __all__ = [
     # v1.x 公开 API
     "ApplicationState",
@@ -221,4 +278,73 @@ __all__ = [
     "CoverGenerator",
     "MultiPlatformExporter",
     "StreamingLLMWorker",
+    # v2.1 新增 - 事件总线单源真相
+    "UnifiedEventBus",
+    "EventLog",
+    "EventRecord",
+    "EventStats",
+    "EventHandler",
+    "AsyncEventHandler",
+    "get_event_bus",
+    "set_event_bus",
+    # v2.1 新增 - 类型化领域事件
+    "DomainEvent",
+    "PipelineStarted",
+    "PipelineStepStarted",
+    "PipelineStepCompleted",
+    "PipelineCompleted",
+    "TaskCreated",
+    "TaskProgressUpdated",
+    "TaskStatusChanged",
+    "LLMTokenGenerated",
+    "FFmpegExecuted",
+    # v2.1 新增 - 任务系统统一
+    "UnifiedTask",
+    "TaskStep",
+    "TaskStatus",
+    "TaskSource",
+    "CancelToken",
+    "IllegalTransitionError",
+    "can_transition",
+    # v2.1 新增 - DI 容器
+    "DIContainer",
+    "get_app_container",
+    "set_app_container",
+    # v2.1 新增 - TaskStore 3 后端
+    "TaskStore",
+    "InMemoryTaskStore",
+    "SQLiteTaskStore",
+    "create_task_store",
+    "get_task_store",
+    "set_task_store",
+    # v2.1 新增 - EventStore 持久化
+    "EventStore",
+    "InMemoryEventStore",
+    "SQLiteEventStore",
+    "create_event_store",
+    "get_event_store",
+    "set_event_store",
+    "install_event_store_into_bus",
+    # v2.1 新增 - 配置层
+    "SettingsV2",
+    "LLMSettings",
+    "LLMProviderConfig",
+    "LLMProviderName",
+    "TTSSettings",
+    "TTSProviderConfig",
+    "TTSProviderName",
+    "PipelineSettings",
+    "StorageSettings",
+    "SecuritySettings",
+    "APISettings",
+    "AppProfile",
+    "TaskStoreBackend",
+    "get_settings",
+    "set_settings",
+    "is_settings_v2_available",
+    # v2.1 新增 - WebSocket Hub
+    "WSHub",
+    "WSConnection",
+    "get_ws_hub",
+    "set_ws_hub",
 ]
