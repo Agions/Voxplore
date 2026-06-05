@@ -2,7 +2,7 @@
 
 """
 多模型视觉分析适配器
-支持 Qwen2.5-VL (72B SOTA)、GPT-5 Vision、Gemini 3 Vision 等多种 Vision 模型
+支持 Qwen3.7 (Max/Plus)、GPT-5 Vision、Gemini 3.5 Flash 等多种 Vision 模型
 """
 
 import json
@@ -12,6 +12,10 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any, Optional
+
+# 导入新的 Provider
+from .providers.qwen37 import Qwen37Provider
+from .providers.gemini35_flash import Gemini35FlashProvider
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +59,7 @@ VISION_ANALYSIS_PROMPT = """分析这张视频截图，返回JSON格式：
 
 
 # ============================================================================
-# 第一人称解说专用提示词（Qwen2.5-VL 增强版）
+# 第一人称解说专用提示词（Qwen3.7 增强版）
 # ============================================================================
 FIRST_PERSON_ANALYSIS_PROMPT = """你是一位专业的电影分镜师和第一人称叙事导演。
 
@@ -186,11 +190,11 @@ class QwenVLProvider(VisionProvider):
 
 
 # ============================================================================
-# 通义千问 Qwen2.5-VL（2025年2月新版，72B SOTA）⭐ 主力推荐
+# 通义千问 Qwen3.7（2026年6月最新，多模态 Agent）⭐ 主力推荐
 # ============================================================================
 class Qwen25VLProvider(VisionProvider):
     """
-    通义千问 Qwen2.5-VL（72B）
+    通义千问 Qwen3.7（Max/Plus）
 
     2025年2月发布，视频理解 SOTA，支持 Native 视频输入。
     推荐作为第一人称解说场景理解的主力模型。
@@ -204,12 +208,12 @@ class Qwen25VLProvider(VisionProvider):
         self.model = model
 
     def get_name(self) -> str:
-        return f"Qwen2.5-VL/{self.model}"
+        return f"Qwen3.7/{self.model}"
 
     def analyze_image(self, image_base64: str,
                       prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> dict[str, Any]:
         """
-        使用 Qwen2.5-VL 进行第一人称解说专用分析。
+        使用 Qwen3.7 进行第一人称解说专用分析。
         默认 prompt 使用 FIRST_PERSON_ANALYSIS_PROMPT。
         """
         from openai import OpenAI
@@ -390,7 +394,7 @@ class VisionAnalyzerFactory:
     视觉分析器工厂
 
     根据配置自动选择可用的 Vision 提供者，支持 fallback 降级。
-    优先顺序：Qwen2.5-VL > Qwen-VL > GPT-4o > Gemini
+    优先顺序：Qwen3.7 > Qwen-VL > GPT-4o > Gemini
 
     用法:
         factory = VisionAnalyzerFactory(config)
@@ -402,7 +406,9 @@ class VisionAnalyzerFactory:
         "openai": OpenAIVisionProvider,
         "qwen": QwenVLProvider,
         "qwen25": Qwen25VLProvider,
+        "qwen37": Qwen37Provider,
         "gemini": GeminiVisionProvider,
+        "gemini35": Gemini35FlashProvider,
     }
 
     def __init__(self, config: dict[str, Any]):
@@ -413,14 +419,15 @@ class VisionAnalyzerFactory:
     def _init_providers(self):
         llm = self._config.get("LLM", {})
 
-        # Qwen2.5-VL（最优先，2025年2月最新，视频理解 SOTA）
-        qwen25_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
-        if qwen25_key and not qwen25_key.startswith("${"):
-            self._providers.append(Qwen25VLProvider(
-                api_key=qwen25_key,
-                model="qwen2.5-vl-72b-instruct",
+        # Qwen3.7（最优先，2026年6月最新，多模态 Agent）
+        qwen37_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
+        vision_model = os.getenv("VISION_MODEL", "qwen3.7-plus")
+        if qwen37_key and not qwen37_key.startswith("${"):
+            self._providers.append(Qwen37Provider(
+                api_key=qwen37_key,
+                model=vision_model,
             ))
-            logger.info("✅ Qwen2.5-VL (72B) 已启用 — 视频理解 SOTA")
+            logger.info(f"✅ Qwen3.7 ({vision_model}) 已启用 — 多模态 Agent")
 
         # Qwen-VL Plus（备选）
         qwen_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
@@ -439,11 +446,20 @@ class VisionAnalyzerFactory:
                 base_url=llm.get("openai", {}).get("base_url"),
             ))
 
-        # Gemini
+        # Gemini 3.5 Flash（2026年5月最新）
         gemini_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get("api_key", "")
         if gemini_key and not gemini_key.startswith("${"):
-            self._providers.append(GeminiVisionProvider(
+            self._providers.append(Gemini35FlashProvider(
                 api_key=gemini_key,
+                model="gemini-3.5-flash",
+            ))
+            logger.info("✅ Gemini 3.5 Flash 已启用 — Flash 级别成本")
+
+        # Gemini 旧版（备选）
+        gemini_legacy_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get("api_key", "")
+        if gemini_legacy_key and not gemini_legacy_key.startswith("${"):
+            self._providers.append(GeminiVisionProvider(
+                api_key=gemini_legacy_key,
                 model="gemini-2.5-flash-preview-0506",
             ))
 

@@ -276,7 +276,7 @@ providers:
     default: qwen_vl
     qwen_vl:
       enabled: true
-      model: Qwen2.5-VL
+      model: Qwen3.7
     gemini_vision:
       enabled: true
       model: gemini-2.0-flash

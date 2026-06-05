@@ -1,7 +1,7 @@
 """
 TTS 提供者实现
 
-包含 EdgeTTS、OpenAI TTS、F5-TTS 等多种后端实现。
+包含 EdgeTTS、OpenAI TTS、F5-TTS、PilotTTS、OmniVoice、IndexTTS2 等多种后端实现。
 """
 
 import asyncio

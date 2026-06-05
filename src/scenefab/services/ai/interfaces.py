@@ -38,7 +38,7 @@ class AudioData:
 class VisionProvider(Protocol):
     """视觉理解 Provider
 
-    实现此协议以接入自定义视觉模型（如 Qwen2.5-VL、GPT-5 Vision 等）。
+    实现此协议以接入自定义视觉模型（如 Qwen3.7、GPT-5 Vision 等）。
     """
 
     def analyze_video(self, video_path: str) -> VideoAnalysis:

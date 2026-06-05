@@ -315,7 +315,7 @@ class FirstPersonExtractor:
 
         logger.info(f"Extracted {len(frames_data)} frames")
 
-        # 获取 Vision Provider（优先 Qwen2.5-VL）
+        # 获取 Vision Provider（优先 Qwen3.7）
         provider = self._vision_provider
         if provider is None:
             try:

@@ -3,14 +3,14 @@
 SmartGrouper - 智能视频分组服务
 
 功能：
-1. Qwen2.5-VL 提取每帧视觉 embedding（采样关键帧）
+1. Qwen3.7 提取每帧视觉 embedding（采样关键帧）
 2. 声纹识别提取音频 embedding（如果有音频）
 3. 混合相似度计算（视觉权重 0.7 + 音频权重 0.3）
 4. 层次聚类分组
 5. 返回分组列表（含置信度）
 
 接口预留：
-- 视觉 embedding: VisionEmbedder 协议（未来替换为真实 Qwen2.5-VL）
+- 视觉 embedding: VisionEmbedder 协议（未来替换为真实 Qwen3.7）
 - 音频 embedding: AudioEmbedder 协议（未来替换为真实声纹识别）
 """
 
@@ -44,7 +44,7 @@ class VideoGroup:
 class VisionEmbedder(Protocol):
     """视觉 embedding 提取器协议
 
-    实现此协议以接入真实 Qwen2.5-VL 模型
+    实现此协议以接入真实 Qwen3.7 模型
     """
 
     def extract(self, video_path: str, _num_frames: int = 8) -> list[float]:

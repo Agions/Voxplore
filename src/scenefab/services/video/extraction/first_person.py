@@ -4,12 +4,12 @@ FirstPersonExtractor - 第一人称视角提取服务
 
 功能：
 1. 逐帧分析画面（采样每 N 帧）
-2. Qwen2.5-VL 判断"我"的主体视角
+2. Qwen3.7 判断"我"的主体视角
 3. 提取适合做解说的片段（时序连续、信息完整）
 4. 返回片段列表（含时间戳、置信度）
 
 接口预留：
-- 视觉模型: VisionModel 协议（未来替换为真实 Qwen2.5-VL）
+- 视觉模型: VisionModel 协议（未来替换为真实 Qwen3.7）
 """
 
 import logging
@@ -35,7 +35,7 @@ class VideoSegment:
 class VisionModel(Protocol):
     """视觉模型协议
 
-    实现此协议以接入真实 Qwen2.5-VL 模型
+    实现此协议以接入真实 Qwen3.7 模型
     """
 
     def analyze_frame(self, video_path: str, timestamp: float) -> dict:

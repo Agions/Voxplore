@@ -3,8 +3,8 @@ SceneFab AI 服务模块
 
 提供 AI 能力:
 - LLM: 大语言模型支持（DeepSeek-V4 主力）
-- Vision: 视觉理解（Qwen2.5-VL 72B SOTA）
-- Voice: 语音合成（Edge-TTS / F5-TTS）
+- Vision: 视觉理解（Qwen3.7 Max/Plus / Gemini 3.5 Flash）
+- Voice: 语音合成（Edge-TTS / F5-TTS / PilotTTS / OmniVoice / IndexTTS2）
 - Subtitle: 字幕提取与生成
 - ASR: 语音识别（SenseVoice）
 

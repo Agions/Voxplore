@@ -113,7 +113,7 @@ class BaseLLMAdapter(ABC):
 
 
 class VideoAnalysisAdapter(BaseLLMAdapter):
-    """视频理解 Adapter - Qwen2.5-VL 等"""
+    """视频理解 Adapter - Qwen3.7 等"""
     provider_type = ProviderType.VIDEO_ANALYSIS
 
     @abstractmethod

@@ -4,6 +4,7 @@ from .claude import ClaudeProvider
 from .deepseek import DeepSeekProvider
 from .doubao import DoubaoProvider
 from .gemini import GeminiProvider
+from .gemini35_flash import Gemini35FlashProvider
 from .glm5 import GLM5Provider
 from .hunyuan import HunyuanProvider
 from .kimi import KimiProvider
@@ -15,6 +16,7 @@ from .provider_models import (
     UsageInfo,
 )
 from .qwen import QwenProvider
+from .qwen37 import Qwen37Provider
 
 __all__ = [
     # Providers
@@ -22,11 +24,13 @@ __all__ = [
     "DeepSeekProvider",
     "DoubaoProvider",
     "GeminiProvider",
+    "Gemini35FlashProvider",
     "GLM5Provider",
     "HunyuanProvider",
     "KimiProvider",
     "LocalProvider",
     "QwenProvider",
+    "Qwen37Provider",
     # Models
     "ChatMessage",
     "UsageInfo",

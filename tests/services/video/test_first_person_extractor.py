@@ -41,7 +41,7 @@ class TestVideoSegment:
 
 
 class MockVisionModel:
-    """模拟 Qwen2.5-VL 模型"""
+    """模拟 Qwen3.7 模型"""
 
     def __init__(self, first_person_responses: dict[str, list[tuple[float, float, float]]]):
         # first_person_responses[video_path] = [(start, end, confidence), ...]
