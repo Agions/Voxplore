@@ -18,7 +18,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from ..vision_base import VisionProvider, VisionAnalysisResult
+from ..vision_base import VisionAnalysisResult, VisionProvider
 
 logger = logging.getLogger(__name__)
 

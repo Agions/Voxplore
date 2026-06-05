@@ -313,8 +313,8 @@ class VisionAnalyzerFactory:
 
     def _get_provider_map(self) -> dict[str, type]:
         """延迟加载 Provider 映射，避免循环导入"""
-        from .providers.qwen37 import Qwen37Provider
         from .providers.gemini35_flash import Gemini35FlashProvider
+        from .providers.qwen37 import Qwen37Provider
         return {
             "openai": OpenAIVisionProvider,
             "qwen": QwenVLProvider,
@@ -332,8 +332,8 @@ class VisionAnalyzerFactory:
         self._init_providers()
 
     def _init_providers(self):
-        from .providers.qwen37 import Qwen37Provider
         from .providers.gemini35_flash import Gemini35FlashProvider
+        from .providers.qwen37 import Qwen37Provider
 
         llm = self._config.get("LLM", {})
 

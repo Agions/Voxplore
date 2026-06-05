@@ -154,6 +154,7 @@ class PerformanceBenchmark:
             dict: 系统信息
         """
         import platform
+
         import psutil
 
         system_info = {
@@ -373,7 +374,7 @@ class PerformanceBenchmark:
         Returns:
             BenchmarkResult: 测试结果
         """
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             data = json.load(f)
 
         # 重建 BenchmarkResult 对象
