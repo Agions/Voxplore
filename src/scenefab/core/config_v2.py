@@ -267,7 +267,7 @@ if _HAS_PYDANTIC_SETTINGS:
             """生成 JSON Schema（用于文档）"""
             return self.model_json_schema()
 
-        def reload(self) -> SettingsV2:
+        def reload(self) -> "SettingsV2":  # noqa: UP037 — forward ref, no __future__ annotations
             """强制重载（重新读取 env / .env）"""
             global _settings
             _settings = type(self)()
