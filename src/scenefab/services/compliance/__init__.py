@@ -10,8 +10,8 @@ SceneFab 合规性服务模块
 """
 
 from .copyright_checker import CopyrightChecker, CopyrightCheckResult
-from .sensitive_content_detector import SensitiveContentDetector, SensitiveContentResult
 from .fair_use_advisor import FairUseAdvisor, FairUseAssessment
+from .sensitive_content_detector import SensitiveContentDetector, SensitiveContentResult
 
 __all__ = [
     "CopyrightChecker",
