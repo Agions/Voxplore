@@ -33,6 +33,8 @@ from scenefab.core.unified_event_bus import (
     EventLog,
     EventRecord,
     UnifiedEventBus,
+)
+from scenefab.core.unified_event_bus import (
     get_event_bus as _get_unified,
 )
 

@@ -20,12 +20,16 @@ from typing import Any, Optional
 
 # v2.1: 桥接事件总线（DomainEvent 发布）
 try:
-    from scenefab.core.unified_event_bus import get_event_bus
     from scenefab.core.event_types import (
         TaskCreated as _TaskCreatedEvent,
+    )
+    from scenefab.core.event_types import (
         TaskProgressUpdated as _TaskProgressEvent,
+    )
+    from scenefab.core.event_types import (
         TaskStatusChanged as _TaskStatusEvent,
     )
+    from scenefab.core.unified_event_bus import get_event_bus
     _HAS_V21_BUS = True
 except ImportError:
     _HAS_V21_BUS = False

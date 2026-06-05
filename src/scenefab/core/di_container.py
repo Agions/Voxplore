@@ -259,7 +259,7 @@ class DIContainer:
     # ────────────────────────────────────────────────
 
     @contextmanager
-    def enter_scope(self) -> Iterator["DIContainer"]:
+    def enter_scope(self) -> Iterator[DIContainer]:
         """进入作用域（上下文退出自动清理）"""
         scope_dict: dict[Any, Any] = {}
         self._scope_stack.append(scope_dict)

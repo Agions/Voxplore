@@ -42,11 +42,13 @@ try:
 except ImportError:
     _HAS_PYDANTIC_SETTINGS = False
     # type: ignore[assignment]
-    Field = lambda *args, **kwargs: None
+    def Field(*args, **kwargs):  # type: ignore[misc]
+        return None
     # type: ignore[assignment]
     BaseSettings = object
     # type: ignore[assignment]
-    SettingsConfigDict = lambda **kwargs: {}
+    def SettingsConfigDict(**kwargs):  # type: ignore[misc]
+        return {}
 
     def field_validator(*args, **kwargs):  # type: ignore[no-redef]
         def decorator(fn):
@@ -265,7 +267,7 @@ if _HAS_PYDANTIC_SETTINGS:
             """生成 JSON Schema（用于文档）"""
             return self.model_json_schema()
 
-        def reload(self) -> "SettingsV2":
+        def reload(self) -> SettingsV2:
             """强制重载（重新读取 env / .env）"""
             global _settings
             _settings = type(self)()
@@ -277,7 +279,7 @@ if _HAS_PYDANTIC_SETTINGS:
 # ──────────────────────────────────────────────────────────
 
 
-_settings: Optional[Any] = None
+_settings: Any | None = None
 _settings_lock = None  # 懒加载
 
 

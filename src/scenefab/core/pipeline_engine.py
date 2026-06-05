@@ -52,13 +52,13 @@ from typing import Any, Optional
 
 # v2.1: 领域事件发布（可选，未注入则跳过）
 try:
-    from scenefab.core.unified_event_bus import UnifiedEventBus
     from scenefab.core.event_types import (
-        PipelineStarted,
-        PipelineStepStarted,
-        PipelineStepCompleted,
         PipelineCompleted,
+        PipelineStarted,
+        PipelineStepCompleted,
+        PipelineStepStarted,
     )
+    from scenefab.core.unified_event_bus import UnifiedEventBus
     _HAS_V21_PIPELINE_EVENTS = True
 except ImportError:  # pragma: no cover
     _HAS_V21_PIPELINE_EVENTS = False

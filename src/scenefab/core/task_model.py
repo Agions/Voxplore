@@ -17,9 +17,10 @@ import enum
 import logging
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any
 
 from scenefab.core.event_types import (
     TaskCreated,

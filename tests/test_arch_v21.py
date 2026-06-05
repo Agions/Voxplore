@@ -22,12 +22,6 @@ from typing import Any
 
 import pytest
 
-from scenefab.core.unified_event_bus import (
-    EventLog,
-    UnifiedEventBus,
-    get_event_bus,
-    set_event_bus,
-)
 from scenefab.core.event_types import (
     DomainEvent,
     FFmpegExecuted,
@@ -39,7 +33,12 @@ from scenefab.core.event_types import (
     TaskProgressUpdated,
     TaskStatusChanged,
 )
-
+from scenefab.core.unified_event_bus import (
+    EventLog,
+    UnifiedEventBus,
+    get_event_bus,
+    set_event_bus,
+)
 
 # ══════════════════════════════════════════════════════════
 # Phase 1: UnifiedEventBus
@@ -193,7 +192,7 @@ class TestUnifiedTask:
         assert t.progress == 0.0
 
     def test_legal_transitions(self):
-        from scenefab.core.task_model import UnifiedTask, TaskStatus
+        from scenefab.core.task_model import TaskStatus, UnifiedTask
         t = UnifiedTask()
         t.mark_running()
         assert t.status == TaskStatus.RUNNING
@@ -206,18 +205,26 @@ class TestUnifiedTask:
         assert t.progress == 1.0
 
     def test_illegal_transition_raises(self):
-        from scenefab.core.task_model import UnifiedTask, TaskStatus, IllegalTransitionError
+        from scenefab.core.task_model import (
+            IllegalTransitionError,
+            TaskStatus,
+            UnifiedTask,
+        )
         t = UnifiedTask()
         # pending → completed 不合法（必须先经过 running）
         with pytest.raises(IllegalTransitionError):
             t._transition_to(TaskStatus.COMPLETED)
 
     def test_terminal_states_block_further_transitions(self):
-        from scenefab.core.task_model import UnifiedTask, TaskStatus
+        from scenefab.core.task_model import (
+            IllegalTransitionError,
+            TaskStatus,
+            UnifiedTask,
+        )
         t = UnifiedTask()
         t.mark_running()
         t.mark_failed("oops")
-        with pytest.raises(Exception):
+        with pytest.raises(IllegalTransitionError):
             t.mark_completed()  # 终态不能再转
 
     def test_update_progress_emits_event(self):
@@ -428,9 +435,12 @@ class TestEventStore:
             os.unlink(path)
 
     def test_install_event_store_into_bus(self):
-        from scenefab.core.event_store import InMemoryEventStore, install_event_store_into_bus
-        from scenefab.core.unified_event_bus import UnifiedEventBus
+        from scenefab.core.event_store import (
+            InMemoryEventStore,
+            install_event_store_into_bus,
+        )
         from scenefab.core.event_types import TaskCreated
+        from scenefab.core.unified_event_bus import UnifiedEventBus
         bus = UnifiedEventBus()
         store = InMemoryEventStore()
         install_event_store_into_bus(bus, store)
@@ -448,8 +458,9 @@ class TestWSHub:
     """WebSocket Hub"""
 
     def test_connect_disconnect(self):
-        from scenefab.core.ws_hub import WSHub
         from starlette.websockets import WebSocketState
+
+        from scenefab.core.ws_hub import WSHub
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
@@ -467,10 +478,11 @@ class TestWSHub:
         asyncio.run(main())
 
     def test_event_filtering(self):
-        from scenefab.core.ws_hub import WSHub
-        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
-        from scenefab.core.event_types import TaskCreated, PipelineStarted
         from starlette.websockets import WebSocketState
+
+        from scenefab.core.event_types import PipelineStarted, TaskCreated
+        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
+        from scenefab.core.ws_hub import WSHub
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
@@ -497,10 +509,11 @@ class TestWSHub:
         asyncio.run(main())
 
     def test_wildcard_subscription(self):
-        from scenefab.core.ws_hub import WSHub
-        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
-        from scenefab.core.event_types import TaskCreated, PipelineStarted
         from starlette.websockets import WebSocketState
+
+        from scenefab.core.event_types import PipelineStarted, TaskCreated
+        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
+        from scenefab.core.ws_hub import WSHub
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
@@ -567,8 +580,8 @@ class TestTaskManagerV21Integration:
     """v1.x TaskManager 桥接到 v2.1 事件总线"""
 
     def test_create_task_publishes_event(self):
-        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
         from scenefab.core.event_types import TaskCreated
+        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
         bus = UnifiedEventBus()
         bus.clear_log()
         bus.clear_handlers()

@@ -131,6 +131,50 @@ from scenefab.core.batch_processor import (
 from scenefab.core.batch_processor import (
     TaskStatus as BatchTaskStatus,
 )
+from scenefab.core.config_v2 import (
+    APISettings,
+    AppProfile,
+    LLMProviderConfig,
+    LLMProviderName,
+    LLMSettings,
+    PipelineSettings,
+    SecuritySettings,
+    SettingsV2,
+    StorageSettings,
+    TaskStoreBackend,
+    TTSProviderConfig,
+    TTSProviderName,
+    TTSSettings,
+    get_settings,
+    is_settings_v2_available,
+    set_settings,
+)
+from scenefab.core.di_container import DIContainer, get_app_container, set_app_container
+from scenefab.core.event_store import (
+    EventStore,
+    InMemoryEventStore,
+    SQLiteEventStore,
+    create_event_store,
+    get_event_store,
+    install_event_store_into_bus,
+    set_event_store,
+)
+
+# ============================================
+# v2.1 架构升级
+# ============================================
+from scenefab.core.event_types import (
+    DomainEvent,
+    FFmpegExecuted,
+    LLMTokenGenerated,
+    PipelineCompleted,
+    PipelineStarted,
+    PipelineStepCompleted,
+    PipelineStepStarted,
+    TaskCreated,
+    TaskProgressUpdated,
+    TaskStatusChanged,
+)
 from scenefab.core.ffmpeg_safe import (
     FFmpegResult,
     FFmpegSecurityError,
@@ -163,22 +207,22 @@ from scenefab.core.short_drama import (
     TropeType,
 )
 from scenefab.core.streaming_llm_worker import StreamingLLMWorker
-
-# ============================================
-# v2.1 架构升级
-# ============================================
-
-from scenefab.core.event_types import (
-    DomainEvent,
-    FFmpegExecuted,
-    LLMTokenGenerated,
-    PipelineCompleted,
-    PipelineStarted,
-    PipelineStepCompleted,
-    PipelineStepStarted,
-    TaskCreated,
-    TaskProgressUpdated,
-    TaskStatusChanged,
+from scenefab.core.task_model import (
+    CancelToken,
+    IllegalTransitionError,
+    TaskSource,
+    TaskStatus,
+    TaskStep,
+    UnifiedTask,
+    can_transition,
+)
+from scenefab.core.task_store import (
+    InMemoryTaskStore,
+    SQLiteTaskStore,
+    TaskStore,
+    create_task_store,
+    get_task_store,
+    set_task_store,
 )
 from scenefab.core.unified_event_bus import (
     AsyncEventHandler,
@@ -190,52 +234,7 @@ from scenefab.core.unified_event_bus import (
     get_event_bus,
     set_event_bus,
 )
-from scenefab.core.task_model import (
-    CancelToken,
-    IllegalTransitionError,
-    TaskSource,
-    TaskStatus,
-    TaskStep,
-    UnifiedTask,
-    can_transition,
-)
-from scenefab.core.di_container import DIContainer, get_app_container, set_app_container
-from scenefab.core.task_store import (
-    InMemoryTaskStore,
-    SQLiteTaskStore,
-    TaskStore,
-    create_task_store,
-    get_task_store,
-    set_task_store,
-)
-from scenefab.core.event_store import (
-    EventStore,
-    InMemoryEventStore,
-    SQLiteEventStore,
-    create_event_store,
-    get_event_store,
-    install_event_store_into_bus,
-    set_event_store,
-)
-from scenefab.core.config_v2 import (
-    APISettings,
-    AppProfile,
-    LLMProviderConfig,
-    LLMProviderName,
-    LLMSettings,
-    PipelineSettings,
-    SecuritySettings,
-    SettingsV2,
-    StorageSettings,
-    TaskStoreBackend,
-    TTSProviderConfig,
-    TTSProviderName,
-    TTSSettings,
-    get_settings,
-    is_settings_v2_available,
-    set_settings,
-)
-from scenefab.core.ws_hub import WSHub, WSConnection, get_ws_hub, set_ws_hub
+from scenefab.core.ws_hub import WSConnection, WSHub, get_ws_hub, set_ws_hub
 
 __all__ = [
     # v1.x 公开 API
