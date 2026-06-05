@@ -1,0 +1,104 @@
+"""
+视觉分析基类和通用定义
+
+从 vision_providers.py 提取，解决循环导入问题。
+所有 vision provider（包括 providers/ 子目录下的）都从这里导入基类。
+"""
+
+import json
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any
+
+
+@dataclass
+class VisionAnalysisResult:
+    """视觉分析结果"""
+    description: str = ""
+    content_type: str = "unknown"
+    objects: list[str] = field(default_factory=list)
+    text_content: str = ""
+    emotion: str = "neutral"
+    color_tone: str = "neutral"
+    confidence: float = 0.0
+    raw_response: str = ""
+    # 第一人称解说专用字段
+    scene_narrative: str = ""      # 场景叙事（"我"看到什么）
+    protagonist_action: str = ""    # 主角动作
+    environment_mood: str = ""      # 环境氛围
+    first_person_hook: str = ""     # 适合第一人称的开场钩子
+
+
+# ============================================================================
+# 默认提示词（通用场景理解）
+# ============================================================================
+VISION_ANALYSIS_PROMPT = """分析这张视频截图，返回JSON格式：
+{
+    "description": "详细描述画面内容（50-100字）",
+    "content_type": "person/landscape/indoor/outdoor/text/product/animal/food/action",
+    "objects": ["检测到的主要物体列表"],
+    "text": "画面中出现的文字（如果有）",
+    "emotion": "neutral/happy/sad/excited/calm/tense/romantic",
+    "color_tone": "warm/cold/neutral",
+    "suitable_for": {
+        "commentary": 0-100,
+        "monologue": 0-100,
+        "mashup": 0-100
+    }
+}
+只返回JSON，不要其他内容。"""
+
+
+# ============================================================================
+# 第一人称解说专用提示词
+# ============================================================================
+FIRST_PERSON_ANALYSIS_PROMPT = """你是一位专业的电影分镜师和第一人称叙事导演。
+
+分析这段视频截图，用"我"（画面中主角）的视角描述所见所行。
+
+返回JSON格式：
+{
+    "description": "客观描述画面内容（30-60字）",
+    "content_type": "person/landscape/indoor/outdoor/product/action/scenery",
+    "objects": ["画面中主要物体"],
+    "emotion": "neutral/happy/sad/calm/excited/tense/wonder/awe",
+    "color_tone": "warm/cold/muted/vibrant",
+    "protagonist_action": "主角正在做什么（用动词，简洁）",
+    "environment_mood": "环境氛围关键词（3-5个）",
+    "first_person_hook": "一句适合第一人称的开场叙述（10-20字，要有画面感）",
+    "narrative_angle": "这个场景适合从哪个角度切入叙事（旁观/内心独白/现场解说）"
+}
+
+注意：
+- protagist_action 站在主角立场描述，而非旁观者
+- first_person_hook 要有沉浸感，像主角在说话
+- 只返回JSON，不要解释"""
+
+
+# ============================================================================
+# Provider 基类
+# ============================================================================
+class VisionProvider(ABC):
+    """视觉分析提供者基类"""
+
+    @abstractmethod
+    def analyze_image(self, image_base64: str,
+                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
+        """分析图片，返回解析后的字典"""
+        pass
+
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
+
+    @staticmethod
+    def _parse_json_response(content: str) -> dict[str, Any]:
+        """从可能包含 markdown 的响应中提取 JSON"""
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0]
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0]
+        try:
+            return json.loads(content.strip())
+        except json.JSONDecodeError:
+            return {"description": content.strip()}
