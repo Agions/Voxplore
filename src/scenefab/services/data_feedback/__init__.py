@@ -529,9 +529,48 @@ class FeedbackDataStore:
         logger.debug(f"保存指标: {metrics.video_id} ({metrics.platform.value})")
 
     def save_metrics_batch(self, metrics_list: list[VideoMetrics]):
-        """批量保存"""
-        for m in metrics_list:
-            self.save_metrics(m)
+        """批量保存（单连接 + 事务，性能优化）"""
+        if not metrics_list:
+            return
+
+        with sqlite3.connect(self.db_path) as conn:
+            # 批量插入主表
+            conn.executemany("""
+                INSERT OR REPLACE INTO video_metrics (
+                    video_id, platform, publish_time, title, duration,
+                    views, likes, comments, shares, collects,
+                    completion_rate, avg_watch_duration, followers_gained,
+                    hook_type, emotion_tags, topic_tags, thumbnail_path,
+                    script_variant_id, collected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, [
+                (
+                    m.video_id, m.platform.value, m.publish_time.isoformat(),
+                    m.title, m.duration, m.views, m.likes, m.comments,
+                    m.shares, m.collects, m.completion_rate, m.avg_watch_duration,
+                    m.followers_gained, m.hook_type,
+                    json.dumps(m.emotion_tags, ensure_ascii=False),
+                    json.dumps(m.topic_tags, ensure_ascii=False),
+                    m.thumbnail_path, m.script_variant_id,
+                    m.collected_at.isoformat(),
+                )
+                for m in metrics_list
+            ])
+
+            # 批量插入快照
+            now = datetime.now().isoformat()
+            conn.executemany("""
+                INSERT INTO feedback_snapshots (
+                    video_id, platform, snapshot_time,
+                    views, likes, comments, shares, collects, completion_rate
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, [
+                (m.video_id, m.platform.value, now, m.views, m.likes,
+                 m.comments, m.shares, m.collects, m.completion_rate)
+                for m in metrics_list
+            ])
+            conn.commit()
+
         logger.info(f"批量保存 {len(metrics_list)} 条指标")
 
     def query_metrics(

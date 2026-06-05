@@ -134,16 +134,19 @@ class LongVideoUnderstanding:
         },
     }
 
-    def __init__(self, api_keys: dict[str, str] | None = None):
+    def __init__(self, api_keys: dict[str, str] | None = None, max_workers: int = 3):
         """
         初始化长视频理解器
 
         Args:
             api_keys: API 密钥字典 {"qwen": "...", "gemini": "..."}
+            max_workers: 并行处理线程数
         """
         self.api_keys = api_keys or {}
+        self.max_workers = max_workers
+        self._frame_cache: dict[str, list[dict]] = {}  # 帧缓存
         self._init_clients()
-        logger.info("LongVideoUnderstanding 初始化完成")
+        logger.info(f"LongVideoUnderstanding 初始化完成 (workers={max_workers})")
 
     def _init_clients(self):
         """初始化 API 客户端"""
@@ -178,6 +181,7 @@ class LongVideoUnderstanding:
         video_path: str,
         level: UnderstandingLevel = UnderstandingLevel.STANDARD,
         segment_duration: float | None = None,
+        parallel: bool = True,
     ) -> LongVideoUnderstandingResult:
         """
         理解长视频
@@ -186,6 +190,7 @@ class LongVideoUnderstanding:
             video_path: 视频文件路径
             level: 理解级别
             segment_duration: 分段时长（秒），默认 5 分钟
+            parallel: 是否并行处理片段
 
         Returns:
             LongVideoUnderstandingResult: 理解结果
@@ -204,10 +209,10 @@ class LongVideoUnderstanding:
         )
 
         # 理解每个片段
-        understood_segments = []
-        for segment in segments:
-            understood_segment = self._understand_segment(segment, level)
-            understood_segments.append(understood_segment)
+        if parallel and len(segments) > 1:
+            understood_segments = self._understand_parallel(segments, level)
+        else:
+            understood_segments = self._understand_sequential(segments, level)
 
         # 构建剧情图谱
         story_graph = self._build_story_graph(understood_segments, level)
@@ -226,6 +231,38 @@ class LongVideoUnderstanding:
 
         logger.info(f"长视频理解完成: 处理时间={processing_time:.2f}秒")
         return result
+
+    def _understand_parallel(self, segments: list, level: UnderstandingLevel) -> list:
+        """并行理解视频片段"""
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        results = [None] * len(segments)
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            future_to_idx = {
+                executor.submit(self._understand_segment, seg, level): i
+                for i, seg in enumerate(segments)
+            }
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    logger.warning(f"片段 {idx} 理解失败: {e}")
+                    results[idx] = segments[idx]  # 保留原始片段
+
+        return [r for r in results if r is not None]
+
+    def _understand_sequential(self, segments: list, level: UnderstandingLevel) -> list:
+        """串行理解视频片段"""
+        understood_segments = []
+        for segment in segments:
+            try:
+                understood_segment = self._understand_segment(segment, level)
+                understood_segments.append(understood_segment)
+            except Exception as e:
+                logger.warning(f"片段理解失败: {e}")
+                understood_segments.append(segment)
+        return understood_segments
 
     def _get_video_duration(self, video_path: str) -> float:
         """

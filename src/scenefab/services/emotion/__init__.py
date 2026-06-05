@@ -109,20 +109,25 @@ class EmotionDetector:
         SceneType.TRANSITION: RecommendedPace.NORMAL,
     }
 
-    def __init__(self, use_visual_analysis: bool = True):
+    def __init__(self, use_visual_analysis: bool = True, max_workers: int = 4):
         """
         初始化情绪检测器
 
         Args:
             use_visual_analysis: 是否使用视觉分析
+            max_workers: 并行处理线程数
         """
         self.use_visual_analysis = use_visual_analysis
-        logger.info("EmotionDetector 初始化完成")
+        self.max_workers = max_workers
+        self._frame_cache: dict[str, Any] = {}  # 帧缓存
+        self._audio_cache: dict[str, Any] = {}  # 音频缓存
+        logger.info(f"EmotionDetector 初始化完成 (workers={max_workers})")
 
     def detect(
         self,
         video_path: str,
         sample_interval: float = 5.0,
+        parallel: bool = True,
     ) -> EmotionDetectionResult:
         """
         检测视频中的情绪点
@@ -130,6 +135,7 @@ class EmotionDetector:
         Args:
             video_path: 视频文件路径
             sample_interval: 采样间隔（秒）
+            parallel: 是否并行处理
 
         Returns:
             EmotionDetectionResult: 检测结果
@@ -141,15 +147,17 @@ class EmotionDetector:
 
         # 采样时间点
         timestamps = [i * sample_interval for i in range(int(duration / sample_interval) + 1)]
+        timestamps = [t for t in timestamps if t < duration]
+
+        # 预加载音频（并行模式下共享）
+        if parallel and len(timestamps) > 1:
+            self._preload_audio(video_path)
 
         # 检测每个时间点的情绪
-        scene_emotions = []
-        for timestamp in timestamps:
-            if timestamp >= duration:
-                break
-
-            emotion = self._analyze_at_timestamp(video_path, timestamp)
-            scene_emotions.append(emotion)
+        if parallel and len(timestamps) > 1:
+            scene_emotions = self._detect_parallel(video_path, timestamps)
+        else:
+            scene_emotions = self._detect_sequential(video_path, timestamps)
 
         # 生成情绪曲线
         emotion_curve = self._generate_emotion_curve(scene_emotions)
@@ -167,6 +175,60 @@ class EmotionDetector:
 
         logger.info(f"情绪检测完成: 检测到 {len(scene_emotions)} 个情绪点")
         return result
+
+    def _preload_audio(self, video_path: str):
+        """预加载音频数据（避免重复读取）"""
+        try:
+            import librosa
+            y, sr = librosa.load(video_path, sr=22050)
+            self._audio_cache[video_path] = {"y": y, "sr": sr}
+            logger.debug(f"音频预加载完成: {len(y)/sr:.1f}s")
+        except Exception as e:
+            logger.warning(f"音频预加载失败: {e}")
+
+    def _detect_parallel(self, video_path: str, timestamps: list[float]) -> list[SceneEmotion]:
+        """并行检测情绪"""
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        results = [None] * len(timestamps)
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            future_to_idx = {
+                executor.submit(self._analyze_at_timestamp, video_path, ts): i
+                for i, ts in enumerate(timestamps)
+            }
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:
+                    logger.warning(f"时间点 {timestamps[idx]}s 分析失败: {e}")
+                    results[idx] = self._fallback_emotion(timestamps[idx])
+
+        return [r for r in results if r is not None]
+
+    def _detect_sequential(self, video_path: str, timestamps: list[float]) -> list[SceneEmotion]:
+        """串行检测情绪"""
+        scene_emotions = []
+        for timestamp in timestamps:
+            try:
+                emotion = self._analyze_at_timestamp(video_path, timestamp)
+                scene_emotions.append(emotion)
+            except Exception as e:
+                logger.warning(f"时间点 {timestamp}s 分析失败: {e}")
+                scene_emotions.append(self._fallback_emotion(timestamp))
+        return scene_emotions
+
+    def _fallback_emotion(self, timestamp: float) -> SceneEmotion:
+        """失败时的降级情绪数据"""
+        return SceneEmotion(
+            timestamp=timestamp,
+            scene_type=SceneType.TRANSITION,
+            emotion_label=EmotionLabel.NEUTRAL,
+            intensity=0.5,
+            recommended_pace=RecommendedPace.NORMAL,
+            confidence=0.0,
+            description="分析失败，使用默认值",
+        )
 
     def _get_video_duration(self, video_path: str) -> float:
         """
@@ -259,16 +321,24 @@ class EmotionDetector:
             import librosa
             import numpy as np
 
-            # 加载音频片段（前后 2 秒）
-            start_time = max(0, timestamp - 2)
-            end_time = timestamp + 2
-
-            y, sr = librosa.load(
-                video_path,
-                sr=22050,
-                offset=start_time,
-                duration=end_time - start_time,
-            )
+            # 优先使用缓存的音频数据
+            if video_path in self._audio_cache:
+                cached = self._audio_cache[video_path]
+                y_full, sr = cached["y"], cached["sr"]
+                # 从缓存中切片
+                start_sample = int(max(0, timestamp - 2) * sr)
+                end_sample = int((timestamp + 2) * sr)
+                y = y_full[start_sample:end_sample]
+            else:
+                # 降级：直接加载片段
+                start_time = max(0, timestamp - 2)
+                end_time = timestamp + 2
+                y, sr = librosa.load(
+                    video_path,
+                    sr=22050,
+                    offset=start_time,
+                    duration=end_time - start_time,
+                )
 
             # 提取特征
             features = {
