@@ -21,7 +21,7 @@ from typing import Any
 
 import httpx
 
-from .vision_providers import VisionProvider, VisionAnalysisResult
+from ..vision_providers import VisionProvider, VisionAnalysisResult
 
 logger = logging.getLogger(__name__)
 
