@@ -255,6 +255,15 @@ def get_ui_settings() -> dict[str, SettingDefinition]:
             category='ui',
             subcategory='behavior'
         ),
+        'ui.minimize_to_tray': SettingDefinition(
+            key='ui.minimize_to_tray',
+            name='关闭时最小化到系统托盘',
+            description='点击关闭按钮时缩放到系统托盘（需系统支持托盘）。默认关闭：直接退出应用',
+            setting_type=SettingType.BOOLEAN,
+            default_value=False,
+            category='ui',
+            subcategory='behavior'
+        ),
     }
 
 

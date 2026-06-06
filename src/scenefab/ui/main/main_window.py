@@ -10,9 +10,14 @@ SceneFab 主窗口 — 现代极简布局 v6
   - 全局快捷键支持
 """
 
+from __future__ import annotations
+
+from typing import Optional
+
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QGraphicsOpacityEffect,
     QHBoxLayout,
@@ -25,6 +30,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme.ds_tokens import Colors, FontSizes, Radii
+from .tray_manager import TrayManager, get_tray_manager
 
 # ═══════════════════════════════════════════════════════════════════════
 # 导航配置
@@ -489,9 +495,13 @@ class SceneFabMainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("SceneFab")
         self.setMinimumSize(1100, 680)
+        self._tray: Optional[TrayManager] = None
+        self._minimize_to_tray_enabled = False
+        self._quitting = False  # 标记是否真的退出
         self._setup_ui()
         self._connect_signals()
         self._apply_global_style()
+        self._init_tray()
 
     def _setup_ui(self):
         central = QWidget()
@@ -536,6 +546,94 @@ class SceneFabMainWindow(QMainWindow):
     def _connect_signals(self):
         self.sidebar.navigated.connect(self._on_navigate)
         self.topbar.action_triggered.connect(self._on_action)
+
+    # ══════════════════════════════════════════════════════════════
+    # 系统托盘集成
+    # ══════════════════════════════════════════════════════════════
+
+    def _init_tray(self):
+        """初始化系统托盘（始终可用，是否激活由设置决定）"""
+        try:
+            self._tray = get_tray_manager()
+            self._tray.show_window_requested.connect(self._restore_from_tray)
+            self._tray.open_settings_requested.connect(self._open_settings_from_tray)
+            self._tray.quit_requested.connect(self._quit_application)
+        except Exception as e:
+            # 托盘初始化失败不应阻止应用启动
+            import logging
+            logging.getLogger(__name__).warning(f"Tray init failed: {e}")
+            self._tray = None
+
+    def set_minimize_to_tray(self, enabled: bool):
+        """
+        设置是否启用"关闭窗口时最小化到托盘"
+
+        Args:
+            enabled: True 启用托盘缩放，False 直接关闭（默认）
+        """
+        self._minimize_to_tray_enabled = bool(enabled)
+
+        if enabled and self._tray is not None and not self._tray.is_enabled:
+            # 启用：创建托盘图标
+            self._tray.enable(self.windowTitle())
+        elif not enabled and self._tray is not None and self._tray.is_enabled:
+            # 关闭：清理托盘
+            self._tray.disable()
+
+    def _restore_from_tray(self):
+        """从托盘恢复窗口"""
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
+
+    def _open_settings_from_tray(self):
+        """从托盘菜单打开设置页"""
+        self._restore_from_tray()
+        self._on_navigate("settings")
+
+    def _quit_application(self):
+        """真正退出应用（绕过托盘拦截）"""
+        self._quitting = True
+        if self._tray is not None:
+            self._tray.disable()
+        self.close()
+        # 强制退出事件循环
+        QApplication.instance().quit()
+
+    def closeEvent(self, event):
+        """
+        窗口关闭事件
+        - 如果用户启用了"最小化到托盘"且托盘可用：隐藏窗口
+        - 否则：正常关闭
+        """
+        # 如果是程序主动退出（_quit_application），不拦截
+        if self._quitting:
+            event.accept()
+            return
+
+        # 检查托盘设置
+        if (
+            self._minimize_to_tray_enabled
+            and self._tray is not None
+            and self._tray.is_enabled
+            and self._tray.is_available
+        ):
+            # 拦截关闭事件，改为隐藏
+            event.ignore()
+            self.hide()
+            # 首次最小化时显示提示
+            if not hasattr(self, "_tray_hint_shown"):
+                self._tray.show_notification(
+                    "SceneFab",
+                    "应用已最小化到系统托盘。双击图标或右键菜单可恢复窗口。",
+                )
+                self._tray_hint_shown = True
+            return
+
+        # 默认行为：真正关闭
+        if self._tray is not None:
+            self._tray.disable()
+        event.accept()
 
     def _on_navigate(self, page_id: str):
         self.content.set_page(page_id)

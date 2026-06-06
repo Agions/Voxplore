@@ -180,6 +180,19 @@ class SettingsPage(QFrame):
         self.setObjectName("settings_page")
         self._setup_style()
         self._setup_ui()
+        self._connect_tray_signal()
+
+    def _connect_tray_signal(self):
+        """连接托盘开关信号到主窗口"""
+        if self._tray_toggle is not None:
+            self._tray_toggle.toggled.connect(self._on_tray_toggled)
+
+    def _on_tray_toggled(self, checked: bool):
+        """托盘开关状态变化 - 通知主窗口"""
+        # 找到顶层主窗口（设置页的祖先）
+        window = self.window()
+        if window is not None and hasattr(window, "set_minimize_to_tray"):
+            window.set_minimize_to_tray(checked)
 
     def _setup_style(self):
         self.setStyleSheet(f"""
@@ -232,13 +245,22 @@ class SettingsPage(QFrame):
         autosave_row = SettingsRow("自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目")
         gen_layout.insertWidget(1, autosave_row)
 
+        # 关闭时最小化到托盘（默认关闭：点击X直接退出）
+        self._tray_toggle = ToggleSwitch(False)
+        tray_row = SettingsRow(
+            "关闭到系统托盘",
+            self._tray_toggle,
+            "开启后点击关闭按钮将缩放到系统托盘（默认关闭，直接退出）",
+        )
+        gen_layout.insertWidget(2, tray_row)
+
         # 语言
         lang_row = SettingsRow("语言", QComboBox(), "界面显示语言")
         lang_combo = lang_row.layout().itemAt(1).widget()
         lang_combo.addItems(["简体中文", "English"])
         lang_combo.setFixedWidth(160)
         lang_combo.setStyleSheet(theme_combo.styleSheet())
-        gen_layout.insertWidget(2, lang_row)
+        gen_layout.insertWidget(3, lang_row)
 
         container_layout.addWidget(general)
 
