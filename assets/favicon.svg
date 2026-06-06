@@ -4,33 +4,36 @@
      role="img"
      aria-label="SceneFab">
   <defs>
-    <linearGradient id="bgFav" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f0c29"/>
-      <stop offset="100%" stop-color="#24243e"/>
+    <linearGradient id="bgF" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0C29"/>
+      <stop offset="100%" stop-color="#1B1742"/>
     </linearGradient>
-    <linearGradient id="aiFav" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#4cc9f0"/>
-      <stop offset="100%" stop-color="#7209b7"/>
+    <linearGradient id="accentF" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF3D6E"/>
     </linearGradient>
-    <radialGradient id="discFav" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1a1a3e"/>
-      <stop offset="100%" stop-color="#0f0c29"/>
-    </radialGradient>
   </defs>
 
-  <!-- Rounded square background -->
-  <rect width="64" height="64" rx="14" ry="14" fill="url(#bgFav)"/>
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="url(#bgF)"/>
 
-  <!-- Simplified AI pulse (thicker for small-pixel rendering) -->
-  <path d="M 8 42 Q 18 36 28 42 T 48 42 T 56 42"
-        stroke="url(#aiFav)"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        fill="none"/>
+  <!-- Outer ring -->
+  <circle cx="32" cy="30" r="20" fill="none" stroke="url(#accentF)" stroke-width="1.5" opacity="0.35"/>
 
-  <!-- Center play triangle on dark disc (enlarged for 16x16 legibility) -->
-  <g transform="translate(32 28)">
-    <circle r="13" fill="url(#discFav)" opacity="0.95"/>
-    <path d="M -4 -6 L 6 0 L -4 6 Z" fill="url(#aiFav)"/>
+  <!-- Film ticks -->
+  <g stroke="url(#accentF)" stroke-width="1.2" stroke-linecap="round" opacity="0.5">
+    <line x1="32" y1="8" x2="32" y2="12"/>
+    <line x1="32" y1="48" x2="32" y2="52"/>
+    <line x1="10" y1="30" x2="14" y2="30"/>
+    <line x1="50" y1="30" x2="54" y2="30"/>
   </g>
+
+  <!-- Inner ring -->
+  <circle cx="32" cy="30" r="13" fill="none" stroke="url(#accentF)" stroke-width="1.2" opacity="0.55"/>
+
+  <!-- Center disc -->
+  <circle cx="32" cy="30" r="9" fill="#0F0C29" opacity="0.95"/>
+
+  <!-- Play triangle -->
+  <path d="M 28 24 L 38 30 L 28 36 Z" fill="url(#accentF)"/>
 </svg>

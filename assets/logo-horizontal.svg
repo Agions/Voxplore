@@ -1,93 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 512 128"
+     viewBox="0 0 512 160"
      role="img"
      aria-label="SceneFab - AI 影视解说视频创作工具">
   <defs>
-    <linearGradient id="bgGradH" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f0c29"/>
-      <stop offset="50%" stop-color="#1a1a3e"/>
-      <stop offset="100%" stop-color="#24243e"/>
+    <linearGradient id="bgH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0C29"/>
+      <stop offset="100%" stop-color="#1B1742"/>
     </linearGradient>
-    <linearGradient id="filmGradH" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ff8a5b"/>
-      <stop offset="100%" stop-color="#e63946"/>
+    <linearGradient id="accentH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF3D6E"/>
     </linearGradient>
-    <linearGradient id="aiGradH" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#4cc9f0"/>
-      <stop offset="100%" stop-color="#7209b7"/>
-    </linearGradient>
-    <radialGradient id="discGradH" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#1a1a3e"/>
-      <stop offset="100%" stop-color="#0f0c29"/>
-    </radialGradient>
   </defs>
 
-  <!-- Logo mark on the left (square 96x96 within 128 height) -->
+  <!-- Logo mark (left, 128x128 centered in 160 height) -->
   <g transform="translate(16 16)">
-    <rect width="96" height="96" rx="20" fill="url(#bgGradH)"/>
+    <rect width="128" height="128" rx="28" fill="url(#bgH)"/>
 
-    <!-- Starfield -->
-    <g fill="#ffffff" opacity="0.6">
-      <circle cx="14" cy="16" r="1"/>
-      <circle cx="82" cy="20" r="1"/>
-      <circle cx="18" cy="82" r="1"/>
-      <circle cx="80" cy="78" r="1"/>
+    <!-- Outer ring -->
+    <circle cx="64" cy="61" r="44" fill="none" stroke="url(#accentH)" stroke-width="1.8" opacity="0.35"/>
+
+    <!-- Film ticks -->
+    <g stroke="url(#accentH)" stroke-width="1.5" stroke-linecap="round" opacity="0.5">
+      <line x1="64" y1="14" x2="64" y2="20"/>
+      <line x1="64" y1="102" x2="64" y2="108"/>
+      <line x1="17" y1="61" x2="23" y2="61"/>
+      <line x1="105" y1="61" x2="111" y2="61"/>
     </g>
 
-    <!-- Film strip tilted -->
-    <g transform="rotate(-22 48 48)">
-      <rect x="10" y="40" width="76" height="16" fill="url(#filmGradH)" rx="2"/>
-      <g fill="#0f0c29" opacity="0.85">
-        <rect x="14" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="22" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="30" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="38" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="46" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="54" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="62" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="70" y="42" width="4" height="2.5" rx="0.5"/>
-        <rect x="78" y="42" width="4" height="2.5" rx="0.5"/>
-      </g>
-      <g fill="#0f0c29" opacity="0.85">
-        <rect x="14" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="22" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="30" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="38" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="46" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="54" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="62" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="70" y="51.5" width="4" height="2.5" rx="0.5"/>
-        <rect x="78" y="51.5" width="4" height="2.5" rx="0.5"/>
-      </g>
-    </g>
+    <!-- Inner ring -->
+    <circle cx="64" cy="61" r="30" fill="none" stroke="url(#accentH)" stroke-width="1.5" opacity="0.55"/>
 
-    <!-- AI pulse line -->
-    <path d="M 10 70 Q 24 64 38 70 T 66 70 T 94 70"
-          stroke="url(#aiGradH)" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.9"/>
-    <path d="M 10 76 Q 24 72 38 76 T 66 76 T 94 76"
-          stroke="url(#aiGradH)" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <!-- Center disc -->
+    <circle cx="64" cy="61" r="20" fill="#0F0C29" opacity="0.95"/>
 
-    <!-- Center play triangle on dark disc -->
-    <g transform="translate(48 48)">
-      <circle r="16" fill="url(#discGradH)" opacity="0.92"/>
-      <path d="M -5 -7 L 7 0 L -5 7 Z" fill="url(#aiGradH)"/>
-    </g>
+    <!-- Play triangle -->
+    <path d="M 57 50 L 73 61 L 57 72 Z" fill="url(#accentH)"/>
   </g>
 
-  <!-- Wordmark on the right -->
-  <g transform="translate(132 0)">
-    <text x="0" y="60"
-          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif"
-          font-size="40"
-          font-weight="700"
-          fill="#ffffff"
-          letter-spacing="-1">SceneFab</text>
-    <text x="0" y="90"
-          font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif"
+  <!-- Wordmark (right) -->
+  <g transform="translate(168 0)">
+    <text x="0" y="68"
+          font-family="Inter, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="48"
+          font-weight="800"
+          fill="#FFFFFF"
+          letter-spacing="-2">Scene<tspan fill="url(#accentH)">Fab</tspan></text>
+    <text x="2" y="100"
+          font-family="'SF Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace"
           font-size="14"
-          font-weight="500"
-          fill="url(#aiGradH)"
-          letter-spacing="0.5">AI 影视解说视频创作工具</text>
+          font-weight="600"
+          fill="url(#accentH)"
+          letter-spacing="3.2"
+          opacity="0.85">AI 影视解说视频创作工具</text>
   </g>
 </svg>

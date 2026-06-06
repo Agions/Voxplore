@@ -1,94 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Vynaro emblem">
-  <title>Vynaro 叙影</title>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 256 256"
+     role="img"
+     aria-label="SceneFab">
   <defs>
-    <!-- 深空曜石背景渐变 -->
-    <linearGradient id="vynaroBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0E0F17"/>
-      <stop offset="50%" stop-color="#151722"/>
-      <stop offset="100%" stop-color="#090A0E"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0C29"/>
+      <stop offset="100%" stop-color="#1B1742"/>
     </linearGradient>
-
-    <!-- 主琥珀金电影渐变: Amber Gold -->
-    <linearGradient id="vynaroGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FDE047"/>
-      <stop offset="40%" stop-color="#F5C842"/>
-      <stop offset="80%" stop-color="#D97706"/>
-      <stop offset="100%" stop-color="#B45309"/>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF3D6E"/>
     </linearGradient>
-
-    <!-- 霓彩高光 (紫色/青色微光,彰显 AI 多模态能力) -->
-    <linearGradient id="vynaroNeon" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#7C3AED"/>
-      <stop offset="50%" stop-color="#F5C842"/>
-      <stop offset="100%" stop-color="#06B6D4"/>
-    </linearGradient>
-
-    <!-- 内核高亮 -->
-    <linearGradient id="vynaroCore" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFBEB"/>
-      <stop offset="50%" stop-color="#F5C842"/>
-      <stop offset="100%" stop-color="#D97706"/>
-    </linearGradient>
-
-    <!-- 柔和金色外发光 -->
-    <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <!-- 微玻璃拟态遮罩与圆角 -->
-    <clipPath id="squircle">
-      <rect width="256" height="256" rx="56" ry="56"/>
-    </clipPath>
   </defs>
 
-  <!-- 1. 圆角深空底板 -->
-  <rect width="256" height="256" rx="56" ry="56" fill="url(#vynaroBg)"/>
+  <!-- Background rounded square -->
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
 
-  <!-- 2. 金色环境微光边缘 -->
-  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" ry="54.5"
-        fill="none" stroke="url(#vynaroGold)" stroke-width="1.5" opacity="0.35"/>
+  <!-- Outer ring (film/loop) -->
+  <circle cx="128" cy="122" r="72" fill="none" stroke="url(#accent)" stroke-width="2.5" opacity="0.35"/>
 
-  <!-- 3. 背景胶片与时间线轨道齿孔元素 -->
-  <g clip-path="url(#squircle)" opacity="0.18">
-    <circle cx="128" cy="128" r="105" fill="none" stroke="url(#vynaroGold)" stroke-width="2" stroke-dasharray="4 8"/>
-    <circle cx="128" cy="128" r="82" fill="none" stroke="#F5C842" stroke-width="1" opacity="0.4"/>
+  <!-- Film ticks — 4 corners, minimal -->
+  <g stroke="url(#accent)" stroke-width="2" stroke-linecap="round" opacity="0.5">
+    <!-- Top -->
+    <line x1="128" y1="46" x2="128" y2="54"/>
+    <!-- Bottom -->
+    <line x1="128" y1="190" x2="128" y2="198"/>
+    <!-- Left -->
+    <line x1="52" y1="122" x2="60" y2="122"/>
+    <!-- Right -->
+    <line x1="196" y1="122" x2="204" y2="122"/>
   </g>
 
-  <!-- 4. Vynaro 核心图腾: Stylized 'V' + 电影胶片羽翼 + 音频声波 + Play 播放内核 -->
-  <g transform="translate(128 126)">
-    <!-- 翼展 'V' 形图案左臂 (代表视频/剪辑轨) -->
-    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z"
-          fill="url(#vynaroGold)" filter="url(#goldGlow)"/>
+  <!-- Inner ring (story/core) -->
+  <circle cx="128" cy="122" r="48" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.55"/>
 
-    <!-- 翼展 'V' 形图案右臂 (代表 AI 脚本与声波轨) -->
-    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z"
-          fill="url(#vynaroGold)" filter="url(#goldGlow)"/>
+  <!-- Center disc -->
+  <circle cx="128" cy="122" r="32" fill="#0F0C29" opacity="0.95"/>
 
-    <!-- 顶部电影胶片与音波穿插线条 -->
-    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="url(#vynaroCore)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Play triangle -->
+  <path d="M 118 106 L 142 122 L 118 138 Z" fill="url(#accent)"/>
 
-    <!-- 声波柱阵列 (从中心 'V' 底部向上延伸) -->
-    <g fill="url(#vynaroCore)">
-      <rect x="-24" y="-12" width="4" height="20" rx="2"/>
-      <rect x="-14" y="-24" width="4" height="34" rx="2"/>
-      <rect x="-4"  y="-34" width="4" height="48" rx="2"/>
-      <rect x="6"   y="-28" width="4" height="40" rx="2"/>
-      <rect x="16"  y="-16" width="4" height="26" rx="2"/>
-    </g>
-
-    <!-- 核心 Play 播放按键点睛 (电影/视频标志) -->
-    <path d="M -7 -4 L 11 -14 L 11 6 Z" fill="#0E0F17"/>
-    <path d="M -6 -3 L 9 -12 L 9 4 Z" fill="url(#vynaroCore)"/>
-  </g>
-
-  <!-- 5. 右上角 AI 降临火花 (Sparkles) -->
-  <g fill="url(#vynaroGold)">
-    <path d="M 188 52 L 191 60 L 199 63 L 191 66 L 188 74 L 185 66 L 177 63 L 185 60 Z"/>
-    <path d="M 204 80 L 205.5 84 L 209.5 85.5 L 205.5 87 L 204 91 L 202.5 87 L 198.5 85.5 L 202.5 84 Z" opacity="0.7"/>
-  </g>
+  <!-- Bottom tagline arc (optional subtle text path) -->
 </svg>
