@@ -12,8 +12,6 @@ SceneFab 主窗口 — 现代极简布局 v6
 
 from __future__ import annotations
 
-from typing import Optional
-
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -495,7 +493,7 @@ class SceneFabMainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("SceneFab")
         self.setMinimumSize(1100, 680)
-        self._tray: Optional[TrayManager] = None
+        self._tray: TrayManager | None = None
         self._minimize_to_tray_enabled = False
         self._quitting = False  # 标记是否真的退出
         self._setup_ui()

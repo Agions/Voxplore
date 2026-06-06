@@ -3,10 +3,15 @@
 托盘配置项单元测试（不需要 PySide6 环境）
 """
 
-import sys
 import os
+import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+# 将 src 目录加入 Python 路径
+SRC_DIR = Path(__file__).resolve().parent.parent / "src"
+sys.path.insert(0, str(SRC_DIR))
+
+from scenefab.settings_data import get_all_settings_definitions  # noqa: E402
 
 
 def test_tray_setting_default_is_false():

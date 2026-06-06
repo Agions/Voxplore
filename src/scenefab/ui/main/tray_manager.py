@@ -14,8 +14,8 @@ SceneFab 系统托盘管理器
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QAction, QIcon
@@ -43,11 +43,11 @@ class TrayManager(QObject):
     # 信号：用户从托盘请求"打开设置"
     open_settings_requested = Signal()
 
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._parent = parent
-        self._tray_icon: Optional[QSystemTrayIcon] = None
-        self._menu: Optional[QMenu] = None
+        self._tray_icon: QSystemTrayIcon | None = None
+        self._menu: QMenu | None = None
         self._enabled = False  # 是否启用托盘功能
 
     @property
@@ -81,26 +81,28 @@ class TrayManager(QObject):
         try:
             # 创建托盘图标
             self._tray_icon = QSystemTrayIcon(self._parent)
-            self._tray_icon.setToolTip(window_title)
+            tray_icon = self._tray_icon  # local alias for type narrowing
+            assert tray_icon is not None  # for type checker
+            tray_icon.setToolTip(window_title)
 
             # 加载图标
             icon = self._load_app_icon()
             if icon is not None and not icon.isNull():
-                self._tray_icon.setIcon(icon)
+                tray_icon.setIcon(icon)
             else:
                 # 降级：使用应用默认图标
                 app = QApplication.instance()
                 if app and not app.windowIcon().isNull():
-                    self._tray_icon.setIcon(app.windowIcon())
+                    tray_icon.setIcon(app.windowIcon())
 
             # 构建菜单
             self._build_menu(window_title)
 
             # 绑定双击事件：显示窗口
-            self._tray_icon.activated.connect(self._on_tray_activated)
+            tray_icon.activated.connect(self._on_tray_activated)
 
             # 显示托盘
-            self._tray_icon.show()
+            tray_icon.show()
             self._enabled = True
             logger.info(f"System tray enabled: {window_title}")
             return True
@@ -147,7 +149,7 @@ class TrayManager(QObject):
         except Exception as e:
             logger.debug(f"Failed to show tray notification: {e}")
 
-    def _load_app_icon(self) -> Optional[QIcon]:
+    def _load_app_icon(self) -> QIcon | None:
         """尝试加载应用图标"""
         icon_paths = [
             Path(__file__).parent.parent.parent / "resources" / "icons" / "logo.png",
@@ -168,31 +170,33 @@ class TrayManager(QObject):
             return
 
         self._menu = QMenu()
+        assert self._menu is not None  # for type checker
+        menu = self._menu
 
         # 标题（不可点击）
-        title_action = QAction(f"🎬 {window_title}", self._menu)
+        title_action = QAction(f"🎬 {window_title}", menu)
         title_action.setEnabled(False)
-        self._menu.addAction(title_action)
-        self._menu.addSeparator()
+        menu.addAction(title_action)
+        menu.addSeparator()
 
         # 显示窗口
-        show_action = QAction("📖 显示主窗口", self._menu)
+        show_action = QAction("📖 显示主窗口", menu)
         show_action.triggered.connect(self.show_window_requested.emit)
-        self._menu.addAction(show_action)
+        menu.addAction(show_action)
 
         # 设置
-        settings_action = QAction("⚙️ 设置", self._menu)
+        settings_action = QAction("⚙️ 设置", menu)
         settings_action.triggered.connect(self.open_settings_requested.emit)
-        self._menu.addAction(settings_action)
+        menu.addAction(settings_action)
 
-        self._menu.addSeparator()
+        menu.addSeparator()
 
         # 退出
-        quit_action = QAction("❌ 退出 SceneFab", self._menu)
+        quit_action = QAction("❌ 退出 SceneFab", menu)
         quit_action.triggered.connect(self.quit_requested.emit)
-        self._menu.addAction(quit_action)
+        menu.addAction(quit_action)
 
-        self._tray_icon.setContextMenu(self._menu)
+        self._tray_icon.setContextMenu(menu)
 
     def _on_tray_activated(self, reason: QSystemTrayIcon.ActivationReason) -> None:
         """处理托盘图标激活事件"""
@@ -208,7 +212,7 @@ class TrayManager(QObject):
 # 单例访问器
 # ═══════════════════════════════════════════════════════════════════════
 
-_tray_manager_instance: Optional[TrayManager] = None
+_tray_manager_instance: TrayManager | None = None
 
 
 def get_tray_manager() -> TrayManager:
