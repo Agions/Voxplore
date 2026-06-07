@@ -378,10 +378,10 @@ class Application(QObject):
     def _init_error_handler(self) -> bool:
         """初始化错误处理器"""
         try:
-            from ..utils.error_handler import ErrorHandler
+            from .utils.error_handler import ErrorHandler
 
-            # 创建错误处理器
-            error_handler = ErrorHandler(self.logger)
+            # 创建错误处理器（传入底层 logging.Logger）
+            error_handler = ErrorHandler(self.logger.logger)
             self.register_service("error_handler", error_handler)
 
             self.logger.info("错误处理器初始化完成")
