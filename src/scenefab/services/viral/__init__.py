@@ -308,7 +308,6 @@ class ViralScoreCalculator:
             EmotionCurveScore: 情绪曲线评分
         """
         score = 50.0  # 基础分
-        emotion_points = []
         curve_type = "wave"
         peak_timestamps = []
         suggestions = []
@@ -410,7 +409,6 @@ class ViralScoreCalculator:
 
         # 分析文案长度
         char_count = len(script_text)
-        word_count = len(script_text.split())
 
         # 估算信息密度
         if video_duration > 0:

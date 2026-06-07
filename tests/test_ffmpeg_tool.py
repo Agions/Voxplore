@@ -273,7 +273,8 @@ class TestFFmpegToolConversion:
             "/input.avi",
             "/output.mp4",
             video_codec="libx264",
-            audio_codec="aac"
+            audio_codec="aac",
+            use_hw_accel=False  # 禁用硬件加速以确保使用指定的编码器
         )
 
         assert result is True

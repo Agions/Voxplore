@@ -451,7 +451,7 @@ class ShortDramaNarrator:
         # 实际调用由 LLMManager 处理
         # 此处返回占位（实际项目会用 LLM）
         logger.debug(f"Cliffhanger prompt: {prompt[:100]}...")
-        return f"然而接下来发生的事，让所有人始料未及..."
+        return "然而接下来发生的事，让所有人始料未及..."
 
 
 # ============================================

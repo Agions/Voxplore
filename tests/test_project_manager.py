@@ -60,7 +60,7 @@ class TestProjectMetadata:
 
         assert metadata.created_at is not None
         assert metadata.modified_at is not None
-        assert metadata.version == "1.0.0"
+        assert metadata.version == "2.1.0"  # 版本与 pyproject.toml 保持一致
         assert metadata.tags == []
         assert metadata.status == ProjectStatus.ACTIVE
 

@@ -234,7 +234,7 @@ def cmd_commentary(args):
         if args.format == "json":
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
-            print(f"\n✅ commentary 创建完成!")
+            print("\n✅ commentary 创建完成!")
             print(f"   视频: {args.video}")
             print(f"   风格: {args.style}")
             print(f"   片段: {result['segments']} | 情感峰值: {result['emotion_peaks']} | 解说块: {result['narration_blocks']}")

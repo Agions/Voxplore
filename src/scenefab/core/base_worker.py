@@ -269,8 +269,6 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
             QThread.start(self)
         else:
             # 包装 run 调用，注入 _execute 异常处理
-            original_run = self.run
-
             def wrapped_run():
                 # 用 _execute 的异常处理逻辑
                 self._execute()

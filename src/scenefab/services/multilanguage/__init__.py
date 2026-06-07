@@ -192,9 +192,6 @@ class MultiLanguageAdapter:
         if target_languages is None:
             target_languages = [Language.EN, Language.JA, Language.KO]
 
-        # 计算原始时长
-        original_duration = self._estimate_duration(script, source_language)
-
         # 翻译到各语言
         translations = {}
         for target_lang in target_languages:

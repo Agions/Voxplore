@@ -369,7 +369,7 @@ class SafeFFmpegCommand:
                 command=cmd,
                 output_path=self.output_file if success else None,
             )
-        except subprocess.TimeoutExpired as e:
+        except subprocess.TimeoutExpired:
             duration_ms = int(time.time() * 1000) - start_ms
             logger.error(f"FFmpeg timeout after {self.timeout_sec}s")
             if audit:

@@ -144,9 +144,6 @@ class PipelineIntegrator(MonologueMaker):
 
         from .models.perspective import KeyFrame
 
-        # 获取共享缓存
-        cache = VideoFrameCache.get_shared()
-
         keyframes = []
         for i, scene in enumerate(project.scenes):
             if hasattr(scene, 'keyframe_path') and scene.keyframe_path:
@@ -156,10 +153,6 @@ class PipelineIntegrator(MonologueMaker):
                     image_path=scene.keyframe_path,
                 )
                 keyframes.append(kf)
-            else:
-                # 尝试从缓存获取帧（如果 scene.start 时刻有缓存的话）
-                cache_key = f"{project.source_video}@{scene.start:.3f}"
-                # 这里只是示例，实际是否存储取决于业务逻辑
         return keyframes
 
     # ─────────────────────────────────────────────────────────────────

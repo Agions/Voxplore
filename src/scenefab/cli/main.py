@@ -150,7 +150,7 @@ def _add_plugin_subcommands(subparsers) -> None:
     plugin_parser = subparsers.add_parser("plugin", help="Plugin management (backward compat)")
     plugin_subparsers = plugin_parser.add_subparsers(dest="subcommand", help="Plugin operations")
 
-    list_parser = plugin_subparsers.add_parser("list", help="List all plugins")
+    _list_parser = plugin_subparsers.add_parser("list", help="List all plugins")
     enable_parser = plugin_subparsers.add_parser("enable", help="Enable plugin")
     enable_parser.add_argument("--name", required=True, help="Plugin name")
     disable_parser = plugin_subparsers.add_parser("disable", help="Disable plugin")

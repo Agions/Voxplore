@@ -35,29 +35,19 @@ dependencies = [
     # Core UI
     "PySide6>=6.9.0",
     "Shiboken6>=6.9.0",
-    # Video/Audio Processing
+    # Video/Audio Processing (core)
     "opencv-python>=4.8.1",
     "numpy>=1.26.0",
     "pillow>=10.1.0",
     "pydub>=0.25.0",
-    "librosa>=0.10.0",
     "soundfile>=0.12.0",
-    # Speech Recognition (Faster-Whisper)
-    "faster-whisper>=1.0.0",
-    # GPU Support (optional, for faster-whisper)
-    "torch>=2.0.0",
-    # Speech Synthesis
+    # Speech Synthesis (lightweight)
     "edge-tts>=6.1.0",
     # Scene Detection
     "scenedetect>=0.6.0",
-    # Translation (optional)
-    "deepl>=1.18.0",
     # Network
     "requests>=2.31.0",
     "httpx>=0.25.0",
-    # HTTP Server
-    "fastapi>=0.109.0",
-    "uvicorn>=0.27.0",
     # Data validation
     "pydantic>=2.5.0",
     "pydantic-settings>=2.0.0",
@@ -69,7 +59,7 @@ dependencies = [
     # Security
     "cryptography>=41.0.0",
     "keyring>=24.0.0",
-    # LLM
+    # LLM (lightweight clients)
     "openai>=1.0.0",
     "google-generativeai>=0.8.0",
     # Video Editing
@@ -79,6 +69,25 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# 重型 AI 依赖（~2GB+），按需安装
+ai-full = [
+    "faster-whisper>=1.0.0",  # 语音识别，依赖 torch
+    "torch>=2.0.0",  # GPU 支持
+    "librosa>=0.10.0",  # 音频分析
+]
+# 翻译功能
+translation = [
+    "deepl>=1.18.0",
+]
+# HTTP API 服务
+api = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+]
+# 全部可选功能
+all = [
+    "scenefab[ai-full,translation,api]",
+]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -90,10 +99,6 @@ dev = [
     "types-requests>=2.31.0",
     "types-PyYAML>=6.0.0",
     "types-PySide6>=6.6.0",
-]
-all = [
-    "deepl>=1.18.0",
-    "moviepy>=1.0.3",
 ]
 
 [project.scripts]
@@ -108,7 +113,7 @@ Changelog = "https://github.com/Agions/scene-fab/releases"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["scenefab"]
+packages = {find = {where = ["src"]}}
 
 [tool.setuptools.package-data]
 scenefab = ["py.typed"]
@@ -128,37 +133,33 @@ output-format = "grouped"
 select = ["E", "F", "N", "W", "B", "C4", "SIM", "I", "UP"]
 ignore = [
     "E501",   # line too long (handled by formatter)
-    "F401",   # unused import (many intentional)
-    "F811",   # redefinition of name
-    "E402",   # module-level import not at top of file
-    "F541",   # f-string without placeholder
-    "N802",   # invalid function name
+    "F401",   # unused import (many intentional in __init__.py)
+    "F811",   # redefinition of name (compat layers)
+    "E402",   # module-level import not at top of file (conditional imports)
+    "N802",   # invalid function name (Qt conventions)
     "B904",   # raise from lack of exception context
     "B007",   # unused loop control variable
-    "SIM102",  # nested if statements
-    "SIM108",  # ternary operator
-    "SIM118",  # enumerate in loop
+    "SIM102",  # nested if statements (readability preference)
+    "SIM108",  # ternary operator (readability preference)
+    "SIM103",  # simplify condition (readability preference)
+    "SIM105",  # use contextlib.suppress (readability preference)
+    "SIM110",  # use else to remove assignment (readability preference)
+    "SIM113",  # use enumerate() for index variable
+    "SIM117",  # nested with statements (readability preference)
+    "SIM118",  # use key in dict instead of key in dict.keys()
     "W292",   # newline at end of file
     "W293",   # blank line contains whitespace (legacy files)
-    "F841",   # local variable assigned but never used
-    "SIM113", # use enumerate() for index variable (legacy code)
-    "C420",   # unnecessary dict comprehension (legacy code)
     "N999",   # invalid module name in test files
     "E401",   # multiple imports on one line
-    "E701",   # multiple statements
     "N806",   # variable in function should be lowercase
     "N812",   # imported as alias
-    "SIM103",  # simplify condition
-    "SIM105",  # use contextlib.suppress
-    "SIM110",  # use else to remove assignment
-    "SIM117",  # nested with statements
+    "N815",   # invalid class name (Qt signal conventions)
+    "N817",   # CamelCase imported as acronym
     "B027",   # empty method body (abstract classes)
+    "B024",   # abstract class without abstract method
     "B905",   # zip without strict=True
     "C408",   # unnecessary dict call
-    "N815",   # invalid class name
-    "N817",   # invalid convention name
-    "SIM115",  # use contextlib
-    "B024",   # abstract class without abstract method
+    "C420",   # unnecessary dict comprehension
 ]
 
 [tool.isort]

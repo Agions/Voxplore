@@ -431,7 +431,6 @@ class PipelineEngine:
         with self._lock:
             self.states[step.id] = StepStatus.RUNNING
         start_time = time.time()
-        start_ms = int(start_time * 1000)
 
         logger.info(
             f"Step '{step.id}' start "
@@ -445,7 +444,6 @@ class PipelineEngine:
         )
 
         try:
-            timeout = step.timeout_sec or self.config.step_timeout_sec
             output = step.func(context)
             duration_ms = int((time.time() - start_time) * 1000)
 
