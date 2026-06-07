@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from PySide6.QtCore import Signal
 
 if TYPE_CHECKING:
-    from ..main_window import MainWindow
+    from ..main_window import SceneFabMainWindow as MainWindow
 
 
 class PageState:

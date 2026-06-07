@@ -72,7 +72,6 @@ def main():
         from PySide6.QtWidgets import QApplication
 
         from scenefab.application import Application
-        from scenefab.ui.main.main_window import MainWindow
 
         qt_app = QApplication(sys.argv)
         qt_app.setApplicationName("SceneFab")
@@ -94,7 +93,8 @@ def main():
             sys.exit(1)
 
         # 创建主窗口并注入 application 实例
-        window = MainWindow(application)
+        from scenefab.ui.main.main_window import SceneFabMainWindow
+        window = SceneFabMainWindow()
         window.show()
 
         # 启动后 3 秒异步检测更新（非阻塞）

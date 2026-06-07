@@ -639,6 +639,30 @@ class SceneFabMainWindow(QMainWindow):
         self.topbar.set_title(title, breadcrumb)
         self.statusbar.set_status(f"当前: {title}")
 
+    def navigate_to(self, page_id: str, **kwargs):
+        """导航到指定页面（公共接口）"""
+        self._on_navigate(page_id)
+
+    @property
+    def app(self):
+        """获取 QApplication 实例"""
+        from PySide6.QtWidgets import QApplication
+        return QApplication.instance()
+
+    def show_message(self, message: str, level: str = "info"):
+        """显示消息提示"""
+        from PySide6.QtWidgets import QMessageBox
+        if level == "error":
+            QMessageBox.critical(self, "错误", message)
+        elif level == "warning":
+            QMessageBox.warning(self, "警告", message)
+        else:
+            QMessageBox.information(self, "提示", message)
+
+    def show_loading(self, show: bool = True):
+        """显示/隐藏加载状态"""
+        self.statusbar.set_status("加载中..." if show else "就绪")
+
     def _on_action(self, action_id: str):
         handlers = {
             "undo": self._handle_undo,
