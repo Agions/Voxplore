@@ -54,7 +54,7 @@ class StepPreview(QWidget):
     back_requested = Signal()
     generate_requested = Signal(str, str, str, str)
     # back_requested: 返回上一步
-    # generate_requested(style, role, params, full_text)
+
 
     def __init__(self, video_path: str = "", narration_text: str = "",
                  style: str = "治愈", parent=None):

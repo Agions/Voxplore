@@ -14,7 +14,6 @@ SceneFab 系统托盘管理器
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal

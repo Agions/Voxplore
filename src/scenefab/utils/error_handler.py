@@ -17,7 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
-from typing import Any, Optional
+from typing import Any
 
 from PySide6.QtWidgets import QMessageBox, QWidget
 

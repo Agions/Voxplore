@@ -3,7 +3,7 @@ Video Interleaver
 视频穿插逻辑处理器——决定解说与原片的穿插策略
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from .models.perspective import (
     ClipSegment,

@@ -37,7 +37,7 @@ AI 文案生成器 (Script Generator)
 import asyncio
 import logging
 import os
-from typing import Any, Optional
+from typing import Any
 
 from .base_llm_provider import LLMRequest
 from .llm_manager import LLMManager, load_llm_config

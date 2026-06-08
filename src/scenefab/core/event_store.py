@@ -37,9 +37,8 @@ import time
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.core.unified_event_bus import EventLog, EventRecord
 

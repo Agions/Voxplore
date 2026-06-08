@@ -8,7 +8,6 @@ macOS 主题管理器 - 负责应用和切换 macOS 设计系统
 import logging
 from pathlib import Path
 from threading import Lock
-from typing import Optional
 
 from PySide6.QtCore import QFile, QObject, QTextStream, Signal
 from PySide6.QtGui import QFont

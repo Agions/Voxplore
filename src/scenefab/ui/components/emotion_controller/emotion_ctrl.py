@@ -18,7 +18,6 @@ Emotion Controller Component
     controller.curve_confirmed.connect(on_curve_confirmed)
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont

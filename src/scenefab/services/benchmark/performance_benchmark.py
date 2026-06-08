@@ -207,7 +207,7 @@ class PerformanceBenchmark:
             start_time = time.time()
 
             # TODO: 调用 SceneFab 处理流程
-            # result = scenefab.process_video(test_video_path)
+    
 
             # 模拟处理时间（实际实现时删除）
             import random

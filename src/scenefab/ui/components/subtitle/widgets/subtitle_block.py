@@ -6,7 +6,6 @@
 表示时间线上单个字幕片段，支持拖拽调整时间范围。
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen

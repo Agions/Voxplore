@@ -12,7 +12,7 @@ import pickle
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Lock
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.interfaces.cache_interface import (
     CacheEntry,

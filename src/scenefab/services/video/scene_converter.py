@@ -8,7 +8,6 @@
 """
 
 import uuid
-from typing import Optional
 
 from scenefab.services.ai.scene_models import SceneInfo, SceneType
 from scenefab.services.video.models.monologue import EmotionType, MonologueSegment

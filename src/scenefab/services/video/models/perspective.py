@@ -4,7 +4,6 @@ SceneFab Video Perspective & Interleave Models
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 # ─────────────────────────────────────────────────────────────
 # Perspective Mapper Models

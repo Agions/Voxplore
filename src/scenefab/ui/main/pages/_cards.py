@@ -14,13 +14,10 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
-    QPushButton,
-    QScrollArea,
     QVBoxLayout,
-    QWidget,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 玻璃态卡片

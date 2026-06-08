@@ -20,7 +20,6 @@
 import logging
 import re
 from pathlib import Path
-from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 from .scene_models import AnalysisConfig, SceneInfo, SceneType

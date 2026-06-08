@@ -5,32 +5,17 @@
 提供实时导出进度监控和状态显示
 """
 
-import time
-from typing import Optional
 
-from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QDialog,
-    QGroupBox,
     QHBoxLayout,
-    QLabel,
     QMessageBox,
-    QProgressBar,
     QPushButton,
-    QScrollArea,
-    QSplitter,
     QVBoxLayout,
-    QWidget,
 )
 
 from scenefab.logger import Logger
 from scenefab.ui.main.components._monitor_widget import ExportMonitorWidget
-
-from ...components.design_system import Colors
-from ...export.export_system import ExportStatus, ExportTask
-from ...main.components.export_stats import ExportStatisticsWidget
-from ...main.components.monitor_widgets import PerformanceChart
 
 
 class ExportProgressDialog(QDialog):

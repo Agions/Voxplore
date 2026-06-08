@@ -30,7 +30,7 @@ Pipeline Integrator
     maker.apply_interleave_to_project(project, timeline)
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from ..ai.scene_models import SceneInfo
 from .models.perspective import (
@@ -140,7 +140,6 @@ class PipelineIntegrator(MonologueMaker):
 
     def _extract_keyframes(self, project: MonologueProject) -> list:
         """提取关键帧列表（使用 LRU 缓存）"""
-        from scenefab.services.video.cache.frame_cache import VideoFrameCache
 
         from .models.perspective import KeyFrame
 

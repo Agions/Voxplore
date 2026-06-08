@@ -5,7 +5,7 @@ Export Plugin Interface
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 

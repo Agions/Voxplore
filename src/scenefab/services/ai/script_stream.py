@@ -25,7 +25,7 @@ import asyncio
 import json
 import logging
 from collections.abc import AsyncIterator, Callable
-from typing import Any, Optional
+from typing import Any
 
 from .script_generator import ScriptGenerator
 from .script_models import (

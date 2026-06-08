@@ -7,7 +7,7 @@ AI监控面板 - 数据模型
 """
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 
 class MonitorMode:

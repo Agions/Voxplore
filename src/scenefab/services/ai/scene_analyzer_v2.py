@@ -9,7 +9,6 @@
 
 import logging
 from collections.abc import Callable
-from typing import Optional
 
 from .scene_analyzer import SceneAnalyzer
 from .scene_models import AnalysisConfig, SceneInfo, SceneType

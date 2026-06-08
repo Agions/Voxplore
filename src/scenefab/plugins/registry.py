@@ -8,7 +8,6 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 from scenefab.plugins.interfaces.base import (
     AppContext,

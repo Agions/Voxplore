@@ -5,7 +5,6 @@
 支持 Qwen3.7 (Max/Plus)、GPT-5 Vision、Gemini 3.5 Flash 等多种 Vision 模型
 """
 
-import json
 import logging
 import os
 from collections.abc import Callable
@@ -15,7 +14,6 @@ from typing import Any
 from .vision_base import (
     FIRST_PERSON_ANALYSIS_PROMPT,
     VISION_ANALYSIS_PROMPT,
-    VisionAnalysisResult,
     VisionProvider,
 )
 

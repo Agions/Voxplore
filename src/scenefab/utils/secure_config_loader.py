@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import threading
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 

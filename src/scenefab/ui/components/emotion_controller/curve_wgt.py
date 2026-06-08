@@ -14,7 +14,6 @@ Emotion Curve Widget
 - 平滑动画效果
 """
 
-from typing import Optional
 
 from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, QSize, Qt, Signal
 from PySide6.QtGui import (

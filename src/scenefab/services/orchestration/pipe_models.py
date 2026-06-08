@@ -4,7 +4,6 @@
 类型安全的 Pydantic v2 模型，替代原有的 dataclass。
 """
 from collections.abc import Callable
-from typing import Optional
 
 from pydantic import BaseModel, Field
 

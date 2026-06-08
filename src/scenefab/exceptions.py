@@ -6,7 +6,7 @@ SceneFab 错误处理和异常模块
 """
 
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class ErrorCode(Enum):

@@ -13,7 +13,7 @@ LLM Provider 标准化 Pydantic 模型
 - ChatResponse   - 聊天响应
 """
 
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 

@@ -14,9 +14,7 @@ SceneFab 核心模块 v2.0
 """
 
 import logging
-import threading
 from collections.abc import Callable
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any

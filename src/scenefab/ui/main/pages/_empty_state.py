@@ -8,19 +8,15 @@ SceneFab 首页 v6 — 沉浸式创作中心
   - 底部数据统计条
 """
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QFrame,
-    QHBoxLayout,
     QLabel,
-    QPushButton,
-    QScrollArea,
     QVBoxLayout,
-    QWidget,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import Colors, FontSizes, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 玻璃态卡片

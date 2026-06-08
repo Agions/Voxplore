@@ -23,7 +23,7 @@ AI 配音生成器 (Voice Generator)
 import logging
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ...utils.security import get_ffmpeg_executor
 from .voice_models import GeneratedVoice, VoiceConfig, VoiceInfo

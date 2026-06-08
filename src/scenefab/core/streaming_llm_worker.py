@@ -24,10 +24,10 @@ LLM 流式输出 UI Worker — v2.0 重构
 
 import logging
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.core.audit import AuditLogger
-from scenefab.core.base_worker import BaseWorker, WorkerResult
+from scenefab.core.base_worker import BaseWorker
 
 logger = logging.getLogger(__name__)
 

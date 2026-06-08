@@ -8,7 +8,7 @@ import os
 import threading
 import time
 from collections import OrderedDict
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 

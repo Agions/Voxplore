@@ -6,7 +6,6 @@
 显示和管理同一轨道的所有字幕块。
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget

@@ -3,7 +3,7 @@
 """
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
 

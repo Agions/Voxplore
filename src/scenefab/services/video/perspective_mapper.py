@@ -3,7 +3,7 @@ Perspective Mapper
 第一人称视角映射器——建立解说与画面的视角关系
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from .models.perspective import (
     KeyFrame,

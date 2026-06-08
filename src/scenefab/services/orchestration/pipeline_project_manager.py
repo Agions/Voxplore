@@ -29,7 +29,7 @@ import zipfile
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
@@ -273,7 +273,7 @@ class ProjectManager:
             zf.writestr("project.json", project_json)
 
             # 保存项目缩略图（如果有）
-            # zf.writestr("thumbnail.jpg", thumbnail_data)
+
 
         self._last_save_path = output_path
         return str(output_path)

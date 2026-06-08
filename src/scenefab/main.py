@@ -314,5 +314,5 @@ def launch_new_ui():
 
 if __name__ == '__main__':
     # 新 UI 入口（渐进替换）
-    # launch_new_ui()  # 取消注释启用新 UI
+
     pass

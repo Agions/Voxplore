@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..export.jianying_adapter import (

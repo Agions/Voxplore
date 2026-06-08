@@ -4,7 +4,6 @@ Pydantic 模型定义
 """
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 

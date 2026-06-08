@@ -12,9 +12,6 @@ from .base import (
     IVideoProcessor,
     ProcessingResult,
     VideoMetadata,
-    extract_video_metadata,
-    get_seg_attr,
-    parse_fps,
 )
 from .caption_gen import Caption, CaptionConfig, CaptionGenerator, CaptionStyle
 from .ffmpeg_tool import FFmpegTool, HWAccelType

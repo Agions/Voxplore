@@ -12,7 +12,7 @@ import os
 import shutil
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.signals_bridge import QObject, Signal
 

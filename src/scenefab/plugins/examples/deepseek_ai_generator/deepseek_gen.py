@@ -6,7 +6,7 @@ DeepSeek AI 生成器插件 - 提供场景分析和脚本生成功能
 import json
 import uuid
 from collections.abc import AsyncIterator
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.plugins.interfaces.ai_generator import (
     BaseAIGeneratorPlugin,

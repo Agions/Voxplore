@@ -8,7 +8,6 @@ SceneFab 图标管理器
 
 import threading
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon

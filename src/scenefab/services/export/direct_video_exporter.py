@@ -30,7 +30,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.ffmpeg_tool import FFmpegTool

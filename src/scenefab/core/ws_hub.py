@@ -29,11 +29,10 @@ SceneFab WebSocket 推送层 v2.1
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 try:
     from fastapi import WebSocket

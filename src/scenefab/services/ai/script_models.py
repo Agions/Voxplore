@@ -8,7 +8,6 @@ AI 文案生成数据模型
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class ScriptStyle(Enum):

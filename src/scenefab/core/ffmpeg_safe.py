@@ -30,7 +30,6 @@ import shlex
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
 
 from scenefab.core.audit import AuditLogger
 

@@ -27,15 +27,14 @@
 """
 
 import logging
-import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.core.audit import AuditLogger
-from scenefab.core.ffmpeg_safe import FFmpegResult, SafeFFmpegCommand
+from scenefab.core.ffmpeg_safe import SafeFFmpegCommand
 
 logger = logging.getLogger(__name__)
 
@@ -326,7 +325,7 @@ class CoverGenerator:
         # 简化实现：使用 FFmpeg drawtext 生成封面
         # 实际项目可用 PIL/Pillow 实现更复杂效果
         try:
-            from scenefab.utils.security import SecurityError, get_ffmpeg_executor
+            from scenefab.utils.security import get_ffmpeg_executor
 
             executor = get_ffmpeg_executor()
             text_filter = (

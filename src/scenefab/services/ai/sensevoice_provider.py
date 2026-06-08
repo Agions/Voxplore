@@ -17,7 +17,6 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -149,8 +148,7 @@ class SenseVoiceProvider:
             # 实际部署时需要提前下载模型文件
             model_path = self._get_model_path()
             if model_path and Path(model_path).exists():
-                # from sensevoice import SenseVoiceModel
-                # self._model = SenseVoiceModel(model_path, device=self.device)
+
                 logger.info("SenseVoice 模型加载成功")
             else:
                 logger.warning(

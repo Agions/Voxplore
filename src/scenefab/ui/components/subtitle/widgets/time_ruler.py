@@ -6,7 +6,6 @@
 在字幕编辑时间线上显示时间刻度，支持缩放和拖拽定位。
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPoint

@@ -30,8 +30,6 @@ from contextlib import contextmanager
 from typing import Any
 
 from scenefab.core.unified_event_bus import (
-    EventLog,
-    EventRecord,
     UnifiedEventBus,
 )
 from scenefab.core.unified_event_bus import (

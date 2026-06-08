@@ -3,7 +3,6 @@ SceneFab 空状态组件 - 品牌升级版
 带引导语的插画风格空状态
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter

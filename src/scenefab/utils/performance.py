@@ -9,7 +9,7 @@ import functools
 import time
 from collections.abc import Callable
 from threading import Lock
-from typing import Any, Optional
+from typing import Any
 
 
 class LazyLoader:

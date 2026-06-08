@@ -7,7 +7,7 @@ LLM 管理器
 
 import logging
 from collections.abc import AsyncIterator
-from typing import Any, Optional
+from typing import Any
 
 from .base_llm_provider import (
     BaseLLMProvider,

@@ -5,7 +5,7 @@ SceneFab 属性面板
 显示和编辑选中片段的属性（时间/转场/字幕/配音）
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (

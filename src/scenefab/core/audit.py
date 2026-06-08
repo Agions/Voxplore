@@ -30,14 +30,13 @@
 
 import json
 import logging
-import os
 import sqlite3
 import threading
 import time
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional

@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
 

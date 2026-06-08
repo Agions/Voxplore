@@ -5,7 +5,7 @@ SceneFab 时间线组件
 多轨时间线编辑器：视频轨 / 音频轨 / 字幕轨
 """
 
-from typing import Any, Optional
+from typing import Any
 
 from PySide6.QtCore import QRect, Qt, Signal
 from PySide6.QtGui import (

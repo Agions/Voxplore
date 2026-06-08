@@ -5,7 +5,6 @@ Provider 注册与管理中心
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 from .base import (
     BaseLLMAdapter,

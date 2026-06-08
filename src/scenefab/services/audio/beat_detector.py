@@ -16,7 +16,6 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 

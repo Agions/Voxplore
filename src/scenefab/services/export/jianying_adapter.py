@@ -16,7 +16,6 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 # ─── 常量定义 ──────────────────────────────────────────────────
 JIANYING_VERSION = 360000  # 剪映版本号

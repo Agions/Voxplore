@@ -3,7 +3,6 @@ Narration Editor Component
 解说编辑器组件 - 所见即所得的解说稿编辑
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (

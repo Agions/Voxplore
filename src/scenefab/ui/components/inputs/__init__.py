@@ -2,7 +2,6 @@
 输入组件 - SearchBox 等
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLineEdit, QWidget

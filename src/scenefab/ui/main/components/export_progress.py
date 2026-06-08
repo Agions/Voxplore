@@ -5,7 +5,6 @@
 显示导出队列和任务状态
 """
 
-from typing import Optional
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QColor

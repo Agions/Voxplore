@@ -4,7 +4,6 @@ MainWindow 常量和配置
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class PageType(Enum):

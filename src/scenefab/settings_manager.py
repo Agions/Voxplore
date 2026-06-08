@@ -11,7 +11,7 @@ import os
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from scenefab.signals_bridge import QObject, Signal
 

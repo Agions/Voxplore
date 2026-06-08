@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 # ═══════════════════════════════════════════════════════════════════════
 # 玻璃态卡片
 # ═══════════════════════════════════════════════════════════════════════
-from scenefab.ui.main.pages._cards import GlassCard, ProjectCard, QuickCard, StatChip
+from scenefab.ui.main.pages._cards import QuickCard, StatChip
 from scenefab.ui.main.pages._empty_state import EmptyStateCard
 
 from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii

@@ -6,7 +6,6 @@ SceneFab 视频预览组件
 """
 
 import os
-from typing import Optional
 
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtWidgets import (

@@ -6,7 +6,6 @@ SceneFab 项目管理页面 - 重构版
 """
 
 import logging
-from typing import Optional
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSplitter, QWidget

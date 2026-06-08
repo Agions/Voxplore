@@ -26,7 +26,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from ..video_tools.base import extract_video_metadata
 from ..video_tools.ffmpeg_tool import FFmpegTool

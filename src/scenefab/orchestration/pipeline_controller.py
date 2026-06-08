@@ -4,7 +4,6 @@ Pipeline 控制器 — 串联 MonologueMaker 各阶段，提供 Qt 信号驱动 
 
 import traceback
 from enum import Enum
-from typing import Optional
 
 from PySide6.QtCore import QObject, Signal
 

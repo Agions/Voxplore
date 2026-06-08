@@ -13,7 +13,6 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.base import get_seg_attr

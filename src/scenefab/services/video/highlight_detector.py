@@ -33,7 +33,6 @@ import subprocess
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from ...utils.security import SecurityError
 

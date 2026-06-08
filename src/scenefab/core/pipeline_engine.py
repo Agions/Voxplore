@@ -48,7 +48,7 @@ from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 # v2.1: 领域事件发布（可选，未注入则跳过）
 try:
@@ -56,9 +56,7 @@ try:
         PipelineCompleted,
         PipelineStarted,
         PipelineStepCompleted,
-        PipelineStepStarted,
     )
-    from scenefab.core.unified_event_bus import UnifiedEventBus
     _HAS_V21_PIPELINE_EVENTS = True
 except ImportError:  # pragma: no cover
     _HAS_V21_PIPELINE_EVENTS = False

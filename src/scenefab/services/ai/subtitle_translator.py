@@ -12,7 +12,6 @@
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Optional
 
 from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 

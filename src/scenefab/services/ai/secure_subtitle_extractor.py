@@ -5,7 +5,6 @@
 
 import logging
 import os
-from typing import Optional
 
 from ...utils.security import (
     ALLOWED_VIDEO_EXTENSIONS,
