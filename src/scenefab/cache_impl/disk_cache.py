@@ -8,7 +8,9 @@
 
 import json
 import logging
+import os
 import pickle
+import stat
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Lock
@@ -22,6 +24,19 @@ from scenefab.interfaces.cache_interface import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_pickle_load(file_path: Path) -> Any:
+    """安全加载 pickle 文件 - 检查文件权限防止篡改"""
+    # 检查文件权限 - 只允许所有者读写
+    file_stat = file_path.stat()
+    if file_stat.st_mode & (stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH):
+        raise PermissionError(f"Cache file {file_path} has insecure permissions")
+    # 检查文件所有者
+    if os.getuid() != file_stat.st_uid:
+        raise PermissionError(f"Cache file {file_path} not owned by current user")
+    with open(file_path, 'rb') as f:
+        return pickle.load(f)
 
 
 class DiskCache(ICache):
@@ -84,9 +99,8 @@ class DiskCache(ICache):
                     self._miss_count += 1
                     return None
 
-            # 读取缓存值
-            with open(cache_path, 'rb') as f:
-                value = pickle.load(f)
+            # 读取缓存值（安全加载）
+            value = _safe_pickle_load(cache_path)
 
             # 更新访问次数
             metadata['access_count'] = metadata.get('access_count', 0) + 1

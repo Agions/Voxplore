@@ -364,8 +364,19 @@ class StepExportPage(StepPage):
             self.complete_widget.setVisible(True)
 
     def _open_folder(self):
-        import os
-        os.system("xdg-open ~/SceneFab/Exports 2>/dev/null || open ~/SceneFab/Exports 2>/dev/null")
+        import subprocess
+        import sys
+        from pathlib import Path
+        export_dir = Path.home() / "SceneFab" / "Exports"
+        if not export_dir.exists():
+            return
+        try:
+            if sys.platform == "darwin":
+                subprocess.run(["open", str(export_dir)], check=False)
+            else:
+                subprocess.run(["xdg-open", str(export_dir)], check=False)
+        except FileNotFoundError:
+            pass
 
     def _reset(self):
         self.complete_widget.setVisible(False)

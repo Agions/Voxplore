@@ -75,11 +75,12 @@ class FFmpegSession:
 
                 format_info = data.get("format", {})
 
+                from fractions import Fraction
                 fps_str = video_stream.get("r_frame_rate", "30/1")
-                if '/' in fps_str:
-                    fps = eval(fps_str) if fps_str != "0/0" else 30.0
+                if fps_str == "0/0":
+                    fps = 30.0
                 else:
-                    fps = float(fps_str)
+                    fps = float(Fraction(fps_str))
 
                 info = {
                     "duration": float(format_info.get("duration", 0)),
