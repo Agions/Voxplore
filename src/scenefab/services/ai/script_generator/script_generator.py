@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 AI 文案生成器 (Script Generator)
 
@@ -39,15 +37,21 @@ import logging
 import os
 from typing import Any
 
-from .base_llm_provider import LLMRequest
-from .llm_manager import LLMManager, load_llm_config
-from .script_models import (
+from ..base_llm_provider import LLMRequest
+from ..llm_manager import LLMManager, load_llm_config
+from ..script_models import (
     GeneratedScript,
     ScriptConfig,
-    ScriptSegment,
     ScriptStyle,
     VoiceTone,
 )
+from ._prompt_builder import build_batch_prompt, build_prompt
+from ._response_parser import (
+    parse_batch_response,
+    parse_response,
+    split_to_captions,
+)
+from ._style_prompts import STYLE_PROMPTS
 
 logger = logging.getLogger(__name__)
 
@@ -74,48 +78,8 @@ class ScriptGenerator:
         generator = ScriptGenerator(api_key="sk-xxx")
     """
 
-    # 风格对应的系统提示词
-    STYLE_PROMPTS = {
-        ScriptStyle.COMMENTARY: """你是一位专业的视频解说文案撰写者。
-你的文案特点是：
-- 客观、信息密集
-- 节奏紧凑，每句话都有料
-- 适合配合画面解说
-- 开头要有钩子，能在3秒内抓住观众
-- 避免过于口语化，但要自然流畅""",
-
-        ScriptStyle.MONOLOGUE: """你是一位擅长写第一人称独白的文案作者。
-你的文案特点是：
-- 第一人称视角，情感真挚
-- 像在对观众倾诉心声
-- 有画面感，能引发共鸣
-- 适合配合沉浸式视频
-- 用词优美但不矫情""",
-
-        ScriptStyle.VIRAL: """你是一位爆款短视频文案高手。
-你的文案特点是：
-- 开头必须在3秒内抓住眼球
-- 节奏极快，信息密度高
-- 使用悬念、反转、情绪词
-- 适合15-60秒的短视频
-- 每一句都要有看点""",
-
-        ScriptStyle.NARRATION: """你是一位故事性旁白撰写者。
-你的文案特点是：
-- 讲故事的方式娓娓道来
-- 有起承转合的结构
-- 引导观众情绪
-- 适合纪录片、Vlog风格
-- 温暖而有深度""",
-
-        ScriptStyle.EDUCATIONAL: """你是一位教育类视频文案专家。
-你的文案特点是：
-- 逻辑清晰、层次分明
-- 复杂概念简单化
-- 适合知识类视频
-- 节奏适中，便于理解
-- 有总结和重点强调""",
-    }
+    # 风格对应的系统提示词（引用模块级常量）
+    STYLE_PROMPTS = STYLE_PROMPTS
 
     def __init__(
         self,
@@ -212,7 +176,7 @@ class ScriptGenerator:
             provider_used = "openai"
 
         # 解析结果
-        script = self._parse_response(raw_content, config)
+        script = parse_response(raw_content, config)
         script.provider_used = provider_used
 
         return script
@@ -232,7 +196,7 @@ class ScriptGenerator:
         provider_type = None
         if config.provider:
             try:
-                from .llm_manager import ProviderType
+                from ..llm_manager import ProviderType
                 provider_type = ProviderType(config.provider)
             except ValueError:
                 logger.debug(f"Invalid provider '{config.provider}', using default")
@@ -242,7 +206,7 @@ class ScriptGenerator:
             config.style,
             self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
         )
-        user_prompt = self._build_prompt(topic, config)
+        user_prompt = build_prompt(topic, config)
 
         request = LLMRequest(
             prompt=user_prompt,
@@ -303,12 +267,6 @@ class ScriptGenerator:
         1. 短请求（字数 < min_words_for_batch）优先合并
         2. 合并后每批最多 batch_size 个请求
         3. 长请求单独调用
-
-        Args:
-            requests: [(topic, config), ...]
-
-        Returns:
-            生成的文案列表
         """
         if not self.llm_manager:
             raise ValueError("LLMManager 未初始化")
@@ -330,7 +288,7 @@ class ScriptGenerator:
             system_prompt = self.STYLE_PROMPTS.get(
                 config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
             )
-            user_prompt = self._build_prompt(topic, config)
+            user_prompt = build_prompt(topic, config)
 
             request = LLMRequest(
                 prompt=user_prompt,
@@ -342,7 +300,7 @@ class ScriptGenerator:
 
             try:
                 response = await self.llm_manager.generate(request)
-                script = self._parse_response(response.content, config)
+                script = parse_response(response.content, config)
                 script.provider_used = response.model.split("-")[0] if "-" in response.model else response.model
                 results.append(script)
             except Exception as e:
@@ -371,12 +329,6 @@ class ScriptGenerator:
     ) -> list[GeneratedScript]:
         """
         单次 API 调用生成多个短请求
-
-        Args:
-            batch: [(topic, config), ...] 同风格的短请求
-
-        Returns:
-            生成的文案列表
         """
         if not batch:
             return []
@@ -392,7 +344,7 @@ class ScriptGenerator:
         system_prompt = self.STYLE_PROMPTS.get(style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY])
 
         # 构建批量请求的提示词
-        user_prompt = self._build_batch_prompt(batch)
+        user_prompt = build_batch_prompt(batch)
 
         # 计算总字数需求
         total_words = sum(config.target_words for _, config in batch)
@@ -408,107 +360,10 @@ class ScriptGenerator:
 
         try:
             response = await self.llm_manager.generate(request)
-            return self._parse_batch_response(response.content, batch)
+            return parse_batch_response(response.content, batch)
         except Exception as e:
             logger.warning(f"批量生成失败，回退到逐段调用: {e}")
             return [self._generate_single_fallback(topic, config) for topic, config in batch]
-
-    def _build_batch_prompt(self, batch: list[tuple[str, ScriptConfig]]) -> str:
-        """
-        构建批量请求的提示词
-        """
-        if not batch:
-            return ""
-
-        parts = ["请为以下多个主题分别生成视频文案。\n"]
-
-        for i, (topic, config) in enumerate(batch, 1):
-            parts.append(f"\n=== 段落 {i} ===")
-            parts.append(f"主题: {topic}")
-            parts.append(f"字数要求: 约 {config.target_words} 字")
-
-            tone_map = {
-                VoiceTone.NEUTRAL: "中性、客观",
-                VoiceTone.EXCITED: "兴奋、激动",
-                VoiceTone.CALM: "平静、舒缓",
-                VoiceTone.MYSTERIOUS: "神秘、悬疑",
-                VoiceTone.EMOTIONAL: "情感、深情",
-                VoiceTone.HUMOROUS: "幽默、轻松",
-            }
-            parts.append(f"语气风格: {tone_map.get(config.tone, '中性')}")
-
-            if config.include_hook:
-                parts.append("要求: 开头3秒必须有吸引力的「钩子」")
-
-            if config.keywords:
-                parts.append(f"必须包含关键词: {', '.join(config.keywords)}")
-
-            parts.append("")
-
-        parts.append("""
-输出格式要求：
-1. 用空行分隔各段落
-2. 每个段落前标注【段落N】
-3. 每个段落独立成篇，有完整的开头和结尾
-4. 不要在段落之间添加标题或解释
-""")
-
-        return "\n".join(parts)
-
-    def _parse_batch_response(
-        self,
-        content: str,
-        batch: list[tuple[str, ScriptConfig]],
-    ) -> list[GeneratedScript]:
-        """
-        解析批量生成的响应
-        """
-        content = content.strip()
-
-        scripts = []
-        for i, (topic, config) in enumerate(batch):
-            segment = self._extract_segment(content, i + 1, config)
-            if segment:
-                script = self._parse_response(segment, config)
-            else:
-                script = self._parse_response(content if i == 0 else "", config)
-            scripts.append(script)
-
-        return scripts
-
-    def _extract_segment(
-        self,
-        content: str,
-        segment_num: int,
-        config: ScriptConfig,
-    ) -> str:
-        """
-        从批量响应中提取指定段落
-        """
-        import re
-
-        # 尝试查找【段落N】标记
-        pattern = rf"【段落{segment_num}】\s*(.*?)(?=【段落\d+】|$)"
-        match = re.search(pattern, content, re.DOTALL)
-
-        if match:
-            text = match.group(1).strip()
-            text = re.sub(r"^【段落\d+】\s*", "", text, flags=re.MULTILINE)
-            return text
-
-        # 回退：按段落数量平均分割
-        positions = []
-        for m in re.finditer(r"【段落\d+】", content):
-            positions.append(m.start())
-
-        if len(positions) > segment_num:
-            start = positions[segment_num - 1]
-            end = positions[segment_num] if segment_num < len(positions) else len(content)
-            text = content[start:end]
-            text = re.sub(r"^【段落\d+】\s*", "", text, flags=re.MULTILINE)
-            return text.strip()
-
-        return ""
 
     def _generate_single_fallback(
         self,
@@ -532,12 +387,12 @@ class ScriptGenerator:
             except RuntimeError:
                 raw_content, provider_used = asyncio.run(_run())
 
-            script = self._parse_response(raw_content, config)
+            script = parse_response(raw_content, config)
             script.provider_used = provider_used
             return script
         else:
             raw_content = self._generate_openai(topic, config)
-            return self._parse_response(raw_content, config)
+            return parse_response(raw_content, config)
 
     def _generate_openai(
         self,
@@ -546,9 +401,6 @@ class ScriptGenerator:
     ) -> str:
         """
         传统 OpenAI 方式生成
-
-        Returns:
-            生成的内容
         """
         try:
             from openai import OpenAI
@@ -559,7 +411,7 @@ class ScriptGenerator:
                 config.style,
                 self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
             )
-            user_prompt = self._build_prompt(topic, config)
+            user_prompt = build_prompt(topic, config)
 
             response = client.chat.completions.create(
                 model=config.model or "gpt-4",
@@ -584,14 +436,7 @@ class ScriptGenerator:
         duration: float = 60.0,
         tone: VoiceTone = VoiceTone.NEUTRAL,
     ) -> GeneratedScript:
-        """
-        生成解说文案（快捷方法）
-
-        Args:
-            topic: 解说主题
-            duration: 目标时长（秒）
-            tone: 语气
-        """
+        """生成解说文案（快捷方法）"""
         config = ScriptConfig(
             style=ScriptStyle.COMMENTARY,
             tone=tone,
@@ -606,14 +451,7 @@ class ScriptGenerator:
         emotion: str = "neutral",
         duration: float = 30.0,
     ) -> GeneratedScript:
-        """
-        生成独白文案（快捷方法）
-
-        Args:
-            context: 场景/情境描述
-            emotion: 情感（如：惆怅、欣喜、思念）
-            duration: 目标时长（秒）
-        """
+        """生成独白文案（快捷方法）"""
         config = ScriptConfig(
             style=ScriptStyle.MONOLOGUE,
             tone=VoiceTone.EMOTIONAL,
@@ -629,14 +467,7 @@ class ScriptGenerator:
         duration: float = 30.0,
         keywords: list[str] | None = None,
     ) -> GeneratedScript:
-        """
-        生成爆款文案（快捷方法）
-
-        Args:
-            topic: 主题
-            duration: 目标时长（秒）
-            keywords: 必须包含的关键词
-        """
+        """生成爆款文案（快捷方法）"""
         config = ScriptConfig(
             style=ScriptStyle.VIRAL,
             tone=VoiceTone.EXCITED,
@@ -646,158 +477,27 @@ class ScriptGenerator:
         )
         return self.generate(topic, config)
 
+    # 委托给独立模块的方法（保持原有 API 兼容）
     def _build_prompt(self, topic: str, config: ScriptConfig) -> str:
-        """构建用户提示词"""
-        parts = [f"请为以下主题生成视频文案：\n\n{topic}\n"]
+        return build_prompt(topic, config)
 
-        # 字数要求
-        parts.append(f"\n字数要求：约 {config.target_words} 字（适合 {config.target_duration:.0f} 秒视频）")
+    def _build_batch_prompt(self, batch: list[tuple[str, ScriptConfig]]) -> str:
+        return build_batch_prompt(batch)
 
-        # 语气要求
-        tone_map = {
-            VoiceTone.NEUTRAL: "中性、客观",
-            VoiceTone.EXCITED: "兴奋、激动",
-            VoiceTone.CALM: "平静、舒缓",
-            VoiceTone.MYSTERIOUS: "神秘、悬疑",
-            VoiceTone.EMOTIONAL: "情感、深情",
-            VoiceTone.HUMOROUS: "幽默、轻松",
-        }
-        parts.append(f"语气风格：{tone_map.get(config.tone, '中性')}")
+    def _parse_response(self, content: str, config: ScriptConfig) -> GeneratedScript:
+        return parse_response(content, config)
 
-        # 开头钩子
-        if config.include_hook:
-            parts.append("\n要求：开头3秒必须有吸引力的「钩子」，能立刻抓住观众注意力")
+    def _parse_batch_response(
+        self, content: str, batch: list[tuple[str, ScriptConfig]]
+    ) -> list[GeneratedScript]:
+        return parse_batch_response(content, batch)
 
-        # 行动号召
-        if config.include_cta:
-            parts.append("结尾需要有行动号召（如：点赞、关注、评论）")
+    def _extract_segment(self, content: str, segment_num: int, config: ScriptConfig) -> str:
+        from ._response_parser import extract_segment
+        return extract_segment(content, segment_num, config)
 
-        # 关键词
-        if config.keywords:
-            parts.append(f"\n必须自然融入以下关键词：{', '.join(config.keywords)}")
-
-        # 格式要求
-        parts.append("""
-输出格式：
-1. 直接输出文案内容，不要有标题或解释
-2. 用空行分隔段落
-3. 每段适合配合一个画面场景""")
-
-        return "\n".join(parts)
-
-    def _parse_response(
-        self,
-        content: str,
-        config: ScriptConfig,
-    ) -> GeneratedScript:
-        """解析 LLM 响应"""
-        # 清理内容
-        content = content.strip()
-
-        # 分段
-        paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
-
-        # 计算每段时长
-        total_words = len(content.replace(' ', '').replace('\n', ''))
-
-        segments = []
-        current_time = 0.0
-
-        for i, para in enumerate(paragraphs):
-            para_words = len(para.replace(' ', ''))
-            para_duration = para_words / config.words_per_second
-
-            segment = ScriptSegment(
-                content=para,
-                start_time=current_time,
-                duration=para_duration,
-                scene_hint=f"场景 {i + 1}",
-            )
-            segments.append(segment)
-            current_time += para_duration
-
-        # 提取钩子（第一段或第一句）
-        hook = ""
-        if segments:
-            first = segments[0].content
-            if '。' in first:
-                hook = first.split('。')[0] + '。'
-            else:
-                hook = first
-
-        return GeneratedScript(
-            content=content,
-            segments=segments,
-            style=config.style,
-            word_count=total_words,
-            estimated_duration=total_words / config.words_per_second,
-            hook=hook,
-            keywords=config.keywords,
-        )
-
-    def split_to_captions(
-        self,
-        script: GeneratedScript,
-        _max_chars: int = 20,  # reserved for char-based splitting (not yet used)
-    ) -> list[dict[str, Any]]:
-        """
-        将文案拆分为字幕
-
-        Args:
-            script: 生成的文案
-            max_chars: 每条字幕最大字数
-
-        Returns:
-            字幕列表，每个包含 text, start, duration
-        """
-        import re
-
-        captions = []
-
-        for segment in script.segments:
-            # 按标点拆分
-            sentences = re.split(r'([。！？，；])', segment.content)
-
-            current_start = segment.start_time
-            segment_duration = segment.duration
-            segment_words = len(segment.content.replace(' ', ''))
-
-            current_text = ""
-            for i, part in enumerate(sentences):
-                if not part:
-                    continue
-
-                # 如果是标点，添加到当前文本
-                if part in '。！？，；':
-                    current_text += part
-
-                    if len(current_text) > 5:  # 至少5个字才生成字幕
-                        word_count = len(current_text)
-                        duration = (word_count / max(segment_words, 1)) * segment_duration
-
-                        captions.append({
-                            "text": current_text,
-                            "start": current_start,
-                            "duration": duration,
-                        })
-
-                        current_start += duration
-                        current_text = ""
-                else:
-                    current_text += part
-
-            # 处理剩余文本
-            if current_text.strip():
-                word_count = len(current_text)
-                duration = (word_count / max(segment_words, 1)) * segment_duration
-
-                captions.append({
-                    "text": current_text,
-                    "start": current_start,
-                    "duration": max(duration, 0.5),
-                })
-
-        return captions
+    def split_to_captions(self, script: GeneratedScript, _max_chars: int = 20) -> list[dict[str, Any]]:
+        return split_to_captions(script, _max_chars)
 
 
 # =========== 便捷函数 ===========
