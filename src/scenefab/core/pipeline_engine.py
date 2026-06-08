@@ -249,89 +249,9 @@ class PipelineEngine:
         )
         overall_start = time.time()
 
-        # v2.1: 发布 PipelineStarted
-        if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
-            try:
-                self._event_bus.publish_event(
-                    PipelineStarted(
-                        pipeline_id=self._pipeline_id,
-                        total_steps=len(self.steps),
-                        inputs=context.get("input", {}),
-                    )
-                )
-            except Exception:
-                logger.debug("PipelineStarted event publish failed", exc_info=True)
+        self._publish_pipeline_started(context)
 
-        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            pending_futures: dict[Future, PipelineStep] = {}
-
-            while not self._is_finished():
-                # 找出所有可执行的步骤
-                ready_steps = self._get_ready_steps()
-
-                if not ready_steps and not pending_futures:
-                    # 没有可执行且无正在运行 → 死锁
-                    stuck = [
-                        sid
-                        for sid, st in self.states.items()
-                        if st == StepStatus.PENDING
-                    ]
-                    raise RuntimeError(
-                        f"Pipeline stuck: pending steps have unresolvable deps: {stuck}"
-                    )
-
-                # 按 parallel_group 分组
-                groups = self._group_by_parallel(ready_steps)
-                for group in groups:
-                    for step in group:
-                        if self.config.enable_parallel and len(group) > 1:
-                            # 并行执行
-                            future = executor.submit(self._execute_step, step, context)
-                            pending_futures[future] = step
-                        else:
-                            # 串行执行（单步）
-                            self._execute_step(step, context)
-
-                # 等待至少一个 future 完成
-                if pending_futures:
-                    done_futures = []
-                    for future in list(pending_futures.keys()):
-                        if future.done():
-                            done_futures.append(future)
-                    if done_futures:
-                        for f in done_futures:
-                            pending_futures.pop(f)
-                    else:
-                        # 等待任一完成（短超时）
-                        import concurrent.futures
-
-                        try:
-                            concurrent.futures.wait(
-                                pending_futures.keys(),
-                                timeout=0.1,
-                                return_when=concurrent.futures.FIRST_COMPLETED,
-                            )
-                        except Exception:
-                            pass
-
-                # 失败快速终止
-                if self.config.fail_fast:
-                    if any(
-                        self.states[s.id] == StepStatus.FAILED and not s.always_run
-                        for s in self.steps.values()
-                    ):
-                        logger.warning("Pipeline fail_fast triggered, skipping pending")
-                        # 在退出前，先让 always_run 步骤执行
-                        self._mark_skipped()
-                        # 再次获取 ready（包含 always_run）
-                        always_ready = self._get_ready_steps()
-                        if always_ready:
-                            logger.info(
-                                f"Running {len(always_ready)} always_run step(s) before exit"
-                            )
-                            for step in always_ready:
-                                self._execute_step(step, context)
-                        break
+        self._run_main_loop(context)
 
         total_duration = int((time.time() - overall_start) * 1000)
         completed = sum(1 for s in self.states.values() if s == StepStatus.COMPLETED)
@@ -341,19 +261,7 @@ class PipelineEngine:
             f"{total_duration}ms total"
         )
 
-        # v2.1: 发布 PipelineCompleted
-        if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
-            try:
-                self._event_bus.publish_event(
-                    PipelineCompleted(
-                        pipeline_id=self._pipeline_id,
-                        total_duration_ms=total_duration,
-                        success_count=completed,
-                        failure_count=failed,
-                    )
-                )
-            except Exception:
-                logger.debug("PipelineCompleted event publish failed", exc_info=True)
+        self._publish_pipeline_completed(total_duration, completed, failed)
 
         self._audit.log_action(
             action="pipeline_run",
@@ -367,6 +275,128 @@ class PipelineEngine:
         )
 
         return context
+
+    def _publish_pipeline_started(self, context: dict) -> None:
+        """Publish PipelineStarted event if event bus is available."""
+        if not (_HAS_V21_PIPELINE_EVENTS and self._event_bus is not None):
+            return
+        try:
+            self._event_bus.publish_event(
+                PipelineStarted(
+                    pipeline_id=self._pipeline_id,
+                    total_steps=len(self.steps),
+                    inputs=context.get("input", {}),
+                )
+            )
+        except Exception:
+            logger.debug("PipelineStarted event publish failed", exc_info=True)
+
+    def _publish_pipeline_completed(
+        self, total_duration: int, completed: int, failed: int
+    ) -> None:
+        """Publish PipelineCompleted event if event bus is available."""
+        if not (_HAS_V21_PIPELINE_EVENTS and self._event_bus is not None):
+            return
+        try:
+            self._event_bus.publish_event(
+                PipelineCompleted(
+                    pipeline_id=self._pipeline_id,
+                    total_duration_ms=total_duration,
+                    success_count=completed,
+                    failure_count=failed,
+                )
+            )
+        except Exception:
+            logger.debug("PipelineCompleted event publish failed", exc_info=True)
+
+    def _run_main_loop(self, context: dict) -> None:
+        """Execute the main DAG scheduling loop until all steps finish."""
+        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
+            pending_futures: dict[Future, PipelineStep] = {}
+
+            while not self._is_finished():
+                ready_steps = self._get_ready_steps()
+
+                if not ready_steps and not pending_futures:
+                    self._raise_deadlock_error()
+
+                self._submit_ready_steps(ready_steps, context, executor, pending_futures)
+                self._drain_completed_futures(pending_futures)
+
+                if self._should_fail_fast():
+                    self._execute_always_run_steps(context)
+                    break
+
+    def _raise_deadlock_error(self) -> None:
+        """Raise a RuntimeError when the pipeline is stuck with no runnable steps."""
+        stuck = [
+            sid
+            for sid, st in self.states.items()
+            if st == StepStatus.PENDING
+        ]
+        raise RuntimeError(
+            f"Pipeline stuck: pending steps have unresolvable deps: {stuck}"
+        )
+
+    def _submit_ready_steps(
+        self,
+        ready_steps: list[PipelineStep],
+        context: dict,
+        executor: ThreadPoolExecutor,
+        pending_futures: dict[Future, PipelineStep],
+    ) -> None:
+        """Submit ready steps to the executor, grouped by parallel_group."""
+        groups = self._group_by_parallel(ready_steps)
+        for group in groups:
+            for step in group:
+                if self.config.enable_parallel and len(group) > 1:
+                    future = executor.submit(self._execute_step, step, context)
+                    pending_futures[future] = step
+                else:
+                    self._execute_step(step, context)
+
+    def _drain_completed_futures(
+        self, pending_futures: dict[Future, PipelineStep]
+    ) -> None:
+        """Remove completed futures, or wait briefly if none are done yet."""
+        if not pending_futures:
+            return
+        done_futures = [f for f in pending_futures if f.done()]
+        if done_futures:
+            for f in done_futures:
+                pending_futures.pop(f)
+        else:
+            import concurrent.futures
+
+            try:
+                concurrent.futures.wait(
+                    pending_futures.keys(),
+                    timeout=0.1,
+                    return_when=concurrent.futures.FIRST_COMPLETED,
+                )
+            except Exception:
+                pass
+
+    def _should_fail_fast(self) -> bool:
+        """Check if fail_fast is enabled and any non-always_run step has failed."""
+        if not self.config.fail_fast:
+            return False
+        return any(
+            self.states[s.id] == StepStatus.FAILED and not s.always_run
+            for s in self.steps.values()
+        )
+
+    def _execute_always_run_steps(self, context: dict) -> None:
+        """Mark pending steps as skipped, then execute always_run steps."""
+        logger.warning("Pipeline fail_fast triggered, skipping pending")
+        self._mark_skipped()
+        always_ready = self._get_ready_steps()
+        if always_ready:
+            logger.info(
+                f"Running {len(always_ready)} always_run step(s) before exit"
+            )
+            for step in always_ready:
+                self._execute_step(step, context)
 
     # ==============================================================
     # 内部

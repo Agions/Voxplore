@@ -174,14 +174,26 @@ class SafeFFmpegCommand:
     def validate(self) -> None:
         """
         校验所有参数，不通过则抛出 FFmpegSecurityError
+
+        Delegates to individual validation methods for each concern.
         """
-        # 1. 输入文件存在
+        self._validate_input_file()
+        self._validate_output_path()
+        self._validate_codec_params()
+        self._validate_quality_params()
+        self._validate_audio_params()
+        self._validate_filters_and_args()
+        self._validate_hwaccel()
+
+    def _validate_input_file(self) -> None:
+        """Validate that the input file exists and is a regular file."""
         if not self.input_file.exists():
             raise FFmpegSecurityError(f"Input file not found: {self.input_file}")
         if not self.input_file.is_file():
             raise FFmpegSecurityError(f"Input is not a file: {self.input_file}")
 
-        # 2. 输出路径安全
+    def _validate_output_path(self) -> None:
+        """Validate that the output path is safe (no forbidden dirs or dangerous chars)."""
         out_path = Path(self.output_file).absolute()
         out_str = str(out_path).lower()
         for forbidden in _FORBIDDEN_OUTPUT_DIRS:
@@ -189,13 +201,13 @@ class SafeFFmpegCommand:
                 raise FFmpegSecurityError(
                     f"Output path rejected (forbidden directory): {out_path}"
                 )
-        # 路径不能包含危险字符
         if _DANGEROUS_CHARS.search(out_str):
             raise FFmpegSecurityError(
                 f"Output path contains dangerous characters: {out_path}"
             )
 
-        # 3. 参数白名单
+    def _validate_codec_params(self) -> None:
+        """Validate codec, preset, pixel format, and CRF against whitelists."""
         if self.codec not in ALLOWED_CODECS:
             raise FFmpegSecurityError(
                 f"Codec '{self.codec}' not in whitelist. "
@@ -212,12 +224,18 @@ class SafeFFmpegCommand:
             raise FFmpegSecurityError(
                 f"CRF {self.crf} out of range [{CRF_RANGE[0]}, {CRF_RANGE[1]}]"
             )
+
+    def _validate_quality_params(self) -> None:
+        """Validate bitrate range when bitrate override is set."""
         if self.bitrate_mbps is not None:
             if not (0.1 <= self.bitrate_mbps <= BITRATE_MAX_MBPS):
                 raise FFmpegSecurityError(
                     f"Bitrate {self.bitrate_mbps} Mbps out of range "
                     f"[0.1, {BITRATE_MAX_MBPS}]"
                 )
+
+    def _validate_audio_params(self) -> None:
+        """Validate audio codec whitelist and bitrate range."""
         if self.audio_codec not in ALLOWED_CODECS:
             raise FFmpegSecurityError(
                 f"Audio codec '{self.audio_codec}' not in whitelist"
@@ -227,21 +245,21 @@ class SafeFFmpegCommand:
                 f"Audio bitrate {self.audio_bitrate_kbps} kbps out of range [32, 512]"
             )
 
-        # 4. 滤镜安全检查
+    def _validate_filters_and_args(self) -> None:
+        """Validate that filters and extra_args contain no dangerous characters."""
         for f in self.filters:
             if _DANGEROUS_CHARS.search(f):
                 raise FFmpegSecurityError(
                     f"Filter contains dangerous characters: {f!r}"
                 )
-
-        # 5. extra_args 安全检查
         for arg in self.extra_args:
             if _DANGEROUS_CHARS.search(arg):
                 raise FFmpegSecurityError(
                     f"Extra arg contains dangerous characters: {arg!r}"
                 )
 
-        # 6. hwaccel 白名单
+    def _validate_hwaccel(self) -> None:
+        """Validate hwaccel against the allowed set."""
         if self.hwaccel is not None and self.hwaccel not in (
             "cuda",
             "qsv",

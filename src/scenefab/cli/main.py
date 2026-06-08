@@ -295,143 +295,173 @@ def _handle_batch_create(args) -> int:
 
 # ─── Project Handler (backward compat) ──────────────────────────────────────
 
-def _handle_project_command(args) -> int:
-    """Handle project subcommand (backward compat)"""
-    PROJECTS_DIR = os.path.expanduser("~/SceneFab/Projects")
+_PROJECTS_DIR = os.path.expanduser("~/SceneFab/Projects")
 
-    def load_meta(project_path: str) -> dict | None:
-        pf = os.path.join(project_path, "project.json")
-        if not os.path.exists(pf):
-            return None
-        try:
-            with open(pf, encoding="utf-8") as f:
-                return json.load(f).get("metadata", {})
-        except Exception:
-            return None
 
-    def find_by_name(name: str) -> tuple[str, str] | None:
-        if not os.path.exists(PROJECTS_DIR):
-            return None
-        for d in os.listdir(PROJECTS_DIR):
-            proj_path = os.path.join(PROJECTS_DIR, d)
-            if not os.path.isdir(proj_path):
-                continue
-            meta = load_meta(proj_path)
-            if meta and meta.get("name") == name:
-                return os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else "", proj_path
+def _load_project_meta(project_path: str) -> dict | None:
+    """Load metadata dict from a project's project.json file."""
+    pf = os.path.join(project_path, "project.json")
+    if not os.path.exists(pf):
+        return None
+    try:
+        with open(pf, encoding="utf-8") as f:
+            return json.load(f).get("metadata", {})
+    except Exception:
         return None
 
-    def list_all() -> list[dict]:
-        if not os.path.exists(PROJECTS_DIR):
-            return []
-        result = []
-        for d in sorted(os.listdir(PROJECTS_DIR)):
-            proj_path = os.path.join(PROJECTS_DIR, d)
-            if not os.path.isdir(proj_path):
-                continue
-            meta = load_meta(proj_path)
-            if not meta:
-                continue
-            result.append({
-                "name": meta.get("name", ""),
-                "id": os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else "",
-                "path": proj_path,
-                "author": meta.get("author", ""),
-                "created_at": meta.get("created_at", ""),
-                "status": meta.get("status", "active"),
-            })
-        return result
 
-    if args.subcommand == "create":
-        project_id = str(uuid.uuid4())
-        slug = args.name.replace(" ", "_")
-        project_path = os.path.join(PROJECTS_DIR, f"{slug}_{project_id[:8]}")
-        os.makedirs(project_path, exist_ok=True)
-        for subdir in ["media", "exports", "backups", "cache", "assets"]:
-            os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+def _find_project_by_name(name: str) -> tuple[str, str] | None:
+    """Find a project directory by its metadata name. Returns (id, path) or None."""
+    if not os.path.exists(_PROJECTS_DIR):
+        return None
+    for d in os.listdir(_PROJECTS_DIR):
+        proj_path = os.path.join(_PROJECTS_DIR, d)
+        if not os.path.isdir(proj_path):
+            continue
+        meta = _load_project_meta(proj_path)
+        if meta and meta.get("name") == name:
+            proj_id = os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else ""
+            return proj_id, proj_path
+    return None
 
-        now = datetime.now().isoformat()
-        project_json = {
-            "metadata": {
-                "name": args.name,
-                "description": "",
-                "author": os.getlogin(),
-                "version": "1.0.1",
-                "created_at": now,
-                "modified_at": now,
-                "tags": [],
-                "project_type": "video_editing",
-                "thumbnail": "",
-                "status": "active",
-                "file_path": project_path,
-            },
-            "settings": {},
-            "timeline": {"segments": []},
-        }
-        with open(os.path.join(project_path, "project.json"), "w", encoding="utf-8") as f:
-            json.dump(project_json, f, ensure_ascii=False, indent=2)
 
-        if args.video and os.path.exists(args.video):
-            media_dir = os.path.join(project_path, "media")
-            video_name = os.path.basename(args.video)
-            link_path = os.path.join(media_dir, video_name)
-            try:
-                os.symlink(args.video, link_path)
-            except OSError:
-                shutil.copy2(args.video, link_path)
-
-        logger.info(f"Project created: {args.name}")
-        logger.info(f"  Path: {project_path}")
-        return 0
-
-    elif args.subcommand == "list":
-        projects = list_all()
-        if not projects:
-            logger.info("No projects yet")
-            return 0
-        if args.format == "json":
-            print(json.dumps(projects, ensure_ascii=False, indent=2))
-        else:
-            logger.info(f"Projects ({len(projects)} total):")
-            print(f"  {'Name':<30} {'ID':<8} {'Author':<15} {'Created':<26} {'Status'}")
-            print(f"  {'-'*30} {'-'*8} {'-'*15} {'-'*26} {'------'}")
-            for p in projects:
-                created = p["created_at"][:19] if p["created_at"] else "-"
-                print(f"  {p['name']:<30} {p['id']:<8} {p['author']:<15} {created:<26} {p['status']}")
-        return 0
-
-    elif args.subcommand == "delete":
-        if not args.force:
-            logger.warning("Use --force to confirm deletion")
-            return 1
-        found = find_by_name(args.name)
-        if not found:
-            logger.error(f"Project not found: {args.name}")
-            return 1
-        _, project_path = found
-        shutil.rmtree(project_path)
-        logger.info(f"Project deleted: {args.name}")
-        return 0
-
-    elif args.subcommand == "info":
-        found = find_by_name(args.name)
-        if not found:
-            logger.error(f"Project not found: {args.name}")
-            return 1
-        _, project_path = found
-        meta = load_meta(project_path)
+def _list_all_projects() -> list[dict]:
+    """List all projects with their metadata."""
+    if not os.path.exists(_PROJECTS_DIR):
+        return []
+    result = []
+    for d in sorted(os.listdir(_PROJECTS_DIR)):
+        proj_path = os.path.join(_PROJECTS_DIR, d)
+        if not os.path.isdir(proj_path):
+            continue
+        meta = _load_project_meta(proj_path)
         if not meta:
-            logger.error("Cannot read project info")
-            return 1
-        print(f"\nProject Info: {args.name}")
-        print(f"  ID:           {os.path.basename(project_path).split('_', 1)[-1]}")
-        print(f"  Path:         {project_path}")
-        print(f"  Author:       {meta.get('author', '-')}")
-        print(f"  Version:      {meta.get('version', '-')}")
-        print(f"  Created:      {meta.get('created_at', '-')[:19]}")
-        print(f"  Status:       {meta.get('status', '-')}")
-        return 0
+            continue
+        result.append({
+            "name": meta.get("name", ""),
+            "id": os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else "",
+            "path": proj_path,
+            "author": meta.get("author", ""),
+            "created_at": meta.get("created_at", ""),
+            "status": meta.get("status", "active"),
+        })
+    return result
 
+
+def _project_create_link(video_path: str, project_path: str) -> None:
+    """Symlink (or copy) video into the project's media directory."""
+    media_dir = os.path.join(project_path, "media")
+    video_name = os.path.basename(video_path)
+    link_path = os.path.join(media_dir, video_name)
+    try:
+        os.symlink(video_path, link_path)
+    except OSError:
+        shutil.copy2(video_path, link_path)
+
+
+def _handle_project_create(args) -> int:
+    """Create a new project directory structure with project.json."""
+    project_id = str(uuid.uuid4())
+    slug = args.name.replace(" ", "_")
+    project_path = os.path.join(_PROJECTS_DIR, f"{slug}_{project_id[:8]}")
+    os.makedirs(project_path, exist_ok=True)
+    for subdir in ["media", "exports", "backups", "cache", "assets"]:
+        os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+
+    now = datetime.now().isoformat()
+    project_json = {
+        "metadata": {
+            "name": args.name,
+            "description": "",
+            "author": os.getlogin(),
+            "version": "1.0.1",
+            "created_at": now,
+            "modified_at": now,
+            "tags": [],
+            "project_type": "video_editing",
+            "thumbnail": "",
+            "status": "active",
+            "file_path": project_path,
+        },
+        "settings": {},
+        "timeline": {"segments": []},
+    }
+    with open(os.path.join(project_path, "project.json"), "w", encoding="utf-8") as f:
+        json.dump(project_json, f, ensure_ascii=False, indent=2)
+
+    if args.video and os.path.exists(args.video):
+        _project_create_link(args.video, project_path)
+
+    logger.info(f"Project created: {args.name}")
+    logger.info(f"  Path: {project_path}")
+    return 0
+
+
+def _handle_project_list(args) -> int:
+    """List all projects in table or JSON format."""
+    projects = _list_all_projects()
+    if not projects:
+        logger.info("No projects yet")
+        return 0
+    if args.format == "json":
+        print(json.dumps(projects, ensure_ascii=False, indent=2))
+    else:
+        logger.info(f"Projects ({len(projects)} total):")
+        print(f"  {'Name':<30} {'ID':<8} {'Author':<15} {'Created':<26} {'Status'}")
+        print(f"  {'-'*30} {'-'*8} {'-'*15} {'-'*26} {'------'}")
+        for p in projects:
+            created = p["created_at"][:19] if p["created_at"] else "-"
+            print(f"  {p['name']:<30} {p['id']:<8} {p['author']:<15} {created:<26} {p['status']}")
+    return 0
+
+
+def _handle_project_delete(args) -> int:
+    """Delete a project by name (requires --force)."""
+    if not args.force:
+        logger.warning("Use --force to confirm deletion")
+        return 1
+    found = _find_project_by_name(args.name)
+    if not found:
+        logger.error(f"Project not found: {args.name}")
+        return 1
+    _, project_path = found
+    shutil.rmtree(project_path)
+    logger.info(f"Project deleted: {args.name}")
+    return 0
+
+
+def _handle_project_info(args) -> int:
+    """Display detailed info for a project."""
+    found = _find_project_by_name(args.name)
+    if not found:
+        logger.error(f"Project not found: {args.name}")
+        return 1
+    _, project_path = found
+    meta = _load_project_meta(project_path)
+    if not meta:
+        logger.error("Cannot read project info")
+        return 1
+    print(f"\nProject Info: {args.name}")
+    print(f"  ID:           {os.path.basename(project_path).split('_', 1)[-1]}")
+    print(f"  Path:         {project_path}")
+    print(f"  Author:       {meta.get('author', '-')}")
+    print(f"  Version:      {meta.get('version', '-')}")
+    print(f"  Created:      {meta.get('created_at', '-')[:19]}")
+    print(f"  Status:       {meta.get('status', '-')}")
+    return 0
+
+
+def _handle_project_command(args) -> int:
+    """Handle project subcommand (backward compat) using dispatch dict."""
+    handlers = {
+        "create": _handle_project_create,
+        "list": _handle_project_list,
+        "delete": _handle_project_delete,
+        "info": _handle_project_info,
+    }
+    handler = handlers.get(args.subcommand)
+    if handler is not None:
+        return handler(args)
     return 0
 
 
