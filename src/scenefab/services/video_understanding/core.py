@@ -7,6 +7,7 @@ SceneFab 长视频理解器核心逻辑
 import logging
 import time
 
+from scenefab.models.constants import DASHSCOPE_BASE_URL
 from scenefab.services.video_understanding.api_adapters import APIAdapterMixin
 from scenefab.services.video_understanding.models import (
     LongVideoUnderstandingResult,
@@ -80,7 +81,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
                 from openai import OpenAI
                 self.qwen_client = OpenAI(
                     api_key=self.api_keys["qwen"],
-                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+                    base_url=DASHSCOPE_BASE_URL,
                 )
             except Exception as e:
                 logger.warning(f"Qwen 客户端初始化失败: {e}")

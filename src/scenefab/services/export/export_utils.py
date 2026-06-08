@@ -16,12 +16,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Generic, TypeVar
 
+from scenefab.models.constants import (
+    DEFAULT_VIDEO_HEIGHT,
+    DEFAULT_VIDEO_WIDTH,
+    PREMIERE_TICKS_PER_SECOND,
+)
+
 from ..video_tools.ffmpeg_tool import FFmpegTool
 
 logger = logging.getLogger(__name__)
-
-# Premiere tick rate constant (must be defined before any function using it)
-PREMIERE_TICKS_PER_SECOND = 254016000000
 
 
 # ========== 时间处理工具 ==========
@@ -82,8 +85,8 @@ class BaseProject:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "Untitled Project"
     duration: float = 0.0  # 总时长（秒）
-    width: int = 1920
-    height: int = 1080
+    width: int = DEFAULT_VIDEO_WIDTH
+    height: int = DEFAULT_VIDEO_HEIGHT
     fps: float = 30.0
 
 

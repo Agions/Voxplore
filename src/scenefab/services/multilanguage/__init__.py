@@ -24,6 +24,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from scenefab.models.constants import DEEPL_API_URL
+
 logger = logging.getLogger(__name__)
 
 
@@ -316,7 +318,7 @@ class MultiLanguageAdapter:
             target_config = self.LANGUAGE_CONFIGS[target_language]
 
             # 调用 DeepL API
-            url = "https://api-free.deepl.com/v2/translate"
+            url = DEEPL_API_URL
             headers = {
                 "Authorization": f"DeepL-Auth-Key {self.deepl_api_key}",
                 "Content-Type": "application/json",

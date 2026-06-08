@@ -22,6 +22,7 @@ from scenefab.interfaces.cache_interface import (
     CacheStats,
     ICache,
 )
+from scenefab.models.constants import DEFAULT_CACHE_MAX_DISK_MB
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class DiskCache(ICache):
     将缓存持久化到磁盘。
     """
 
-    def __init__(self, cache_dir: str, max_size_mb: int = 1000):
+    def __init__(self, cache_dir: str, max_size_mb: int = DEFAULT_CACHE_MAX_DISK_MB):
         """
         初始化磁盘缓存
 

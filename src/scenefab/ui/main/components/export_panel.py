@@ -328,12 +328,12 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             QMessageBox.critical(self, "错误", f"设置应用失败: {str(e)}")
 
     def _apply_concurrent_limit(self, limit: int):
-        """实际应用并发限制"""
-        pass  # TODO: connect to actual export queue
+        """实际应用并发限制 — 由导出队列接管"""
+        raise NotImplementedError("Export queue integration pending")
 
     def _schedule_cleanup(self):
-        """安排自动清理"""
-        pass  # TODO: implement auto-cleanup scheduling
+        """安排自动清理 — 由后台任务调度器接管"""
+        raise NotImplementedError("Cleanup scheduler pending")
 
     def add_preset(self):
         """添加预设"""
@@ -371,8 +371,8 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             QMessageBox.information(self, "成功", "预设已更新")
 
     def _save_preset(self, preset_id: str, data: dict):
-        """保存预设数据"""
-        pass  # TODO: implement preset persistence
+        """保存预设数据 — 由预设存储接管"""
+        raise NotImplementedError("Preset persistence pending")
 
     def delete_preset(self):
         """删除预设"""

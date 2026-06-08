@@ -17,6 +17,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 
+from scenefab.models.constants import DEFAULT_VIDEO_HEIGHT, DEFAULT_VIDEO_WIDTH
+
 # ─── 常量定义 ──────────────────────────────────────────────────
 JIANYING_VERSION = 360000  # 剪映版本号
 
@@ -134,8 +136,8 @@ class VideoMaterial:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     path: str = ""
     duration: int = 0  # 微秒
-    width: int = 1920
-    height: int = 1080
+    width: int = DEFAULT_VIDEO_WIDTH
+    height: int = DEFAULT_VIDEO_HEIGHT
 
     # 素材来源
     type: str = "video"
@@ -195,8 +197,8 @@ class JianyingMaterials:
 @dataclass
 class CanvasConfig:
     """画布配置"""
-    width: int = 1080  # 竖屏短视频
-    height: int = 1920
+    width: int = DEFAULT_VIDEO_HEIGHT  # 竖屏短视频
+    height: int = DEFAULT_VIDEO_WIDTH
     ratio: str = "9:16"
 
 

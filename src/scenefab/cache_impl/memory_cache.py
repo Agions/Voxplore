@@ -19,6 +19,10 @@ from scenefab.interfaces.cache_interface import (
     CacheStats,
     ICache,
 )
+from scenefab.models.constants import (
+    DEFAULT_CACHE_MAX_ENTRIES,
+    DEFAULT_CACHE_MAX_MEMORY_MB,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +34,8 @@ class MemoryCache(ICache):
     基于OrderedDict实现LRU缓存。
     """
 
-    def __init__(self, max_size: int = 1000, max_memory_mb: int = 100,
+    def __init__(self, max_size: int = DEFAULT_CACHE_MAX_ENTRIES,
+                 max_memory_mb: int = DEFAULT_CACHE_MAX_MEMORY_MB,
                  policy: CachePolicy = CachePolicy.LRU):
         """
         初始化内存缓存

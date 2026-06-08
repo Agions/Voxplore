@@ -2,6 +2,7 @@
 
 import logging
 
+from scenefab.models.constants import VIRAL_VIEW_THRESHOLD
 from scenefab.services.data_feedback.models import (
     ContentFeatureCorrelation,
     MetricType,
@@ -32,7 +33,7 @@ class FeedbackAnalyzer:
 
     # 效果等级阈值
     PERFORMANCE_THRESHOLDS = {
-        PerformanceLevel.VIRAL: 1_000_000,
+        PerformanceLevel.VIRAL: VIRAL_VIEW_THRESHOLD,
         PerformanceLevel.EXCELLENT: 100_000,
         PerformanceLevel.GOOD: 10_000,
         PerformanceLevel.AVERAGE: 1_000,

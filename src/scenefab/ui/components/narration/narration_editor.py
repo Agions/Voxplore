@@ -126,8 +126,8 @@ class NarrationSegmentItem(QFrame):
         """)
 
     def _load_data(self):
-        # TODO: 从 segment 加载编辑数据
-        pass
+        if self._segment:
+            self._text_editor.setPlainText(self._segment.text or "")
 
     def _format_time(self, seconds: float) -> str:
         m, s = divmod(int(seconds), 60)

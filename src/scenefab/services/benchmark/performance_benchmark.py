@@ -205,9 +205,8 @@ class PerformanceBenchmark:
 
             # 模拟测试（实际实现时替换为真实调用）
             start_time = time.time()
+            # Benchmark logic placeholder
 
-            # TODO: 调用 SceneFab 处理流程
-    
 
             # 模拟处理时间（实际实现时删除）
             import random

@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Any
 
+from scenefab.models.constants import GEMINI_API_BASE
 from scenefab.services.video_understanding.models import VideoSegment
 
 logger = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ class APIAdapterMixin:
             prompt = self._build_understanding_prompt(segment)
 
             # 调用 Gemini API
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key={self.gemini_api_key}"
+            url = f"{GEMINI_API_BASE}/gemini-3.1-pro:generateContent?key={self.gemini_api_key}"
 
             # 构建请求（简化版，实际需要上传视频片段）
             payload = {

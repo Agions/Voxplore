@@ -3,6 +3,13 @@
 import logging
 from datetime import datetime, timedelta
 
+from scenefab.models.constants import (
+    BILIBILI_API_BASE,
+    DOUYIN_API_BASE,
+    KUAISHOU_API_BASE,
+    XIAOHONGSHU_API_BASE,
+    YOUTUBE_API_BASE,
+)
 from scenefab.services.data_feedback.models import Platform, VideoMetrics
 
 logger = logging.getLogger(__name__)
@@ -19,23 +26,23 @@ class PlatformDataCollector:
     # 各平台 API 配置（需要实际的 API Key）
     PLATFORM_APIS = {
         Platform.DOUYIN: {
-            "base_url": "https://open.douyin.com/api",
+            "base_url": DOUYIN_API_BASE,
             "metrics_endpoint": "/video/data/",
         },
         Platform.BILIBILI: {
-            "base_url": "https://api.bilibili.com",
+            "base_url": BILIBILI_API_BASE,
             "metrics_endpoint": "/x/web-interface/view",
         },
         Platform.YOUTUBE: {
-            "base_url": "https://www.googleapis.com/youtube/v3",
+            "base_url": YOUTUBE_API_BASE,
             "metrics_endpoint": "/videos",
         },
         Platform.KUAISHOU: {
-            "base_url": "https://open.kuaishou.com",
+            "base_url": KUAISHOU_API_BASE,
             "metrics_endpoint": "/api/photo/metrics",
         },
         Platform.XIAOHONGSHU: {
-            "base_url": "https://open.xiaohongshu.com",
+            "base_url": XIAOHONGSHU_API_BASE,
             "metrics_endpoint": "/api/note/metrics",
         },
     }

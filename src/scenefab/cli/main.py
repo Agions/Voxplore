@@ -15,6 +15,8 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+from scenefab.models.constants import DEFAULT_HOST, DEFAULT_PORT
+
 
 def _get_version() -> str:
     """Dynamic version getter"""
@@ -136,8 +138,8 @@ def _add_server_subcommands(subparsers) -> None:
     server_subparsers = server_parser.add_subparsers(dest="subcommand", help="Server operations")
 
     start_parser = server_subparsers.add_parser("start", help="Start API server")
-    start_parser.add_argument("--host", default="0.0.0.0", help="Listen host")
-    start_parser.add_argument("--port", type=int, default=8000, help="Listen port")
+    start_parser.add_argument("--host", default=DEFAULT_HOST, help="Listen host")
+    start_parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Listen port")
     start_parser.add_argument("--reload", action="store_true", help="Hot reload in dev mode")
 
     server_subparsers.add_parser("status", help="Check server status")

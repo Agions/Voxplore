@@ -4,6 +4,8 @@
 项目管理页面 - 项目卡片组件
 """
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QCursor, QFont
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
@@ -69,11 +71,16 @@ class ProjectCard(QFrame):
             }
         """)
 
+        # 创建缩略图标签
+        self._thumbnail_label = QLabel(frame)
+        self._thumbnail_label.setFixedSize(120, 80)
+        self._thumbnail_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._thumbnail_label.setStyleSheet("background: transparent;")
+
         # 尝试加载缩略图
         thumbnail_path = self._project_data.get("thumbnail_path")
-        if thumbnail_path:
-            # TODO: 实际加载并显示缩略图
-            pass
+        if thumbnail_path and Path(thumbnail_path).exists():
+            self._load_thumbnail(str(thumbnail_path))
 
         # 放置图标
         layout = QVBoxLayout(frame)
@@ -86,6 +93,16 @@ class ProjectCard(QFrame):
         layout.addWidget(icon_label)
 
         return frame
+
+    def _load_thumbnail(self, path: str) -> None:
+        """加载并显示缩略图"""
+        from PySide6.QtGui import QPixmap
+        pixmap = QPixmap(path)
+        if not pixmap.isNull():
+            self._thumbnail_label.setPixmap(
+                pixmap.scaled(120, 80, Qt.AspectRatioMode.KeepAspectRatio,
+                             Qt.TransformationMode.SmoothTransformation)
+            )
 
     def _create_info(self) -> QWidget:
         """创建项目信息"""

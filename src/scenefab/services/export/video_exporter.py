@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Optional
 
 from scenefab.exceptions import ExportError
+from scenefab.models.constants import DEFAULT_VIDEO_HEIGHT, DEFAULT_VIDEO_WIDTH
 
 from ...utils.security import get_ffmpeg_executor
 
@@ -63,8 +64,8 @@ class ExportConfig:
     preset: str = "medium"         # 编码预设
 
     # 分辨率
-    width: int = 1080
-    height: int = 1920
+    width: int = DEFAULT_VIDEO_HEIGHT  # 竖屏短视频：宽 1080
+    height: int = DEFAULT_VIDEO_WIDTH  # 竖屏短视频：高 1920
     fps: int = 30
 
     # 硬件加速
