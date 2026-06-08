@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class LLMMemoryCache:
     """LLM 响应内存缓存"""
 
-    def __init__(self, max_size: int = 100, ttl: int = 3600):
+    def __init__(self, max_size: int = 100, ttl: int = 3600) -> None:
         """
         初始化缓存
 
@@ -125,7 +125,7 @@ class LLMDiskCache:
     使用 SQLite 作为底层存储，支持 TTL 过期和 LRU 淘汰。
     """
 
-    def __init__(self, cache_dir: str = ".llm_cache", max_size_mb: int = 500, ttl: int = 86400):
+    def __init__(self, cache_dir: str = ".llm_cache", max_size_mb: int = 500, ttl: int = 86400) -> None:
         """
         初始化磁盘缓存
 
@@ -141,7 +141,7 @@ class LLMDiskCache:
         self._db_path = self.cache_dir / "responses.db"
         self._init_db()
 
-    def _init_db(self):
+    def _init_db(self) -> None:
         """初始化 SQLite 数据库"""
         import sqlite3
         conn = sqlite3.connect(str(self._db_path))
@@ -214,7 +214,7 @@ class LLMDiskCache:
         conn.close()
         self._cleanup_if_needed()
 
-    def _cleanup_if_needed(self):
+    def _cleanup_if_needed(self) -> None:
         """检查并清理缓存大小"""
         import sqlite3
         db_size_mb = self._db_path.stat().st_size / (1024 * 1024)
@@ -270,7 +270,7 @@ class LLMRetryPolicy:
         base_delay: float = 1.0,
         max_delay: float = 60.0,
         backoff_factor: float = 2.0
-    ):
+    ) -> None:
         """
         初始化重试策略
 
@@ -350,7 +350,7 @@ def with_retry(
 class LLMPerformanceMonitor:
     """LLM 性能监控"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.metrics = {
             "total_requests": 0,
             "successful_requests": 0,

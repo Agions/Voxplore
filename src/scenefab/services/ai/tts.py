@@ -17,7 +17,7 @@ class TTSService:
         "zh-CN-XiaoyiNeural": "小艺",
     }
 
-    def __init__(self, config: dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None) -> None:
         self.config = config or {}
         self.provider = self.config.get("provider", "edge")
         self.voice = self.config.get("voice", "zh-CN-XiaoxiaoNeural")
@@ -174,7 +174,7 @@ class TTSService:
 
             rate_str = f"{int((rate - 1) * 100)}%"
 
-            async def generate():
+            async def generate() -> None:
                 communicate = edge_tts.Communicate(text, voice, rate=rate_str)
                 await communicate.save(output_path)
 

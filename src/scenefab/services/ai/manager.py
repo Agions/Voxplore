@@ -2,8 +2,10 @@
 AI 服务管理器
 统一管理 LLM、Vision、TTS、ASR 服务
 """
+from __future__ import annotations
+
 import logging
-from typing import Any, Optional
+from typing import Any, Self
 
 logger = logging.getLogger(__name__)
 
@@ -11,15 +13,15 @@ logger = logging.getLogger(__name__)
 class AIServiceManager:
     """AI 服务管理器"""
 
-    _instance: Optional['AIServiceManager'] = None
+    _instance: AIServiceManager | None = None
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._initialized:
             return
 

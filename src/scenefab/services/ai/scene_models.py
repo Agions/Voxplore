@@ -46,7 +46,7 @@ class SceneInfo:
     # 适用性评分
     suitability_score: float = 0.0   # 作为解说画面的适用性 (0-100)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.duration = self.end - self.start
 
 

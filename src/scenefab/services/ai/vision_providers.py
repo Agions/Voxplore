@@ -27,7 +27,7 @@ class OpenAIVisionProvider(VisionProvider):
     """OpenAI GPT-5 Vision"""
 
     def __init__(self, api_key: str, model: str = "gpt-4o",
-                 base_url: str | None = None):
+                 base_url: str | None = None) -> None:
         self.api_key = api_key
         self.model = model
         self.base_url = base_url
@@ -68,7 +68,7 @@ class QwenVLProvider(VisionProvider):
 
     def __init__(self, api_key: str,
                  base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                 model: str = "qwen-vl-plus"):
+                 model: str = "qwen-vl-plus") -> None:
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
@@ -109,7 +109,7 @@ class Qwen25VLProvider(VisionProvider):
 
     def __init__(self, api_key: str,
                  base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                 model: str = "qwen2.5-vl-72b-instruct"):
+                 model: str = "qwen2.5-vl-72b-instruct") -> None:
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
@@ -258,7 +258,7 @@ class Qwen25VLProvider(VisionProvider):
 class GeminiVisionProvider(VisionProvider):
     """Google Gemini 3.x Vision"""
 
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash-preview-0506"):
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash-preview-0506") -> None:
         self.api_key = api_key
         self.model = model
 
@@ -324,12 +324,12 @@ class VisionAnalyzerFactory:
 
     PROVIDER_MAP = {}  # 保留兼容，实际用 _get_provider_map()
 
-    def __init__(self, config: dict[str, Any]):
+    def __init__(self, config: dict[str, Any]) -> None:
         self._config = config
         self._providers: list[VisionProvider] = []
         self._init_providers()
 
-    def _init_providers(self):
+    def _init_providers(self) -> None:
         from .providers.gemini35_flash import Gemini35FlashProvider
         from .providers.qwen37 import Qwen37Provider
 

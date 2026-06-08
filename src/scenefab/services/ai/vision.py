@@ -16,7 +16,7 @@ class VisionService:
     - 并行请求
     """
 
-    def __init__(self, config: dict[str, Any]):
+    def __init__(self, config: dict[str, Any]) -> None:
         from scenefab.services.ai.infra import LRUCache
 
         self.config = config

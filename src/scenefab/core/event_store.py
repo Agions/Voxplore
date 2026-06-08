@@ -121,7 +121,7 @@ class EventStore(ABC):
 class InMemoryEventStore(EventStore):
     """内存事件存储（基于 EventLog）"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._log = EventLog(max_size=100000)
         self._lock = threading.RLock()
 
@@ -188,7 +188,7 @@ class InMemoryEventStore(EventStore):
 class SQLiteEventStore(EventStore):
     """SQLite 事件存储（v2.1 - 持久化，支持大事件量）"""
 
-    def __init__(self, db_path: str | Path = "~/.cache/scenefab/event_store.db"):
+    def __init__(self, db_path: str | Path = "~/.cache/scenefab/event_store.db") -> None:
         self._db_path = Path(db_path).expanduser()
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()

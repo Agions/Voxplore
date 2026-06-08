@@ -38,7 +38,7 @@ class BaseAIService:
     提供公共的重试、错误处理和统计逻辑
     """
 
-    def __init__(self, name: str, config: dict[str, Any]):
+    def __init__(self, name: str, config: dict[str, Any]) -> None:
         self.name = config.get("name", name)
         self.enabled = config.get("enabled", False)
         self.api_key = config.get("api_key", "")
@@ -50,14 +50,14 @@ class BaseAIService:
             "total_time": 0.0,
         }
 
-    def _record_stats(self, response_time: float, error: bool = False):
+    def _record_stats(self, response_time: float, error: bool = False) -> None:
         """记录请求统计"""
         self._stats["requests"] += 1
         if error:
             self._stats["errors"] += 1
         self._stats["total_time"] += response_time
 
-    def _handle_error(self, error: Exception, context: str = ""):
+    def _handle_error(self, error: Exception, context: str = "") -> None:
         """统一错误处理"""
         logger.error(f"{context} failed: {error}")
         self._stats["errors"] += 1

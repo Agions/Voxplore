@@ -25,7 +25,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
     适合用于 AI 解说和智能混剪场景。
     """
 
-    def __init__(self, config: AnalysisConfig | None = None):
+    def __init__(self, config: AnalysisConfig | None = None) -> None:
         """
         初始化场景分析器 V2
 

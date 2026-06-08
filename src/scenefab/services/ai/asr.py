@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class ASRService:
     """ASR 语音识别服务"""
 
-    def __init__(self, config: dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None) -> None:
         from scenefab.services.ai.infra import PersistentCache
 
         self.config = config or {}

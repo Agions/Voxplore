@@ -36,7 +36,7 @@ class ProviderRegistry:
 
     _instance: "ProviderRegistry | None" = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._vision_providers: dict[str, VisionProvider] = {}
         self._llm_providers: dict[str, LLMProvider] = {}
         self._tts_providers: dict[str, TTSProvider] = {}

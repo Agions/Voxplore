@@ -93,7 +93,7 @@ class SenseVoiceProvider:
     2. 回退到 librosa 声学特征分析（无需额外模型）
     """
 
-    def __init__(self, model_size: str = "large", device: str = "auto"):
+    def __init__(self, model_size: str = "large", device: str = "auto") -> None:
         self.model_size = model_size
         self.device = device
         self._model = None

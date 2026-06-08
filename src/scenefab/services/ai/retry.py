@@ -40,7 +40,7 @@ class RetryHandler:
         max_delay: float = 60.0,
         strategy: RetryStrategy = RetryStrategy.EXPONENTIAL,
         jitter: bool = True,
-    ):
+    ) -> None:
         """
         初始化重试处理器
 
@@ -114,7 +114,7 @@ class RateLimiter:
     实现令牌桶算法的异步速率限制。
     """
 
-    def __init__(self, rate: float, capacity: int):
+    def __init__(self, rate: float, capacity: int) -> None:
         """
         初始化速率限制器
 
@@ -185,7 +185,7 @@ class CircuitBreaker:
         failure_threshold: int = 5,
         recovery_timeout: float = 60.0,
         success_threshold: int = 2,
-    ):
+    ) -> None:
         """
         初始化熔断器
 

@@ -5,9 +5,11 @@ LLM 管理器
 统一管理所有 LLM 提供商，支持自动切换和负载均衡
 """
 
+from __future__ import annotations
+
 import logging
 from collections.abc import AsyncIterator
-from typing import Any
+from typing import Any, Self
 
 from .base_llm_provider import (
     BaseLLMProvider,
@@ -52,13 +54,13 @@ class LLMManager:
     3. 配置驱动
     """
 
-    def __init__(self, config: dict[str, Any]):
+    def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.providers: dict[ProviderType, BaseLLMProvider] = {}
         self._default_provider: ProviderType | None = None
         self._init_providers()
 
-    def _init_providers(self):
+    def _init_providers(self) -> None:
         """初始化所有提供商"""
         llm_config = self.config.get("LLM", {})
 
@@ -202,7 +204,7 @@ class LLMManager:
                     logger.warning(f"Provider {p} 流式也失败: {e}")
         raise ProviderError("所有 Provider 流式都失败")
 
-    async def close_all(self):
+    async def close_all(self) -> None:
         """关闭所有 Provider 连接"""
         for provider in self.providers.values():
             await provider.close()
@@ -224,10 +226,10 @@ class LLMManager:
         response = self.generate_sync(request, provider)
         return response.content
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, _exc_type, _exc_val, _exc_tb):
+    async def __aexit__(self, _exc_type, _exc_val, _exc_tb) -> None:
         await self.close_all()
 
 

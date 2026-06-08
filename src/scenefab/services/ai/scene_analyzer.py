@@ -41,7 +41,7 @@ class SceneAnalyzer:
     优先使用 PySceneDetect（更准确），回退到 FFmpeg 方法。
     """
 
-    def __init__(self, config: AnalysisConfig | None = None):
+    def __init__(self, config: AnalysisConfig | None = None) -> None:
         self.config = config or AnalysisConfig()
         self._pyscenect_available = self._check_pyscenect()
         self._executor = get_ffmpeg_executor()

@@ -85,7 +85,7 @@ class GeneratedScript:
     hook: str = ""                 # 开头钩子
     keywords: list[str] = field(default_factory=list)  # 关键词
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.word_count:
             self.word_count = len(self.content)
 

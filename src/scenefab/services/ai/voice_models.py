@@ -84,7 +84,7 @@ class GeneratedVoice:
     start_time: float = 0.0        # 片段起始时间(用于批量生成)
     sentence_timestamps: list[dict[str, Any]] = None  # 句子级时间戳
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.sentence_timestamps is None:
             self.sentence_timestamps = []
 

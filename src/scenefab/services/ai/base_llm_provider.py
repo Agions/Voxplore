@@ -59,7 +59,7 @@ class RequestCache:
     减少重复 API 调用
     """
 
-    def __init__(self, max_size: int = 1000, ttl: float = DEFAULT_CACHE_TTL):
+    def __init__(self, max_size: int = 1000, ttl: float = DEFAULT_CACHE_TTL) -> None:
         self.max_size = max_size
         self.ttl = ttl
         self._cache: dict[str, tuple] = {}  # key -> (value, expiry)
@@ -90,12 +90,12 @@ class RequestCache:
         self._misses += 1
         return None
 
-    async def set(self, request: LLMRequest, response: LLMResponse):
+    async def set(self, request: LLMRequest, response: LLMResponse) -> None:
         """缓存响应（通过 request 对象）"""
         key = self._make_key(request)
         await self.set_from_key(key, response)
 
-    async def set_from_key(self, key: str, response: LLMResponse):
+    async def set_from_key(self, key: str, response: LLMResponse) -> None:
         """缓存响应（通过缓存键）"""
         async with self._lock:
             # 清理过期项
@@ -107,7 +107,7 @@ class RequestCache:
             )
 
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         """清理过期缓存"""
         now = time.monotonic()
         expired = [k for k, (_, expiry) in self._cache.items() if now >= expiry]
@@ -123,7 +123,7 @@ class RequestCache:
             for k, _ in oldest:
                 del self._cache[k]
 
-    async def clear(self):
+    async def clear(self) -> None:
         """清空缓存"""
         async with self._lock:
             self._cache.clear()
@@ -145,7 +145,7 @@ class RequestCache:
 class HTTPClientMixin:
     """HTTP客户端混入类 - 提供通用的HTTP请求功能"""
 
-    def __init__(self, api_key: str, base_url: str, timeout: float = 60.0):
+    def __init__(self, api_key: str, base_url: str, timeout: float = 60.0) -> None:
         self.api_key = api_key
         self.base_url = base_url
         self.timeout = timeout
@@ -158,7 +158,7 @@ class HTTPClientMixin:
             max_delay=DEFAULT_RETRY_MAX_DELAY
         )
 
-    def _init_http_client(self, headers: dict[str, str] | None = None):
+    def _init_http_client(self, headers: dict[str, str] | None = None) -> None:
         """初始化HTTP客户端"""
         merged_headers = {**self._default_headers}
         if headers:
@@ -176,7 +176,7 @@ class HTTPClientMixin:
             )
         )
 
-    async def _close_http_client(self):
+    async def _close_http_client(self) -> None:
         """关闭HTTP客户端"""
         if self.http_client:
             await self.http_client.aclose()
@@ -352,7 +352,7 @@ class ModelManagerMixin:
 class BaseLLMProvider(ABC):
     """LLM 提供商抽象基类"""
 
-    def __init__(self, api_key: str, base_url: str):
+    def __init__(self, api_key: str, base_url: str) -> None:
         """
         初始化提供商
 
@@ -504,7 +504,7 @@ class BaseLLMProvider(ABC):
         ]
 
 
-    async def close(self):
+    async def close(self) -> None:
         """关闭连接"""
         pass
 

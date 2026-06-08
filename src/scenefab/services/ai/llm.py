@@ -16,7 +16,7 @@ class LLMService:
     - 指数退避
     """
 
-    def __init__(self, config: dict[str, Any]):
+    def __init__(self, config: dict[str, Any]) -> None:
         from scenefab.services.ai.infra import CircuitBreaker, RateLimiter
 
         self.config = config

@@ -97,7 +97,7 @@ class EdgeTTSProvider(TTSProvider):
         ],
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             import edge_tts
             self.edge_tts = edge_tts
@@ -337,7 +337,7 @@ class OpenAITTSProvider(TTSProvider):
         "shimmer": "Shimmer - 清脆女声",
     }
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api_key = api_key
         try:
             from openai import OpenAI
@@ -408,7 +408,7 @@ class F5TTSProvider(TTSProvider):
         )
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._f5_tts = None
         self._available = False
         try:
