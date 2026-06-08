@@ -455,6 +455,30 @@ def is_safe_path(path: str | Path, allowed_bases: list[Path] | None = None) -> b
     return True
 
 
+# ══════════════════════════════════════════════════════════════
+# 异步版本（不改变现有 sync API）
+# ══════════════════════════════════════════════════════════════
+
+
+async def execute_async(
+    cmd: list[str],
+    timeout: float = 30.0,
+) -> int:
+    """
+    异步执行 ffmpeg/ffprobe 命令（非阻塞）。
+
+    Args:
+        cmd: 完整命令列表（第一个元素应为 ffmpeg/ffprobe）
+        timeout: 超时秒数
+
+    Returns:
+        returncode (0 表示成功)
+    """
+    from scenefab.utils.async_subprocess import run_subprocess
+    returncode, _, _ = await run_subprocess(cmd, timeout=timeout)
+    return returncode
+
+
 __all__ = [
     "SafeFFmpegCommand",
     "FFmpegResult",
@@ -462,4 +486,5 @@ __all__ = [
     "is_safe_path",
     "ALLOWED_CODECS",
     "ALLOWED_PRESETS",
+    "execute_async",
 ]

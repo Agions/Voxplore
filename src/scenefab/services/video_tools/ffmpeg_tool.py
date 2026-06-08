@@ -696,4 +696,30 @@ class FFmpegTool:
 
     # ========== 辅助方法 ==========
 
+    # ========== 异步 API（实验性） ==========
+
+    @staticmethod
+    async def run_async(
+        args: list[str],
+        timeout: float = 300.0,
+    ) -> int:
+        """
+        异步执行 ffmpeg 命令（非阻塞）。
+
+        示例:
+            await FFmpegTool.run_async(['-i', 'in.mp4', '-c:v', 'libx264', 'out.mp4'])
+        """
+        from scenefab.utils.async_subprocess import run_ffmpeg
+        return await run_ffmpeg(args, timeout=timeout)
+
+    @staticmethod
+    async def probe_async(
+        video_path: str | Path,
+        timeout: float = 30.0,
+    ) -> dict[str, str]:
+        """异步 ffprobe 探测视频元信息"""
+        from scenefab.utils.async_subprocess import run_ffprobe
+        return await run_ffprobe(video_path, timeout=timeout)
+
+
 __all__ = ["FFmpegTool", "HWAccelType"]
