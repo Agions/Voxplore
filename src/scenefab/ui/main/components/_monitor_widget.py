@@ -19,13 +19,13 @@ from PySide6.QtWidgets import (
 from scenefab.logger import Logger
 from scenefab.ui.main.components._progress_widget import ExportProgressWidget
 
-from ...components.design_system import Colors
 from ...export.export_system import ExportStatus, ExportTask
 from ...main.components.export_stats import ExportStatisticsWidget
 from ...main.components.monitor_widgets import PerformanceChart
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
-class ExportMonitorWidget(QWidget):
+class ExportMonitorWidget(QWidget, ThemeAwareMixin):
     """导出监控主部件"""
 
     def __init__(self, export_system, parent=None):
@@ -183,45 +183,28 @@ class ExportMonitorWidget(QWidget):
         except Exception as e:
             self.logger.warning(f"Cleanup failed: {e}")
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet(f"""
-                QGroupBox {{
-                    border: 1px solid {Colors.BorderDefault};
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                    color: {Colors.TextPrimary};
-                }}
-                QProgressBar {{
-                    border: 1px solid {Colors.BorderDefault};
-                    border-radius: 4px;
-                    text-align: center;
-                    background-color: {Colors.BgElevated};
-                }}
-                QProgressBar::chunk {{
-                    background-color: {Colors.Primary};
-                }}
-            """)
-        else:
-            self.setStyleSheet(f"""
-                QGroupBox {{
-                    border: 1px solid {Colors.BorderDefault};
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                    color: {Colors.TextPrimary};
-                }}
-                QProgressBar {{
-                    border: 1px solid {Colors.BorderDefault};
-                    border-radius: 4px;
-                    text-align: center;
-                    background-color: {Colors.BgSurface};
-                }}
-                QProgressBar::chunk {{
-                    background-color: {Colors.Primary};
-                }}
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        """返回主题样式表"""
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
+        progress_bg = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        return f"""
+            QGroupBox {{
+                border: 1px solid {border};
+                border-radius: 4px;
+                margin-top: 8px;
+                padding-top: 8px;
+                color: {text};
+            }}
+            QProgressBar {{
+                border: 1px solid {border};
+                border-radius: 4px;
+                text-align: center;
+                background-color: {progress_bg};
+            }}
+            QProgressBar::chunk {{
+                background-color: #388BFD;
+            }}
+        """
 
 

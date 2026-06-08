@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QToolButton
 
-from ..theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import Colors, FontSizes
 
 
 class TopBar(QFrame):

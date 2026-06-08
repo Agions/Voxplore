@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ..theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import Colors, FontSizes
 
 
 class ContentArea(QFrame):

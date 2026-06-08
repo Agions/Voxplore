@@ -6,7 +6,7 @@ from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout
 
-from ..theme.ds_tokens import Colors, Radii
+from scenefab.ui.theme.ds_tokens import Colors, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 导航配置

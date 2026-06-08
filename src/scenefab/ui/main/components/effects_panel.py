@@ -4,8 +4,10 @@
 
 from PySide6.QtWidgets import QLabel, QListWidget, QVBoxLayout, QWidget
 
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-class EffectsPanel(QWidget):
+
+class EffectsPanel(QWidget, ThemeAwareMixin):
     """特效面板组件"""
 
     def __init__(self, application):
@@ -71,33 +73,20 @@ class EffectsPanel(QWidget):
         # 清理预览
         self.preview_label.clear()
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #3a3a3a;
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                    color: #ffffff;
-                }
-                QListWidget {
-                    background-color: #1a1a1a;
-                    color: #ffffff;
-                }
-            """)
-        else:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #d0d0d0;
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                    color: #000000;
-                }
-                QListWidget {
-                    background-color: #ffffff;
-                    color: #000000;
-                }
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_LIGHT
+        text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
+        return f"""
+            QGroupBox {{
+                border: 1px solid {border};
+                border-radius: 4px;
+                margin-top: 8px;
+                padding-top: 8px;
+                color: {text};
+            }}
+            QListWidget {{
+                background-color: {bg};
+                color: {text};
+            }}
+        """

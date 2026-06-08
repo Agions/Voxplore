@@ -23,9 +23,10 @@ from PySide6.QtWidgets import (
 )
 
 from ...components.design_system import Colors
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
-class PropertiesPanel(QWidget):
+class PropertiesPanel(QWidget, ThemeAwareMixin):
     """属性面板"""
 
     property_changed = Signal(str, str, object)  # clip_id, property_name, value
@@ -235,35 +236,23 @@ class PropertiesPanel(QWidget):
     def cleanup(self):
         self.clear()
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet(f"""
-                QScrollArea {{
-                    background-color: {Colors.BgBase};
-                    border: none;
-                }}
-                QLabel {{
-                    color: {Colors.TextPrimary};
-                }}
-                QLineEdit, QSpinBox, QComboBox {{
-                    background-color: {Colors.BgElevated};
-                    color: {Colors.TextPrimary};
-                    border: 1px solid {Colors.BorderDefault};
-                }}
-            """)
-        else:
-            self.setStyleSheet(f"""
-                QScrollArea {{
-                    background-color: {Colors.BgSurface};
-                    border: none;
-                }}
-                QLabel {{
-                    color: {Colors.TextPrimary};
-                }}
-                QLineEdit, QSpinBox, QComboBox {{
-                    background-color: {Colors.BgSurface};
-                    color: {Colors.TextPrimary};
-                    border: 1px solid {Colors.BorderDefault};
-                }}
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        """返回主题样式表"""
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
+        input_bg = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        return f"""
+            QScrollArea {{
+                background-color: {bg};
+                border: none;
+            }}
+            QLabel {{
+                color: {text};
+            }}
+            QLineEdit, QSpinBox, QComboBox {{
+                background-color: {input_bg};
+                color: {text};
+                border: 1px solid {border};
+            }}
+        """

@@ -30,10 +30,11 @@ from scenefab.ui.main.components._tab_builders import (
 )
 
 from ...export.export_system import ExportPreset
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 from .export_format_selector import ExportSettingsDialog
 
 
-class ExportPanel(QWidget):
+class ExportPanel(QWidget, ThemeAwareMixin):
     """导出面板主类"""
 
     # 信号定义
@@ -442,32 +443,21 @@ class ExportPanel(QWidget):
         except Exception as e:
             self.logger.warning(f"Cleanup failed: {e}")
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #3a3a3a;
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                }
-                QTableWidget {
-                    background-color: #1a1a1a;
-                    alternate-background-color: #242424;
-                }
-            """)
-        else:
-            self.setStyleSheet("""
-                QGroupBox {
-                    border: 1px solid #d0d0d0;
-                    border-radius: 4px;
-                    margin-top: 8px;
-                    padding-top: 8px;
-                }
-                QTableWidget {
-                    background-color: #ffffff;
-                    alternate-background-color: #f5f5f5;
-                }
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        """返回主题样式表"""
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_LIGHT
+        alt_bg = ThemeColors.BG_SURFACE_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        return f"""
+            QGroupBox {{
+                border: 1px solid {border};
+                border-radius: 4px;
+                margin-top: 8px;
+                padding-top: 8px;
+            }}
+            QTableWidget {{
+                background-color: {bg};
+                alternate-background-color: {alt_bg};
+            }}
+        """
 

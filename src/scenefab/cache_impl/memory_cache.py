@@ -187,8 +187,8 @@ class MemoryCache(ICache):
         """
         with self._lock:
             total_size = sum(e.size_bytes for e in self._cache.values())
-            total_requests = self._hit_count + self._miss_count
-            hit_rate = self._hit_count / total_requests if total_requests > 0 else 0
+            from scenefab.cache_impl import calc_hit_rate
+            hit_rate = calc_hit_rate(self._hit_count, self._miss_count)
 
             return CacheStats(
                 total_entries=len(self._cache),

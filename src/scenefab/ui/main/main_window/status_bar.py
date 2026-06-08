@@ -5,7 +5,7 @@ from __future__ import annotations
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel
 
-from ..theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import Colors, FontSizes
 
 
 class StatusBar(QFrame):

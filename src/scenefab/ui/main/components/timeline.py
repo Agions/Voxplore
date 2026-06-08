@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...common.theme_mixin import ThemeAwareMixin, ThemeColors
 from ...components.design_system import Colors
 
 
@@ -203,7 +204,7 @@ class TimelineRuler(QWidget):
         painter.end()
 
 
-class Timeline(QWidget):
+class Timeline(QWidget, ThemeAwareMixin):
     """多轨时间线编辑器"""
 
     clip_selected = Signal(str)  # clip_id
@@ -355,6 +356,6 @@ class Timeline(QWidget):
         for t in self._tracks:
             t.clear_clips()
 
-    def update_theme(self, is_dark: bool = True):
-        bg = Colors.BgBase if is_dark else Colors.BgSurface
-        self.setStyleSheet(f"background-color: {bg};")
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        return f"background-color: {bg};"

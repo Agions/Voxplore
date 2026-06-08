@@ -6,7 +6,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout
 
-from ..theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import Colors, FontSizes
 
 
 class PropertiesPanel(QFrame):

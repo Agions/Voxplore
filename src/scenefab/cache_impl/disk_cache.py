@@ -194,8 +194,8 @@ class DiskCache(ICache):
             total_size += cache_file.stat().st_size
             total_entries += 1
 
-        total_requests = self._hit_count + self._miss_count
-        hit_rate = self._hit_count / total_requests if total_requests > 0 else 0
+        from scenefab.cache_impl import calc_hit_rate
+        hit_rate = calc_hit_rate(self._hit_count, self._miss_count)
 
         return CacheStats(
             total_entries=total_entries,

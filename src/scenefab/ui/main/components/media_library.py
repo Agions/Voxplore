@@ -5,8 +5,10 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
 
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-class MediaLibrary(QWidget):
+
+class MediaLibrary(QWidget, ThemeAwareMixin):
     """媒体库组件"""
 
     # 信号定义
@@ -101,27 +103,18 @@ class MediaLibrary(QWidget):
         # 停止所有加载任务
         self.load_tasks.clear()
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet("""
-                QListWidget {
-                    background-color: #1a1a1a;
-                    color: #ffffff;
-                    border: 1px solid #3a3a3a;
-                }
-                QListWidget::item:selected {
-                    background-color: #2962FF;
-                }
-            """)
-        else:
-            self.setStyleSheet("""
-                QListWidget {
-                    background-color: #ffffff;
-                    color: #000000;
-                    border: 1px solid #d0d0d0;
-                }
-                QListWidget::item:selected {
-                    background-color: #2196F3;
-                }
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_LIGHT
+        text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        selected = "#2962FF" if is_dark else "#2196F3"
+        return f"""
+            QListWidget {{
+                background-color: {bg};
+                color: {text};
+                border: 1px solid {border};
+            }}
+            QListWidget::item:selected {{
+                background-color: {selected};
+            }}
+        """

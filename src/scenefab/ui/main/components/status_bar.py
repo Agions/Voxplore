@@ -4,11 +4,12 @@
 
 
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QLabel, QProgressBar, QStatusBar
 
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-class StatusBar(QStatusBar):
+
+class StatusBar(QStatusBar, ThemeAwareMixin):
     """状态栏组件"""
 
     def __init__(self):
@@ -32,6 +33,7 @@ class StatusBar(QStatusBar):
 
         # 创建状态标签
         self.status_label = QLabel("就绪")
+        self.status_label.setObjectName("status_text")
         self.status_label.setStyleSheet("""
             QLabel {
                 color: #FFFFFF;
@@ -46,6 +48,7 @@ class StatusBar(QStatusBar):
 
         # 创建项目标签
         self.project_label = QLabel("未打开项目")
+        self.project_label.setObjectName("project_info")
         self.project_label.setStyleSheet("""
             QLabel {
                 color: #CCCCCC;
@@ -60,6 +63,7 @@ class StatusBar(QStatusBar):
 
         # 创建内存标签
         self.memory_label = QLabel("内存: -- MB")
+        self.memory_label.setObjectName("memory_info")
         self.memory_label.setStyleSheet("""
             QLabel {
                 color: #CCCCCC;
@@ -228,45 +232,28 @@ class StatusBar(QStatusBar):
                 }
             """)
 
-    def update_theme(self, is_dark: bool = True) -> None:
-        """更新主题"""
-        if is_dark:
-            bg_color = QColor(30, 30, 30)
-            text_color = QColor(255, 255, 255)
-            secondary_color = QColor(200, 200, 200)
-        else:
-            bg_color = QColor(245, 245, 245)
-            text_color = QColor(33, 33, 33)
-            secondary_color = QColor(100, 100, 100)
-
-        # 更新状态栏背景
-        self.setStyleSheet(f"""
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        """返回主题样式表"""
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
+        secondary = ThemeColors.TEXT_SECONDARY_DARK if is_dark else ThemeColors.TEXT_SECONDARY_LIGHT
+        border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        return f"""
             QStatusBar {{
-                background-color: {bg_color.name()};
-                color: {text_color.name()};
-                border-top: 1px solid {secondary_color.name()};
+                background-color: {bg};
+                color: {text};
+                border-top: 1px solid {border};
             }}
-        """)
-
-        # 更新标签颜色
-        for widget in [self.status_label, self.project_label, self.memory_label]:
-            if widget:
-                if widget == self.status_label:
-                    widget.setStyleSheet(f"""
-                        QLabel {{
-                            color: {text_color.name()};
-                            font-size: 12px;
-                            padding: 2px 8px;
-                        }}
-                    """)
-                else:
-                    widget.setStyleSheet(f"""
-                        QLabel {{
-                            color: {secondary_color.name()};
-                            font-size: 11px;
-                            padding: 2px 8px;
-                        }}
-                    """)
+            QStatusBar QLabel {{
+                font-size: 11px;
+                padding: 2px 8px;
+                color: {secondary};
+            }}
+            QStatusBar QLabel#status_text {{
+                font-size: 12px;
+                color: {text};
+            }}
+        """
 
     def clear_all_messages(self) -> None:
         """清除所有消息"""

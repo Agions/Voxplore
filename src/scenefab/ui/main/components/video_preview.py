@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...components.design_system import Colors
+from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -28,7 +29,7 @@ except ImportError:
     HAS_MULTIMEDIA = False
 
 
-class VideoPreview(QWidget):
+class VideoPreview(QWidget, ThemeAwareMixin):
     """视频预览播放器"""
 
     playback_position_changed = Signal(int)  # ms
@@ -196,35 +197,21 @@ class VideoPreview(QWidget):
             self._player.stop()
             self._player.setSource(QUrl())
 
-    def update_theme(self, is_dark: bool = True):
-        """更新主题"""
-        if is_dark:
-            self.setStyleSheet(f"""
-                QWidget {{
-                    background-color: {Colors.BgBase};
-                }}
-                QSlider::groove:horizontal {{
-                    background: {Colors.BgElevated};
-                    height: 4px;
-                }}
-                QSlider::handle:horizontal {{
-                    background: {Colors.Primary};
-                    width: 14px;
-                    margin: -5px 0;
-                }}
-            """)
-        else:
-            self.setStyleSheet(f"""
-                QWidget {{
-                    background-color: {Colors.BgSurface};
-                }}
-                QSlider::groove:horizontal {{
-                    background: {Colors.BorderDefault};
-                    height: 4px;
-                }}
-                QSlider::handle:horizontal {{
-                    background: {Colors.Primary};
-                    width: 14px;
-                    margin: -5px 0;
-                }}
-            """)
+    def _get_theme_stylesheet(self, is_dark: bool) -> str:
+        """返回主题样式表"""
+        bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        groove = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BORDER_LIGHT
+        return f"""
+            QWidget {{
+                background-color: {bg};
+            }}
+            QSlider::groove:horizontal {{
+                background: {groove};
+                height: 4px;
+            }}
+            QSlider::handle:horizontal {{
+                background: #388BFD;
+                width: 14px;
+                margin: -5px 0;
+            }}
+        """
