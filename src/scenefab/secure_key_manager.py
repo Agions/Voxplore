@@ -50,7 +50,7 @@ class SecureKeyManager:
         """初始化系统密钥库"""
         try:
             # 遍历该平台的所有后端，按优先级尝试
-            for backend_path, class_name, fallback_name in self._KEYRING_BACKENDS.get(platform.system(), []):
+            for backend_path, class_name, _fallback_name in self._KEYRING_BACKENDS.get(platform.system(), []):
                 try:
                     module = __import__(backend_path, fromlist=[class_name])
                     keyring_class = getattr(module, class_name)

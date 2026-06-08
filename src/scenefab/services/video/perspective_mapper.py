@@ -66,7 +66,7 @@ class PerspectiveMapper:
             emotion_curve = [0.3] * max(len(narration_segments), 1)
 
         shots = []
-        for i, (scene, narration) in enumerate(zip(scenes, narration_segments)):
+        for i, (scene, narration) in enumerate(zip(scenes, narration_segments, strict=False)):
             # 提取视角锚点
             viewpoint = self._extract_viewpoint(scene, video_keyframes, i)
 

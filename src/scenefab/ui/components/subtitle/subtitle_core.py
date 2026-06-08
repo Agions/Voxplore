@@ -342,10 +342,7 @@ class MultiTrackSubtitleEditor:
 
     def remove_block(self, block_id: str) -> bool:
         """移除字幕块"""
-        for track in self.tracks:
-            if track.remove_block(block_id):
-                return True
-        return False
+        return any(track.remove_block(block_id) for track in self.tracks)
 
     def get_block(self, block_id: str) -> SubtitleBlock | None:
         """获取字幕块"""

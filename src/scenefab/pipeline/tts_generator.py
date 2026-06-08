@@ -61,7 +61,7 @@ class TTSGenerator:
         ]
         rates = []
 
-        for i, narration in enumerate(narrations):
+        for _i, narration in enumerate(narrations):
             duration = narration.end_time - narration.start_time
             text_duration = len(narration.text) / 5.0
             rate = max(0.5, min(2.0, text_duration / duration))
@@ -76,7 +76,7 @@ class TTSGenerator:
             return wrapper
 
         # 使用流式批量生成
-        items = [(text, path, voice) for text, path in zip(texts, output_paths)]
+        items = [(text, path, voice) for text, path in zip(texts, output_paths, strict=False)]
 
         if hasattr(self.tts, 'generate_batch_streaming'):
             # 使用新的流式异步方法

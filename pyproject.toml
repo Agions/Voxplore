@@ -133,33 +133,26 @@ output-format = "grouped"
 select = ["E", "F", "N", "W", "B", "C4", "SIM", "I", "UP"]
 ignore = [
     "E501",   # line too long (handled by formatter)
-    "F401",   # unused import (many intentional in __init__.py)
-    "F811",   # redefinition of name (compat layers)
     "E402",   # module-level import not at top of file (conditional imports)
-    "N802",   # invalid function name (Qt conventions)
-    "B904",   # raise from lack of exception context
-    "B007",   # unused loop control variable
-    "SIM102",  # nested if statements (readability preference)
-    "SIM108",  # ternary operator (readability preference)
-    "SIM103",  # simplify condition (readability preference)
-    "SIM105",  # use contextlib.suppress (readability preference)
-    "SIM110",  # use else to remove assignment (readability preference)
-    "SIM113",  # use enumerate() for index variable
-    "SIM117",  # nested with statements (readability preference)
-    "SIM118",  # use key in dict instead of key in dict.keys()
-    "W292",   # newline at end of file
-    "W293",   # blank line contains whitespace (legacy files)
-    "N999",   # invalid module name in test files
     "E401",   # multiple imports on one line
-    "N806",   # variable in function should be lowercase
-    "N812",   # imported as alias
-    "N815",   # invalid class name (Qt signal conventions)
-    "N817",   # CamelCase imported as acronym
+    "N802",   # invalid function name (Qt conventions: paintEvent, etc.)
+    "N806",   # variable in function should be lowercase (Qt class names: QApplication, etc.)
+    "N812",   # imported as alias (Qt conventions)
+    "N815",   # invalid class attribute (Qt signal conventions: valueChanged, etc.)
+    "N817",   # CamelCase imported as acronym (Qt imports)
+    "N999",   # invalid module name in test files
+    "B904",   # raise from lack of exception context
     "B027",   # empty method body (abstract classes)
     "B024",   # abstract class without abstract method
-    "B905",   # zip without strict=True
-    "C408",   # unnecessary dict call
-    "C420",   # unnecessary dict comprehension
+    "W292",   # newline at end of file
+    "W293",   # blank line contains whitespace (legacy files)
+    "SIM102", # nested if statements (readability preference)
+    "SIM103", # simplify condition (readability preference)
+    "SIM105", # use contextlib.suppress (readability preference)
+    "SIM108", # ternary operator (readability preference)
+    "SIM110", # use else to remove assignment (readability preference)
+    "SIM113", # use enumerate() for index variable
+    "SIM117", # nested with statements (readability preference)
 ]
 
 [tool.isort]

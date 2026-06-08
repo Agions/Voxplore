@@ -223,7 +223,7 @@ class PlatformDataCollector:
         results = []
         now = datetime.now()
 
-        for i, vid in enumerate(video_ids):
+        for _i, vid in enumerate(video_ids):
             views = random.randint(100, 500000)
             metrics = VideoMetrics(
                 video_id=vid,

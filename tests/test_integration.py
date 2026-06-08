@@ -4,7 +4,6 @@
 """
 
 import os
-from typing import Optional
 
 import pytest
 
@@ -247,7 +246,7 @@ class TestScriptGeneratorIntegration:
             return None
 
         manager = LLMManager(
-            providers=dict(zip(provider_names, providers)),
+            providers=dict(zip(provider_names, providers, strict=False)),
             default_provider=provider_names[0]
         )
         return manager

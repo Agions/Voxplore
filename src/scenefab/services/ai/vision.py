@@ -128,7 +128,7 @@ class VisionService:
         with ThreadPoolExecutor(max_workers=4) as executor:
             future_to_idx = {
                 executor.submit(self.analyze_frame, frame, prompt): i
-                for i, (frame, prompt) in enumerate(zip(frames, prompts))
+                for i, (frame, prompt) in enumerate(zip(frames, prompts, strict=False))
             }
 
             for future in as_completed(future_to_idx):

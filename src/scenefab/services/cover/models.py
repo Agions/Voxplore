@@ -5,7 +5,6 @@ SceneFab 封面生成数据模型
 """
 
 from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass

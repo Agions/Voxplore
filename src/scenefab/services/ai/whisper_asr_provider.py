@@ -172,7 +172,7 @@ class WhisperASRProvider:
             audio_path,
             language=language if language != "auto" else None,
             vad_filter=vad_filter,
-            vad_parameters=dict(min_silence_duration_ms=500) if vad_filter else None,
+            vad_parameters={"min_silence_duration_ms": 500} if vad_filter else None,
             batch_size=self._batch_size,
         )
 

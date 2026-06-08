@@ -77,7 +77,7 @@ class StepIndicator(QFrame):
         self._apply_state(0)
 
     def _apply_state(self, current: int):
-        for i, name in enumerate(self.STEPS):
+        for i, _name in enumerate(self.STEPS):
             is_done  = i < current
             is_active = i == current
             is_pending = i > current  # noqa: F841  # used in style branch below

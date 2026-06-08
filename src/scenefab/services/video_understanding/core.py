@@ -6,7 +6,6 @@ SceneFab 长视频理解器核心逻辑
 
 import logging
 import time
-from typing import Any
 
 from scenefab.services.video_understanding.api_adapters import APIAdapterMixin
 from scenefab.services.video_understanding.models import (

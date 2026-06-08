@@ -132,7 +132,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
         # 如果解析失败，生成默认场景
         if not scenes:
-            for i, timestamp in enumerate(frame_timestamps):
+            for _i, _timestamp in enumerate(frame_timestamps):
                 scenes.append(
                     SceneAnalysis(
                         scene_id=str(uuid.uuid4()),

@@ -151,7 +151,7 @@ class ProjectTemplateManager(QObject):
         """计算目录大小"""
         try:
             total_size = 0
-            for dirpath, dirnames, filenames in os.walk(directory):
+            for dirpath, _dirnames, filenames in os.walk(directory):
                 for filename in filenames:
                     file_path = os.path.join(dirpath, filename)
                     if os.path.exists(file_path):

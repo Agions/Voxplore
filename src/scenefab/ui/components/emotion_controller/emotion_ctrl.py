@@ -389,7 +389,7 @@ class EmotionController(QWidget):
         # 调整曲线强度
         # 强度为 0.5 时保持原样，>0.5 增强，<0.5 减弱
         adjusted_curve = []
-        for i, value in enumerate(base_curve):
+        for _i, value in enumerate(base_curve):
             # 以 0.5 为中性点
             if self._current_intensity >= 0.5:
                 # 增强：向两端扩展

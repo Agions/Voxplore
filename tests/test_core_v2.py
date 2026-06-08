@@ -3,10 +3,7 @@
 v2.0 核心模块测试 — BaseWorker / Audit / Pipeline / FFmpeg / Batch / ShortDrama / Platform
 """
 
-import json
-import sqlite3
 import tempfile
-import threading
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -70,7 +67,7 @@ class TestBaseWorker:
 
 class TestAuditLogger:
     def test_log_entry(self):
-        from scenefab.core.audit import AuditEntry, AuditLogger
+        from scenefab.core.audit import AuditLogger
 
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test_audit.db"
@@ -120,9 +117,8 @@ class TestAuditLogger:
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test_audit.db"
             logger = AuditLogger(db_path=db_path)
-            with pytest.raises(ValueError):
-                with logger.track("test_exc", {}):
-                    raise ValueError("test error")
+            with pytest.raises(ValueError), logger.track("test_exc", {}):
+                raise ValueError("test error")
             entries = logger.query(action="test_exc", result="failure")
             assert len(entries) == 1
             assert "test error" in entries[0].error_message
@@ -288,7 +284,7 @@ class TestPipelineEngine:
 
 class TestSafeFFmpegCommand:
     def test_basic_build(self):
-        from scenefab.core.ffmpeg_safe import FFmpegSecurityError, SafeFFmpegCommand
+        from scenefab.core.ffmpeg_safe import SafeFFmpegCommand
 
         # 创建临时输入文件
         with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
@@ -394,7 +390,6 @@ class TestBatchProcessor:
             BatchConfig,
             BatchProcessor,
             BatchTask,
-            TaskStatus,
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -470,7 +465,6 @@ class TestBatchProcessor:
 
     def test_checkpoint_resume(self):
         from scenefab.core.batch_processor import (
-            BatchCheckpoint,
             BatchConfig,
             BatchProcessor,
             BatchTask,
@@ -611,7 +605,7 @@ class TestPlatformAdapter:
         assert not cfg.supports_vertical
 
     def test_smart_cropper_16_9_to_9_16(self):
-        from scenefab.core.platform_adapter import CropRegion, SmartCropper
+        from scenefab.core.platform_adapter import SmartCropper
 
         # 直接用 stub 替代，避免依赖 cv2 真实存在
         class StubCap:

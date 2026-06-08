@@ -150,29 +150,28 @@ class BatchCheckpoint:
 
     def save(self, task: BatchTask) -> None:
         """保存任务状态"""
-        with self._lock:
-            with self._connect() as conn:
-                conn.execute(
-                    """INSERT OR REPLACE INTO batch_checkpoint
+        with self._lock, self._connect() as conn:
+            conn.execute(
+                """INSERT OR REPLACE INTO batch_checkpoint
                     (task_id, status, progress, attempts, error, result_path,
                      completed_at, metadata)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (
-                        task.id,
-                        task.status.value,
-                        task.progress,
-                        task.attempts,
-                        task.error,
-                        str(task.result_path) if task.result_path else None,
-                        datetime.fromtimestamp(
-                            task.finished_at, timezone.utc
-                        ).isoformat()
-                        if task.finished_at
-                        else None,
-                        json.dumps(task.metadata, ensure_ascii=False),
-                    ),
-                )
-                conn.commit()
+                (
+                    task.id,
+                    task.status.value,
+                    task.progress,
+                    task.attempts,
+                    task.error,
+                    str(task.result_path) if task.result_path else None,
+                    datetime.fromtimestamp(
+                        task.finished_at, timezone.utc
+                    ).isoformat()
+                    if task.finished_at
+                    else None,
+                    json.dumps(task.metadata, ensure_ascii=False),
+                ),
+            )
+            conn.commit()
 
     def load(self, task_id: str) -> dict | None:
         with self._connect() as conn:
@@ -202,10 +201,9 @@ class BatchCheckpoint:
             return {r["task_id"] for r in rows}
 
     def clear(self) -> None:
-        with self._lock:
-            with self._connect() as conn:
-                conn.execute("DELETE FROM batch_checkpoint")
-                conn.commit()
+        with self._lock, self._connect() as conn:
+            conn.execute("DELETE FROM batch_checkpoint")
+            conn.commit()
 
 
 # ============================================
@@ -320,7 +318,7 @@ class BatchProcessor:
 
     def summary(self) -> dict:
         """获取任务执行摘要"""
-        statuses = {s: 0 for s in TaskStatus}
+        statuses = dict.fromkeys(TaskStatus, 0)
         for task in self.config.tasks:
             statuses[task.status] += 1
         return {

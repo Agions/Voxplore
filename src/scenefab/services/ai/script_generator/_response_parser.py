@@ -63,7 +63,7 @@ def parse_batch_response(
     content = content.strip()
 
     scripts = []
-    for i, (topic, config) in enumerate(batch):
+    for i, (_topic, config) in enumerate(batch):
         segment = extract_segment(content, i + 1, config)
         if segment:
             script = parse_response(segment, config)
@@ -131,7 +131,7 @@ def split_to_captions(
         segment_words = len(segment.content.replace(' ', ''))
 
         current_text = ""
-        for i, part in enumerate(sentences):
+        for _i, part in enumerate(sentences):
             if not part:
                 continue
 

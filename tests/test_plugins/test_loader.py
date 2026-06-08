@@ -2,9 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from scenefab.plugins.interfaces.base import PluginManifest, PluginType
+from scenefab.plugins.interfaces.base import PluginType
 from scenefab.plugins.loader import PluginLoader
 
 

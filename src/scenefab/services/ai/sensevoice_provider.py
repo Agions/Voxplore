@@ -509,7 +509,7 @@ class SenseVoiceProvider:
         if in_silence:
             seg_start = float(times[0])
 
-        for i, (t, energy) in enumerate(zip(times, rms)):
+        for i, (t, energy) in enumerate(zip(times, rms, strict=False)):
             is_silence = energy < threshold
             if is_silence and not in_silence:
                 seg_start = float(t)
@@ -540,7 +540,7 @@ class SenseVoiceProvider:
         burst_threshold = mean_energy + 2 * std_energy
 
         in_burst = False
-        for i, (t, energy) in enumerate(zip(times, rms)):
+        for i, (t, energy) in enumerate(zip(times, rms, strict=False)):
             is_burst = energy > burst_threshold
             if is_burst and not in_burst:
                 seg_start = float(t)

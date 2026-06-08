@@ -180,7 +180,7 @@ class PerformanceMonitor:
                 # 返回所有
                 return {
                     name: self.get_stats(name)
-                    for name in self._metrics.keys()
+                    for name in self._metrics
                 }
 
     def reset(self):

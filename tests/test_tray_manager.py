@@ -16,7 +16,6 @@ from scenefab.settings_data import get_all_settings_definitions  # noqa: E402
 
 def test_tray_setting_default_is_false():
     """测试托盘功能默认禁用"""
-    from scenefab.settings_data import get_all_settings_definitions
 
     defs = get_all_settings_definitions()
     assert "ui.minimize_to_tray" in defs, "ui.minimize_to_tray 配置项必须存在"
@@ -30,7 +29,6 @@ def test_tray_setting_default_is_false():
 
 def test_tray_setting_in_all_definitions():
     """测试配置项已注册到全局字典"""
-    from scenefab.settings_data import get_all_settings_definitions
 
     defs = get_all_settings_definitions()
     assert "ui.minimize_to_tray" in defs
@@ -57,7 +55,7 @@ def test_tray_manager_module_syntax():
 
 
 def test_main_window_module_syntax():
-    """测试 main_window.py 语法正确"""
+    """测试 main_window 包语法正确"""
     import py_compile
 
     py_compile.compile(
@@ -68,7 +66,8 @@ def test_main_window_module_syntax():
             "scenefab",
             "ui",
             "main",
-            "main_window.py",
+            "main_window",
+            "__init__.py",
         ),
         doraise=True,
     )

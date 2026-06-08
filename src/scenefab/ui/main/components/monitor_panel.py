@@ -242,7 +242,7 @@ class AIMonitorPanel(QWidget):
             services = self.ai_service_manager.get_all_services()
             self.services_table.setRowCount(len(services))
 
-            for row, (service_name, service) in enumerate(services.items()):
+            for row, (service_name, _service) in enumerate(services.items()):
                 health = self.ai_service_manager.get_service_health(service_name)
                 stats = self.ai_service_manager.get_usage_stats(service_name)
 

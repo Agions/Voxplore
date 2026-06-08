@@ -1,6 +1,5 @@
 """Tests for app.core._signals - PySide6 compatibility bridge"""
 
-import pytest
 
 
 class TestSignalsBridge:

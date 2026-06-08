@@ -298,14 +298,13 @@ class AuditLogger:
             cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
             before_timestamp = cutoff
 
-        with self._lock:
-            with self._connect() as conn:
-                cursor = conn.execute(
-                    "DELETE FROM audit_log WHERE timestamp < ?",
-                    (before_timestamp,),
-                )
-                conn.commit()
-                return cursor.rowcount
+        with self._lock, self._connect() as conn:
+            cursor = conn.execute(
+                "DELETE FROM audit_log WHERE timestamp < ?",
+                (before_timestamp,),
+            )
+            conn.commit()
+            return cursor.rowcount
 
 
 __all__ = [

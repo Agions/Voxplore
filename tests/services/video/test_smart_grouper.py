@@ -86,7 +86,7 @@ class TestSmartGrouper:
 
         # 相同场景的视觉 embedding（高度相似）
         same_embedding = [0.1] * 128
-        vision_embeddings = {vp: same_embedding for vp in video_paths}
+        vision_embeddings = dict.fromkeys(video_paths, same_embedding)
         audio_embeddings = {vp: [0.2] * 64 for vp in video_paths}
 
         grouper = SmartGrouper()

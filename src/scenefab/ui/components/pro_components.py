@@ -236,7 +236,7 @@ class StepIndicator(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        for i, step in enumerate(self._steps):
+        for i, _step in enumerate(self._steps):
             # 步骤节点
             node = QFrame()
             node.setFixedSize(32, 32)

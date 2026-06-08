@@ -1,7 +1,7 @@
 """Prompt construction helpers for script generation."""
 
-from ..script_models import ScriptConfig, ScriptStyle, VoiceTone
-from ._style_prompts import STYLE_PROMPTS, TONE_MAP
+from ..script_models import ScriptConfig
+from ._style_prompts import TONE_MAP
 
 
 def build_prompt(topic: str, config: ScriptConfig) -> str:

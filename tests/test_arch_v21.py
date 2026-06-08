@@ -16,25 +16,18 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-import threading
 import time
-from typing import Any
 
 import pytest
 
 from scenefab.core.event_types import (
-    DomainEvent,
-    FFmpegExecuted,
-    LLMTokenGenerated,
     PipelineCompleted,
     PipelineStarted,
     PipelineStepCompleted,
     TaskCreated,
-    TaskProgressUpdated,
     TaskStatusChanged,
 )
 from scenefab.core.unified_event_bus import (
-    EventLog,
     UnifiedEventBus,
     get_event_bus,
     set_event_bus,
@@ -171,7 +164,6 @@ class TestV1XCompatibility:
         received = []
         compat_event_bus.clear_handlers()
         compat_event_bus.subscribe("v1x.test", lambda d: received.append(d))
-        from scenefab.core.unified_event_bus import get_event_bus
         get_event_bus().publish("v1x.test", {"y": 1})
         time.sleep(0.05)
         assert received == [{"y": 1}]
@@ -218,7 +210,6 @@ class TestUnifiedTask:
     def test_terminal_states_block_further_transitions(self):
         from scenefab.core.task_model import (
             IllegalTransitionError,
-            TaskStatus,
             UnifiedTask,
         )
         t = UnifiedTask()
@@ -580,7 +571,6 @@ class TestTaskManagerV21Integration:
     """v1.x TaskManager 桥接到 v2.1 事件总线"""
 
     def test_create_task_publishes_event(self):
-        from scenefab.core.event_types import TaskCreated
         from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
         bus = UnifiedEventBus()
         bus.clear_log()

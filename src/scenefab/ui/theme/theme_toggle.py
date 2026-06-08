@@ -109,13 +109,13 @@ class ThemeToggleButton(QWidget):
 
         # 深色主题组
         dark_group = self._menu.addMenu("🌙 深色主题")
-        for name in ThemePresets.DARK_THEMES.keys():
+        for name in ThemePresets.DARK_THEMES:
             action = dark_group.addAction(name)
             action.triggered.connect(lambda checked, n=name: self._select_theme(n, True))
 
         # 浅色主题组
         light_group = self._menu.addMenu("☀️ 浅色主题")
-        for name in ThemePresets.LIGHT_THEMES.keys():
+        for name in ThemePresets.LIGHT_THEMES:
             action = light_group.addAction(name)
             action.triggered.connect(lambda checked, n=name: self._select_theme(n, False))
 
