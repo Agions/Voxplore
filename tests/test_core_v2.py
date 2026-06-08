@@ -239,7 +239,7 @@ class TestPipelineEngine:
             PipelineStep(id="after", func=should_skip, dependencies=["fail"])
         )
 
-        result = engine.run({})
+        engine.run({})
         summary = engine.summary()
         assert summary["failed"] == 1
         assert summary["skipped"] == 1
@@ -522,7 +522,7 @@ class TestBatchProcessor:
                 parallel_count=1,
                 checkpoint_path=cp_path,
             )
-            processor2 = BatchProcessor(config2, pipeline_factory=MockPipeline)
+            BatchProcessor(config2, pipeline_factory=MockPipeline)
             assert tasks2[0].status.value == "completed"  # 已恢复
 
 
