@@ -15,8 +15,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..design_system import Colors
-from ..pro_components import GradientButton
+from .design_system import Colors
+from .pro_components import GradientButton
 
 
 class QuickActionCard(QFrame):

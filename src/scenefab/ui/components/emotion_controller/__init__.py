@@ -12,7 +12,7 @@ Emotion Controller Component
 
 from .curve_wgt import EmotionCurveWidget
 from .emotion_ctrl import EmotionController
-from .presets import EMOTION_PRESETS, EmotionPresetButton
+from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
 
 __all__ = [
     "EmotionController",

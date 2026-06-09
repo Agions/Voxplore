@@ -8,7 +8,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QTimer, Signal
 
 # OKLCH Design Token source — all ThemeColors must reference these.
-from .theme.tokens import COLORS, DARK_TOKENS, LIGHT_TOKENS
+from .tokens import COLORS, DARK_TOKENS, LIGHT_TOKENS
 
 
 def _oklch(key: str, mode: str = "dark") -> str:

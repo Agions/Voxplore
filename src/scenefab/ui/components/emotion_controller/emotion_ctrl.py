@@ -31,8 +31,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .curve_widget import EmotionCurveWidget
-from .presets import EMOTION_PRESETS, EmotionPresetButton
+from .curve_wgt import EmotionCurveWidget
+from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
 
 
 class EmotionController(QWidget):

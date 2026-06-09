@@ -18,9 +18,9 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
+from scenefab.services.export import ExportStatus, ExportTask
 
 from ...components.design_system import Colors
-from ...export.export_system import ExportStatus, ExportTask
 
 
 class ExportProgressWidget(QWidget):

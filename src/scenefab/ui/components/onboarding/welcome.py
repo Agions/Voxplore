@@ -7,7 +7,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from ..components.design_system import Colors
+from scenefab.ui.components.design_system import Colors
 
 # OKLCH色彩系统 - 使用design_system的Colors类
 # QColor不支持oklch()，paintEvent中直接使用hex fallback

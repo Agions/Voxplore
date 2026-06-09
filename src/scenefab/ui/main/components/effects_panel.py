@@ -4,7 +4,7 @@
 
 from PySide6.QtWidgets import QLabel, QListWidget, QVBoxLayout, QWidget
 
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
 class EffectsPanel(QWidget, ThemeAwareMixin):

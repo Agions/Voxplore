@@ -5,7 +5,7 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
 
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
 class MediaLibrary(QWidget, ThemeAwareMixin):

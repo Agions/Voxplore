@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...utils.security import get_ffmpeg_executor
+from scenefab.utils.security import get_ffmpeg_executor
 
 _video_executor = get_ffmpeg_executor()
 

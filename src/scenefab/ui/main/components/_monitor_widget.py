@@ -17,12 +17,12 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
+from scenefab.services.export import ExportStatus, ExportTask
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 from scenefab.ui.main.components._progress_widget import ExportProgressWidget
 
-from ...export.export_system import ExportStatus, ExportTask
 from ...main.components.export_stats import ExportStatisticsWidget
 from ...main.components.monitor_widgets import PerformanceChart
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
 class ExportMonitorWidget(QWidget, ThemeAwareMixin):

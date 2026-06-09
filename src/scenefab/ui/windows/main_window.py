@@ -11,8 +11,8 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.orchestration.pipeline_controller import PipelineController
+from scenefab.ui.components.step_indicator import StepIndicator
 
-from ...components.step_indicator import StepIndicator
 from .export_window import ExportWindow
 from .narration_window import NarrationWindow
 from .projects_window import ProjectsWindow

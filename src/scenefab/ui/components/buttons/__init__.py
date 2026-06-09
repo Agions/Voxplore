@@ -8,8 +8,8 @@ MacButton — REDESIGNED
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QPushButton
 
-from .common_styles import ButtonStyles
-from .common_styles import ColorPalette as CP
+from scenefab.ui.components.common_styles import ButtonStyles
+from scenefab.ui.components.common_styles import ColorPalette as CP
 
 
 class MacButton(QPushButton):

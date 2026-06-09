@@ -1,5 +1,5 @@
 """DeepSeek AI Generator Plugin for SceneFab"""
 
-from .deepseek_ai_generator import DeepSeekAIPlugin
+from .deepseek_gen import DeepSeekAIGeneratorPlugin as DeepSeekAIPlugin
 
 __all__ = ["DeepSeekAIPlugin"]

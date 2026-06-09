@@ -5,7 +5,7 @@
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QLabel, QProgressBar, QStatusBar
 
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 
 class StatusBar(QStatusBar, ThemeAwareMixin):

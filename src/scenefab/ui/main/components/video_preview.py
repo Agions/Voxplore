@@ -18,8 +18,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
+
 from ...components.design_system import Colors
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer

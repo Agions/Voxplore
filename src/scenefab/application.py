@@ -431,7 +431,7 @@ class Application(QObject):
     def _init_icon_manager(self) -> bool:
         """初始化图标管理器"""
         try:
-            from .icon_manager import init_icon_manager
+            from scenefab.ui.icon_manager import init_icon_manager
 
             # 初始化图标管理器 - 现在它可以处理QApplication不存在的情况
             icon_manager = init_icon_manager("resources/icons")
@@ -449,7 +449,7 @@ class Application(QObject):
         """初始化其他服务"""
         try:
             # 使用已存在的服务代替
-            from ..services import get_ai_service_manager
+            from scenefab.services.service_manager import get_ai_service_manager
 
             # 创建并注册AI服务管理器
             ai_service_manager = get_ai_service_manager()

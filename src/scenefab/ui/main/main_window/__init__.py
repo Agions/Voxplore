@@ -83,8 +83,8 @@ class SceneFabMainWindow(QMainWindow):
         self.setStatusBar(self.statusbar)
 
     def _lazy_load_pages(self):
-        from ..main.pages.home_page import HomePage
-        from ..main.pages.settings_page import SettingsPage
+        from scenefab.ui.main.pages.home_page import HomePage
+        from scenefab.ui.main.pages.settings_page import SettingsPage
 
         self.content.add_page("home", HomePage())
         self.content.add_page("create", PlaceholderPage("创作台", "＋"))
@@ -102,7 +102,7 @@ class SceneFabMainWindow(QMainWindow):
     def _init_tray(self):
         """初始化系统托盘（始终可用，是否激活由设置决定）"""
         try:
-            from .tray_manager import get_tray_manager
+            from scenefab.ui.main.tray_manager import get_tray_manager
 
             self._tray = get_tray_manager()
             self._tray.show_window_requested.connect(self._restore_from_tray)

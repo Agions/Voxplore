@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
+from scenefab.services.export import ExportPreset
 from scenefab.ui.main.components._tab_builders import (
     build_batch_export_tab,
     build_presets_tab,
@@ -29,7 +30,6 @@ from scenefab.ui.main.components._tab_builders import (
     build_quick_export_tab,
 )
 
-from ...export.export_system import ExportPreset
 from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 from .export_format_selector import ExportSettingsDialog
 

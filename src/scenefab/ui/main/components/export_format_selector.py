@@ -20,8 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
-
-from ....export.export_system import ExportPreset
+from scenefab.services.export import ExportPreset
 
 
 class ExportSettingsDialog(QDialog):

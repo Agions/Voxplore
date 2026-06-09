@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..components.design_system import Colors
+from scenefab.ui.components.design_system import Colors
 
 
 class MacScrollArea(QScrollArea):

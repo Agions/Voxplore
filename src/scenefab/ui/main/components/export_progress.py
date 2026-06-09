@@ -18,8 +18,7 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
-
-from ....export.export_system import ExportTask
+from scenefab.services.export import ExportTask
 
 
 class ExportQueueWidget(QWidget):

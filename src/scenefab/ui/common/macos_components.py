@@ -8,7 +8,7 @@ macOS 设计系统 - 通用组件库
 
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
-from .components.labels import MacBadge, MacLabel
+from scenefab.ui.components.labels import MacBadge, MacLabel
 
 
 def create_icon_text_row(
