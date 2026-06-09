@@ -10,11 +10,15 @@ from typing import Any
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QFileDialog,
     QHBoxLayout,
+    QLabel,
+    QLineEdit,
     QMessageBox,
     QPushButton,
+    QTableWidget,
     QTableWidgetItem,
     QTabWidget,
     QVBoxLayout,
@@ -47,6 +51,25 @@ class ExportPanel(QWidget, ThemeAwareMixin):
     export_progress = Signal(str, float)
     export_completed = Signal(str, str)
     export_failed = Signal(str, str)
+
+    # —— 类型存根 (Phase C-1 兜底) ——
+    # _tab_builders.build_*() 内部构造的子 widget, 通过 setup_ui 隐式挂到 self
+    # Phase D 修双实例化后此块可删除, 由真正的继承/组合提供静态类型.
+    tab_widget: QTabWidget
+    quick_export_tab: QWidget
+    batch_export_tab: QWidget
+    queue_tab: QWidget
+    presets_tab: QWidget
+    queue_widget: "ExportQueueWidget"  # type: ignore[name-defined]  # noqa: F821
+    project_name_label: QLabel
+    project_duration_label: QLabel
+    project_resolution_label: QLabel
+    preset_combo: QComboBox
+    batch_preset_combo: QComboBox
+    presets_table: QTableWidget
+    batch_projects_table: QTableWidget
+    output_path_edit: QLineEdit
+    batch_output_dir_edit: QLineEdit
 
     def __init__(self, application, parent=None):
         super().__init__(parent)
