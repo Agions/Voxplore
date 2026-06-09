@@ -46,6 +46,7 @@ class NarrationSegmentItem(QFrame):
         self._load_data()
 
     def _setup_ui(self):
+        """装配卡片 — 编排器, 委派到 _build_time_col / _build_text_col / _build_btn_col."""
         self.setObjectName("narrationSegmentCard")
         self.setFixedHeight(90)
         self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
@@ -54,19 +55,31 @@ class NarrationSegmentItem(QFrame):
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(12)
 
-        # 时间戳
+        layout.addWidget(self._build_time_label())
+        layout.addWidget(self._build_separator())
+        layout.addLayout(self._build_text_column(), 1)
+        layout.addLayout(self._build_action_column())
+
+        # 应用情感颜色
+        self._apply_emotion_badge_style()
+
+    def _build_time_label(self) -> QLabel:
+        """构建左侧时间戳标签."""
         time_label = QLabel(self._format_time(self.segment.start_time))
         time_label.setObjectName("timeLabel")
         time_label.setFixedWidth(70)
-        layout.addWidget(time_label)
+        return time_label
 
-        # 分隔线
+    @staticmethod
+    def _build_separator() -> QFrame:
+        """构建垂直分隔线."""
         sep = QFrame()
         sep.setFrameShape(QFrame.VLine)  # type: ignore[attr-defined]
         sep.setObjectName("separator")
-        layout.addWidget(sep)
+        return sep
 
-        # 文本内容
+    def _build_text_column(self) -> QVBoxLayout:
+        """构建文本列: 预览 + 情感/时长标签."""
         text_layout = QVBoxLayout()
         text_layout.setSpacing(4)
 
@@ -75,7 +88,6 @@ class NarrationSegmentItem(QFrame):
         self.text_preview.setWordWrap(True)
         text_layout.addWidget(self.text_preview)
 
-        # 情感和时长标签
         tag_layout = QHBoxLayout()
         tag_layout.setSpacing(6)
 
@@ -92,9 +104,10 @@ class NarrationSegmentItem(QFrame):
 
         tag_layout.addStretch()
         text_layout.addLayout(tag_layout)
-        layout.addLayout(text_layout, 1)
+        return text_layout
 
-        # 操作按钮
+    def _build_action_column(self) -> QVBoxLayout:
+        """构建操作列: 编辑/删除按钮."""
         btn_layout = QVBoxLayout()
         btn_layout.setSpacing(4)
 
@@ -110,9 +123,10 @@ class NarrationSegmentItem(QFrame):
         del_btn.clicked.connect(lambda: self.delete_requested.emit(self.segment_id))
         btn_layout.addWidget(del_btn)
 
-        layout.addLayout(btn_layout)
+        return btn_layout
 
-        # 应用情感颜色
+    def _apply_emotion_badge_style(self) -> None:
+        """应用情感颜色到 emotion_badge."""
         color = self.EMOTION_COLORS.get(self.segment.emotion, "#6366F1")
         self.emotion_badge.setStyleSheet(f"""
             background-color: {color}20;
