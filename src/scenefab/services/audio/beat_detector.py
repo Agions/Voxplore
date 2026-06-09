@@ -157,7 +157,7 @@ class BeatDetector:
         )
         # librosa 0.10+ 返回数组
         if hasattr(tempo, "__len__"):
-            result.bpm = float(tempo[0]) if len(tempo) > 0 else 0.0
+            result.bpm = float(tempo[0]) if len(tempo) > 0 else 0.0  # type: ignore[index]
         else:
             result.bpm = float(tempo)
 
@@ -363,7 +363,7 @@ class BeatDetector:
 
         return cutpoints
 
-    def sync_analysis(self, result: AudioAnalysisResult) -> dict[str, any]:
+    def sync_analysis(self, result: AudioAnalysisResult) -> dict[str, any]:  # type: ignore[valid-type]
         """
         生成节拍同步分析报告
 

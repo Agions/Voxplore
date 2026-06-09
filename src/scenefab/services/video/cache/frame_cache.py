@@ -114,7 +114,7 @@ class VideoFrameCache:
     def _estimate_frame_size(self, frame: np.ndarray) -> int:
         """估算帧内存大小"""
         if frame is None:
-            return 0
+            return 0  # type: ignore[unreachable]
         return int(frame.nbytes)
 
     def _generate_key(self, video_path: str, timestamp: float) -> str:
@@ -154,7 +154,7 @@ class VideoFrameCache:
     def set(self, key: str, frame: np.ndarray) -> bool:
         """存储帧"""
         if frame is None:
-            return False
+            return False  # type: ignore[unreachable]
 
         frame_size = self._estimate_frame_size(frame)
 

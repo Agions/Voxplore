@@ -232,7 +232,7 @@ class DIContainer:
             else:
                 instance = entry.instance
         elif entry.lifetime == ServiceLifetime.FACTORY:
-            instance = entry.factory()
+            instance = entry.factory()  # type: ignore[misc]
         else:
             instance = entry.instance  # type: ignore[unreachable]
         # 触发钩子

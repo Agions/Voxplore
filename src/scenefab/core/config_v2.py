@@ -40,12 +40,12 @@ try:
 except ImportError:
     _HAS_PYDANTIC_SETTINGS = False
 
-    def Field(*args, **kwargs):
+    def Field(*args, **kwargs):  # type: ignore[no-redef]
         return None
 
     BaseSettings = object
 
-    def SettingsConfigDict(**kwargs):
+    def SettingsConfigDict(**kwargs):  # type: ignore[no-redef]
         return {}
 
     def field_validator(*args, **kwargs):
@@ -57,7 +57,7 @@ except ImportError:
 
 # 在 pydantic-settings 存在时把 field_validator 指向 pydantic 版本
 if _HAS_PYDANTIC_SETTINGS:
-    field_validator = _pyd_field_validator  # type: ignore[misc,assignment]
+    field_validator = _pyd_field_validator  # type: ignore[unused-ignore, misc,assignment]
 
 
 logger = logging.getLogger(__name__)

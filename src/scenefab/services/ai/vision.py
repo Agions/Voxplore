@@ -134,9 +134,9 @@ class VisionService:
                     results[idx] = future.result()  # type: ignore[assignment]
                 except Exception as e:
                     logger.warning(f"Frame {idx} analysis failed: {e}")
-                    results[idx] = self._mock_result()
+                    results[idx] = self._mock_result()  # type: ignore[call-overload]
 
-        return results
+        return results  # type: ignore[return-value]
 
     def _parse_result(self, content: str) -> dict[str, Any]:
         is_first_person = "第一人称" in content or "POV" in content or "主观" in content

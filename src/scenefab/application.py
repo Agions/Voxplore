@@ -493,7 +493,7 @@ class Application(QObject):
             # 从 PySide6 QSettings 加载
             QSettings = __import__("PySide6.QtCore", fromlist=["QSettings"]).QSettings
             settings = QSettings("SceneFab", "Application")
-            self.logger.info("配置加载完成: %s keys", settings.allKeys().__len__())
+            self.logger.info("配置加载完成: %s keys", settings.allKeys().__len__())  # type: ignore[call-arg]
         except Exception as e:
             self.logger.error(f"配置加载失败: {e}")
 

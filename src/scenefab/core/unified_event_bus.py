@@ -387,7 +387,7 @@ class UnifiedEventBus:
         start = time.perf_counter()
         try:
             if entry.is_async:
-                coro = entry.handler(data)
+                coro = entry.handler(data)  # type: ignore[func-returns-value]
                 if self._async_loop and not self._async_loop.is_closed():
                     # 在主事件循环跑 async handler
                     future = asyncio.run_coroutine_threadsafe(coro, self._async_loop)  # type: ignore[var-annotated, arg-type]
@@ -422,7 +422,7 @@ class UnifiedEventBus:
 
     def _invoke_async(self, entry: _HandlerEntry, data: Any) -> None:
         try:
-            coro = entry.handler(data)
+            coro = entry.handler(data)  # type: ignore[func-returns-value]
             if self._async_loop and not self._async_loop.is_closed():
                 asyncio.run_coroutine_threadsafe(coro, self._async_loop).result(  # type: ignore[arg-type]
                     timeout=30

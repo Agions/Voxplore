@@ -123,7 +123,7 @@ class _GroupThumbItem(QFrame):
         self._remove_btn.setVisible(False)
         layout.addWidget(self._remove_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
-        self._name_label.mousePressEvent = self._on_mouse_press
+        self._name_label.mousePressEvent = self._on_mouse_press  # type: ignore[method-assign]
 
     def _on_mouse_press(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

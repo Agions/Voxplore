@@ -117,7 +117,7 @@ class SenseVoiceProvider:
         """检查是否可用"""
         # 优先检查 SenseVoice (ctranslate2)
         try:
-            import ctranslate2  # noqa: F401
+            import ctranslate2  # noqa: F401  # type: ignore[import-untyped]
 
             self._available = True
             logger.info("SenseVoice (ctranslate2) 可用")
@@ -128,7 +128,7 @@ class SenseVoiceProvider:
         # 回退到 librosa 方案
         try:
             import librosa  # noqa: F401
-            import scipy  # noqa: F401
+            import scipy  # noqa: F401  # type: ignore[import-untyped]
 
             self._available = True
             self._use_librosa_fallback = True
@@ -145,7 +145,7 @@ class SenseVoiceProvider:
     def load_model(self) -> None:
         """加载模型"""
         if self._model is not None:
-            return
+            return  # type: ignore[unreachable]
 
         if not self.check_available():
             raise RuntimeError("SenseVoice 依赖未安装")
@@ -278,9 +278,9 @@ class SenseVoiceProvider:
                 onset_env = librosa.onset.onset_strength(y=segment, sr=sr)
                 tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
                 tempo = (
-                    float(tempo)
+                    float(tempo)  # type: ignore[int]
                     if np.isscalar(tempo)
-                    else float(tempo[0])
+                    else float(tempo[0])  # type: ignore[index]
                     if len(tempo) > 0  # type: ignore[arg-type]
                     else 0
                 )
@@ -386,8 +386,8 @@ class SenseVoiceProvider:
         - 简化版本：不做聚类，只标注切换点
         """
         import librosa
-        from sklearn.cluster import KMeans
-        from sklearn.preprocessing import StandardScaler
+        from sklearn.cluster import KMeans  # type: ignore[import-untyped]
+        from sklearn.preprocessing import StandardScaler  # type: ignore[import-untyped]
 
         try:
             y, sr = librosa.load(audio_path, sr=16000, mono=True)

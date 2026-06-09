@@ -159,7 +159,7 @@ class SpeechSubtitleExtractor:
     ) -> list[SubtitleSegment]:
         """使用本地 faster-whisper 模型转录(CPU/GPU 自动检测)"""
         try:
-            from faster_whisper import WhisperModel
+            from faster_whisper import WhisperModel  # type: ignore[import-not-found]
         except ImportError:
             raise ImportError(
                 "本地 Faster-Whisper 需要安装: pip install faster-whisper"

@@ -246,7 +246,7 @@ class RateLimitError(ProviderError):
         if provider:
             details["provider"] = provider
 
-        super().__init__(
+        super().__init__(  # type: ignore[call-arg]
             message=message,
             provider=provider,
             details=details,
@@ -268,7 +268,7 @@ class CircuitOpenError(ProviderError):
         if provider:
             details["provider"] = provider
 
-        super().__init__(
+        super().__init__(  # type: ignore[call-arg]
             message=message,
             provider=provider,
             details=details,

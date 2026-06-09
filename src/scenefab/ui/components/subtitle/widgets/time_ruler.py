@@ -103,7 +103,7 @@ class TimeRulerWidget(QWidget):
                 # 绘制三角形标记
                 painter.setPen(QPen(QColor("#22D3EE"), 2))
                 painter.setBrush(QBrush(QColor("#22D3EE")))
-                painter.drawPolygon(
+                painter.drawPolygon(  # type: ignore[call-overload]
                     QPoint(int(pos_x) - 6, 0),
                     QPoint(int(pos_x) + 6, 0),
                     QPoint(int(pos_x), 8),

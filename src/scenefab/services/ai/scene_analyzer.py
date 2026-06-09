@@ -93,8 +93,14 @@ class SceneAnalyzer:
     def _detect_scenes_pyscenect(self, video_path: str) -> list[float]:
         """使用 PySceneDetect 检测场景变化"""
         try:
-            from scenedetect import SceneManager, open_video
-            from scenedetect.detectors import ContentDetector, ThresholdDetector
+            from scenedetect import (  # type: ignore[import-untyped]
+                SceneManager,
+                open_video,
+            )
+            from scenedetect.detectors import (  # type: ignore[import-untyped]
+                ContentDetector,
+                ThresholdDetector,
+            )
 
             video = open_video(video_path)
             scene_manager = SceneManager()
@@ -102,7 +108,9 @@ class SceneAnalyzer:
             threshold = self.config.scene_threshold
 
             if self.config.detector_type == "adaptive":
-                from scenedetect.detectors.adaptive_detector import AdaptiveDetector
+                from scenedetect.detectors.adaptive_detector import (
+                    AdaptiveDetector,  # type: ignore[import-untyped]
+                )
 
                 scene_manager.add_detector(
                     AdaptiveDetector(

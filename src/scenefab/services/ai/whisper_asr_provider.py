@@ -89,7 +89,7 @@ class WhisperASRProvider:
         """探测可用后端"""
         # 1. 优先: faster-whisper
         try:
-            import faster_whisper  # noqa: F401
+            import faster_whisper  # noqa: F401  # type: ignore[import-not-found]
 
             self._backend = "faster-whisper"  # type: ignore[assignment]
             logger.info(f"使用 faster-whisper ({self.model_size})")
@@ -99,7 +99,7 @@ class WhisperASRProvider:
 
         # 2. 回退: openai-whisper
         try:
-            import whisper  # noqa: F401
+            import whisper  # noqa: F401  # type: ignore[import-not-found]
 
             self._backend = "openai-whisper"  # type: ignore[assignment]
             logger.info(f"使用 openai-whisper ({self.model_size})")
@@ -150,9 +150,9 @@ class WhisperASRProvider:
         lang = language or self.language or "zh"
 
         if self._backend == "faster-whisper":
-            return self._transcribe_faster(audio_path, lang, vad_filter)
+            return self._transcribe_faster(audio_path, lang, vad_filter)  # type: ignore[unreachable]
         elif self._backend == "openai-whisper":
-            return self._transcribe_openai_whisper(audio_path, lang)
+            return self._transcribe_openai_whisper(audio_path, lang)  # type: ignore[unreachable]
         else:
             return self._transcribe_api(audio_path, lang)
 
@@ -277,7 +277,7 @@ class WhisperASRProvider:
             language=language,
         )
 
-    def stream_transcribe(self, audio_path: str) -> AsyncIterator[str]:
+    def stream_transcribe(self, audio_path: str) -> AsyncIterator[str]:  # type: ignore[misc]
         """
         流式转写（仅 faster-whisper 支持实时模式）
 
@@ -290,7 +290,7 @@ class WhisperASRProvider:
             yield result.text
             return
 
-        import faster_whisper
+        import faster_whisper  # type: ignore[unreachable]
 
         if self._model is None:
             self._model = faster_whisper.load_model(self.model_size, device="cpu")

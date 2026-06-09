@@ -66,7 +66,9 @@ class ASRService:
         def transcribe_one(args: tuple) -> tuple:
             path, lang, wts, model_name = args
             try:
-                from faster_whisper import WhisperModel
+                from faster_whisper import (
+                    WhisperModel,  # type: ignore[import-not-found]
+                )
 
                 model = WhisperModel(model_name, device="cpu", compute_type="int8")
                 segments, info = model.transcribe(
@@ -79,14 +81,14 @@ class ASRService:
                     result_segments.append(
                         {"start": seg.start, "end": seg.end, "text": seg.text.strip()}
                     )
-                return {
+                return {  # type: ignore[return-value]
                     "text": "".join(s["text"] for s in result_segments),
                     "segments": result_segments,
                     "language": info.language,
                 }
             except Exception as e:
                 logger.error(f"Batch transcription failed for {path}: {e}")
-                return None
+                return None  # type: ignore[return-value]
 
         args_list = [
             (path, language, word_timestamps, self.model_name) for path in audio_paths
@@ -101,7 +103,7 @@ class ASRService:
             for future in as_completed(future_to_idx):
                 idx = future_to_idx[future]
                 try:
-                    results[idx] = future.result()
+                    results[idx] = future.result()  # type: ignore[call-overload]
                 except Exception as e:
                     logger.error(f"Process failed for {audio_paths[idx]}: {e}")
                     results[idx] = None

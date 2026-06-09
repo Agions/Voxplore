@@ -81,7 +81,7 @@ class TemplateInfo:
             rating=data.get("rating", 0.0),
             download_count=data.get("download_count", 0),
             is_builtin=data.get("is_builtin", False),
-            project_type=ProjectType(data.get("project_type", "video_editing")),
+            project_type=ProjectType(data.get("project_type", "video_editing")),  # type: ignore[call-arg]
             requirements=data.get("requirements", {}),
         )
 

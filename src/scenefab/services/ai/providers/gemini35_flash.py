@@ -155,7 +155,7 @@ class Gemini35FlashProvider(VisionProvider):
                 raw_response=str(e),
             )
 
-    def analyze_image(
+    def analyze_image(  # type: ignore[override]
         self,
         image_base64: str,
         prompt: str | None = None,

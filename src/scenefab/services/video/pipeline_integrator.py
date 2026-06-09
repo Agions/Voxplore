@@ -360,7 +360,7 @@ class PipelineIntegrator(MonologueMaker):
             return timeline
         else:
             self._report_progress("完整流水线", 1.0)
-            return None
+            return None  # type: ignore[return-value]
 
     # ─────────────────────────────────────────────────────────────────
     # 便捷方法
@@ -488,16 +488,16 @@ def _add_interleave_attributes():
     if hasattr(MonologueSegment, "show_original"):
         return
 
-    MonologueSegment.show_original: bool = False  # type: ignore[attr-defined]
-    MonologueSegment.original_start: float | None = None  # type: ignore[attr-defined]
-    MonologueSegment.original_end: float | None = None  # type: ignore[attr-defined]
-    MonologueSegment.transition_type: TransitionType = TransitionType.CUT  # type: ignore[attr-defined]
-    MonologueSegment.zoom_factor: float = 1.0  # type: ignore[attr-defined]
+    MonologueSegment.show_original: bool = False  # type: ignore[misc, attr-defined]
+    MonologueSegment.original_start: float | None = None  # type: ignore[misc, attr-defined]
+    MonologueSegment.original_end: float | None = None  # type: ignore[misc, attr-defined]
+    MonologueSegment.transition_type: TransitionType = TransitionType.CUT  # type: ignore[misc, attr-defined]
+    MonologueSegment.zoom_factor: float = 1.0  # type: ignore[misc, attr-defined]
     MonologueSegment.highlight_box = None  # type: ignore[attr-defined]
-    MonologueSegment.narration_volume: float = 1.0  # type: ignore[attr-defined]
-    MonologueSegment.original_audio_volume: float = 0.0  # type: ignore[attr-defined]
-    MonologueSegment.interleave_subtitle: str = ""  # type: ignore[attr-defined]
-    MonologueSegment.subtitle_style: str = "cinematic"  # type: ignore[attr-defined]
+    MonologueSegment.narration_volume: float = 1.0  # type: ignore[misc, attr-defined]
+    MonologueSegment.original_audio_volume: float = 0.0  # type: ignore[misc, attr-defined]
+    MonologueSegment.interleave_subtitle: str = ""  # type: ignore[misc, attr-defined]
+    MonologueSegment.subtitle_style: str = "cinematic"  # type: ignore[misc, attr-defined]
 
 
 # 添加属性（模块加载时自动执行）

@@ -24,10 +24,10 @@ class NavigationButton(QPushButton):
     def _setup_ui(self) -> None:
         """设置UI - 仅配置结构，样式由QSS管理"""
         # 设置文本
-        if self.icon:
+        if self.icon:  # type: ignore[truthy-function]
             self.setText(f"{self.icon} {self.text}")
         else:
-            self.setText(self.text)
+            self.setText(self.text)  # type: ignore[unreachable]
 
         # 设置大小策略
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -263,7 +263,7 @@ def create_navigation_bar(items: list[NavigationItem] = None) -> NavigationBar: 
     nav_bar = NavigationBar()
 
     if items is None:
-        items = create_default_navigation_items()
+        items = create_default_navigation_items()  # type: ignore[unreachable]
 
     for item in items:
         nav_bar.add_navigation_item(item)

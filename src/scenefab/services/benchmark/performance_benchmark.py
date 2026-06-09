@@ -137,7 +137,7 @@ class PerformanceBenchmark:
         )
 
         # 仅运行 1 分钟和 10 分钟测试
-        quick_specs = [spec for spec in self.TEST_SPECS if spec["duration"] <= 600]
+        quick_specs = [spec for spec in self.TEST_SPECS if spec["duration"] <= 600]  # type: ignore[operator]
         for spec in quick_specs:
             logger.info(f"运行测试: {spec['name']}")
             metrics = self._run_single_test(spec)

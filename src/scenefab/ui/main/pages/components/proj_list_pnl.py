@@ -93,7 +93,7 @@ class ProjectsListPanel(QWidget):
         self._grid_layout.setSpacing(12)
         self._grid_layout.setContentsMargins(0, 0, 0, 0)
         self._scroll_area.setWidget(self._grid_widget)
-        card.layout().addWidget(self._scroll_area, 1)  # type: ignore[union-attr]
+        card.layout().addWidget(self._scroll_area, 1)  # type: ignore[call-arg, union-attr]
 
         layout.addWidget(card)
 
@@ -185,16 +185,16 @@ class ProjectsListPanel(QWidget):
     def _emit_project_selected(self, project_id: str):
         """发射项目选中信号"""
         if self.project_selected:
-            self.project_selected.emit(project_id)
+            self.project_selected.emit(project_id)  # type: ignore[unreachable]
 
     def _emit_edit(self, project_id: str):
         if self.project_edit_requested:
-            self.project_edit_requested.emit(project_id)
+            self.project_edit_requested.emit(project_id)  # type: ignore[unreachable]
 
     def _emit_export(self, project_id: str):
         if self.project_export_requested:
-            self.project_export_requested.emit(project_id)
+            self.project_export_requested.emit(project_id)  # type: ignore[unreachable]
 
     def _emit_delete(self, project_id: str):
         if self.project_delete_requested:
-            self.project_delete_requested.emit(project_id)
+            self.project_delete_requested.emit(project_id)  # type: ignore[unreachable]

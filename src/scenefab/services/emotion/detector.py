@@ -145,12 +145,12 @@ class EmotionDetector(FeatureExtractorsMixin):
             for future in as_completed(future_to_idx):
                 idx = future_to_idx[future]
                 try:
-                    results[idx] = future.result()
+                    results[idx] = future.result()  # type: ignore[call-overload]
                 except Exception as e:
                     logger.warning(f"时间点 {timestamps[idx]}s 分析失败: {e}")
-                    results[idx] = self._fallback_emotion(timestamps[idx])
+                    results[idx] = self._fallback_emotion(timestamps[idx])  # type: ignore[call-overload]
 
-        return [r for r in results if r is not None]
+        return [r for r in results if r is not None]  # type: ignore[misc]
 
     def _detect_sequential(
         self, video_path: str, timestamps: list[float]

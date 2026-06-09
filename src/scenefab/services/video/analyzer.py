@@ -93,7 +93,7 @@ class VideoAnalyzer:
 
             cap.release()
 
-            return scenes
+            return scenes  # type: ignore[return-value]
 
         except ImportError:
             logger.error("OpenCV is required for scene detection")

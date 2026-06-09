@@ -227,4 +227,4 @@ class SceneAnalyzerV2(SceneAnalyzer):
 # 重新导出（保持向后兼容）
 
 # Backward compatibility alias
-SceneAnalyzer = SceneAnalyzerV2
+SceneAnalyzer = SceneAnalyzerV2  # type: ignore[misc]

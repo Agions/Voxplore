@@ -168,7 +168,7 @@ class CreateProjectDialog(QDialog):
             if search_text and search_text not in template.name.lower():
                 continue
 
-            card = TemplateCard(template, selected=False)
+            card = TemplateCard(template, selected=False)  # type: ignore[call-arg]
             card.clicked.connect(lambda t=template: self._on_template_selected(t))  # type: ignore[attr-defined]
             row = i // 2
             col = i % 2

@@ -27,7 +27,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
     """
 
     def __init__(self, manifest: PluginManifest):
-        super().__init__(manifest)
+        super().__init__(manifest)  # type: ignore[call-arg]
         self._api_key: str | None = None
         self._base_url: str = "https://api.deepseek.com"
         self._model: str = "deepseek-chat"

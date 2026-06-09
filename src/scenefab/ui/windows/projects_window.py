@@ -97,7 +97,7 @@ class ProjectCard(QFrame):
         layout.addStretch()
 
         # 鼠标事件
-        self.mousePressEvent = lambda e: self._handle_click(e)
+        self.mousePressEvent = lambda e: self._handle_click(e)  # type: ignore[method-assign]
 
     def _handle_click(self, event):
         if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
@@ -137,7 +137,7 @@ class ProjectsWindow(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._pm = ProjectManager()
+        self._pm = ProjectManager()  # type: ignore[call-arg]
         self._projects = []
         self._setup_ui()
         self._load_projects()

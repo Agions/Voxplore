@@ -78,7 +78,7 @@ async def get_plugin(plugin_id: str):
                 status_code=404, detail=f"Plugin '{plugin_id}' not found"
             )
 
-        reg_entry = registry[plugin_id]
+        reg_entry = registry[plugin_id]  # type: ignore[index]
         manifest = reg_entry.get("manifest", {})
 
         return PluginInfo(
@@ -113,7 +113,7 @@ async def enable_plugin(plugin_id: str, request: PluginEnableRequest):
                 status_code=404, detail=f"Plugin '{plugin_id}' not found"
             )
 
-        registry[plugin_id]["enabled"] = request.enabled
+        registry[plugin_id]["enabled"] = request.enabled  # type: ignore[index]
 
         return {"plugin_id": plugin_id, "enabled": request.enabled}
 

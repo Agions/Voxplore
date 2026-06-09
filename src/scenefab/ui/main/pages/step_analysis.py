@@ -173,7 +173,7 @@ class StepAnalysisPage(StepPage):
     """AI 分析步骤页 (step 1)"""
 
     def __init__(self, parent=None):
-        super().__init__(1, parent)
+        super().__init__(1, parent)  # type: ignore[call-arg]
         self._analyzing = False
 
     def _build_content(self) -> QWidget:

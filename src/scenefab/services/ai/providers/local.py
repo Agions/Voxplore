@@ -134,7 +134,7 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             finish_reason="stop",
         )
 
-    async def _generate_openai_compatible(
+    async def _generate_openai_compatible(  # type: ignore[override]
         self, request: LLMRequest, model: str
     ) -> LLMResponse:
         """使用 OpenAI 兼容 API 生成"""

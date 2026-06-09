@@ -331,7 +331,7 @@ class HighlightDetector:
 
         try:
             import numpy as np
-            from pydub import AudioSegment
+            from pydub import AudioSegment  # type: ignore[import-untyped]
 
             audio = AudioSegment.from_wav(str(audio_path))
             samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
@@ -384,7 +384,7 @@ class HighlightDetector:
             timestamp = i / self.config.fps
             # 性能优化：小图已由 FFmpeg 缩放，直接加载灰度
             img = Image.open(frame_path).convert("L")
-            data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
+            data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)  # type: ignore[call-overload]
 
             if prev_data is not None:
                 diff = np.sum(np.abs(data - prev_data)) / (len(data) * 255.0)

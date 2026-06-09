@@ -166,7 +166,7 @@ class TemplateCard(MacCard):
         # 模板类别徽章
         self.category_badge = MacBadge("", "primary")
         self.category_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout().addWidget(  # type: ignore[union-attr]
+        self.layout().addWidget(  # type: ignore[call-arg, union-attr]
             self.category_badge, alignment=Qt.AlignmentFlag.AlignCenter
         )
 

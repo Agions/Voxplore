@@ -230,13 +230,13 @@ class BasePlugin(ABC):
 
     def emit_event(self, event_name: str, **kwargs) -> None:
         """发射事件到事件总线"""
-        if self._context and "event_bus" in self._context.services:
-            self._context.services["event_bus"].emit(event_name, **kwargs)
+        if self._context and "event_bus" in self._context.services:  # type: ignore[operator]
+            self._context.services["event_bus"].emit(event_name, **kwargs)  # type: ignore[index]
 
     def subscribe_event(self, event_name: str, callback) -> None:
         """订阅事件"""
-        if self._context and "event_bus" in self._context.services:
-            self._context.services["event_bus"].subscribe(event_name, callback)
+        if self._context and "event_bus" in self._context.services:  # type: ignore[operator]
+            self._context.services["event_bus"].subscribe(event_name, callback)  # type: ignore[index]
 
     def log_info(self, message: str) -> None:
         if self._logger:

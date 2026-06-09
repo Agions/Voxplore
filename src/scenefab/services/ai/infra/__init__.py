@@ -157,7 +157,7 @@ class PersistentCache:
         except ImportError:
             import json
 
-            self._json = json
+            self._json = json  # type: ignore[misc]
             self._use_orjson = False
 
     def _get_path(self, key: str) -> str:

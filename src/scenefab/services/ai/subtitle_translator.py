@@ -353,10 +353,12 @@ class SubtitleTranslator:
     ) -> list[str]:
         """使用 Google Translate 翻译"""
         try:
-            from googletrans import Translator
+            from googletrans import Translator  # type: ignore[import-not-found]
         except ImportError:
             try:
-                from deep_translator import GoogleTranslator
+                from deep_translator import (
+                    GoogleTranslator,  # type: ignore[import-not-found]
+                )
             except ImportError:
                 raise ImportError(
                     "Google 翻译需要安装: pip install googletrans 或 pip install deep-translator"

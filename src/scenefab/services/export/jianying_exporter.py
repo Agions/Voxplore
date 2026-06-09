@@ -322,7 +322,7 @@ class JianyingExporter:
 
         # 计算目标开始时间（自动沿用轨道末尾，或创建新轨道）
         if target_start is None:
-            target_start = self._compute_next_track_start(draft, TrackType.VIDEO)
+            target_start = self._compute_next_track_start(draft, TrackType.VIDEO)  # type: ignore[unreachable]
 
         return self._add_segment(
             draft,

@@ -170,7 +170,7 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
         video_material = VideoMaterial(
             path=source_video,
-            duration=TimeRange.from_seconds(duration).duration,
+            duration=TimeRange.from_seconds(duration).duration,  # type: ignore[call-arg]
         )
         draft.add_video(video_material)
         _add_segments_to_track(video_track, video_material.id, segments_data)
@@ -190,7 +190,7 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
         audio_material = AudioMaterial(
             path=audio_path,
-            duration=TimeRange.from_seconds(duration).duration,
+            duration=TimeRange.from_seconds(duration).duration,  # type: ignore[call-arg]
             name=Path(audio_path).stem,
         )
         draft.add_audio(audio_material)

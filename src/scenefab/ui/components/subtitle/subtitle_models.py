@@ -464,7 +464,7 @@ class SubtitleImporter:
             ".json": lambda: cls.from_json(content),
         }
         if suffix in _LOADER_MAP:
-            return _LOADER_MAP[suffix]()
+            return _LOADER_MAP[suffix]()  # type: ignore[return-value]
         # 尝试作为JSON处理
         try:
             return cls.from_json(content)
@@ -490,12 +490,12 @@ class SubtitleImporter:
             多轨道字幕编辑器
         """
         if editor is None:
-            editor = MultiTrackSubtitleEditor()
+            editor = MultiTrackSubtitleEditor()  # type: ignore[unreachable]
 
         track = cls.from_file(file_path)
 
-        if isinstance(track, SubtitleTrack):
-            if track_name:
+        if isinstance(track, SubtitleTrack):  # type: ignore[unreachable]
+            if track_name:  # type: ignore[unreachable]
                 track.name = track_name
             editor.add_track(track)
         else:

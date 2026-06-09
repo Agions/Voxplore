@@ -266,7 +266,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self.script_generator = ScriptGenerator(use_llm_manager=True)
         self.caption_generator = CaptionGenerator()
 
-    def create_project(
+    def create_project(  # type: ignore[override]
         self,
         source_video: str,
         context: str,

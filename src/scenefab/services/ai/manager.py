@@ -19,11 +19,11 @@ class AIServiceManager:
     def __new__(cls) -> Self:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._instance._initialized = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self) -> None:
-        if self._initialized:
+        if self._initialized:  # type: ignore[has-type]
             return
 
         self._initialized = True

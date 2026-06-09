@@ -253,7 +253,7 @@ class ProjectManager(QObject):
             interval = self.current_project.settings.auto_save_interval  # type: ignore[attr-defined]
             if interval > 0:
                 elapsed = (
-                    datetime.now() - self.current_project.metadata.modified_at
+                    datetime.now() - self.current_project.metadata.modified_at  # type: ignore[operator]
                 ).total_seconds()
                 if elapsed >= interval:
                     self.save_project(self.current_project.id, auto_save=True)

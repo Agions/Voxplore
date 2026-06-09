@@ -45,7 +45,7 @@ class TTSProvider(ABC):
         """统一获取音频时长（子模块如有更优实现可覆盖）"""
         # 优先用 pydub（适合本地 wav/mp3）
         try:
-            from pydub import AudioSegment
+            from pydub import AudioSegment  # type: ignore[import-untyped]
 
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0
@@ -448,7 +448,7 @@ class F5TTSProvider(TTSProvider):
         try:
             # 自动检测设备
             import torch
-            from f5_tts import F5TTS
+            from f5_tts import F5TTS  # type: ignore[import-not-found]
 
             device = "cuda" if torch.cuda.is_available() else "cpu"
             self._f5_tts = F5TTS(device=device)

@@ -18,7 +18,7 @@ try:
 except ImportError:
     _HAS_PYSIDE6 = False
 
-    class Signal:
+    class Signal:  # type: ignore[no-redef]
         """无头环境的 Signal 桩"""
 
         def __init__(self, *args):
@@ -33,14 +33,14 @@ except ImportError:
         def emit(self, *args, **kwargs):
             pass
 
-    class QObject:
+    class QObject:  # type: ignore[no-redef]
         """无头环境的 QObject 桩"""
 
         class Signal(Signal):  # 内部引用
             pass
 
-    QTimer = None  # type: ignore[assignment]
-    QSettings = None  # type: ignore[assignment]
+    QTimer = None  # type: ignore[misc, assignment]
+    QSettings = None  # type: ignore[misc, assignment]
 
 
 __all__ = ["QObject", "Signal", "QTimer", "QSettings", "_HAS_PYSIDE6"]

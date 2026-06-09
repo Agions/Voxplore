@@ -39,7 +39,7 @@ class AnimationHelper:
             return cls._reduced_motion_cache
 
         # 平台检测函数映射表
-        _PLATFORM_DETECTORS: dict[str, callable] = {
+        _PLATFORM_DETECTORS: dict[str, callable] = {  # type: ignore[valid-type]
             "Darwin": cls._detect_macos_reduced_motion,
             "Windows": cls._detect_windows_reduced_motion,
             "Linux": cls._detect_linux_reduced_motion,

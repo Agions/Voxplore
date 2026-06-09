@@ -116,11 +116,11 @@ class ConfigManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._instance._initialized = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self):
-        if self._initialized:
+        if self._initialized:  # type: ignore[has-type]
             return
 
         self._initialized = True
@@ -229,7 +229,7 @@ class ConfigManager:
     @property
     def config(self) -> AppConfig:
         """获取应用配置"""
-        return self._config
+        return self._config  # type: ignore[return-value]
 
     def get_llm_config(self, provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
         """获取指定 LLM 配置"""

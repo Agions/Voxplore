@@ -68,14 +68,14 @@ class LLMProviderRegistry:
     ) -> VideoAnalysisAdapter | None:
         """获取视频分析 Provider"""
         if name and name in self._video_providers:
-            return self._video_providers[name].adapter
+            return self._video_providers[name].adapter  # type: ignore[return-value]
 
         # 返回默认
         for entry in self._video_providers.values():
             if entry.is_default:
-                return entry.adapter
+                return entry.adapter  # type: ignore[return-value]
         return (
-            next(iter(self._video_providers.values())).adapter
+            next(iter(self._video_providers.values())).adapter  # type: ignore[return-value]
             if self._video_providers
             else None
         )
@@ -83,13 +83,13 @@ class LLMProviderRegistry:
     def get_script_provider(self, name: str | None = None) -> ScriptLLMAdapter | None:
         """获取脚本生成 Provider"""
         if name and name in self._script_providers:
-            return self._script_providers[name].adapter
+            return self._script_providers[name].adapter  # type: ignore[return-value]
 
         for entry in self._script_providers.values():
             if entry.is_default:
-                return entry.adapter
+                return entry.adapter  # type: ignore[return-value]
         return (
-            next(iter(self._script_providers.values())).adapter
+            next(iter(self._script_providers.values())).adapter  # type: ignore[return-value]
             if self._script_providers
             else None
         )
@@ -97,13 +97,13 @@ class LLMProviderRegistry:
     def get_tts_provider(self, name: str | None = None) -> TTSAdapter | None:
         """获取 TTS Provider"""
         if name and name in self._tts_providers:
-            return self._tts_providers[name].adapter
+            return self._tts_providers[name].adapter  # type: ignore[return-value]
 
         for entry in self._tts_providers.values():
             if entry.is_default:
-                return entry.adapter
+                return entry.adapter  # type: ignore[return-value]
         return (
-            next(iter(self._tts_providers.values())).adapter
+            next(iter(self._tts_providers.values())).adapter  # type: ignore[return-value]
             if self._tts_providers
             else None
         )
@@ -137,7 +137,7 @@ class LLMProviderRegistry:
             return self.get_script_provider()
         elif provider_type == ProviderType.VOICE_TTS:
             return self.get_tts_provider()
-        return None
+        return None  # type: ignore[unreachable]
 
     async def initialize_all(self) -> None:
         """初始化所有已注册的 Provider"""

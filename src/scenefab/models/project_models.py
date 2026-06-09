@@ -62,8 +62,8 @@ class ProjectType(Enum):
         self.description = description
 
     @property
-    def value(self) -> str:
-        return self._value_
+    def value(self) -> str:  # type: ignore[override]
+        return self._value_  # type: ignore[return-value]
 
     @classmethod
     def _missing_(cls, value: Any) -> Optional["ProjectType"]:
@@ -110,7 +110,7 @@ class ProjectMetadata:
 
         project_type_val = data.get("project_type", "video_editing")
         if isinstance(project_type_val, str):
-            project_type = ProjectType(project_type_val)
+            project_type = ProjectType(project_type_val)  # type: ignore[call-arg]
         else:
             project_type = project_type_val
 

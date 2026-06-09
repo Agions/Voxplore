@@ -171,7 +171,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
             for future in as_completed(future_to_idx):
                 idx = future_to_idx[future]
                 try:
-                    results[idx] = future.result()
+                    results[idx] = future.result()  # type: ignore[call-overload]
                 except Exception as e:
                     logger.warning(f"片段 {idx} 理解失败: {e}")
                     results[idx] = segments[idx]  # 保留原始片段

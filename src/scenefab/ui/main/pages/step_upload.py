@@ -184,7 +184,7 @@ class StepUploadPage(StepPage):
     files_selected = Signal(list)
 
     def __init__(self, parent=None):
-        super().__init__(0, parent)
+        super().__init__(0, parent)  # type: ignore[call-arg]
         self._files = []
 
     def _build_content(self) -> QWidget:

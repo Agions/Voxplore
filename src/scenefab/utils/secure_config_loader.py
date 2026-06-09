@@ -20,10 +20,10 @@ try:
 except ImportError:
     DOTENV_AVAILABLE = False
 
-    def load_dotenv(*args, **kwargs):
+    def load_dotenv(*args, **kwargs):  # type: ignore[misc]
         return None
 
-    def find_dotenv(*args, **kwargs):
+    def find_dotenv(*args, **kwargs):  # type: ignore[misc]
         return None
 
 

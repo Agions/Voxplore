@@ -32,11 +32,11 @@ class FFmpegSession:
             with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False
+                    cls._instance._initialized = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self):
-        if self._initialized:
+        if self._initialized:  # type: ignore[has-type]
             return
 
         self._initialized = True
@@ -173,7 +173,7 @@ class FFmpegSession:
         """使用 decord 提取帧"""
         try:
             import cv2
-            from decord import VideoReader, cpu
+            from decord import VideoReader, cpu  # type: ignore[import-not-found]
 
             vr = VideoReader(video_path, ctx=cpu(0))
             fps = vr.get_avg_fps()

@@ -125,7 +125,7 @@ class Qwen37Provider(VisionProvider):
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {
+                    {  # type: ignore[object]
                         "role": "user",
                         "content": [video_content, {"type": "text", "text": prompt}],
                     }
@@ -144,7 +144,7 @@ class Qwen37Provider(VisionProvider):
                 raw_response=str(e),
             )
 
-    def analyze_image(
+    def analyze_image(  # type: ignore[override]
         self,
         image_base64: str,
         prompt: str | None = None,
@@ -173,7 +173,7 @@ class Qwen37Provider(VisionProvider):
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {
+                    {  # type: ignore[object]
                         "role": "user",
                         "content": [image_content, {"type": "text", "text": prompt}],
                     }

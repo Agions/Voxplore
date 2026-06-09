@@ -176,9 +176,9 @@ class BouncingDots(QWidget):
 
     def _update_dots(self):
         for i in range(3):
-            self._phases[i] += 0.3
+            self._phases[i] += 0.3  # type: ignore[call-overload]
             if self._phases[i] > 2 * 3.14159:
-                self._phases[i] -= 2 * 3.14159
+                self._phases[i] -= 2 * 3.14159  # type: ignore[call-overload]
         self.update()
 
     def paintEvent(self, event):

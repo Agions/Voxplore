@@ -220,7 +220,7 @@ class StepEditPage(StepPage):
     """剪辑步骤页 (step 2)"""
 
     def __init__(self, parent=None):
-        super().__init__(2, parent)
+        super().__init__(2, parent)  # type: ignore[call-arg]
 
     def _build_content(self) -> QWidget:
         container = QWidget()

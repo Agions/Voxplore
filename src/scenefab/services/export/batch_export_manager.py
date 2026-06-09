@@ -268,8 +268,8 @@ class BatchExportManager:
                 output_path=task.output_path,
                 progress_callback=lambda p: (
                     (
-                        setattr(task, "progress", p),
-                        self.on_progress(task.id, p) if self.on_progress else None,
+                        setattr(task, "progress", p),  # type: ignore[func-returns-value]
+                        self.on_progress(task.id, p) if self.on_progress else None,  # type: ignore[truthy-function]
                     )
                     if self.on_progress
                     else None

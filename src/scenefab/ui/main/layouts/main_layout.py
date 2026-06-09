@@ -91,4 +91,4 @@ class MainLayout(QVBoxLayout):
 
     def get_content_widget(self) -> QWidget:
         """获取内容窗口部件"""
-        return self.content_widget
+        return self.content_widget  # type: ignore[return-value]

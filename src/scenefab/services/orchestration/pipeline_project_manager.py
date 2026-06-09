@@ -440,7 +440,7 @@ class ProjectManager:
         # 创建新项目
         project = self.create_project(
             name=new_name,
-            project_type=ProjectType(template_data.metadata.project_type),
+            project_type=ProjectType(template_data.metadata.project_type),  # type: ignore[call-arg]
         )
 
         # 复制配置

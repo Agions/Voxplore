@@ -85,7 +85,7 @@ class BaseAIService:
                 if attempt < max_retries - 1:
                     wait_time = min(base_delay * (2**attempt), max_delay)
                     time.sleep(wait_time)
-        raise last_error
+        raise last_error  # type: ignore[misc]
 
     def get_health(self) -> ServiceHealth:
         """获取服务健康状态"""

@@ -327,8 +327,8 @@ class EmotionCurveWidget(QWidget):
                 # 控制点偏移量
                 dx = (p1.x() - p0.x()) / 3
 
-                cp1 = QPoint(p0.x() + dx, p0.y())
-                cp2 = QPoint(p1.x() - dx, p1.y())
+                cp1 = QPoint(p0.x() + dx, p0.y())  # type: ignore[call-overload]
+                cp2 = QPoint(p1.x() - dx, p1.y())  # type: ignore[call-overload]
 
                 path.cubicTo(cp1, cp2, p1)
 
@@ -386,8 +386,8 @@ class EmotionCurveWidget(QWidget):
         # 创建渐变
         gradient = QLinearGradient(0, margin_top, 0, h - margin_bottom)
         color = self._curve_color
-        gradient.setColorAt(0, color.lighter(150).alpha(80))
-        gradient.setColorAt(1, color.darker(150).alpha(40))
+        gradient.setColorAt(0, color.lighter(150).alpha(80))  # type: ignore[call-arg]
+        gradient.setColorAt(1, color.darker(150).alpha(40))  # type: ignore[call-arg]
 
         painter.fillPath(fill_path, gradient)
 

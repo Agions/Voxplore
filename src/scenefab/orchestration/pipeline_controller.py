@@ -182,7 +182,7 @@ class PipelineController(QObject):
             }
             if stage in _STAGE_MAP:
                 self._set_stage(_STAGE_MAP[stage][0])
-                _STAGE_MAP[stage][1](self._project)
+                _STAGE_MAP[stage][1](self._project)  # type: ignore[operator]
 
             self._is_running = False
         except Exception as e:

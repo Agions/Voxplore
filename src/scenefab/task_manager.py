@@ -49,7 +49,7 @@ try:
 except ImportError:
     import json
 
-    _json_loads = json.load
+    _json_loads = json.load  # type: ignore[str]
 
     def _json_dumps(obj):
         return json.dumps(obj, ensure_ascii=False, indent=2)
@@ -137,11 +137,11 @@ class TaskManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            cls._instance._initialized = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self):
-        if self._initialized:
+        if self._initialized:  # type: ignore[has-type]
             return
 
         self._initialized = True

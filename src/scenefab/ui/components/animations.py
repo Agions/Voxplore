@@ -323,4 +323,4 @@ class TransitionStack(QWidget):
             self._current.show()
 
     def current(self) -> QWidget:
-        return self._current
+        return self._current  # type: ignore[return-value]

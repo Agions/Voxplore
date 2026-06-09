@@ -13,12 +13,12 @@ from typing import NamedTuple
 def _safe_import():
     """安全导入 tomli"""
     try:
-        import tomli
+        import tomli  # type: ignore[import-not-found]
 
         return tomli
     except ImportError:
         try:
-            import tomllib
+            import tomllib  # type: ignore[import-not-found]
 
             return tomllib
         except ImportError:

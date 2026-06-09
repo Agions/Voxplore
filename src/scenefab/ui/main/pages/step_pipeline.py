@@ -202,8 +202,8 @@ class ScriptEditor(QWidget):
         """)
         self.editor.textChanged.connect(
             lambda: (
-                self.word_count_label.setText(f"{len(self.editor.toPlainText())} 字"),
-                self.script_changed.emit(self.editor.toPlainText()),
+                self.word_count_label.setText(f"{len(self.editor.toPlainText())} 字"),  # type: ignore[func-returns-value]
+                self.script_changed.emit(self.editor.toPlainText()),  # type: ignore[func-returns-value]
             )
         )
         layout.addWidget(self.editor)
@@ -320,12 +320,12 @@ class StepPipeline(QWidget):
         self.log_area.append(text)
 
     def set_stage_state(self, stage_value: int, state: str, sub: str = ""):
-        card = self.stage_cards.get(stage_value)
+        card = self.stage_cards.get(stage_value)  # type: ignore[call-overload]
         if card:
             card.set_state(state, sub)
 
     def set_stage_progress(self, stage_value: int, value: float):
-        card = self.stage_cards.get(stage_value)
+        card = self.stage_cards.get(stage_value)  # type: ignore[call-overload]
         if card:
             card.set_progress(value)
 

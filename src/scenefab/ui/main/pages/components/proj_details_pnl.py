@@ -80,7 +80,7 @@ class ProjectDetailsPanel(QWidget):
         self._details_scroll.setWidget(self._details_content)
         self._stack.addWidget(self._details_scroll)
 
-        card.layout().addWidget(self._stack, 1)  # type: ignore[union-attr]
+        card.layout().addWidget(self._stack, 1)  # type: ignore[call-arg, union-attr]
 
         # 操作按钮
         self._buttons = self._create_buttons()
@@ -265,7 +265,7 @@ class ProjectDetailsPanel(QWidget):
 
     def get_current_project_id(self) -> str:
         """获取当前项目ID"""
-        return self._current_project_id
+        return self._current_project_id  # type: ignore[return-value]
 
     # ── 内部更新 ──────────────────────────────────────────────
 

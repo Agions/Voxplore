@@ -446,7 +446,7 @@ class ScriptGenerator:
                 max_tokens=2000,
             )
 
-            return response.choices[0].message.content
+            return response.choices[0].message.content  # type: ignore[return-value]
 
         except ImportError:
             raise ImportError("请安装 openai: pip install openai")

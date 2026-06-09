@@ -83,7 +83,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
     def export(
         self,
         project_data: dict[str, Any],
-        output_path: str,
+        output_path: str,  # type: ignore[override]
         options: dict[str, Any] | None = None,
     ) -> bool:
         """

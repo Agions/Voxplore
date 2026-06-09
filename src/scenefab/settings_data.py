@@ -86,7 +86,7 @@ def get_audio_settings() -> dict[str, SettingDefinition]:
             description="音频采样率",
             setting_type=SettingType.INTEGER,
             default_value=44100,
-            options=[22050, 44100, 48000, 96000],
+            options=[22050, 44100, 48000, 96000],  # type: ignore[list-item]
             category="audio",
             subcategory="basic",
         ),

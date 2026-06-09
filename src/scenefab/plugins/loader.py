@@ -102,7 +102,7 @@ class PluginLoader:
             from importlib.metadata import entry_points
         except ImportError:
             # Python 3.9 兼容
-            from importlib_metadata import entry_points
+            from importlib_metadata import entry_points  # type: ignore[no-redef]
 
         try:
             # Python 3.12+ 修改了 entry_points() 返回结构

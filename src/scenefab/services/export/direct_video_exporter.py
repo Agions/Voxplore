@@ -179,7 +179,7 @@ class DirectVideoExporter:
 
     def _report_progress(self, stage: str, progress: float) -> None:
         """报告进度"""
-        if self._progress_callback:
+        if self._progress_callback:  # type: ignore[truthy-function]
             self._progress_callback(stage, progress)
 
     def export_commentary(
@@ -511,7 +511,7 @@ class DirectVideoExporter:
             分辨率到输出路径的映射
         """
         if presets is None:
-            presets = [Resolution.FHD_1080P, Resolution.VERTICAL_1080P]
+            presets = [Resolution.FHD_1080P, Resolution.VERTICAL_1080P]  # type: ignore[unreachable]
 
         output_dir = Path(output_dir)  # type: ignore[assignment]
         output_dir.mkdir(parents=True, exist_ok=True)  # type: ignore[attr-defined]
@@ -520,7 +520,7 @@ class DirectVideoExporter:
 
         for resolution in presets:
             output_name = f"{project_name}_{resolution.name}.mp4"
-            output_path = output_dir / output_name
+            output_path = output_dir / output_name  # type: ignore[operator]
 
             logger.info(f"导出 {resolution.name}...")
             self.export_commentary(

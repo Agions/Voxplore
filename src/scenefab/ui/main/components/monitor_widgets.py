@@ -174,7 +174,7 @@ class PerformanceChart(QWidget):
             for i, value in enumerate(self.data_points):
                 x = 5 + (i / (self.max_points - 1)) * (self.width() - 10)
                 y = 90 - (value / self.max_value) * 60
-                painter.drawEllipse(QPoint(x, y), 2, 2)
+                painter.drawEllipse(QPoint(x, y), 2, 2)  # type: ignore[call-overload]
 
         # 绘制当前值
         if self.data_points:
@@ -251,7 +251,7 @@ class AlertWidget(QWidget):
 
         # 鼠标样式
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.mousePressEvent = self._on_clicked
+        self.mousePressEvent = self._on_clicked  # type: ignore[method-assign]
 
     def _format_time(self, timestamp: float) -> str:
         """格式化时间"""

@@ -220,7 +220,7 @@ def extract_subtitles(
 
     elif method == "speech":
         extractor = SpeechSubtitleExtractor(api_key=api_key)  # type: ignore[assignment]
-        return extractor.extract(video_path, language=language)
+        return extractor.extract(video_path, language=language)  # type: ignore[call-arg]
 
     elif method == "both":
         ocr_ext = OCRSubtitleExtractor(api_key=api_key)

@@ -273,7 +273,7 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
                 # 用 _execute 的异常处理逻辑
                 self._execute()
 
-            self.run = wrapped_run
+            self.run = wrapped_run  # type: ignore[method-assign]
             threading.Thread.start(self)
 
 

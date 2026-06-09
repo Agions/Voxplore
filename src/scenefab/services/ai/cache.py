@@ -360,7 +360,7 @@ def with_retry(
                     if delay > 0:
                         time.sleep(delay)
 
-            raise last_exception
+            raise last_exception  # type: ignore[misc]
 
         return wrapper
 

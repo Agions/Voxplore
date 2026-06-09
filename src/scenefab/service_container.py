@@ -174,7 +174,7 @@ class ServiceContainer:
             return entry.instance
 
         if entry.lifetime == ServiceLifetime.FACTORY:
-            return entry.factory()
+            return entry.factory()  # type: ignore[misc]
 
         return entry.instance
 

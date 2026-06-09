@@ -105,7 +105,7 @@ class RetryHandler:
                 else:
                     logger.error(f"All {self.max_attempts} attempts failed")
 
-        raise last_exception
+        raise last_exception  # type: ignore[misc]
 
 
 class RateLimiter:

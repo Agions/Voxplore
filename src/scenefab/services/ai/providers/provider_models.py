@@ -156,7 +156,7 @@ class ChatRequest(BaseModel):
             messages.append(ChatMessage(role="system", content=req.system_prompt))
         if isinstance(req.prompt, str):
             messages.append(ChatMessage(role="user", content=req.prompt))
-        elif isinstance(req.prompt, list):
+        elif isinstance(req.prompt, list):  # type: ignore[unreachable]
             for msg in req.prompt:
                 if isinstance(msg, dict):
                     messages.append(

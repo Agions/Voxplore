@@ -38,11 +38,11 @@ class CacheManager:
             with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False
+                    cls._instance._initialized = False  # type: ignore[has-type]
         return cls._instance
 
     def __init__(self):
-        if not self._initialized:
+        if not self._initialized:  # type: ignore[has-type]
             self._memory_cache = MemoryCache()
             self._disk_cache: DiskCache | None = None
             self._initialized = True

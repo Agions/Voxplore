@@ -218,7 +218,7 @@ class FirstPersonExtractor:
                         VideoSegment(
                             video_path=video_path,
                             start_time=current_start,
-                            end_time=current_end + self._frame_interval,
+                            end_time=current_end + self._frame_interval,  # type: ignore[operator]
                             confidence=avg_conf,
                             description=desc
                             or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",
@@ -236,7 +236,7 @@ class FirstPersonExtractor:
                 VideoSegment(
                     video_path=video_path,
                     start_time=current_start,
-                    end_time=current_end + self._frame_interval,
+                    end_time=current_end + self._frame_interval,  # type: ignore[operator]
                     confidence=avg_conf,
                     description=desc
                     or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",

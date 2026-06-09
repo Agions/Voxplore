@@ -284,7 +284,7 @@ class CFToastNotification(QFrame):
         self._is_animating = True
 
         def _on_complete():
-            super().hide()
+            super().hide()  # type: ignore[misc]
             if self in CFToastNotification._active_toasts:
                 CFToastNotification._active_toasts.remove(self)
             self._is_animating = False

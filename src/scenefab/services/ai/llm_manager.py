@@ -158,7 +158,7 @@ class LLMManager:
 
     def get_provider(self, provider_type: ProviderType) -> BaseLLMProvider:
         """获取指定类型的 Provider"""
-        return self.providers.get(provider_type)
+        return self.providers.get(provider_type)  # type: ignore[return-value]
 
     def get_available_providers(self) -> list[ProviderType]:
         """获取所有可用的 Provider 类型"""

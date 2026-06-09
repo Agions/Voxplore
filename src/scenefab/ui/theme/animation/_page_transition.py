@@ -151,8 +151,8 @@ class PageTransition:
         # 大小动画
         size_anim = QPropertyAnimation(widget, b"size")
         size_anim.setDuration(actual_duration)
-        size_anim.setStartValue(int(widget.width() * 0.9), int(widget.height() * 0.9))
-        size_anim.setEndValue(widget.width(), widget.height())
+        size_anim.setStartValue(int(widget.width() * 0.9), int(widget.height() * 0.9))  # type: ignore[call-arg]
+        size_anim.setEndValue(widget.width(), widget.height())  # type: ignore[call-arg]
         size_anim.setEasingCurve(QEasingCurve.Type.OutBack)
 
         opacity_anim.start()
@@ -177,8 +177,8 @@ class PageTransition:
         # 大小动画
         size_anim = QPropertyAnimation(widget, b"size")
         size_anim.setDuration(actual_duration)
-        size_anim.setStartValue(widget.width(), widget.height())
-        size_anim.setEndValue(int(widget.width() * 0.9), int(widget.height() * 0.9))
+        size_anim.setStartValue(widget.width(), widget.height())  # type: ignore[call-arg]
+        size_anim.setEndValue(int(widget.width() * 0.9), int(widget.height() * 0.9))  # type: ignore[call-arg]
         size_anim.setEasingCurve(QEasingCurve.Type.InBack)
 
         opacity_anim.start()

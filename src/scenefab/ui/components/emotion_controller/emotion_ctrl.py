@@ -63,7 +63,7 @@ class EmotionController(QWidget):
         # 状态
         self._current_emotion: str = "healing"
         self._current_intensity: float = 0.5
-        self._current_curve: list[float] = EMOTION_PRESETS["healing"][
+        self._current_curve: list[float] = EMOTION_PRESETS["healing"][  # type: ignore[index]
             "curve_template"
         ].copy()
 
@@ -142,7 +142,7 @@ class EmotionController(QWidget):
         main_layout.addWidget(curve_label)
 
         self._curve_widget = EmotionCurveWidget(
-            curve_color=EMOTION_PRESETS["healing"]["color_hex"]
+            curve_color=EMOTION_PRESETS["healing"]["color_hex"]  # type: ignore[index]
         )
         self._curve_widget.setObjectName("emotionCurveWidget")
         self._curve_widget.set_curve(self._current_curve)  # type: ignore[attr-defined]
@@ -340,12 +340,12 @@ class EmotionController(QWidget):
 
         # 更新状态
         self._current_emotion = preset_key
-        self._current_curve = preset["curve_template"].copy()
+        self._current_curve = preset["curve_template"].copy()  # type: ignore[index]
 
         # 更新曲线 widget
         if self._curve_widget:
             self._curve_widget.set_curve_from_preset(
-                preset["curve_template"], preset["color_hex"]
+                preset["curve_template"], preset["color_hex"]  # type: ignore[index]
             )
 
         # 更新状态标签
@@ -390,7 +390,7 @@ class EmotionController(QWidget):
         if not preset:
             return
 
-        base_curve = preset["curve_template"]
+        base_curve = preset["curve_template"]  # type: ignore[unreachable]
 
         # 调整曲线强度
         # 强度为 0.5 时保持原样，>0.5 增强，<0.5 减弱

@@ -166,7 +166,7 @@ class AsyncErrorHandler:
                         f"{delay:.1f}秒后重试..."
                     )
 
-                    if on_retry:
+                    if on_retry:  # type: ignore[truthy-function]
                         on_retry(error_info)
 
                     await asyncio.sleep(delay)

@@ -109,7 +109,7 @@ class TTSService:
         tasks = [generate_one(text, path, voice) for text, path, voice in items]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        return [r if not isinstance(r, Exception) else None for r in results]
+        return [r if not isinstance(r, Exception) else None for r in results]  # type: ignore[misc]
 
     @staticmethod
     async def generate_batch_streaming(
@@ -174,7 +174,7 @@ class TTSService:
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        return [r if not isinstance(r, Exception) else None for r in results]
+        return [r if not isinstance(r, Exception) else None for r in results]  # type: ignore[misc]
 
     def _edge_tts(
         self, text: str, output_path: str, voice: str, rate: float

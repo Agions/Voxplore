@@ -239,7 +239,7 @@ class StepPreview(QWidget):
             project = manager.get_project(self._project_id)  # type: ignore[attr-defined]
             if project:
                 project.settings.narration_text = text
-                manager.save(project)
+                manager.save(project)  # type: ignore[call-arg]
                 self._save_btn.setText("✅ 已保存")
                 QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
             else:

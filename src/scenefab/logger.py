@@ -77,7 +77,7 @@ class Logger:
         """严重错误日志"""
         self._log(logging.CRITICAL, message)
 
-    def log_lazy(self, level: int, message_fn: callable) -> None:
+    def log_lazy(self, level: int, message_fn: callable) -> None:  # type: ignore[valid-type]
         """懒加载日志：仅在对应日志级别启用时才计算消息内容
 
         Args:

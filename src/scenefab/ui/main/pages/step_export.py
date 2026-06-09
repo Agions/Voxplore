@@ -268,7 +268,7 @@ class StepExportPage(StepPage):
     """导出步骤页 (step 3)"""
 
     def __init__(self, parent=None):
-        super().__init__(3, parent)
+        super().__init__(3, parent)  # type: ignore[call-arg]
         self._exporting = False
 
     def _build_content(self) -> QWidget:

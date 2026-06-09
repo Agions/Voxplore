@@ -107,7 +107,7 @@ class ProviderSelectionPage(QWizardPage):
         card.setFrameShape(QFrame.Shape.StyledPanel)
         card.setProperty("class", "provider-card")
         card.setFixedSize(280, 200)
-        card.mousePressEvent = lambda e: self._select_provider(provider)
+        card.mousePressEvent = lambda e: self._select_provider(provider)  # type: ignore[method-assign]
 
         layout = QVBoxLayout(card)
         layout.setContentsMargins(15, 15, 15, 15)
@@ -368,7 +368,7 @@ class ApplicationFormPage(QWizardPage):
 
     def isComplete(self) -> bool:
         return (
-            self.purpose_edit.toPlainText().strip()
+            self.purpose_edit.toPlainText().strip()  # type: ignore[return-value]
             and self.contact_edit.text().strip()
             and self.terms_check.isChecked()
             and self.responsibility_check.isChecked()

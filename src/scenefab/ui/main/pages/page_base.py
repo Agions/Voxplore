@@ -45,7 +45,7 @@ class PageBase(ABC):
     state_changed = Signal(str, object)  # key, value
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent)  # type: ignore[call-arg]
         self._main_window: MainWindow | None = None
         self._page_state = PageState()
         self._is_initialized = False
@@ -105,7 +105,7 @@ class PageBase(ABC):
     def set_state(self, key: str, value: Any):
         """设置状态"""
         self._page_state.set(key, value)
-        self.state_changed.emit(key, value)
+        self.state_changed.emit(key, value)  # type: ignore[call-overload]
 
     def clear_state(self):
         """清空状态"""

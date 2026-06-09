@@ -133,7 +133,7 @@ class RequestCache:
             "hits": self._hits,
             "misses": self._misses,
             "size": len(self._cache),
-            "hit_rate": f"{hit_rate:.1f}%",
+            "hit_rate": f"{hit_rate:.1f}%",  # type: ignore[dict-item]
         }
 
 
@@ -487,7 +487,7 @@ class BaseLLMProvider(ABC):
 
             # 将结果映射回原始顺序
             return [
-                unique_results[idx] if idx < len(unique_results) else None
+                unique_results[idx] if idx < len(unique_results) else None  # type: ignore[misc]
                 for idx in index_map
             ]
 
@@ -499,7 +499,7 @@ class BaseLLMProvider(ABC):
             results = await gather_with_concurrency(
                 max_concurrency, *[self.generate(req) for req in requests]
             )
-        return [r if isinstance(r, LLMResponse) else None for r in results]
+        return [r if isinstance(r, LLMResponse) else None for r in results]  # type: ignore[misc]
 
     async def close(self) -> None:
         """关闭连接"""

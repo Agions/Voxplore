@@ -211,15 +211,15 @@ class Qwen25VLProvider(VisionProvider):
 
         response = client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "user", "content": content_parts}],
+            messages=[{"role": "user", "content": content_parts}],  # type: ignore[str]
             max_tokens=2048,
         )
 
         raw = response.choices[0].message.content
         # 尝试解析 JSON 数组
         parsed = self._parse_json_response(raw)  # type: ignore[arg-type]
-        if isinstance(parsed, list):
-            return parsed
+        if isinstance(parsed, list):  # type: ignore[unreachable]
+            return parsed  # type: ignore[unreachable]
         return [parsed]
 
     def analyze_frames_batch(
