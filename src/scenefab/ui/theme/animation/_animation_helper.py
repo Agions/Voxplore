@@ -83,7 +83,7 @@ class AnimationHelper:
             value, _ = winreg.QueryValueEx(key, "ShowAnimation")  # type: ignore[attr-defined]
             reduced = value == 0
             winreg.CloseKey(key)  # type: ignore[attr-defined]
-            return reduced  # type: ignore[no-any-return, attr-defined]
+            return reduced  # type: ignore[no-any-return, attr-defined]  # type: ignore[attr-defined]
         except (OSError, FileNotFoundError) as e:
             logger.warning("Windows reduced motion detection failed: %s", e)
         return False

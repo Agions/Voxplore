@@ -262,7 +262,7 @@ class ProjectManager(QObject):
         try:
             import psutil
 
-            return psutil.pid_exists(int(pid_str))  # type: ignore[no-any-return, attr-defined]
+            return psutil.pid_exists(int(pid_str))  # type: ignore[no-any-return, attr-defined]  # type: ignore[attr-defined]
         except (ImportError, ValueError):
             return False
 
@@ -443,7 +443,7 @@ class ProjectManager(QObject):
         if project_id:
             self.project_imported.emit(project_id)
             self.logger.info(f"Imported project: {project_name} from {import_path}")
-        return project_id  # type: ignore[no-any-return, attr-defined]
+        return project_id  # type: ignore[no-any-return, attr-defined]  # type: ignore[attr-defined]
 
     @_handle_project_error("CREATE", "创建模板")
     def create_template(self, project_id: str, template_name: str) -> bool:
