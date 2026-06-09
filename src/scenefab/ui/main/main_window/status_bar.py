@@ -5,7 +5,7 @@ from __future__ import annotations
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel
 
-from scenefab.ui.theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import _C, FontSizes
 
 
 class StatusBar(QFrame):
@@ -21,8 +21,8 @@ class StatusBar(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #statusbar {{
-                background: {Colors.BG_SURFACE};
-                border-top: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border-top: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
 
@@ -32,7 +32,7 @@ class StatusBar(QFrame):
 
         self._status_label = QLabel("就绪")
         self._status_label.setFont(QFont("", FontSizes.xs))
-        self._status_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        self._status_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         layout.addWidget(self._status_label)
 
         layout.addStretch()
@@ -47,7 +47,7 @@ class StatusBar(QFrame):
     def add_info(self, text: str):
         lbl = QLabel(text)
         lbl.setFont(QFont("", FontSizes.xs))
-        lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        lbl.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         self._info_labels.addWidget(lbl)
 
     def clear_info(self):

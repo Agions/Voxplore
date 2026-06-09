@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from scenefab.ui.theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import _C, FontSizes
 
 
 class ContentArea(QFrame):
@@ -31,7 +31,7 @@ class ContentArea(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #content_area {{
-                background: {Colors.BG_BASE};
+                background: {_C.BG_BASE};
             }}
         """)
 
@@ -79,18 +79,18 @@ class PlaceholderPage(QFrame):
 
         icon_lbl = QLabel(icon)
         icon_lbl.setFont(QFont("", 52))
-        icon_lbl.setStyleSheet(f"color: {Colors.BORDER_STRONG};")
+        icon_lbl.setStyleSheet(f"color: {_C.BORDER_STRONG};")
         icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(icon_lbl)
 
         title_lbl = QLabel(title)
         title_lbl.setFont(QFont("", FontSizes.xxl, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title_lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        title_lbl.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_lbl)
 
         desc_lbl = QLabel("功能开发中...")
         desc_lbl.setFont(QFont("", FontSizes.sm))
-        desc_lbl.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
+        desc_lbl.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
         desc_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(desc_lbl)

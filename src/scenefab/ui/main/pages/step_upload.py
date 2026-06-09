@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...main.pages.step_base import ContentCard, StepPage
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 
 class VideoDropZone(QFrame):
@@ -35,12 +35,12 @@ class VideoDropZone(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #drop_zone {{
-                background: {Colors.BG_SURFACE};
-                border: 2px dashed {Colors.BORDER_DEFAULT};
+                background: {_C.BG_SURFACE};
+                border: 2px dashed {_C.BORDER_DEFAULT};
                 border-radius: {Radii.lg};
             }}
             #drop_zone:hover, #drop_zone.drag_over {{
-                border-color: {Colors.PRIMARY_500};
+                border-color: {_C.PRIMARY_500};
                 background: rgba(139, 92, 246, 0.05);
             }}
         """)
@@ -57,13 +57,13 @@ class VideoDropZone(QFrame):
 
         title = QLabel("拖放视频文件到这里")
         title.setFont(QFont("", FontSizes.lg, QFont.Weight.Medium))
-        title.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
         subtitle = QLabel("或点击选择文件（支持 MP4, MOV, AVI, MKV）")
         subtitle.setFont(QFont("", FontSizes.sm))
-        subtitle.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        subtitle.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(subtitle)
 
@@ -124,12 +124,12 @@ class FileListItem(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #file_item {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.base};
             }}
             #file_item:hover {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
             }}
         """)
 
@@ -147,13 +147,13 @@ class FileListItem(QFrame):
 
         name = QLabel(self._name)
         name.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        name.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        name.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         name.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         info_layout.addWidget(name)
 
         path = QLabel(self._file_path)
         path.setFont(QFont("", FontSizes.xs))
-        path.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        path.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         path.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         info_layout.addWidget(path)
 
@@ -166,12 +166,12 @@ class FileListItem(QFrame):
         remove_btn.setStyleSheet(f"""
             QPushButton#remove_btn {{
                 background: transparent;
-                color: {Colors.TEXT_MUTED};
+                color: {_C.TEXT_MUTED};
                 border: none;
                 font-size: 18px;
             }}
             QPushButton#remove_btn:hover {{
-                color: {Colors.ERROR};
+                color: {_C.ERROR};
             }}
         """)
         remove_btn.clicked.connect(self.removed.emit)
@@ -199,7 +199,7 @@ class StepUploadPage(StepPage):
             "MP4 • MOV • AVI • MKV • FLV • WMV\n推荐分辨率: 1080P 以上 | 单文件建议 < 2GB"
         )
         formats.setFont(QFont("", FontSizes.sm))
-        formats.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        formats.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         formats.setWordWrap(True)
         info_layout.addWidget(formats)  # type: ignore[union-attr]
         layout.addWidget(info_card)
@@ -234,7 +234,7 @@ class StepUploadPage(StepPage):
 
         count_label = QLabel(f"已选择 {len(self._files)} 个文件")
         count_label.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        count_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        count_label.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         layout.addWidget(count_label)  # type: ignore[union-attr]
 
         for f in self._files:

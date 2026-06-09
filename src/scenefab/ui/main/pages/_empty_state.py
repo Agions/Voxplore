@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 玻璃态卡片
@@ -32,8 +32,8 @@ class EmptyStateCard(QFrame):
         self.setFixedSize(240, 200)
         self.setStyleSheet(f"""
             QFrame#empty_state {{
-                background: {Colors.BG_SURFACE};
-                border: 2px dashed {Colors.BORDER_DEFAULT};
+                background: {_C.BG_SURFACE};
+                border: 2px dashed {_C.BORDER_DEFAULT};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -47,18 +47,18 @@ class EmptyStateCard(QFrame):
 
         icon = QLabel("📂")
         icon.setFont(QFont("", 36))
-        icon.setStyleSheet(f"color: {Colors.BORDER_STRONG};")
+        icon.setStyleSheet(f"color: {_C.BORDER_STRONG};")
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(icon)
 
         title = QLabel("暂无项目")
         title.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
         desc = QLabel("点击上方「新建项目」\n开始你的创作之旅")
         desc.setFont(QFont("", FontSizes.xs))
-        desc.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
+        desc.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
         desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(desc)

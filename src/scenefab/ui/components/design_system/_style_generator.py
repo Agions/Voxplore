@@ -10,7 +10,7 @@ SceneFab 样式生成器
 拆分为独立模块以隔离样式生成职责。
 """
 
-from ._tokens import Colors, Radius
+from ._tokens import _C, Radius
 
 
 # ─── 样式生成器 ────────────────────────────────────────────
@@ -28,17 +28,17 @@ class StyleSheet:
             min-height: 36px;
         """
     _BUTTON_VARIANTS = {
-        "primary": f"background: {Colors.Primary};\nborder: none;\ncolor: #ffffff;",
-        "primary:hover": f"background: {Colors.PrimaryHover};",
-        "primary:pressed": f"background: {Colors.PrimaryPressed};",
-        "primary:disabled": f"background: {Colors.BorderDefault};\ncolor: {Colors.TextDisabled};\nopacity: 0.6;",
-        "secondary": f"background: transparent;\nborder: 1px solid {Colors.BorderDefault};\ncolor: {Colors.TextSecondary};",
-        "secondary:hover": f"background: {Colors.BgElevated};\nborder-color: {Colors.BorderStrong};\ncolor: {Colors.TextPrimary};",
-        "secondary:disabled": f"background: transparent;\ncolor: {Colors.TextDisabled};\nborder-color: {Colors.BorderSubtle};\nopacity: 0.6;",
-        "danger": f"background: {Colors.Error};\nborder: none;\ncolor: #ffffff;",
-        "danger:hover": f"background: {Colors.ErrorSubtle};",
-        "ghost": f"background: transparent;\nborder: none;\ncolor: {Colors.TextMuted};",
-        "ghost:hover": f"background: {Colors.TextMuted} / 0.08;\ncolor: {Colors.TextPrimary};",
+        "primary": f"background: {_C.Primary};\nborder: none;\ncolor: #ffffff;",
+        "primary:hover": f"background: {_C.PrimaryHover};",
+        "primary:pressed": f"background: {_C.PrimaryPressed};",
+        "primary:disabled": f"background: {_C.BorderDefault};\ncolor: {_C.TextDisabled};\nopacity: 0.6;",
+        "secondary": f"background: transparent;\nborder: 1px solid {_C.BorderDefault};\ncolor: {_C.TextSecondary};",
+        "secondary:hover": f"background: {_C.BgElevated};\nborder-color: {_C.BorderStrong};\ncolor: {_C.TextPrimary};",
+        "secondary:disabled": f"background: transparent;\ncolor: {_C.TextDisabled};\nborder-color: {_C.BorderSubtle};\nopacity: 0.6;",
+        "danger": f"background: {_C.Error};\nborder: none;\ncolor: #ffffff;",
+        "danger:hover": f"background: {_C.ErrorSubtle};",
+        "ghost": f"background: transparent;\nborder: none;\ncolor: {_C.TextMuted};",
+        "ghost:hover": f"background: {_C.TextMuted} / 0.08;\ncolor: {_C.TextPrimary};",
     }
 
     @staticmethod
@@ -64,11 +64,11 @@ class StyleSheet:
     @staticmethod
     def card(elevated: bool = False) -> str:
         """卡片样式"""
-        bg = Colors.BgElevated if elevated else Colors.BgSurface
+        bg = _C.BgElevated if elevated else _C.BgSurface
         return f"""
         QFrame {{
             background: {bg};
-            border: 1px solid {Colors.BorderDefault};
+            border: 1px solid {_C.BorderDefault};
             border-radius: {Radius.lg};
         }}
         """
@@ -76,12 +76,12 @@ class StyleSheet:
     @staticmethod
     def input(error: bool = False) -> str:
         """输入框样式"""
-        border = Colors.Error if error else Colors.BorderDefault
-        focus_border = Colors.Error if error else Colors.Primary
+        border = _C.Error if error else _C.BorderDefault
+        focus_border = _C.Error if error else _C.Primary
         return f"""
         QLineEdit, QTextEdit, QPlainTextEdit {{
-            background: {Colors.BgBase};
-            color: {Colors.TextPrimary};
+            background: {_C.BgBase};
+            color: {_C.TextPrimary};
             border: 1px solid {border};
             border-radius: {Radius.md};
             padding: 10px 14px;
@@ -89,14 +89,14 @@ class StyleSheet:
             min-height: 36px;
         }}
         QLineEdit:hover, QTextEdit:hover, QPlainTextEdit:hover {{
-            border-color: {Colors.BorderStrong};
+            border-color: {_C.BorderStrong};
         }}
         QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {{
             border-color: {focus_border};
-            background-color: {Colors.BgSurface};
+            background-color: {_C.BgSurface};
         }}
         QLineEdit::placeholder, QTextEdit::placeholder, QPlainTextEdit::placeholder {{
-            color: {Colors.TextDisabled};
+            color: {_C.TextDisabled};
             font-style: italic;
         }}
         """
@@ -105,36 +105,36 @@ class StyleSheet:
     def label(secondary: bool = False, muted: bool = False) -> str:
         """标签样式"""
         if muted:
-            color = Colors.TextMuted
+            color = _C.TextMuted
         elif secondary:
-            color = Colors.TextSecondary
+            color = _C.TextSecondary
         else:
-            color = Colors.TextPrimary
+            color = _C.TextPrimary
         return f"QLabel {{ color: {color}; font-size: 14px; }}"
 
     @staticmethod
     def panel() -> str:
         """面板样式"""
-        return f"QWidget {{ background-color: {Colors.BgSurface}; }}"
+        return f"QWidget {{ background-color: {_C.BgSurface}; }}"
 
     @staticmethod
     def progress_bar() -> str:
         """进度条样式"""
         return f"""
         QProgressBar {{
-            background: {Colors.ProgressTrack};
+            background: {_C.ProgressTrack};
             border: none;
             border-radius: {Radius.md};
             text-align: center;
-            color: {Colors.TextPrimary};
+            color: {_C.TextPrimary};
             font-size: 12px;
             font-weight: 600;
             height: 24px;
         }}
         QProgressBar::chunk {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 {Colors.Primary},
-                stop:1 {Colors.PrimaryHover});
+                stop:0 {_C.Primary},
+                stop:1 {_C.PrimaryHover});
             border-radius: {Radius.md};
             margin: 2px;
         }}
@@ -144,11 +144,11 @@ class StyleSheet:
     def nav_button(selected: bool = False) -> str:
         """导航按钮样式"""
         if selected:
-            bg = f"{Colors.Primary} / 0.15"
-            color = Colors.Primary
+            bg = f"{_C.Primary} / 0.15"
+            color = _C.Primary
         else:
             bg = "transparent"
-            color = Colors.TextMuted
+            color = _C.TextMuted
         return f"""
         QPushButton {{
             text-align: left;
@@ -161,8 +161,8 @@ class StyleSheet:
             font-weight: 500;
         }}
         QPushButton:hover {{
-            background-color: {Colors.TextMuted} / 0.08;
-            color: {Colors.TextPrimary};
+            background-color: {_C.TextMuted} / 0.08;
+            color: {_C.TextPrimary};
         }}
         """
 
@@ -171,9 +171,9 @@ class StyleSheet:
         """提示框样式"""
         return f"""
         QToolTip {{
-            background: {Colors.BgElevated};
-            color: {Colors.TextPrimary};
-            border: 1px solid {Colors.BorderDefault};
+            background: {_C.BgElevated};
+            color: {_C.TextPrimary};
+            border: 1px solid {_C.BorderDefault};
             border-radius: {Radius.md};
             padding: 10px 14px;
             font-size: 12px;

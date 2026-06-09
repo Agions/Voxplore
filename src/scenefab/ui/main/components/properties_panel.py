@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-from ...components.design_system import Colors
+from ...components.design_system import _C
 
 
 class PropertiesPanel(QWidget, ThemeAwareMixin):
@@ -48,10 +48,10 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         header = QLabel("⚙️ 属性")
         header.setStyleSheet(f"""
             QLabel {{
-                color: {Colors.TextPrimary}; font-size: 13px; font-weight: bold;
+                color: {_C.TextPrimary}; font-size: 13px; font-weight: bold;
                 padding: 10px 12px;
-                background-color: {Colors.BgElevated};
-                border-bottom: 1px solid {Colors.BorderDefault};
+                background-color: {_C.BgElevated};
+                border-bottom: 1px solid {_C.BorderDefault};
             }}
         """)
         layout.addWidget(header)
@@ -61,7 +61,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setStyleSheet(
-            f"QScrollArea {{ background: {Colors.BgBase}; border: none; }}"
+            f"QScrollArea {{ background: {_C.BgBase}; border: none; }}"
         )
 
         content = QWidget()
@@ -136,7 +136,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._subtitle_text.setMaximumHeight(80)
         self._subtitle_text.setPlaceholderText("字幕内容...")
         self._subtitle_text.setStyleSheet(
-            f"QTextEdit {{ background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault}; border-radius: 4px; padding: 4px; }}"
+            f"QTextEdit {{ background: {_C.BgElevated}; color: {_C.TextPrimary}; border: 1px solid {_C.BorderDefault}; border-radius: 4px; padding: 4px; }}"
         )
 
         sub_style_form = QFormLayout()
@@ -182,17 +182,17 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         group = QGroupBox(title)
         group.setStyleSheet(f"""
             QGroupBox {{
-                color: {Colors.TextSecondary}; font-size: 12px; font-weight: bold;
-                border: 1px solid {Colors.BorderDefault}; border-radius: 6px;
+                color: {_C.TextSecondary}; font-size: 12px; font-weight: bold;
+                border: 1px solid {_C.BorderDefault}; border-radius: 6px;
                 margin-top: 8px; padding-top: 16px;
             }}
             QGroupBox::title {{
                 subcontrol-origin: margin;
                 left: 8px; padding: 0 4px;
             }}
-            QLabel {{ color: {Colors.TextMuted}; font-size: 11px; }}
+            QLabel {{ color: {_C.TextMuted}; font-size: 11px; }}
             QDoubleSpinBox, QComboBox, QLineEdit {{
-                background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault};
+                background: {_C.BgElevated}; color: {_C.TextPrimary}; border: 1px solid {_C.BorderDefault};
                 border-radius: 3px; padding: 2px 4px;
             }}
         """)

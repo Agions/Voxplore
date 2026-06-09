@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .design_system import Colors
+from .design_system import _C
 from .pro_components import GradientButton
 
 
@@ -36,13 +36,13 @@ class QuickActionCard(QFrame):
     def _setup_ui(self, icon: str, title: str, description: str):
         self.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(145deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
+                background: linear-gradient(145deg, {_C.BgSurface} 0%, {_C.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 18px;
                 padding: 20px;
             }}
             QFrame:hover {{
-                border-color: {Colors.Accent} / 0.4;
+                border-color: {_C.Accent} / 0.4;
                 transform: translateY(-4px);
                 box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
             }}
@@ -64,7 +64,7 @@ class QuickActionCard(QFrame):
 
         arrow = QLabel("→")
         arrow.setFont(QFont("", 18))
-        arrow.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        arrow.setStyleSheet(f"color: {_C.TextMuted}; background: transparent;")
         header.addWidget(arrow)
 
         layout.addLayout(header)
@@ -73,7 +73,7 @@ class QuickActionCard(QFrame):
         title_label = QLabel(title)
         title_label.setFont(QFont("", 16, QFont.Weight.Bold))
         title_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         layout.addWidget(title_label)
 
@@ -81,7 +81,7 @@ class QuickActionCard(QFrame):
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
         desc_label.setStyleSheet(
-            f"color: {Colors.TextSecondary}; background: transparent;"
+            f"color: {_C.TextSecondary}; background: transparent;"
         )
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
@@ -108,13 +108,13 @@ class ProjectPreviewCard(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(180deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
+                background: linear-gradient(180deg, {_C.BgSurface} 0%, {_C.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 20px;
                 overflow: hidden;
             }}
             QFrame:hover {{
-                border-color: {Colors.Accent} / 0.3;
+                border-color: {_C.Accent} / 0.3;
                 transform: translateY(-4px) scale(1.02);
             }}
         """)
@@ -128,8 +128,8 @@ class ProjectPreviewCard(QFrame):
         thumbnail.setFixedHeight(140)
         thumbnail.setStyleSheet(f"""
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 {Colors.BgElevated},
-                stop:1 {Colors.BgSurface});
+                stop:0 {_C.BgElevated},
+                stop:1 {_C.BgSurface});
         """)
 
         # 视频时长标签
@@ -158,7 +158,7 @@ class ProjectPreviewCard(QFrame):
         name_label = QLabel(name)
         name_label.setFont(QFont("", 14, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         name_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         info_layout.addWidget(name_label)
 
@@ -167,14 +167,14 @@ class ProjectPreviewCard(QFrame):
 
         time_label = QLabel("2小时前")
         time_label.setFont(QFont("", 11))
-        time_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        time_label.setStyleSheet(f"color: {_C.TextMuted}; background: transparent;")
         meta.addWidget(time_label)
 
         meta.addStretch()
 
         status = QLabel("✓ 已完成")
         status.setFont(QFont("", 11))
-        status.setStyleSheet(f"color: {Colors.Success}; background: transparent;")
+        status.setStyleSheet(f"color: {_C.Success}; background: transparent;")
         meta.addWidget(status)
 
         info_layout.addLayout(meta)
@@ -224,7 +224,7 @@ class FeatureShowcase(QFrame):
         title_label = QLabel(title)
         title_label.setFont(QFont("", 20, QFont.Weight.Bold))
         title_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         header.addWidget(title_label)
 
@@ -239,13 +239,13 @@ class FeatureShowcase(QFrame):
 
             check = QLabel("✓")
             check.setFont(QFont("", 14))
-            check.setStyleSheet(f"color: {Colors.Success}; background: transparent;")
+            check.setStyleSheet(f"color: {_C.Success}; background: transparent;")
             feature_item.addWidget(check)
 
             feature_label = QLabel(feature)
             feature_label.setFont(QFont("", 13))
             feature_label.setStyleSheet(
-                f"color: {Colors.TextSecondary}; background: transparent;"
+                f"color: {_C.TextSecondary}; background: transparent;"
             )
             feature_item.addWidget(feature_label)
 
@@ -269,7 +269,7 @@ class AIPowerBadge(QFrame):
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 rgba(124, 58, 237, 0.15),
                     stop:1 rgba(6, 182, 212, 0.15));
-                border: 1px solid {Colors.AccentSubtle};
+                border: 1px solid {_C.AccentSubtle};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -281,14 +281,14 @@ class AIPowerBadge(QFrame):
         title_label = QLabel(f"⚡ {title}")
         title_label.setFont(QFont("", 14, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title_label.setStyleSheet(
-            f"color: {Colors.AccentSubtle}; background: transparent;"
+            f"color: {_C.AccentSubtle}; background: transparent;"
         )
         layout.addWidget(title_label)
 
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
         desc_label.setStyleSheet(
-            f"color: {Colors.TextSecondary}; background: transparent;"
+            f"color: {_C.TextSecondary}; background: transparent;"
         )
         layout.addWidget(desc_label)
 
@@ -311,7 +311,7 @@ class WelcomeHeader(QWidget):
         welcome = QLabel(f"欢迎回来{', ' + user_name if user_name else ''} 👋")
         welcome.setFont(QFont("", 14))
         welcome.setStyleSheet(
-            f"color: {Colors.TextSecondary}; background: transparent;"
+            f"color: {_C.TextSecondary}; background: transparent;"
         )
         layout.addWidget(welcome)
 
@@ -331,7 +331,7 @@ class WelcomeHeader(QWidget):
         subtitle = QLabel("AI 驱动的专业视频创作平台")
         subtitle.setFont(QFont("", 18))
         subtitle.setStyleSheet(
-            f"color: {Colors.TextSecondary}; background: transparent;"
+            f"color: {_C.TextSecondary}; background: transparent;"
         )
         layout.addWidget(subtitle)
 
@@ -351,7 +351,7 @@ class WelcomeHeader(QWidget):
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 14px;
                 padding: 14px 28px;
-                color: {Colors.TextSecondary};
+                color: {_C.TextSecondary};
                 font-size: 14px;
             }}
             QPushButton:hover {{
@@ -400,13 +400,13 @@ class StatsRow(QWidget):
         card.setFixedSize(180, 100)
         card.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(145deg, {Colors.BgSurface} 0%, {Colors.BgBase} 100%);
+                background: linear-gradient(145deg, {_C.BgSurface} 0%, {_C.BgBase} 100%);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 16px;
                 padding: 16px;
             }}
             QFrame:hover {{
-                border-color: {Colors.Accent} / 0.3;
+                border-color: {_C.Accent} / 0.3;
                 transform: translateY(-2px);
             }}
         """)
@@ -422,14 +422,14 @@ class StatsRow(QWidget):
         value_label = QLabel(value)
         value_label.setFont(QFont("", 28, QFont.Weight.Bold))
         value_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         layout.addWidget(value_label)
 
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", 12))
         label_widget.setStyleSheet(
-            f"color: {Colors.TextMuted}; background: transparent;"
+            f"color: {_C.TextMuted}; background: transparent;"
         )
         layout.addWidget(label_widget)
 

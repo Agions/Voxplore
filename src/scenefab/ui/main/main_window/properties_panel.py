@@ -6,7 +6,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout
 
-from scenefab.ui.theme.ds_tokens import Colors, FontSizes
+from scenefab.ui.theme.ds_tokens import _C, FontSizes
 
 
 class PropertiesPanel(QFrame):
@@ -24,8 +24,8 @@ class PropertiesPanel(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #props_panel {{
-                background: {Colors.BG_SURFACE};
-                border-left: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border-left: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
 
@@ -49,7 +49,7 @@ class PropertiesPanel(QFrame):
         # 内容提示
         placeholder = QLabel("选择项目后\n在此查看属性")
         placeholder.setFont(QFont("", FontSizes.sm))
-        placeholder.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        placeholder.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(placeholder)
 

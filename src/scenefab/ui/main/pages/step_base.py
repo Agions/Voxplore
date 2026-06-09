@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 步骤指示器
@@ -92,40 +92,40 @@ class StepIndicator(QFrame):
             if is_done:
                 circle.setText("✓")
                 circle.setStyleSheet(f"""
-                    background: {Colors.SUCCESS};
+                    background: {_C.SUCCESS};
                     color: white;
                     border-radius: 16px;
                     font-size: 14px;
                 """)
-                label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+                label.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
             elif is_active:
                 circle.setText(str(i + 1))
                 circle.setStyleSheet(f"""
-                    background: {Colors.PRIMARY_DARK};
+                    background: {_C.PRIMARY_DARK};
                     color: white;
                     border-radius: 16px;
                     font-weight: bold;
                 """)
                 label.setStyleSheet(
-                    f"color: {Colors.TEXT_PRIMARY}; font-weight: {FontWeights.SemiBold};"
+                    f"color: {_C.TEXT_PRIMARY}; font-weight: {FontWeights.SemiBold};"
                 )
             else:
                 circle.setText(str(i + 1))
                 circle.setStyleSheet(f"""
                     background: transparent;
-                    color: {Colors.TEXT_DISABLED};
-                    border: 2px solid {Colors.BORDER_DEFAULT};
+                    color: {_C.TEXT_DISABLED};
+                    border: 2px solid {_C.BORDER_DEFAULT};
                     border-radius: 16px;
                 """)
-                label.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
+                label.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
 
             line: QFrame = self.findChild(QFrame, f"step_line_{i}")  # type: ignore[assignment]
             if line:
                 if is_done:
-                    line.setStyleSheet(f"background: {Colors.SUCCESS}; border: none;")
+                    line.setStyleSheet(f"background: {_C.SUCCESS}; border: none;")
                 else:
                     line.setStyleSheet(
-                        f"background: {Colors.BORDER_DEFAULT}; border: none;"
+                        f"background: {_C.BORDER_DEFAULT}; border: none;"
                     )
 
     def set_step(self, step: int):
@@ -163,8 +163,8 @@ class ActionBar(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #action_bar {{
-                background: {Colors.BG_SURFACE};
-                border-top: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border-top: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
 
@@ -220,8 +220,8 @@ class ContentCard(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             QFrame#content_card {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -238,12 +238,12 @@ class ContentCard(QFrame):
             if icon:
                 icon_lbl = QLabel(icon)
                 icon_lbl.setFont(QFont("", 16))
-                icon_lbl.setStyleSheet(f"color: {Colors.PRIMARY};")
+                icon_lbl.setStyleSheet(f"color: {_C.PRIMARY};")
                 header_layout.addWidget(icon_lbl)
 
             title_lbl = QLabel(title)
             title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-            title_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+            title_lbl.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
             header_layout.addWidget(title_lbl)
             header_layout.addStretch()
             layout.addLayout(header_layout)
@@ -275,7 +275,7 @@ class StepPage(QFrame):
     def _apply_style(self):
         self.setStyleSheet(f"""
             #step_page_{self.STEP_INDEX} {{
-                background: {Colors.BG_BASE};
+                background: {_C.BG_BASE};
             }}
         """)
 

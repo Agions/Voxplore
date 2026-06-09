@@ -7,7 +7,7 @@ from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from scenefab.ui.components.design_system import Colors
+from scenefab.ui.components.design_system import _C
 
 # OKLCH色彩系统 - 使用design_system的Colors类
 # QColor不支持oklch()，paintEvent中直接使用hex fallback
@@ -67,8 +67,8 @@ class FeatureCard(QWidget):
         self.setFixedHeight(100)
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {Colors.BgSurface};
-                border: 1px solid {Colors.BorderDefault};
+                background-color: {_C.BgSurface};
+                border: 1px solid {_C.BorderDefault};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -93,7 +93,7 @@ class FeatureCard(QWidget):
         title_font.setWeight(QFont.Weight.Bold)
         title_label.setFont(title_font)
         title_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         text_layout.addWidget(title_label)
 
@@ -101,7 +101,7 @@ class FeatureCard(QWidget):
         desc_label.setWordWrap(True)
         desc_font = QFont()
         desc_label.setFont(desc_font)
-        desc_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        desc_label.setStyleSheet(f"color: {_C.TextMuted}; background: transparent;")
         text_layout.addWidget(desc_label)
 
         layout.addLayout(text_layout)
@@ -111,8 +111,8 @@ class FeatureCard(QWidget):
         """鼠标悬停效果"""
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {Colors.BgElevated};
-                border: 1px solid {Colors.Primary};
+                background-color: {_C.BgElevated};
+                border: 1px solid {_C.Primary};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -123,8 +123,8 @@ class FeatureCard(QWidget):
         """鼠标离开效果"""
         self.setStyleSheet(f"""
             QWidget {{
-                background-color: {Colors.BgSurface};
-                border: 1px solid {Colors.BorderDefault};
+                background-color: {_C.BgSurface};
+                border: 1px solid {_C.BorderDefault};
                 border-radius: 12px;
                 padding: 16px;
             }}
@@ -160,9 +160,9 @@ class WelcomeScreen(QWidget):
         self.setStyleSheet(f"""
             QWidget {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 {Colors.BgBase},
-                    stop:0.5 {Colors.BgSurface},
-                    stop:1 {Colors.BgBase});
+                    stop:0 {_C.BgBase},
+                    stop:0.5 {_C.BgSurface},
+                    stop:1 {_C.BgBase});
             }}
         """)
 
@@ -187,7 +187,7 @@ class WelcomeScreen(QWidget):
         name_font.setWeight(QFont.Weight.Bold)
         name_label.setFont(name_font)
         name_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(name_label)
@@ -197,7 +197,7 @@ class WelcomeScreen(QWidget):
         subtitle_font = QFont()
         subtitle_font.setPointSize(14)
         subtitle.setFont(subtitle_font)
-        subtitle.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        subtitle.setStyleSheet(f"color: {_C.TextMuted}; background: transparent;")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(subtitle)
 
@@ -210,7 +210,7 @@ class WelcomeScreen(QWidget):
         features_font.setWeight(QFont.Weight.Bold)
         features_label.setFont(features_font)
         features_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; background: transparent;"
+            f"color: {_C.TextPrimary}; background: transparent;"
         )
         layout.addWidget(features_label)
 
@@ -244,8 +244,8 @@ class WelcomeScreen(QWidget):
         self.start_btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {Colors.Primary},
-                    stop:1 {Colors.PrimaryHover});
+                    stop:0 {_C.Primary},
+                    stop:1 {_C.PrimaryHover});
                 color: white;
                 border: none;
                 border-radius: 12px;
@@ -254,13 +254,13 @@ class WelcomeScreen(QWidget):
             }}
             QPushButton:hover {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {Colors.PrimaryHover},
-                    stop:1 {Colors.Accent});
+                    stop:0 {_C.PrimaryHover},
+                    stop:1 {_C.Accent});
             }}
             QPushButton:pressed {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {Colors.PrimaryPressed},
-                    stop:1 {Colors.AccentSubtle});
+                    stop:0 {_C.PrimaryPressed},
+                    stop:1 {_C.AccentSubtle});
             }}
         """)
         self.start_btn.clicked.connect(self.get_started.emit)
@@ -272,12 +272,12 @@ class WelcomeScreen(QWidget):
         self.skip_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {Colors.TextMuted};
+                color: {_C.TextMuted};
                 border: none;
                 font-size: 13px;
             }}
             QPushButton:hover {{
-                color: {Colors.TextSecondary};
+                color: {_C.TextSecondary};
             }}
         """)
         self.skip_btn.clicked.connect(self.skip.emit)
@@ -288,7 +288,7 @@ class WelcomeScreen(QWidget):
         # 版本信息
         version_label = QLabel(f"版本 {self._version}")
         version_label.setStyleSheet(f"""
-            color: {Colors.TextMuted};
+            color: {_C.TextMuted};
             font-size: 11px;
             background: transparent;
         """)

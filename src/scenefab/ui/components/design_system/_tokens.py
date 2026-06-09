@@ -76,6 +76,10 @@ class Colors:
     }
 
 
+# ── 颜色常量本地引用 (mypy f-string bug) ──
+_C = Colors
+
+
 # ─── 圆角系统 ────────────────────────────────────────────
 class Radius:
     """圆角 tokens"""

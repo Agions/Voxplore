@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...main.pages.step_base import ContentCard, StepPage
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 
 class AIOptionCard(QFrame):
@@ -42,12 +42,12 @@ class AIOptionCard(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #ai_card {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.base};
             }}
             #ai_card:hover {{
-                border-color: {Colors.PRIMARY_500};
+                border-color: {_C.PRIMARY_500};
             }}
         """)
 
@@ -66,12 +66,12 @@ class AIOptionCard(QFrame):
                 width: 20px;
                 height: 20px;
                 border-radius: 4px;
-                border: 2px solid {Colors.BORDER_DEFAULT};
+                border: 2px solid {_C.BORDER_DEFAULT};
                 background: transparent;
             }}
             QCheckBox::indicator:checked {{
-                background: {Colors.PRIMARY_500};
-                border-color: {Colors.PRIMARY_500};
+                background: {_C.PRIMARY_500};
+                border-color: {_C.PRIMARY_500};
             }}
         """)
         self.checkbox.stateChanged.connect(self.toggled.emit)
@@ -87,12 +87,12 @@ class AIOptionCard(QFrame):
 
         title_label = QLabel(title)
         title_label.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         text_layout.addWidget(title_label)
 
         desc_label = QLabel(desc)
         desc_label.setFont(QFont("", FontSizes.xs))
-        desc_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         text_layout.addWidget(desc_label)
 
         layout.addLayout(text_layout, 1)
@@ -113,8 +113,8 @@ class AnalysisProgress(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #analysis_progress {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.PRIMARY_500};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.PRIMARY_500};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -127,12 +127,12 @@ class AnalysisProgress(QFrame):
         header_layout = QHBoxLayout()
         title = QLabel("✨ AI 正在分析中...")
         title.setFont(QFont("", FontSizes.md, QFont.Weight.Medium))
-        title.setStyleSheet(f"color: {Colors.PRIMARY_400};")  # type: ignore[attr-defined]
+        title.setStyleSheet(f"color: {_C.PRIMARY_400};")  # type: ignore[attr-defined]
         header_layout.addWidget(title)
         header_layout.addStretch()
         self._percent_label = QLabel("0%")
         self._percent_label.setFont(QFont("", FontSizes.sm))
-        self._percent_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        self._percent_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         header_layout.addWidget(self._percent_label)
         layout.addLayout(header_layout)
 
@@ -141,15 +141,15 @@ class AnalysisProgress(QFrame):
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setStyleSheet(f"""  # type: ignore[attr-defined]
             QProgressBar {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
                 border: none;
                 border-radius: 4px;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(
                     x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {Colors.PRIMARY_500},
-                    stop:1 {Colors.ACCENT_500}
+                    stop:0 {_C.PRIMARY_500},
+                    stop:1 {_C.ACCENT_500}
                 );
                 border-radius: 4px;
             }}
@@ -158,7 +158,7 @@ class AnalysisProgress(QFrame):
 
         self._stage_label = QLabel("正在提取音频...")
         self._stage_label.setFont(QFont("", FontSizes.xs))
-        self._stage_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        self._stage_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         layout.addWidget(self._stage_label)
 
     def set_progress(self, value: int, stage: str = ""):

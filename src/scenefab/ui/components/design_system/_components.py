@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 from scenefab.ui.theme.animation import AnimationHelper
 
 from ._style_generator import StyleSheet
-from ._tokens import Colors
+from ._tokens import _C
 
 
 # ─── 组件封装 ──────────────────────────────────────────────
@@ -209,10 +209,10 @@ class CFToastNotification(QFrame):
     def _apply_style(self):
         """应用样式"""
         colors = {
-            "success": (Colors.Success, Colors.SuccessSubtle, "✓"),
-            "warning": (Colors.Warning, Colors.WarningSubtle, "⚠"),
-            "error": (Colors.Error, Colors.ErrorSubtle, "✕"),
-            "info": (Colors.Info, Colors.Info, "ℹ"),
+            "success": (_C.Success, _C.SuccessSubtle, "✓"),
+            "warning": (_C.Warning, _C.WarningSubtle, "⚠"),
+            "error": (_C.Error, _C.ErrorSubtle, "✕"),
+            "info": (_C.Info, _C.Info, "ℹ"),
         }
         fg_color, bg_subtle, icon = colors.get(self.type, colors["info"])
 
@@ -220,23 +220,23 @@ class CFToastNotification(QFrame):
             f"<span style='color:{fg_color}; font-size:16px;'>{icon}</span>"
         )
         self.message_label.setStyleSheet(
-            f"color: {Colors.TextPrimary}; font-size: 14px; background: transparent; border: none;"
+            f"color: {_C.TextPrimary}; font-size: 14px; background: transparent; border: none;"
         )
         self.setStyleSheet(f"""
             QFrame {{
-                background: {Colors.BgElevated};
-                border: 1px solid {Colors.BorderDefault};
+                background: {_C.BgElevated};
+                border: 1px solid {_C.BorderDefault};
                 border-left: 3px solid {fg_color};
                 border-radius: 8px;
             }}
             QPushButton {{
                 background: transparent;
                 border: none;
-                color: {Colors.TextMuted};
+                color: {_C.TextMuted};
                 font-size: 12px;
             }}
             QPushButton:hover {{
-                color: {Colors.TextPrimary};
+                color: {_C.TextPrimary};
             }}
         """)
 
@@ -248,16 +248,16 @@ class CFToastNotification(QFrame):
         btn.clicked.connect(self.hide)
         btn.setStyleSheet(f"""
             QPushButton {{
-                background: {Colors.Primary} / 0.15;
+                background: {_C.Primary} / 0.15;
                 border: none;
                 border-radius: 4px;
-                color: {Colors.Primary};
+                color: {_C.Primary};
                 padding: 6px 12px;
                 font-size: 13px;
                 font-weight: 600;
             }}
             QPushButton:hover {{
-                background: {Colors.Primary} / 0.25;
+                background: {_C.Primary} / 0.25;
             }}
         """)
         self.layout().addWidget(btn)  # type: ignore[union-attr]

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...main.pages.step_base import ContentCard, StepPage
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 
 class FormatCard(QFrame):
@@ -44,8 +44,8 @@ class FormatCard(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #format_selector {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -83,15 +83,15 @@ class FormatOptionCard(QFrame):
         self._setup_ui(icon, name, desc)
 
     def _setup_style(self):
-        border_color = Colors.PRIMARY_500 if self._checked else Colors.BORDER_SUBTLE  # type: ignore[attr-defined]
+        border_color = _C.PRIMARY_500 if self._checked else _C.BORDER_SUBTLE  # type: ignore[attr-defined]
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #fmt_card {{
-                background: {Colors.BG_SURFACE};
+                background: {_C.BG_SURFACE};
                 border: 2px solid {border_color};
                 border-radius: {Radii.base};
             }}
             #fmt_card:hover {{
-                border-color: {Colors.PRIMARY_400};
+                border-color: {_C.PRIMARY_400};
             }}
         """)
 
@@ -120,12 +120,12 @@ class FormatOptionCard(QFrame):
 
         name_label = QLabel(name)
         name_label.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        name_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        name_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         text_layout.addWidget(name_label)
 
         desc_label = QLabel(desc)
         desc_label.setFont(QFont("", FontSizes.xs))
-        desc_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         text_layout.addWidget(desc_label)
 
         layout.addLayout(text_layout, 1)
@@ -149,8 +149,8 @@ class ExportProgress(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #export_progress {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.SUCCESS};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.SUCCESS};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -167,14 +167,14 @@ class ExportProgress(QFrame):
 
         title = QLabel("正在导出...")
         title.setFont(QFont("", FontSizes.md, QFont.Weight.Medium))
-        title.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         header_layout.addWidget(title)
 
         header_layout.addStretch()
 
         self._percent_label = QLabel("0%")
         self._percent_label.setFont(QFont("", FontSizes.lg, QFont.Weight.Bold))
-        self._percent_label.setStyleSheet(f"color: {Colors.SUCCESS};")
+        self._percent_label.setStyleSheet(f"color: {_C.SUCCESS};")
         header_layout.addWidget(self._percent_label)
 
         layout.addLayout(header_layout)
@@ -184,12 +184,12 @@ class ExportProgress(QFrame):
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
                 border: none;
                 border-radius: 5px;
             }}
             QProgressBar::chunk {{
-                background: {Colors.SUCCESS};
+                background: {_C.SUCCESS};
                 border-radius: 5px;
             }}
         """)
@@ -197,7 +197,7 @@ class ExportProgress(QFrame):
 
         self._file_label = QLabel("输出: ~/SceneFab/Exports/video_001.mp4")
         self._file_label.setFont(QFont("", FontSizes.xs))
-        self._file_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        self._file_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         self._file_label.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         layout.addWidget(self._file_label)
 
@@ -223,8 +223,8 @@ class ExportComplete(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #export_complete {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.SUCCESS};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.SUCCESS};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -242,7 +242,7 @@ class ExportComplete(QFrame):
 
         title = QLabel("导出完成！")
         title.setFont(QFont("", FontSizes.xl, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {Colors.SUCCESS};")
+        title.setStyleSheet(f"color: {_C.SUCCESS};")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
@@ -279,7 +279,7 @@ class StepExportPage(StepPage):
         # 格式选择
         format_label = QLabel("选择导出格式")
         format_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
-        format_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        format_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         layout.addWidget(format_label)
 
         format_card = FormatCard()
@@ -300,11 +300,11 @@ class StepExportPage(StepPage):
         res_combo.setFixedWidth(200)
         res_combo.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_ELEVATED};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
                 padding: 6px 12px;
-                color: {Colors.TEXT_PRIMARY};
+                color: {_C.TEXT_PRIMARY};
             }}
         """)
         qual_row.addWidget(res_combo)

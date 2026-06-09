@@ -6,7 +6,7 @@ from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout
 
-from scenefab.ui.theme.ds_tokens import Colors, Radii
+from scenefab.ui.theme.ds_tokens import _C, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 导航配置
@@ -48,8 +48,8 @@ class SideNavBtn(QToolButton):
                         stop:0 rgba(124, 58, 237, 0.25),
                         stop:1 rgba(124, 58, 237, 0.08)
                     );
-                    border-left: 2px solid {Colors.PRIMARY_DARK};
-                    color: {Colors.PRIMARY};
+                    border-left: 2px solid {_C.PRIMARY_DARK};
+                    color: {_C.PRIMARY};
                     border-radius: {Radii.base};
                     padding: 10px 14px;
                     font-size: 18px;
@@ -60,14 +60,14 @@ class SideNavBtn(QToolButton):
                 QToolButton#side_nav_btn {{
                     background: transparent;
                     border-left: 2px solid transparent;
-                    color: {Colors.TEXT_MUTED};
+                    color: {_C.TEXT_MUTED};
                     border-radius: {Radii.base};
                     padding: 10px 14px;
                     font-size: 18px;
                 }}
                 QToolButton#side_nav_btn:hover {{
-                    background: {Colors.BG_ELEVATED};
-                    color: {Colors.TEXT_SECONDARY};
+                    background: {_C.BG_ELEVATED};
+                    color: {_C.TEXT_SECONDARY};
                 }}
             """)
 
@@ -99,11 +99,11 @@ class Sidebar(QFrame):
             #sidebar {{
                 background: qlineargradient(
                     x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {Colors.SIDEBAR_TOP},
-                    stop:0.5 {Colors.SIDEBAR_MID},
-                    stop:1 {Colors.SIDEBAR_BOTTOM}
+                    stop:0 {_C.SIDEBAR_TOP},
+                    stop:0.5 {_C.SIDEBAR_MID},
+                    stop:1 {_C.SIDEBAR_BOTTOM}
                 );
-                border-right: 1px solid {Colors.BORDER_SUBTLE};
+                border-right: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
 
@@ -120,7 +120,7 @@ class Sidebar(QFrame):
         logo_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         logo = QLabel("◆")
         logo.setFont(QFont("", 18, QFont.Weight.Bold))
-        logo.setStyleSheet(f"color: {Colors.PRIMARY};")
+        logo.setStyleSheet(f"color: {_C.PRIMARY};")
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         logo_layout.addWidget(logo)
         layout.addWidget(logo_frame)

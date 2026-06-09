@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-from ...components.design_system import Colors
+from ...components.design_system import _C
 
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -69,9 +69,9 @@ class VideoPreview(QWidget, ThemeAwareMixin):
             placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
             placeholder.setStyleSheet(f"""
                 QLabel {{
-                    color: {Colors.TextMuted}; font-size: 16px;
-                    background-color: {Colors.BgSurface};
-                    border: 2px dashed {Colors.BorderDefault};
+                    color: {_C.TextMuted}; font-size: 16px;
+                    background-color: {_C.BgSurface};
+                    border: 2px dashed {_C.BorderDefault};
                     border-radius: 8px;
                     padding: 40px;
                 }}
@@ -82,7 +82,7 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         # 控制栏
         controls = QFrame()
         controls.setStyleSheet(
-            f"background-color: {Colors.BgOverlay}; border-top: 1px solid {Colors.BorderDefault};"
+            f"background-color: {_C.BgOverlay}; border-top: 1px solid {_C.BorderDefault};"
         )
         ctrl_layout = QVBoxLayout(controls)
         ctrl_layout.setContentsMargins(8, 4, 8, 4)
@@ -92,9 +92,9 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         self._progress = QSlider(Qt.Orientation.Horizontal)
         self._progress.setRange(0, 1000)
         self._progress.setStyleSheet(f"""
-            QSlider::groove:horizontal {{ height: 4px; background: {Colors.BorderDefault}; border-radius: 2px; }}
-            QSlider::handle:horizontal {{ width: 12px; height: 12px; margin: -4px 0; background: {Colors.Primary}; border-radius: 6px; }}
-            QSlider::sub-page:horizontal {{ background: {Colors.Primary}; border-radius: 2px; }}
+            QSlider::groove:horizontal {{ height: 4px; background: {_C.BorderDefault}; border-radius: 2px; }}
+            QSlider::handle:horizontal {{ width: 12px; height: 12px; margin: -4px 0; background: {_C.Primary}; border-radius: 6px; }}
+            QSlider::sub-page:horizontal {{ background: {_C.Primary}; border-radius: 2px; }}
         """)
         self._progress.sliderMoved.connect(self._on_seek)
         ctrl_layout.addWidget(self._progress)
@@ -106,20 +106,20 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         self._play_btn = QPushButton("▶")
         self._play_btn.setFixedSize(32, 28)
         self._play_btn.setStyleSheet(
-            f"QPushButton {{ background: {Colors.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
+            f"QPushButton {{ background: {_C.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
         )
         self._play_btn.clicked.connect(self.toggle_play)
 
         self._stop_btn = QPushButton("⏹")
         self._stop_btn.setFixedSize(32, 28)
         self._stop_btn.setStyleSheet(
-            f"QPushButton {{ background: {Colors.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
+            f"QPushButton {{ background: {_C.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
         )
         self._stop_btn.clicked.connect(self.stop)
 
         self._time_label = QLabel("00:00 / 00:00")
         self._time_label.setStyleSheet(
-            f"color: {Colors.TextSecondary}; font-size: 11px;"
+            f"color: {_C.TextSecondary}; font-size: 11px;"
         )
 
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
@@ -127,12 +127,12 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         self._volume_slider.setValue(80)
         self._volume_slider.setFixedWidth(80)
         self._volume_slider.setStyleSheet(f"""
-            QSlider::groove:horizontal {{ height: 3px; background: {Colors.BorderDefault}; border-radius: 1px; }}
-            QSlider::handle:horizontal {{ width: 10px; height: 10px; margin: -3px 0; background: {Colors.TextMuted}; border-radius: 5px; }}
+            QSlider::groove:horizontal {{ height: 3px; background: {_C.BorderDefault}; border-radius: 1px; }}
+            QSlider::handle:horizontal {{ width: 10px; height: 10px; margin: -3px 0; background: {_C.TextMuted}; border-radius: 5px; }}
         """)
         self._volume_slider.valueChanged.connect(self._on_volume)
         vol_label = QLabel("🔊")
-        vol_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
+        vol_label.setStyleSheet(f"color: {_C.TextSecondary}; font-size: 11px;")
 
         btn_row.addWidget(self._play_btn)
         btn_row.addWidget(self._stop_btn)

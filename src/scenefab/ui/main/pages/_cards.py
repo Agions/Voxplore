@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 # ═══════════════════════════════════════════════════════════════════════
 # 玻璃态卡片
@@ -40,8 +40,8 @@ class GlassCard(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             QFrame#glass_card_{self._card_id} {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -50,8 +50,8 @@ class GlassCard(QFrame):
         self._hovered = True
         self.setStyleSheet(f"""
             QFrame#glass_card_{self._card_id} {{
-                background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.PRIMARY_10.replace("1A", "33")};
+                background: {_C.BG_ELEVATED};
+                border: 1px solid {_C.PRIMARY_10.replace("1A", "33")};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -81,7 +81,7 @@ class QuickCard(GlassCard):
         icon: str,
         title: str,
         desc: str,
-        accent: str = Colors.PRIMARY,
+        accent: str = _C.PRIMARY,
         parent=None,
     ):
         super().__init__(card_id, parent)
@@ -131,13 +131,13 @@ class QuickCard(GlassCard):
         # 标题
         title_lbl = QLabel(self._title)
         title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title_lbl.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         layout.addWidget(title_lbl)
 
         # 描述
         desc_lbl = QLabel(self._desc)
         desc_lbl.setFont(QFont("", FontSizes.xs))
-        desc_lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        desc_lbl.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         desc_lbl.setWordWrap(True)
         desc_lbl.setMinimumHeight(36)
         layout.addWidget(desc_lbl, 1)
@@ -147,7 +147,7 @@ class QuickCard(GlassCard):
         arrow_layout.addStretch()
         arrow = QLabel("→")
         arrow.setFont(QFont("", 14))
-        arrow.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
+        arrow.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
         arrow_layout.addWidget(arrow)
         layout.addLayout(arrow_layout)
 
@@ -187,8 +187,8 @@ class ProjectCard(GlassCard):
         thumb.setStyleSheet(f"""
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 {Colors.BG_ELEVATED},
-                stop:1 {Colors.BG_OVERLAY}
+                stop:0 {_C.BG_ELEVATED},
+                stop:1 {_C.BG_OVERLAY}
             );
             border-top-left-radius: {Radii.xl};
             border-top-right-radius: {Radii.xl};
@@ -200,14 +200,14 @@ class ProjectCard(GlassCard):
         # 图标/缩略图
         icon_lbl = QLabel("🎬")
         icon_lbl.setFont(QFont("", 36))
-        icon_lbl.setStyleSheet(f"color: {Colors.BORDER_STRONG};")
+        icon_lbl.setStyleSheet(f"color: {_C.BORDER_STRONG};")
         thumb_layout.addWidget(icon_lbl)
         layout.addWidget(thumb)
 
         # 信息区
         info = QFrame()
         info.setStyleSheet(f"""
-            border-top: 1px solid {Colors.BORDER_SUBTLE};
+            border-top: 1px solid {_C.BORDER_SUBTLE};
             border-bottom-left-radius: {Radii.xl};
             border-bottom-right-radius: {Radii.xl};
         """)
@@ -217,7 +217,7 @@ class ProjectCard(GlassCard):
 
         name_lbl = QLabel(self._name)
         name_lbl.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        name_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        name_lbl.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         name_lbl.setElideMode(Qt.TextElideMode.ElideRight)  # type: ignore[attr-defined]
         info_layout.addWidget(name_lbl)
 
@@ -227,13 +227,13 @@ class ProjectCard(GlassCard):
         if self._duration:
             dur_lbl = QLabel(self._duration)
             dur_lbl.setFont(QFont("", FontSizes.xs))
-            dur_lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+            dur_lbl.setStyleSheet(f"color: {_C.TEXT_MUTED};")
             meta_layout.addWidget(dur_lbl)
 
         if self._date:
             date_lbl = QLabel(self._date)
             date_lbl.setFont(QFont("", FontSizes.xs))
-            date_lbl.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
+            date_lbl.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
             meta_layout.addWidget(date_lbl)
 
         meta_layout.addStretch()
@@ -255,8 +255,8 @@ class StatChip(QFrame):
         self.setObjectName("stat_chip")
         self.setStyleSheet(f"""
             QFrame#stat_chip {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -276,7 +276,7 @@ class StatChip(QFrame):
 
         lbl = QLabel(label)
         lbl.setFont(QFont("", FontSizes.xs))
-        lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        lbl.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(lbl)
 

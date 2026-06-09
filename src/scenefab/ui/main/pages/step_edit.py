@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...main.pages.step_base import ContentCard, StepPage
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 
 class TimelinePreview(QFrame):
@@ -33,8 +33,8 @@ class TimelinePreview(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #timeline {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -55,7 +55,7 @@ class TimelinePreview(QFrame):
         track = QFrame()
         track.setFixedHeight(40)
         track.setStyleSheet(f"""
-            background: {Colors.BG_ELEVATED};
+            background: {_C.BG_ELEVATED};
             border-radius: {Radii.sm};
         """)
         track_layout = QHBoxLayout(track)
@@ -66,8 +66,8 @@ class TimelinePreview(QFrame):
         seg1.setStyleSheet(f"""  # type: ignore[attr-defined]
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
-                stop:0 {Colors.PRIMARY_600},
-                stop:1 {Colors.PRIMARY_400}
+                stop:0 {_C.PRIMARY_600},
+                stop:1 {_C.PRIMARY_400}
             );
             border-radius: 3px;
         """)
@@ -85,8 +85,8 @@ class TimelinePreview(QFrame):
         seg2.setStyleSheet(f"""  # type: ignore[attr-defined]
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
-                stop:0 {Colors.ACCENT_600},
-                stop:1 {Colors.ACCENT_400}
+                stop:0 {_C.ACCENT_600},
+                stop:1 {_C.ACCENT_400}
             );
             border-radius: 3px;
         """)
@@ -116,7 +116,7 @@ class TimelinePreview(QFrame):
                     font-size: 16px;
                 }}
                 QPushButton:hover {{
-                    background: {Colors.BG_ELEVATED};
+                    background: {_C.BG_ELEVATED};
                     border-radius: {Radii.sm};
                 }}
             """)
@@ -152,12 +152,12 @@ class ClipCard(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #clip_card {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.base};
             }}
             #clip_card:hover, #clip_card.selected {{
-                border-color: {Colors.PRIMARY_500};
+                border-color: {_C.PRIMARY_500};
             }}
         """)
 
@@ -176,19 +176,19 @@ class ClipCard(QFrame):
 
         title_label = QLabel(title)
         title_label.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
-        title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         info_layout.addWidget(title_label)
 
         meta_layout = QHBoxLayout()
         meta_layout.setSpacing(8)
         type_label = QLabel(clip_type)
         type_label.setFont(QFont("", FontSizes.xs))
-        type_label.setStyleSheet(f"color: {Colors.PRIMARY_400};")  # type: ignore[attr-defined]
+        type_label.setStyleSheet(f"color: {_C.PRIMARY_400};")  # type: ignore[attr-defined]
         meta_layout.addWidget(type_label)
 
         duration_label = QLabel(duration)
         duration_label.setFont(QFont("", FontSizes.xs))
-        duration_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        duration_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         meta_layout.addWidget(duration_label)
         info_layout.addLayout(meta_layout)
 
@@ -199,14 +199,14 @@ class ClipCard(QFrame):
         action_btn.setFixedSize(32, 32)
         action_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#action_btn {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
                 border: none;
                 border-radius: {Radii.sm};
-                color: {Colors.TEXT_MUTED};
+                color: {_C.TEXT_MUTED};
                 font-size: 14px;
             }}
             QPushButton#action_btn:hover {{
-                color: {Colors.PRIMARY_400};
+                color: {_C.PRIMARY_400};
             }}
         """)
         layout.addWidget(action_btn)
@@ -230,7 +230,7 @@ class StepEditPage(StepPage):
         # 预览区
         preview_label = QLabel("剪辑预览")
         preview_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
-        preview_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        preview_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         layout.addWidget(preview_label)
 
         timeline = TimelinePreview()
@@ -239,7 +239,7 @@ class StepEditPage(StepPage):
         # 剪辑列表
         clips_label = QLabel("待处理片段")
         clips_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
-        clips_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        clips_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         layout.addWidget(clips_label)
 
         clips_layout = QGridLayout()
@@ -273,11 +273,11 @@ class StepEditPage(StepPage):
         style_combo.setFixedWidth(120)
         style_combo.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_ELEVATED};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
                 padding: 4px 8px;
-                color: {Colors.TEXT_PRIMARY};
+                color: {_C.TEXT_PRIMARY};
             }}
         """)
         sub_row.addWidget(style_combo)

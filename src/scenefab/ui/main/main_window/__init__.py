@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from scenefab.ui.theme.ds_tokens import Colors, FontSizes, Radii
+from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii
 
 from .content_area import ContentArea, PlaceholderPage
 from .nav_components import Sidebar
@@ -221,24 +221,24 @@ class SceneFabMainWindow(QMainWindow):
     def _apply_global_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             QMainWindow {{
-                background: {Colors.BgBase};
+                background: {_C.BgBase};
                 outline: none;
             }}
             QToolButton#topbar_action_btn {{
                 background: transparent;
                 border: none;
                 border-radius: {Radii.sm};
-                color: {Colors.TextMuted};
+                color: {_C.TextMuted};
                 font-size: 14px;
             }}
             QToolButton#topbar_action_btn:hover {{
-                background: {Colors.BgElevated};
-                color: {Colors.TextSecondary};
+                background: {_C.BgElevated};
+                color: {_C.TextSecondary};
             }}
             QToolTip {{
-                background: {Colors.BgOverlay};
-                color: {Colors.TextPrimary};
-                border: 1px solid {Colors.BorderDefault};
+                background: {_C.BgOverlay};
+                color: {_C.TextPrimary};
+                border: 1px solid {_C.BorderDefault};
                 border-radius: {Radii.sm};
                 padding: 6px 10px;
                 font-size: {FontSizes.xs}px;
@@ -249,12 +249,12 @@ class SceneFabMainWindow(QMainWindow):
                 margin: 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {Colors.BorderDefault};
+                background: {_C.BorderDefault};
                 border-radius: 3px;
                 min-height: 40px;
             }}
             QScrollBar::handle:vertical:hover {{
-                background: {Colors.BorderStrong};
+                background: {_C.BorderStrong};
             }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
                 height: 0;
@@ -265,13 +265,13 @@ class SceneFabMainWindow(QMainWindow):
                 margin: 0;
             }}
             QScrollBar::handle:horizontal {{
-                background: {Colors.BorderDefault};
+                background: {_C.BorderDefault};
                 border-radius: 3px;
                 min-width: 40px;
             }}
             * {{
-                selection-background-color: {Colors.Primary};
-                selection-color: {Colors.TextPrimary};
+                selection-background-color: {_C.Primary};
+                selection-color: {_C.TextPrimary};
             }}
         """)
 

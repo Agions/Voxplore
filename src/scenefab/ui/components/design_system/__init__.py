@@ -29,6 +29,7 @@ from ._components import (
 # 样式生成器
 from ._style_generator import StyleSheet
 from ._tokens import (
+    _C,
     Colors,
     Fonts,
     Motion,
@@ -38,6 +39,7 @@ from ._tokens import (
 
 __all__ = [
     # Tokens
+    "_C",
     "Colors",
     "Radius",
     "Fonts",

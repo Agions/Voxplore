@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
 from scenefab.ui.main.pages._cards import QuickCard, StatChip
 from scenefab.ui.main.pages._empty_state import EmptyStateCard
 
-from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii
 
 
 class HomePage(QFrame):
@@ -45,7 +45,7 @@ class HomePage(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #home_page {{
-                background: {Colors.BG_BASE};
+                background: {_C.BG_BASE};
             }}
         """)
 
@@ -94,11 +94,11 @@ class HomePage(QFrame):
 
         greeting = QLabel("你好，创作人 👋")
         greeting.setFont(QFont("", FontSizes.xxl, QFont.Weight.Bold))
-        greeting.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        greeting.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
 
         sub = QLabel("今天想创作什么？")
         sub.setFont(QFont("", FontSizes.md))
-        sub.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        sub.setStyleSheet(f"color: {_C.TEXT_MUTED};")
 
         layout.addWidget(greeting)
         layout.addWidget(sub)
@@ -113,7 +113,7 @@ class HomePage(QFrame):
         title_row = QHBoxLayout()
         title = QLabel("快捷操作")
         title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         title_row.addWidget(title)
 
         title_row.addStretch()
@@ -123,12 +123,12 @@ class HomePage(QFrame):
         see_all.setStyleSheet(f"""
             QPushButton#link_btn {{
                 background: transparent;
-                color: {Colors.PRIMARY};
+                color: {_C.PRIMARY};
                 border: none;
                 font-size: {FontSizes.sm};
             }}
             QPushButton#link_btn:hover {{
-                color: {Colors.PRIMARY_LIGHT};
+                color: {_C.PRIMARY_LIGHT};
             }}
         """)
         see_all.clicked.connect(lambda: self.navigate.emit("projects"))
@@ -140,10 +140,10 @@ class HomePage(QFrame):
         cards_layout.setSpacing(16)
 
         actions = [
-            ("new", "＋", "新建项目", "从零开始创作视频", Colors.PRIMARY),
-            ("template", "📋", "使用模板", "从模板快速创建", Colors.ACCENT),
-            ("import", "📁", "导入素材", "使用本地视频文件", Colors.INFO),
-            ("ai", "✨", "AI 助手", "智能创作建议与优化", Colors.WARNING),
+            ("new", "＋", "新建项目", "从零开始创作视频", _C.PRIMARY),
+            ("template", "📋", "使用模板", "从模板快速创建", _C.ACCENT),
+            ("import", "📁", "导入素材", "使用本地视频文件", _C.INFO),
+            ("ai", "✨", "AI 助手", "智能创作建议与优化", _C.WARNING),
         ]
         for _id, icon, title, desc, accent in actions:  # type: ignore[assignment]
             card = QuickCard(_id, icon, title, desc, accent)  # type: ignore[arg-type]
@@ -165,7 +165,7 @@ class HomePage(QFrame):
         title_row = QHBoxLayout()
         title = QLabel("最近项目")
         title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         title_row.addWidget(title)
 
         title_row.addStretch()
@@ -174,7 +174,7 @@ class HomePage(QFrame):
         new_btn.setObjectName("btn_new_project")
         new_btn.setStyleSheet(f"""
             QPushButton#btn_new_project {{
-                background: {Colors.PRIMARY_DARK};
+                background: {_C.PRIMARY_DARK};
                 color: white;
                 border: none;
                 border-radius: {Radii.base};
@@ -183,7 +183,7 @@ class HomePage(QFrame):
                 padding: 6px 14px;
             }}
             QPushButton#btn_new_project:hover {{
-                background: {Colors.PRIMARY};
+                background: {_C.PRIMARY};
             }}
         """)
         new_btn.clicked.connect(self.create_project.emit)
@@ -207,8 +207,8 @@ class HomePage(QFrame):
         frame.setObjectName("stats_bar")
         frame.setStyleSheet(f"""
             QFrame#stats_bar {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -217,11 +217,11 @@ class HomePage(QFrame):
         layout.setSpacing(32)
 
         stats = [
-            ("12", "总项目数", Colors.PRIMARY),
-            ("48", "视频总数", Colors.ACCENT),
-            ("2.3GB", "存储使用", Colors.WARNING),
-            ("99%", "成功率", Colors.SUCCESS),
-            ("v2.0", "当前版本", Colors.INFO),
+            ("12", "总项目数", _C.PRIMARY),
+            ("48", "视频总数", _C.ACCENT),
+            ("2.3GB", "存储使用", _C.WARNING),
+            ("99%", "成功率", _C.SUCCESS),
+            ("v2.0", "当前版本", _C.INFO),
         ]
         for val, lbl, color in stats:
             chip = StatChip(val, lbl, color)
@@ -234,11 +234,11 @@ class HomePage(QFrame):
         pro_frame.setStyleSheet(f"""
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
-                stop:0 {Colors.PRIMARY}15,
+                stop:0 {_C.PRIMARY}15,
                 stop:1 transparent
             );
             border-radius: {Radii.lg};
-            border-left: 3px solid {Colors.PRIMARY};
+            border-left: 3px solid {_C.PRIMARY};
         """)
         pro_layout = QVBoxLayout(pro_frame)
         pro_layout.setContentsMargins(12, 8, 12, 8)
@@ -246,12 +246,12 @@ class HomePage(QFrame):
 
         pro_title = QLabel("升级至 Pro")
         pro_title.setFont(QFont("", FontSizes.xs, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        pro_title.setStyleSheet(f"color: {Colors.PRIMARY};")
+        pro_title.setStyleSheet(f"color: {_C.PRIMARY};")
         pro_layout.addWidget(pro_title)
 
         pro_desc = QLabel("解锁全部高级功能")
         pro_desc.setFont(QFont("", FontSizes.xs))
-        pro_desc.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        pro_desc.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         pro_layout.addWidget(pro_desc)
 
         layout.addWidget(pro_frame)

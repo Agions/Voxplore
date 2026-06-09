@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...theme.ds_tokens import Colors, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii
 
 # ═══════════════════════════════════════════════════════════════
 # 设置分组卡片
@@ -39,8 +39,8 @@ class SettingsGroup(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #settings_group {{
-                background: {Colors.BG_SURFACE};
-                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.lg};
             }}
         """)
@@ -52,7 +52,7 @@ class SettingsGroup(QFrame):
 
         # 分组标题
         header = QFrame()
-        header.setStyleSheet(f"border-bottom: 1px solid {Colors.BORDER_SUBTLE};")
+        header.setStyleSheet(f"border-bottom: 1px solid {_C.BORDER_SUBTLE};")
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(20, 16, 20, 16)
         header_layout.setSpacing(12)
@@ -64,7 +64,7 @@ class SettingsGroup(QFrame):
 
         title_label = QLabel(self._title)
         title_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
-        title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         header_layout.addWidget(title_label)
         header_layout.addStretch()
 
@@ -100,7 +100,7 @@ class SettingsRow(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #settings_row:hover {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
             }}
         """)
 
@@ -114,13 +114,13 @@ class SettingsRow(QFrame):
 
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", FontSizes.sm))
-        label_widget.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        label_widget.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         text_layout.addWidget(label_widget)
 
         if desc:
             desc_label = QLabel(desc)
             desc_label.setFont(QFont("", FontSizes.xs))
-            desc_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+            desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
             text_layout.addWidget(desc_label)
 
         layout.addLayout(text_layout, 1)
@@ -142,12 +142,12 @@ class ToggleSwitch(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             QFrame {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
                 border-radius: 12px;
                 border: none;
             }}
             QFrame[checked="true"] {{
-                background: {Colors.PRIMARY_500};
+                background: {_C.PRIMARY_500};
             }}
         """)
 
@@ -200,7 +200,7 @@ class SettingsPage(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #settings_page {{
-                background: {Colors.BG_BASE};
+                background: {_C.BG_BASE};
             }}
         """)
 
@@ -221,7 +221,7 @@ class SettingsPage(QFrame):
         # 标题
         title = QLabel("设置")
         title.setFont(QFont("", FontSizes.xxl, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         container_layout.addWidget(title)
 
         # ── 通用设置 ──────────────────────────────
@@ -235,11 +235,11 @@ class SettingsPage(QFrame):
         theme_combo.setFixedWidth(160)  # type: ignore[union-attr]
         theme_combo.setStyleSheet(f"""  # type: ignore[union-attr]
             QComboBox {{
-                background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_ELEVATED};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
                 padding: 6px 12px;
-                color: {Colors.TEXT_PRIMARY};
+                color: {_C.TEXT_PRIMARY};
             }}
         """)
         gen_layout.insertWidget(0, theme_row)
@@ -279,11 +279,11 @@ class SettingsPage(QFrame):
         api_input.setFixedWidth(280)  # type: ignore[union-attr]
         api_input.setStyleSheet(f"""  # type: ignore[union-attr]
             QLineEdit {{
-                background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_ELEVATED};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
                 padding: 6px 12px;
-                color: {Colors.TEXT_PRIMARY};
+                color: {_C.TEXT_PRIMARY};
             }}
         """)
         ai_layout.insertWidget(0, api_row)
@@ -299,7 +299,7 @@ class SettingsPage(QFrame):
         # 使用量显示
         usage_label = QLabel("本月 API 调用: 1,234 次")
         usage_label.setFont(QFont("", FontSizes.sm))
-        usage_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+        usage_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         ai_layout.insertWidget(2, usage_label)
 
         container_layout.addWidget(ai)
@@ -340,7 +340,7 @@ class SettingsPage(QFrame):
             "全屏预览: F11"
         )
         shortcuts_info.setFont(QFont("", FontSizes.sm))
-        shortcuts_info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        shortcuts_info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         shortcuts_info.setLineSpacing(6)  # type: ignore[attr-defined]
         short_layout.insertWidget(0, shortcuts_info)
 
@@ -366,12 +366,12 @@ class SettingsPage(QFrame):
             for m in manifests:
                 info = QLabel(f"<b>{m.name}</b> v{m.version} — {m.description}")
                 info.setFont(QFont("", FontSizes.sm))
-                info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+                info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
                 plugins_layout.insertWidget(plugins_layout.count() - 1, info)
         else:
             empty_info = QLabel("暂无已安装插件")
             empty_info.setFont(QFont("", FontSizes.sm))
-            empty_info.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
+            empty_info.setStyleSheet(f"color: {_C.TEXT_MUTED};")
             plugins_layout.insertWidget(0, empty_info)
 
         install_btn = QPushButton("浏览插件商店")
@@ -380,8 +380,8 @@ class SettingsPage(QFrame):
         install_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#btn_secondary {{
                 background: transparent;
-                color: {Colors.PRIMARY_400};
-                border: 1px solid {Colors.PRIMARY_500};
+                color: {_C.PRIMARY_400};
+                border: 1px solid {_C.PRIMARY_500};
                 border-radius: {Radii.base};
                 font-size: {FontSizes.sm};
             }}
@@ -403,7 +403,7 @@ class SettingsPage(QFrame):
             "© 2025 Agions. MIT License."
         )
         about_info.setFont(QFont("", FontSizes.sm))
-        about_info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
+        about_info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         about_info.setAlignment(Qt.AlignmentFlag.AlignLeft)
         about_layout.insertWidget(0, about_info)
 
@@ -413,8 +413,8 @@ class SettingsPage(QFrame):
         check_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#btn_secondary {{
                 background: transparent;
-                color: {Colors.PRIMARY_400};
-                border: 1px solid {Colors.PRIMARY_500};
+                color: {_C.PRIMARY_400};
+                border: 1px solid {_C.PRIMARY_500};
                 border-radius: {Radii.base};
                 font-size: {FontSizes.sm};
             }}
