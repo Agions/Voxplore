@@ -153,11 +153,51 @@ class CopyrightChecker:
         """
         使用 ffprobe 提取详细元数据
 
+        编排步骤：
+        1. 运行 ffprobe 获取 JSON 输出
+        2. 解析 format 段
+        3. 解析 video 流
+        4. 解析时间标签
+        5. 组装 VideoMetadata
+
         Args:
             video_path: 视频文件路径
 
         Returns:
             VideoMetadata: 视频元数据
+        """
+        data = self._run_ffprobe(video_path)
+        format_info = data.get("format", {})
+        video_stream = self._find_video_stream(data)
+        creation_time, modification_time = self._parse_time_tags(format_info)
+
+        return VideoMetadata(
+            file_path=str(video_path),
+            file_name=Path(video_path).name,
+            file_size=int(format_info.get("size", 0)),
+            duration=float(format_info.get("duration", 0)),
+            width=int(video_stream.get("width", 0)),
+            height=int(video_stream.get("height", 0)),
+            fps=self._parse_fps(video_stream.get("r_frame_rate", "0/1")),
+            codec=video_stream.get("codec_name", "unknown"),
+            bitrate=int(format_info.get("bit_rate", 0)),
+            format_name=format_info.get("format_name", "unknown"),
+            creation_time=creation_time,
+            modification_time=modification_time,
+        )
+
+    def _run_ffprobe(self, video_path: str) -> dict[str, Any]:
+        """
+        调用 ffprobe 子进程并返回解析后的 JSON 数据
+
+        Args:
+            video_path: 视频文件路径
+
+        Returns:
+            dict: ffprobe 输出的 JSON 数据
+
+        Raises:
+            RuntimeError: ffprobe 返回非零退出码时抛出
         """
         cmd = [
             self.ffprobe_path,
@@ -180,59 +220,59 @@ class CopyrightChecker:
         if result.returncode != 0:
             raise RuntimeError(f"ffprobe 执行失败: {result.stderr}")
 
-        data = json.loads(result.stdout)
+        return json.loads(result.stdout)
 
-        # 提取格式信息
-        format_info = data.get("format", {})
-        duration = float(format_info.get("duration", 0))
-        file_size = int(format_info.get("size", 0))
-        bitrate = int(format_info.get("bit_rate", 0))
-        format_name = format_info.get("format_name", "unknown")
+    def _find_video_stream(self, data: dict[str, Any]) -> dict[str, Any]:
+        """
+        从 ffprobe 输出中查找第一个视频流
 
-        # 提取视频流信息
-        video_stream = None
+        Args:
+            data: ffprobe 输出的 JSON 数据
+
+        Returns:
+            dict: 视频流字典
+
+        Raises:
+            ValueError: 当数据中不包含视频流时抛出
+        """
         for stream in data.get("streams", []):
             if stream.get("codec_type") == "video":
-                video_stream = stream
-                break
+                return stream
+        raise ValueError("未找到视频流")
 
-        if video_stream is None:
-            raise ValueError("未找到视频流")
+    @staticmethod
+    def _parse_fps(fps_str: str) -> float:
+        """
+        解析 ffprobe 的 r_frame_rate 字段为浮点帧率
 
-        width = int(video_stream.get("width", 0))
-        height = int(video_stream.get("height", 0))
-        codec = video_stream.get("codec_name", "unknown")
+        支持 "num/den" 与纯数字两种格式；分母为 0 时返回 0。
 
-        # 计算帧率
-        fps_str = video_stream.get("r_frame_rate", "0/1")
+        Args:
+            fps_str: 帧率字符串，例如 "30/1" 或 "29.97"
+
+        Returns:
+            float: 解析后的帧率
+        """
         if "/" in fps_str:
             num, den = fps_str.split("/")
-            fps = float(num) / float(den) if float(den) > 0 else 0
-        else:
-            fps = float(fps_str)
+            return float(num) / float(den) if float(den) > 0 else 0
+        return float(fps_str)
 
-        # 提取时间信息
-        creation_time = None
-        modification_time = None
+    @staticmethod
+    def _parse_time_tags(format_info: dict[str, Any]) -> tuple[str | None, str | None]:
+        """
+        从 format 段的 tags 中提取创建时间与修改时间
+
+        Args:
+            format_info: ffprobe 输出中的 format 段
+
+        Returns:
+            tuple: (creation_time, modification_time)，缺失则为 None
+        """
         tags = format_info.get("tags", {})
-        if "creation_time" in tags:
-            creation_time = tags["creation_time"]
-        if "modification_time" in tags:
-            modification_time = tags["modification_time"]
-
-        return VideoMetadata(
-            file_path=str(video_path),
-            file_name=Path(video_path).name,
-            file_size=file_size,
-            duration=duration,
-            width=width,
-            height=height,
-            fps=fps,
-            codec=codec,
-            bitrate=bitrate,
-            format_name=format_name,
-            creation_time=creation_time,
-            modification_time=modification_time,
+        return (
+            tags.get("creation_time"),
+            tags.get("modification_time"),
         )
 
     def _extract_basic_metadata(self, video_path: str) -> VideoMetadata:

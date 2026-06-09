@@ -55,62 +55,98 @@ class TTSGenerator:
         max_concurrent: int,
     ) -> AudioTrack | None:
         """异步并行流式生成配音（边生成边通知进度）"""
-        import asyncio
-
         texts = [n.text for n in narrations]
-        output_paths = [
-            os.path.join(output_dir, f"narration_{i:03d}.mp3")
-            for i in range(len(narrations))
-        ]
-        rates = []
+        output_paths = self._build_output_paths(output_dir, len(narrations))
+        rates = self._compute_rates(narrations)
+        _ = rates  # 保留以备扩展（与原行为一致：仅计算，未传递）
 
-        for _i, narration in enumerate(narrations):
+        items = self._build_tts_items(texts, output_paths, voice)
+        audio_files = self._run_streaming_generation(
+            items, narrations, progress_callback, max_concurrent
+        )
+
+        return self._finalize_audio(
+            audio_files, narrations, output_dir, voice, progress_callback
+        )
+
+    @staticmethod
+    def _build_output_paths(output_dir: str, count: int) -> list[str]:
+        """构建每个 narration 的输出文件路径列表。"""
+        return [
+            os.path.join(output_dir, f"narration_{i:03d}.mp3")
+            for i in range(count)
+        ]
+
+    @staticmethod
+    def _compute_rates(narrations: list[NarrationBlock]) -> list[float]:
+        """根据文本长度与时间窗估算每个 narration 的语速。"""
+        rates: list[float] = []
+        for narration in narrations:
             duration = narration.end_time - narration.start_time
             text_duration = len(narration.text) / 5.0
             rate = max(0.5, min(2.0, text_duration / duration))
             rates.append(rate)
+        return rates
 
-        # 构建进度回调包装器
-        def make_progress_wrapper(narr_idx: int):
-            def wrapper(done: bool, info: dict = None):  # type: ignore[assignment]
-                if progress_callback and info:
-                    # 转换句子级进度为整体进度
-                    progress_callback(narr_idx + 1, len(narrations))
-
-            return wrapper
-
-        # 使用流式批量生成
-        items = [
-            (text, path, voice) for text, path in zip(texts, output_paths, strict=False)
+    @staticmethod
+    def _build_tts_items(
+        texts: list[str], output_paths: list[str], voice: str
+    ) -> list[tuple]:
+        """打包 (text, path, voice) 三元组供 TTS 批量接口使用。"""
+        return [
+            (text, path, voice)
+            for text, path in zip(texts, output_paths, strict=False)
         ]
 
+    def _run_streaming_generation(
+        self,
+        items: list[tuple],
+        narrations: list[NarrationBlock],
+        progress_callback: Callable | None,
+        max_concurrent: int,
+    ) -> list[str]:
+        """调用流式/异步批量生成并返回已存在的音频文件路径列表。"""
+        import asyncio
+
         if hasattr(self.tts, "generate_batch_streaming"):
-            # 使用新的流式异步方法
-            async def run_streaming():
-                return await self.tts.generate_batch_streaming(
-                    items, 1.0, max_concurrent, make_progress_wrapper(0)
+            streaming_cb = self._make_streaming_progress_callback(
+                progress_callback
+            )
+            audio_files = asyncio.run(
+                self.tts.generate_batch_streaming(
+                    items, 1.0, max_concurrent, streaming_cb
                 )
-
-            # 包装回调支持多任务并发进度
-            def streaming_progress_callback(index, total, ts_info):
-                if progress_callback:
-                    # 粗略估计：已完成 index 个任务
-                    progress_callback(index + 1, total)
-
-            async def run_with_callback():
-                return await self.tts.generate_batch_streaming(
-                    items, 1.0, max_concurrent, streaming_progress_callback
-                )
-
-            audio_files = asyncio.run(run_with_callback())
+            )
         else:
             # 回退到普通异步批量
             audio_files = asyncio.run(
                 self.tts.generate_batch_async(items, 1.0, max_concurrent)
             )
 
-        audio_files = [f for f in audio_files if f and os.path.exists(f)]
+        return [f for f in audio_files if f and os.path.exists(f)]
 
+    @staticmethod
+    def _make_streaming_progress_callback(
+        progress_callback: Callable | None,
+    ) -> Callable:
+        """包装流式生成的进度回调，转换为整体任务级进度。"""
+
+        def streaming_progress_callback(index, total, ts_info):
+            if progress_callback:
+                # 粗略估计：已完成 index 个任务
+                progress_callback(index + 1, total)
+
+        return streaming_progress_callback
+
+    def _finalize_audio(
+        self,
+        audio_files: list[str],
+        narrations: list[NarrationBlock],
+        output_dir: str,
+        voice: str,
+        progress_callback: Callable | None,
+    ) -> AudioTrack | None:
+        """拼接/复制音频并构造最终 AudioTrack。"""
         if not audio_files:
             logger.warning("No audio files generated")
             return None
