@@ -247,7 +247,7 @@ class StepGroup(QWidget):
     def _on_video_dropped(self, video_path: str, target_group_id):
         """处理视频拖拽到分组"""
         if video_path is None and target_group_id == "DELETE_GROUP":
-            return
+            return  # type: ignore[unreachable]
 
         if target_group_id == "SPLIT":
             # 从原组移除后暂存（可在_ungrouped_area显示）

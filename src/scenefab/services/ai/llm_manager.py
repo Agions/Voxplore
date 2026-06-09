@@ -274,16 +274,3 @@ def load_llm_config(config_file: str = "config/llm.yaml") -> dict[str, Any]:
     except FileNotFoundError:
         logger.warning(f"LLM 配置文件 {config_file} 不存在，使用空配置")
         return {}
-
-    def replace_env_vars(obj):
-        """替换配置中的环境变量"""
-        if isinstance(obj, dict):
-            return {k: replace_env_vars(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [replace_env_vars(item) for item in obj]
-        elif isinstance(obj, str) and obj.startswith("env:"):
-            import os
-
-            env_key = obj[4:]
-            return os.environ.get(env_key, obj)
-        return obj

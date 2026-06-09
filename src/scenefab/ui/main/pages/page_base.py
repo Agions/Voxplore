@@ -125,7 +125,7 @@ class PageBase(ABC):
 
         config = get_config()
         if key is None:
-            return config
+            return config  # type: ignore[unreachable]
         return config.get(key, default)
 
     # ===== 便捷方法 =====

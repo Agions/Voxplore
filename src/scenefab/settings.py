@@ -234,7 +234,7 @@ class ConfigManager:
     def get_llm_config(self, provider: str = None) -> LLMConfig | None:
         """获取指定 LLM 配置"""
         if provider is None:
-            provider = self._config.default_llm
+            provider = self._config.default_llm  # type: ignore[unreachable]
         return self._config.llm_providers.get(provider)
 
     def get_enabled_llm(self) -> list[LLMConfig]:

@@ -234,7 +234,7 @@ class DIContainer:
         elif entry.lifetime == ServiceLifetime.FACTORY:
             instance = entry.factory()
         else:
-            instance = entry.instance
+            instance = entry.instance  # type: ignore[unreachable]
         # 触发钩子
         self._fire_resolve_hooks(entry, instance)
         return instance

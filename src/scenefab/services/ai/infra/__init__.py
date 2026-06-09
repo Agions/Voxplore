@@ -70,7 +70,7 @@ class RateLimiter:
     def stop(self):
         self._running = False
         if self._thread:
-            self._thread.join(timeout=1.0)
+            self._thread.join(timeout=1.0)  # type: ignore[unreachable]
 
 
 class CircuitBreaker:

@@ -248,7 +248,7 @@ class TaskManager:
         task_id = str(uuid.uuid4())[:8]
 
         if steps is None:
-            steps = ["准备", "处理", "完成"]
+            steps = ["准备", "处理", "完成"]  # type: ignore[unreachable]
 
         now = datetime.now().timestamp()
 

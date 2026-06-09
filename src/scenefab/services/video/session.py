@@ -242,7 +242,7 @@ class FFmpegSession:
     def extract_audio(self, video_path: str, output_path: str = None) -> str | None:
         """提取音频"""
         if output_path is None:
-            output_path = video_path.rsplit(".", 1)[0] + ".wav"
+            output_path = video_path.rsplit(".", 1)[0] + ".wav"  # type: ignore[unreachable]
 
         try:
             subprocess.run(

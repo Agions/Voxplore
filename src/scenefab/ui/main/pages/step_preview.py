@@ -213,7 +213,7 @@ class StepPreview(QWidget):
 
         # 如果有当前项目，直接保存
         if hasattr(self, "_project_id") and self._project_id:
-            self._save_to_project(text)
+            self._save_to_project(text)  # type: ignore[unreachable]
             return
 
         # 否则弹出文件保存对话框

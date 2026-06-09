@@ -116,7 +116,7 @@ class VisionService:
         使用线程池并行处理
         """
         if prompts is None:
-            prompts = ["分析这张图片中的场景和人物视角"] * len(frames)
+            prompts = ["分析这张图片中的场景和人物视角"] * len(frames)  # type: ignore[unreachable]
 
         from concurrent.futures import ThreadPoolExecutor, as_completed
 

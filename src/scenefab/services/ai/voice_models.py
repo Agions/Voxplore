@@ -91,7 +91,7 @@ class GeneratedVoice:
 
     def __post_init__(self) -> None:
         if self.sentence_timestamps is None:
-            self.sentence_timestamps = []
+            self.sentence_timestamps = []  # type: ignore[unreachable]
 
 
 __all__ = [

@@ -46,7 +46,7 @@ class SceneFabPipeline:
         output_dir: str = None,
     ) -> VideoProject:
         if output_dir is None:
-            output_dir = os.path.join(os.path.dirname(video_path) or ".", "output")
+            output_dir = os.path.join(os.path.dirname(video_path) or ".", "output")  # type: ignore[unreachable]
 
         project = VideoProject(
             name=os.path.basename(video_path),
