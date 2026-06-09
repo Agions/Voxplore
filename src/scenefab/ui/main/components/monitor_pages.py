@@ -39,36 +39,48 @@ class MonitorPages:
         layout.setSpacing(10)
 
         # 统计卡片
-        stats_layout = QGridLayout()
-        stats_layout.setSpacing(10)
-
-        # 服务状态统计
-        service_frame = self._create_stat_card("服务状态", "0/0", "正常运行/总数")
-        stats_layout.addWidget(service_frame, 0, 0)
-
-        # 总请求数
-        requests_frame = self._create_stat_card("总请求数", "0", "今日请求")
-        stats_layout.addWidget(requests_frame, 0, 1)
-
-        # 成功率
-        success_frame = self._create_stat_card("成功率", "100%", "请求成功率")
-        stats_layout.addWidget(success_frame, 0, 2)
-
-        # 平均响应时间
-        response_frame = self._create_stat_card("响应时间", "0ms", "平均响应时间")
-        stats_layout.addWidget(response_frame, 1, 0)
-
-        # 总成本
-        cost_frame = self._create_stat_card("总成本", "¥0.00", "今日成本")
-        stats_layout.addWidget(cost_frame, 1, 1)
-
-        # 告警数量
-        alerts_frame = self._create_stat_card("告警", "0", "未解决告警")
-        stats_layout.addWidget(alerts_frame, 1, 2)
-
+        stats_layout, frames = self._create_overview_stats_cards()
         layout.addLayout(stats_layout)
 
         # 服务状态列表
+        layout.addWidget(self._create_services_status_section())
+
+        # 性能图表
+        layout.addLayout(self._create_overview_charts())
+
+        layout.addStretch()
+
+        # 保存引用
+        self._save_overview_stats_references(frames)
+
+        return page
+
+    # ── overview helpers ─────────────────────────────────────────
+
+    def _create_overview_stats_cards(self) -> tuple[QGridLayout, dict[str, QFrame]]:
+        """创建概览页面的统计卡片，返回 (layout, {title: frame})"""
+        stats_layout = QGridLayout()
+        stats_layout.setSpacing(10)
+
+        card_specs: list[tuple[int, int, str, str, str]] = [
+            (0, 0, "服务状态", "0/0", "正常运行/总数"),
+            (0, 1, "总请求数", "0", "今日请求"),
+            (0, 2, "成功率", "100%", "请求成功率"),
+            (1, 0, "响应时间", "0ms", "平均响应时间"),
+            (1, 1, "总成本", "¥0.00", "今日成本"),
+            (1, 2, "告警", "0", "未解决告警"),
+        ]
+
+        frames: dict[str, QFrame] = {}
+        for row, col, title, value, subtitle in card_specs:
+            frame = self._create_stat_card(title, value, subtitle)
+            stats_layout.addWidget(frame, row, col)
+            frames[title] = frame
+
+        return stats_layout, frames
+
+    def _create_services_status_section(self) -> QGroupBox:
+        """创建服务状态列表区域"""
         services_group = QGroupBox("服务状态")
         services_group.setProperty("class", "monitor-group")
         services_layout = QVBoxLayout(services_group)
@@ -84,41 +96,32 @@ class MonitorPages:
         scroll_area.setMaximumHeight(200)
         services_layout.addWidget(scroll_area)
 
-        layout.addWidget(services_group)
+        return services_group
 
-        # 性能图表
+    def _create_overview_charts(self) -> QHBoxLayout:
+        """创建概览页面的性能图表"""
         charts_layout = QHBoxLayout()
         charts_layout.setSpacing(10)
 
-        # 响应时间图表
         self.panel.response_time_chart = PerformanceChart("响应时间 (ms)", 1000)
         charts_layout.addWidget(self.panel.response_time_chart)
 
-        # 错误率图表
         self.panel.error_rate_chart = PerformanceChart("错误率 (%)", 100)
         charts_layout.addWidget(self.panel.error_rate_chart)
 
-        # 吞吐量图表
         self.panel.throughput_chart = PerformanceChart("吞吐量 (req/s)", 100)
         charts_layout.addWidget(self.panel.throughput_chart)
 
-        layout.addLayout(charts_layout)
+        return charts_layout
 
-        layout.addStretch()
-
-        # 保存引用
-        self.panel.service_stats_label = service_frame.findChild(QLabel, "value_label")
-        self.panel.requests_stats_label = requests_frame.findChild(
-            QLabel, "value_label"
-        )
-        self.panel.success_stats_label = success_frame.findChild(QLabel, "value_label")
-        self.panel.response_stats_label = response_frame.findChild(
-            QLabel, "value_label"
-        )
-        self.panel.cost_stats_label = cost_frame.findChild(QLabel, "value_label")
-        self.panel.alerts_stats_label = alerts_frame.findChild(QLabel, "value_label")
-
-        return page
+    def _save_overview_stats_references(self, frames: dict[str, QFrame]) -> None:
+        """保存概览页面统计卡片的 QLabel 引用到 panel"""
+        self.panel.service_stats_label = frames["服务状态"].findChild(QLabel, "value_label")
+        self.panel.requests_stats_label = frames["总请求数"].findChild(QLabel, "value_label")
+        self.panel.success_stats_label = frames["成功率"].findChild(QLabel, "value_label")
+        self.panel.response_stats_label = frames["响应时间"].findChild(QLabel, "value_label")
+        self.panel.cost_stats_label = frames["总成本"].findChild(QLabel, "value_label")
+        self.panel.alerts_stats_label = frames["告警"].findChild(QLabel, "value_label")
 
     def create_services_page(self) -> QWidget:
         """创建服务页面"""
