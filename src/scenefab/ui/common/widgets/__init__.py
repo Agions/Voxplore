@@ -28,4 +28,6 @@ class Separator(QFrame):
         ) if orientation == Qt.Orientation.Horizontal else self.setFixedWidth(1)
 
 
-__all__ = ["Separator"]
+from .paintable import PaintableWidget
+
+__all__ = ["Separator", "PaintableWidget"]

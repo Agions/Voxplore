@@ -9,8 +9,10 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QColor, QLinearGradient, QPainter
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
 
+from scenefab.ui.common.widgets import PaintableWidget
 
-class ShimmerEffect(QWidget):
+
+class ShimmerEffect(PaintableWidget):
     """骨架屏闪烁效果"""
 
     def __init__(self, parent=None):
@@ -30,9 +32,8 @@ class ShimmerEffect(QWidget):
             self._gradient_pos = -0.5
         self.update()
 
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    def _paint(self, painter):  # noqa: N802
+        """覆写 PaintableWidget._paint — 绘制渐变闪烁效果."""
 
         # 创建渐变
         gradient = QLinearGradient(
