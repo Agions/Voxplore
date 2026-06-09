@@ -108,8 +108,8 @@ class SceneAnalyzer:
             threshold = self.config.scene_threshold
 
             if self.config.detector_type == "adaptive":
-                from scenedetect.detectors.adaptive_detector import (
-                    AdaptiveDetector,  # type: ignore[import-untyped]
+                from scenedetect.detectors.adaptive_detector import (  # type: ignore[import-untyped]
+                    AdaptiveDetector,  # type: ignore[unused-ignore, import-untyped]
                 )
 
                 scene_manager.add_detector(

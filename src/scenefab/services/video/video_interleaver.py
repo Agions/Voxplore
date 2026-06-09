@@ -103,7 +103,7 @@ class VideoInterleaver:
         # 计算统计
         total_duration = sum(d.narration_segment.duration for d in decisions)
         original_duration = sum(
-            d.original_end - d.original_start  # type: ignore[operator]
+            d.original_end - d.original_start  # type: ignore[misc, operator]
             for d in decisions
             if d.show_original and d.original_start is not None
         )

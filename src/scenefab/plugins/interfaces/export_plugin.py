@@ -10,7 +10,7 @@ from typing import Any
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 
 
-class BaseExportPlugin(ABC, BasePlugin):  # type: ignore[metaclass]
+class BaseExportPlugin(ABC, BasePlugin):  # type: ignore[misc, metaclass]
     """
     导出格式插件基类
 

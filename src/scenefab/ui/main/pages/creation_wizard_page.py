@@ -150,7 +150,7 @@ class StepIndicator(QFrame):
             )
             lbl.setCursor(Qt.CursorShape.PointingHandCursor)
             self._update_lbl(lbl, i)
-            lbl.mousePressEvent = lambda _, idx=i: self.step_clicked.emit(idx)  # type: ignore[method-assign]
+            lbl.mousePressEvent = lambda _, idx=i: self.step_clicked.emit(idx)  # type: ignore[misc, method-assign]
             layout.addWidget(lbl)
 
             if i < len(self._STEPS) - 1:

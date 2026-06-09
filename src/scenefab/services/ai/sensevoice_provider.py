@@ -278,7 +278,7 @@ class SenseVoiceProvider:
                 onset_env = librosa.onset.onset_strength(y=segment, sr=sr)
                 tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
                 tempo = (
-                    float(tempo)  # type: ignore[int]
+                    float(tempo)  # type: ignore[unused-ignore, int]
                     if np.isscalar(tempo)
                     else float(tempo[0])  # type: ignore[index]
                     if len(tempo) > 0  # type: ignore[arg-type]

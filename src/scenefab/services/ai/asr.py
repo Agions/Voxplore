@@ -66,8 +66,8 @@ class ASRService:
         def transcribe_one(args: tuple) -> tuple:
             path, lang, wts, model_name = args
             try:
-                from faster_whisper import (
-                    WhisperModel,  # type: ignore[import-not-found]
+                from faster_whisper import (  # type: ignore[import-not-found]
+                    WhisperModel,  # type: ignore[unused-ignore, import-not-found]
                 )
 
                 model = WhisperModel(model_name, device="cpu", compute_type="int8")

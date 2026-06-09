@@ -49,7 +49,7 @@ try:
 except ImportError:
     import json
 
-    _json_loads = json.load  # type: ignore[str]
+    _json_loads = json.load  # type: ignore[unused-ignore, str]
 
     def _json_dumps(obj):
         return json.dumps(obj, ensure_ascii=False, indent=2)

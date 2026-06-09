@@ -34,7 +34,7 @@ class ScriptGeneration:
     style_tags: list[str]
 
 
-class BaseAIGeneratorPlugin(ABC, BasePlugin):  # type: ignore[metaclass]
+class BaseAIGeneratorPlugin(ABC, BasePlugin):  # type: ignore[misc, metaclass]
     """
     AI 生成器插件基类
 

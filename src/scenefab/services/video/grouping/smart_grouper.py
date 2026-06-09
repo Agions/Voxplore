@@ -253,8 +253,8 @@ class SmartGrouper:
 
     def _cosine_similarity(self, a: list[float], b: list[float]) -> float:
         """计算余弦相似度"""
-        a = np.array(a)  # type: ignore[float]
-        b = np.array(b)  # type: ignore[float]
+        a = np.array(a)  # type: ignore[unused-ignore, float]
+        b = np.array(b)  # type: ignore[unused-ignore, float]
         norm_a = np.linalg.norm(a)
         norm_b = np.linalg.norm(b)
         if norm_a == 0 or norm_b == 0:

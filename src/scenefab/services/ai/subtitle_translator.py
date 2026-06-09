@@ -356,8 +356,8 @@ class SubtitleTranslator:
             from googletrans import Translator  # type: ignore[import-not-found]
         except ImportError:
             try:
-                from deep_translator import (
-                    GoogleTranslator,  # type: ignore[import-not-found]
+                from deep_translator import (  # type: ignore[import-not-found]
+                    GoogleTranslator,  # type: ignore[unused-ignore, import-not-found]
                 )
             except ImportError:
                 raise ImportError(

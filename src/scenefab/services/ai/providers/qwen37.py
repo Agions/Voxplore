@@ -125,7 +125,7 @@ class Qwen37Provider(VisionProvider):
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {  # type: ignore[object]
+                    {  # type: ignore[unused-ignore, misc, object]
                         "role": "user",
                         "content": [video_content, {"type": "text", "text": prompt}],
                     }
@@ -173,7 +173,7 @@ class Qwen37Provider(VisionProvider):
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {  # type: ignore[object]
+                    {  # type: ignore[unused-ignore, misc, object]
                         "role": "user",
                         "content": [image_content, {"type": "text", "text": prompt}],
                     }
