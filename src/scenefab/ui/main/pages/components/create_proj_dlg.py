@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.project_template_manager import ProjectTemplateManager
 
-from ....components import (
+from ....components import (  # type: ignore[attr-defined]
     MacLabel,
     MacPrimaryButton,
     MacScrollArea,
@@ -120,7 +120,7 @@ class CreateProjectDialog(QDialog):
 
         # 模板列表
         self.template_list = MacScrollArea()
-        self.template_grid = TemplateCard.create_grid_widget()
+        self.template_grid = TemplateCard.create_grid_widget()  # type: ignore[attr-defined]
         self.template_list.setWidget(self.template_grid)
         self.template_list.setWidgetResizable(True)
         content_layout.addWidget(self.template_list, 1)
@@ -169,7 +169,7 @@ class CreateProjectDialog(QDialog):
                 continue
 
             card = TemplateCard(template, selected=False)
-            card.clicked.connect(lambda t=template: self._on_template_selected(t))
+            card.clicked.connect(lambda t=template: self._on_template_selected(t))  # type: ignore[attr-defined]
             row = i // 2
             col = i % 2
             layout.addWidget(card, row, col)

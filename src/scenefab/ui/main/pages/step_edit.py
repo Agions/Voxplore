@@ -63,7 +63,7 @@ class TimelinePreview(QFrame):
 
         # 片段1
         seg1 = QFrame()
-        seg1.setStyleSheet(f"""
+        seg1.setStyleSheet(f"""  # type: ignore[attr-defined]
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
                 stop:0 {Colors.PRIMARY_600},
@@ -82,7 +82,7 @@ class TimelinePreview(QFrame):
 
         # 片段2
         seg2 = QFrame()
-        seg2.setStyleSheet(f"""
+        seg2.setStyleSheet(f"""  # type: ignore[attr-defined]
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
                 stop:0 {Colors.ACCENT_600},
@@ -150,7 +150,7 @@ class ClipCard(QFrame):
         self._setup_ui(icon, title, duration, clip_type)
 
     def _setup_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #clip_card {{
                 background: {Colors.BG_SURFACE};
                 border: 1px solid {Colors.BORDER_SUBTLE};
@@ -183,7 +183,7 @@ class ClipCard(QFrame):
         meta_layout.setSpacing(8)
         type_label = QLabel(clip_type)
         type_label.setFont(QFont("", FontSizes.xs))
-        type_label.setStyleSheet(f"color: {Colors.PRIMARY_400};")
+        type_label.setStyleSheet(f"color: {Colors.PRIMARY_400};")  # type: ignore[attr-defined]
         meta_layout.addWidget(type_label)
 
         duration_label = QLabel(duration)
@@ -197,7 +197,7 @@ class ClipCard(QFrame):
         action_btn = QPushButton("✂")
         action_btn.setObjectName("action_btn")
         action_btn.setFixedSize(32, 32)
-        action_btn.setStyleSheet(f"""
+        action_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#action_btn {{
                 background: {Colors.BG_ELEVATED};
                 border: none;
@@ -229,7 +229,7 @@ class StepEditPage(StepPage):
 
         # 预览区
         preview_label = QLabel("剪辑预览")
-        preview_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))
+        preview_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
         preview_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         layout.addWidget(preview_label)
 
@@ -238,7 +238,7 @@ class StepEditPage(StepPage):
 
         # 剪辑列表
         clips_label = QLabel("待处理片段")
-        clips_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))
+        clips_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
         clips_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         layout.addWidget(clips_label)
 

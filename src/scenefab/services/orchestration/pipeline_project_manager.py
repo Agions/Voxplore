@@ -176,8 +176,8 @@ class ProjectManager:
         output_path = Path(output_path)
 
         # 确保扩展名正确
-        if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:
-            output_path = output_path.with_suffix(".narrafiilm")
+        if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:  # type: ignore[attr-defined]
+            output_path = output_path.with_suffix(".narrafiilm")  # type: ignore[attr-defined]
 
         # 更新修改时间
         project.metadata.modified_at = datetime.now().isoformat()
@@ -204,11 +204,11 @@ class ProjectManager:
         """
         project_path = Path(project_path)
 
-        if not project_path.exists():
+        if not project_path.exists():  # type: ignore[attr-defined]
             raise FileNotFoundError(f"项目文件不存在: {project_path}")
 
         # 根据扩展名选择加载方式
-        if project_path.suffix.lower() == ".zip" or self._is_compressed(project_path):
+        if project_path.suffix.lower() == ".zip" or self._is_compressed(project_path):  # type: ignore[attr-defined]
             project_dict = self._load_compressed(project_path)
         else:
             project_dict = self._load_json(project_path)
@@ -294,7 +294,7 @@ class ProjectManager:
         try:
             return zipfile.is_zipfile(path)
         except Exception as e:
-            self.logger.debug(f"Zipfile check failed: {e}")
+            self.logger.debug(f"Zipfile check failed: {e}")  # type: ignore[attr-defined]
             return False
 
     def _migrate_if_needed(self, data: dict) -> dict:
@@ -373,7 +373,7 @@ class ProjectManager:
                 chunk = f.read(HASH_CHUNK_SIZE)
                 return hashlib.md5(chunk).hexdigest()
         except Exception as e:
-            self.logger.debug(f"Hash computation failed: {e}")
+            self.logger.debug(f"Hash computation failed: {e}")  # type: ignore[attr-defined]
             return ""
 
     def get_recent_projects(self, count: int = 10) -> list[dict]:

@@ -69,9 +69,9 @@ class EffectsPanel(QWidget, ThemeAwareMixin):
     def cleanup(self):
         """清理资源"""
         # 清理特效列表
-        self.effects_list.clear()
+        self.effects_list.clear()  # type: ignore[attr-defined]
         # 清理预览
-        self.preview_label.clear()
+        self.preview_label.clear()  # type: ignore[attr-defined]
 
     def _get_theme_stylesheet(self, is_dark: bool) -> str:
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT

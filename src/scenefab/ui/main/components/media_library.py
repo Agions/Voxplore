@@ -100,9 +100,9 @@ class MediaLibrary(QWidget, ThemeAwareMixin):
         # 清理媒体列表
         self.media_list.clear()
         # 清理缩略图缓存
-        self.thumbnail_cache.clear()
+        self.thumbnail_cache.clear()  # type: ignore[attr-defined]
         # 停止所有加载任务
-        self.load_tasks.clear()
+        self.load_tasks.clear()  # type: ignore[attr-defined]
 
     def _get_theme_stylesheet(self, is_dark: bool) -> str:
         bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_LIGHT

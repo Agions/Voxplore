@@ -25,7 +25,7 @@ def register_qss_variables() -> str:
     # 字体
     lines.append(f"    --font-family: {FONT['family']};")
     lines.append(f"    --font-mono: {FONT['mono']};")
-    for key, val in FONT["size"].items():
+    for key, val in FONT["size"].items():  # type: ignore[attr-defined]
         lines.append(f"    --font-size-{key}: {val};")
 
     # 阴影

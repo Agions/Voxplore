@@ -219,7 +219,7 @@ class SceneFabMainWindow(QMainWindow):
         pass
 
     def _apply_global_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             QMainWindow {{
                 background: {Colors.BgBase};
                 outline: none;

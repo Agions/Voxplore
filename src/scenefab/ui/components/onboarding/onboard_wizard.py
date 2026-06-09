@@ -95,7 +95,7 @@ class OnboardingWizard(QWidget):
         # 上一步按钮
         self.prev_btn = QPushButton("上一步")
         self.prev_btn.setFixedHeight(40)
-        self.prev_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.prev_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.prev_btn.setStyleSheet(f"""
             QPushButton {{
                 background-color: {COLORS["surface"]};
@@ -118,7 +118,7 @@ class OnboardingWizard(QWidget):
 
         # 跳过按钮
         self.skip_btn = QPushButton("跳过")
-        self.skip_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.skip_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.skip_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
@@ -137,7 +137,7 @@ class OnboardingWizard(QWidget):
         self.next_btn = QPushButton("下一步")
         self.next_btn.setFixedHeight(40)
         self.next_btn.setFixedWidth(120)
-        self.next_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.next_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.next_btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,

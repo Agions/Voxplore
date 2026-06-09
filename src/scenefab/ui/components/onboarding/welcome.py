@@ -239,7 +239,7 @@ class WelcomeScreen(QWidget):
 
         # 开始使用按钮
         self.start_btn = QPushButton("开始使用")
-        self.start_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.start_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.start_btn.setFixedHeight(48)
         self.start_btn.setStyleSheet(f"""
             QPushButton {{
@@ -268,7 +268,7 @@ class WelcomeScreen(QWidget):
 
         # 跳过按钮
         self.skip_btn = QPushButton("暂时跳过")
-        self.skip_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.skip_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.skip_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;

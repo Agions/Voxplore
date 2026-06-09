@@ -47,7 +47,7 @@ class SubtitleBlockWidget(QWidget):
         self._original_end = 0.0
 
         self.setMinimumHeight(36)
-        self.setCursor(Qt.SizeHorCursor)
+        self.setCursor(Qt.SizeHorCursor)  # type: ignore[attr-defined]
         self.setMouseTracking(True)
 
     def set_scale(self, scale: float) -> None:
@@ -62,7 +62,7 @@ class SubtitleBlockWidget(QWidget):
 
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)  # type: ignore[attr-defined]
 
         w = self.width()
         h = self.height()
@@ -104,7 +104,7 @@ class SubtitleBlockWidget(QWidget):
         painter.drawText(w - 80, h // 2 + 4, time_str)
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self._is_dragging = True
             self._drag_start_x = event.position().x()
             self._original_start = self._block.start_time

@@ -40,7 +40,7 @@ class AIOptionCard(QFrame):
         self._setup_ui(title, desc)
 
     def _setup_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #ai_card {{
                 background: {Colors.BG_SURFACE};
                 border: 1px solid {Colors.BORDER_SUBTLE};
@@ -58,7 +58,7 @@ class AIOptionCard(QFrame):
 
         self.checkbox = QCheckBox()
         self.checkbox.setChecked(self._enabled)
-        self.checkbox.setStyleSheet(f"""
+        self.checkbox.setStyleSheet(f"""  # type: ignore[attr-defined]
             QCheckBox {{
                 spacing: 8px;
             }}
@@ -111,7 +111,7 @@ class AnalysisProgress(QFrame):
         self._setup_ui()
 
     def _setup_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #analysis_progress {{
                 background: {Colors.BG_SURFACE};
                 border: 1px solid {Colors.PRIMARY_500};
@@ -127,7 +127,7 @@ class AnalysisProgress(QFrame):
         header_layout = QHBoxLayout()
         title = QLabel("✨ AI 正在分析中...")
         title.setFont(QFont("", FontSizes.md, QFont.Weight.Medium))
-        title.setStyleSheet(f"color: {Colors.PRIMARY_400};")
+        title.setStyleSheet(f"color: {Colors.PRIMARY_400};")  # type: ignore[attr-defined]
         header_layout.addWidget(title)
         header_layout.addStretch()
         self._percent_label = QLabel("0%")
@@ -139,7 +139,7 @@ class AnalysisProgress(QFrame):
         self.progress_bar = QProgressBar()
         self.progress_bar.setFixedHeight(8)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setStyleSheet(f"""
+        self.progress_bar.setStyleSheet(f"""  # type: ignore[attr-defined]
             QProgressBar {{
                 background: {Colors.BG_ELEVATED};
                 border: none;

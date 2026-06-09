@@ -34,7 +34,7 @@ class TextUtilsMixin:
         cover_texts = []
 
         # 获取平台热搜词
-        trending_keywords = self.PLATFORM_TRENDING_KEYWORDS.get(platform, [])
+        trending_keywords = self.PLATFORM_TRENDING_KEYWORDS.get(platform, [])  # type: ignore[attr-defined]
 
         # 提取文案中的关键词
         script_keywords = self._extract_keywords(script_text)
@@ -230,7 +230,7 @@ class TextUtilsMixin:
         keywords = self._extract_keywords(script_text)
 
         # 获取平台热搜词
-        trending_keywords = self.PLATFORM_TRENDING_KEYWORDS.get(platform, [])
+        trending_keywords = self.PLATFORM_TRENDING_KEYWORDS.get(platform, [])  # type: ignore[attr-defined]
 
         # 合并标签
         tags = list(set(keywords + trending_keywords[:3]))

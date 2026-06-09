@@ -118,18 +118,18 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         model = self._get_model_name(request.model)
 
         image_path = Path(image_path)
-        if not image_path.exists():
+        if not image_path.exists():  # type: ignore[attr-defined]
             raise ProviderError(f"图片不存在: {image_path}")
 
         with open(image_path, "rb") as f:
             image_data = base64.b64encode(f.read()).decode("utf-8")
 
         mime_type = "image/jpeg"
-        if image_path.suffix.lower() == ".png":
+        if image_path.suffix.lower() == ".png":  # type: ignore[attr-defined]
             mime_type = "image/png"
-        elif image_path.suffix.lower() in [".jpg", ".jpeg"]:
+        elif image_path.suffix.lower() in [".jpg", ".jpeg"]:  # type: ignore[attr-defined]
             mime_type = "image/jpeg"
-        elif image_path.suffix.lower() == ".webp":
+        elif image_path.suffix.lower() == ".webp":  # type: ignore[attr-defined]
             mime_type = "image/webp"
 
         messages = [

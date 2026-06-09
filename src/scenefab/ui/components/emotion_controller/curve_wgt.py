@@ -427,7 +427,7 @@ class EmotionCurveWidget(QWidget):
         y = int(margin_top + (1.0 - value) * plot_height)
 
         # 绘制垂直线
-        pen = QPen(self._curve_color.lighter(130), 1, Qt.DashLine)
+        pen = QPen(self._curve_color.lighter(130), 1, Qt.DashLine)  # type: ignore[attr-defined]
         painter.setPen(pen)
         painter.drawLine(x, margin_top, x, h - margin_bottom)
 

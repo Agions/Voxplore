@@ -9,7 +9,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ....components import MacLabel
+from ....components import MacLabel  # type: ignore[attr-defined]
 
 
 def create_stat_item(icon: str, label: str, value: str) -> QWidget:
@@ -49,7 +49,7 @@ def create_stat_item(icon: str, label: str, value: str) -> QWidget:
     layout.addWidget(label_widget)
 
     # 保存引用以便后续更新
-    container.stat_value_label = value_label
+    container.stat_value_label = value_label  # type: ignore[attr-defined]
 
     return container
 

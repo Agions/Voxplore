@@ -131,7 +131,7 @@ class SpinnerIndicator(QFrame):
         # 绘制旋转的弧线
         pen = QPen(self._color)
         pen.setWidth(3)
-        pen.setCapStyle(Qt.PenCapStyle.Round)
+        pen.setCapStyle(Qt.PenCapStyle.Round)  # type: ignore[attr-defined]
         pen.setBrush(QBrush(self._color))
         painter.setPen(pen)
 
@@ -304,7 +304,7 @@ class InlineLoader(QWidget):
         # 绘制弧形
         pen = QPen(self._color)
         pen.setWidth(2)
-        pen.setCapStyle(Qt.PenCapStyle.Round)
+        pen.setCapStyle(Qt.PenCapStyle.Round)  # type: ignore[attr-defined]
         painter.setPen(pen)
 
         rect = self.rect().adjusted(2, 2, -2, -2)

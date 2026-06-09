@@ -83,7 +83,7 @@ class MacOSThemeManager(QObject):
             return self._cache[resource_path]  # type: ignore[no-any-return]
 
         file = QFile(resource_path)
-        if file.exists() and file.open(QFile.ReadOnly | QFile.Text):
+        if file.exists() and file.open(QFile.ReadOnly | QFile.Text):  # type: ignore[attr-defined]
             content = QTextStream(file).readAll()
             file.close()
             self._cache[resource_path] = content

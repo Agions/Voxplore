@@ -112,7 +112,7 @@ class HomePage(QFrame):
         # 标题行
         title_row = QHBoxLayout()
         title = QLabel("快捷操作")
-        title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))
+        title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
         title_row.addWidget(title)
 
@@ -164,7 +164,7 @@ class HomePage(QFrame):
         # 标题行
         title_row = QHBoxLayout()
         title = QLabel("最近项目")
-        title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))
+        title.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
         title_row.addWidget(title)
 
@@ -245,7 +245,7 @@ class HomePage(QFrame):
         pro_layout.setSpacing(2)
 
         pro_title = QLabel("升级至 Pro")
-        pro_title.setFont(QFont("", FontSizes.xs, QFont.Weight.SemiBold))
+        pro_title.setFont(QFont("", FontSizes.xs, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         pro_title.setStyleSheet(f"color: {Colors.PRIMARY};")
         pro_layout.addWidget(pro_title)
 

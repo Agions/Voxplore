@@ -120,7 +120,7 @@ class ASRService:
                 )
 
             # 使用 batch_size 提升吞吐量
-            segments, info = self.model.transcribe(
+            segments, info = self.model.transcribe(  # type: ignore[attr-defined]
                 audio_path,
                 language=language if language != "auto" else None,
                 word_timestamps=word_timestamps,

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.project_manager import ProjectStatus, ProjectType
 
-from ....components import (
+from ....components import (  # type: ignore[attr-defined]
     MacElevatedCard,
     MacScrollArea,
     MacSearchBox,

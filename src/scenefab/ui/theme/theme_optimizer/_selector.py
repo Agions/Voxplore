@@ -65,7 +65,7 @@ class ThemePresetSelector(QWidget):
         """创建主题预览按钮"""
         btn = QPushButton()
         btn.setFixedSize(60, 50)
-        btn.setCursor(Qt.CursorShape.PointingHand)
+        btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         btn.setToolTip(name)
 
         # 预览样式

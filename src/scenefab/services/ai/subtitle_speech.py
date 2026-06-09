@@ -184,7 +184,7 @@ class SpeechSubtitleExtractor:
                     compute_type=compute_type,
                 )
                 # 缓存 batch_size 供转录使用
-                self._local_model_instance._batch_size = batch_size
+                self._local_model_instance._batch_size = batch_size  # type: ignore[attr-defined]
             except Exception as e:
                 raise RuntimeError(
                     f"加载 Faster-Whisper {self._local_model} 模型失败: {e}\n"
@@ -210,7 +210,7 @@ class SpeechSubtitleExtractor:
             transcribe_options.pop("language")
 
         try:
-            segments_gen, info = model.transcribe(audio_path, **transcribe_options)
+            segments_gen, info = model.transcribe(audio_path, **transcribe_options)  # type: ignore[attr-defined]
         except Exception as e:
             raise RuntimeError(f"Faster-Whisper 转录失败: {e}")
 

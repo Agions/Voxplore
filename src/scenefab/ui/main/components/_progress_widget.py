@@ -93,8 +93,8 @@ class ExportProgressWidget(QWidget):
         details_layout.addStretch()
 
         # 错误信息
-        if self.task.status == ExportStatus.FAILED and self.task.error_message:
-            error_label = QLabel(f"错误: {self.task.error_message}")
+        if self.task.status == ExportStatus.FAILED and self.task.error_message:  # type: ignore[attr-defined]
+            error_label = QLabel(f"错误: {self.task.error_message}")  # type: ignore[attr-defined]
             error_label.setStyleSheet(
                 f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
                 "padding: 5px; border-radius: 3px;"
@@ -152,15 +152,15 @@ class ExportProgressWidget(QWidget):
 
     def _get_task_name(self) -> str:
         """获取任务名称"""
-        project_name = self.task.metadata.get("project_name", "未知项目")
-        return f"{project_name} ({self.task.preset.name})"
+        project_name = self.task.metadata.get("project_name", "未知项目")  # type: ignore[attr-defined]
+        return f"{project_name} ({self.task.preset.name})"  # type: ignore[attr-defined]
 
     def _get_status_color(self) -> str:
         """获取状态颜色"""
         colors = {
             ExportStatus.PENDING: Colors.TextMuted,
-            ExportStatus.QUEUED: Colors.Warning,
-            ExportStatus.PROCESSING: Colors.Primary,
+            ExportStatus.QUEUED: Colors.Warning,  # type: ignore[attr-defined]
+            ExportStatus.PROCESSING: Colors.Primary,  # type: ignore[attr-defined]
             ExportStatus.COMPLETED: Colors.Success,
             ExportStatus.FAILED: Colors.Error,
             ExportStatus.CANCELLED: Colors.TextMuted,
@@ -175,7 +175,7 @@ class ExportProgressWidget(QWidget):
 
     def _calculate_eta(self) -> str:
         """计算预计剩余时间"""
-        if self.task.status != ExportStatus.PROCESSING or not self.task.started_at:
+        if self.task.status != ExportStatus.PROCESSING or not self.task.started_at:  # type: ignore[attr-defined]
             return "未知"
 
         elapsed_time = time.time() - self.task.started_at

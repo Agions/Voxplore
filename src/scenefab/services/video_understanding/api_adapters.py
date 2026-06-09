@@ -101,7 +101,7 @@ class APIAdapterMixin:
             prompt = self._build_understanding_prompt(segment)
 
             # 调用 Gemini API
-            url = f"{GEMINI_API_BASE}/gemini-3.1-pro:generateContent?key={self.gemini_api_key}"
+            url = f"{GEMINI_API_BASE}/gemini-3.1-pro:generateContent?key={self.gemini_api_key}"  # type: ignore[attr-defined]
 
             # 构建请求（简化版，实际需要上传视频片段）
             payload = {
@@ -111,7 +111,7 @@ class APIAdapterMixin:
                 },
             }
 
-            response = self.gemini_client.post(url, json=payload)
+            response = self.gemini_client.post(url, json=payload)  # type: ignore[attr-defined]
             response.raise_for_status()
             result = response.json()
 
@@ -145,7 +145,7 @@ class APIAdapterMixin:
             prompt = self._build_understanding_prompt(segment)
 
             # 调用 Qwen API
-            response = self.qwen_client.chat.completions.create(
+            response = self.qwen_client.chat.completions.create(  # type: ignore[attr-defined]
                 model=model,
                 messages=[
                     {

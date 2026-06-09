@@ -41,7 +41,7 @@ class BaseStepWindow(QWidget):
 
         self.step_label = QLabel(f"步骤 {self._step_index + 1}/4")
         self.step_label.setObjectName("step_counter")
-        self.step_label.setAlignment(Qt.AlignCenter)
+        self.step_label.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
 
         self.btn_next = QPushButton("下一步 →")
         self.btn_next.setObjectName("primary")

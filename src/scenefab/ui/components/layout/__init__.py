@@ -36,7 +36,7 @@ class MacGrid(QWidget):
 
     def _setup_ui(self):
         self.layout = QGridLayout(self)
-        self.layout.setSpacing(16)
+        self.layout.setSpacing(16)  # type: ignore[attr-defined]
         self.items: list[QWidget] = []
 
     def add_widget(self, widget: QWidget, row: int = -1, col: int = -1):
@@ -45,7 +45,7 @@ class MacGrid(QWidget):
             row = (len(self.items) - 1) // self.columns
         if col == -1:
             col = (len(self.items) - 1) % self.columns
-        self.layout.addWidget(widget, row, col)
+        self.layout.addWidget(widget, row, col)  # type: ignore[attr-defined]
 
 
 class MacPageToolbar(QWidget):

@@ -504,8 +504,8 @@ class F5TTSProvider(TTSProvider):
 
         # 转码为 MP3(如果需要)
         output_path = Path(output_path)
-        if config.output_format != "wav" and output_path.suffix.lower() == ".wav":
-            mp3_path = output_path.with_suffix(".mp3")
+        if config.output_format != "wav" and output_path.suffix.lower() == ".wav":  # type: ignore[attr-defined]
+            mp3_path = output_path.with_suffix(".mp3")  # type: ignore[attr-defined]
             self._convert_to_mp3(str(output_path), str(mp3_path))
             output_path = mp3_path
 

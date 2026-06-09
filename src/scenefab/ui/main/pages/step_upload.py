@@ -33,7 +33,7 @@ class VideoDropZone(QFrame):
         self._setup_ui()
 
     def _setup_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #drop_zone {{
                 background: {Colors.BG_SURFACE};
                 border: 2px dashed {Colors.BORDER_DEFAULT};
@@ -148,13 +148,13 @@ class FileListItem(QFrame):
         name = QLabel(self._name)
         name.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
         name.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
-        name.setElideMode(Qt.TextElideMode.ElideMiddle)
+        name.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         info_layout.addWidget(name)
 
         path = QLabel(self._file_path)
         path.setFont(QFont("", FontSizes.xs))
         path.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
-        path.setElideMode(Qt.TextElideMode.ElideMiddle)
+        path.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         info_layout.addWidget(path)
 
         layout.addLayout(info_layout, 1)
@@ -239,7 +239,7 @@ class StepUploadPage(StepPage):
 
         for f in self._files:
             item = FileListItem(f)
-            item.removed.connect(lambda p=f: self._remove_file(p))
+            item.removed.connect(lambda p=f: self._remove_file(p))  # type: ignore[attr-defined]
             layout.addWidget(item)
 
         layout.addStretch()

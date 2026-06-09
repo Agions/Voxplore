@@ -74,15 +74,15 @@ class AnimationHelper:
         try:
             import winreg
 
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER,
+            key = winreg.OpenKey(  # type: ignore[attr-defined]
+                winreg.HKEY_CURRENT_USER,  # type: ignore[attr-defined]
                 r"SOFTWARE\Microsoft\Ease of Access Details",
                 0,
             )
             # "Show animation" DWORD: 1 = on, 0 = off
-            value, _ = winreg.QueryValueEx(key, "ShowAnimation")
+            value, _ = winreg.QueryValueEx(key, "ShowAnimation")  # type: ignore[attr-defined]
             reduced = value == 0
-            winreg.CloseKey(key)
+            winreg.CloseKey(key)  # type: ignore[attr-defined]
             return reduced  # type: ignore[no-any-return, attr-defined]
         except (OSError, FileNotFoundError) as e:
             logger.warning("Windows reduced motion detection failed: %s", e)
@@ -295,7 +295,7 @@ class AnimationHelper:
         reverse.setStartValue(0.8)
         reverse.setEndValue(1)
         reverse.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        reverse.setStartTime(duration)
+        reverse.setStartTime(duration)  # type: ignore[attr-defined]
         reverse.start()
 
         return animation

@@ -71,12 +71,12 @@ class SceneAnalyzerV2(SceneAnalyzer):
             scene.suitability_score = self._calculate_enhanced_suitability(scene)
 
             if narration_importance_fn is not None:
-                scene.narration_importance = narration_importance_fn(scene)
+                scene.narration_importance = narration_importance_fn(scene)  # type: ignore[attr-defined]
             elif (
                 not hasattr(scene, "narration_importance")
                 or scene.narration_importance <= 0
             ):
-                scene.narration_importance = (
+                scene.narration_importance = (  # type: ignore[attr-defined]
                     self._calculate_default_narration_importance(scene)
                 )
             # else: 保留现有 scene.narration_importance 值

@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 )
 
 from ....common.macos_components import create_icon_text_row
-from ....components import (
+from ....components import (  # type: ignore[attr-defined]
     MacBadge,
     MacCard,
     MacDangerButton,
@@ -288,15 +288,15 @@ class ProjectDetailsPanel(QWidget):
         self._type_badge.setText(project.metadata.project_type.value)
 
         # 统计
-        self._stat_media.stat_value_label.setText(str(len(project.media_files)))
+        self._stat_media.stat_value_label.setText(str(len(project.media_files)))  # type: ignore[attr-defined]
 
         duration = project.timeline.duration
-        self._stat_duration.stat_value_label.setText(self._format_duration(duration))
+        self._stat_duration.stat_value_label.setText(self._format_duration(duration))  # type: ignore[attr-defined]
 
         size = self._calc_size(project)
-        self._stat_size.stat_value_label.setText(self._format_size(size))
+        self._stat_size.stat_value_label.setText(self._format_size(size))  # type: ignore[attr-defined]
 
-        self._stat_status.stat_value_label.setText(project.metadata.status.value)
+        self._stat_status.stat_value_label.setText(project.metadata.status.value)  # type: ignore[attr-defined]
 
         # 时间
         self._created_label.setText(

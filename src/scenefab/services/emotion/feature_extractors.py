@@ -65,7 +65,7 @@ class FeatureExtractorsMixin:
 
             # 检测峰值（比前后都高）
             if curr_intensity > prev_intensity and curr_intensity > next_intensity:
-                if curr_intensity > self.INTENSITY_THRESHOLDS["high"]:
+                if curr_intensity > self.INTENSITY_THRESHOLDS["high"]:  # type: ignore[attr-defined]
                     peak_moments.append(
                         {
                             "timestamp": scene_emotions[i].timestamp,
@@ -96,8 +96,8 @@ class FeatureExtractorsMixin:
             import numpy as np
 
             # 优先使用缓存的音频数据
-            if video_path in self._audio_cache:
-                cached = self._audio_cache[video_path]
+            if video_path in self._audio_cache:  # type: ignore[attr-defined]
+                cached = self._audio_cache[video_path]  # type: ignore[attr-defined]
                 y_full, sr = cached["y"], cached["sr"]
                 # 从缓存中切片
                 start_sample = int(max(0, timestamp - 2) * sr)

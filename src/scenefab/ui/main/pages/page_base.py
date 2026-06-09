@@ -121,7 +121,7 @@ class PageBase(ABC):
 
     def get_config(self, key: str = None, default: Any = None) -> Any:
         """获取配置"""
-        from scenefab.utils.config import get_config
+        from scenefab.utils.config import get_config  # type: ignore[attr-defined]
 
         config = get_config()
         if key is None:

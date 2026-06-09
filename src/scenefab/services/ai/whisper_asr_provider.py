@@ -173,7 +173,7 @@ class WhisperASRProvider:
                 download_root=Path.home() / ".cache" / "whisper",
             )
 
-        segments, info = self._model.transcribe(
+        segments, info = self._model.transcribe(  # type: ignore[attr-defined]
             audio_path,
             language=language if language != "auto" else None,
             vad_filter=vad_filter,
@@ -214,7 +214,7 @@ class WhisperASRProvider:
             logger.info(f"加载 whisper-{self.model_size} 模型...")
             self._model = whisper.load_model(self.model_size)
 
-        result = self._model.transcribe(
+        result = self._model.transcribe(  # type: ignore[attr-defined]
             audio_path,
             language=language if language != "auto" else None,
             fp16=False,  # CPU 模式

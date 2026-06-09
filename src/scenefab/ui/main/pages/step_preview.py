@@ -236,7 +236,7 @@ class StepPreview(QWidget):
             from scenefab.services.orchestration import ProjectManager
 
             manager = ProjectManager()
-            project = manager.get_project(self._project_id)
+            project = manager.get_project(self._project_id)  # type: ignore[attr-defined]
             if project:
                 project.settings.narration_text = text
                 manager.save(project)

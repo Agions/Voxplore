@@ -16,9 +16,9 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStackedWidget, QVBox
 from scenefab.orchestration.pipeline_controller import PipelineController
 
 from .base_page import BasePage
-from .step_export import StepExport
+from .step_export import StepExport  # type: ignore[attr-defined]
 from .step_pipeline import StepPipeline
-from .step_upload import StepUpload
+from .step_upload import StepUpload  # type: ignore[attr-defined]
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {

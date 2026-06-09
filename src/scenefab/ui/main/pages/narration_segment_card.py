@@ -71,7 +71,7 @@ class NarrationSegmentCard(QFrame):
 
         # 时间段标签
         self._time_label = QLabel(self._time_range)
-        self._time_label.setFont(QFont("", 11, QFont.Weight.SemiBold))
+        self._time_label.setFont(QFont("", 11, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         self._time_label.setStyleSheet(f"""
             color: {_T["primary"]};
             background: {_T["primary"]}20;

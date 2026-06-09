@@ -62,9 +62,9 @@ class ThemeAwareMixin:
         self._is_dark = is_dark
         stylesheet = self._get_theme_stylesheet(is_dark)
         if stylesheet:
-            self.setStyleSheet(stylesheet)
+            self.setStyleSheet(stylesheet)  # type: ignore[attr-defined]
         # 递归更新子组件
-        for child in self.findChildren(QWidget):
+        for child in self.findChildren(QWidget):  # type: ignore[attr-defined]
             if hasattr(child, "update_theme") and child is not self:
                 child.update_theme(is_dark)
 

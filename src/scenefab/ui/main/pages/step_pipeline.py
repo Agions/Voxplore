@@ -106,7 +106,7 @@ class StageCard(QFrame):
         self.sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.sub_label.setStyleSheet(f"color: {_T['text_muted']};")
         layout.addWidget(self.sub_label)
-        self.clicked.connect(lambda: self.stage_clicked.emit(self._stage))
+        self.clicked.connect(lambda: self.stage_clicked.emit(self._stage))  # type: ignore[attr-defined]
 
     def _apply_style(self):
         color = _STAGE_COLORS.get(self._state, _T["idle"])

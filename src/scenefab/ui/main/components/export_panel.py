@@ -276,7 +276,7 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         selected_projects = []
         for i in range(self.batch_projects_table.rowCount()):
             checkbox = self.batch_projects_table.cellWidget(i, 0)
-            if checkbox and checkbox.isChecked():
+            if checkbox and checkbox.isChecked():  # type: ignore[attr-defined]
                 selected_projects.append(
                     {
                         "id": self.batch_projects_table.item(i, 1).data(
@@ -294,14 +294,14 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         for i in range(self.batch_projects_table.rowCount()):
             checkbox = self.batch_projects_table.cellWidget(i, 0)
             if checkbox:
-                checkbox.setChecked(True)
+                checkbox.setChecked(True)  # type: ignore[attr-defined]
 
     def select_none_projects(self):
         """全不选项目"""
         for i in range(self.batch_projects_table.rowCount()):
             checkbox = self.batch_projects_table.cellWidget(i, 0)
             if checkbox:
-                checkbox.setChecked(False)
+                checkbox.setChecked(False)  # type: ignore[attr-defined]
 
     def handle_queue_action(self, action: str, task_id: str):
         """处理队列操作"""
@@ -348,8 +348,8 @@ class ExportPanel(QWidget, ThemeAwareMixin):
     def apply_queue_settings(self):
         """应用队列设置"""
         try:
-            max_concurrent = self.max_concurrent_spin.value()
-            auto_cleanup = self.auto_cleanup_check.isChecked()
+            max_concurrent = self.max_concurrent_spin.value()  # type: ignore[attr-defined]
+            auto_cleanup = self.auto_cleanup_check.isChecked()  # type: ignore[attr-defined]
             self._apply_concurrent_limit(max_concurrent)
             if auto_cleanup:
                 self._schedule_cleanup()
@@ -398,7 +398,7 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         dialog = ExportSettingsDialog(preset, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             preset_data = dialog.get_preset_data()
-            self._save_preset(preset.id, preset_data)
+            self._save_preset(preset.id, preset_data)  # type: ignore[attr-defined]
             QMessageBox.information(self, "成功", "预设已更新")
 
     def _save_preset(self, preset_id: str, data: dict):
@@ -432,7 +432,7 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            success = self.export_system.remove_preset(preset.id)
+            success = self.export_system.remove_preset(preset.id)  # type: ignore[attr-defined]
             if success:
                 self.refresh_presets_table()
                 QMessageBox.information(self, "成功", "预设已删除")

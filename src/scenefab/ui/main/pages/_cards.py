@@ -130,7 +130,7 @@ class QuickCard(GlassCard):
 
         # 标题
         title_lbl = QLabel(self._title)
-        title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))
+        title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         layout.addWidget(title_lbl)
 
@@ -218,7 +218,7 @@ class ProjectCard(GlassCard):
         name_lbl = QLabel(self._name)
         name_lbl.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
         name_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
-        name_lbl.setElideMode(Qt.TextElideMode.ElideRight)
+        name_lbl.setElideMode(Qt.TextElideMode.ElideRight)  # type: ignore[attr-defined]
         info_layout.addWidget(name_lbl)
 
         meta_layout = QHBoxLayout()

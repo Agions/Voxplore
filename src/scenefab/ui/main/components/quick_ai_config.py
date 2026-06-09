@@ -23,7 +23,7 @@ from scenefab.logger import Logger
 from scenefab.settings import ConfigManager
 
 # 导入标准化 macOS 组件
-from ...common.macos_components import (
+from ...common.macos_components import (  # type: ignore[attr-defined]
     MacBadge,
     MacCard,
     MacEmptyState,
@@ -154,13 +154,13 @@ class QuickAIConfigWidget(QWidget):
         """设置信号连接"""
         # 连接按钮信号
         if hasattr(self, "apply_button"):
-            self.apply_button.clicked.connect(self._on_apply_clicked)
+            self.apply_button.clicked.connect(self._on_apply_clicked)  # type: ignore[attr-defined]
         if hasattr(self, "refresh_button"):
             self.refresh_button.clicked.connect(self.refresh_status)
 
         # 连接配置变化信号
         if hasattr(self, "config_changed"):
-            self.config_changed.connect(self._on_config_changed)
+            self.config_changed.connect(self._on_config_changed)  # type: ignore[attr-defined]
 
     def _setup_refresh_timer(self):
         """设置定时刷新"""
@@ -171,7 +171,7 @@ class QuickAIConfigWidget(QWidget):
     def _get_configured_models(self) -> list[str]:
         """获取已配置的模型列表"""
         try:
-            ai_configs = self.config_manager.get_value("ai_models", {})
+            ai_configs = self.config_manager.get_value("ai_models", {})  # type: ignore[attr-defined]
             return list(ai_configs.keys())
         except Exception as e:
             self.logger.error(f"获取已配置模型失败: {e}")
@@ -180,7 +180,7 @@ class QuickAIConfigWidget(QWidget):
     def _get_recent_models(self) -> list[tuple]:
         """获取最近使用的模型"""
         try:
-            recent_models = self.config_manager.get_value("recent_ai_models", [])
+            recent_models = self.config_manager.get_value("recent_ai_models", [])  # type: ignore[attr-defined]
             return [(model.get("name", ""), model) for model in recent_models]
         except Exception as e:
             self.logger.error(f"获取最近使用模型失败: {e}")

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
 from scenefab.project_manager import Project
 from scenefab.settings_manager import ProjectSettingsManager
 
-from ....components import (
+from ....components import (  # type: ignore[attr-defined]
     MacIconButton,
     MacPrimaryButton,
     MacSecondaryButton,

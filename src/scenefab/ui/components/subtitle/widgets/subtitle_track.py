@@ -60,7 +60,7 @@ class SubtitleTrackWidget(QFrame):
         label = QLabel(self._track.name)
         label.setObjectName("trackLabel")
         label.setFixedWidth(56)
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         layout.addWidget(label)
 
         # 轨道内容区（需要scroll area）

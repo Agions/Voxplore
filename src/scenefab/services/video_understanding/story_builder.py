@@ -83,7 +83,7 @@ class StoryBuilderMixin:
             segments.append(segment)
 
             # 下一段（考虑重叠）
-            start_time = end_time - self.OVERLAP_DURATION
+            start_time = end_time - self.OVERLAP_DURATION  # type: ignore[attr-defined]
             segment_id += 1
 
         logger.info(f"视频分段完成: {len(segments)} 个片段")

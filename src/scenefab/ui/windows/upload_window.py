@@ -87,7 +87,7 @@ class UploadWindow(BaseStepWindow):
     def _add_file_item(self, path: str):
         """向列表添加文件项"""
         item = QListWidgetItem(path.split("/")[-1])
-        item.setData(Qt.UserRole, path)
+        item.setData(Qt.UserRole, path)  # type: ignore[attr-defined]
         self.file_list.addItem(item)
 
     def _clear_files(self):
@@ -140,19 +140,19 @@ class DropZone(QFrame):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignCenter)
+        layout.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
 
         self.icon = QLabel("📁")
-        self.icon.setAlignment(Qt.AlignCenter)
+        self.icon.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.icon.setObjectName("drop_icon")
         self.icon.setStyleSheet("font-size: 48px;")
 
         self.title = QLabel("拖拽视频文件到这里")
-        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.title.setObjectName("drop_title")
 
         self.subtitle = QLabel("支持 MP4 / MOV / AVI / MKV / WebM")
-        self.subtitle.setAlignment(Qt.AlignCenter)
+        self.subtitle.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.subtitle.setObjectName("drop_subtitle")
 
         self.btn = QPushButton("或点击选择文件")

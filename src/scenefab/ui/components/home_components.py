@@ -156,7 +156,7 @@ class ProjectPreviewCard(QFrame):
         # 项目名
         name = self._project_data.get("name", "未命名项目")
         name_label = QLabel(name)
-        name_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
+        name_label.setFont(QFont("", 14, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         name_label.setStyleSheet(
             f"color: {Colors.TextPrimary}; background: transparent;"
         )
@@ -279,7 +279,7 @@ class AIPowerBadge(QFrame):
         layout.setSpacing(8)
 
         title_label = QLabel(f"⚡ {title}")
-        title_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
+        title_label.setFont(QFont("", 14, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title_label.setStyleSheet(
             f"color: {Colors.AccentSubtle}; background: transparent;"
         )

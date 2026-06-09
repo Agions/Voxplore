@@ -75,7 +75,7 @@ class MainWindow(QMainWindow):
         self.upload_win.next_requested.connect(self._on_upload_done)
         self.scene_win.next_requested.connect(self._on_scene_done)
         self.narration_win.next_requested.connect(self._on_narration_done)
-        self.export_win.finished.connect(self._on_pipeline_done)
+        self.export_win.finished.connect(self._on_pipeline_done)  # type: ignore[attr-defined]
 
         self.step_indicator.step_changed.connect(
             lambda s: self.pages.setCurrentIndex(s)

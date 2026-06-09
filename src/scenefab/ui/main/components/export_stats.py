@@ -88,7 +88,7 @@ class ExportStatisticsWidget(QWidget):
         """更新统计信息"""
         self.total_tasks = len(tasks)
         self.processing_tasks = len(
-            [t for t in tasks if t.status == ExportStatus.PROCESSING]
+            [t for t in tasks if t.status == ExportStatus.PROCESSING]  # type: ignore[attr-defined]
         )
         self.completed_tasks = len(
             [t for t in tasks if t.status == ExportStatus.COMPLETED]

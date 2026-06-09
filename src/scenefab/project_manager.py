@@ -102,7 +102,7 @@ class Project:
             if hasattr(self.settings, key):
                 setattr(self.settings, key, value)
             else:
-                self.settings.custom_settings[key] = value
+                self.settings.custom_settings[key] = value  # type: ignore[attr-defined]
         self.is_modified = True
         self.metadata.modified_at = datetime.now()
 
@@ -232,7 +232,7 @@ class ProjectManager(QObject):
         return self.config_manager.get("editor.recent_files", [])  # type: ignore[no-any-return, attr-defined]
 
     def _save_recent_projects(self) -> None:
-        self.config_manager.set("editor.recent_files", self.recent_projects[:10])
+        self.config_manager.set("editor.recent_files", self.recent_projects[:10])  # type: ignore[attr-defined]
         self.recent_projects_updated.emit(self.recent_projects[:10])
 
     def _add_to_recent_projects(self, project_path: str) -> None:
@@ -250,7 +250,7 @@ class ProjectManager(QObject):
 
     def _auto_save(self) -> None:
         if self.current_project and self.current_project.is_modified:
-            interval = self.current_project.settings.auto_save_interval
+            interval = self.current_project.settings.auto_save_interval  # type: ignore[attr-defined]
             if interval > 0:
                 elapsed = (
                     datetime.now() - self.current_project.metadata.modified_at
@@ -333,10 +333,10 @@ class ProjectManager(QObject):
         if project_id not in self.projects:
             return False
         project = self.projects[project_id]
-        if project.settings.backup_enabled and not auto_save:
+        if project.settings.backup_enabled and not auto_save:  # type: ignore[attr-defined]
             backup_path = project.create_backup()
             if backup_path:
-                project.cleanup_old_backups(project.settings.backup_count)
+                project.cleanup_old_backups(project.settings.backup_count)  # type: ignore[attr-defined]
         if project.save():
             self.project_saved.emit(project_id)
             if not auto_save:

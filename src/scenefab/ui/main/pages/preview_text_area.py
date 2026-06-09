@@ -65,7 +65,7 @@ class PreviewTextArea(QFrame):
         # 头部
         header = QHBoxLayout()
         title = QLabel("解说文案预览")
-        title.setFont(QFont("", 13, QFont.Weight.SemiBold))
+        title.setFont(QFont("", 13, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title.setStyleSheet(f"color: {_T['text']};")
         header.addWidget(title)
 

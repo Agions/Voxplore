@@ -116,7 +116,7 @@ class GroupCard(QFrame):
 
         # 分组标签
         self._label_edit = QLineEdit(self._group_label)
-        self._label_edit.setFont(QFont("", 13, QFont.Weight.SemiBold))
+        self._label_edit.setFont(QFont("", 13, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         self._label_edit.setStyleSheet(f"""
             QLineEdit {{
                 background: transparent;

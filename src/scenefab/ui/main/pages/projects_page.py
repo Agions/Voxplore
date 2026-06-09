@@ -10,7 +10,7 @@ import logging
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QSplitter, QWidget
 
-from ...components import (
+from ...components import (  # type: ignore[attr-defined]
     MacIconButton,
     MacPageToolbar,
     MacPrimaryButton,
@@ -51,7 +51,7 @@ class ProjectsPage(BasePage):
 
     def create_content(self) -> None:
         """创建页面内容"""
-        self._refresh()
+        self._refresh()  # type: ignore[attr-defined]
 
     def _check_services(self):
         """检查服务状态"""
@@ -80,7 +80,7 @@ class ProjectsPage(BasePage):
         # 左侧：列表面板
         self._list_panel = ProjectsListPanel(self._project_manager)
         # 连接列表信号到详情面板
-        self._list_panel.project_selected.connect(self._on_project_selected)
+        self._list_panel.project_selected.connect(self._on_project_selected)  # type: ignore[attr-defined]
         splitter.addWidget(self._list_panel)
 
         # 右侧：详情面板
@@ -205,7 +205,7 @@ class ProjectsPage(BasePage):
     def refresh(self):
         """刷新页面"""
         if hasattr(self, "_list_panel") and self._list_panel:
-            self._list_panel.load_projects()
+            self._list_panel.load_projects()  # type: ignore[attr-defined]
 
     def get_page_type(self) -> str:
         """获取页面类型"""

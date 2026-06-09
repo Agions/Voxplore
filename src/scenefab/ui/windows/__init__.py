@@ -5,7 +5,7 @@ SceneFab UI Windows
 
 from .base_step_window import BaseStepWindow
 from .export_window import ExportWindow
-from .main_window import MainWindow, SceneFabApp
+from .main_window import MainWindow, SceneFabApp  # type: ignore[attr-defined]
 from .narration_window import NarrationWindow
 from .projects_window import ProjectCard, ProjectsWindow
 from .scene_window import SceneWindow

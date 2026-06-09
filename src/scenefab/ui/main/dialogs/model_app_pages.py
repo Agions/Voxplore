@@ -439,10 +439,10 @@ class SubmitApplicationPage(QWizardPage):
             self.title_label.setText(f"提交 {self.provider.name} 申请")
 
             # 获取前面页面的信息
-            app_type = wizard.page(2).app_type_combo.currentText()
-            purpose = wizard.page(2).purpose_edit.toPlainText()
-            usage = wizard.page(2).usage_combo.currentText()
-            contact = wizard.page(2).contact_edit.text()
+            app_type = wizard.page(2).app_type_combo.currentText()  # type: ignore[attr-defined]
+            purpose = wizard.page(2).purpose_edit.toPlainText()  # type: ignore[attr-defined]
+            usage = wizard.page(2).usage_combo.currentText()  # type: ignore[attr-defined]
+            contact = wizard.page(2).contact_edit.text()  # type: ignore[attr-defined]
 
             # 更新摘要
             self.provider_label.setText(self.provider.name)

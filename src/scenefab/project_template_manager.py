@@ -221,11 +221,11 @@ class ProjectTemplateManager(QObject):
             )
 
             # 复制预览图（如果存在）
-            if project.metadata.thumbnail_path and os.path.exists(
-                project.metadata.thumbnail_path
+            if project.metadata.thumbnail_path and os.path.exists(  # type: ignore[attr-defined]
+                project.metadata.thumbnail_path  # type: ignore[attr-defined]
             ):
                 preview_dest = template_dir / "preview.png"
-                shutil.copy2(project.metadata.thumbnail_path, preview_dest)
+                shutil.copy2(project.metadata.thumbnail_path, preview_dest)  # type: ignore[attr-defined]
                 template_info.preview_image = str(preview_dest)
 
             # 保存模板信息

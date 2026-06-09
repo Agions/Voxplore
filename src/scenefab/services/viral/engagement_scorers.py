@@ -36,7 +36,7 @@ class EngagementScorersMixin:
         suggestions = []
 
         # 获取平台最优 BPM
-        platform_bpm = self.PLATFORM_OPTIMAL_BPM.get(platform, {})
+        platform_bpm = self.PLATFORM_OPTIMAL_BPM.get(platform, {})  # type: ignore[attr-defined]
         target_bpm = platform_bpm.get(rhythm_type, 100)
 
         # 计算匹配度

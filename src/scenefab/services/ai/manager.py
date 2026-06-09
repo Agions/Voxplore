@@ -6,7 +6,7 @@ AI 服务管理器
 from __future__ import annotations
 
 import logging
-from typing import Any, Self
+from typing import Any, Self  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 

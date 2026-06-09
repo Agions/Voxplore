@@ -83,8 +83,8 @@ class FormatOptionCard(QFrame):
         self._setup_ui(icon, name, desc)
 
     def _setup_style(self):
-        border_color = Colors.PRIMARY_500 if self._checked else Colors.BORDER_SUBTLE
-        self.setStyleSheet(f"""
+        border_color = Colors.PRIMARY_500 if self._checked else Colors.BORDER_SUBTLE  # type: ignore[attr-defined]
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             #fmt_card {{
                 background: {Colors.BG_SURFACE};
                 border: 2px solid {border_color};
@@ -198,7 +198,7 @@ class ExportProgress(QFrame):
         self._file_label = QLabel("输出: ~/SceneFab/Exports/video_001.mp4")
         self._file_label.setFont(QFont("", FontSizes.xs))
         self._file_label.setStyleSheet(f"color: {Colors.TEXT_MUTED};")
-        self._file_label.setElideMode(Qt.TextElideMode.ElideMiddle)
+        self._file_label.setElideMode(Qt.TextElideMode.ElideMiddle)  # type: ignore[attr-defined]
         layout.addWidget(self._file_label)
 
     def set_progress(self, value: int):
@@ -278,7 +278,7 @@ class StepExportPage(StepPage):
 
         # 格式选择
         format_label = QLabel("选择导出格式")
-        format_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))
+        format_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
         format_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         layout.addWidget(format_label)
 

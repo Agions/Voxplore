@@ -380,7 +380,7 @@ class BeatDetector:
 
         # 段落摘要
         for section in result.sections:
-            report["sections_summary"].append(
+            report["sections_summary"].append(  # type: ignore[attr-defined]
                 {
                     "type": section.section_type.value,
                     "start": section.start,

@@ -41,8 +41,8 @@ class MainWindowEventHandler:
         status_messages = {
             ApplicationState.INITIALIZING: "正在初始化...",
             ApplicationState.READY: "就绪",
-            ApplicationState.LOADING: "正在加载...",
-            ApplicationState.PROCESSING: "处理中...",
+            ApplicationState.LOADING: "正在加载...",  # type: ignore[attr-defined]
+            ApplicationState.PROCESSING: "处理中...",  # type: ignore[attr-defined]
             ApplicationState.ERROR: "发生错误",
         }
 

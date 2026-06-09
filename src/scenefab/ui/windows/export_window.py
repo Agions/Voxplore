@@ -54,7 +54,7 @@ class ExportWindow(BaseStepWindow):
         for label, value in formats:
             btn = QRadioButton(label)
             btn.setChecked(value == self._format)
-            btn.value = value
+            btn.value = value  # type: ignore[attr-defined]
             btn.toggled.connect(
                 lambda checked, v=value: self._on_format_change(v) if checked else None
             )
@@ -75,7 +75,7 @@ class ExportWindow(BaseStepWindow):
         for label, value in qualities:
             btn = QRadioButton(label)
             btn.setChecked(value == self._quality)
-            btn.value = value
+            btn.value = value  # type: ignore[attr-defined]
             btn.toggled.connect(
                 lambda checked, v=value: self._on_quality_change(v) if checked else None
             )
@@ -97,7 +97,7 @@ class ExportWindow(BaseStepWindow):
         self.preview_placeholder = QLabel(
             "🎬 视频预览区域\n\n点击「开始导出」生成最终视频"
         )
-        self.preview_placeholder.setAlignment(Qt.AlignCenter)
+        self.preview_placeholder.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.preview_placeholder.setObjectName("preview_placeholder")
         self.preview_placeholder.setMinimumHeight(200)
         preview_layout.addWidget(self.preview_placeholder)
@@ -166,7 +166,7 @@ class ExportWindow(BaseStepWindow):
         self.preview_placeholder.setText(
             "✅ 导出完成!\n\n文件已保存至：~/Videos/SceneFab/"
         )
-        self.finished.emit()
+        self.finished.emit()  # type: ignore[attr-defined]
 
     def can_proceed(self) -> bool:
         return True

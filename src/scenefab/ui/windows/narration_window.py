@@ -105,10 +105,10 @@ class NarrationWindow(BaseStepWindow):
         speed_layout = QVBoxLayout(speed_group)
         speed_layout.setSpacing(8)
 
-        self.speed_slider = QSlider(Qt.Horizontal)
+        self.speed_slider = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self.speed_slider.setRange(50, 200)
         self.speed_slider.setValue(100)
-        self.speed_slider.setTickPosition(QSlider.TicksBelow)
+        self.speed_slider.setTickPosition(QSlider.TicksBelow)  # type: ignore[attr-defined]
         self.speed_slider.setTickInterval(25)
         self.speed_slider.valueChanged.connect(self._on_speed_change)
 

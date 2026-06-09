@@ -37,7 +37,7 @@ class ExportWorker(QThread):
                     self._output_dir,
                 )
             else:
-                output_path = maker.export_to_mp4(
+                output_path = maker.export_to_mp4(  # type: ignore[attr-defined]
                     self._project,
                     self._output_dir,
                     subtitle_style=self._subtitle_style,

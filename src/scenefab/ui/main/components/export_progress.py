@@ -94,7 +94,7 @@ class ExportQueueWidget(QWidget):
             self.task_table.setItem(i, 0, QTableWidgetItem(task.id[:8] + "..."))
 
             # 项目名称
-            project_name = task.metadata.get("project_name", "未知项目")
+            project_name = task.metadata.get("project_name", "未知项目")  # type: ignore[attr-defined]
             self.task_table.setItem(i, 1, QTableWidgetItem(project_name))
 
             # 状态

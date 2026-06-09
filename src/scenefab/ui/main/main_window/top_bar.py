@@ -41,7 +41,7 @@ class TopBar(QFrame):
         left_layout.setSpacing(8)
 
         self._title_label = QLabel(self._title)
-        self._title_label.setFont(QFont("", FontSizes.lg, QFont.Weight.SemiBold))
+        self._title_label.setFont(QFont("", FontSizes.lg, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         self._title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         left_layout.addWidget(self._title_label)
 

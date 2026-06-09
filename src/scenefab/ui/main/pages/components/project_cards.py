@@ -11,7 +11,12 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from ....components import MacBadge, MacCard, MacIconButton, MacLabel
+from ....components import (  # type: ignore[attr-defined]
+    MacBadge,
+    MacCard,
+    MacIconButton,
+    MacLabel,
+)
 
 
 class ProjectCard(MacCard):
@@ -26,7 +31,7 @@ class ProjectCard(MacCard):
         super().__init__(parent)
         self.project = project
         self.setProperty("class", "card project-card")
-        self.set_interactive(True)  # 设置为可交互卡片
+        self.set_interactive(True)  # 设置为可交互卡片  # type: ignore[attr-defined]
         self.setFixedSize(300, 200)
 
         self._setup_ui()
@@ -126,7 +131,7 @@ class TemplateCard(MacCard):
         self.is_selected = False
         self.setProperty("class", "card template-card")
         self.setFixedSize(220, 180)
-        self.set_interactive(True)
+        self.set_interactive(True)  # type: ignore[attr-defined]
 
         self._setup_ui()
         self._update_display()

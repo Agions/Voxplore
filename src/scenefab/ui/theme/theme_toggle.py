@@ -70,7 +70,7 @@ class ThemeToggleButton(QWidget):
         layout.addWidget(arrow)
 
         # 设置为可点击
-        self.setCursor(Qt.CursorShape.PointingHand)
+        self.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.setStyleSheet("""
             QWidget {
                 background-color: #1A1A24;
@@ -204,7 +204,7 @@ class QuickThemeSwitcher(QWidget):
         """创建主题按钮"""
         btn = QPushButton()
         btn.setFixedSize(32, 32)
-        btn.setCursor(Qt.CursorShape.PointingHand)
+        btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         btn.setToolTip(name)
 
         bg = "#0A0A0F" if is_dark else "#FFFFFF"
@@ -243,7 +243,7 @@ class ThemePreviewCard(QWidget):
 
     def _setup_ui(self):
         self.setFixedSize(140, 100)
-        self.setCursor(Qt.CursorShape.PointingHand)
+        self.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
 
         # 主色
         primary = self._colors.get("primary", "#6366F1")

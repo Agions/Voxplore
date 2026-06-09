@@ -213,7 +213,7 @@ class CaptionGenerator:
 
             # 如果有逐词时间戳
             if "words" in segment and segment["words"]:
-                for word_data in segment["words"]:
+                for word_data in segment["words"]:  # type: ignore[attr-defined]
                     word = Word(
                         text=word_data["word"],
                         start_time=word_data["start"],
@@ -267,7 +267,7 @@ class CaptionGenerator:
                 ass_content += self._generate_ass_simple(caption)
 
         # 写入文件
-        output_path.write_text(ass_content, encoding="utf-8-sig")
+        output_path.write_text(ass_content, encoding="utf-8-sig")  # type: ignore[attr-defined]
 
     def to_srt_format(self, captions: list[Caption], output_path: str) -> None:
         """
@@ -296,7 +296,7 @@ class CaptionGenerator:
             # 空行
             srt_content.append("")
 
-        output_path.write_text("\n".join(srt_content), encoding="utf-8")
+        output_path.write_text("\n".join(srt_content), encoding="utf-8")  # type: ignore[attr-defined]
 
     def _segment_words(self, text: str) -> list[str]:
         """

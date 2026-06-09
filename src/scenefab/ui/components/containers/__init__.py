@@ -58,7 +58,7 @@ class MacSection(QFrame):
         self.setStyleSheet(f"""
             QFrame {{
                 background: {CP.BG_BASE};
-                border-radius: {CP.Radius.LG};
+                border-radius: {CP.Radius.LG};  # type: ignore[attr-defined]
                 padding: 16px;
             }}
         """)

@@ -26,7 +26,7 @@ class StepIndicator(QWidget):
             # 步骤圆圈
             circle = QLabel(str(i + 1))
             circle.setFixedSize(28, 28)
-            circle.setAlignment(Qt.AlignCenter)
+            circle.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
             circle.setObjectName(f"step_circle_{i}")
 
             # 步骤名称

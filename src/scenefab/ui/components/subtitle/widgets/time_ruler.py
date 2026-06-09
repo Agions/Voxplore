@@ -7,7 +7,14 @@
 """
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPoint
+from PySide6.QtGui import (  # type: ignore[attr-defined]
+    QBrush,
+    QColor,
+    QMouseEvent,
+    QPainter,
+    QPen,
+    QPoint,
+)
 from PySide6.QtWidgets import QWidget
 
 
@@ -33,7 +40,7 @@ class TimeRulerWidget(QWidget):
 
         self.setMinimumHeight(30)
         self.setMaximumHeight(30)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
         self.setMouseTracking(True)
 
     def set_duration(self, duration: float) -> None:
@@ -59,7 +66,7 @@ class TimeRulerWidget(QWidget):
     def paintEvent(self, event) -> None:
         """绘制时间标尺"""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)  # type: ignore[attr-defined]
 
         # 背景
         painter.fillRect(self.rect(), QColor("#0D1117"))
@@ -104,12 +111,12 @@ class TimeRulerWidget(QWidget):
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """鼠标按下"""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self._update_position(event.position().x())
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         """鼠标移动"""
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & Qt.LeftButton:  # type: ignore[attr-defined]
             self._update_position(event.position().x())
 
     def _update_position(self, x: float) -> None:

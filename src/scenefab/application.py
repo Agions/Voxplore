@@ -301,19 +301,19 @@ class Application(QObject):
         """订阅事件"""
         event_bus = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.subscribe(event_name, handler)
+            event_bus.subscribe(event_name, handler)  # type: ignore[attr-defined]
 
     def unsubscribe(self, event_name: str, handler: Callable) -> None:
         """取消订阅事件"""
         event_bus = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.unsubscribe(event_name, handler)
+            event_bus.unsubscribe(event_name, handler)  # type: ignore[attr-defined]
 
     def publish(self, event_name: str, data: Any = None) -> None:
         """发布事件"""
         event_bus = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.publish(event_name, data)
+            event_bus.publish(event_name, data)  # type: ignore[attr-defined]
         else:
             # 回退到内部事件处理器（如果EventBus服务未初始化）
             if event_name in self._event_handlers:
@@ -350,7 +350,7 @@ class Application(QObject):
     def remove_timer(self, name: str) -> None:
         """移除定时器"""
         if name in self._timers:
-            self._timers[name].stop()
+            self._timers[name].stop()  # type: ignore[attr-defined]
             del self._timers[name]
 
     def _set_state(self, state: ApplicationState) -> None:
@@ -511,14 +511,14 @@ class Application(QObject):
         """启动定时器"""
         # 启动所有定时器
         for timer in self._timers.values():
-            if not timer.isSingleShot():
-                timer.start()
+            if not timer.isSingleShot():  # type: ignore[attr-defined]
+                timer.start()  # type: ignore[attr-defined]
 
     def _stop_timers(self) -> None:
         """停止定时器"""
         # 停止所有定时器
         for timer in self._timers.values():
-            timer.stop()
+            timer.stop()  # type: ignore[attr-defined]
 
     def _start_tasks(self) -> None:
         """启动后台任务"""

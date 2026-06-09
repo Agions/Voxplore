@@ -83,7 +83,7 @@ class FeatureTooltip(QWidget):
         # 关闭按钮
         close_btn = QPushButton("✕")
         close_btn.setFixedSize(24, 24)
-        close_btn.setCursor(Qt.CursorShape.PointingHand)
+        close_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         close_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
@@ -113,7 +113,7 @@ class FeatureTooltip(QWidget):
         # 操作按钮（如果有）
         if self._action_text:
             action_btn = QPushButton(self._action_text)
-            action_btn.setCursor(Qt.CursorShape.PointingHand)
+            action_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
             action_btn.setFixedHeight(32)
             action_btn.setStyleSheet(f"""
                 QPushButton {{
@@ -308,7 +308,7 @@ class FeatureTourDialog(QWidget):
         # 操作按钮区域（如果有）
         if self._features[0].get("action"):
             self.action_btn = QPushButton(self._features[0]["action"])
-            self.action_btn.setCursor(Qt.CursorShape.PointingHand)
+            self.action_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
             self.action_btn.setFixedHeight(36)
             self.action_btn.setStyleSheet(f"""
                 QPushButton {{
@@ -341,7 +341,7 @@ class FeatureTourDialog(QWidget):
 
         # 关闭按钮
         close_btn = QPushButton("关闭")
-        close_btn.setCursor(Qt.CursorShape.PointingHand)
+        close_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         close_btn.setFixedHeight(36)
         close_btn.setStyleSheet(f"""
             QPushButton {{
@@ -363,7 +363,7 @@ class FeatureTourDialog(QWidget):
 
         # 上一个按钮
         self.prev_btn = QPushButton("←")
-        self.prev_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.prev_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.prev_btn.setFixedSize(36, 36)
         self.prev_btn.setStyleSheet(f"""
             QPushButton {{
@@ -383,7 +383,7 @@ class FeatureTourDialog(QWidget):
 
         # 下一个按钮
         self.next_btn = QPushButton("→")
-        self.next_btn.setCursor(Qt.CursorShape.PointingHand)
+        self.next_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
         self.next_btn.setFixedSize(36, 36)
         self.next_btn.setStyleSheet(f"""
             QPushButton {{

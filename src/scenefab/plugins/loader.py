@@ -282,7 +282,7 @@ class PluginLoader:
             entry = self._registry._plugins.get(manifest.id)
             if entry:
                 entry.instance = plugin_instance
-                entry.state = self._registry.PluginState.ENABLED
+                entry.state = self._registry.PluginState.ENABLED  # type: ignore[attr-defined]
 
             return True
 
@@ -408,7 +408,7 @@ class PluginLoader:
             required = spec[1:].strip()
             inst = self._parse_version(installed)
             req = self._parse_version(required)
-            return inst.major == req.major and inst >= req
+            return inst.major == req.major and inst >= req  # type: ignore[attr-defined]
         return True
 
     def _parse_version(self, version: str) -> tuple:

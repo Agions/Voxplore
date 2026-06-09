@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import AsyncIterator
-from typing import Any, Self
+from typing import Any, Self  # type: ignore[attr-defined]
 
 from .base_llm_provider import (
     BaseLLMProvider,

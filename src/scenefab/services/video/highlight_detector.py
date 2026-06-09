@@ -169,7 +169,7 @@ class HighlightDetector:
             高光片段列表，按开始时间排序
         """
         video_path = Path(video_path)
-        if not video_path.exists():
+        if not video_path.exists():  # type: ignore[attr-defined]
             raise FileNotFoundError(f"视频文件不存在: {video_path}")
 
         threshold = min_confidence or self.config.min_confidence

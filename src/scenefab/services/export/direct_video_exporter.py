@@ -514,7 +514,7 @@ class DirectVideoExporter:
             presets = [Resolution.FHD_1080P, Resolution.VERTICAL_1080P]
 
         output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir.mkdir(parents=True, exist_ok=True)  # type: ignore[attr-defined]
 
         results = {}
 

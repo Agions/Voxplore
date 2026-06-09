@@ -223,7 +223,7 @@ class LoadingOverlay(QFrame):
 
     def _rotate(self):
         self._angle = (self._angle + 10) % 360
-        self.spinner.setTransform(self.spinner.transform().rotate(10))
+        self.spinner.setTransform(self.spinner.transform().rotate(10))  # type: ignore[attr-defined]
 
     def setText(self, text: str):
         self.text_label.setText(text)

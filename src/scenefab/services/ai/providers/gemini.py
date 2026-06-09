@@ -126,14 +126,14 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         model = self._get_model_name(request.model)
 
         image_path = Path(image_path)
-        if not image_path.exists():
+        if not image_path.exists():  # type: ignore[attr-defined]
             raise ProviderError(f"图片不存在: {image_path}")
 
         with open(image_path, "rb") as f:
             image_data = base64.b64encode(f.read()).decode("utf-8")
 
         mime_type = "image/jpeg"
-        suffix = image_path.suffix.lower()
+        suffix = image_path.suffix.lower()  # type: ignore[attr-defined]
         if suffix == ".png":
             mime_type = "image/png"
         elif suffix in [".jpg", ".jpeg"]:

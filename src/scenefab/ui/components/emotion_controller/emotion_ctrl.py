@@ -145,7 +145,7 @@ class EmotionController(QWidget):
             curve_color=EMOTION_PRESETS["healing"]["color_hex"]
         )
         self._curve_widget.setObjectName("emotionCurveWidget")
-        self._curve_widget.set_curve(self._current_curve)
+        self._curve_widget.set_curve(self._current_curve)  # type: ignore[attr-defined]
         main_layout.addWidget(self._curve_widget)
 
         # 强度调节区域
@@ -160,12 +160,12 @@ class EmotionController(QWidget):
         intensity_layout.addWidget(intensity_title)
 
         # 强度滑块 (0-100)
-        self._intensity_slider = QSlider(Qt.Horizontal)
+        self._intensity_slider = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self._intensity_slider.setObjectName("intensitySlider")
         self._intensity_slider.setMinimum(0)
         self._intensity_slider.setMaximum(100)
         self._intensity_slider.setValue(50)
-        self._intensity_slider.setTickPosition(QSlider.TicksBelow)
+        self._intensity_slider.setTickPosition(QSlider.TicksBelow)  # type: ignore[attr-defined]
         self._intensity_slider.setTickInterval(25)
         intensity_layout.addWidget(self._intensity_slider, 1)
 
@@ -180,11 +180,11 @@ class EmotionController(QWidget):
         # 确认按钮
         self._confirm_button = QPushButton("应用情感曲线")
         self._confirm_button.setObjectName("confirmButton")
-        self._confirm_button.setCursor(Qt.PointingHandCursor)
+        self._confirm_button.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
         main_layout.addWidget(self._confirm_button)
 
         # 设置大小策略
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)  # type: ignore[attr-defined]
 
     def _setup_styles(self):
         """设置样式"""
@@ -429,7 +429,7 @@ class EmotionController(QWidget):
     def _update_state_label(self):
         """更新状态标签"""
         if self._state_label:
-            emotion_cn = EMOTION_PRESETS.get(self._current_emotion, {}).get(
+            emotion_cn = EMOTION_PRESETS.get(self._current_emotion, {}).get(  # type: ignore[attr-defined]
                 "name_cn", "未知"
             )
             intensity_percent = int(self._current_intensity * 100)

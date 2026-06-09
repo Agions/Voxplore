@@ -148,7 +148,7 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
         active_count = 0
 
         for task in tasks:
-            if task.status == ExportStatus.PROCESSING and task.started_at:
+            if task.status == ExportStatus.PROCESSING and task.started_at:  # type: ignore[attr-defined]
                 elapsed_time = time.time() - task.started_at
                 if elapsed_time > 0 and task.progress > 0:
                     # 简化的速度计算（假设平均文件大小）

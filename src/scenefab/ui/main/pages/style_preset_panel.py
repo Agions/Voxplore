@@ -64,7 +64,7 @@ class StylePresetPanel(QFrame):
 
         # 标题
         title = QLabel("风格设置")
-        title.setFont(QFont("", 12, QFont.Weight.SemiBold))
+        title.setFont(QFont("", 12, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         title.setStyleSheet(f"color: {_T['text_sub']};")
         layout.addWidget(title)
 

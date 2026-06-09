@@ -37,10 +37,10 @@ class NavigationButton(QPushButton):
         self.setProperty("class", "nav-item")
 
         # 启用悬停检测
-        self.setAttribute(Qt.WA_Hover, True)
+        self.setAttribute(Qt.WA_Hover, True)  # type: ignore[attr-defined]
 
         # 设置鼠标指针
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
 
     def _connect_signals(self) -> None:
         """连接信号"""
@@ -112,7 +112,7 @@ class NavigationBar(QWidget):
         self.setFixedHeight(52)  # macOS 顶部栏标准高度
 
         # 启用样式背景
-        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setAttribute(Qt.WA_StyledBackground, True)  # type: ignore[attr-defined]
 
     def _setup_layout(self) -> None:
         """设置布局"""

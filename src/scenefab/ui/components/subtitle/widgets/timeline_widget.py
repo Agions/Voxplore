@@ -94,7 +94,7 @@ class SubtitleTimelineWidget(QFrame):
 
         # 缩放控制
         toolbar_layout.addWidget(QLabel("缩放:"))
-        self._zoom_slider = QSlider(Qt.Horizontal)
+        self._zoom_slider = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self._zoom_slider.setObjectName("zoomSlider")
         self._zoom_slider.setRange(10, 200)
         self._zoom_slider.setValue(50)
@@ -109,7 +109,7 @@ class SubtitleTimelineWidget(QFrame):
 
         # 分隔线
         sep = QFrame()
-        sep.setFrameShape(QFrame.HLine)
+        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
         sep.setObjectName("toolbarSep")
         layout.addWidget(sep)
 
@@ -117,8 +117,8 @@ class SubtitleTimelineWidget(QFrame):
         scroll = QScrollArea()
         scroll.setObjectName("timelineScroll")
         scroll.setWidgetResizable(False)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # type: ignore[attr-defined]
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # type: ignore[attr-defined]
 
         # 时间线容器
         container = QWidget()

@@ -63,7 +63,7 @@ class SettingsGroup(QFrame):
             header_layout.addWidget(icon_label)
 
         title_label = QLabel(self._title)
-        title_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))
+        title_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
         title_label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         header_layout.addWidget(title_label)
         header_layout.addStretch()
@@ -140,7 +140,7 @@ class ToggleSwitch(QFrame):
         self._setup_style()
 
     def _setup_style(self):
-        self.setStyleSheet(f"""
+        self.setStyleSheet(f"""  # type: ignore[attr-defined]
             QFrame {{
                 background: {Colors.BG_ELEVATED};
                 border-radius: 12px;
@@ -341,7 +341,7 @@ class SettingsPage(QFrame):
         )
         shortcuts_info.setFont(QFont("", FontSizes.sm))
         shortcuts_info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
-        shortcuts_info.setLineSpacing(6)
+        shortcuts_info.setLineSpacing(6)  # type: ignore[attr-defined]
         short_layout.insertWidget(0, shortcuts_info)
 
         container_layout.addWidget(shortcuts)
@@ -377,7 +377,7 @@ class SettingsPage(QFrame):
         install_btn = QPushButton("浏览插件商店")
         install_btn.setObjectName("btn_secondary")
         install_btn.setFixedSize(120, 32)
-        install_btn.setStyleSheet(f"""
+        install_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#btn_secondary {{
                 background: transparent;
                 color: {Colors.PRIMARY_400};
@@ -410,7 +410,7 @@ class SettingsPage(QFrame):
         check_btn = QPushButton("检查更新")
         check_btn.setObjectName("btn_secondary")
         check_btn.setFixedSize(100, 32)
-        check_btn.setStyleSheet(f"""
+        check_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
             QPushButton#btn_secondary {{
                 background: transparent;
                 color: {Colors.PRIMARY_400};

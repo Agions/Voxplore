@@ -270,10 +270,10 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
 
     def get_metadata(self) -> dict[str, Any]:
         return {
-            "name": self.name,
-            "version": self.version,
+            "name": self.name,  # type: ignore[attr-defined]
+            "version": self.version,  # type: ignore[attr-defined]
             "description": "电影感 ASS 字幕生成，支持多种预设样式",
-            "author": self.manifest.author,
+            "author": self.manifest.author,  # type: ignore[attr-defined]
             "styles": [
                 {
                     "id": "cinematic",

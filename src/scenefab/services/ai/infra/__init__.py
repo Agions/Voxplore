@@ -35,7 +35,7 @@ class RateLimiter:
             return
         self._running = True
         self._thread = threading.Thread(target=self._replenisher, daemon=True)
-        self._thread.start()
+        self._thread.start()  # type: ignore[attr-defined]
 
     def _replenisher(self):
         """后台令牌补充线程"""
@@ -172,7 +172,7 @@ class PersistentCache:
                     if self._use_orjson:
                         data = self._json.loads(f.read())
                     else:
-                        data = self._json.load(f)
+                        data = self._json.load(f)  # type: ignore[attr-defined]
                     if data.get("expires", float("inf")) < time.time():
                         os.remove(path)
                         return None
@@ -190,7 +190,7 @@ class PersistentCache:
                     f.write(self._json.dumps(cache_data))
             else:
                 with open(path, "w") as f:
-                    self._json.dump(cache_data, f)
+                    self._json.dump(cache_data, f)  # type: ignore[attr-defined]
         except Exception as e:
             logger.warning(f"Failed to write cache: {e}")
 

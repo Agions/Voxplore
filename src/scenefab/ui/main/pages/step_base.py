@@ -53,7 +53,7 @@ class StepIndicator(QFrame):
             circle.setObjectName(f"step_circle_{i}")
             circle.setFixedSize(32, 32)
             circle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            circle.setFont(QFont("", FontSizes.sm, QFont.Weight.SemiBold))
+            circle.setFont(QFont("", FontSizes.sm, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
             step_layout.addWidget(circle)
 
             # 标签
@@ -242,7 +242,7 @@ class ContentCard(QFrame):
                 header_layout.addWidget(icon_lbl)
 
             title_lbl = QLabel(title)
-            title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))
+            title_lbl.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
             title_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
             header_layout.addWidget(title_lbl)
             header_layout.addStretch()
