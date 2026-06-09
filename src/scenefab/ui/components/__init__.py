@@ -5,6 +5,8 @@
 # buttons
 from .buttons import MacButton, MacDangerButton, MacPrimaryButton, MacSecondaryButton
 from .containers import MacCard, MacElevatedCard, MacSection
+from .labels import MacBadge, MacLabel, MacTitleLabel
+from scenefab.ui.common.macos_components import MacIconButton
 
 # narration editor (SceneFab architecture upgrade)
 from .narration import NarrationEditor, NarrationSegmentItem

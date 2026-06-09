@@ -3,7 +3,7 @@ AI Generator Plugin Interface
 AI 生成器插件接口
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 
@@ -34,7 +34,7 @@ class ScriptGeneration:
     style_tags: list[str]
 
 
-class BaseAIGeneratorPlugin(ABC, BasePlugin):  # type: ignore[misc, metaclass]
+class BaseAIGeneratorPlugin(BasePlugin):
     """
     AI 生成器插件基类
 

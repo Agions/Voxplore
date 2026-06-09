@@ -243,3 +243,5 @@ class StepUploadPage(StepPage):
             layout.addWidget(item)  # type: ignore[union-attr]
 
         layout.addStretch()  # type: ignore[union-attr]
+# 向后兼容别名
+StepUpload = StepUploadPage

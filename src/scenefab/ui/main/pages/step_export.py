@@ -387,3 +387,5 @@ class StepExportPage(StepPage):
         self.complete_widget.setVisible(False)
         self.export_btn.setVisible(True)
         self._progress = 0
+# 向后兼容别名: 31 个文件 import StepExport, 实际类名 StepExportPage
+StepExport = StepExportPage

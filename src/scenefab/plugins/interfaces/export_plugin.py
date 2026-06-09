@@ -3,14 +3,14 @@ Export Plugin Interface
 导出格式插件接口
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 
 from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 
 
-class BaseExportPlugin(ABC, BasePlugin):  # type: ignore[misc, metaclass]
+class BaseExportPlugin(BasePlugin):
     """
     导出格式插件基类
 
