@@ -46,11 +46,21 @@ class NarrationWindow(BaseStepWindow):
         layout = QVBoxLayout()
         layout.setSpacing(16)
 
-        # 左:文本编辑 | 右:情感控制
         split = QHBoxLayout()
         split.setSpacing(24)
 
-        # ── 左侧:解说词编辑 ──
+        split.addLayout(self._build_editor_panel(), stretch=2)
+        split.addLayout(self._build_controls_panel(), stretch=1)
+
+        layout.addLayout(split)
+        layout.addWidget(self._build_progress_section())
+
+        self._content_wrapper = QWidget()
+        self._content_wrapper.setLayout(layout)
+        self._main_layout.insertWidget(1, self._content_wrapper)
+
+    def _build_editor_panel(self) -> QVBoxLayout:
+        """左侧:解说词编辑 + AI 生成按钮"""
         left = QVBoxLayout()
         left.setSpacing(12)
 
@@ -67,17 +77,31 @@ class NarrationWindow(BaseStepWindow):
         self.text_editor.setMinimumHeight(200)
         left.addWidget(self.text_editor, stretch=1)
 
-        # AI 生成按钮
         btn_generate = QPushButton("🤖 AI 生成解说词")
         btn_generate.setObjectName("primary")
         btn_generate.clicked.connect(self._generate_narration)
         left.addWidget(btn_generate)
 
-        # ── 右侧:情感控制 ──
+        return left
+
+    def _build_controls_panel(self) -> QVBoxLayout:
+        """右侧:情感控制 + 语速 + 预览"""
         right = QVBoxLayout()
         right.setSpacing(16)
 
-        # 情感风格
+        right.addWidget(self._build_emotion_group())
+        right.addWidget(self._build_speed_group())
+
+        btn_preview = QPushButton("▶ 预览配音")
+        btn_preview.setObjectName("secondary")
+        btn_preview.clicked.connect(self._preview_audio)
+        right.addWidget(btn_preview)
+
+        right.addStretch()
+        return right
+
+    def _build_emotion_group(self) -> QGroupBox:
+        """情感风格选择"""
         emotion_group = QGroupBox("情感风格")
         emotion_group.setObjectName("control_group")
         emotion_layout = QVBoxLayout(emotion_group)
@@ -92,14 +116,14 @@ class NarrationWindow(BaseStepWindow):
         )
         emotion_layout.addWidget(self.emotion_combo)
 
-        # 情感描述
         self.emotion_desc = QLabel("适合日常记录、叙述性内容")
         self.emotion_desc.setObjectName("emotion_desc")
         emotion_layout.addWidget(self.emotion_desc)
 
-        right.addWidget(emotion_group)
+        return emotion_group
 
-        # 语速控制
+    def _build_speed_group(self) -> QGroupBox:
+        """语速控制滑块"""
         speed_group = QGroupBox("语速")
         speed_group.setObjectName("control_group")
         speed_layout = QVBoxLayout(speed_group)
@@ -123,22 +147,10 @@ class NarrationWindow(BaseStepWindow):
         self.speed_label.setObjectName("speed_label")
         speed_layout.addWidget(self.speed_label)
 
-        right.addWidget(speed_group)
+        return speed_group
 
-        # 预览按钮
-        btn_preview = QPushButton("▶ 预览配音")
-        btn_preview.setObjectName("secondary")
-        btn_preview.clicked.connect(self._preview_audio)
-        right.addWidget(btn_preview)
-
-        right.addStretch()
-
-        split.addLayout(left, stretch=2)
-        split.addLayout(right, stretch=1)
-
-        layout.addLayout(split)
-
-        # ── 底部:TTS 生成进度 ──
+    def _build_progress_section(self) -> QFrame:
+        """底部:TTS 生成进度"""
         progress_group = QFrame()
         progress_group.setObjectName("progress_group")
         progress_layout = QVBoxLayout(progress_group)
@@ -162,11 +174,7 @@ class NarrationWindow(BaseStepWindow):
         btn_generate_tts.clicked.connect(self._generate_tts)
         progress_layout.addWidget(btn_generate_tts)
 
-        layout.addWidget(progress_group)
-
-        self._content_wrapper = QWidget()
-        self._content_wrapper.setLayout(layout)
-        self._main_layout.insertWidget(1, self._content_wrapper)
+        return progress_group
 
     def _generate_narration(self):
         """模拟 AI 生成解说词"""

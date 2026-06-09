@@ -19,21 +19,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...theme.ds_tokens import _C
 from .narration_segment_card import NarrationSegmentCard
-
-# ── OKLCH Design Tokens ──────────────────────────────────────
-_T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_input": "oklch(0.13 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "border_h": "oklch(0.30 0.02 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "primary_l": "oklch(0.70 0.24 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
-}
 
 
 # ── 预览文本区（带标签预览）────────────────────────────────
@@ -50,11 +37,13 @@ class PreviewTextArea(QFrame):
         self._segments = []  # list of (time_range, text, emotion)
         self._setup_ui()
 
+    # ── UI 构建 ──────────────────────────────────────────────
+
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_card"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 12px;
             }}
         """)
@@ -62,25 +51,30 @@ class PreviewTextArea(QFrame):
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(12)
 
-        # 头部
+        layout.addLayout(self._build_header())
+        layout.addWidget(self._build_segment_scroll(), stretch=1)
+        layout.addWidget(self._build_bulk_editor(), stretch=1)
+        layout.addWidget(self._build_segment_tabs())
+
+    def _build_header(self) -> QHBoxLayout:
+        """头部：标题 + 字数统计 + 全量编辑开关"""
         header = QHBoxLayout()
         title = QLabel("解说文案预览")
         title.setFont(QFont("", 13, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title.setStyleSheet(f"color: {_T['text']};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         header.addWidget(title)
 
         self._word_count_label = QLabel("0 字")
         self._word_count_label.setStyleSheet(
-            f"color: {_T['text_muted']}; font-size: 11px;"
+            f"color: {_C.TEXT_MUTED}; font-size: 11px;"
         )
         header.addWidget(self._word_count_label)
         header.addStretch()
 
-        # 全量编辑开关
         self._bulk_edit_cb = QCheckBox("全量编辑")
         self._bulk_edit_cb.setStyleSheet(f"""
             QCheckBox {{
-                color: {_T["text_sub"]};
+                color: {_C.TEXT_SECONDARY};
                 font-size: 11px;
             }}
             QCheckBox::indicator {{
@@ -91,9 +85,10 @@ class PreviewTextArea(QFrame):
         """)
         self._bulk_edit_cb.toggled.connect(self._on_bulk_edit_toggled)
         header.addWidget(self._bulk_edit_cb)
-        layout.addLayout(header)
+        return header
 
-        # 分段列表（可滚动）
+    def _build_segment_scroll(self) -> QScrollArea:
+        """分段列表（可滚动）"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -103,13 +98,13 @@ class PreviewTextArea(QFrame):
                 background: transparent;
             }}
             QScrollBar:vertical {{
-                background: {_T["bg_input"]};
+                background: {_C.BG_INPUT};
                 border-radius: 4px;
                 width: 6px;
                 margin: 2px 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {_T["border_h"]};
+                background: {_C.BORDER_STRONG};
                 border-radius: 3px;
             }}
         """)
@@ -118,48 +113,50 @@ class PreviewTextArea(QFrame):
         self._segments_layout.setSpacing(12)
         self._segments_layout.setContentsMargins(0, 0, 0, 0)
         scroll.setWidget(self._segments_container)
-        layout.addWidget(scroll, stretch=1)
+        return scroll
 
-        # 全量编辑文本区（默认隐藏）
+    def _build_bulk_editor(self) -> QTextEdit:
+        """全量编辑文本区（默认隐藏）"""
         self._bulk_text_edit = QTextEdit()
         self._bulk_text_edit.setFont(QFont("", 13))
         self._bulk_text_edit.setStyleSheet(f"""
             QTextEdit {{
-                background: {_T["bg_input"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
                 padding: 12px;
                 line-height: 1.8;
             }}
-            QTextEdit:focus {{ border-color: {_T["primary"]}; }}
+            QTextEdit:focus {{ border-color: {_C.PRIMARY}; }}
         """)
         self._bulk_text_edit.setVisible(False)
         self._bulk_text_edit.textChanged.connect(self._on_bulk_text_changed)
-        layout.addWidget(self._bulk_text_edit, stretch=1)
+        return self._bulk_text_edit
 
-        # ── 分段预览标签（段落摘要横条）────────────────────
+    def _build_segment_tabs(self) -> QTabWidget:
+        """分段预览标签（段落摘要横条）"""
         self._segment_tabs = QTabWidget()
         self._segment_tabs.setStyleSheet(f"""
             QTabWidget::pane {{
-                border: 1px solid {_T["border"]};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
-                background: {_T["bg_input"]};
+                background: {_C.BG_INPUT};
             }}
             QTabBar::tab {{
                 background: transparent;
-                color: {_T["text_muted"]};
+                color: {_C.TEXT_MUTED};
                 padding: 6px 14px;
                 font-size: 11px;
                 border-bottom: 2px solid transparent;
             }}
             QTabBar::tab:selected {{
-                color: {_T["primary"]};
-                border-bottom-color: {_T["primary"]};
+                color: {_C.PRIMARY};
+                border-bottom-color: {_C.PRIMARY};
             }}
         """)
         self._segment_tabs.setVisible(False)
-        layout.addWidget(self._segment_tabs)
+        return self._segment_tabs
 
     def load_segments(self, segments: list):
         """

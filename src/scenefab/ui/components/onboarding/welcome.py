@@ -157,6 +157,43 @@ class WelcomeScreen(QWidget):
 
     def _setup_ui(self):
         """设置 UI"""
+        self._apply_base_style()
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(20)
+
+        # 顶部 Logo 和标题
+        layout.addWidget(self._create_header())
+
+        # 功能介绍区域
+        features_label = QLabel("核心功能")
+        features_font = QFont()
+        features_font.setPointSize(16)
+        features_font.setWeight(QFont.Weight.Bold)
+        features_label.setFont(features_font)
+        features_label.setStyleSheet(
+            f"color: {_C.TextPrimary}; background: transparent;"
+        )
+        layout.addWidget(features_label)
+        layout.addLayout(self._create_features_list())
+
+        layout.addStretch()
+
+        # 按钮区域
+        button_layout = QVBoxLayout()
+        button_layout.setSpacing(12)
+        self.start_btn = self._create_start_button()
+        button_layout.addWidget(self.start_btn)
+        self.skip_btn = self._create_skip_button()
+        button_layout.addWidget(self.skip_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(button_layout)
+
+        # 版本信息
+        layout.addWidget(self._create_version_footer())
+
+    def _apply_base_style(self) -> None:
+        """设置页面基础渐变背景样式"""
         self.setStyleSheet(f"""
             QWidget {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
@@ -166,11 +203,8 @@ class WelcomeScreen(QWidget):
             }}
         """)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(20)
-
-        # 顶部 Logo 和标题
+    def _create_header(self) -> QWidget:
+        """创建顶部 Logo、应用名称和副标题区域"""
         header_widget = QWidget()
         header_layout = QVBoxLayout(header_widget)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -201,20 +235,10 @@ class WelcomeScreen(QWidget):
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(subtitle)
 
-        layout.addWidget(header_widget)
+        return header_widget
 
-        # 功能介绍区域
-        features_label = QLabel("核心功能")
-        features_font = QFont()
-        features_font.setPointSize(16)
-        features_font.setWeight(QFont.Weight.Bold)
-        features_label.setFont(features_font)
-        features_label.setStyleSheet(
-            f"color: {_C.TextPrimary}; background: transparent;"
-        )
-        layout.addWidget(features_label)
-
-        # 功能卡片列表
+    def _create_features_list(self) -> QVBoxLayout:
+        """创建功能介绍卡片列表布局"""
         features_layout = QVBoxLayout()
         features_layout.setSpacing(12)
 
@@ -229,19 +253,14 @@ class WelcomeScreen(QWidget):
             card = FeatureCard(icon, title, desc)
             features_layout.addWidget(card)
 
-        layout.addLayout(features_layout)
+        return features_layout
 
-        layout.addStretch()
-
-        # 按钮区域
-        button_layout = QVBoxLayout()
-        button_layout.setSpacing(12)
-
-        # 开始使用按钮
-        self.start_btn = QPushButton("开始使用")
-        self.start_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
-        self.start_btn.setFixedHeight(48)
-        self.start_btn.setStyleSheet(f"""
+    def _create_start_button(self) -> QPushButton:
+        """创建开始使用按钮"""
+        start_btn = QPushButton("开始使用")
+        start_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
+        start_btn.setFixedHeight(48)
+        start_btn.setStyleSheet(f"""
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 {_C.Primary},
@@ -263,13 +282,14 @@ class WelcomeScreen(QWidget):
                     stop:1 {_C.AccentSubtle});
             }}
         """)
-        self.start_btn.clicked.connect(self.get_started.emit)
-        button_layout.addWidget(self.start_btn)
+        start_btn.clicked.connect(self.get_started.emit)
+        return start_btn
 
-        # 跳过按钮
-        self.skip_btn = QPushButton("暂时跳过")
-        self.skip_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
-        self.skip_btn.setStyleSheet(f"""
+    def _create_skip_button(self) -> QPushButton:
+        """创建跳过按钮"""
+        skip_btn = QPushButton("暂时跳过")
+        skip_btn.setCursor(Qt.CursorShape.PointingHand)  # type: ignore[attr-defined]
+        skip_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
                 color: {_C.TextMuted};
@@ -280,12 +300,11 @@ class WelcomeScreen(QWidget):
                 color: {_C.TextSecondary};
             }}
         """)
-        self.skip_btn.clicked.connect(self.skip.emit)
-        button_layout.addWidget(self.skip_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        skip_btn.clicked.connect(self.skip.emit)
+        return skip_btn
 
-        layout.addLayout(button_layout)
-
-        # 版本信息
+    def _create_version_footer(self) -> QLabel:
+        """创建版本信息标签"""
         version_label = QLabel(f"版本 {self._version}")
         version_label.setStyleSheet(f"""
             color: {_C.TextMuted};
@@ -293,7 +312,7 @@ class WelcomeScreen(QWidget):
             background: transparent;
         """)
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(version_label)
+        return version_label
 
     def animate_in(self):
         """入场动画"""
