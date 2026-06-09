@@ -22,6 +22,7 @@ def _get_version() -> str:
     """Dynamic version getter"""
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -46,8 +47,12 @@ Examples:
     )
 
     # Global options
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--version", action="version", version=f"%(prog)s {_get_version()}")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose output"
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {_get_version()}"
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -71,6 +76,7 @@ Examples:
 
 # ─── Commentary ────────────────────────────────────────────────────────────────
 
+
 def _add_commentary_subcommands(subparsers) -> None:
     commentary_parser = subparsers.add_parser(
         "commentary",
@@ -81,21 +87,30 @@ def _add_commentary_subcommands(subparsers) -> None:
     # create-movie
     m = sub.add_parser("create-movie", help="Create movie commentary")
     m.add_argument("video", help="Video file path")
-    m.add_argument("--style", default="documentary", help="Commentary style (default: documentary)")
+    m.add_argument(
+        "--style", default="documentary", help="Commentary style (default: documentary)"
+    )
     m.add_argument("--voice", default="zh-CN-YunxiNeural", help="TTS voice")
     m.add_argument("--output", default="./output", help="Output directory")
-    m.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    m.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
 
     # create-drama
     d = sub.add_parser("create-drama", help="Create drama commentary")
     d.add_argument("video", help="Video file path")
-    d.add_argument("--style", default="suspense", help="Commentary style (default: suspense)")
+    d.add_argument(
+        "--style", default="suspense", help="Commentary style (default: suspense)"
+    )
     d.add_argument("--voice", default="zh-CN-YunxiNeural", help="TTS voice")
     d.add_argument("--output", default="./output", help="Output directory")
-    d.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    d.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
 
 
 # ─── Batch ───────────────────────────────────────────────────────────────────
+
 
 def _add_batch_subcommands(subparsers) -> None:
     batch_parser = subparsers.add_parser("batch", help="Batch processing")
@@ -104,16 +119,25 @@ def _add_batch_subcommands(subparsers) -> None:
     create_batch = batch_sub.add_parser("create", help="Batch create commentary")
     create_batch.add_argument("directory", help="Video directory path")
     create_batch.add_argument("--style", default="documentary", help="Commentary style")
-    create_batch.add_argument("--parallel", type=int, default=1, help="Parallel tasks (default: 1)")
+    create_batch.add_argument(
+        "--parallel", type=int, default=1, help="Parallel tasks (default: 1)"
+    )
     create_batch.add_argument("--output", default="./output", help="Output directory")
-    create_batch.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    create_batch.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
 
 
 # ─── Project (backward compat) ─────────────────────────────────────────────────
 
+
 def _add_project_subcommands(subparsers) -> None:
-    project_parser = subparsers.add_parser("project", help="Project management (backward compat)")
-    project_subparsers = project_parser.add_subparsers(dest="subcommand", help="Project operations")
+    project_parser = subparsers.add_parser(
+        "project", help="Project management (backward compat)"
+    )
+    project_subparsers = project_parser.add_subparsers(
+        dest="subcommand", help="Project operations"
+    )
 
     create_parser = project_subparsers.add_parser("create", help="Create new project")
     create_parser.add_argument("--name", required=True, help="Project name")
@@ -121,7 +145,9 @@ def _add_project_subcommands(subparsers) -> None:
     create_parser.add_argument("--output", default="./output", help="Output directory")
 
     list_parser = project_subparsers.add_parser("list", help="List all projects")
-    list_parser.add_argument("--format", choices=["table", "json"], default="table", help="Output format")
+    list_parser.add_argument(
+        "--format", choices=["table", "json"], default="table", help="Output format"
+    )
 
     delete_parser = project_subparsers.add_parser("delete", help="Delete project")
     delete_parser.add_argument("--name", required=True, help="Project name")
@@ -133,23 +159,37 @@ def _add_project_subcommands(subparsers) -> None:
 
 # ─── Server (backward compat) ────────────────────────────────────────────────
 
+
 def _add_server_subcommands(subparsers) -> None:
-    server_parser = subparsers.add_parser("server", help="Server management (backward compat)")
-    server_subparsers = server_parser.add_subparsers(dest="subcommand", help="Server operations")
+    server_parser = subparsers.add_parser(
+        "server", help="Server management (backward compat)"
+    )
+    server_subparsers = server_parser.add_subparsers(
+        dest="subcommand", help="Server operations"
+    )
 
     start_parser = server_subparsers.add_parser("start", help="Start API server")
     start_parser.add_argument("--host", default=DEFAULT_HOST, help="Listen host")
-    start_parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Listen port")
-    start_parser.add_argument("--reload", action="store_true", help="Hot reload in dev mode")
+    start_parser.add_argument(
+        "--port", type=int, default=DEFAULT_PORT, help="Listen port"
+    )
+    start_parser.add_argument(
+        "--reload", action="store_true", help="Hot reload in dev mode"
+    )
 
     server_subparsers.add_parser("status", help="Check server status")
 
 
 # ─── Plugin (backward compat) ────────────────────────────────────────────────
 
+
 def _add_plugin_subcommands(subparsers) -> None:
-    plugin_parser = subparsers.add_parser("plugin", help="Plugin management (backward compat)")
-    plugin_subparsers = plugin_parser.add_subparsers(dest="subcommand", help="Plugin operations")
+    plugin_parser = subparsers.add_parser(
+        "plugin", help="Plugin management (backward compat)"
+    )
+    plugin_subparsers = plugin_parser.add_subparsers(
+        dest="subcommand", help="Plugin operations"
+    )
 
     _list_parser = plugin_subparsers.add_parser("list", help="List all plugins")
     enable_parser = plugin_subparsers.add_parser("enable", help="Enable plugin")
@@ -159,6 +199,7 @@ def _add_plugin_subcommands(subparsers) -> None:
 
 
 # ─── Handlers ────────────────────────────────────────────────────────────────
+
 
 def _handle_commentary_command(args) -> int:
     """Handle commentary subcommand"""
@@ -178,59 +219,93 @@ def _handle_commentary_create(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
+        from scenefab.models.narration import NarrationStyle
         from scenefab.pipeline import PipelineConfig, SceneFabPipeline
 
         config = PipelineConfig(
             min_segment_duration=9.0,
             max_segment_duration=60.0,
-            emotion_style=args.style,
         )
         pipeline = SceneFabPipeline(config)
 
-        result = pipeline.run(
-            video_path=str(video_path),
-            output_dir=str(output_dir),
-            style=args.style,
+        # 将字符串 style 映射为 NarrationStyle 枚举（fallback 到 DOCUMENTARY）
+        narration_style = getattr(
+            NarrationStyle, args.style.upper(), NarrationStyle.DOCUMENTARY
         )
 
+        project = pipeline.process(
+            video_path=str(video_path),
+            style=narration_style,
+            voice=args.voice,
+            output_dir=str(output_dir),
+        )
+
+        result = {
+            "name": project.name,
+            "segments": len(project.segments),
+            "narrations": len(project.narration_blocks),
+            "emotion_peaks": len(project.emotion_peaks),
+        }
+
         if args.format == "json":
-            print(json.dumps({
-                "status": "success",
-                "video": str(video_path),
-                "style": args.style,
-                "voice": args.voice,
-                "output_dir": str(output_dir),
-                "result": result if isinstance(result, dict) else {"message": str(result)},
-            }, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "status": "success",
+                        "video": str(video_path),
+                        "style": args.style,
+                        "voice": args.voice,
+                        "output_dir": str(output_dir),
+                        "result": result,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         else:
             logger.info(f"Commentary creation complete: {video_path.name}")
             logger.info(f"  Style: {args.style} | Voice: {args.voice}")
             logger.info(f"  Output: {output_dir}")
-            if result:
-                logger.info(f"  Result: {result}")
+            logger.info(
+                f"  Segments: {result['segments']} | Narrations: {result['narrations']}"
+            )
 
         return 0
 
     except ImportError as e:
         logger.error(f"Pipeline import failed: {e}")
-        logger.info("Hint: SceneFab requires full AI API configuration for commentary creation")
+        logger.info(
+            "Hint: SceneFab requires full AI API configuration for commentary creation"
+        )
         if args.format == "json":
-            print(json.dumps({
-                "status": "error",
-                "message": f"Pipeline import failed: {e}",
-                "video": str(video_path),
-                "style": args.style,
-            }, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "message": f"Pipeline import failed: {e}",
+                        "video": str(video_path),
+                        "style": args.style,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         return 1
     except Exception as e:
         logger.error(f"Commentary creation failed: {e}")
         if args.format == "json":
-            print(json.dumps({
-                "status": "error",
-                "message": str(e),
-                "video": str(video_path),
-                "style": args.style,
-            }, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "status": "error",
+                        "message": str(e),
+                        "video": str(video_path),
+                        "style": args.style,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         return 1
 
 
@@ -262,18 +337,22 @@ def _handle_batch_create(args) -> int:
     for video in videos:
         logger.info(f"Processing: {video.name}")
         try:
+            from scenefab.models.narration import NarrationStyle
             from scenefab.pipeline import PipelineConfig, SceneFabPipeline
 
             config = PipelineConfig(
                 min_segment_duration=9.0,
                 max_segment_duration=60.0,
-                emotion_style=args.style,
             )
             pipeline = SceneFabPipeline(config)
-            pipeline.run(
+            narration_style = getattr(
+                NarrationStyle, args.style.upper(), NarrationStyle.DOCUMENTARY
+            )
+            pipeline.process(
                 video_path=str(video),
                 output_dir=str(output_dir / video.stem),
-                style=args.style,
+                style=narration_style,
+                voice=args.voice,
             )
             results.append({"video": video.name, "status": "success"})
         except Exception as e:
@@ -281,13 +360,19 @@ def _handle_batch_create(args) -> int:
             results.append({"video": video.name, "status": "error", "message": str(e)})
 
     if args.format == "json":
-        print(json.dumps({
-            "status": "completed",
-            "total": len(videos),
-            "success": sum(1 for r in results if r["status"] == "success"),
-            "failed": sum(1 for r in results if r["status"] == "error"),
-            "results": results,
-        }, ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {
+                    "status": "completed",
+                    "total": len(videos),
+                    "success": sum(1 for r in results if r["status"] == "success"),
+                    "failed": sum(1 for r in results if r["status"] == "error"),
+                    "results": results,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
         success = sum(1 for r in results if r["status"] == "success")
         logger.info(f"\nBatch complete: {success}/{len(videos)} succeeded")
@@ -322,7 +407,11 @@ def _find_project_by_name(name: str) -> tuple[str, str] | None:
             continue
         meta = _load_project_meta(proj_path)
         if meta and meta.get("name") == name:
-            proj_id = os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else ""
+            proj_id = (
+                os.path.basename(proj_path).split("_", 1)[-1]
+                if "_" in os.path.basename(proj_path)
+                else ""
+            )
             return proj_id, proj_path
     return None
 
@@ -339,14 +428,18 @@ def _list_all_projects() -> list[dict]:
         meta = _load_project_meta(proj_path)
         if not meta:
             continue
-        result.append({
-            "name": meta.get("name", ""),
-            "id": os.path.basename(proj_path).split("_", 1)[-1] if "_" in os.path.basename(proj_path) else "",
-            "path": proj_path,
-            "author": meta.get("author", ""),
-            "created_at": meta.get("created_at", ""),
-            "status": meta.get("status", "active"),
-        })
+        result.append(
+            {
+                "name": meta.get("name", ""),
+                "id": os.path.basename(proj_path).split("_", 1)[-1]
+                if "_" in os.path.basename(proj_path)
+                else "",
+                "path": proj_path,
+                "author": meta.get("author", ""),
+                "created_at": meta.get("created_at", ""),
+                "status": meta.get("status", "active"),
+            }
+        )
     return result
 
 
@@ -410,10 +503,12 @@ def _handle_project_list(args) -> int:
     else:
         logger.info(f"Projects ({len(projects)} total):")
         print(f"  {'Name':<30} {'ID':<8} {'Author':<15} {'Created':<26} {'Status'}")
-        print(f"  {'-'*30} {'-'*8} {'-'*15} {'-'*26} {'------'}")
+        print(f"  {'-' * 30} {'-' * 8} {'-' * 15} {'-' * 26} {'------'}")
         for p in projects:
             created = p["created_at"][:19] if p["created_at"] else "-"
-            print(f"  {p['name']:<30} {p['id']:<8} {p['author']:<15} {created:<26} {p['status']}")
+            print(
+                f"  {p['name']:<30} {p['id']:<8} {p['author']:<15} {created:<26} {p['status']}"
+            )
     return 0
 
 
@@ -469,12 +564,14 @@ def _handle_project_command(args) -> int:
 
 # ─── Server Handler ───────────────────────────────────────────────────────────
 
+
 def _handle_server_command(args) -> int:
     """Handle server subcommand"""
     if args.subcommand == "start":
         logger.info(f"Starting server: {args.host}:{args.port}")
         try:
             import uvicorn
+
             uvicorn.run(
                 "scenefab.api.main:app",
                 host=args.host,
@@ -492,6 +589,7 @@ def _handle_server_command(args) -> int:
 
 # ─── Plugin Handler ───────────────────────────────────────────────────────────
 
+
 def _handle_plugin_command(args) -> int:
     """Handle plugin subcommand"""
     if args.subcommand == "list":
@@ -505,6 +603,7 @@ def _handle_plugin_command(args) -> int:
 
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
+
 
 def create_cli() -> argparse.ArgumentParser:
     """Create CLI parser (for external use)"""
@@ -541,6 +640,7 @@ def run(argv: list[str] | None = None) -> int:
         logger.error(f"Error: {e}")
         if getattr(args, "verbose", False):
             import traceback
+
             traceback.print_exc()
         return 1
 
