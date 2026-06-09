@@ -89,8 +89,8 @@ class EmotionCurveWidget(QWidget):
         # 尺寸提示
         self.setMinimumSize(400, 120)
         self.setMaximumSize(1000, 200)
-        self.setSizePolicy(Qt.Horizontal, Qt.MinimumExpanding)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(Qt.Horizontal, Qt.MinimumExpanding)  # type: ignore[attr-defined]
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
 
         # 启用鼠标追踪
         self.setMouseTracking(True)
@@ -191,8 +191,8 @@ class EmotionCurveWidget(QWidget):
     def paintEvent(self, event):
         """绘制事件"""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.setRenderHint(QPainter.Antialiasing)  # type: ignore[attr-defined]
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)  # type: ignore[attr-defined]
 
         w = self.width()
         h = self.height()
@@ -264,7 +264,7 @@ class EmotionCurveWidget(QWidget):
         """绘制时间网格"""
         plot_width = w - margin_left - margin_right
 
-        painter.setPen(QPen(self._grid_color, 1, Qt.DashLine))
+        painter.setPen(QPen(self._grid_color, 1, Qt.DashLine))  # type: ignore[attr-defined]
 
         # 垂直网格线 (每10%)
         for i in range(11):
@@ -284,7 +284,7 @@ class EmotionCurveWidget(QWidget):
         """绘制强度网格"""
         plot_height = h - margin_top - margin_bottom
 
-        painter.setPen(QPen(self._grid_color, 1, Qt.DashLine))
+        painter.setPen(QPen(self._grid_color, 1, Qt.DashLine))  # type: ignore[attr-defined]
 
         # 水平网格线 (每25%)
         for i in range(5):
@@ -333,7 +333,7 @@ class EmotionCurveWidget(QWidget):
                 path.cubicTo(cp1, cp2, p1)
 
         # 绘制曲线
-        pen = QPen(self._curve_color, 2.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+        pen = QPen(self._curve_color, 2.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)  # type: ignore[attr-defined]
         painter.setPen(pen)
         painter.drawPath(path)
 
@@ -351,7 +351,7 @@ class EmotionCurveWidget(QWidget):
         )
 
         # 绘制数据点
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.NoPen)  # type: ignore[attr-defined]
         brush = QBrush(self._curve_color)
         painter.setBrush(brush)
 
@@ -432,7 +432,7 @@ class EmotionCurveWidget(QWidget):
         painter.drawLine(x, margin_top, x, h - margin_bottom)
 
         # 绘制圆形指示器
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.NoPen)  # type: ignore[attr-defined]
         brush = QBrush(self._curve_color)
         painter.setBrush(brush)
         painter.drawEllipse(QPoint(x, y), 6, 6)
@@ -460,7 +460,7 @@ class EmotionCurveWidget(QWidget):
 
         for i in labels:
             x = int(margin_left + i * plot_width / 10)
-            painter.drawText(x - 10, h - 5, 20, 14, Qt.AlignCenter, f"{i * 10}%")
+            painter.drawText(x - 10, h - 5, 20, 14, Qt.AlignCenter, f"{i * 10}%")  # type: ignore[attr-defined]
 
     def _draw_intensity_labels(
         self,
@@ -479,15 +479,15 @@ class EmotionCurveWidget(QWidget):
 
         # 高 (top)
         y = margin_top
-        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "高")
+        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "高")  # type: ignore[attr-defined]
 
         # 中 (middle)
         y = margin_top + plot_height // 2
-        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "中")
+        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "中")  # type: ignore[attr-defined]
 
         # 低 (bottom)
         y = h - margin_bottom
-        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "低")
+        painter.drawText(margin_left - 35, y - 5, 30, 14, Qt.AlignRight, "低")  # type: ignore[attr-defined]
 
     def _draw_hover_tooltip(self, painter: QPainter):
         """绘制悬停提示"""
@@ -508,11 +508,11 @@ class EmotionCurveWidget(QWidget):
         painter.drawRect(rect)
 
         painter.setPen(QPen(QColor("#F1F5F9"), 9))
-        painter.drawText(rect, Qt.AlignCenter, text)
+        painter.drawText(rect, Qt.AlignCenter, text)  # type: ignore[attr-defined]
 
     def mousePressEvent(self, event: QMouseEvent):
         """鼠标按下事件"""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self._is_dragging = True
             self._update_position_from_mouse(event.pos())
 
@@ -528,7 +528,7 @@ class EmotionCurveWidget(QWidget):
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         """鼠标释放事件"""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self._is_dragging = False
 
     def leaveEvent(self, event):
