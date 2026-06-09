@@ -56,17 +56,17 @@ class EmptyStateIcon(QFrame):
         )
 
         if self._icon_type == "projects":
-            gradient.setColorAt(0, QColor("#388BFD").withAlpha(40))
-            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))
+            gradient.setColorAt(0, QColor("#388BFD").withAlpha(40))  # type: ignore[attr-defined]
+            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))  # type: ignore[attr-defined]
         elif self._icon_type == "media":
-            gradient.setColorAt(0, QColor("#A371F7").withAlpha(40))
-            gradient.setColorAt(1, QColor("#D2A8FF").withAlpha(30))
+            gradient.setColorAt(0, QColor("#A371F7").withAlpha(40))  # type: ignore[attr-defined]
+            gradient.setColorAt(1, QColor("#D2A8FF").withAlpha(30))  # type: ignore[attr-defined]
         elif self._icon_type == "files":
-            gradient.setColorAt(0, QColor("#22C55E").withAlpha(40))
-            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))
+            gradient.setColorAt(0, QColor("#22C55E").withAlpha(40))  # type: ignore[attr-defined]
+            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))  # type: ignore[attr-defined]
         else:
-            gradient.setColorAt(0, QColor(COLORS["primary"]).withAlpha(40))
-            gradient.setColorAt(1, QColor(COLORS["accent"]).withAlpha(30))
+            gradient.setColorAt(0, QColor(COLORS["primary"]).withAlpha(40))  # type: ignore[attr-defined]
+            gradient.setColorAt(1, QColor(COLORS["accent"]).withAlpha(30))  # type: ignore[attr-defined]
 
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(gradient)
@@ -79,8 +79,8 @@ class EmptyStateIcon(QFrame):
             center.x() + radius - 15,
             center.y() + radius - 15,
         )
-        inner_gradient.setColorAt(0, QColor("#FFFFFF").withAlpha(20))
-        inner_gradient.setColorAt(1, QColor("#FFFFFF").withAlpha(5))
+        inner_gradient.setColorAt(0, QColor("#FFFFFF").withAlpha(20))  # type: ignore[attr-defined]
+        inner_gradient.setColorAt(1, QColor("#FFFFFF").withAlpha(5))  # type: ignore[attr-defined]
 
         painter.setBrush(inner_gradient)
         painter.drawEllipse(center, radius - 12, radius - 12)

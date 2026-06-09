@@ -48,7 +48,7 @@ class NarrationSegmentItem(QFrame):
     def _setup_ui(self):
         self.setObjectName("narrationSegmentCard")
         self.setFixedHeight(90)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 8, 12, 8)
@@ -62,7 +62,7 @@ class NarrationSegmentItem(QFrame):
 
         # 分隔线
         sep = QFrame()
-        sep.setFrameShape(QFrame.VLine)
+        sep.setFrameShape(QFrame.VLine)  # type: ignore[attr-defined]
         sep.setObjectName("separator")
         layout.addWidget(sep)
 
@@ -82,7 +82,7 @@ class NarrationSegmentItem(QFrame):
         self.emotion_badge = QLabel(self.segment.emotion)
         self.emotion_badge.setObjectName("emotionBadge")
         self.emotion_badge.setFixedHeight(20)
-        self.emotion_badge.setAlignment(Qt.AlignCenter)
+        self.emotion_badge.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         tag_layout.addWidget(self.emotion_badge)
 
         duration_label = QLabel(f"{self.segment.duration:.1f}s")
@@ -125,8 +125,8 @@ class NarrationSegmentItem(QFrame):
         """)
 
     def _load_data(self):
-        if self._segment:
-            self._text_editor.setPlainText(self._segment.text or "")
+        if self._segment:  # type: ignore[attr-defined]
+            self._text_editor.setPlainText(self._segment.text or "")  # type: ignore[attr-defined]
 
     def _format_time(self, seconds: float) -> str:
         m, s = divmod(int(seconds), 60)
@@ -138,7 +138,7 @@ class NarrationSegmentItem(QFrame):
         return text[:max_len] + "..."
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self.clicked.emit(self.segment_id)
         super().mousePressEvent(event)
 
@@ -221,7 +221,7 @@ class NarrationEditor(QFrame):
 
         # 分隔线
         sep = QFrame()
-        sep.setFrameShape(QFrame.HLine)
+        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
         sep.setObjectName("toolbarSep")
         main_layout.addWidget(sep)
 
@@ -275,7 +275,7 @@ class NarrationEditor(QFrame):
 
         emotion_row.addStretch()
 
-        self.emotion_intensity = QSlider(Qt.Horizontal)
+        self.emotion_intensity = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self.emotion_intensity.setObjectName("emotionIntensity")
         self.emotion_intensity.setRange(0, 100)
         self.emotion_intensity.setValue(50)
@@ -345,7 +345,7 @@ class NarrationEditor(QFrame):
                 continue
 
             item = QListWidgetItem()
-            item.setData(Qt.UserRole, segment.segment_id)
+            item.setData(Qt.UserRole, segment.segment_id)  # type: ignore[attr-defined]
 
             widget = NarrationSegmentItem(segment)
             widget.clicked.connect(self._on_segment_clicked)
@@ -365,11 +365,11 @@ class NarrationEditor(QFrame):
         self._select_segment(segment_id)
 
     def _on_item_clicked(self, item):
-        segment_id = item.data(Qt.UserRole)
+        segment_id = item.data(Qt.UserRole)  # type: ignore[attr-defined]
         self._select_segment(segment_id)
 
     def _on_item_double_clicked(self, item):
-        segment_id = item.data(Qt.UserRole)
+        segment_id = item.data(Qt.UserRole)  # type: ignore[attr-defined]
         self._open_editor(segment_id)
 
     def _on_edit_requested(self, segment_id: str):
@@ -388,7 +388,7 @@ class NarrationEditor(QFrame):
         for i in range(self.segment_list.count()):
             item = self.segment_list.item(i)
             widget = self.segment_list.itemWidget(item)
-            if item.data(Qt.UserRole) == segment_id:
+            if item.data(Qt.UserRole) == segment_id:  # type: ignore[attr-defined]
                 widget.setStyleSheet("""
                     QFrame#narrationSegmentCard {
                         border: 1px solid #6366F1;

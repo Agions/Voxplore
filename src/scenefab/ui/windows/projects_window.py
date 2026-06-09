@@ -42,7 +42,7 @@ class ProjectCard(QFrame):
         self.setObjectName("project_card")
         self.setMinimumSize(200, 160)
         self.setMaximumSize(280, 200)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
 
         layout = QVBoxLayout(self)
         layout.setSpacing(8)
@@ -55,7 +55,7 @@ class ProjectCard(QFrame):
         thumb_layout.setContentsMargins(0, 0, 0, 0)
 
         self.thumb = QLabel(self.project.get("thumb", "🎬"))
-        self.thumb.setAlignment(Qt.AlignCenter)
+        self.thumb.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.thumb.setStyleSheet("font-size: 48px;")
         self.thumb.setFixedHeight(80)
         thumb_layout.addWidget(self.thumb)
@@ -84,7 +84,7 @@ class ProjectCard(QFrame):
 
         # 名称
         self.name = QLabel(self.project.get("name", "未命名项目"))
-        self.name.setFont(QFont("Inter", 13, QFont.Bold))
+        self.name.setFont(QFont("Inter", 13, QFont.Bold))  # type: ignore[attr-defined]
         self.name.setWordWrap(True)
         layout.addWidget(self.name)
 
@@ -100,9 +100,9 @@ class ProjectCard(QFrame):
         self.mousePressEvent = lambda e: self._handle_click(e)
 
     def _handle_click(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self.open_requested.emit(self.project.get("path", ""))
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.RightButton:  # type: ignore[attr-defined]
             self._show_context_menu()
 
     def _show_context_menu(self):
@@ -154,7 +154,7 @@ class ProjectsWindow(QWidget):
         header = QHBoxLayout()
 
         title = QLabel("我的项目")
-        title.setFont(QFont("Inter", 26, QFont.Bold))
+        title.setFont(QFont("Inter", 26, QFont.Bold))  # type: ignore[attr-defined]
         title.setStyleSheet("color: #f0f0f0;")
 
         self.btn_new = QPushButton("+ 新建项目")
@@ -202,7 +202,7 @@ class ProjectsWindow(QWidget):
                     {
                         "id": proj.id,
                         "name": proj.metadata.name,
-                        "date": proj.metadata.modified_at.strftime("%Y-%m-%d")
+                        "date": proj.metadata.modified_at.strftime("%Y-%m-%d")  # type: ignore[attr-defined]
                         if proj.metadata.modified_at
                         else "未知",
                         "status": proj.metadata.status.value
@@ -235,7 +235,7 @@ class ProjectsWindow(QWidget):
         cols = 4
         if not self._projects:
             empty = QLabel("  还没有项目\n  点击右上角「新建项目」开始创作")
-            empty.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            empty.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)  # type: ignore[attr-defined]
             empty.setObjectName("empty_state")
             empty.setStyleSheet("color: #555; font-size: 15px; padding: 40px;")
             self.grid_layout.addWidget(empty, 0, 0, 1, cols)
@@ -272,10 +272,10 @@ class ProjectsWindow(QWidget):
             self,
             "确认删除",
             f"确定要删除项目「{project_path.split('/')[-1]}」吗？\n此操作不可恢复。",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.Yes | QMessageBox.No,  # type: ignore[attr-defined]
+            QMessageBox.No,  # type: ignore[attr-defined]
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.Yes:  # type: ignore[attr-defined]
             success = self._pm.delete_project(project_id)
             if success:
                 self._load_projects()

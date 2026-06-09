@@ -238,16 +238,16 @@ class ThemeManager(QObject):
         """更新颜色配置 — 从 OKLCH tokens 驱动"""
         self.colors = ThemeColors.from_mode(self.current_mode)
         # Allow theme_config overrides if explicitly set (non-empty)
-        if self.theme_config.primary_color:
-            self.colors.primary = self.theme_config.primary_color
-        if self.theme_config.secondary_color:
-            self.colors.secondary = self.theme_config.secondary_color
-        if self.theme_config.background_color:
-            self.colors.background = self.theme_config.background_color
-        if self.theme_config.surface_color:
-            self.colors.surface = self.theme_config.surface_color
-        if self.theme_config.text_color:
-            self.colors.text = self.theme_config.text_color
+        if self.theme_config.primary_color:  # type: ignore[attr-defined]
+            self.colors.primary = self.theme_config.primary_color  # type: ignore[attr-defined]
+        if self.theme_config.secondary_color:  # type: ignore[attr-defined]
+            self.colors.secondary = self.theme_config.secondary_color  # type: ignore[attr-defined]
+        if self.theme_config.background_color:  # type: ignore[attr-defined]
+            self.colors.background = self.theme_config.background_color  # type: ignore[attr-defined]
+        if self.theme_config.surface_color:  # type: ignore[attr-defined]
+            self.colors.surface = self.theme_config.surface_color  # type: ignore[attr-defined]
+        if self.theme_config.text_color:  # type: ignore[attr-defined]
+            self.colors.text = self.theme_config.text_color  # type: ignore[attr-defined]
 
     def set_theme_mode(self, mode: str) -> None:
         """设置主题模式"""
@@ -360,9 +360,9 @@ class ThemeManager(QObject):
             # 获取样式表
             stylesheet = self.get_stylesheet()
             # 应用样式到整个应用
-            app.setStyleSheet(stylesheet)
+            app.setStyleSheet(stylesheet)  # type: ignore[attr-defined]
             # 应用到所有顶级窗口
-            for widget in app.allWidgets():
+            for widget in app.allWidgets():  # type: ignore[attr-defined]
                 widget.setStyleSheet(stylesheet)
 
     def apply_theme_instantly(self, theme_name: str) -> None:
@@ -437,6 +437,6 @@ class ThemeManager(QObject):
         if widget:
             widget.setStyleSheet(full_css)
         elif app:
-            app.setStyleSheet(full_css)
-            for w in app.allWidgets():
+            app.setStyleSheet(full_css)  # type: ignore[attr-defined]
+            for w in app.allWidgets():  # type: ignore[attr-defined]
                 w.setStyleSheet(full_css)

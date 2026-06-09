@@ -42,7 +42,7 @@ class TimelineRuler(QWidget):
 
         self.setMinimumHeight(30)
         self.setMaximumHeight(30)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
 
     def set_duration(self, duration: float):
         self.duration = duration
@@ -66,7 +66,7 @@ class TimelineRuler(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)  # type: ignore[attr-defined]
 
         w = self.width()
         h = self.height()
@@ -93,8 +93,8 @@ class TimelineRuler(QWidget):
             if sec % 10 == 0:
                 # 长刻度 + 标签
                 painter.drawLine(int(x), h - 15, int(x), h)
-                painter.setPen(QPen(QColor("#94A3B8"), 10, Qt.AlignCenter))
-                painter.drawText(int(x) - 15, h - 18, 30, 14, Qt.AlignCenter, f"{sec}s")
+                painter.setPen(QPen(QColor("#94A3B8"), 10, Qt.AlignCenter))  # type: ignore[attr-defined]
+                painter.drawText(int(x) - 15, h - 18, 30, 14, Qt.AlignCenter, f"{sec}s")  # type: ignore[attr-defined]
                 painter.setPen(QPen(QColor("#334155"), 1))
             elif sec % 5 == 0:
                 # 中刻度
@@ -138,7 +138,7 @@ class TimelineRuler(QWidget):
         self._update_position(event.position().x())
 
     def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & Qt.LeftButton:  # type: ignore[attr-defined]
             self._update_position(event.position().x())
 
     def _update_position(self, x: float):
@@ -184,7 +184,7 @@ class TimelineTrack(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.Antialiasing)  # type: ignore[attr-defined]
 
         w = self.width()
         h = self.height()
@@ -226,7 +226,7 @@ class TimelineTrack(QWidget):
                     h // 2 + 4,
                     min(seg_w - 8, w - x1 - 8),
                     16,
-                    Qt.AlignLeft | Qt.AlignVCenter,
+                    Qt.AlignLeft | Qt.AlignVCenter,  # type: ignore[attr-defined]
                     text[:10],
                 )
 
@@ -294,7 +294,7 @@ class TimelineShuttle(QFrame):
 
         # 缩放控制
         toolbar_layout.addWidget(QLabel("缩放:"))
-        self.zoom_slider = QSlider(Qt.Horizontal)
+        self.zoom_slider = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self.zoom_slider.setObjectName("zoomSlider")
         self.zoom_slider.setRange(10, 200)
         self.zoom_slider.setValue(50)
@@ -311,7 +311,7 @@ class TimelineShuttle(QFrame):
 
         # 分隔线
         sep = QFrame()
-        sep.setFrameShape(QFrame.HLine)
+        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
         sep.setObjectName("toolbarSep")
         layout.addWidget(sep)
 
@@ -319,8 +319,8 @@ class TimelineShuttle(QFrame):
         scroll = QScrollArea()
         scroll.setObjectName("timelineScroll")
         scroll.setWidgetResizable(False)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # type: ignore[attr-defined]
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # type: ignore[attr-defined]
 
         # 时间线容器
         container = QWidget()

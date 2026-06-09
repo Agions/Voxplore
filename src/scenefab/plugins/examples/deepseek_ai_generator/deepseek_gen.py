@@ -35,11 +35,11 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
     def _on_enable(self) -> None:
         """启用时的回调"""
-        self.log_info("DeepSeek AI Generator plugin enabled")
+        self.log_info("DeepSeek AI Generator plugin enabled")  # type: ignore[attr-defined]
 
     def _on_disable(self) -> None:
         """禁用时的回调"""
-        self.log_info("DeepSeek AI Generator plugin disabled")
+        self.log_info("DeepSeek AI Generator plugin disabled")  # type: ignore[attr-defined]
 
     def get_provider_name(self) -> str:
         """获取 AI Provider 名称"""
@@ -79,7 +79,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             scenes = self._parse_scene_analysis_response(response, frame_timestamps)
             return scenes
         except Exception as e:
-            self.log_error(f"Scene analysis failed: {e}")
+            self.log_error(f"Scene analysis failed: {e}")  # type: ignore[attr-defined]
             # 返回空列表或可以返回部分结果
             return []
 
@@ -128,7 +128,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                         )
                         scenes.append(scene)
         except Exception as e:
-            self.log_error(f"Failed to parse scene analysis response: {e}")
+            self.log_error(f"Failed to parse scene analysis response: {e}")  # type: ignore[attr-defined]
 
         # 如果解析失败，生成默认场景
         if not scenes:
@@ -174,7 +174,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             response = await self._call_deepseek_api(prompt)
             return self._parse_script_generation_response(response)
         except Exception as e:
-            self.log_error(f"Script generation failed: {e}")
+            self.log_error(f"Script generation failed: {e}")  # type: ignore[attr-defined]
             return ScriptGeneration(
                 script_id=str(uuid.uuid4()),
                 text="脚本生成失败，请稍后重试。",
@@ -221,7 +221,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                     style_tags=data.get("style_tags", []),
                 )
         except Exception as e:
-            self.log_error(f"Failed to parse script generation response: {e}")
+            self.log_error(f"Failed to parse script generation response: {e}")  # type: ignore[attr-defined]
 
         # 降级处理
         return ScriptGeneration(
@@ -252,7 +252,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             async for chunk in self._call_deepseek_api_stream(prompt):
                 yield chunk
         except Exception as e:
-            self.log_error(f"Script streaming failed: {e}")
+            self.log_error(f"Script streaming failed: {e}")  # type: ignore[attr-defined]
             yield "脚本生成失败，请稍后重试。"
 
     async def _call_deepseek_api(self, prompt: str) -> str:
@@ -265,7 +265,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                 base_url=self._base_url,
             )
 
-        response = await self._client.chat.completions.create(
+        response = await self._client.chat.completions.create(  # type: ignore[attr-defined]
             model=self._model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
@@ -284,7 +284,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                 base_url=self._base_url,
             )
 
-        stream = await self._client.chat.completions.create(
+        stream = await self._client.chat.completions.create(  # type: ignore[attr-defined]
             model=self._model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
@@ -331,10 +331,10 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
     def get_metadata(self) -> dict[str, Any]:
         return {
-            "name": self.name,
-            "version": self.version,
+            "name": self.name,  # type: ignore[attr-defined]
+            "version": self.version,  # type: ignore[attr-defined]
             "description": "DeepSeek AI 生成器，支持场景分析和脚本生成",
-            "author": self.manifest.author,
+            "author": self.manifest.author,  # type: ignore[attr-defined]
             "provider": "DeepSeek",
             "features": [
                 "场景分析 - 分析视频画面提取场景信息",
