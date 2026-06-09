@@ -61,14 +61,25 @@ class SubtitleTimelineWidget(QFrame):
         self._connect_signals()
 
     def _setup_ui(self) -> None:
-        """设置UI"""
+        """装配时间线 — 编排器, 委派到 _build_toolbar / _build_content_area."""
         self.setObjectName("subtitleTimelineWidget")
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # 工具栏
+        layout.addWidget(self._build_toolbar())
+
+        # 分隔线
+        sep = QFrame()
+        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
+        sep.setObjectName("toolbarSep")
+        layout.addWidget(sep)
+
+        layout.addWidget(self._build_content_area(), 1)
+
+    def _build_toolbar(self) -> QFrame:
+        """构建顶部工具栏: 播放/停止按钮 + 时间显示 + 缩放滑块."""
         toolbar = QFrame()
         toolbar.setObjectName("timelineToolbar")
         toolbar_layout = QHBoxLayout(toolbar)
@@ -105,22 +116,16 @@ class SubtitleTimelineWidget(QFrame):
         self._zoom_label.setObjectName("zoomLabel")
         toolbar_layout.addWidget(self._zoom_label)
 
-        layout.addWidget(toolbar)
+        return toolbar
 
-        # 分隔线
-        sep = QFrame()
-        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
-        sep.setObjectName("toolbarSep")
-        layout.addWidget(sep)
-
-        # 滚动区域
+    def _build_content_area(self) -> QScrollArea:
+        """构建时间线内容区: 时间标尺 + 轨道容器, 包裹在滚动区域中."""
         scroll = QScrollArea()
         scroll.setObjectName("timelineScroll")
         scroll.setWidgetResizable(False)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # type: ignore[attr-defined]
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # type: ignore[attr-defined]
 
-        # 时间线容器
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -139,7 +144,7 @@ class SubtitleTimelineWidget(QFrame):
 
         container_layout.addWidget(self._tracks_container)
         scroll.setWidget(container)
-        layout.addWidget(scroll, 1)
+        return scroll
 
     def _setup_styles(self) -> None:
         """设置样式"""
