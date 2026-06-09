@@ -54,6 +54,10 @@ class NarrationSegmentCard(QFrame):
         self._load_text(text)
 
     def _setup_ui(self):
+        """装配卡片 — 编排器, 委派到 _build_* 工厂方法.
+
+        单一职责: 本方法只负责组件组合顺序, 各区域构建下沉到 SRP 方法.
+        """
         self.setStyleSheet(f"""
             QFrame {{
                 background: {_T["bg_card"]};
@@ -65,11 +69,17 @@ class NarrationSegmentCard(QFrame):
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(8)
 
-        # 头部行
+        layout.addLayout(self._build_header())
+        layout.addWidget(self._build_text_label())
+        layout.addWidget(self._build_text_edit())
+        layout.addWidget(self._build_char_count())
+
+    def _build_header(self) -> QHBoxLayout:
+        """构建卡片头部: 时间段 + 情感标签 + 编辑按钮."""
         header = QHBoxLayout()
         header.setSpacing(8)
 
-        # 时间段标签
+        # 时间段标签 — 圆形徽章样式
         self._time_label = QLabel(self._time_range)
         self._time_label.setFont(QFont("", 11, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         self._time_label.setStyleSheet(f"""
@@ -88,16 +98,17 @@ class NarrationSegmentCard(QFrame):
 
         header.addStretch()
 
-        # 编辑/预览切换
+        # 编辑/预览切换按钮
         self._edit_btn = QPushButton("编辑")
         self._edit_btn.setObjectName("secondary_btn")
         self._edit_btn.setFixedSize(56, 26)
         self._edit_btn.clicked.connect(self._toggle_edit)
         header.addWidget(self._edit_btn)
 
-        layout.addLayout(header)
+        return header
 
-        # ── 文案显示/编辑区 ──
+    def _build_text_label(self) -> QLabel:
+        """构建文案预览标签 — 只读, 可选中."""
         self._text_label = QLabel()
         self._text_label.setWordWrap(True)
         self._text_label.setFont(QFont("", 13))
@@ -105,8 +116,10 @@ class NarrationSegmentCard(QFrame):
         self._text_label.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
-        layout.addWidget(self._text_label)
+        return self._text_label
 
+    def _build_text_edit(self) -> QTextEdit:
+        """构建文案编辑框 — 编辑态显示, 圆角+聚焦高亮."""
         self._text_edit = QTextEdit()
         self._text_edit.setFont(QFont("", 13))
         self._text_edit.setStyleSheet(f"""
@@ -124,13 +137,14 @@ class NarrationSegmentCard(QFrame):
         """)
         self._text_edit.setVisible(False)
         self._text_edit.textChanged.connect(self._on_edit_changed)
-        layout.addWidget(self._text_edit)
+        return self._text_edit
 
-        # 字数提示
+    def _build_char_count(self) -> QLabel:
+        """构建右下角字数提示标签."""
         self._char_count = QLabel("")
         self._char_count.setStyleSheet(f"color: {_T['text_muted']}; font-size: 10px;")
         self._char_count.setAlignment(Qt.AlignmentFlag.AlignRight)
-        layout.addWidget(self._char_count)
+        return self._char_count
 
     def _get_emotion_text(self) -> str:
         emotions = {
