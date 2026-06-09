@@ -92,12 +92,16 @@ class AIMonitorPanel(QWidget):
 
 
     def _init_ui(self):
-        """初始化UI"""
+        """初始化UI — 组装模式栏 + 内容堆栈"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
 
-        # 模式切换栏
+        layout.addWidget(self._build_mode_bar())
+        layout.addWidget(self._build_content_stack())
+
+    def _build_mode_bar(self) -> QFrame:
+        """构建顶部模式切换栏 — 5 个模式按钮 + 刷新按钮"""
         mode_bar = QFrame()
         mode_bar.setFrameShape(QFrame.Shape.StyledPanel)
         mode_bar.setProperty("class", "monitor-mode-bar")
@@ -136,13 +140,13 @@ class AIMonitorPanel(QWidget):
         refresh_btn.clicked.connect(self._refresh_data)
         mode_layout.addWidget(refresh_btn)
 
-        layout.addWidget(mode_bar)
+        return mode_bar
 
-        # 内容区域
+    def _build_content_stack(self) -> QStackedWidget:
+        """构建内容堆栈 — 5 个模式页面"""
         self.content_stack = QStackedWidget()
         self.content_stack.setProperty("class", "monitor-content-stack")
 
-        # 创建各个模式的内容页面
         self.overview_page = self.pages.create_overview_page()
         self.services_page = self.pages.create_services_page()
         self.performance_page = self.pages.create_performance_page()
@@ -155,7 +159,7 @@ class AIMonitorPanel(QWidget):
         self.content_stack.addWidget(self.usage_page)
         self.content_stack.addWidget(self.alerts_page)
 
-        layout.addWidget(self.content_stack)
+        return self.content_stack
 
     def _get_mode_text(self, mode) -> str:
         """获取模式文本"""
