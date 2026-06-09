@@ -317,74 +317,96 @@ class BeatDetector:
         energy_threshold: float = 0.3,
     ) -> list[BeatSyncCutpoint]:
         """
-        获取 Beat-sync 剪辑点
+        获取 Beat-sync 剪辑点 — 编排器, 委派到 SRP 过滤/构建方法.
 
-        基于节拍和能量分析，生成建议的剪辑时间点。
-        这些时间点适合进行视频切换，以配合音乐节奏。
+        基于节拍和能量分析, 生成建议的剪辑时间点.
+        这些时间点适合进行视频切换, 以配合音乐节奏.
 
         Args:
             result: 音频分析结果
-            min_interval: 最小剪辑间隔（秒）
+            min_interval: 最小剪辑间隔(秒)
             prefer_strong_beats: 是否优先使用强拍
-            energy_threshold: 能量阈值，低于此值的节拍会被过滤
+            energy_threshold: 能量阈值, 低于此值的节拍会被过滤
 
         Returns:
             Beat-sync 剪辑点列表
         """
-        cutpoints = []
-
-        # 计算节拍间隔
-        if result.beat_interval > 0:
-            beat_interval = result.beat_interval
-        elif result.bpm > 0:
-            beat_interval = 60.0 / result.bpm
-        else:
-            beat_interval = 0.5  # 默认 120 BPM
-
-        # 构建能量查找表
-        energy_lookup = {}
-        for time, energy in result.energy_curve:
-            energy_lookup[int(time * 10) / 10] = energy  # 保留一位小数
-
-        last_cut_time = -min_interval  # 确保第一个节拍可以用
+        beat_interval = self._resolve_beat_interval(result)
+        energy_lookup = self._build_energy_lookup(result.energy_curve)
+        cutpoints: list[BeatSyncCutpoint] = []
+        last_cut_time = -min_interval  # 负偏移确保第一个节拍可通过间隔检查
 
         for beat in result.beats:
-            # 检查最小间隔
-            if beat.timestamp - last_cut_time < min_interval:
+            if self._is_too_close_to_last_cut(beat, last_cut_time, min_interval):
                 continue
 
-            # 获取该时刻的能量
-            key = int(beat.timestamp * 10) / 10
-            energy = energy_lookup.get(key, 0.5)
-
-            # 过滤低能量点
+            energy = energy_lookup.get(self._time_key(beat.timestamp), 0.5)
             if energy < energy_threshold:
                 continue
 
-            # 强拍优先模式
-            if prefer_strong_beats and beat.strength != BeatStrength.STRONG:
-                # 检查是否是强拍附近（前后半拍内）
-                nearby_strong = False
-                for other in result.beats:
-                    if other.strength == BeatStrength.STRONG:
-                        diff = abs(other.timestamp - beat.timestamp)
-                        if diff < beat_interval * 0.6:
-                            nearby_strong = True
-                            break
-                if nearby_strong:
-                    continue
+            if (
+                prefer_strong_beats
+                and beat.strength != BeatStrength.STRONG
+                and self._has_nearby_strong_beat(beat, result.beats, beat_interval)
+            ):
+                continue
 
-            cutpoint = BeatSyncCutpoint(
-                timestamp=beat.timestamp,
-                strength=beat.strength,
-                beat_position=beat.bar_position,
-                suggested_cut_before=True,
-                energy=energy,
-            )
-            cutpoints.append(cutpoint)
+            cutpoints.append(self._build_cutpoint(beat, energy))
             last_cut_time = beat.timestamp
 
         return cutpoints
+
+    def _resolve_beat_interval(self, result: AudioAnalysisResult) -> float:
+        """解析节拍间隔: 优先 beat_interval, 回退到 60/BPM, 默认 0.5s(120 BPM)."""
+        if result.beat_interval > 0:
+            return result.beat_interval
+        if result.bpm > 0:
+            return 60.0 / result.bpm
+        return 0.5  # 默认 120 BPM
+
+    def _build_energy_lookup(
+        self, energy_curve: list[tuple[float, float]]
+    ) -> dict[float, float]:
+        """构建时间→能量查找表, key 保留 1 位小数便于浮点匹配."""
+        return {
+            self._time_key(time): energy
+            for time, energy in energy_curve
+        }
+
+    @staticmethod
+    def _time_key(timestamp: float) -> float:
+        """时间戳量化为 1 位小数 key, 避免浮点等值比较失败."""
+        return int(timestamp * 10) / 10
+
+    @staticmethod
+    def _is_too_close_to_last_cut(
+        beat: BeatInfo, last_cut_time: float, min_interval: float
+    ) -> bool:
+        """检查节拍距上次剪辑点是否小于最小间隔."""
+        return beat.timestamp - last_cut_time < min_interval
+
+    @staticmethod
+    def _has_nearby_strong_beat(
+        beat: BeatInfo, all_beats: list[BeatInfo], beat_interval: float
+    ) -> bool:
+        """判断当前节拍附近(±60% 节拍间隔)是否已有强拍, 用于强拍优先过滤."""
+        for other in all_beats:
+            if other.strength != BeatStrength.STRONG:
+                continue
+            if abs(other.timestamp - beat.timestamp) < beat_interval * 0.6:
+                return True
+        return False
+
+    @staticmethod
+    def _build_cutpoint(beat: BeatInfo, energy: float) -> BeatSyncCutpoint:
+        """构造 BeatSyncCutpoint, 标记 suggested_cut_before."""
+        return BeatSyncCutpoint(
+            timestamp=beat.timestamp,
+            strength=beat.strength,
+            beat_position=beat.bar_position,
+            suggested_cut_before=True,
+            energy=energy,
+        )
 
     def sync_analysis(self, result: AudioAnalysisResult) -> dict[str, any]:  # type: ignore[valid-type]
         """
