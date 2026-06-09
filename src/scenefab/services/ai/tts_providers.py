@@ -8,7 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Coroutine
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
 from .voice_models import (
@@ -118,72 +118,106 @@ class EdgeTTSProvider(TTSProvider):
         output_path: str,
         config: VoiceConfig,
     ) -> GeneratedVoice:
-        """生成配音，并捕获句子级时间戳"""
-        # 选择声音
+        """生成配音, 并捕获句子级时间戳 — 编排器, 委派到 SRP 方法"""
         voice = config.voice_id or self._select_voice(config)
-
-        # 构建语速/音调参数
-        rate_str = (
-            f"+{int((config.rate - 1) * 100)}%"
-            if config.rate >= 1
-            else f"{int((config.rate - 1) * 100)}%"
-        )
-        pitch_str = (
-            f"+{int((config.pitch - 1) * 50)}Hz"
-            if config.pitch >= 1
-            else f"{int((config.pitch - 1) * 50)}Hz"
-        )
-
-        # 异步生成（同时收集时间戳）
+        rate_str, pitch_str = self._build_prosody_params(config)
         sentence_timestamps: list[dict[str, Any]] = []
 
-        async def _generate():
-            communicate = self.edge_tts.Communicate(
-                text,
-                voice,
-                rate=rate_str,
-                pitch=pitch_str,
+        async def _stream() -> None:
+            await self._stream_tts_chunks(
+                text=text,
+                voice=voice,
+                rate_str=rate_str,
+                pitch_str=pitch_str,
+                output_path=output_path,
+                sentence_timestamps=sentence_timestamps,
             )
 
-            submaker = self.edge_tts.SubMaker()
-            audio_chunks = []
+        self._run_async_safely(_stream)
 
-            async for chunk in communicate.stream():
-                if chunk["type"] == "SentenceBoundary":
-                    submaker.feed(chunk)
-                    # 转换为秒（offset/duration 单位是 100-nanoseconds）
-                    start_s = chunk["offset"] / 10_000_000
-                    end_s = (chunk["offset"] + chunk["duration"]) / 10_000_000
-                    sentence_timestamps.append(
-                        {
-                            "text": chunk["text"],
-                            "start": start_s,
-                            "end": end_s,
-                        }
-                    )
-                elif chunk["type"] == "audio":
-                    audio_chunks.append(chunk["data"])
+        return self._build_generated_voice(
+            output_path=output_path,
+            text=text,
+            voice=voice,
+            config=config,
+            sentence_timestamps=sentence_timestamps,
+        )
 
-            # 写入音频文件
-            with open(output_path, "wb") as f:
-                for chunk in audio_chunks:
-                    f.write(chunk)
+    def _build_prosody_params(self, config: VoiceConfig) -> tuple[str, str]:
+        """构建 Edge-TTS 语速/音调 SSML 参数字符串.
 
-        # 避免 asyncio.run() 与已有 event loop 冲突
+        rate: 百分比相对 1.0 (e.g. 1.2 -> +20%, 0.8 -> -20%).
+        pitch: 赫兹相对 1.0 (e.g. 1.0 -> +0Hz baseline).
+        """
+        rate_offset = int((config.rate - 1) * 100)
+        pitch_offset = int((config.pitch - 1) * 50)
+        rate_str = f"+{rate_offset}%" if rate_offset >= 0 else f"{rate_offset}%"
+        pitch_str = f"+{pitch_offset}Hz" if pitch_offset >= 0 else f"{pitch_offset}Hz"
+        return rate_str, pitch_str
+
+    async def _stream_tts_chunks(
+        self,
+        *,
+        text: str,
+        voice: str,
+        rate_str: str,
+        pitch_str: str,
+        output_path: str,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> None:
+        """流式拉取 Edge-TTS chunks: 收集时间戳 + 写音频文件.
+
+        单一职责: 只负责 chunk 解析与落盘, 不做 loop 调度.
+        """
+        communicate = self.edge_tts.Communicate(
+            text, voice, rate=rate_str, pitch=pitch_str
+        )
+        audio_chunks: list[bytes] = []
+
+        async for chunk in communicate.stream():
+            if chunk["type"] == "SentenceBoundary":
+                # 100-nanosecond ticks -> 秒
+                start_s = chunk["offset"] / 10_000_000
+                end_s = (chunk["offset"] + chunk["duration"]) / 10_000_000
+                sentence_timestamps.append(
+                    {"text": chunk["text"], "start": start_s, "end": end_s}
+                )
+            elif chunk["type"] == "audio":
+                audio_chunks.append(chunk["data"])
+
+        with open(output_path, "wb") as f:
+            for data in audio_chunks:
+                f.write(data)
+
+    def _run_async_safely(self, coro_factory: Callable[[], Coroutine[Any, Any, None]]) -> None:
+        """在已有/无 event loop 下安全运行异步协程.
+
+        EdgeTTS 必须运行在自己的 loop 中; 若调用方已持有 loop,
+        用独立线程的 ThreadPoolExecutor 隔离. 否则 asyncio.run() 即可.
+        """
         try:
             asyncio.get_running_loop()
-            # 已有 loop，在新线程中运行（EdgeTTS 必须在自己的 loop 中）
-            import concurrent.futures
-
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                pool.submit(asyncio.run, _generate()).result()
         except RuntimeError:
-            # 没有运行中的 loop，可以安全用 asyncio.run()
-            asyncio.run(_generate())
+            asyncio.run(coro_factory())
+            return
 
-        # 获取音频时长
+        # 调用方在事件循环中 — 隔离到独立线程
+        import concurrent.futures
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            pool.submit(asyncio.run, coro_factory()).result()
+
+    def _build_generated_voice(
+        self,
+        *,
+        output_path: str,
+        text: str,
+        voice: str,
+        config: VoiceConfig,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> GeneratedVoice:
+        """组装 GeneratedVoice 结果对象, 含音频时长探测."""
         duration = self._get_audio_duration(output_path)
-
         return GeneratedVoice(
             audio_path=output_path,
             duration=duration,
