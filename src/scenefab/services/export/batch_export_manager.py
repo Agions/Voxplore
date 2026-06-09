@@ -148,81 +148,98 @@ class BatchExportManager:
         return tasks
 
     def start(self) -> BatchExportResult:
-        """开始批量导出"""
+        """开始批量导出 — 编排器, 委派到 _submit_and_collect / _build_result."""
         start_time = time.time()
+        pending_tasks = self._collect_pending_tasks()
+        completed, failed, cancelled, results = self._submit_and_collect(pending_tasks)
+        return self._build_result(pending_tasks, completed, failed, cancelled, results, start_time)
 
-        # 准备任务
-        pending_tasks = [
+    def _collect_pending_tasks(self) -> list[ExportTask]:
+        """收集待执行任务 (status == PENDING)."""
+        return [
             task for task in self._tasks.values() if task.status == ExportStatus.PENDING
         ]
 
-        completed = 0
-        failed = 0
-        cancelled = 0
-        results = []
+    def _submit_and_collect(
+        self, pending_tasks: list[ExportTask]
+    ) -> tuple[int, int, int, list[dict[str, Any]]]:
+        """提交所有任务到线程池并收集结果.
 
-        # 提交所有任务
-        futures = {}
+        Returns:
+            (completed, failed, cancelled, results) 四元组
+        """
+        completed = failed = cancelled = 0
+        results: list[dict[str, Any]] = []
+
+        futures: dict[Any, ExportTask] = {}
         for task in pending_tasks:
             future = self._executor.submit(self._export_single, task)
             futures[future] = task
 
-        # 等待完成
         for future in as_completed(futures):
             task = futures[future]
+            task_completed, task_failed, task_cancelled = self._process_future(task, future, results)
+            completed += task_completed
+            failed += task_failed
+            cancelled += task_cancelled
 
-            if task.id in self._cancelled:
-                task.status = ExportStatus.CANCELLED
-                cancelled += 1
-                continue
-
-            try:
-                success, error = future.result()
-
-                if success:
-                    task.status = ExportStatus.COMPLETED
-                    completed += 1
-                    results.append(
-                        {
-                            "task_id": task.id,
-                            "name": task.name,
-                            "output_path": task.output_path,
-                            "success": True,
-                        }
-                    )
-                else:
-                    task.status = ExportStatus.FAILED
-                    task.error = error
-                    failed += 1
-                    results.append(
-                        {
-                            "task_id": task.id,
-                            "name": task.name,
-                            "success": False,
-                            "error": error,
-                        }
-                    )
-
-            except Exception as e:
-                task.status = ExportStatus.FAILED
-                task.error = str(e)
-                failed += 1
-                logger.error(f"导出任务失败: {task.name}, {e}")
-
-            # 回调
+            # 完成回调
             if self.on_complete:
-                self.on_complete(
-                    task.id, task.status == ExportStatus.COMPLETED, task.error
-                )
+                self.on_complete(task.id, task.status == ExportStatus.COMPLETED, task.error)
 
-        total_time = time.time() - start_time
+        return completed, failed, cancelled, results
 
+    def _process_future(
+        self,
+        task: ExportTask,
+        future: Any,
+        results: list[dict[str, Any]],
+    ) -> tuple[int, int, int]:
+        """处理单个 future 结果, 返回 (completed, failed, cancelled) 计数增量."""
+        if task.id in self._cancelled:
+            task.status = ExportStatus.CANCELLED
+            return 0, 0, 1
+
+        try:
+            success, error = future.result()
+        except Exception as e:
+            task.status = ExportStatus.FAILED
+            task.error = str(e)
+            logger.error(f"导出任务失败: {task.name}, {e}")
+            return 0, 1, 0
+
+        if success:
+            task.status = ExportStatus.COMPLETED
+            results.append({
+                "task_id": task.id, "name": task.name,
+                "output_path": task.output_path, "success": True,
+            })
+            return 1, 0, 0
+        else:
+            task.status = ExportStatus.FAILED
+            task.error = error
+            results.append({
+                "task_id": task.id, "name": task.name,
+                "success": False, "error": error,
+            })
+            return 0, 1, 0
+
+    @staticmethod
+    def _build_result(
+        pending_tasks: list[ExportTask],
+        completed: int,
+        failed: int,
+        cancelled: int,
+        results: list[dict[str, Any]],
+        start_time: float,
+    ) -> BatchExportResult:
+        """组装批量导出结果."""
         return BatchExportResult(
             total=len(pending_tasks),
             completed=completed,
             failed=failed,
             cancelled=cancelled,
-            total_time=total_time,
+            total_time=time.time() - start_time,
             results=results,
         )
 
