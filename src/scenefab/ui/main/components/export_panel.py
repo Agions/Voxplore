@@ -40,12 +40,11 @@ from .export_format_selector import ExportSettingsDialog
 
 
 class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
-    # TODO(v2.2): 真正继承 _tab_builders.ExportPanel (或合并), 消除双实例化
-    # 当前实现嵌入 _tab_builders.build_* 构造的 widget, 但这些 widget 的信号
-    # 是 _stub_connect 占位 — 切换 preset / 浏览输出路径 / 启动队列都静默失效
-    # 临时绕过: commit 75017f2 之前 (35aebe4) 仍可工作
-    # 详见 _tab_builders.py 顶部 WARNING 块
-    """导出面板主类"""
+    """导出面板主类
+
+    v2.2 P0 修复: 消除双实例化 — _tab_builders.build_* 现在返回 (widget, refs),
+    setup_ui 接收 refs 后复制到 self, 让 self.method 的访问路径统一.
+    """
 
     # 信号定义
     export_started = Signal(str)
@@ -53,9 +52,9 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     export_completed = Signal(str, str)
     export_failed = Signal(str, str)
 
-    # —— 类型存根 (Phase C-1 兜底) ——
-    # _tab_builders.build_*() 内部构造的子 widget, 通过 setup_ui 隐式挂到 self
-    # Phase D 修双实例化后此块可删除, 由真正的继承/组合提供静态类型.
+    # —— 类型存根 (refs 注入) ——
+    # _tab_builders.build_*() 返回 (widget, refs), setup_ui 复制 refs 到 self.
+    # 这些属性让 Pyright/LSP 满意, 也提供静态类型提示.
     tab_widget: QTabWidget
     quick_export_tab: QWidget
     batch_export_tab: QWidget
@@ -66,11 +65,28 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     project_duration_label: QLabel
     project_resolution_label: QLabel
     preset_combo: QComboBox
+    output_path_edit: QLineEdit
+    browse_btn: QPushButton
+    export_youtube_btn: QPushButton
+    export_tiktok_btn: QPushButton
+    export_instagram_btn: QPushButton
+    export_jianying_btn: QPushButton
+    export_btn: QPushButton
+    batch_output_dir_edit: QLineEdit
+    batch_browse_btn: QPushButton
     batch_preset_combo: QComboBox
     presets_table: QTableWidget
     batch_projects_table: QTableWidget
-    output_path_edit: QLineEdit
-    batch_output_dir_edit: QLineEdit
+    select_all_btn: QPushButton
+    select_none_btn: QPushButton
+    batch_export_btn: QPushButton
+    max_concurrent_spin: "QSpinBox"  # type: ignore[name-defined]  # noqa: F821
+    auto_cleanup_check: "QCheckBox"  # type: ignore[name-defined]  # noqa: F821
+    apply_queue_settings_btn: QPushButton
+    add_preset_btn: QPushButton
+    edit_preset_btn: QPushButton
+    delete_preset_btn: QPushButton
+    refresh_presets_btn: QPushButton
 
     def __init__(self, application, parent=None):
         super().__init__(parent)
@@ -83,37 +99,74 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
         self.connect_signals()
 
     def setup_ui(self):
-        """设置UI"""
+        """设置UI — 解构 (widget, refs) 元组, 真实化信号连接"""
         layout = QVBoxLayout(self)
 
         # 创建标签页
         self.tab_widget = QTabWidget()
 
         # 快速导出标签页
-        self.quick_export_tab = build_quick_export_tab()
+        self.quick_export_tab, quick_refs = build_quick_export_tab()
+        # 复制 refs 到 self, 消除双实例化 — 旧版 _tab_builders 是局部变量
+        for attr_name, widget in quick_refs.items():
+            setattr(self, attr_name, widget)
         self.tab_widget.addTab(self.quick_export_tab, "快速导出")
 
         # 批量导出标签页
-        self.batch_export_tab = build_batch_export_tab()
+        self.batch_export_tab, batch_refs = build_batch_export_tab()
+        for attr_name, widget in batch_refs.items():
+            setattr(self, attr_name, widget)
         self.tab_widget.addTab(self.batch_export_tab, "批量导出")
 
         # 队列管理标签页
-        self.queue_tab = build_queue_tab()
+        self.queue_tab, queue_refs = build_queue_tab()
+        for attr_name, widget in queue_refs.items():
+            setattr(self, attr_name, widget)
         self.tab_widget.addTab(self.queue_tab, "队列管理")
 
         # 预设管理标签页
-        self.presets_tab = build_presets_tab()
+        self.presets_tab, presets_refs = build_presets_tab()
+        for attr_name, widget in presets_refs.items():
+            setattr(self, attr_name, widget)
         self.tab_widget.addTab(self.presets_tab, "预设管理")
 
         layout.addWidget(self.tab_widget)
 
     def connect_signals(self):
-        """连接信号"""
-        # 导出系统信号 — 使用 ExportSignalMixin 统一连接
+        """连接信号 — 真实连接到 self.method (修复 P0 双实例化)"""
+        # 导出系统信号
         self.setup_export_signals()
 
         # 队列信号
         self.queue_widget.task_action.connect(self.handle_queue_action)
+
+        # 快速导出信号
+        self.browse_btn.clicked.connect(self.browse_output_path)
+        self.export_btn.clicked.connect(self.start_export)
+        self.export_youtube_btn.clicked.connect(
+            lambda: self.quick_export("youtube")
+        )
+        self.export_tiktok_btn.clicked.connect(
+            lambda: self.quick_export("tiktok")
+        )
+        self.export_instagram_btn.clicked.connect(
+            lambda: self.quick_export("instagram")
+        )
+        self.export_jianying_btn.clicked.connect(
+            lambda: self.quick_export("jianying")
+        )
+
+        # 批量导出信号
+        self.batch_browse_btn.clicked.connect(self.browse_batch_output_dir)
+        self.batch_export_btn.clicked.connect(self.start_batch_export)
+        self.select_all_btn.clicked.connect(self.select_all_projects)
+        self.select_none_btn.clicked.connect(self.select_none_projects)
+
+        # 预设管理信号
+        self.add_preset_btn.clicked.connect(self.add_preset)
+        self.edit_preset_btn.clicked.connect(self.edit_preset)
+        self.delete_preset_btn.clicked.connect(self.delete_preset)
+        self.refresh_presets_btn.clicked.connect(self.refresh_presets_table)
 
     def set_current_project(self, project_id: str, project_info: dict[str, Any]):
         """设置当前项目"""
