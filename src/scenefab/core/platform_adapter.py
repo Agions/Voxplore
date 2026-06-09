@@ -426,27 +426,22 @@ class MultiPlatformExporter:
         parallel: bool = True,
     ) -> dict[Platform, ExportResult]:
         """
-        一键导出多平台版本
+        一键导出多平台版本 — 编排器, 委派到 SRP 方法.
 
         Args:
-            source: 源视频（16:9 master）
+            source: 源视频(16:9 master)
             platforms: 目标平台列表
             title: 封面标题
             subtitle: 封面副标题
             subtitle_text_path: 字幕 SRT/ASS 文件
-            cover_frame: 封面关键帧（None 时自动抽取）
+            cover_frame: 封面关键帧(None 时自动抽取)
             output_dir: 输出目录
             parallel: 是否并行导出
 
         Returns:
             {platform: result}
         """
-        source = Path(source)
-        if not source.exists():
-            raise FileNotFoundError(f"Source not found: {source}")
-        output_dir = Path(output_dir or source.parent / f"{source.stem}_platforms")
-        output_dir.mkdir(parents=True, exist_ok=True)
-
+        source, output_dir = self._validate_export_inputs(source, output_dir)
         self._audit.log_action(
             action="multi_platform_export_start",
             parameters={
@@ -455,7 +450,35 @@ class MultiPlatformExporter:
                 "parallel": parallel,
             },
         )
+        requests = self._build_export_requests(
+            source, platforms, output_dir, title, subtitle, cover_frame
+        )
+        results = self._execute_exports(source, requests, subtitle_text_path, parallel)
+        self._log_export_result(requests, results)
+        return results
 
+    @staticmethod
+    def _validate_export_inputs(
+        source: Path, output_dir: Path | None
+    ) -> tuple[Path, Path]:
+        """校验源视频存在性, 创建输出目录, 返回 (source, output_dir) 路径."""
+        source = Path(source)
+        if not source.exists():
+            raise FileNotFoundError(f"Source not found: {source}")
+        output_dir = Path(output_dir or source.parent / f"{source.stem}_platforms")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        return source, output_dir
+
+    def _build_export_requests(
+        self,
+        source: Path,
+        platforms: list[Platform],
+        output_dir: Path,
+        title: str,
+        subtitle: str,
+        cover_frame: Path | None,
+    ) -> list[ExportRequest]:
+        """为每个平台构建 ExportRequest, 含自动裁剪和封面生成."""
         requests: list[ExportRequest] = []
         for platform in platforms:
             cfg = PLATFORM_CONFIGS[platform]
@@ -465,33 +488,41 @@ class MultiPlatformExporter:
                 config=cfg,
                 duration_sec=0,
             )
-            # 计算裁剪
             if cfg.aspect_ratio != "original":
                 req.crop = self.cropper.auto_crop(source, cfg.aspect_ratio)
-            # 生成封面
             if cfg.requires_cover:
                 frame = cover_frame or source
                 req.cover_path = self.cover_generator.generate_cover(
                     frame_path=frame,
                     title=title,
                     subtitle=subtitle,
-                    output_path=output_dir
-                    / f"{source.stem}_{platform.value}_cover.png",
+                    output_path=output_dir / f"{source.stem}_{platform.value}_cover.png",
                 )
             requests.append(req)
+        return requests
 
+    def _execute_exports(
+        self,
+        source: Path,
+        requests: list[ExportRequest],
+        subtitle_text_path: Path | None,
+        parallel: bool,
+    ) -> dict[Platform, ExportResult]:
+        """根据 parallel 标志选择并行或串行导出."""
         if parallel and len(requests) > 1:
-            results = self._export_parallel(source, requests, subtitle_text_path)
-        else:
-            results = self._export_serial(source, requests, subtitle_text_path)
+            return self._export_parallel(source, requests, subtitle_text_path)
+        return self._export_serial(source, requests, subtitle_text_path)
 
+    def _log_export_result(
+        self, requests: list[ExportRequest], results: dict[Platform, ExportResult]
+    ) -> None:
+        """审计日志: 记录导出完成情况."""
         success_count = sum(1 for r in results.values() if r.success)
         self._audit.log_action(
             action="multi_platform_export_done",
             parameters={"total": len(requests), "success": success_count},
             result="success" if success_count == len(requests) else "partial",
         )
-        return results
 
     # ==============================================================
     # 内部
