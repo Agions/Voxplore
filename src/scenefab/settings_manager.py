@@ -26,10 +26,10 @@ class ProjectSettingsManager(QObject):
 
     # 信号定义
     settings_changed = Signal(str, object)  # 设置变更信号
-    profile_created = Signal(str)            # 配置文件创建信号
-    profile_applied = Signal(str)            # 配置文件应用信号
-    settings_reset = Signal()               # 设置重置信号
-    error_occurred = Signal(str, str)       # 错误发生信号
+    profile_created = Signal(str)  # 配置文件创建信号
+    profile_applied = Signal(str)  # 配置文件应用信号
+    settings_reset = Signal()  # 设置重置信号
+    error_occurred = Signal(str, str)  # 错误发生信号
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()
@@ -44,14 +44,15 @@ class ProjectSettingsManager(QObject):
         self.profiles: dict[str, ProjectSettingsProfile] = {}
 
         # 设置文件路径
-        self.settings_file = os.path.expanduser("~/SceneFab/settings/project_settings.json")
+        self.settings_file = os.path.expanduser(
+            "~/SceneFab/settings/project_settings.json"
+        )
         self.profiles_file = os.path.expanduser("~/SceneFab/settings/profiles.json")
 
         # 初始化
         self._init_settings_definitions()
         self._load_settings()
         self._load_profiles()
-
 
     def _init_settings_definitions(self) -> None:
         """初始化设置定义"""
@@ -67,7 +68,7 @@ class ProjectSettingsManager(QObject):
 
             # 从文件加载设置
             if os.path.exists(self.settings_file):
-                with open(self.settings_file, encoding='utf-8') as f:
+                with open(self.settings_file, encoding="utf-8") as f:
                     loaded_settings = json.load(f)
                     self._update_settings(loaded_settings)
 
@@ -80,7 +81,7 @@ class ProjectSettingsManager(QObject):
         """加载配置文件"""
         try:
             if os.path.exists(self.profiles_file):
-                with open(self.profiles_file, encoding='utf-8') as f:
+                with open(self.profiles_file, encoding="utf-8") as f:
                     profiles_data = json.load(f)
                     for name, profile_data in profiles_data.items():
                         profile = ProjectSettingsProfile(**profile_data)
@@ -101,53 +102,53 @@ class ProjectSettingsManager(QObject):
                 name="高性能",
                 description="针对高性能设备的优化配置",
                 settings={
-                    'performance.enable_gpu': True,
-                    'performance.memory_limit': 8192,
-                    'performance.thread_count': 8,
-                    'video.resolution': '3840x2160',
-                    'video.bitrate': '16000k',
-                    'audio.sample_rate': 48000,
-                    'audio.bitrate': '320k'
+                    "performance.enable_gpu": True,
+                    "performance.memory_limit": 8192,
+                    "performance.thread_count": 8,
+                    "video.resolution": "3840x2160",
+                    "video.bitrate": "16000k",
+                    "audio.sample_rate": 48000,
+                    "audio.bitrate": "320k",
                 },
                 created_at=datetime.now().isoformat(),
                 modified_at=datetime.now().isoformat(),
-                tags=['性能', '高质量'],
-                is_builtin=True
+                tags=["性能", "高质量"],
+                is_builtin=True,
             ),
             ProjectSettingsProfile(
                 name="标准配置",
                 description="平衡性能和质量的标准配置",
                 settings={
-                    'performance.enable_gpu': True,
-                    'performance.memory_limit': 4096,
-                    'performance.thread_count': 4,
-                    'video.resolution': '1920x1080',
-                    'video.bitrate': '8000k',
-                    'audio.sample_rate': 44100,
-                    'audio.bitrate': '192k'
+                    "performance.enable_gpu": True,
+                    "performance.memory_limit": 4096,
+                    "performance.thread_count": 4,
+                    "video.resolution": "1920x1080",
+                    "video.bitrate": "8000k",
+                    "audio.sample_rate": 44100,
+                    "audio.bitrate": "192k",
                 },
                 created_at=datetime.now().isoformat(),
                 modified_at=datetime.now().isoformat(),
-                tags=['标准', '平衡'],
-                is_builtin=True
+                tags=["标准", "平衡"],
+                is_builtin=True,
             ),
             ProjectSettingsProfile(
                 name="节省资源",
                 description="针对低性能设备的优化配置",
                 settings={
-                    'performance.enable_gpu': False,
-                    'performance.memory_limit': 2048,
-                    'performance.thread_count': 2,
-                    'video.resolution': '1280x720',
-                    'video.bitrate': '4000k',
-                    'audio.sample_rate': 44100,
-                    'audio.bitrate': '128k'
+                    "performance.enable_gpu": False,
+                    "performance.memory_limit": 2048,
+                    "performance.thread_count": 2,
+                    "video.resolution": "1280x720",
+                    "video.bitrate": "4000k",
+                    "audio.sample_rate": 44100,
+                    "audio.bitrate": "128k",
                 },
                 created_at=datetime.now().isoformat(),
                 modified_at=datetime.now().isoformat(),
-                tags=['省资源', '兼容'],
-                is_builtin=True
-            )
+                tags=["省资源", "兼容"],
+                is_builtin=True,
+            ),
         ]
 
         for profile in default_profiles:
@@ -246,8 +247,8 @@ class ProjectSettingsManager(QObject):
         for key, definition in self.settings_definitions.items():
             if definition.category == category:
                 category_settings[key] = {
-                    'value': self.settings.get(key, definition.default_value),
-                    'definition': definition
+                    "value": self.settings.get(key, definition.default_value),
+                    "definition": definition,
                 }
         return category_settings
 
@@ -280,13 +281,14 @@ class ProjectSettingsManager(QObject):
         """安全保存 JSON 文件"""
         try:
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
-    def create_profile(self, name: str, description: str,
-                     settings_filter: list[str] = None) -> bool:
+    def create_profile(
+        self, name: str, description: str, settings_filter: list[str] = None
+    ) -> bool:
         """创建配置文件"""
         try:
             if name in self.profiles and not self.profiles[name].is_builtin:
@@ -295,7 +297,9 @@ class ProjectSettingsManager(QObject):
 
             # 确定要包含的设置
             if settings_filter:
-                profile_settings = {k: v for k, v in self.settings.items() if k in settings_filter}
+                profile_settings = {
+                    k: v for k, v in self.settings.items() if k in settings_filter
+                }
             else:
                 profile_settings = self.settings.copy()
 
@@ -304,7 +308,7 @@ class ProjectSettingsManager(QObject):
                 description=description,
                 settings=profile_settings,
                 created_at=datetime.now().isoformat(),
-                modified_at=datetime.now().isoformat()
+                modified_at=datetime.now().isoformat(),
             )
 
             self.profiles[name] = profile
@@ -322,7 +326,9 @@ class ProjectSettingsManager(QObject):
         """应用配置文件"""
         try:
             if profile_name not in self.profiles:
-                self.error_occurred.emit("PROFILE_ERROR", f"配置文件不存在: {profile_name}")
+                self.error_occurred.emit(
+                    "PROFILE_ERROR", f"配置文件不存在: {profile_name}"
+                )
                 return False
 
             profile = self.profiles[profile_name]
@@ -388,8 +394,10 @@ class ProjectSettingsManager(QObject):
         """保存配置文件"""
         try:
             os.makedirs(os.path.dirname(self.profiles_file), exist_ok=True)
-            profiles_data = {name: asdict(profile) for name, profile in self.profiles.items()}
-            with open(self.profiles_file, 'w', encoding='utf-8') as f:
+            profiles_data = {
+                name: asdict(profile) for name, profile in self.profiles.items()
+            }
+            with open(self.profiles_file, "w", encoding="utf-8") as f:
                 json.dump(profiles_data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             self.logger.error(f"Failed to save profiles: {e}")
@@ -405,13 +413,13 @@ class ProjectSettingsManager(QObject):
                 settings_to_export = self.settings
 
             export_data = {
-                'settings': settings_to_export,
-                'exported_at': datetime.now().isoformat(),
-                'cineai_version': '2.0.0',
-                'profile_name': profile_name
+                "settings": settings_to_export,
+                "exported_at": datetime.now().isoformat(),
+                "cineai_version": "2.0.0",
+                "profile_name": profile_name,
             }
 
-            with open(export_path, 'w', encoding='utf-8') as f:
+            with open(export_path, "w", encoding="utf-8") as f:
                 json.dump(export_data, f, indent=2, ensure_ascii=False)
 
             self.logger.info(f"Exported settings to {export_path}")
@@ -424,10 +432,10 @@ class ProjectSettingsManager(QObject):
     def import_settings(self, import_path: str, merge: bool = True) -> bool:
         """导入设置"""
         try:
-            with open(import_path, encoding='utf-8') as f:
+            with open(import_path, encoding="utf-8") as f:
                 import_data = json.load(f)
 
-            imported_settings = import_data.get('settings', {})
+            imported_settings = import_data.get("settings", {})
 
             if merge:
                 # 合并设置
@@ -467,14 +475,18 @@ class ProjectSettingsManager(QObject):
         query_lower = query.lower()
 
         for key, definition in self.settings_definitions.items():
-            if (query_lower in definition.name.lower() or
-                query_lower in definition.description.lower() or
-                query_lower in key.lower()):
-                results.append({
-                    'key': key,
-                    'value': self.settings.get(key, definition.default_value),
-                    'definition': definition
-                })
+            if (
+                query_lower in definition.name.lower()
+                or query_lower in definition.description.lower()
+                or query_lower in key.lower()
+            ):
+                results.append(
+                    {
+                        "key": key,
+                        "value": self.settings.get(key, definition.default_value),
+                        "definition": definition,
+                    }
+                )
 
         return results
 
@@ -500,29 +512,34 @@ class ProjectSettingsManager(QObject):
                 category = definition.category
                 if category not in category_stats:
                     category_stats[category] = {
-                        'total': 0,
-                        'advanced': 0,
-                        'modified': 0
+                        "total": 0,
+                        "advanced": 0,
+                        "modified": 0,
                     }
-                category_stats[category]['total'] += 1
+                category_stats[category]["total"] += 1
                 if definition.advanced:
-                    category_stats[category]['advanced'] += 1
+                    category_stats[category]["advanced"] += 1
 
             # 统计修改的设置
             for key, value in self.settings.items():
                 if key in self.settings_definitions:
                     definition = self.settings_definitions[key]
                     if value != definition.default_value:
-                        category_stats[definition.category]['modified'] += 1
+                        category_stats[definition.category]["modified"] += 1
 
             return {
-                'total_settings': len(self.settings_definitions),
-                'modified_settings': sum(1 for k, v in self.settings.items()
-                                       if k in self.settings_definitions and
-                                       v != self.settings_definitions[k].default_value),
-                'category_stats': category_stats,
-                'profiles_count': len(self.profiles),
-                'builtin_profiles_count': len([p for p in self.profiles.values() if p.is_builtin])
+                "total_settings": len(self.settings_definitions),
+                "modified_settings": sum(
+                    1
+                    for k, v in self.settings.items()
+                    if k in self.settings_definitions
+                    and v != self.settings_definitions[k].default_value
+                ),
+                "category_stats": category_stats,
+                "profiles_count": len(self.profiles),
+                "builtin_profiles_count": len(
+                    [p for p in self.profiles.values() if p.is_builtin]
+                ),
             }
 
         except Exception as e:
@@ -533,7 +550,7 @@ class ProjectSettingsManager(QObject):
     def _validate_resolution(self, value: str) -> bool:
         """验证分辨率格式"""
         try:
-            parts = value.split('x')
+            parts = value.split("x")
             if len(parts) != 2:
                 return False
             width, height = int(parts[0]), int(parts[1])
@@ -554,10 +571,10 @@ class ProjectSettingsManager(QObject):
         """验证颜色格式"""
         try:
             # 支持十六进制颜色格式
-            if value.startswith('#'):
+            if value.startswith("#"):
                 return len(value) in [4, 7, 9]  # #RGB, #RRGGBB, #RRGGBBAA
             # 支持RGB/RGBA格式
-            return value in ['red', 'green', 'blue', 'white', 'black', 'transparent']
+            return value in ["red", "green", "blue", "white", "black", "transparent"]
         except Exception as e:
             self.logger.debug(f"Color validation error: {e}")
             return False

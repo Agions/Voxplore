@@ -63,6 +63,7 @@ class PlatformDataCollector:
         if self._http_client is None:
             try:
                 import httpx
+
                 self._http_client = httpx.Client(timeout=30.0)
             except ImportError:
                 logger.warning("httpx 未安装，将使用模拟数据")
@@ -123,7 +124,9 @@ class PlatformDataCollector:
                     metrics = VideoMetrics(
                         video_id=vid,
                         platform=Platform.DOUYIN,
-                        publish_time=datetime.fromisoformat(data.get("create_time", datetime.now().isoformat())),
+                        publish_time=datetime.fromisoformat(
+                            data.get("create_time", datetime.now().isoformat())
+                        ),
                         title=data.get("title", ""),
                         duration=data.get("duration", 0),
                         views=data.get("play_count", 0),
@@ -205,7 +208,9 @@ class PlatformDataCollector:
                             video_id=vid,
                             platform=Platform.YOUTUBE,
                             publish_time=datetime.fromisoformat(
-                                snippet.get("publishedAt", datetime.now().isoformat()).replace("Z", "+00:00")
+                                snippet.get(
+                                    "publishedAt", datetime.now().isoformat()
+                                ).replace("Z", "+00:00")
                             ),
                             title=snippet.get("title", ""),
                             duration=0,  # 需要解析 ISO 8601 时长
@@ -246,8 +251,12 @@ class PlatformDataCollector:
                 completion_rate=random.uniform(0.1, 0.8),
                 avg_watch_duration=random.uniform(10, 120),
                 followers_gained=random.randint(0, 100),
-                hook_type=random.choice(["result_first", "conflict", "suspense", "question", "shock"]),
-                emotion_tags=random.sample(["tense", "warm", "shocking", "funny", "sad", "exciting"], 2),
+                hook_type=random.choice(
+                    ["result_first", "conflict", "suspense", "question", "shock"]
+                ),
+                emotion_tags=random.sample(
+                    ["tense", "warm", "shocking", "funny", "sad", "exciting"], 2
+                ),
             )
             results.append(metrics)
 

@@ -5,7 +5,6 @@
 显示导出队列和任务状态
 """
 
-
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -54,9 +53,9 @@ class ExportQueueWidget(QWidget):
         # 任务表格
         self.task_table = QTableWidget()
         self.task_table.setColumnCount(6)
-        self.task_table.setHorizontalHeaderLabels([
-            "任务ID", "项目名称", "状态", "进度", "输出路径", "操作"
-        ])
+        self.task_table.setHorizontalHeaderLabels(
+            ["任务ID", "项目名称", "状态", "进度", "输出路径", "操作"]
+        )
         self.task_table.horizontalHeader().setStretchLastSection(True)
         self.task_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.task_table.itemSelectionChanged.connect(self.on_task_selected)
@@ -121,29 +120,41 @@ class ExportQueueWidget(QWidget):
 
             if task.status.value in ["pending", "queued"]:
                 start_btn = QPushButton("开始")
-                start_btn.clicked.connect(lambda checked, tid=task.id: self.task_action.emit("start", tid))
+                start_btn.clicked.connect(
+                    lambda checked, tid=task.id: self.task_action.emit("start", tid)
+                )
                 actions_layout.addWidget(start_btn)
 
             if task.status.value == "processing":
                 pause_btn = QPushButton("暂停")
-                pause_btn.clicked.connect(lambda checked, tid=task.id: self.task_action.emit("pause", tid))
+                pause_btn.clicked.connect(
+                    lambda checked, tid=task.id: self.task_action.emit("pause", tid)
+                )
                 actions_layout.addWidget(pause_btn)
 
                 cancel_btn = QPushButton("取消")
-                cancel_btn.clicked.connect(lambda checked, tid=task.id: self.task_action.emit("cancel", tid))
+                cancel_btn.clicked.connect(
+                    lambda checked, tid=task.id: self.task_action.emit("cancel", tid)
+                )
                 actions_layout.addWidget(cancel_btn)
 
             if task.status.value in ["completed", "failed"]:
                 remove_btn = QPushButton("移除")
-                remove_btn.clicked.connect(lambda checked, tid=task.id: self.task_action.emit("remove", tid))
+                remove_btn.clicked.connect(
+                    lambda checked, tid=task.id: self.task_action.emit("remove", tid)
+                )
                 actions_layout.addWidget(remove_btn)
 
             actions_layout.addStretch()
             self.task_table.setCellWidget(i, 5, actions_widget)
 
         # 更新状态标签
-        pending_count = len([t for t in self.tasks if t.status.value in ["pending", "queued"]])
-        processing_count = len([t for t in self.tasks if t.status.value == "processing"])
+        pending_count = len(
+            [t for t in self.tasks if t.status.value in ["pending", "queued"]]
+        )
+        processing_count = len(
+            [t for t in self.tasks if t.status.value == "processing"]
+        )
         completed_count = len([t for t in self.tasks if t.status.value == "completed"])
         failed_count = len([t for t in self.tasks if t.status.value == "failed"])
 
@@ -160,7 +171,7 @@ class ExportQueueWidget(QWidget):
             "processing": QColor(0, 150, 255),
             "completed": QColor(0, 200, 0),
             "failed": QColor(255, 0, 0),
-            "cancelled": QColor(150, 150, 150)
+            "cancelled": QColor(150, 150, 150),
         }
         return colors.get(status.value, QColor(200, 200, 200))
 

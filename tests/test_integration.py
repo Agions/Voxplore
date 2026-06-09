@@ -50,7 +50,7 @@ class TestQwenProviderIntegration:
         request = LLMRequest(
             messages=[{"role": "user", "content": "你好，请用一句话介绍自己"}],
             model="qwen-plus",
-            max_tokens=100
+            max_tokens=100,
         )
 
         response: LLMResponse = await provider.complete(request)
@@ -67,7 +67,7 @@ class TestQwenProviderIntegration:
             messages=[{"role": "user", "content": "写一个简短的故事"}],
             model="qwen-plus",
             temperature=0.8,
-            max_tokens=200
+            max_tokens=200,
         )
 
         response = await provider.complete(request)
@@ -80,8 +80,7 @@ class TestQwenProviderIntegration:
         """测试错误处理 - 无效 API 密钥"""
         bad_provider = QwenProvider(api_key="invalid_key")
         request = LLMRequest(
-            messages=[{"role": "user", "content": "测试"}],
-            model="qwen-plus"
+            messages=[{"role": "user", "content": "测试"}], model="qwen-plus"
         )
 
         response = await bad_provider.complete(request)
@@ -107,7 +106,7 @@ class TestKimiProviderIntegration:
         request = LLMRequest(
             messages=[{"role": "user", "content": "你好"}],
             model="moonshot-v1-8k",
-            max_tokens=100
+            max_tokens=100,
         )
 
         response: LLMResponse = await provider.complete(request)
@@ -134,7 +133,7 @@ class TestGLM5ProviderIntegration:
         request = LLMRequest(
             messages=[{"role": "user", "content": "你好"}],
             model="glm-5",
-            max_tokens=100
+            max_tokens=100,
         )
 
         response: LLMResponse = await provider.complete(request)
@@ -147,7 +146,7 @@ class TestGLM5ProviderIntegration:
 @pytest.mark.integration
 @pytest.mark.skipif(
     not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
-    reason="未设置任何 API 密钥"
+    reason="未设置任何 API 密钥",
 )
 class TestLLMManagerIntegration:
     """LLM 管理器集成测试"""
@@ -166,14 +165,15 @@ class TestLLMManagerIntegration:
             providers["glm5"] = GLM5Provider(api_key=os.getenv("GLM5_API_KEY"))
 
         assert len(providers) > 0, "至少需要配置一个提供商"
-        return LLMManager(providers=providers, default_provider=list(providers.keys())[0])
+        return LLMManager(
+            providers=providers, default_provider=list(providers.keys())[0]
+        )
 
     @pytest.mark.asyncio
     async def test_manager_completion(self, manager: LLMManager):
         """测试管理器补全"""
         request = LLMRequest(
-            messages=[{"role": "user", "content": "你好"}],
-            max_tokens=100
+            messages=[{"role": "user", "content": "你好"}], max_tokens=100
         )
 
         response: LLMResponse = await manager.complete(request)
@@ -196,8 +196,7 @@ class TestLLMManagerIntegration:
 
         # 使用第一个提供商
         request = LLMRequest(
-            messages=[{"role": "user", "content": "测试提供商1"}],
-            max_tokens=50
+            messages=[{"role": "user", "content": "测试提供商1"}], max_tokens=50
         )
         response1 = await manager.complete(request, provider_name=first_provider)
 
@@ -205,8 +204,7 @@ class TestLLMManagerIntegration:
 
         # 使用第二个提供商
         request2 = LLMRequest(
-            messages=[{"role": "user", "content": "测试提供商2"}],
-            max_tokens=50
+            messages=[{"role": "user", "content": "测试提供商2"}], max_tokens=50
         )
         response2 = await manager.complete(request2, provider_name=second_provider)
 
@@ -218,8 +216,7 @@ class TestLLMManagerIntegration:
 
         # 使用有效的请求
         request = LLMRequest(
-            messages=[{"role": "user", "content": "你好"}],
-            max_tokens=50
+            messages=[{"role": "user", "content": "你好"}], max_tokens=50
         )
 
         response = await manager.complete(request)
@@ -247,14 +244,14 @@ class TestScriptGeneratorIntegration:
 
         manager = LLMManager(
             providers=dict(zip(provider_names, providers, strict=False)),
-            default_provider=provider_names[0]
+            default_provider=provider_names[0],
         )
         return manager
 
     @pytest.mark.asyncio
     @pytest.mark.skipif(
         not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
-        reason="未设置任何 API 密钥"
+        reason="未设置任何 API 密钥",
     )
     async def test_generate_commentary(self, manager: LLMManager):
         """测试生成解说文案"""
@@ -264,14 +261,13 @@ class TestScriptGeneratorIntegration:
         if manager.available_providers():
             # 设置管理器到生成器中
             from scenefab.services.ai import llm_manager
+
             llm_manager.manager = manager
 
         generator = ScriptGenerator(use_llm_manager=True)
 
         script = generator.generate_commentary(
-            "分析《流浪地球》的科学设定",
-            duration=60,
-            style="storytelling"
+            "分析《流浪地球》的科学设定", duration=60, style="storytelling"
         )
 
         assert script is not None
@@ -282,7 +278,7 @@ class TestScriptGeneratorIntegration:
     @pytest.mark.asyncio
     @pytest.mark.skipif(
         not (SkipIfNoAPIKey.qwen() or SkipIfNoAPIKey.kimi() or SkipIfNoAPIKey.glm5()),
-        reason="未设置任何 API 密钥"
+        reason="未设置任何 API 密钥",
     )
     async def test_generate_monologue(self, manager: LLMManager):
         """测试生成独白文案"""
@@ -290,14 +286,13 @@ class TestScriptGeneratorIntegration:
 
         if manager.available_providers():
             from scenefab.services.ai import llm_manager
+
             llm_manager.manager = manager
 
         generator = ScriptGenerator(use_llm_manager=True)
 
         script = generator.generate_monologue(
-            "深夜独自走在城市街头",
-            emotion="惆怅",
-            duration=30
+            "深夜独自走在城市街头", emotion="惆怅", duration=30
         )
 
         assert script is not None
@@ -307,9 +302,4 @@ class TestScriptGeneratorIntegration:
 
 if __name__ == "__main__":
     # 运行集成测试
-    pytest.main([
-        __file__,
-        "-v",
-        "-m", "integration",
-        "--tb=short"
-    ])
+    pytest.main([__file__, "-v", "-m", "integration", "--tb=short"])

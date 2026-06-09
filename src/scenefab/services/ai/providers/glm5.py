@@ -52,10 +52,12 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端
-        self._init_http_client({
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        })
+        self._init_http_client(
+            {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
+        )
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
@@ -67,5 +69,3 @@ class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             messages=messages,
             endpoint="/chat/completions",
         )
-
-

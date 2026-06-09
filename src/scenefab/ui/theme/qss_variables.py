@@ -2,6 +2,7 @@
 QSS CSS 变量注册
 将 tokens.py 的值注册为 QSS 变量
 """
+
 from .tokens import COLORS, FONT, RADIUS, SHADOW, SPACING, TRANSITION
 
 
@@ -24,7 +25,7 @@ def register_qss_variables() -> str:
     # 字体
     lines.append(f"    --font-family: {FONT['family']};")
     lines.append(f"    --font-mono: {FONT['mono']};")
-    for key, val in FONT['size'].items():
+    for key, val in FONT["size"].items():
         lines.append(f"    --font-size-{key}: {val};")
 
     # 阴影

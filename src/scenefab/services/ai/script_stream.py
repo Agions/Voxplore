@@ -118,9 +118,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             )
         else:
             # 传统方式或不支持流式，使用普通生成
-            return self._generate_fallback_streaming(
-                topic, config, callback
-            )
+            return self._generate_fallback_streaming(topic, config, callback)
 
     def _generate_streaming_llm_manager(
         self,
@@ -142,6 +140,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             完整的 GeneratedScript
         """
         try:
+
             async def _run():
                 return await self._generate_streaming_async(
                     topic, config, callback, sentiment_callback
@@ -150,6 +149,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             try:
                 asyncio.get_running_loop()
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                     result = pool.submit(asyncio.run, _run()).result()
             except RuntimeError:
@@ -225,11 +225,15 @@ class StreamingScriptGenerator(ScriptGenerator):
             文本块字符串
         """
         try:
-            if hasattr(self.llm_manager, 'generate_streaming'):
-                async for chunk in self.llm_manager.generate_streaming(request, provider=provider_type):
+            if hasattr(self.llm_manager, "generate_streaming"):
+                async for chunk in self.llm_manager.generate_streaming(
+                    request, provider=provider_type
+                ):
                     yield chunk
             else:
-                response = await self.llm_manager.generate(request, provider=provider_type)
+                response = await self.llm_manager.generate(
+                    request, provider=provider_type
+                )
                 yield response.content
         except Exception as e:
             logger.error(f"流式生成错误: {e}")
@@ -239,8 +243,12 @@ class StreamingScriptGenerator(ScriptGenerator):
         """检查 provider 是否支持流式 API"""
         if provider_type is None:
             return True
-        streaming_providers = ['openai', 'anthropic', 'qwen', 'kimi']
-        provider_name = provider_type.value if hasattr(provider_type, 'value') else str(provider_type)
+        streaming_providers = ["openai", "anthropic", "qwen", "kimi"]
+        provider_name = (
+            provider_type.value
+            if hasattr(provider_type, "value")
+            else str(provider_type)
+        )
         return any(p in provider_name.lower() for p in streaming_providers)
 
     def _build_llm_request(self, topic: str, config: ScriptConfig):
@@ -260,12 +268,12 @@ class StreamingScriptGenerator(ScriptGenerator):
                 logger.debug(f"Invalid provider '{config.provider}', using default")
 
         system_prompt = self.STYLE_PROMPTS.get(
-            config.style,
-            self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+            config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
         )
         user_prompt = self._build_prompt(topic, config)
 
         from .base_llm_provider import LLMRequest
+
         request = LLMRequest(
             prompt=user_prompt,
             system_prompt=system_prompt,
@@ -288,6 +296,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         实际上是一次性生成，但会通过回调分块返回。
         """
         if self.use_llm_manager:
+
             async def _run():
                 result = await self._generate_async(topic, config)
                 await self.llm_manager.close_all()
@@ -296,8 +305,11 @@ class StreamingScriptGenerator(ScriptGenerator):
             try:
                 asyncio.get_running_loop()
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(asyncio.run, _run()).result()
+                    raw_content, provider_used = pool.submit(
+                        asyncio.run, _run()
+                    ).result()
             except RuntimeError:
                 raw_content, provider_used = asyncio.run(_run())
         else:
@@ -307,7 +319,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         if callback:
             chunk_size = max(1, len(raw_content) // 20)
             for i in range(0, len(raw_content), chunk_size):
-                callback(raw_content[i:i + chunk_size])
+                callback(raw_content[i : i + chunk_size])
 
         script = self._parse_response(raw_content, config)
         script.provider_used = provider_used
@@ -323,9 +335,7 @@ class StreamingScriptGenerator(ScriptGenerator):
         """异步流式生成（返回 Future）"""
         loop = asyncio.get_event_loop()
         return loop.run_in_executor(
-            None,
-            self.generate_streaming,
-            topic, config, callback, sentiment_callback
+            None, self.generate_streaming, topic, config, callback, sentiment_callback
         )
 
     def generate_monologue_streaming(
@@ -387,12 +397,16 @@ class StreamingScriptGenerator(ScriptGenerator):
         try:
             if self.use_llm_manager and self.llm_manager:
                 request, provider_type = self._build_llm_request(topic, config)
-                if hasattr(self.llm_manager, 'generate_streaming'):
-                    async for chunk in self.llm_manager.generate_streaming(request, provider=provider_type):
+                if hasattr(self.llm_manager, "generate_streaming"):
+                    async for chunk in self.llm_manager.generate_streaming(
+                        request, provider=provider_type
+                    ):
                         if chunk:
                             yield chunk
                 else:
-                    response = await self.llm_manager.generate(request, provider=provider_type)
+                    response = await self.llm_manager.generate(
+                        request, provider=provider_type
+                    )
                     yield response.content
             else:
                 response = await self._generate_async(topic, config)
@@ -404,14 +418,48 @@ class StreamingScriptGenerator(ScriptGenerator):
     def _analyze_sentiment_fast(self, text: str) -> float:
         """快速情感分析 - 基于关键词估算情感值 (-1.0 到 1.0)"""
         positive_words = [
-            '好', '棒', '美', '喜欢', '爱', '开心', '高兴', '快乐',
-            '精彩', '完美', '赞', '优秀', '成功', '幸福', '温暖',
-            '感动', '希望', '期待', '兴奋', '激动',
+            "好",
+            "棒",
+            "美",
+            "喜欢",
+            "爱",
+            "开心",
+            "高兴",
+            "快乐",
+            "精彩",
+            "完美",
+            "赞",
+            "优秀",
+            "成功",
+            "幸福",
+            "温暖",
+            "感动",
+            "希望",
+            "期待",
+            "兴奋",
+            "激动",
         ]
         negative_words = [
-            '坏', '差', '丑', '讨厌', '恨', '难过', '伤心', '痛苦',
-            '糟糕', '失败', '悲剧', '可怜', '失望', '绝望', '冷漠',
-            '可怕', '恐惧', '愤怒', '生气', '郁闷',
+            "坏",
+            "差",
+            "丑",
+            "讨厌",
+            "恨",
+            "难过",
+            "伤心",
+            "痛苦",
+            "糟糕",
+            "失败",
+            "悲剧",
+            "可怜",
+            "失望",
+            "绝望",
+            "冷漠",
+            "可怕",
+            "恐惧",
+            "愤怒",
+            "生气",
+            "郁闷",
         ]
         pos_count = sum(1 for w in positive_words if w in text)
         neg_count = sum(1 for w in negative_words if w in text)
@@ -435,18 +483,23 @@ class StreamingScriptGenerator(ScriptGenerator):
             async for chunk in self._stream_sse_content(topic, cfg):
                 if chunk:
                     full_content += chunk
-                    yield {'type': 'chunk', 'content': chunk}
+                    yield {"type": "chunk", "content": chunk}
                     if len(full_content) % 50 < 10:
                         sentiment = self._analyze_sentiment_fast(full_content)
                         if abs(sentiment - last_sentiment) > 0.15:
-                            yield {'type': 'sentiment', 'value': sentiment, 'text': full_content[-20:]}
+                            yield {
+                                "type": "sentiment",
+                                "value": sentiment,
+                                "text": full_content[-20:],
+                            }
                             last_sentiment = sentiment
-            yield {'type': 'done', 'content': full_content}
+            yield {"type": "done", "content": full_content}
 
         return _iter()
 
 
 # =========== 便捷函数 ===========
+
 
 def generate_script_streaming(
     topic: str,

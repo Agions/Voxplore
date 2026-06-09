@@ -19,6 +19,7 @@ def _setup_headless_platform():
         # 禁用多媒体 pipewire 警告
         os.environ.setdefault("QT_LOGGING_TO_STDOUT", "1")
 
+
 _setup_headless_platform()
 
 # 添加项目根目录到 Python 路径
@@ -29,9 +30,11 @@ sys.path.insert(0, str(project_root))
 logger = logging.getLogger("SceneFab")
 if not logger.handlers:
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s | %(levelname)-8s | %(message)s', datefmt='%H:%M:%S'
-    ))
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%H:%M:%S"
+        )
+    )
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
@@ -51,7 +54,9 @@ def _check_update_async(window):
                 format_update_message(info),
             )
     except Exception as e:
-        logger.debug(f"Update check failed: {e}")  # 更新检测失败，静默忽略，不影响用户使用
+        logger.debug(
+            f"Update check failed: {e}"
+        )  # 更新检测失败，静默忽略，不影响用户使用
 
 
 def main():
@@ -94,11 +99,13 @@ def main():
 
         # 创建主窗口并注入 application 实例
         from scenefab.ui.main.main_window import SceneFabMainWindow
+
         window = SceneFabMainWindow()
         window.show()
 
         # 启动后 3 秒异步检测更新（非阻塞）
         from PySide6.QtCore import QTimer
+
         QTimer.singleShot(3000, lambda: _check_update_async(window))
 
         exit_code = qt_app.exec()
@@ -119,8 +126,8 @@ def check_dependencies():
     logger.info("检查依赖...")
 
     required = {
-        'ffmpeg': 'FFmpeg 视频处理',
-        'ffprobe': 'FFprobe 视频分析',
+        "ffmpeg": "FFmpeg 视频处理",
+        "ffprobe": "FFprobe 视频分析",
     }
 
     import shutil
@@ -152,11 +159,11 @@ def run_cli_mode():
         try:
             choice = input("请选择功能 (1-3): ").strip()
 
-            if choice == '1':
+            if choice == "1":
                 run_commentary()
-            elif choice == '2':
+            elif choice == "2":
                 run_export()
-            elif choice == '3':
+            elif choice == "3":
                 print("\n再见! 👋")
                 break
             else:
@@ -202,7 +209,7 @@ def run_commentary():
 
     print(f"视频时长: {project.video_duration:.1f}秒")
 
-    use_custom = input("\n使用自定义解说词? (y/n): ").strip().lower() == 'y'
+    use_custom = input("\n使用自定义解说词? (y/n): ").strip().lower() == "y"
 
     if use_custom:
         print("输入解说词 (输入空行结束):")
@@ -261,10 +268,12 @@ def run_export():
 
     project_name = input("项目名称: ").strip() or "新建项目"
 
-    exporter = JianyingExporter(JianyingConfig(
-        canvas_ratio="9:16",
-        copy_materials=True,
-    ))
+    exporter = JianyingExporter(
+        JianyingConfig(
+            canvas_ratio="9:16",
+            copy_materials=True,
+        )
+    )
 
     draft = exporter.create_draft(project_name)
 
@@ -307,12 +316,13 @@ def launch_new_ui():
 
     # 启动后 3 秒异步检测更新
     from PySide6.QtCore import QTimer
+
     QTimer.singleShot(3000, lambda: _check_update_async(window))
 
     sys.exit(app.exec())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 新 UI 入口（渐进替换）
 
     pass

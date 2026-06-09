@@ -44,7 +44,9 @@ class PulseIndicator(QFrame):
         # 创建中心点
         self._center_dot = QLabel("●", self)
         self._center_dot.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._center_dot.setStyleSheet(f"color: {self._color.name()}; font-size: {self._size//3}px;")
+        self._center_dot.setStyleSheet(
+            f"color: {self._color.name()}; font-size: {self._size // 3}px;"
+        )
         self._center_dot.setFixedSize(self._size, self._size)
 
     def _update_pulse(self):
@@ -64,7 +66,14 @@ class PulseIndicator(QFrame):
         radius = self._max_radius * (self._animation_phase / (2 * 3.14159))
 
         # 外圈脉冲
-        pen = QPen(QColor(self._color.red(), self._color.green(), self._color.blue(), int(255 * pulse_opacity)))
+        pen = QPen(
+            QColor(
+                self._color.red(),
+                self._color.green(),
+                self._color.blue(),
+                int(255 * pulse_opacity),
+            )
+        )
         pen.setWidth(2)
         painter.setPen(pen)
         painter.drawEllipse(center, int(radius), int(radius))
@@ -72,7 +81,14 @@ class PulseIndicator(QFrame):
         # 第二层脉冲
         if radius > self._max_radius * 0.5:
             inner_pulse_opacity = pulse_opacity * 0.6
-            pen2 = QPen(QColor(self._color.red(), self._color.green(), self._color.blue(), int(255 * inner_pulse_opacity)))
+            pen2 = QPen(
+                QColor(
+                    self._color.red(),
+                    self._color.green(),
+                    self._color.blue(),
+                    int(255 * inner_pulse_opacity),
+                )
+            )
             pen2.setWidth(2)
             painter.setPen(pen2)
             painter.drawEllipse(center, int(radius * 0.6), int(radius * 0.6))
@@ -127,7 +143,11 @@ class SpinnerIndicator(QFrame):
             start_angle = (self._rotation + i * 120) * 16
             span_angle = 90 * 16
             alpha = 255 - i * 60
-            pen.setColor(QColor(self._color.red(), self._color.green(), self._color.blue(), alpha))
+            pen.setColor(
+                QColor(
+                    self._color.red(), self._color.green(), self._color.blue(), alpha
+                )
+            )
             painter.setPen(pen)
             painter.drawArc(rect, start_angle, span_angle)
 
@@ -171,7 +191,13 @@ class BouncingDots(QWidget):
         center_y = self.height() // 2
 
         for i in range(3):
-            offset = int((self._dot_size * 1.5) * (0.5 + 0.5 * -abs(self._phases[i] % (2 * 3.14159) - 3.14159) / 3.14159))
+            offset = int(
+                (self._dot_size * 1.5)
+                * (
+                    0.5
+                    + 0.5 * -abs(self._phases[i] % (2 * 3.14159) - 3.14159) / 3.14159
+                )
+            )
             x = self._dot_size + i * (self._dot_size * 2)
             y = center_y - offset
 

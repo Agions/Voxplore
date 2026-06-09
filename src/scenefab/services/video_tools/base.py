@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VideoMetadata:
     """视频元数据"""
+
     path: str
     duration: float = 0.0
     width: int = 1920
@@ -29,6 +30,7 @@ class VideoMetadata:
 @dataclass
 class ProcessingResult:
     """处理结果基类"""
+
     success: bool
     output_path: str = ""
     error: str = ""
@@ -36,6 +38,7 @@ class ProcessingResult:
 
 
 # =========== 通用工具函数 ===========
+
 
 def get_seg_attr(seg: dict | object, key: str, default: Any = None) -> Any:
     """
@@ -64,10 +67,10 @@ def parse_fps(fps_str: str) -> float:
     Returns:
         FPS 浮点数值
     """
-    if not fps_str or fps_str == '0/0':
+    if not fps_str or fps_str == "0/0":
         return 0.0
-    if '/' in fps_str:
-        num, den = fps_str.split('/')
+    if "/" in fps_str:
+        num, den = fps_str.split("/")
         return float(num) / float(den) if float(den) != 0 else 0.0
     return float(fps_str)
 
@@ -83,21 +86,20 @@ def extract_video_metadata(info: dict[str, Any]) -> dict[str, Any]:
         包含 width, height, duration, fps 的字典
     """
     video_stream = next(
-        (s for s in info.get('streams', []) if s.get('codec_type') == 'video'),
-        {}
+        (s for s in info.get("streams", []) if s.get("codec_type") == "video"), {}
     )
-    format_info = info.get('format', {})
+    format_info = info.get("format", {})
 
-    duration = float(format_info.get('duration') or 0)
-    width = video_stream.get('width', 0) or 0
-    height = video_stream.get('height', 0) or 0
-    fps = parse_fps(video_stream.get('r_frame_rate', '0/1'))
+    duration = float(format_info.get("duration") or 0)
+    width = video_stream.get("width", 0) or 0
+    height = video_stream.get("height", 0) or 0
+    fps = parse_fps(video_stream.get("r_frame_rate", "0/1"))
 
     return {
-        'width': width,
-        'height': height,
-        'duration': duration,
-        'fps': fps,
+        "width": width,
+        "height": height,
+        "duration": duration,
+        "fps": fps,
     }
 
 
@@ -134,7 +136,7 @@ class BaseVideoProcessor(IVideoProcessor):
     """
 
     def __init__(self):
-        self._supported_formats = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
+        self._supported_formats = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
 
     @property
     def supported_formats(self) -> list[str]:
@@ -159,7 +161,7 @@ class BaseVideoProcessor(IVideoProcessor):
 
         info = FFmpegTool.get_video_info(video_path)
         meta = extract_video_metadata(info)
-        format_info = info.get('format', {})
+        format_info = info.get("format", {})
 
         # 获取文件大小
         size_bytes = 0
@@ -168,14 +170,14 @@ class BaseVideoProcessor(IVideoProcessor):
         except OSError as e:
             logger.debug(f"Failed to get file size for {video_path}: {e}")
 
-        bitrate = int(format_info.get('bit_rate') or 0)
+        bitrate = int(format_info.get("bit_rate") or 0)
 
         return VideoMetadata(
             path=video_path,
-            duration=meta['duration'],
-            width=meta['width'],
-            height=meta['height'],
-            fps=meta['fps'],
+            duration=meta["duration"],
+            width=meta["width"],
+            height=meta["height"],
+            fps=meta["fps"],
             bitrate=bitrate,
             size_bytes=size_bytes,
         )

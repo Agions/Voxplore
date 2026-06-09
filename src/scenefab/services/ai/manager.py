@@ -2,6 +2,7 @@
 AI 服务管理器
 统一管理 LLM、Vision、TTS、ASR 服务
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,24 +34,32 @@ class AIServiceManager:
 
     def register_llm(self, name: str, config: dict[str, Any]) -> None:
         from scenefab.services.ai.llm import LLMService
+
         service = LLMService(config)
         self._llm_services[name] = service
         logger.info(f"Registered LLM service: {name}")
 
     def register_vision(self, config: dict[str, Any]) -> None:
         from scenefab.services.ai.vision import VisionService
+
         self._vision_service = VisionService(config)
         logger.info(f"Registered vision service: {config.get('name', 'unknown')}")
 
     def register_tts(self, config: dict[str, Any] = None) -> None:
         from scenefab.services.ai.tts import TTSService
+
         self._tts_service = TTSService(config)
-        logger.info(f"Registered TTS service: {config.get('provider', 'edge') if config else 'edge'}")
+        logger.info(
+            f"Registered TTS service: {config.get('provider', 'edge') if config else 'edge'}"
+        )
 
     def register_asr(self, config: dict[str, Any] = None) -> None:
         from scenefab.services.ai.asr import ASRService
+
         self._asr_service = ASRService(config)
-        logger.info(f"Registered ASR service: {config.get('provider', 'faster-whisper') if config else 'faster-whisper'}")
+        logger.info(
+            f"Registered ASR service: {config.get('provider', 'faster-whisper') if config else 'faster-whisper'}"
+        )
 
     def get_llm(self, name: str = None) -> Any | None:
         if name:
@@ -82,8 +91,11 @@ class AIServiceManager:
                 }
                 for name, svc in self._llm_services.items()
             },
-            "vision_enabled": self._vision_service is not None and self._vision_service.enabled,
-            "vision_cache_hits": self._vision_service._stats.get("cache_hits", 0) if self._vision_service else 0,
+            "vision_enabled": self._vision_service is not None
+            and self._vision_service.enabled,
+            "vision_cache_hits": self._vision_service._stats.get("cache_hits", 0)
+            if self._vision_service
+            else 0,
             "tts_provider": self._tts_service.provider if self._tts_service else None,
             "asr_provider": self._asr_service.provider if self._asr_service else None,
         }

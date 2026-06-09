@@ -83,11 +83,11 @@ class IllegalTransitionError(RuntimeError):
 class TaskSource(str, enum.Enum):
     """任务来源（v2.1）"""
 
-    BATCH = "batch"          # 批量处理器
-    PIPELINE = "pipeline"    # PipelineEngine
-    API = "api"              # FastAPI endpoint
-    CLI = "cli"              # CLI 命令
-    MANUAL = "manual"        # 直接调用
+    BATCH = "batch"  # 批量处理器
+    PIPELINE = "pipeline"  # PipelineEngine
+    API = "api"  # FastAPI endpoint
+    CLI = "cli"  # CLI 命令
+    MANUAL = "manual"  # 直接调用
 
 
 # ──────────────────────────────────────────────────────────
@@ -221,7 +221,9 @@ class UnifiedTask:
             "completed_at": self.completed_at,
             "duration_ms": self.duration_ms(),
             "error": self.error,
-            "result": self.result if self.result is None or _is_jsonable(self.result) else str(self.result),
+            "result": self.result
+            if self.result is None or _is_jsonable(self.result)
+            else str(self.result),
             "metadata": self.metadata,
             "cancelled": self.cancel_token.cancelled,
             "cancel_reason": self.cancel_token.reason,
@@ -254,7 +256,9 @@ class UnifiedTask:
                         old_status=old.value,
                         new_status=new_status.value,
                         error=self.error,
-                        result_path=str(self.result) if isinstance(self.result, str) else None,
+                        result_path=str(self.result)
+                        if isinstance(self.result, str)
+                        else None,
                     )
                 )
             except Exception as e:
@@ -294,9 +298,17 @@ class UnifiedTask:
         self.updated_at = time.time()
         if current_step_index is not None:
             self.current_step_index = current_step_index
-        if current_step_name and self.steps and 0 <= self.current_step_index < len(self.steps):
+        if (
+            current_step_name
+            and self.steps
+            and 0 <= self.current_step_index < len(self.steps)
+        ):
             self.steps[self.current_step_index].name = current_step_name
-        if step_progress is not None and self.steps and 0 <= self.current_step_index < len(self.steps):
+        if (
+            step_progress is not None
+            and self.steps
+            and 0 <= self.current_step_index < len(self.steps)
+        ):
             self.steps[self.current_step_index].progress = max(
                 0.0, min(1.0, step_progress)
             )

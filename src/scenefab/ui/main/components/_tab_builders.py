@@ -5,7 +5,6 @@
 提供完整的视频导出功能界面
 """
 
-
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -25,8 +24,6 @@ from .export_progress import ExportQueueWidget
 
 
 class ExportPanel(QWidget):
-
-
     def build_quick_export_tab(self) -> QWidget:
         """创建快速导出标签页"""
         widget = QWidget()
@@ -73,10 +70,18 @@ class ExportPanel(QWidget):
         self.export_instagram_btn = QPushButton("导出 Instagram")
         self.export_jianying_btn = QPushButton("导出剪映草稿")
 
-        self.export_youtube_btn.clicked.connect(lambda: self.quick_export("youtube_1080p"))
-        self.export_tiktok_btn.clicked.connect(lambda: self.quick_export("tiktok_video"))
-        self.export_instagram_btn.clicked.connect(lambda: self.quick_export("instagram_reel"))
-        self.export_jianying_btn.clicked.connect(lambda: self.quick_export("jianying_draft"))
+        self.export_youtube_btn.clicked.connect(
+            lambda: self.quick_export("youtube_1080p")
+        )
+        self.export_tiktok_btn.clicked.connect(
+            lambda: self.quick_export("tiktok_video")
+        )
+        self.export_instagram_btn.clicked.connect(
+            lambda: self.quick_export("instagram_reel")
+        )
+        self.export_jianying_btn.clicked.connect(
+            lambda: self.quick_export("jianying_draft")
+        )
 
         quick_actions_layout.addWidget(self.export_youtube_btn)
         quick_actions_layout.addWidget(self.export_tiktok_btn)
@@ -96,7 +101,6 @@ class ExportPanel(QWidget):
         layout.addStretch()
 
         return widget
-
 
     def build_batch_export_tab(self) -> QWidget:
         """创建批量导出标签页"""
@@ -128,9 +132,9 @@ class ExportPanel(QWidget):
 
         self.batch_projects_table = QTableWidget()
         self.batch_projects_table.setColumnCount(4)
-        self.batch_projects_table.setHorizontalHeaderLabels([
-            "选择", "项目名称", "持续时间", "分辨率"
-        ])
+        self.batch_projects_table.setHorizontalHeaderLabels(
+            ["选择", "项目名称", "持续时间", "分辨率"]
+        )
         self.batch_projects_table.horizontalHeader().setStretchLastSection(True)
 
         projects_layout.addWidget(self.batch_projects_table)
@@ -157,7 +161,6 @@ class ExportPanel(QWidget):
         layout.addStretch()
 
         return widget
-
 
     def build_queue_tab(self) -> QWidget:
         """创建队列管理标签页"""
@@ -192,7 +195,6 @@ class ExportPanel(QWidget):
 
         return widget
 
-
     def build_presets_tab(self) -> QWidget:
         """创建预设管理标签页"""
         widget = QWidget()
@@ -204,9 +206,9 @@ class ExportPanel(QWidget):
 
         self.presets_table = QTableWidget()
         self.presets_table.setColumnCount(5)
-        self.presets_table.setHorizontalHeaderLabels([
-            "预设名称", "格式", "分辨率", "比特率", "操作"
-        ])
+        self.presets_table.setHorizontalHeaderLabels(
+            ["预设名称", "格式", "分辨率", "比特率", "操作"]
+        )
         self.presets_table.horizontalHeader().setStretchLastSection(True)
 
         presets_layout.addWidget(self.presets_table)
@@ -234,5 +236,3 @@ class ExportPanel(QWidget):
         layout.addStretch()
 
         return widget
-
-

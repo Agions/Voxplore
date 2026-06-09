@@ -3,7 +3,6 @@ SceneFab 空状态组件 - 品牌升级版
 带引导语的插画风格空状态
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter
 from PySide6.QtWidgets import (
@@ -50,8 +49,10 @@ class EmptyStateIcon(QFrame):
 
         # 绘制圆形背景
         gradient = QLinearGradient(
-            center.x() - radius, center.y() - radius,
-            center.x() + radius, center.y() + radius
+            center.x() - radius,
+            center.y() - radius,
+            center.x() + radius,
+            center.y() + radius,
         )
 
         if self._icon_type == "projects":
@@ -73,8 +74,10 @@ class EmptyStateIcon(QFrame):
 
         # 绘制内圈
         inner_gradient = QLinearGradient(
-            center.x() - radius + 15, center.y() - radius + 15,
-            center.x() + radius - 15, center.y() + radius - 15
+            center.x() - radius + 15,
+            center.y() - radius + 15,
+            center.x() + radius - 15,
+            center.y() + radius - 15,
         )
         inner_gradient.setColorAt(0, QColor("#FFFFFF").withAlpha(20))
         inner_gradient.setColorAt(1, QColor("#FFFFFF").withAlpha(5))
@@ -94,15 +97,11 @@ class EmptyStateIcon(QFrame):
             "files": "📄",
             "search": "🔍",
             "error": "⚠️",
-            "default": "📭"
+            "default": "📭",
         }
         icon = icon_map.get(self._icon_type, icon_map["default"])
 
-        painter.drawText(
-            self.rect(),
-            Qt.AlignmentFlag.AlignCenter,
-            icon
-        )
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, icon)
 
 
 class EmptyStateButton(QPushButton):
@@ -170,7 +169,7 @@ class MacEmptyStateV2(QWidget):
         description: str = "",
         primary_action_text: str = "",
         secondary_action_text: str = "",
-        parent: QWidget | None = None
+        parent: QWidget | None = None,
     ):
         super().__init__(parent)
         self._icon_type = icon_type
@@ -206,7 +205,9 @@ class MacEmptyStateV2(QWidget):
             desc_font = QFont()
             desc_font.setPointSize(14)
             self.desc_label.setFont(desc_font)
-            self.desc_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; line-height: 1.6;")
+            self.desc_label.setStyleSheet(
+                f"color: {COLORS['text_tertiary']}; line-height: 1.6;"
+            )
             self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.desc_label.setWordWrap(True)
             self.desc_label.setMaximumWidth(400)
@@ -219,14 +220,18 @@ class MacEmptyStateV2(QWidget):
             button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             if self._primary_action_text:
-                self.primary_btn = EmptyStateButton(self._primary_action_text, primary=True)
+                self.primary_btn = EmptyStateButton(
+                    self._primary_action_text, primary=True
+                )
                 self.primary_btn.clicked.connect(
                     lambda: self.action_clicked.emit("primary")
                 )
                 button_layout.addWidget(self.primary_btn)
 
             if self._secondary_action_text:
-                self.secondary_btn = EmptyStateButton(self._secondary_action_text, primary=False)
+                self.secondary_btn = EmptyStateButton(
+                    self._secondary_action_text, primary=False
+                )
                 self.secondary_btn.clicked.connect(
                     lambda: self.action_clicked.emit("secondary")
                 )
@@ -263,7 +268,7 @@ class ProjectsEmptyState(MacEmptyStateV2):
             description="创建您的第一个视频项目，开始创作之旅",
             primary_action_text="创建项目",
             secondary_action_text="导入项目",
-            parent=parent
+            parent=parent,
         )
 
 
@@ -277,7 +282,7 @@ class MediaLibraryEmptyState(MacEmptyStateV2):
             description="导入视频、图片和音频素材，开始您的创作",
             primary_action_text="导入素材",
             secondary_action_text="",
-            parent=parent
+            parent=parent,
         )
 
 
@@ -291,7 +296,7 @@ class SearchEmptyState(MacEmptyStateV2):
             description=f"没有找到与「{keyword}」相关的内容，请尝试其他关键词",
             primary_action_text="",
             secondary_action_text="",
-            parent=parent
+            parent=parent,
         )
 
 
@@ -305,5 +310,5 @@ class ErrorEmptyState(MacEmptyStateV2):
             description="请稍后重试，或联系技术支持",
             primary_action_text="重试",
             secondary_action_text="",
-            parent=parent
+            parent=parent,
         )

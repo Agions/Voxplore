@@ -81,6 +81,7 @@ class NavigationButton(QPushButton):
 @dataclass
 class NavigationItem:
     """导航项"""
+
     id: str
     text: str
     icon: str = ""
@@ -182,7 +183,9 @@ class NavigationBar(QWidget):
             button.setToolTip(item.tooltip)
 
         # 连接点击事件
-        button.clicked.connect(lambda checked=False, page_id=item.id: self._on_navigation_clicked(page_id))
+        button.clicked.connect(
+            lambda checked=False, page_id=item.id: self._on_navigation_clicked(page_id)
+        )
 
         # 添加到布局
         self.navigation_layout.addWidget(button)
@@ -201,7 +204,9 @@ class NavigationBar(QWidget):
             del self.buttons[item_id]
 
             # 从导航项列表中移除
-            self.navigation_items = [item for item in self.navigation_items if item.id != item_id]
+            self.navigation_items = [
+                item for item in self.navigation_items if item.id != item_id
+            ]
 
             # 如果删除的是当前页面，切换到第一个页面
             if self.current_page_id == item_id and self.navigation_items:
@@ -247,24 +252,9 @@ class NavigationBar(QWidget):
 def create_default_navigation_items() -> list[NavigationItem]:
     """创建默认导航项 - 简化版：首页、项目管理、设置"""
     return [
-        NavigationItem(
-            id="home",
-            text="首页",
-            icon="🏠",
-            tooltip="返回首页"
-        ),
-        NavigationItem(
-            id="projects",
-            text="项目管理",
-            icon="📁",
-            tooltip="项目管理"
-        ),
-        NavigationItem(
-            id="settings",
-            text="设置",
-            icon="⚙️",
-            tooltip="应用设置"
-        )
+        NavigationItem(id="home", text="首页", icon="🏠", tooltip="返回首页"),
+        NavigationItem(id="projects", text="项目管理", icon="📁", tooltip="项目管理"),
+        NavigationItem(id="settings", text="设置", icon="⚙️", tooltip="应用设置"),
     ]
 
 

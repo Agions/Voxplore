@@ -25,18 +25,18 @@ _T = {
     # Surface
     "bg_indicator": "oklch(0.14 0.01 250)",  # 指示器背景
     # Border
-    "border":        "oklch(0.20 0.01 250)",  # 指示器底部边框
-    "border_pending":"oklch(0.24 0.01 250)",  # 待完成态
+    "border": "oklch(0.20 0.01 250)",  # 指示器底部边框
+    "border_pending": "oklch(0.24 0.01 250)",  # 待完成态
     # Text
-    "text":          "oklch(0.93 0.01 250)",  # 主要文字
-    "text_muted":    "oklch(0.55 0.01 250)",  # 辅助文字
+    "text": "oklch(0.93 0.01 250)",  # 主要文字
+    "text_muted": "oklch(0.55 0.01 250)",  # 辅助文字
     # Primary
-    "primary":       "oklch(0.65 0.20 250)",  # 主色蓝
-    "primary_l":     "oklch(0.70 0.24 250)",  # 脉冲亮色
+    "primary": "oklch(0.65 0.20 250)",  # 主色蓝
+    "primary_l": "oklch(0.70 0.24 250)",  # 脉冲亮色
     # Stage states
-    "done":          "oklch(0.65 0.20 250)",  # 完成态（主色）
+    "done": "oklch(0.65 0.20 250)",  # 完成态（主色）
     # Easing (for reference)
-    "ease_out":      "cubic-bezier(0.16, 1, 0.3, 1)",  # OutCubic
+    "ease_out": "cubic-bezier(0.16, 1, 0.3, 1)",  # OutCubic
 }
 
 # ── Animation constants ──────────────────────────────────────
@@ -70,7 +70,7 @@ class AnimatedDot(QFrame):
         if self._state == "done":
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: {_T['done']};
+                    background: {_T["done"]};
                     border-radius: 10px;
                 }}
             """)
@@ -86,7 +86,7 @@ class AnimatedDot(QFrame):
             self.setStyleSheet(f"""
                 QFrame {{
                     background: transparent;
-                    border: 2px solid {_T['border_pending']};
+                    border: 2px solid {_T["border_pending"]};
                     border-radius: 10px;
                 }}
             """)
@@ -126,9 +126,9 @@ class StepIndicator(QFrame):
         self.setStyleSheet(f"""
             QFrame {{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {_T['bg_indicator']},
-                    stop:1 {_T['bg_indicator']});
-                border-bottom: 1px solid {_T['border']};
+                    stop:0 {_T["bg_indicator"]},
+                    stop:1 {_T["bg_indicator"]});
+                border-bottom: 1px solid {_T["border"]};
                 border-radius: 0px;
             }}
         """)
@@ -145,7 +145,9 @@ class StepIndicator(QFrame):
             self._dots.append(dot)
 
             lbl = QLabel(label_text)
-            lbl.setFont(QFont("", 13, QFont.Weight.Bold if i == 0 else QFont.Weight.Normal))
+            lbl.setFont(
+                QFont("", 13, QFont.Weight.Bold if i == 0 else QFont.Weight.Normal)
+            )
             lbl.setCursor(Qt.CursorShape.PointingHandCursor)
             self._update_lbl(lbl, i)
             lbl.mousePressEvent = lambda _, idx=i: self.step_clicked.emit(idx)
@@ -159,8 +161,8 @@ class StepIndicator(QFrame):
                     border: none;
                     border-top: 2px solid qlineargradient(
                         x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {_T['primary']},
-                        stop:1 {_T['border_pending']});
+                        stop:0 {_T["primary"]},
+                        stop:1 {_T["border_pending"]});
                     margin: 0 8px;
                 """)
                 layout.addWidget(line, 1)
@@ -177,7 +179,9 @@ class StepIndicator(QFrame):
 
     def _update_lbl(self, lbl: QLabel, index: int):
         if index <= self._current:
-            lbl.setStyleSheet(f"color: {_T['text']}; font-size: 13px; font-weight: 700;")
+            lbl.setStyleSheet(
+                f"color: {_T['text']}; font-size: 13px; font-weight: 700;"
+            )
         else:
             lbl.setStyleSheet(f"color: {_T['text_muted']}; font-size: 13px;")
 
@@ -269,7 +273,7 @@ class CreationWizardPage(BasePage):
         new_anim.setStartValue(new_widget.pos())
         new_anim.setEndValue(new_widget.pos())
         new_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        new_anim.finished.connect(lambda: setattr(self, '_is_animating', False))
+        new_anim.finished.connect(lambda: setattr(self, "_is_animating", False))
         new_anim.start()
 
         self.step_indicator.set_current(index)

@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EmotionPeak:
     """情感峰值"""
+
     segment: VideoSegment
     peak_score: float  # 综合评分
     reason: str  # 峰值原因（高复杂度/强情绪/动作密度）
@@ -147,7 +148,9 @@ class EmotionPeakDetector:
                     seg.end_time,
                 )
             except Exception as e:
-                logger.warning(f"Visual analysis failed for segment at {seg.start_time:.1f}s: {e}")
+                logger.warning(
+                    f"Visual analysis failed for segment at {seg.start_time:.1f}s: {e}"
+                )
                 visual_score = 0.5
 
             # 计算音频情绪
@@ -158,13 +161,14 @@ class EmotionPeakDetector:
                     seg.end_time,
                 )
             except Exception as e:
-                logger.warning(f"Audio analysis failed for segment at {seg.start_time:.1f}s: {e}")
+                logger.warning(
+                    f"Audio analysis failed for segment at {seg.start_time:.1f}s: {e}"
+                )
                 audio_score = 0.5
 
             # 综合评分
             peak_score = (
-                self._visual_weight * visual_score +
-                self._audio_weight * audio_score
+                self._visual_weight * visual_score + self._audio_weight * audio_score
             )
 
             # 低于阈值跳过
@@ -172,15 +176,15 @@ class EmotionPeakDetector:
                 continue
 
             # 判断峰值原因
-            reason = self._determine_reason(
-                visual_score, audio_score, seg.description
-            )
+            reason = self._determine_reason(visual_score, audio_score, seg.description)
 
-            peaks.append(EmotionPeak(
-                segment=seg,
-                peak_score=peak_score,
-                reason=reason,
-            ))
+            peaks.append(
+                EmotionPeak(
+                    segment=seg,
+                    peak_score=peak_score,
+                    reason=reason,
+                )
+            )
 
         # 按峰值评分降序排列
         peaks.sort(key=lambda p: p.peak_score, reverse=True)

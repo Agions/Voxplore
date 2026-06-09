@@ -66,7 +66,9 @@ class AIMonitorPanel(QWidget):
     def _get_ai_service_manager(self):
         """获取AI服务管理器"""
         try:
-            self.ai_service_manager = self.application.get_service_by_name("ai_service_manager")
+            self.ai_service_manager = self.application.get_service_by_name(
+                "ai_service_manager"
+            )
             if not self.ai_service_manager:
                 self.logger.warning("AI服务管理器未注册")
         except Exception as e:
@@ -145,7 +147,7 @@ class AIMonitorPanel(QWidget):
             MonitorMode.SERVICES: "服务",
             MonitorMode.PERFORMANCE: "性能",
             MonitorMode.USAGE: "使用量",
-            MonitorMode.ALERTS: "告警"
+            MonitorMode.ALERTS: "告警",
         }
         return mode_texts.get(mode, "未知")
 
@@ -163,7 +165,7 @@ class AIMonitorPanel(QWidget):
             MonitorMode.SERVICES: 1,
             MonitorMode.PERFORMANCE: 2,
             MonitorMode.USAGE: 3,
-            MonitorMode.ALERTS: 4
+            MonitorMode.ALERTS: 4,
         }.get(mode, 0)
 
         self.content_stack.setCurrentIndex(page_index)
@@ -172,7 +174,9 @@ class AIMonitorPanel(QWidget):
         """设置信号连接"""
         # 连接AI服务管理器信号
         if self.ai_service_manager:
-            self.ai_service_manager.service_health_updated.connect(self._on_service_health_updated)
+            self.ai_service_manager.service_health_updated.connect(
+                self._on_service_health_updated
+            )
             self.ai_service_manager.stats_updated.connect(self._on_stats_updated)
 
     # -------------------------------------------------------------------------
@@ -226,8 +230,13 @@ class AIMonitorPanel(QWidget):
 
             # 添加新的服务状态部件
             if self.ai_service_manager:
-                for service_name, health in self.ai_service_manager.service_health.items():
-                    status_widget = ServiceStatusWidget(service_name, health.status, health.__dict__)
+                for (
+                    service_name,
+                    health,
+                ) in self.ai_service_manager.service_health.items():
+                    status_widget = ServiceStatusWidget(
+                        service_name, health.status, health.__dict__
+                    )
                     self.services_status_layout.addWidget(status_widget)
 
         except Exception as e:
@@ -250,27 +259,39 @@ class AIMonitorPanel(QWidget):
                 self.services_table.setItem(row, 0, QTableWidgetItem(service_name))
 
                 # 状态
-                status_item = QTableWidgetItem(health.status.value if health else "未知")
+                status_item = QTableWidgetItem(
+                    health.status.value if health else "未知"
+                )
                 status_color = {
                     ServiceStatus.ACTIVE: "#52c41a",
                     ServiceStatus.INACTIVE: "#888888",
                     ServiceStatus.ERROR: "#ff4d4f",
-                    ServiceStatus.MAINTENANCE: "#faad14"
+                    ServiceStatus.MAINTENANCE: "#faad14",
                 }.get(health.status, "#888888")
                 status_item.setBackground(QColor(status_color))
                 self.services_table.setItem(row, 1, status_item)
 
                 # 响应时间
                 response_time = health.response_time if health else 0
-                self.services_table.setItem(row, 2, QTableWidgetItem(f"{response_time:.1f}ms"))
+                self.services_table.setItem(
+                    row, 2, QTableWidgetItem(f"{response_time:.1f}ms")
+                )
 
                 # 错误率
                 error_rate = health.error_rate if health else 0
-                self.services_table.setItem(row, 3, QTableWidgetItem(f"{error_rate:.1%}"))
+                self.services_table.setItem(
+                    row, 3, QTableWidgetItem(f"{error_rate:.1%}")
+                )
 
                 # 成功率
-                success_rate = (stats.successful_requests / stats.total_requests * 100) if stats and stats.total_requests > 0 else 100
-                self.services_table.setItem(row, 4, QTableWidgetItem(f"{success_rate:.1f}%"))
+                success_rate = (
+                    (stats.successful_requests / stats.total_requests * 100)
+                    if stats and stats.total_requests > 0
+                    else 100
+                )
+                self.services_table.setItem(
+                    row, 4, QTableWidgetItem(f"{success_rate:.1f}%")
+                )
 
                 # 操作按钮
                 actions_widget = QWidget()
@@ -279,12 +300,16 @@ class AIMonitorPanel(QWidget):
 
                 test_btn = QPushButton("测试")
                 test_btn.setFixedSize(60, 24)
-                test_btn.clicked.connect(lambda checked, sn=service_name: self._test_service(sn))
+                test_btn.clicked.connect(
+                    lambda checked, sn=service_name: self._test_service(sn)
+                )
                 actions_layout.addWidget(test_btn)
 
                 details_btn = QPushButton("详情")
                 details_btn.setFixedSize(60, 24)
-                details_btn.clicked.connect(lambda checked, sn=service_name: self._show_service_details(sn))
+                details_btn.clicked.connect(
+                    lambda checked, sn=service_name: self._show_service_details(sn)
+                )
                 actions_layout.addWidget(details_btn)
 
                 self.services_table.setCellWidget(row, 5, actions_widget)
@@ -301,14 +326,20 @@ class AIMonitorPanel(QWidget):
             summary = self.ai_service_manager.get_summary()
 
             # 更新概览页面统计
-            if hasattr(self, 'service_stats_label'):
-                self.service_stats_label.setText(f"{summary['active_services']}/{summary['total_services']}")
-                self.requests_stats_label.setText(str(summary['total_requests']))
+            if hasattr(self, "service_stats_label"):
+                self.service_stats_label.setText(
+                    f"{summary['active_services']}/{summary['total_services']}"
+                )
+                self.requests_stats_label.setText(str(summary["total_requests"]))
 
                 # 计算成功率
-                total_requests = summary.get('total_requests', 0)
-                successful_requests = summary.get('successful_requests', 0)
-                success_rate = (successful_requests / total_requests * 100) if total_requests > 0 else 100
+                total_requests = summary.get("total_requests", 0)
+                successful_requests = summary.get("successful_requests", 0)
+                success_rate = (
+                    (successful_requests / total_requests * 100)
+                    if total_requests > 0
+                    else 100
+                )
                 self.success_stats_label.setText(f"{success_rate:.1f}%")
 
                 # 计算平均响应时间
@@ -316,7 +347,9 @@ class AIMonitorPanel(QWidget):
                 self.response_stats_label.setText(f"{avg_response_time:.1f}ms")
 
                 self.cost_stats_label.setText(f"¥{summary['total_cost']:.2f}")
-                self.alerts_stats_label.setText(str(len([a for a in self.alerts if not a.resolved])))
+                self.alerts_stats_label.setText(
+                    str(len([a for a in self.alerts if not a.resolved]))
+                )
 
             # 更新使用量表格
             self._update_usage_table()
@@ -355,10 +388,18 @@ class AIMonitorPanel(QWidget):
 
             for row, (service_name, stat) in enumerate(stats.items()):
                 self.usage_table.setItem(row, 0, QTableWidgetItem(service_name))
-                self.usage_table.setItem(row, 1, QTableWidgetItem(str(stat.total_requests)))
-                self.usage_table.setItem(row, 2, QTableWidgetItem(str(stat.successful_requests)))
-                self.usage_table.setItem(row, 3, QTableWidgetItem(str(stat.failed_requests)))
-                self.usage_table.setItem(row, 4, QTableWidgetItem(f"¥{stat.total_cost:.2f}"))
+                self.usage_table.setItem(
+                    row, 1, QTableWidgetItem(str(stat.total_requests))
+                )
+                self.usage_table.setItem(
+                    row, 2, QTableWidgetItem(str(stat.successful_requests))
+                )
+                self.usage_table.setItem(
+                    row, 3, QTableWidgetItem(str(stat.failed_requests))
+                )
+                self.usage_table.setItem(
+                    row, 4, QTableWidgetItem(f"¥{stat.total_cost:.2f}")
+                )
 
         except Exception as e:
             self.logger.error(f"更新使用量表格失败: {e}")
@@ -385,6 +426,7 @@ class AIMonitorPanel(QWidget):
 
             # 模拟CPU使用率
             import random
+
             cpu_usage = random.uniform(10, 80)
             self.cpu_usage_chart.add_data_point(cpu_usage)
 
@@ -417,7 +459,10 @@ class AIMonitorPanel(QWidget):
                 return 0.0
 
             # 简单计算每秒请求数
-            total_requests = sum(stat.total_requests for stat in self.ai_service_manager.usage_stats.values())
+            total_requests = sum(
+                stat.total_requests
+                for stat in self.ai_service_manager.usage_stats.values()
+            )
             return total_requests / 3600  # 假设统计的是1小时的数据
 
         except Exception as e:
@@ -460,7 +505,10 @@ class AIMonitorPanel(QWidget):
                         level="error",
                         message="服务出现错误，请检查配置",
                         timestamp=current_time,
-                        details={"error_rate": health.error_rate, "last_check": health.last_check}
+                        details={
+                            "error_rate": health.error_rate,
+                            "last_check": health.last_check,
+                        },
                     )
                     self._add_alert(alert)
 
@@ -471,7 +519,7 @@ class AIMonitorPanel(QWidget):
                         level="warning",
                         message=f"错误率过高: {health.error_rate:.1%}",
                         timestamp=current_time,
-                        details={"error_rate": health.error_rate}
+                        details={"error_rate": health.error_rate},
                     )
                     self._add_alert(alert)
 
@@ -482,7 +530,7 @@ class AIMonitorPanel(QWidget):
                         level="warning",
                         message=f"响应时间过长: {health.response_time:.1f}ms",
                         timestamp=current_time,
-                        details={"response_time": health.response_time}
+                        details={"response_time": health.response_time},
                     )
                     self._add_alert(alert)
 
@@ -494,11 +542,13 @@ class AIMonitorPanel(QWidget):
         now = time_module.time()
         # 检查是否已存在相似的告警（5分钟内不重复告警）
         for existing_alert in self.alerts:
-            if (existing_alert.service_name == alert.service_name and
-                existing_alert.level == alert.level and
-                existing_alert.message == alert.message and
-                not existing_alert.resolved and
-                now - existing_alert.timestamp < 300):
+            if (
+                existing_alert.service_name == alert.service_name
+                and existing_alert.level == alert.level
+                and existing_alert.message == alert.message
+                and not existing_alert.resolved
+                and now - existing_alert.timestamp < 300
+            ):
                 return
 
         self.alerts.append(alert)
@@ -525,7 +575,7 @@ class AIMonitorPanel(QWidget):
                     "信息": "info",
                     "警告": "warning",
                     "错误": "error",
-                    "严重": "critical"
+                    "严重": "critical",
                 }
                 filter_level = level_map.get(filter_text)
                 filtered_alerts = [a for a in self.alerts if a.level == filter_level]
@@ -567,14 +617,23 @@ class AIMonitorPanel(QWidget):
             if self.ai_service_manager:
                 # 测试第一个配置的模型
                 configured_models = self.ai_service_manager.get_configured_models()
-                if service_name in configured_models and configured_models[service_name]:
+                if (
+                    service_name in configured_models
+                    and configured_models[service_name]
+                ):
                     model_id = configured_models[service_name][0]
-                    success = self.ai_service_manager.test_connection(service_name, model_id)
+                    success = self.ai_service_manager.test_connection(
+                        service_name, model_id
+                    )
 
                     if success:
-                        QMessageBox.information(self, "测试成功", f"{service_name} 连接测试成功")
+                        QMessageBox.information(
+                            self, "测试成功", f"{service_name} 连接测试成功"
+                        )
                     else:
-                        QMessageBox.warning(self, "测试失败", f"{service_name} 连接测试失败")
+                        QMessageBox.warning(
+                            self, "测试失败", f"{service_name} 连接测试失败"
+                        )
                 else:
                     QMessageBox.warning(self, "未配置", f"{service_name} 未配置模型")
         except Exception as e:
@@ -591,7 +650,11 @@ class AIMonitorPanel(QWidget):
 
             rt = f"{health.response_time:.1f}ms" if health else "N/A"
             er = f"{health.error_rate:.1%}" if health else "N/A"
-            last_check = datetime.fromtimestamp(health.last_check).strftime('%Y-%m-%d %H:%M:%S') if health else "N/A"
+            last_check = (
+                datetime.fromtimestamp(health.last_check).strftime("%Y-%m-%d %H:%M:%S")
+                if health
+                else "N/A"
+            )
             success_count = stats.successful_requests if stats else 0
             total_count = stats.total_requests if stats else 0
             cost = f"¥{stats.total_cost:.2f}" if stats else "N/A"
@@ -633,7 +696,7 @@ class AIMonitorPanel(QWidget):
 
     def cleanup(self):
         """清理资源"""
-        if hasattr(self, 'update_timer'):
+        if hasattr(self, "update_timer"):
             self.update_timer.stop()
 
     def __del__(self):

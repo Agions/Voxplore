@@ -17,6 +17,7 @@ def create_app() -> FastAPI:
     def _get_version() -> str:
         try:
             from scenefab import __version__
+
             return __version__
         except Exception:
             return "1.0.0"
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
 
     # CORS 配置（生产环境应通过 CORS_ORIGINS 环境变量限制）
     import os
+
     cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
@@ -64,13 +66,16 @@ def create_app() -> FastAPI:
     async def general_exception_handler(request: Request, exc: Exception):
         import os
         import traceback
+
         return JSONResponse(
             status_code=500,
             content={
                 "error": "InternalServerError",
                 "message": str(exc),
                 "type": exc.__class__.__name__,
-                "traceback": traceback.format_exc() if os.getenv("DEBUG") == "1" else None,
+                "traceback": traceback.format_exc()
+                if os.getenv("DEBUG") == "1"
+                else None,
             },
         )
 
@@ -104,5 +109,5 @@ async def root():
         "name": "SceneFab API",
         "version": "1.0.0",
         "docs": "/docs",
-        "health": "/api/v1/health"
+        "health": "/api/v1/health",
     }

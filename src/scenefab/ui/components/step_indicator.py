@@ -2,6 +2,7 @@
 步骤指示器组件
 4步流程：上传 → 场景理解 → 配音编辑 → 导出
 """
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 

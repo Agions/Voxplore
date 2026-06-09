@@ -2,7 +2,6 @@
 输入组件 - SearchBox 等
 """
 
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLineEdit, QWidget
 
@@ -20,6 +19,7 @@ class MacSearchBox(QWidget):
 
     def _setup_ui(self):
         from PySide6.QtWidgets import QVBoxLayout
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 

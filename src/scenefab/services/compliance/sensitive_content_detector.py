@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SensitiveContentResult:
     """敏感内容检测结果"""
+
     is_sensitive: bool
     sensitivity_level: str  # "safe", "warning", "danger"
     detected_categories: list[str] = field(default_factory=list)
@@ -49,20 +50,52 @@ class SensitiveContentDetector:
     # 敏感关键词列表
     SENSITIVE_KEYWORDS = {
         "violence": [
-            "暴力", "血腥", "杀戮", "枪战", "爆炸", "死亡", "伤害",
-            "violence", "blood", "kill", "shoot", "explode", "death",
+            "暴力",
+            "血腥",
+            "杀戮",
+            "枪战",
+            "爆炸",
+            "死亡",
+            "伤害",
+            "violence",
+            "blood",
+            "kill",
+            "shoot",
+            "explode",
+            "death",
         ],
         "nudity": [
-            "裸露", "色情", "成人", "性暗示",
-            "nudity", "porn", "adult", "sexual",
+            "裸露",
+            "色情",
+            "成人",
+            "性暗示",
+            "nudity",
+            "porn",
+            "adult",
+            "sexual",
         ],
         "political": [
-            "政治", "敏感", "违禁", "反动", "颠覆",
-            "political", "sensitive", "banned", "subversive",
+            "政治",
+            "敏感",
+            "违禁",
+            "反动",
+            "颠覆",
+            "political",
+            "sensitive",
+            "banned",
+            "subversive",
         ],
         "illegal": [
-            "违法", "犯罪", "毒品", "赌博", "诈骗",
-            "illegal", "crime", "drug", "gambling", "fraud",
+            "违法",
+            "犯罪",
+            "毒品",
+            "赌博",
+            "诈骗",
+            "illegal",
+            "crime",
+            "drug",
+            "gambling",
+            "fraud",
         ],
     }
 
@@ -144,7 +177,9 @@ class SensitiveContentDetector:
             recommendations=recommendations,
         )
 
-        logger.info(f"敏感内容检测完成: 敏感={result.is_sensitive}, 等级={sensitivity_level}")
+        logger.info(
+            f"敏感内容检测完成: 敏感={result.is_sensitive}, 等级={sensitivity_level}"
+        )
         return result
 
     def _detect_text_keywords(self, text: str) -> dict[str, Any]:
@@ -174,7 +209,9 @@ class SensitiveContentDetector:
                 detected = True
                 categories.append(category)
                 scores[category] = min(len(matched_keywords) / 3.0, 1.0)
-                warnings.append(f"检测到 {category} 相关关键词: {', '.join(matched_keywords[:3])}")
+                warnings.append(
+                    f"检测到 {category} 相关关键词: {', '.join(matched_keywords[:3])}"
+                )
 
         return {
             "detected": detected,
@@ -203,8 +240,17 @@ class SensitiveContentDetector:
 
         # 检测盗版关键词
         piracy_keywords = [
-            "cam", "ts", "tc", "枪版", "盗版", "抢先版",
-            "bluray", "bdrip", "hdrip", "dvdrip", "webrip",
+            "cam",
+            "ts",
+            "tc",
+            "枪版",
+            "盗版",
+            "抢先版",
+            "bluray",
+            "bdrip",
+            "hdrip",
+            "dvdrip",
+            "webrip",
         ]
 
         for keyword in piracy_keywords:

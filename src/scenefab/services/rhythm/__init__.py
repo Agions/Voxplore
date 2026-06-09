@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class RhythmTemplate(str, Enum):
     """节奏模板"""
+
     FAST = "fast"  # 快节奏：平均镜头 1.2s / BPM 140+
     MEDIUM = "medium"  # 中节奏：平均镜头 2.5s / BPM 90-110
     SLOW = "slow"  # 慢节奏：平均镜头 4.0s+ / BPM < 80
@@ -30,6 +31,7 @@ class RhythmTemplate(str, Enum):
 @dataclass
 class BeatPoint:
     """节奏点"""
+
     timestamp: float  # 时间戳（秒）
     strength: float  # 强度 0.0-1.0
     beat_number: int  # 第几个节拍
@@ -39,6 +41,7 @@ class BeatPoint:
 @dataclass
 class CutPoint:
     """切镜点"""
+
     timestamp: float  # 时间戳（秒）
     beat_point: BeatPoint | None = None  # 对应的节奏点
     confidence: float = 1.0  # 置信度
@@ -48,6 +51,7 @@ class CutPoint:
 @dataclass
 class RhythmAnalysis:
     """节奏分析结果"""
+
     bpm: float  # BPM
     beat_count: int  # 节拍数
     average_beat_interval: float  # 平均节拍间隔（秒）
@@ -59,6 +63,7 @@ class RhythmAnalysis:
 @dataclass
 class BMPSyncResult:
     """BPM 同步结果"""
+
     video_path: str
     audio_path: str
     rhythm_analysis: RhythmAnalysis
@@ -150,7 +155,9 @@ class BMPSynchronizer:
             cut_points=cut_points,
         )
 
-        logger.info(f"BPM 同步完成: BPM={rhythm_analysis.bpm}, 切镜点={len(cut_points)}")
+        logger.info(
+            f"BPM 同步完成: BPM={rhythm_analysis.bpm}, 切镜点={len(cut_points)}"
+        )
         return result
 
     def _extract_audio(self, video_path: str) -> str:
@@ -171,11 +178,15 @@ class BMPSynchronizer:
         try:
             cmd = [
                 "ffmpeg",
-                "-i", video_path,
+                "-i",
+                video_path,
                 "-vn",  # 不包含视频
-                "-acodec", "pcm_s16le",
-                "-ar", "22050",
-                "-ac", "1",
+                "-acodec",
+                "pcm_s16le",
+                "-ar",
+                "22050",
+                "-ac",
+                "1",
                 "-y",  # 覆盖输出文件
                 audio_path,
             ]
@@ -230,20 +241,28 @@ class BMPSynchronizer:
             for i, beat_time in enumerate(beat_times):
                 # 找到最近的 onset 强度
                 onset_idx = np.argmin(np.abs(onset_times - beat_time))
-                strength = float(onset_env[onset_idx]) if onset_idx < len(onset_env) else 0.5
+                strength = (
+                    float(onset_env[onset_idx]) if onset_idx < len(onset_env) else 0.5
+                )
 
                 # 归一化强度
-                strength = min(1.0, strength / np.max(onset_env)) if np.max(onset_env) > 0 else 0.5
+                strength = (
+                    min(1.0, strength / np.max(onset_env))
+                    if np.max(onset_env) > 0
+                    else 0.5
+                )
 
                 # 判断是否为强拍（每 4 个节拍一个强拍）
-                is_downbeat = (i % 4 == 0)
+                is_downbeat = i % 4 == 0
 
-                beat_points.append(BeatPoint(
-                    timestamp=float(beat_time),
-                    strength=strength,
-                    beat_number=i,
-                    is_downbeat=is_downbeat,
-                ))
+                beat_points.append(
+                    BeatPoint(
+                        timestamp=float(beat_time),
+                        strength=strength,
+                        beat_number=i,
+                        is_downbeat=is_downbeat,
+                    )
+                )
 
             # 确定推荐节奏模板
             recommended_template = self._recommend_template(float(tempo))
@@ -310,7 +329,7 @@ class BMPSynchronizer:
         # 计算节拍间隔的一致性
         intervals = []
         for i in range(1, len(beat_points)):
-            interval = beat_points[i].timestamp - beat_points[i-1].timestamp
+            interval = beat_points[i].timestamp - beat_points[i - 1].timestamp
             intervals.append(interval)
 
         if not intervals:
@@ -318,6 +337,7 @@ class BMPSynchronizer:
 
         # 计算标准差
         import numpy as np
+
         std = np.std(intervals)
         mean = np.mean(intervals)
 
@@ -365,12 +385,14 @@ class BMPSynchronizer:
 
             # 只在强拍或高强度节拍处切镜
             if beat_point.is_downbeat or beat_point.strength > 0.6:
-                cut_points.append(CutPoint(
-                    timestamp=beat_point.timestamp,
-                    beat_point=beat_point,
-                    confidence=beat_point.strength,
-                    cut_type="beat",
-                ))
+                cut_points.append(
+                    CutPoint(
+                        timestamp=beat_point.timestamp,
+                        beat_point=beat_point,
+                        confidence=beat_point.strength,
+                        cut_type="beat",
+                    )
+                )
 
         # 如果切镜点太少，添加额外的切镜点
         if len(cut_points) < 3:
@@ -395,11 +417,15 @@ class BMPSynchronizer:
         """
         try:
             import subprocess
+
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "csv=p=0",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
                 video_path,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -447,12 +473,14 @@ class BMPSynchronizer:
                         break
 
                 if not too_close:
-                    extra_points.append(CutPoint(
-                        timestamp=timestamp,
-                        beat_point=None,
-                        confidence=0.5,
-                        cut_type="auto",
-                    ))
+                    extra_points.append(
+                        CutPoint(
+                            timestamp=timestamp,
+                            beat_point=None,
+                            confidence=0.5,
+                            cut_type="auto",
+                        )
+                    )
 
         return existing_cut_points + extra_points
 

@@ -84,7 +84,9 @@ class PipelineIntegrator(MonologueMaker):
     # 视角映射
     # ─────────────────────────────────────────────────────────────────
 
-    def run_perspective_mapping(self, project: MonologueProject) -> list[PerspectiveShot]:
+    def run_perspective_mapping(
+        self, project: MonologueProject
+    ) -> list[PerspectiveShot]:
         """
         运行视角映射
 
@@ -145,7 +147,7 @@ class PipelineIntegrator(MonologueMaker):
 
         keyframes = []
         for i, scene in enumerate(project.scenes):
-            if hasattr(scene, 'keyframe_path') and scene.keyframe_path:
+            if hasattr(scene, "keyframe_path") and scene.keyframe_path:
                 kf = KeyFrame(
                     timestamp=scene.start,
                     frame_index=i,
@@ -225,7 +227,9 @@ class PipelineIntegrator(MonologueMaker):
                 start_time=scene.start,
                 end_time=scene.end,
                 duration=scene.duration,
-                is_key_moment=scene.suitability_score > 70 if hasattr(scene, 'suitability_score') else False,
+                is_key_moment=scene.suitability_score > 70
+                if hasattr(scene, "suitability_score")
+                else False,
             )
             clips.append(clip)
         return clips
@@ -375,7 +379,8 @@ class PipelineIntegrator(MonologueMaker):
             "has_interleave_timeline": self._last_interleave_timeline is not None,
             "interleave_mode": (
                 self._last_interleave_timeline.interleave_mode.value
-                if self._last_interleave_timeline else None
+                if self._last_interleave_timeline
+                else None
             ),
         }
 
@@ -426,7 +431,9 @@ class PipelineIntegrator(MonologueMaker):
         import os
 
         # 校验源视频
-        if not os.path.exists(source_video) and not source_video.startswith(("http://", "https://")):
+        if not os.path.exists(source_video) and not source_video.startswith(
+            ("http://", "https://")
+        ):
             raise FileNotFoundError(f"源视频不存在: {source_video}")
 
         # 1. 创建项目
@@ -471,13 +478,14 @@ class PipelineIntegrator(MonologueMaker):
 # 为 MonologueSegment 添加穿插属性（向后兼容）
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _add_interleave_attributes():
     """动态添加穿插相关属性到 MonologueSegment"""
     from .models.monologue import MonologueSegment
     from .models.perspective import TransitionType
 
     # 检查是否已添加
-    if hasattr(MonologueSegment, 'show_original'):
+    if hasattr(MonologueSegment, "show_original"):
         return
 
     MonologueSegment.show_original: bool = False

@@ -475,6 +475,7 @@ async def execute_async(
         returncode (0 表示成功)
     """
     from scenefab.utils.async_subprocess import run_subprocess
+
     returncode, _, _ = await run_subprocess(cmd, timeout=timeout)
     return returncode
 

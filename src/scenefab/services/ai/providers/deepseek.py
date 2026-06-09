@@ -94,10 +94,12 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端
-        self._init_http_client({
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        })
+        self._init_http_client(
+            {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
+        )
 
     def _is_reasoning_model(self, model: str) -> bool:
         """检查是否是推理模型"""
@@ -179,6 +181,6 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     async def count_tokens(self, text: str) -> int:
         """计算 token 数量（估算）"""
         # 简单估算：中文约 1.5 token/字符，英文约 0.25 token/字符
-        chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+        chinese_chars = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
         other_chars = len(text) - chinese_chars
         return int(chinese_chars * 1.5 + other_chars * 0.25)

@@ -30,6 +30,7 @@ from typing import Any
 
 class ServiceLifetime:
     """服务生命周期枚举"""
+
     SINGLETON = "singleton"
     TRANSIENT = "transient"
     FACTORY = "factory"
@@ -108,7 +109,9 @@ class ServiceContainer:
             self._services[service_type] = _ServiceEntry(
                 lifetime=ServiceLifetime.TRANSIENT,
                 service_type=factory_or_type,
-                factory=factory_or_type if not isinstance(factory_or_type, type) else None,
+                factory=factory_or_type
+                if not isinstance(factory_or_type, type)
+                else None,
             )
 
     def register_factory(

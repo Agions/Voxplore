@@ -114,13 +114,17 @@ class StatCard(QFrame):
         # 值
         value_label = QLabel(value)
         value_label.setFont(QFont("", 24, QFont.Weight.Bold))
-        value_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        value_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         layout.addWidget(value_label)
 
         # 标签
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", 12))
-        label_widget.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        label_widget.setStyleSheet(
+            f"color: {Colors.TextMuted}; background: transparent;"
+        )
         layout.addWidget(label_widget)
 
 
@@ -152,7 +156,9 @@ class ProgressRing(QWidget):
 
         # 进度圆
         if self._value > 0:
-            gradient = QLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius)
+            gradient = QLinearGradient(
+                cx - radius, cy - radius, cx + radius, cy + radius
+            )
             gradient.setColorAt(0, QColor("#7C3AED"))
             gradient.setColorAt(1, QColor("#A855F7"))
 
@@ -163,8 +169,9 @@ class ProgressRing(QWidget):
             angle = 360 * self._value / self._max
             rect_x = cx - radius
             rect_y = cy - radius
-            painter.drawPie(rect_x, rect_y, radius * 2, radius * 2,
-                          90 * 16, int(angle * 16))
+            painter.drawPie(
+                rect_x, rect_y, radius * 2, radius * 2, 90 * 16, int(angle * 16)
+            )
 
 
 class LoadingOverlay(QFrame):
@@ -200,7 +207,9 @@ class LoadingOverlay(QFrame):
         # 文本
         self.text_label = QLabel("加载中...")
         self.text_label.setFont(QFont("", 14))
-        self.text_label.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        self.text_label.setStyleSheet(
+            f"color: {Colors.TextMuted}; background: transparent;"
+        )
         layout.addWidget(self.text_label)
 
         # 启动旋转动画
@@ -252,7 +261,9 @@ class StepIndicator(QWidget):
             node_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             num_label = QLabel(str(i + 1))
-            num_label.setStyleSheet("background: transparent; color: white; font-weight: bold;")
+            num_label.setStyleSheet(
+                "background: transparent; color: white; font-weight: bold;"
+            )
             node_layout.addWidget(num_label)
 
             layout.addWidget(node)

@@ -21,13 +21,25 @@ _SNAPSHOT_COLS = "video_id, platform, snapshot_time, views, likes, comments, sha
 
 def _metrics_to_row(m: VideoMetrics) -> tuple:
     return (
-        m.video_id, m.platform.value, m.publish_time.isoformat(),
-        m.title, m.duration, m.views, m.likes, m.comments,
-        m.shares, m.collects, m.completion_rate, m.avg_watch_duration,
-        m.followers_gained, m.hook_type,
+        m.video_id,
+        m.platform.value,
+        m.publish_time.isoformat(),
+        m.title,
+        m.duration,
+        m.views,
+        m.likes,
+        m.comments,
+        m.shares,
+        m.collects,
+        m.completion_rate,
+        m.avg_watch_duration,
+        m.followers_gained,
+        m.hook_type,
         json.dumps(m.emotion_tags, ensure_ascii=False),
         json.dumps(m.topic_tags, ensure_ascii=False),
-        m.thumbnail_path, m.script_variant_id, m.collected_at.isoformat(),
+        m.thumbnail_path,
+        m.script_variant_id,
+        m.collected_at.isoformat(),
     )
 
 
@@ -80,9 +92,17 @@ class FeedbackDataStore:
             )
             conn.execute(
                 f"INSERT INTO feedback_snapshots ({_SNAPSHOT_COLS}) VALUES (?,?,?,?,?,?,?,?,?)",
-                (metrics.video_id, metrics.platform.value, now,
-                 metrics.views, metrics.likes, metrics.comments,
-                 metrics.shares, metrics.collects, metrics.completion_rate),
+                (
+                    metrics.video_id,
+                    metrics.platform.value,
+                    now,
+                    metrics.views,
+                    metrics.likes,
+                    metrics.comments,
+                    metrics.shares,
+                    metrics.collects,
+                    metrics.completion_rate,
+                ),
             )
             conn.commit()
         logger.debug(f"保存指标: {metrics.video_id} ({metrics.platform.value})")
@@ -99,9 +119,20 @@ class FeedbackDataStore:
             )
             conn.executemany(
                 f"INSERT INTO feedback_snapshots ({_SNAPSHOT_COLS}) VALUES (?,?,?,?,?,?,?,?,?)",
-                [(m.video_id, m.platform.value, now, m.views, m.likes,
-                  m.comments, m.shares, m.collects, m.completion_rate)
-                 for m in metrics_list],
+                [
+                    (
+                        m.video_id,
+                        m.platform.value,
+                        now,
+                        m.views,
+                        m.likes,
+                        m.comments,
+                        m.shares,
+                        m.collects,
+                        m.completion_rate,
+                    )
+                    for m in metrics_list
+                ],
             )
             conn.commit()
         logger.info(f"批量保存 {len(metrics_list)} 条指标")
@@ -145,11 +176,16 @@ class FeedbackDataStore:
 
         return [
             VideoMetrics(
-                video_id=r["video_id"], platform=Platform(r["platform"]),
+                video_id=r["video_id"],
+                platform=Platform(r["platform"]),
                 publish_time=datetime.fromisoformat(r["publish_time"]),
-                title=r["title"], duration=r["duration"],
-                views=r["views"], likes=r["likes"], comments=r["comments"],
-                shares=r["shares"], collects=r["collects"],
+                title=r["title"],
+                duration=r["duration"],
+                views=r["views"],
+                likes=r["likes"],
+                comments=r["comments"],
+                shares=r["shares"],
+                collects=r["collects"],
                 completion_rate=r["completion_rate"],
                 avg_watch_duration=r["avg_watch_duration"],
                 followers_gained=r["followers_gained"],
@@ -158,7 +194,9 @@ class FeedbackDataStore:
                 topic_tags=json.loads(r["topic_tags"] or "[]"),
                 thumbnail_path=r["thumbnail_path"] or "",
                 script_variant_id=r["script_variant_id"] or "",
-                collected_at=datetime.fromisoformat(r["collected_at"]) if r["collected_at"] else datetime.now(),
+                collected_at=datetime.fromisoformat(r["collected_at"])
+                if r["collected_at"]
+                else datetime.now(),
             )
             for r in rows
         ]
@@ -179,27 +217,36 @@ class FeedbackDataStore:
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            row = conn.execute(f"""
+            row = conn.execute(
+                f"""
                 SELECT COUNT(*) as total_videos, SUM(views) as total_views,
                     SUM(likes) as total_likes, SUM(comments) as total_comments,
                     SUM(shares) as total_shares, AVG(completion_rate) as avg_completion_rate,
                     AVG(duration) as avg_duration, MAX(views) as max_views
                 FROM video_metrics WHERE {where}
-            """, params).fetchone()
+            """,
+                params,
+            ).fetchone()
 
-            hook_stats = conn.execute(f"""
+            hook_stats = conn.execute(
+                f"""
                 SELECT hook_type, COUNT(*) as count, AVG(views) as avg_views,
                     AVG(likes) as avg_likes, AVG(completion_rate) as avg_completion_rate
                 FROM video_metrics WHERE {where} AND hook_type IS NOT NULL AND hook_type != ''
                 GROUP BY hook_type ORDER BY avg_views DESC
-            """, params).fetchall()
+            """,
+                params,
+            ).fetchall()
 
-            platform_stats = conn.execute(f"""
+            platform_stats = conn.execute(
+                f"""
                 SELECT platform, COUNT(*) as count, SUM(views) as total_views,
                     AVG(completion_rate) as avg_completion_rate
                 FROM video_metrics WHERE {where}
                 GROUP BY platform ORDER BY total_views DESC
-            """, params).fetchall()
+            """,
+                params,
+            ).fetchall()
 
         return {
             "period_days": days,

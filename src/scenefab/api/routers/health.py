@@ -13,6 +13,7 @@ router = APIRouter()
 def _get_version() -> str:
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -29,8 +30,8 @@ async def health_check():
             "api": "up",
             "video_processor": "up",
             "ai_service": "up",
-            "storage": "up"
-        }
+            "storage": "up",
+        },
     )
 
 

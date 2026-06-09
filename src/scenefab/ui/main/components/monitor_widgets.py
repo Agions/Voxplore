@@ -18,7 +18,9 @@ from ...icon_manager import get_icon
 class ServiceStatusWidget(QWidget):
     """服务状态部件"""
 
-    def __init__(self, service_name: str, status: ServiceStatus, health_data: dict[str, Any]):
+    def __init__(
+        self, service_name: str, status: ServiceStatus, health_data: dict[str, Any]
+    ):
         super().__init__()
         self.service_name = service_name
         self.status = status
@@ -75,7 +77,7 @@ class ServiceStatusWidget(QWidget):
             ServiceStatus.ACTIVE: "#52c41a",
             ServiceStatus.INACTIVE: "#888888",
             ServiceStatus.ERROR: "#ff4d4f",
-            ServiceStatus.MAINTENANCE: "#faad14"
+            ServiceStatus.MAINTENANCE: "#faad14",
         }
 
         color = color_map.get(self.status, "#888888")
@@ -97,7 +99,7 @@ class ServiceStatusWidget(QWidget):
             ServiceStatus.ACTIVE: "正常运行",
             ServiceStatus.INACTIVE: "未激活",
             ServiceStatus.ERROR: "错误",
-            ServiceStatus.MAINTENANCE: "维护中"
+            ServiceStatus.MAINTENANCE: "维护中",
         }
         return status_text_map.get(self.status, "未知")
 
@@ -202,7 +204,7 @@ class AlertWidget(QWidget):
             "info": "info",
             "warning": "warning",
             "error": "error",
-            "critical": "critical"
+            "critical": "critical",
         }.get(self.alert.level, "info")
 
         icon_label = QLabel()

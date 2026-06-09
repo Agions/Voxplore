@@ -6,6 +6,7 @@ PageTransition — 页面切换动画管理器
 历史：原位于 scenefab.ui.theme.animation_helper，Phase 3 重构中
 拆分为独立模块。
 """
+
 from PySide6.QtCore import (
     QEasingCurve,
     QGraphicsOpacityEffect,
@@ -61,10 +62,13 @@ class PageTransition:
         self.fade_out(from_widget, duration=200)
 
         # 切换到目标页面并淡入
-        QTimer.singleShot(200, lambda: [
-            self.stacked_widget.setCurrentWidget(to_widget),
-            self.fade_in(to_widget, duration=200)
-        ])
+        QTimer.singleShot(
+            200,
+            lambda: [
+                self.stacked_widget.setCurrentWidget(to_widget),
+                self.fade_in(to_widget, duration=200),
+            ],
+        )
 
     def _slide_transition(self, from_widget: QWidget, to_widget: QWidget):
         """滑动切换"""
@@ -75,19 +79,25 @@ class PageTransition:
         self.fade_out(from_widget, duration=150)
 
         # 切换并淡入目标页面
-        QTimer.singleShot(150, lambda: [
-            self.stacked_widget.setCurrentWidget(to_widget),
-            self.fade_in(to_widget, duration=150)
-        ])
+        QTimer.singleShot(
+            150,
+            lambda: [
+                self.stacked_widget.setCurrentWidget(to_widget),
+                self.fade_in(to_widget, duration=150),
+            ],
+        )
 
     def _scale_transition(self, from_widget: QWidget, to_widget: QWidget):
         """缩放切换"""
         self.scale_out(from_widget, duration=150)
 
-        QTimer.singleShot(150, lambda: [
-            self.stacked_widget.setCurrentWidget(to_widget),
-            self.scale_in(to_widget, duration=150)
-        ])
+        QTimer.singleShot(
+            150,
+            lambda: [
+                self.stacked_widget.setCurrentWidget(to_widget),
+                self.scale_in(to_widget, duration=150),
+            ],
+        )
 
     def fade_in(self, widget: QWidget, duration: int = 200):
         """淡入"""

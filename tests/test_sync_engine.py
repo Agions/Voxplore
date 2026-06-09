@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Sync Engine"""
 
-
 from scenefab.services.audio.sync_engine import (
     SyncEngine,
     SyncPlan,

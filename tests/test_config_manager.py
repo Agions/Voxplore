@@ -62,10 +62,7 @@ class TestLLMConfig:
     def test_is_valid_complete(self):
         """测试完整配置有效"""
         config = LLMConfig(
-            name="test",
-            enabled=True,
-            api_key="test_key",
-            model="test_model"
+            name="test", enabled=True, api_key="test_key", model="test_model"
         )
 
         assert config.is_valid() is True

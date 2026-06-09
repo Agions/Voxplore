@@ -85,14 +85,10 @@ class CoverGenerator(FrameUtilsMixin, TextUtilsMixin):
         selected_cover = self._select_best_cover(highlight_frames)
 
         # 3. 生成封面文案
-        cover_texts = self._generate_cover_texts(
-            script_text, platform, num_covers
-        )
+        cover_texts = self._generate_cover_texts(script_text, platform, num_covers)
 
         # 4. 生成视频元数据
-        metadata = self._generate_metadata(
-            script_text, platform, selected_cover
-        )
+        metadata = self._generate_metadata(script_text, platform, selected_cover)
 
         result = CoverGenerationResult(
             highlight_frames=highlight_frames,

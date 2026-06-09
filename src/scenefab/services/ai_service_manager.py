@@ -5,6 +5,7 @@ AI 服务管理器兼容层
     本模块保留用于向后兼容，新代码请使用 scenefab.services.ai.manager
     中的 AIServiceManager V2 实现。
 """
+
 import warnings
 
 warnings.warn(
@@ -32,4 +33,5 @@ def get_ai_service_manager() -> AIServiceManager:
     保留此函数仅为向后兼容，建议直接使用 scenefab.services.ai.manager 中的实现。
     """
     from scenefab.services.ai.manager import ai_service_manager
+
     return ai_service_manager

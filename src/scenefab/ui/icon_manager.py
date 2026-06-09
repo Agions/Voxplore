@@ -48,7 +48,9 @@ class IconManager:
         self._icon_cache: dict[str, QIcon] = {}
         self._current_theme = "light"
 
-    def get_icon(self, icon_name: str, size: int = 24, theme: str | None = None) -> QIcon:
+    def get_icon(
+        self, icon_name: str, size: int = 24, theme: str | None = None
+    ) -> QIcon:
         """获取图标"""
         if theme is None:
             theme = self._current_theme

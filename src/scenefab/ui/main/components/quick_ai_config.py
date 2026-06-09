@@ -110,7 +110,7 @@ class QuickAIConfigWidget(QWidget):
             ("申请AI模型", "add", self._on_apply_model, "快速申请国产AI模型API密钥"),
             ("配置参数", "settings", self._on_config_params, "配置AI模型参数"),
             ("测试连接", "network", self._on_test_connection, "测试AI服务连接状态"),
-            ("查看文档", "document", self._on_view_docs, "查看AI服务文档")
+            ("查看文档", "document", self._on_view_docs, "查看AI服务文档"),
         ]
 
         for i, (text, icon_name, handler, tooltip) in enumerate(actions):
@@ -153,13 +153,13 @@ class QuickAIConfigWidget(QWidget):
     def _setup_connections(self):
         """设置信号连接"""
         # 连接按钮信号
-        if hasattr(self, 'apply_button'):
+        if hasattr(self, "apply_button"):
             self.apply_button.clicked.connect(self._on_apply_clicked)
-        if hasattr(self, 'refresh_button'):
+        if hasattr(self, "refresh_button"):
             self.refresh_button.clicked.connect(self.refresh_status)
 
         # 连接配置变化信号
-        if hasattr(self, 'config_changed'):
+        if hasattr(self, "config_changed"):
             self.config_changed.connect(self._on_config_changed)
 
     def _setup_refresh_timer(self):
@@ -256,7 +256,7 @@ class QuickAIConfigWidget(QWidget):
             ("通义千问", "aliyun" in configured_models),
             ("智谱AI", "zhipu" in configured_models),
             ("百川AI", "baichuan" in configured_models),
-            ("月之暗面", "moonshot" in configured_models)
+            ("月之暗面", "moonshot" in configured_models),
         ]
 
         for i, (name, configured) in enumerate(status_items):
@@ -277,8 +277,10 @@ class QuickAIConfigWidget(QWidget):
             status_layout.addWidget(name_label)
 
             # 状态徽章
-            status_badge = MacBadge("已配置" if configured else "未配置",
-                                   "success" if configured else "warning")
+            status_badge = MacBadge(
+                "已配置" if configured else "未配置",
+                "success" if configured else "warning",
+            )
             status_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
             status_layout.addWidget(status_badge)
 
@@ -300,14 +302,12 @@ class QuickAIConfigWidget(QWidget):
                 model_item = self._create_model_item(model_name, model_info)
                 self.recent_layout.addWidget(model_item)
         else:
-            empty = MacEmptyState(
-                icon="📭",
-                title="暂无使用记录",
-                description=""
-            )
+            empty = MacEmptyState(icon="📭", title="暂无使用记录", description="")
             self.recent_layout.addWidget(empty)
 
-    def _create_model_item(self, model_name: str, model_info: dict[str, Any]) -> QWidget:
+    def _create_model_item(
+        self, model_name: str, model_info: dict[str, Any]
+    ) -> QWidget:
         """创建模型项 - 使用标准卡片样式"""
         item = MacCard()
         item.setProperty("class", "card project-item")

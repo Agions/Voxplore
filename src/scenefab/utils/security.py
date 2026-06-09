@@ -21,49 +21,66 @@ logger = logging.getLogger(__name__)
 
 # 允许的文件扩展名白名单
 ALLOWED_VIDEO_EXTENSIONS = {
-    '.mp4', '.avi', '.mov', '.mkv', '.flv', '.wmv', '.webm',
-    '.m4v', '.mpg', '.mpeg', '.3gp', '.3g2', '.ts', '.mts'
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".flv",
+    ".wmv",
+    ".webm",
+    ".m4v",
+    ".mpg",
+    ".mpeg",
+    ".3gp",
+    ".3g2",
+    ".ts",
+    ".mts",
 }
 
-ALLOWED_IMAGE_EXTENSIONS = {
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.tiff'
-}
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff"}
 
-ALLOWED_AUDIO_EXTENSIONS = {
-    '.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.wma'
-}
+ALLOWED_AUDIO_EXTENSIONS = {".mp3", ".wav", ".aac", ".flac", ".ogg", ".m4a", ".wma"}
 
 ALLOWED_DOCUMENT_EXTENSIONS = {
-    '.txt', '.md', '.json', '.yaml', '.yml', '.xml', '.srt', '.ass', '.vtt', '.lrc'
+    ".txt",
+    ".md",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".xml",
+    ".srt",
+    ".ass",
+    ".vtt",
+    ".lrc",
 }
 
 # 危险路径模式
 DANGEROUS_PATH_PATTERNS = [
-    r'\.\.',           # 路径穿越
-    r'^/etc',
-    r'^/proc',
-    r'^/sys',
-    r'^/root',
-    r'Windows/System32',
-    r'Windows/cmd\.exe',
-    r'etc/passwd',
-    r'etc/shadow',
+    r"\.\.",  # 路径穿越
+    r"^/etc",
+    r"^/proc",
+    r"^/sys",
+    r"^/root",
+    r"Windows/System32",
+    r"Windows/cmd\.exe",
+    r"etc/passwd",
+    r"etc/shadow",
 ]
 
 # 危险命令关键词
 DANGEROUS_COMMAND_KEYWORDS = [
-    'rm -rf',
-    'mkfs',
-    'dd if=',
-    '> /dev/sd',
-    'chmod 777',
-    r'wget.*\|',
-    r'curl.*\|',
-    'nc -e',
-    '/bin/sh',
-    'bash -i',
-    'eval ',
-    'exec ',
+    "rm -rf",
+    "mkfs",
+    "dd if=",
+    "> /dev/sd",
+    "chmod 777",
+    r"wget.*\|",
+    r"curl.*\|",
+    "nc -e",
+    "/bin/sh",
+    "bash -i",
+    "eval ",
+    "exec ",
 ]
 
 
@@ -71,9 +88,11 @@ DANGEROUS_COMMAND_KEYWORDS = [
 # 安全验证结果
 # ============================================
 
+
 @dataclass
 class SecurityCheckResult:
     """安全检查结果"""
+
     passed: bool
     message: str
     details: dict[str, Any] | None = None
@@ -82,6 +101,7 @@ class SecurityCheckResult:
 # ============================================
 # 路径安全
 # ============================================
+
 
 class PathValidator:
     """路径安全验证器"""
@@ -110,7 +130,7 @@ class PathValidator:
             return SecurityCheckResult(False, "路径不能为空")
 
         # 检查路径穿越
-        if '..' in Path(path).parts:
+        if ".." in Path(path).parts:
             return SecurityCheckResult(False, "路径包含非法穿越")
 
         # 检查危险路径模式
@@ -135,13 +155,14 @@ class PathValidator:
 
             if not in_allowed:
                 return SecurityCheckResult(
-                    False,
-                    f"路径不在允许的目录内: {self.allowed_base_dirs}"
+                    False, f"路径不在允许的目录内: {self.allowed_base_dirs}"
                 )
 
         return SecurityCheckResult(True, "路径验证通过", {"abs_path": abs_path})
 
-    def validate_extension(self, path: str, allowed_extensions: set) -> SecurityCheckResult:
+    def validate_extension(
+        self, path: str, allowed_extensions: set
+    ) -> SecurityCheckResult:
         """验证文件扩展名"""
         ext = os.path.splitext(path)[1].lower()
 
@@ -149,7 +170,7 @@ class PathValidator:
             return SecurityCheckResult(
                 False,
                 f"不允许的文件类型: {ext}",
-                {"extension": ext, "allowed": list(allowed_extensions)}
+                {"extension": ext, "allowed": list(allowed_extensions)},
             )
 
         return SecurityCheckResult(True, "扩展名验证通过")
@@ -158,6 +179,7 @@ class PathValidator:
 # ============================================
 # 命令安全
 # ============================================
+
 
 class CommandValidator:
     """命令安全验证器"""
@@ -169,7 +191,7 @@ class CommandValidator:
         Args:
             allowed_commands: 允许执行的命令白名单
         """
-        self.allowed_commands = allowed_commands or ['ffmpeg', 'ffprobe']
+        self.allowed_commands = allowed_commands or ["ffmpeg", "ffprobe"]
 
     def validate(self, cmd: list[str]) -> SecurityCheckResult:
         """
@@ -185,13 +207,11 @@ class CommandValidator:
             return SecurityCheckResult(False, "命令不能为空")
 
         # 检查危险命令
-        cmd_str = ' '.join(cmd)
+        cmd_str = " ".join(cmd)
         for keyword in DANGEROUS_COMMAND_KEYWORDS:
             if keyword in cmd_str:
                 return SecurityCheckResult(
-                    False,
-                    f"命令包含危险关键词: {keyword}",
-                    {"keyword": keyword}
+                    False, f"命令包含危险关键词: {keyword}", {"keyword": keyword}
                 )
 
         # 检查命令白名单
@@ -200,7 +220,7 @@ class CommandValidator:
                 return SecurityCheckResult(
                     False,
                     f"不允许执行的命令: {cmd[0]}",
-                    {"command": cmd[0], "allowed": self.allowed_commands}
+                    {"command": cmd[0], "allowed": self.allowed_commands},
                 )
 
         return SecurityCheckResult(True, "命令验证通过", {"command": cmd[0]})
@@ -210,13 +230,14 @@ class CommandValidator:
 # 安全执行器
 # ============================================
 
+
 class SecureExecutor:
     """安全的命令执行器"""
 
     def __init__(
         self,
         allowed_base_dirs: list[str] | None = None,
-        allowed_commands: list[str] | None = None
+        allowed_commands: list[str] | None = None,
     ):
         self.path_validator = PathValidator(allowed_base_dirs)
         self.command_validator = CommandValidator(allowed_commands)
@@ -226,7 +247,7 @@ class SecureExecutor:
         cmd: list[str],
         timeout: int = 30,
         cwd: str | None = None,
-        env: dict[str, str] | None = None
+        env: dict[str, str] | None = None,
     ) -> subprocess.CompletedProcess:
         """
         安全执行命令
@@ -266,7 +287,7 @@ class SecureExecutor:
                 timeout=timeout,
                 cwd=cwd,
                 env=safe_env,
-                shell=False  # 强制不使用 shell
+                shell=False,  # 强制不使用 shell
             )
             return result
 
@@ -282,14 +303,21 @@ class SecureExecutor:
 
         # 危险环境变量
         dangerous_vars = {
-            'LD_PRELOAD', 'LD_LIBRARY_PATH', 'DYLD_INSERT_LIBRARIES',
-            'DYLD_LIBRARY_PATH', 'BASH_ENV', 'ENV', 'IFS', 'PS1', 'PS2'
+            "LD_PRELOAD",
+            "LD_LIBRARY_PATH",
+            "DYLD_INSERT_LIBRARIES",
+            "DYLD_LIBRARY_PATH",
+            "BASH_ENV",
+            "ENV",
+            "IFS",
+            "PS1",
+            "PS2",
         }
 
         safe_env = {k: v for k, v in env.items() if k not in dangerous_vars}
 
         # 添加 PATH 限制
-        safe_env['PATH'] = '/usr/bin:/bin:/usr/local/bin'
+        safe_env["PATH"] = "/usr/bin:/bin:/usr/local/bin"
 
         return safe_env
 
@@ -297,6 +325,7 @@ class SecureExecutor:
 # ============================================
 # 输入清理
 # ============================================
+
 
 class InputSanitizer:
     """输入清理器"""
@@ -317,13 +346,13 @@ class InputSanitizer:
         filename = os.path.basename(filename)
 
         # 移除危险字符
-        filename = re.sub(r'[^\w\s\-\.]', '', filename)
+        filename = re.sub(r"[^\w\s\-\.]", "", filename)
 
         # 限制长度
         max_length = 255
         if len(filename) > max_length:
             name, ext = os.path.splitext(filename)
-            filename = name[:max_length - len(ext)] + ext
+            filename = name[: max_length - len(ext)] + ext
 
         # 防止空文件名
         if not filename.strip():
@@ -338,7 +367,7 @@ class InputSanitizer:
             return ""
 
         # 移除控制字符
-        text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+        text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
 
         # 限制长度
         if len(text) > max_length:
@@ -356,7 +385,7 @@ class InputSanitizer:
         path = os.path.normpath(path)
 
         # 移除危险模式
-        path = path.replace('..', '')
+        path = path.replace("..", "")
 
         return path
 
@@ -365,28 +394,29 @@ class InputSanitizer:
 # 文件操作安全
 # ============================================
 
+
 class SecureFileHandler:
     """安全文件处理器"""
 
     def __init__(
         self,
         allowed_base_dirs: list[str] | None = None,
-        allowed_extensions: dict[str, set] | None = None
+        allowed_extensions: dict[str, set] | None = None,
     ):
         self.path_validator = PathValidator(allowed_base_dirs)
         self.allowed_extensions = allowed_extensions or {
-            'video': ALLOWED_VIDEO_EXTENSIONS,
-            'image': ALLOWED_IMAGE_EXTENSIONS,
-            'audio': ALLOWED_AUDIO_EXTENSIONS,
-            'document': ALLOWED_DOCUMENT_EXTENSIONS,
+            "video": ALLOWED_VIDEO_EXTENSIONS,
+            "image": ALLOWED_IMAGE_EXTENSIONS,
+            "audio": ALLOWED_AUDIO_EXTENSIONS,
+            "document": ALLOWED_DOCUMENT_EXTENSIONS,
         }
 
     def read(
         self,
         path: str,
-        mode: str = 'r',
+        mode: str = "r",
         max_size: int = 100 * 1024 * 1024,  # 100MB
-        category: str = 'document'
+        category: str = "document",
     ) -> str:
         """
         安全读取文件
@@ -430,11 +460,7 @@ class SecureFileHandler:
             raise SecurityError(f"文件读取失败: {e}")
 
     def write(
-        self,
-        path: str,
-        content: str,
-        mode: str = 'w',
-        category: str = 'document'
+        self, path: str, content: str, mode: str = "w", category: str = "document"
     ) -> None:
         """安全写入文件"""
         # 验证路径
@@ -465,8 +491,10 @@ class SecureFileHandler:
 # 异常定义
 # ============================================
 
+
 class SecurityError(Exception):
     """安全相关异常"""
+
     pass
 
 
@@ -474,15 +502,18 @@ class SecurityError(Exception):
 # 便捷函数
 # ============================================
 
+
 def create_secure_executor(allowed_dirs: list[str] | None = None) -> SecureExecutor:
     """创建安全的命令执行器"""
     return SecureExecutor(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")],
-        allowed_commands=['ffmpeg', 'ffprobe', 'python', 'python3']
+        allowed_commands=["ffmpeg", "ffprobe", "python", "python3"],
     )
 
 
-def create_secure_file_handler(allowed_dirs: list[str] | None = None) -> SecureFileHandler:
+def create_secure_file_handler(
+    allowed_dirs: list[str] | None = None,
+) -> SecureFileHandler:
     """创建安全的文件处理器"""
     return SecureFileHandler(
         allowed_base_dirs=allowed_dirs or [os.path.expanduser("~/")]
@@ -491,14 +522,11 @@ def create_secure_file_handler(allowed_dirs: list[str] | None = None) -> SecureF
 
 def validate_video_path(path: str, base_dir: str | None = None) -> SecurityCheckResult:
     """验证视频路径"""
-    handler = SecureFileHandler(
-        allowed_base_dirs=[base_dir] if base_dir else None
-    )
+    handler = SecureFileHandler(allowed_base_dirs=[base_dir] if base_dir else None)
     result = handler.path_validator.validate(path)
     if result.passed:
         result = handler.path_validator.validate_extension(
-            path,
-            ALLOWED_VIDEO_EXTENSIONS
+            path, ALLOWED_VIDEO_EXTENSIONS
         )
     return result
 
@@ -522,7 +550,6 @@ def get_ffmpeg_executor() -> SecureExecutor:
     if _FFMPEG_EXECUTOR is None:
         _FFMPEG_EXECUTOR = SecureExecutor(
             allowed_base_dirs=[str(Path.home())],
-            allowed_commands=['ffmpeg', 'ffprobe'],
+            allowed_commands=["ffmpeg", "ffprobe"],
         )
     return _FFMPEG_EXECUTOR
-

@@ -3,6 +3,7 @@
 
 提供视频分析功能：信息获取、帧提取、场景检测、音频提取。
 """
+
 from __future__ import annotations
 
 import logging
@@ -34,7 +35,7 @@ class VideoAnalyzer:
     def extract_frames_batch(
         video_path: str,
         timestamps: list[float],
-        progress_callback: Callable | None = None
+        progress_callback: Callable | None = None,
     ) -> list[tuple[float, np.ndarray]]:
         """批量提取帧"""
         session = FFmpegSession()
@@ -42,9 +43,7 @@ class VideoAnalyzer:
 
     @staticmethod
     def detect_scenes(
-        video_path: str,
-        threshold: float = 30.0,
-        min_scene_duration: float = 1.0
+        video_path: str, threshold: float = 30.0, min_scene_duration: float = 1.0
     ) -> list[tuple[float, float]]:
         """检测场景变化"""
         try:
@@ -75,7 +74,9 @@ class VideoAnalyzer:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
                 if prev_frame is not None:
-                    diff = np.mean(np.abs(gray.astype(float) - prev_frame.astype(float)))
+                    diff = np.mean(
+                        np.abs(gray.astype(float) - prev_frame.astype(float))
+                    )
 
                     if diff > threshold:
                         scene_end = frame_idx / fps

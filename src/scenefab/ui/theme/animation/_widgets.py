@@ -6,6 +6,7 @@ AnimatedButton & LoadingAnimation — 按钮/加载动画辅助
 历史：原位于 scenefab.ui.theme.animation_helper，Phase 3 重构中
 拆分为独立模块。
 """
+
 from PySide6.QtCore import Qt, QTimer
 
 from ._animation_helper import AnimationHelper

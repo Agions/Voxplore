@@ -20,6 +20,7 @@ from scenefab.services.video.models.perspective import (
 # 辅助映射
 # ─────────────────────────────────────────────────────────────
 
+
 def _scene_type_to_str(scene_type: SceneType) -> str:
     """将 SceneType 映射为 scene_type 字符串"""
     mapping = {
@@ -52,6 +53,7 @@ def _emotion_type_to_str(emotion: EmotionType) -> str:
 # ─────────────────────────────────────────────────────────────────
 # SceneConverter
 # ─────────────────────────────────────────────────────────────
+
 
 class SceneConverter:
     """
@@ -126,8 +128,10 @@ class SceneConverter:
             segment_id = f"nar_{uuid.uuid4().hex[:8]}"
 
         emotion_str = _emotion_type_to_str(segment.emotion)
-        duration = segment.audio_duration if segment.audio_duration > 0 else (
-            segment.video_end - segment.video_start
+        duration = (
+            segment.audio_duration
+            if segment.audio_duration > 0
+            else (segment.video_end - segment.video_start)
         )
 
         return NarrationSegment(
@@ -146,6 +150,7 @@ class SceneConverter:
 # ─────────────────────────────────────────────────────────────
 # EmotionCurveGenerator
 # ─────────────────────────────────────────────────────────────
+
 
 class EmotionCurveGenerator:
     """

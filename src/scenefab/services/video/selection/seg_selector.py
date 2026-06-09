@@ -18,9 +18,10 @@ from scenefab.services.video.extraction.first_person import VideoSegment
 
 class SelectionStrategy(Enum):
     """选择策略枚举"""
+
     NARRATIVE_FIRST = "narrative_first"  # 叙事完整性优先
-    EMOTION_PEAK = "emotion_peak"       # 情感峰值优先
-    HYBRID = "hybrid"                   # 混合策略
+    EMOTION_PEAK = "emotion_peak"  # 情感峰值优先
+    HYBRID = "hybrid"  # 混合策略
 
 
 @runtime_checkable

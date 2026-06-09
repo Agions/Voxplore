@@ -28,6 +28,7 @@ from ...utils.security import get_ffmpeg_executor
 
 class ExportFormat(Enum):
     """导出格式"""
+
     MP4 = "mp4"
     MOV = "mov"
     WEBM = "webm"
@@ -36,6 +37,7 @@ class ExportFormat(Enum):
 
 class VideoCodec(Enum):
     """视频编码器"""
+
     H264 = "libx264"
     H265 = "libx265"
     VP9 = "libvpx-vp9"
@@ -44,6 +46,7 @@ class VideoCodec(Enum):
 
 class AudioCodec(Enum):
     """音频编码器"""
+
     AAC = "aac"
     MP3 = "libmp3lame"
     OPUS = "libopus"
@@ -52,16 +55,17 @@ class AudioCodec(Enum):
 @dataclass
 class ExportConfig:
     """导出配置"""
+
     # 格式
     format: ExportFormat = ExportFormat.MP4
     video_codec: VideoCodec = VideoCodec.H264
     audio_codec: AudioCodec = AudioCodec.AAC
 
     # 质量
-    video_bitrate: str = "5M"      # 视频码率
-    audio_bitrate: str = "192k"    # 音频码率
-    crf: int = 23                  # 恒定质量因子 (0-51, 越低质量越好)
-    preset: str = "medium"         # 编码预设
+    video_bitrate: str = "5M"  # 视频码率
+    audio_bitrate: str = "192k"  # 音频码率
+    crf: int = 23  # 恒定质量因子 (0-51, 越低质量越好)
+    preset: str = "medium"  # 编码预设
 
     # 分辨率
     width: int = DEFAULT_VIDEO_HEIGHT  # 竖屏短视频：宽 1080
@@ -92,7 +96,7 @@ class VideoExporter:
         exporter = DirectVideoExporter()
     """
 
-    def __init__(self, config: Optional['ExportConfig'] = None):
+    def __init__(self, config: Optional["ExportConfig"] = None):
         warnings.warn(
             "VideoExporter is deprecated, use DirectVideoExporter instead",
             DeprecationWarning,
@@ -123,13 +127,13 @@ class VideoExporter:
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
 
-        cmd = ['ffmpeg', '-y']
+        cmd = ["ffmpeg", "-y"]
 
         # 输入
-        cmd.extend(['-i', video_path])
+        cmd.extend(["-i", video_path])
 
         if audio_path:
-            cmd.extend(['-i', audio_path])
+            cmd.extend(["-i", audio_path])
 
         # 滤镜
         filters = []
@@ -143,33 +147,33 @@ class VideoExporter:
             filters.append(f"ass={subtitles_path}")
 
         if filters:
-            cmd.extend(['-vf', ','.join(filters)])
+            cmd.extend(["-vf", ",".join(filters)])
 
         # 视频编码
         if self.config.use_hw_accel:
             cmd.extend(self._get_hw_accel_params())
         else:
-            cmd.extend(['-c:v', self.config.video_codec.value])
-            cmd.extend(['-preset', self.config.preset])
-            cmd.extend(['-crf', str(self.config.crf)])
+            cmd.extend(["-c:v", self.config.video_codec.value])
+            cmd.extend(["-preset", self.config.preset])
+            cmd.extend(["-crf", str(self.config.crf)])
 
-        cmd.extend(['-b:v', self.config.video_bitrate])
-        cmd.extend(['-r', str(self.config.fps)])
+        cmd.extend(["-b:v", self.config.video_bitrate])
+        cmd.extend(["-r", str(self.config.fps)])
 
         # 音频编码
-        cmd.extend(['-c:a', self.config.audio_codec.value])
-        cmd.extend(['-b:a', self.config.audio_bitrate])
+        cmd.extend(["-c:a", self.config.audio_codec.value])
+        cmd.extend(["-b:a", self.config.audio_bitrate])
 
         # 映射
-        cmd.extend(['-map', '0:v:0'])
+        cmd.extend(["-map", "0:v:0"])
         if audio_path:
-            cmd.extend(['-map', '1:a:0'])
+            cmd.extend(["-map", "1:a:0"])
         else:
-            cmd.extend(['-map', '0:a:0?'])
+            cmd.extend(["-map", "0:a:0?"])
 
         # 其他
-        cmd.extend(['-shortest'])
-        cmd.extend(['-movflags', '+faststart'])
+        cmd.extend(["-shortest"])
+        cmd.extend(["-movflags", "+faststart"])
 
         # 输出
         cmd.append(str(output))
@@ -180,7 +184,7 @@ class VideoExporter:
         if result.returncode != 0:
             raise ExportError(
                 message="导出失败",
-                details={"stderr": result.stderr, "cmd": " ".join(cmd)}
+                details={"stderr": result.stderr, "cmd": " ".join(cmd)},
             )
 
         return str(output)
@@ -205,7 +209,14 @@ class VideoExporter:
                 params.extend(extra_args)
             return params
         # 无硬件加速
-        return ["-c:v", self.config.video_codec.value, "-preset", self.config.preset, "-crf", str(self.config.crf)]
+        return [
+            "-c:v",
+            self.config.video_codec.value,
+            "-preset",
+            self.config.preset,
+            "-crf",
+            str(self.config.crf),
+        ]
 
     def concat_videos(
         self,
@@ -227,17 +238,22 @@ class VideoExporter:
 
         # 创建文件列表
         list_file = output.parent / "concat_list.txt"
-        with open(list_file, 'w') as f:
+        with open(list_file, "w") as f:
             for path in video_paths:
                 f.write(f"file '{path}'\n")
 
         cmd = [
-            'ffmpeg', '-y',
-            '-f', 'concat',
-            '-safe', '0',
-            '-i', str(list_file),
-            '-c', 'copy',
-            str(output)
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(list_file),
+            "-c",
+            "copy",
+            str(output),
         ]
 
         result = self._executor.run(cmd, timeout=300)
@@ -246,10 +262,7 @@ class VideoExporter:
         list_file.unlink(missing_ok=True)
 
         if result.returncode != 0:
-            raise ExportError(
-                message="拼接失败",
-                details={"stderr": result.stderr}
-            )
+            raise ExportError(message="拼接失败", details={"stderr": result.stderr})
 
         return str(output)
 
@@ -279,39 +292,48 @@ class VideoExporter:
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
 
-        cmd = ['ffmpeg', '-y', '-i', video_path, '-i', audio_path]
+        cmd = ["ffmpeg", "-y", "-i", video_path, "-i", audio_path]
 
         if mix_with_original:
             # 混合音频
-            cmd.extend([
-                '-filter_complex',
-                f"[0:a]volume={original_volume}[a0];"
-                f"[1:a]volume={audio_volume}[a1];"
-                f"[a0][a1]amix=inputs=2:duration=shortest[aout]",
-                '-map', '0:v',
-                '-map', '[aout]',
-            ])
+            cmd.extend(
+                [
+                    "-filter_complex",
+                    f"[0:a]volume={original_volume}[a0];"
+                    f"[1:a]volume={audio_volume}[a1];"
+                    f"[a0][a1]amix=inputs=2:duration=shortest[aout]",
+                    "-map",
+                    "0:v",
+                    "-map",
+                    "[aout]",
+                ]
+            )
         else:
             # 替换音频
-            cmd.extend([
-                '-map', '0:v',
-                '-map', '1:a',
-            ])
+            cmd.extend(
+                [
+                    "-map",
+                    "0:v",
+                    "-map",
+                    "1:a",
+                ]
+            )
 
-        cmd.extend([
-            '-c:v', 'copy',
-            '-c:a', self.config.audio_codec.value,
-            '-shortest',
-            str(output)
-        ])
+        cmd.extend(
+            [
+                "-c:v",
+                "copy",
+                "-c:a",
+                self.config.audio_codec.value,
+                "-shortest",
+                str(output),
+            ]
+        )
 
         result = self._executor.run(cmd, timeout=300)
 
         if result.returncode != 0:
-            raise ExportError(
-                message="添加音频失败",
-                details={"stderr": result.stderr}
-            )
+            raise ExportError(message="添加音频失败", details={"stderr": result.stderr})
 
         return str(output)
 
@@ -340,21 +362,26 @@ class VideoExporter:
         output.parent.mkdir(parents=True, exist_ok=True)
 
         cmd = [
-            'ffmpeg', '-y',
-            '-ss', str(timestamp),
-            '-i', video_path,
-            '-vframes', '1',
-            '-vf', f'scale={width}:{height}',
-            '-q:v', '2',
-            str(output)
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(timestamp),
+            "-i",
+            video_path,
+            "-vframes",
+            "1",
+            "-vf",
+            f"scale={width}:{height}",
+            "-q:v",
+            "2",
+            str(output),
         ]
 
         result = self._executor.run(cmd, timeout=60)
 
         if result.returncode != 0:
             raise ExportError(
-                message="创建缩略图失败",
-                details={"stderr": result.stderr}
+                message="创建缩略图失败", details={"stderr": result.stderr}
             )
 
         return str(output)

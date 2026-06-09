@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PerformanceMetrics:
     """性能指标"""
+
     test_name: str
     video_duration: float  # 视频时长（秒）
     processing_time: float  # 处理耗时（秒）
@@ -44,6 +45,7 @@ class PerformanceMetrics:
 @dataclass
 class BenchmarkResult:
     """基准测试结果"""
+
     test_id: str
     test_time: str
     system_info: dict[str, Any]
@@ -171,6 +173,7 @@ class PerformanceBenchmark:
         # 尝试获取 GPU 信息
         try:
             import torch
+
             if torch.cuda.is_available():
                 system_info["gpu_available"] = True
                 system_info["gpu_name"] = torch.cuda.get_device_name(0)
@@ -207,9 +210,9 @@ class PerformanceBenchmark:
             start_time = time.time()
             # Benchmark logic placeholder
 
-
             # 模拟处理时间（实际实现时删除）
             import random
+
             processing_time = video_duration * random.uniform(0.1, 0.5)
             time.sleep(min(processing_time, 5))  # 限制实际等待时间
 
@@ -271,6 +274,7 @@ class PerformanceBenchmark:
         # 尝试获取 GPU 使用率
         try:
             import torch
+
             if torch.cuda.is_available():
                 result["gpu_usage"] = torch.cuda.utilization()
         except (ImportError, Exception):
@@ -300,9 +304,15 @@ class PerformanceBenchmark:
             }
 
         # 计算平均指标
-        avg_processing_time = sum(m.processing_time for m in successful_tests) / len(successful_tests)
-        avg_throughput = sum(m.throughput for m in successful_tests) / len(successful_tests)
-        avg_memory = sum(m.memory_peak for m in successful_tests) / len(successful_tests)
+        avg_processing_time = sum(m.processing_time for m in successful_tests) / len(
+            successful_tests
+        )
+        avg_throughput = sum(m.throughput for m in successful_tests) / len(
+            successful_tests
+        )
+        avg_memory = sum(m.memory_peak for m in successful_tests) / len(
+            successful_tests
+        )
 
         return {
             "total_tests": len(metrics),
@@ -312,9 +322,15 @@ class PerformanceBenchmark:
             "average_processing_time": round(avg_processing_time, 2),
             "average_throughput": round(avg_throughput, 2),
             "average_memory_peak_mb": round(avg_memory, 2),
-            "fastest_test": min(successful_tests, key=lambda m: m.processing_time).test_name,
-            "slowest_test": max(successful_tests, key=lambda m: m.processing_time).test_name,
-            "highest_throughput": max(successful_tests, key=lambda m: m.throughput).test_name,
+            "fastest_test": min(
+                successful_tests, key=lambda m: m.processing_time
+            ).test_name,
+            "slowest_test": max(
+                successful_tests, key=lambda m: m.processing_time
+            ).test_name,
+            "highest_throughput": max(
+                successful_tests, key=lambda m: m.throughput
+            ).test_name,
         }
 
     def save_report(self, result: BenchmarkResult, filename: str | None = None) -> str:
@@ -403,7 +419,9 @@ class PerformanceBenchmark:
         return result
 
 
-def run_benchmark(output_dir: str = "./benchmark_results", quick: bool = False) -> BenchmarkResult:
+def run_benchmark(
+    output_dir: str = "./benchmark_results", quick: bool = False
+) -> BenchmarkResult:
     """
     便捷函数：运行基准测试
 

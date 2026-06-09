@@ -42,7 +42,16 @@ class ContentScorersMixin:
 
         # 检测钩子类型
         hook_patterns = {
-            "conflict": ["没想到", "竟然", "居然", "突然", "意外", "但是", "然而", "可是"],
+            "conflict": [
+                "没想到",
+                "竟然",
+                "居然",
+                "突然",
+                "意外",
+                "但是",
+                "然而",
+                "可是",
+            ],
             "suspense": ["秘密", "真相", "背后", "隐藏", "谜团", "悬念", "最后"],
             "result_first": ["结局", "最后", "最终", "结果", "后来"],
             "question": ["为什么", "怎么", "如何", "是什么", "哪里", "谁"],
@@ -126,8 +135,10 @@ class ContentScorersMixin:
 
         # 计算情绪波动
         if len(intensities) > 1:
-            variance = sum((i - sum(intensities) / len(intensities)) ** 2 for i in intensities) / len(intensities)
-            volatility = variance ** 0.5
+            variance = sum(
+                (i - sum(intensities) / len(intensities)) ** 2 for i in intensities
+            ) / len(intensities)
+            volatility = variance**0.5
 
             # 波动越大，分数越高
             if volatility > 0.3:
@@ -137,15 +148,22 @@ class ContentScorersMixin:
 
         # 检测情绪峰值
         for i in range(1, len(intensities) - 1):
-            if intensities[i] > intensities[i-1] and intensities[i] > intensities[i+1]:
+            if (
+                intensities[i] > intensities[i - 1]
+                and intensities[i] > intensities[i + 1]
+            ):
                 if intensities[i] > 0.7:
                     peak_timestamps.append(timestamps[i])
                     score += 5
 
         # 检测曲线类型
         if len(intensities) >= 3:
-            first_half = sum(intensities[:len(intensities)//2]) / (len(intensities)//2)
-            second_half = sum(intensities[len(intensities)//2:]) / (len(intensities) - len(intensities)//2)
+            first_half = sum(intensities[: len(intensities) // 2]) / (
+                len(intensities) // 2
+            )
+            second_half = sum(intensities[len(intensities) // 2 :]) / (
+                len(intensities) - len(intensities) // 2
+            )
 
             if second_half > first_half * 1.2:
                 curve_type = "rising"
@@ -233,14 +251,16 @@ class ContentScorersMixin:
 
         # 检测信息密度高的段落
         for i in range(0, char_count, 100):
-            segment = script_text[i:i+100]
+            segment = script_text[i : i + 100]
             segment_density = len(segment) / 100
             if segment_density > 0.8:
-                high_density_segments.append({
-                    "start": i,
-                    "end": i+100,
-                    "density": segment_density,
-                })
+                high_density_segments.append(
+                    {
+                        "start": i,
+                        "end": i + 100,
+                        "density": segment_density,
+                    }
+                )
 
         # 限制最高分
         score = min(100, score)

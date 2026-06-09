@@ -13,6 +13,7 @@ from typing import Protocol, runtime_checkable
 @dataclass
 class VideoAnalysis:
     """视频分析结果"""
+
     summary: str
     tags: list[str]
     scene_changes: list[float]
@@ -21,6 +22,7 @@ class VideoAnalysis:
 @dataclass
 class ScriptResult:
     """脚本生成结果"""
+
     script: str
     style: str
     character: str | None
@@ -29,6 +31,7 @@ class ScriptResult:
 @dataclass
 class AudioData:
     """音频数据"""
+
     audio_bytes: bytes
     duration_ms: int
     format: str
@@ -116,7 +119,9 @@ class TTSProvider(Protocol):
         """
         ...
 
-    def synthesize_with_timing(self, text: str, _word_timings: list[float]) -> AudioData:
+    def synthesize_with_timing(
+        self, text: str, _word_timings: list[float]
+    ) -> AudioData:
         """带词级别时间戳的语音合成
 
         Args:

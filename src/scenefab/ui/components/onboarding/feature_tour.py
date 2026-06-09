@@ -40,8 +40,7 @@ class FeatureTooltip(QWidget):
     dismissed = Signal()  # 关闭信号
     action_clicked = Signal()  # 操作按钮点击
 
-    def __init__(self, title: str, content: str,
-                 action_text: str = None, parent=None):
+    def __init__(self, title: str, content: str, action_text: str = None, parent=None):
         super().__init__(parent)
         self._title = title
         self._content = content
@@ -50,10 +49,7 @@ class FeatureTooltip(QWidget):
 
     def _setup_ui(self):
         self.setFixedWidth(280)
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.ToolTip
-        )
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.ToolTip)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # 主容器
@@ -91,12 +87,12 @@ class FeatureTooltip(QWidget):
         close_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {COLORS['text_tertiary']};
+                color: {COLORS["text_tertiary"]};
                 border: none;
                 font-size: 14px;
             }}
             QPushButton:hover {{
-                color: {COLORS['text']};
+                color: {COLORS["text"]};
                 background: {COLORS["surface"]};
                 border-radius: 4px;
             }}
@@ -109,7 +105,9 @@ class FeatureTooltip(QWidget):
         # 内容
         content_label = QLabel(self._content)
         content_label.setWordWrap(True)
-        content_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; line-height: 1.5; background: transparent;")
+        content_label.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 12px; line-height: 1.5; background: transparent;"
+        )
         layout.addWidget(content_label)
 
         # 操作按钮（如果有）
@@ -157,21 +155,21 @@ class FeatureHighlight(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.ToolTip
-        )
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.ToolTip)
 
     def highlight_widget(self, widget):
         """高亮指定部件"""
         if widget:
             rect = widget.rect()
-            global_rect = widget.mapToGlobal(rect.topLeft()), widget.mapToGlobal(rect.bottomRight())
+            global_rect = (
+                widget.mapToGlobal(rect.topLeft()),
+                widget.mapToGlobal(rect.bottomRight()),
+            )
             self.setGeometry(
                 min(global_rect[0].x(), global_rect[1].x()) - 10,
                 min(global_rect[0].y(), global_rect[1].y()) - 10,
                 abs(global_rect[1].x() - global_rect[0].x()) + 20,
-                abs(global_rect[1].y() - global_rect[0].y()) + 20
+                abs(global_rect[1].y() - global_rect[0].y()) + 20,
             )
             self.show()
 
@@ -206,41 +204,38 @@ class FeatureTourDialog(QWidget):
                 "icon": "📁",
                 "title": "导入视频",
                 "content": "拖放视频文件到此处，或点击选择文件。支持 MP4、AVI、MOV 等常见格式。",
-                "action": "选择文件"
+                "action": "选择文件",
             },
             {
                 "icon": "✂️",
                 "title": "智能剪辑",
                 "content": "AI 自动识别视频中的精彩片段，您也可以手动调整剪辑点。",
-                "action": None
+                "action": None,
             },
             {
                 "icon": "📝",
                 "title": "脚本生成",
                 "content": "基于视频内容自动生成解说脚本，支持多种风格自定义。",
-                "action": None
+                "action": None,
             },
             {
                 "icon": "🎤",
                 "title": "语音合成",
                 "content": "选择喜欢的 AI 语音进行配音，多种音色可选。",
-                "action": None
+                "action": None,
             },
             {
                 "icon": "📤",
                 "title": "导出项目",
                 "content": "导出为 Premiere、剪映、DaVinci 等项目文件，或直接渲染视频。",
-                "action": "查看格式"
-            }
+                "action": "查看格式",
+            },
         ]
 
     def _setup_ui(self):
         """设置 UI"""
         self.setFixedSize(420, 320)
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.Dialog
-        )
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # 主容器
@@ -274,14 +269,18 @@ class FeatureTourDialog(QWidget):
         title_font.setPointSize(18)
         title_font.setWeight(QFont.Weight.Bold)
         self.title_label.setFont(title_font)
-        self.title_label.setStyleSheet(f"color: {COLORS['text']}; background: transparent;")
+        self.title_label.setStyleSheet(
+            f"color: {COLORS['text']}; background: transparent;"
+        )
         header_layout.addWidget(self.title_label)
 
         header_layout.addStretch()
 
         # 进度指示器
         progress_label = QLabel(f"{self._current_index + 1}/{len(self._features)}")
-        progress_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;")
+        progress_label.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;"
+        )
         header_layout.addWidget(progress_label)
 
         layout.addLayout(header_layout)
@@ -301,7 +300,9 @@ class FeatureTourDialog(QWidget):
 
         self.content_label = QLabel(self._features[0]["content"])
         self.content_label.setWordWrap(True)
-        self.content_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; line-height: 1.6; background: transparent;")
+        self.content_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 13px; line-height: 1.6; background: transparent;"
+        )
         content_layout.addWidget(self.content_label)
 
         # 操作按钮区域（如果有）
@@ -326,7 +327,9 @@ class FeatureTourDialog(QWidget):
                         stop:1 {COLORS["primary_end"]});
                 }}
             """)
-            content_layout.addWidget(self.action_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+            content_layout.addWidget(
+                self.action_btn, alignment=Qt.AlignmentFlag.AlignLeft
+            )
 
         layout.addWidget(content_frame)
 
@@ -343,14 +346,14 @@ class FeatureTourDialog(QWidget):
         close_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {COLORS['text_tertiary']};
-                border: 1px solid {COLORS['border']};
+                color: {COLORS["text_tertiary"]};
+                border: 1px solid {COLORS["border"]};
                 border-radius: 8px;
                 font-size: 13px;
             }}
             QPushButton:hover {{
                 background: {COLORS["surface"]};
-                color: {COLORS['text_secondary']};
+                color: {COLORS["text_secondary"]};
             }}
         """)
         close_btn.clicked.connect(self.closed.emit)
@@ -365,8 +368,8 @@ class FeatureTourDialog(QWidget):
         self.prev_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {COLORS["surface"]};
-                color: {COLORS['text_secondary']};
-                border: 1px solid {COLORS['border']};
+                color: {COLORS["text_secondary"]};
+                border: 1px solid {COLORS["border"]};
                 border-radius: 8px;
                 font-size: 14px;
             }}
@@ -427,8 +430,8 @@ class FeatureTourDialog(QWidget):
         self.prev_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {COLORS["surface"]};
-                color: {COLORS['text_secondary']};
-                border: 1px solid {COLORS['border']};
+                color: {COLORS["text_secondary"]};
+                border: 1px solid {COLORS["border"]};
                 border-radius: 8px;
                 font-size: 14px;
             }}
@@ -438,7 +441,7 @@ class FeatureTourDialog(QWidget):
             }}
             QPushButton:disabled {{
                 background: transparent;
-                color: {COLORS['text_tertiary']};
+                color: {COLORS["text_tertiary"]};
                 border-color: transparent;
             }}
         """)
@@ -498,8 +501,10 @@ class FeatureTourDialog(QWidget):
             parent_rect = self.parent().rect()
             x = (parent_rect.width() - self.width()) // 2
             y = (parent_rect.height() - self.height()) // 2
-            self.move(self.parent().mapToGlobal(self.parent().rect().topLeft()).x() + x,
-                     self.parent().mapToGlobal(self.parent().rect().topLeft()).y() + y)
+            self.move(
+                self.parent().mapToGlobal(self.parent().rect().topLeft()).x() + x,
+                self.parent().mapToGlobal(self.parent().rect().topLeft()).y() + y,
+            )
         self.show()
         self._animate_in()
 

@@ -54,10 +54,11 @@ __all__ = [
 @dataclass
 class MonologueProject(BaseProject):
     """独白视频项目"""
+
     # 独白内容
-    context: str = ""              # 场景/情境描述
-    emotion: str = ""              # 情感基调
-    full_script: str = ""          # 完整独白
+    context: str = ""  # 场景/情境描述
+    emotion: str = ""  # 情感基调
+    full_script: str = ""  # 完整独白
     segments: list[MonologueSegment] = field(default_factory=list)
 
     # 配置
@@ -86,7 +87,9 @@ class MonologueProject(BaseProject):
         """
         import json
 
-        save_path = Path(path) if path else Path(self.output_dir) / f"{self.name}.narrafiilm"
+        save_path = (
+            Path(path) if path else Path(self.output_dir) / f"{self.name}.narrafiilm"
+        )
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
@@ -105,7 +108,9 @@ class MonologueProject(BaseProject):
             "segments": [
                 {
                     "script": seg.script,
-                    "emotion": seg.emotion.value if isinstance(seg.emotion, Enum) else seg.emotion,
+                    "emotion": seg.emotion.value
+                    if isinstance(seg.emotion, Enum)
+                    else seg.emotion,
                     "video_start": seg.video_start,
                     "video_end": seg.video_end,
                     "audio_path": seg.audio_path,
@@ -326,14 +331,14 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     def _segment_script(self, project: MonologueProject) -> None:
         """将独白分段 — 支持空白行和中文句末标点双重拆分"""
         # 优先按空白行分段，否则按中文句末标点分
-        paragraphs = [p.strip() for p in project.full_script.split('\n\n') if p.strip()]
+        paragraphs = [p.strip() for p in project.full_script.split("\n\n") if p.strip()]
 
         if len(paragraphs) <= 1:
             # 按句末标点拆分（保留标点）
-            parts = re.split(r'([。！？\?!]+)', project.full_script)
+            parts = re.split(r"([。！？\?!]+)", project.full_script)
             merged = []
             for i in range(0, len(parts) - 1, 2):
-                text = parts[i] + (parts[i + 1] if i + 1 < len(parts) else '')
+                text = parts[i] + (parts[i + 1] if i + 1 < len(parts) else "")
                 if text.strip():
                     merged.append(text.strip())
             # 合并过短的碎片
@@ -365,7 +370,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             # 根据内容推断情感
             emotion = self._infer_emotion(para, project.emotion)
 
-            seg_duration = project.video_duration / len(paragraphs) if paragraphs else 10.0
+            seg_duration = (
+                project.video_duration / len(paragraphs) if paragraphs else 10.0
+            )
             segment = MonologueSegment(
                 script=para,
                 emotion=emotion,
@@ -416,8 +423,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             voice_config: 配音配置
         """
         style_cfg = self.STYLE_CONFIG.get(
-            project.style,
-            self.STYLE_CONFIG[MonologueStyle.MELANCHOLIC]
+            project.style, self.STYLE_CONFIG[MonologueStyle.MELANCHOLIC]
         )
 
         if voice_config:
@@ -450,7 +456,12 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 output_path=audio_path,
                 config=config,
             )
-            return i, result.audio_path, result.duration, result.sentence_timestamps or []
+            return (
+                i,
+                result.audio_path,
+                result.duration,
+                result.sentence_timestamps or [],
+            )
 
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = {
@@ -465,7 +476,11 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
         for i, segment in enumerate(project.segments):
             if i in results:
-                segment.audio_path, segment.audio_duration, segment.sentence_timestamps = results[i]
+                (
+                    segment.audio_path,
+                    segment.audio_duration,
+                    segment.sentence_timestamps,
+                ) = results[i]
 
         self._report_progress("生成配音", 1.0)
 
@@ -494,17 +509,19 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             # 优先使用 EdgeTTS 真实句子时间戳
             if segment.sentence_timestamps:
                 for ts in segment.sentence_timestamps:
-                    segment.captions.append({
-                        "text": ts["text"],
-                        "start": current_time + ts["start"],
-                        "duration": max(ts["end"] - ts["start"], 0.5),
-                        "style": caption_cfg,
-                        "emotion": segment.emotion.value,
-                    })
+                    segment.captions.append(
+                        {
+                            "text": ts["text"],
+                            "start": current_time + ts["start"],
+                            "duration": max(ts["end"] - ts["start"], 0.5),
+                            "style": caption_cfg,
+                            "emotion": segment.emotion.value,
+                        }
+                    )
             else:
                 # 回退：按中文句末标点拆分并按字符数估算时长
-                parts = re.split(r'([。！？\u3001])', segment.script)
-                segment_words = max(len(segment.script.replace(' ', '')), 1)
+                parts = re.split(r"([。！？\u3001])", segment.script)
+                segment_words = max(len(segment.script.replace(" ", "")), 1)
 
                 current_start = current_time
                 current_text = ""
@@ -512,21 +529,25 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 for part in parts:
                     if not part:
                         continue
-                    if part in ('，', '；'):
+                    if part in ("，", "；"):
                         current_text += part
                         continue
-                    if part in ('。', '！', '？'):
+                    if part in ("。", "！", "？"):
                         current_text += part
                         if len(current_text.strip()) >= 2:
                             word_count = len(current_text)
-                            duration = (word_count / segment_words) * segment.audio_duration
-                            segment.captions.append({
-                                "text": current_text,
-                                "start": current_start,
-                                "duration": max(duration, 0.5),
-                                "style": caption_cfg,
-                                "emotion": segment.emotion.value,
-                            })
+                            duration = (
+                                word_count / segment_words
+                            ) * segment.audio_duration
+                            segment.captions.append(
+                                {
+                                    "text": current_text,
+                                    "start": current_start,
+                                    "duration": max(duration, 0.5),
+                                    "style": caption_cfg,
+                                    "emotion": segment.emotion.value,
+                                }
+                            )
                             current_start += duration
                             current_text = ""
                     else:
@@ -535,20 +556,24 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 if current_text.strip() and len(current_text.strip()) >= 2:
                     word_count = len(current_text)
                     duration = (word_count / segment_words) * segment.audio_duration
-                    segment.captions.append({
-                        "text": current_text,
-                        "start": current_start,
-                        "duration": max(duration, 0.5),
-                        "style": caption_cfg,
-                        "emotion": segment.emotion.value,
-                    })
+                    segment.captions.append(
+                        {
+                            "text": current_text,
+                            "start": current_start,
+                            "duration": max(duration, 0.5),
+                            "style": caption_cfg,
+                            "emotion": segment.emotion.value,
+                        }
+                    )
 
             current_time += segment.audio_duration
             self._report_progress("生成字幕", (i + 1) / len(project.segments))
 
         self._report_progress("生成字幕", 1.0)
 
-    def _build_jianying_tracks(self, draft: JianyingDraft, project: MonologueProject) -> None:
+    def _build_jianying_tracks(
+        self, draft: JianyingDraft, project: MonologueProject
+    ) -> None:
         """构建独白视频的剪映轨道"""
         build_monologue_tracks(
             draft=draft,
@@ -562,7 +587,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
     #  辅助方法                                                           #
     # ------------------------------------------------------------------ #
 
+
 # =========== 便捷函数 ===========
+
 
 def create_monologue(
     source_video: str,

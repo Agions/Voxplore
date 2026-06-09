@@ -59,7 +59,9 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setStyleSheet(f"QScrollArea {{ background: {Colors.BgBase}; border: none; }}")
+        scroll.setStyleSheet(
+            f"QScrollArea {{ background: {Colors.BgBase}; border: none; }}"
+        )
 
         content = QWidget()
         self._form_layout = QVBoxLayout(content)
@@ -108,8 +110,12 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         trans_form = QFormLayout()
 
         self._transition_combo = QComboBox()
-        self._transition_combo.addItems(["无", "淡入淡出", "交叉溶解", "擦除", "滑动", "缩放"])
-        self._transition_combo.currentTextChanged.connect(lambda v: self._emit_change("transition", v))
+        self._transition_combo.addItems(
+            ["无", "淡入淡出", "交叉溶解", "擦除", "滑动", "缩放"]
+        )
+        self._transition_combo.currentTextChanged.connect(
+            lambda v: self._emit_change("transition", v)
+        )
 
         self._trans_duration_spin = QDoubleSpinBox()
         self._trans_duration_spin.setRange(0.1, 5.0)
@@ -128,7 +134,9 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._subtitle_text = QTextEdit()
         self._subtitle_text.setMaximumHeight(80)
         self._subtitle_text.setPlaceholderText("字幕内容...")
-        self._subtitle_text.setStyleSheet(f"QTextEdit {{ background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault}; border-radius: 4px; padding: 4px; }}")
+        self._subtitle_text.setStyleSheet(
+            f"QTextEdit {{ background: {Colors.BgElevated}; color: {Colors.TextPrimary}; border: 1px solid {Colors.BorderDefault}; border-radius: 4px; padding: 4px; }}"
+        )
 
         sub_style_form = QFormLayout()
         self._font_size_spin = QDoubleSpinBox()
@@ -204,13 +212,19 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         clip_type = clip_data.get("track_type", "video")
 
         self._clip_id_label.setText(clip_data.get("id", "—"))
-        self._clip_type_label.setText({"video": "视频", "audio": "音频", "subtitle": "字幕"}.get(clip_type, clip_type))
+        self._clip_type_label.setText(
+            {"video": "视频", "audio": "音频", "subtitle": "字幕"}.get(
+                clip_type, clip_type
+            )
+        )
 
         self._start_spin.blockSignals(True)
         self._end_spin.blockSignals(True)
         self._start_spin.setValue(clip_data.get("start", 0))
         self._end_spin.setValue(clip_data.get("end", 0))
-        self._duration_label.setText(f"{clip_data.get('end', 0) - clip_data.get('start', 0):.2f} s")
+        self._duration_label.setText(
+            f"{clip_data.get('end', 0) - clip_data.get('start', 0):.2f} s"
+        )
         self._start_spin.blockSignals(False)
         self._end_spin.blockSignals(False)
 
@@ -240,7 +254,9 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         """返回主题样式表"""
         bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
         text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
-        input_bg = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        input_bg = (
+            ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        )
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
         return f"""
             QScrollArea {{

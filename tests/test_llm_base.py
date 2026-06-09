@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试 LLM 提供商基类和混入"""
 
-
 from scenefab.services.ai.base_llm_provider import (
     HTTPClientMixin,
     LLMRequest,
@@ -92,6 +91,7 @@ class TestProviderError:
 
 class MockHTTPClient:
     """模拟 HTTP 客户端"""
+
     pass
 
 
@@ -100,13 +100,12 @@ class TestProviderWithMixins:
 
     def test_http_client_mixin_init(self):
         """测试 HTTP 客户端混入初始化"""
+
         class TestProvider(HTTPClientMixin):
             pass
 
         provider = TestProvider(
-            api_key="test-key",
-            base_url="https://api.example.com",
-            timeout=30.0
+            api_key="test-key", base_url="https://api.example.com", timeout=30.0
         )
 
         assert provider.api_key == "test-key"
@@ -115,6 +114,7 @@ class TestProviderWithMixins:
 
     def test_model_manager_mixin(self):
         """测试模型管理混入"""
+
         class TestProvider(ModelManagerMixin):
             MODELS = {
                 "gpt-4": {"name": "GPT-4", "max_tokens": 8000},
@@ -130,6 +130,7 @@ class TestProviderWithMixins:
 
     def test_model_manager_get_model_info_not_found(self):
         """测试获取不存在的模型信息"""
+
         class TestProvider(ModelManagerMixin):
             MODELS = {}
             DEFAULT_MODEL = "default"

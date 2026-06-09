@@ -63,7 +63,9 @@ class ProviderRegistry:
     def get_vision(self, name: str) -> VisionProvider:
         """获取指定名称的 Vision Provider"""
         if name not in self._vision_providers:
-            raise KeyError(f"Vision provider '{name}' not found. Available: {list(self._vision_providers.keys())}")
+            raise KeyError(
+                f"Vision provider '{name}' not found. Available: {list(self._vision_providers.keys())}"
+            )
         return self._vision_providers[name]
 
     def get_default_vision(self) -> VisionProvider:
@@ -91,7 +93,9 @@ class ProviderRegistry:
     def get_llm(self, name: str) -> LLMProvider:
         """获取指定名称的 LLM Provider"""
         if name not in self._llm_providers:
-            raise KeyError(f"LLM provider '{name}' not found. Available: {list(self._llm_providers.keys())}")
+            raise KeyError(
+                f"LLM provider '{name}' not found. Available: {list(self._llm_providers.keys())}"
+            )
         return self._llm_providers[name]
 
     def get_default_llm(self) -> LLMProvider:
@@ -119,7 +123,9 @@ class ProviderRegistry:
     def get_tts(self, name: str) -> TTSProvider:
         """获取指定名称的 TTS Provider"""
         if name not in self._tts_providers:
-            raise KeyError(f"TTS provider '{name}' not found. Available: {list(self._tts_providers.keys())}")
+            raise KeyError(
+                f"TTS provider '{name}' not found. Available: {list(self._tts_providers.keys())}"
+            )
         return self._tts_providers[name]
 
     def get_default_tts(self) -> TTSProvider:

@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VideoMetadata:
     """视频元数据"""
+
     file_path: str
     file_name: str
     file_size: int  # bytes
@@ -47,6 +48,7 @@ class VideoMetadata:
 @dataclass
 class CopyrightCheckResult:
     """版权检查结果"""
+
     metadata: VideoMetadata
     risk_level: str  # "low", "medium", "high"
     risk_factors: list[str] = field(default_factory=list)
@@ -159,8 +161,10 @@ class CopyrightChecker:
         """
         cmd = [
             self.ffprobe_path,
-            "-v", "quiet",
-            "-print_format", "json",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
             "-show_format",
             "-show_streams",
             video_path,
@@ -311,8 +315,18 @@ class CopyrightChecker:
 
         # 检查文件名风险关键词
         risk_keywords = [
-            "bluray", "bdrip", "hdrip", "dvdrip", "webrip",
-            "hdtv", "cam", "ts", "tc", "枪版", "盗版", "抢先版",
+            "bluray",
+            "bdrip",
+            "hdrip",
+            "dvdrip",
+            "webrip",
+            "hdtv",
+            "cam",
+            "ts",
+            "tc",
+            "枪版",
+            "盗版",
+            "抢先版",
         ]
         file_name_lower = metadata.file_name.lower()
         for keyword in risk_keywords:
@@ -385,7 +399,9 @@ class CopyrightChecker:
         """
         # 计算安全使用时长
         safe_duration_absolute = self.FAIR_USE_DURATION_THRESHOLD  # 2 分钟
-        safe_duration_percentage = metadata.duration * self.FAIR_USE_PERCENTAGE_THRESHOLD  # 10%
+        safe_duration_percentage = (
+            metadata.duration * self.FAIR_USE_PERCENTAGE_THRESHOLD
+        )  # 10%
         safe_duration = min(safe_duration_absolute, safe_duration_percentage)
 
         # 判断是否符合合理使用
@@ -404,7 +420,9 @@ class CopyrightChecker:
         }
 
 
-def check_copyright(video_path: str, ffprobe_path: str = "ffprobe") -> CopyrightCheckResult:
+def check_copyright(
+    video_path: str, ffprobe_path: str = "ffprobe"
+) -> CopyrightCheckResult:
     """
     便捷函数：执行版权检查
 

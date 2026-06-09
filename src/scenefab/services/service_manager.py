@@ -37,6 +37,7 @@ from .video.monologue_maker import MonologueMaker
 @dataclass
 class ServiceInfo:
     """服务信息"""
+
     name: str
     service_class: type
     instance: Any | None = None
@@ -53,7 +54,7 @@ class ServiceManager:
     _initialized: bool = False
 
     # AIServiceManager V2 实例 (委托目标)
-    _ai_manager: Optional['AIServiceManagerCompat'] = None
+    _ai_manager: Optional["AIServiceManagerCompat"] = None
 
     @classmethod
     def register(cls, name: str, service_class: type):
@@ -102,10 +103,7 @@ class ServiceManager:
     def get_all_services(cls) -> dict[str, Any]:
         """获取所有服务"""
         cls.initialize()
-        return {
-            name: cls.get(name)
-            for name in cls._services
-        }
+        return {name: cls.get(name) for name in cls._services}
 
     @classmethod
     def reset(cls):
@@ -116,7 +114,7 @@ class ServiceManager:
         cls._ai_manager = None
 
     @classmethod
-    def get_ai_manager(cls) -> 'AIServiceManagerCompat':
+    def get_ai_manager(cls) -> "AIServiceManagerCompat":
         """获取 AI 服务管理器（兼容层）"""
         if cls._ai_manager is None:
             cls._ai_manager = AIServiceManagerCompat()
@@ -171,7 +169,7 @@ class AIServiceManagerCompat:
         """获取使用统计"""
         if service_name in self._services:
             service = self._services[service_name]
-            if hasattr(service, '_stats'):
+            if hasattr(service, "_stats"):
                 return service._stats
         return {
             "requests": 0,

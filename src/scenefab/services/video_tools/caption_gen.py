@@ -19,44 +19,49 @@ logger = logging.getLogger(__name__)
 
 class CaptionStyle(Enum):
     """字幕样式预设"""
-    VIRAL = "viral"           # 爆款风格：大字、高亮、动态
-    MINIMAL = "minimal"       # 简约风格：小字、纯色
-    SUBTITLE = "subtitle"     # 传统字幕：底部居中
-    FLOATING = "floating"     # 浮动风格：跟随主体
+
+    VIRAL = "viral"  # 爆款风格：大字、高亮、动态
+    MINIMAL = "minimal"  # 简约风格：小字、纯色
+    SUBTITLE = "subtitle"  # 传统字幕：底部居中
+    FLOATING = "floating"  # 浮动风格：跟随主体
 
 
 class EmotionLevel(Enum):
     """情绪等级"""
-    NEUTRAL = 0    # 中性
-    LOW = 1        # 低强度
-    MEDIUM = 2     # 中等强度
-    HIGH = 3       # 高强度
+
+    NEUTRAL = 0  # 中性
+    LOW = 1  # 低强度
+    MEDIUM = 2  # 中等强度
+    HIGH = 3  # 高强度
 
 
 @dataclass
 class Word:
     """单词/字符数据"""
-    text: str           # 文本内容
-    start_time: float   # 开始时间（秒）
-    end_time: float     # 结束时间（秒）
-    is_keyword: bool    # 是否为关键词
+
+    text: str  # 文本内容
+    start_time: float  # 开始时间（秒）
+    end_time: float  # 结束时间（秒）
+    is_keyword: bool  # 是否为关键词
     emotion: EmotionLevel  # 情绪等级
 
 
 @dataclass
 class Caption:
     """字幕条目"""
-    text: str                # 完整文本
-    start_time: float        # 开始时间
-    end_time: float          # 结束时间
-    words: list[Word]        # 分词列表
-    style: CaptionStyle      # 样式
-    position: str            # 位置（'top', 'center', 'bottom'）
+
+    text: str  # 完整文本
+    start_time: float  # 开始时间
+    end_time: float  # 结束时间
+    words: list[Word]  # 分词列表
+    style: CaptionStyle  # 样式
+    position: str  # 位置（'top', 'center', 'bottom'）
 
 
 @dataclass
 class CaptionConfig:
     """字幕配置"""
+
     style: CaptionStyle = CaptionStyle.VIRAL
     font_family: str = "PingFang SC"
     base_font_size: int = 48
@@ -79,20 +84,55 @@ class CaptionGenerator:
 
     # 关键词词库（中文）
     KEYWORDS_CN = {
-        '爆款', '惊人', '震惊', '必看', '超级', '绝对', '完美',
-        '史上最', '第一', '最强', '顶级', '神级', '牛逼', '炸裂',
-        '重要', '关键', '核心', '秘密', '揭秘', '真相', '内幕'
+        "爆款",
+        "惊人",
+        "震惊",
+        "必看",
+        "超级",
+        "绝对",
+        "完美",
+        "史上最",
+        "第一",
+        "最强",
+        "顶级",
+        "神级",
+        "牛逼",
+        "炸裂",
+        "重要",
+        "关键",
+        "核心",
+        "秘密",
+        "揭秘",
+        "真相",
+        "内幕",
     }
 
     # 情绪词词库
     EMOTION_WORDS_HIGH = {
-        '哇', '天啊', '卧槽', '牛逼', '绝了', '太强了', '无敌',
-        '震撼', '惊艳', '炸裂', '爆炸', '疯狂'
+        "哇",
+        "天啊",
+        "卧槽",
+        "牛逼",
+        "绝了",
+        "太强了",
+        "无敌",
+        "震撼",
+        "惊艳",
+        "炸裂",
+        "爆炸",
+        "疯狂",
     }
 
     EMOTION_WORDS_MEDIUM = {
-        '厉害', '不错', '很好', '赞', '棒', '强',
-        '惊讶', '意外', '有趣'
+        "厉害",
+        "不错",
+        "很好",
+        "赞",
+        "棒",
+        "强",
+        "惊讶",
+        "意外",
+        "有趣",
     }
 
     def __init__(self, config: CaptionConfig | None = None):
@@ -105,10 +145,7 @@ class CaptionGenerator:
         self.config = config or CaptionConfig()
 
     def generate_from_text(
-        self,
-        text: str,
-        start_time: float = 0.0,
-        duration: float | None = None
+        self, text: str, start_time: float = 0.0, duration: float | None = None
     ) -> Caption:
         """
         从文本生成字幕
@@ -131,11 +168,7 @@ class CaptionGenerator:
             duration = len(text) / chars_per_second
 
         # 为每个词分配时间
-        word_objects = self._assign_timestamps(
-            words,
-            start_time,
-            start_time + duration
-        )
+        word_objects = self._assign_timestamps(words, start_time, start_time + duration)
 
         # 识别关键词和情绪词
         word_objects = self._mark_keywords_and_emotions(word_objects)
@@ -146,12 +179,11 @@ class CaptionGenerator:
             end_time=start_time + duration,
             words=word_objects,
             style=self.config.style,
-            position=self.config.position
+            position=self.config.position,
         )
 
     def generate_from_transcript(
-        self,
-        transcript: list[dict[str, any]]
+        self, transcript: list[dict[str, any]]
     ) -> list[Caption]:
         """
         从转录结果生成字幕
@@ -180,34 +212,32 @@ class CaptionGenerator:
             words = []
 
             # 如果有逐词时间戳
-            if 'words' in segment and segment['words']:
-                for word_data in segment['words']:
+            if "words" in segment and segment["words"]:
+                for word_data in segment["words"]:
                     word = Word(
-                        text=word_data['word'],
-                        start_time=word_data['start'],
-                        end_time=word_data['end'],
+                        text=word_data["word"],
+                        start_time=word_data["start"],
+                        end_time=word_data["end"],
                         is_keyword=False,
-                        emotion=EmotionLevel.NEUTRAL
+                        emotion=EmotionLevel.NEUTRAL,
                     )
                     words.append(word)
             else:
                 # 如果没有逐词时间戳，均分
                 words = self._assign_timestamps(
-                    list(segment['text']),
-                    segment['start'],
-                    segment['end']
+                    list(segment["text"]), segment["start"], segment["end"]
                 )
 
             # 标记关键词和情绪
             words = self._mark_keywords_and_emotions(words)
 
             caption = Caption(
-                text=segment['text'],
-                start_time=segment['start'],
-                end_time=segment['end'],
+                text=segment["text"],
+                start_time=segment["start"],
+                end_time=segment["end"],
                 words=words,
                 style=self.config.style,
-                position=self.config.position
+                position=self.config.position,
             )
 
             captions.append(caption)
@@ -237,7 +267,7 @@ class CaptionGenerator:
                 ass_content += self._generate_ass_simple(caption)
 
         # 写入文件
-        output_path.write_text(ass_content, encoding='utf-8-sig')
+        output_path.write_text(ass_content, encoding="utf-8-sig")
 
     def to_srt_format(self, captions: list[Caption], output_path: str) -> None:
         """
@@ -266,7 +296,7 @@ class CaptionGenerator:
             # 空行
             srt_content.append("")
 
-        output_path.write_text('\n'.join(srt_content), encoding='utf-8')
+        output_path.write_text("\n".join(srt_content), encoding="utf-8")
 
     def _segment_words(self, text: str) -> list[str]:
         """
@@ -278,10 +308,7 @@ class CaptionGenerator:
         return list(text)
 
     def _assign_timestamps(
-        self,
-        words: list[str],
-        start_time: float,
-        end_time: float
+        self, words: list[str], start_time: float, end_time: float
     ) -> list[Word]:
         """为每个词分配时间戳"""
         duration = end_time - start_time
@@ -302,7 +329,7 @@ class CaptionGenerator:
                 start_time=word_start,
                 end_time=word_end,
                 is_keyword=False,
-                emotion=EmotionLevel.NEUTRAL
+                emotion=EmotionLevel.NEUTRAL,
             )
             word_objects.append(word)
 
@@ -310,7 +337,7 @@ class CaptionGenerator:
 
     def _mark_keywords_and_emotions(self, words: list[Word]) -> list[Word]:
         """标记关键词和情绪词"""
-        full_text = ''.join(w.text for w in words)
+        full_text = "".join(w.text for w in words)
 
         for word in words:
             # 检查是否为关键词
@@ -367,7 +394,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
             lines.append(f"Dialogue: 0,{start},{end},{style},,0,0,0,,{text}\n")
 
-        return ''.join(lines)
+        return "".join(lines)
 
     def _generate_ass_simple(self, caption: Caption) -> str:
         """生成简单版 ASS 字幕"""
@@ -409,7 +436,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
         Example: #F43F5E -> 5E3FF4
         """
-        hex_color = hex_color.lstrip('#')
+        hex_color = hex_color.lstrip("#")
 
         # HEX: RRGGBB -> ASS: BBGGRR
         r = hex_color[0:2]

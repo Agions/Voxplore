@@ -24,6 +24,7 @@ class ScriptGenerator:
 
     def __init__(self, llm_service=None):
         from ..services import get_ai_service_manager
+
         ai_service_manager = get_ai_service_manager()
         self.llm = llm_service or ai_service_manager.get_llm()
 
@@ -33,7 +34,7 @@ class ScriptGenerator:
         context: str = "",
         emotion: EmotionType = EmotionType.NEUTRAL,
         style: NarrationStyle = NarrationStyle.DOCUMENTARY,
-        progress_callback: Callable | None = None
+        progress_callback: Callable | None = None,
     ) -> list[NarrationBlock]:
         if not self.llm:
             logger.warning("No LLM service available, using default script")
@@ -48,7 +49,7 @@ class ScriptGenerator:
             try:
                 result = self.llm.generate(
                     prompt=prompt,
-                    system="你是一个专业的影视解说文案撰写师，擅长第一人称视角的叙事风格。"
+                    system="你是一个专业的影视解说文案撰写师，擅长第一人称视角的叙事风格。",
                 )
 
                 if result:
@@ -59,13 +60,15 @@ class ScriptGenerator:
                 logger.warning(f"LLM generation failed: {e}")
                 text = self._get_default_text(i, style)
 
-            blocks.append(NarrationBlock(
-                text=text,
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                emotion=emotion,
-                style=style
-            ))
+            blocks.append(
+                NarrationBlock(
+                    text=text,
+                    start_time=seg.start_time,
+                    end_time=seg.end_time,
+                    emotion=emotion,
+                    style=style,
+                )
+            )
 
             if progress_callback:
                 progress_callback(i + 1, total)
@@ -77,7 +80,7 @@ class ScriptGenerator:
         segment: VideoSegment,
         context: str,
         emotion: EmotionType,
-        style: NarrationStyle
+        style: NarrationStyle,
     ) -> str:
         duration = segment.end_time - segment.start_time
         style_hint = self.STYLE_PROMPTS.get(style, "")
@@ -113,7 +116,7 @@ class ScriptGenerator:
                 start_time=i * 10.0,
                 end_time=(i + 1) * 10.0,
                 emotion=EmotionType.NEUTRAL,
-                style=NarrationStyle.DOCUMENTARY
+                style=NarrationStyle.DOCUMENTARY,
             )
             for i in range(count)
         ]

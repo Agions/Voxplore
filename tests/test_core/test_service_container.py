@@ -1,6 +1,5 @@
 """Tests for app.core.service_container - enhanced lifecycle management"""
 
-
 from scenefab.service_container import ServiceContainer, ServiceLifetime
 
 
@@ -27,6 +26,7 @@ class TestServiceContainerLifecycle:
         # pass a class that will be instantiated each time
         class Dummy:
             pass
+
         container.register_transient(Dummy, Dummy)
         instance1 = container.get(Dummy)
         instance2 = container.get(Dummy)

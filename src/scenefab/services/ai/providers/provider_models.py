@@ -26,13 +26,14 @@ class ChatMessage(BaseModel):
 
     统一 OpenAI/Claude/Gemini 等各 Provider 的消息格式。
     """
+
     role: Literal["system", "user", "assistant", "tool"] = "user"
     content: str = ""
 
     # 可选扩展字段
-    name: str | None = None           # user name (某些 API 支持)
+    name: str | None = None  # user name (某些 API 支持)
     tool_calls: list[dict] | None = None  # function/tool calls
-    tool_call_id: str | None = None   # tool call response
+    tool_call_id: str | None = None  # tool call response
 
     def to_dict(self) -> dict[str, Any]:
         """转为字典（适配 OpenAI 格式）"""
@@ -56,6 +57,7 @@ class UsageInfo(BaseModel):
 
     统一各 Provider 的 usage 格式。
     """
+
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -70,8 +72,11 @@ class UsageInfo(BaseModel):
             prompt_tokens=data.get("prompt_tokens", 0),
             completion_tokens=data.get("completion_tokens", 0),
             total_tokens=data.get("total_tokens", 0),
-            extra={k: v for k, v in data.items()
-                   if k not in ("prompt_tokens", "completion_tokens", "total_tokens")},
+            extra={
+                k: v
+                for k, v in data.items()
+                if k not in ("prompt_tokens", "completion_tokens", "total_tokens")
+            },
         )
 
     @classmethod
@@ -81,8 +86,11 @@ class UsageInfo(BaseModel):
             prompt_tokens=data.get("input_tokens", 0),
             completion_tokens=data.get("output_tokens", 0),
             total_tokens=data.get("input_tokens", 0) + data.get("output_tokens", 0),
-            extra={k: v for k, v in data.items()
-                   if k not in ("input_tokens", "output_tokens")},
+            extra={
+                k: v
+                for k, v in data.items()
+                if k not in ("input_tokens", "output_tokens")
+            },
         )
 
     @classmethod
@@ -92,8 +100,12 @@ class UsageInfo(BaseModel):
             prompt_tokens=data.get("promptTokenCount", 0),
             completion_tokens=data.get("candidatesTokenCount", 0),
             total_tokens=data.get("totalTokenCount", 0),
-            extra={k: v for k, v in data.items()
-                   if k not in ("promptTokenCount", "candidatesTokenCount", "totalTokenCount")},
+            extra={
+                k: v
+                for k, v in data.items()
+                if k
+                not in ("promptTokenCount", "candidatesTokenCount", "totalTokenCount")
+            },
         )
 
     @classmethod
@@ -103,8 +115,11 @@ class UsageInfo(BaseModel):
             prompt_tokens=data.get("PromptTokens", 0),
             completion_tokens=data.get("CompletionTokens", 0),
             total_tokens=data.get("TotalTokens", 0),
-            extra={k: v for k, v in data.items()
-                   if k not in ("PromptTokens", "CompletionTokens", "TotalTokens")},
+            extra={
+                k: v
+                for k, v in data.items()
+                if k not in ("PromptTokens", "CompletionTokens", "TotalTokens")
+            },
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -118,15 +133,16 @@ class ChatRequest(BaseModel):
 
     统一各 Provider 的请求格式。
     """
+
     messages: list[ChatMessage] = Field(default_factory=list)
     model: str = "default"
     temperature: float = 0.7
     max_tokens: int = 2000
     top_p: float = 0.9
     streaming: bool = False
-    stop: list[str] | None = None       # 停止词
-    tools: list[dict] | None = None      # function calling
-    tool_choice: str | None = None       # auto/none
+    stop: list[str] | None = None  # 停止词
+    tools: list[dict] | None = None  # function calling
+    tool_choice: str | None = None  # auto/none
 
     # 扩展参数
     extra: dict[str, Any] = Field(default_factory=dict)
@@ -143,10 +159,12 @@ class ChatRequest(BaseModel):
         elif isinstance(req.prompt, list):
             for msg in req.prompt:
                 if isinstance(msg, dict):
-                    messages.append(ChatMessage(
-                        role=msg.get("role", "user"),
-                        content=msg.get("content", ""),
-                    ))
+                    messages.append(
+                        ChatMessage(
+                            role=msg.get("role", "user"),
+                            content=msg.get("content", ""),
+                        )
+                    )
 
         return cls(
             messages=messages,
@@ -170,6 +188,7 @@ class ChatResponse(BaseModel):
 
     统一各 Provider 的响应格式。
     """
+
     content: str = ""
     model: str = ""
     usage: UsageInfo = Field(default_factory=UsageInfo)

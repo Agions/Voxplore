@@ -55,36 +55,38 @@ HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
 @dataclass
 class ProjectSource:
     """项目素材"""
-    path: str = ""                  # 素材路径
-    type: str = "video"            # video/audio/image
-    name: str = ""                  # 显示名称
-    duration: float = 0.0           # 时长（秒）
-    size: int = 0                   # 文件大小
-    hash: str = ""                  # 文件哈希（用于验证）
+
+    path: str = ""  # 素材路径
+    type: str = "video"  # video/audio/image
+    name: str = ""  # 显示名称
+    duration: float = 0.0  # 时长（秒）
+    size: int = 0  # 文件大小
+    hash: str = ""  # 文件哈希（用于验证）
 
 
 @dataclass
 class ProjectConfig:
     """项目配置"""
+
     # AI 配置
-    llm_provider: str = "openai"    # LLM 提供商
-    llm_model: str = "gpt-4o-mini" # LLM 模型
-    voice_provider: str = "edge"    # 配音提供商
-    voice_id: str = ""             # 声音ID
+    llm_provider: str = "openai"  # LLM 提供商
+    llm_model: str = "gpt-4o-mini"  # LLM 模型
+    voice_provider: str = "edge"  # 配音提供商
+    voice_id: str = ""  # 声音ID
 
     # 视频配置
-    style: str = "default"         # 风格
-    target_duration: float = 0.0   # 目标时长
+    style: str = "default"  # 风格
+    target_duration: float = 0.0  # 目标时长
     target_platform: str = "bilibili"  # 目标平台
 
     # 字幕配置
-    subtitle_style: str = "viral"   # 字幕风格
+    subtitle_style: str = "viral"  # 字幕风格
     subtitle_enabled: bool = True
 
     # 导出配置
     export_format: str = "mp4"
     export_quality: str = "high"
-    export_jianying: bool = True   # 是否导出剪映草稿
+    export_jianying: bool = True  # 是否导出剪映草稿
 
 
 @dataclass
@@ -94,6 +96,7 @@ class SceneFabProject:
 
     完整的项目数据结构
     """
+
     metadata: ProjectMetadata = field(default_factory=ProjectMetadata)
     sources: list[ProjectSource] = field(default_factory=list)
     config: ProjectConfig = field(default_factory=ProjectConfig)
@@ -243,7 +246,7 @@ class ProjectManager:
 
     def _save_json(self, data: dict, output_path: Path) -> str:
         """保存为 JSON 文件"""
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         self._last_save_path = output_path
@@ -251,7 +254,7 @@ class ProjectManager:
 
     def _load_json(self, project_path: Path) -> dict:
         """从 JSON 文件加载"""
-        with open(project_path, encoding='utf-8') as f:
+        with open(project_path, encoding="utf-8") as f:
             data = json.load(f)
 
         # 版本兼容性处理
@@ -260,27 +263,23 @@ class ProjectManager:
         return data
 
     def _save_compressed(
-        self,
-        data: dict,
-        output_path: Path,
-        include_sources: bool
+        self, data: dict, output_path: Path, include_sources: bool
     ) -> str:
         """保存为压缩的 zip 文件"""
         # 创建 zip
-        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
             # 保存主项目文件
             project_json = json.dumps(data, ensure_ascii=False, indent=2)
             zf.writestr("project.json", project_json)
 
             # 保存项目缩略图（如果有）
 
-
         self._last_save_path = output_path
         return str(output_path)
 
     def _load_compressed(self, project_path: Path) -> dict:
         """从压缩文件加载"""
-        with zipfile.ZipFile(project_path, 'r') as zf:
+        with zipfile.ZipFile(project_path, "r") as zf:
             # 读取主项目文件
             with zf.open("project.json") as f:
                 data = json.load(f)
@@ -367,8 +366,9 @@ class ProjectManager:
     def _calculate_simple_hash(self, path: Path) -> str:
         """计算文件的简单哈希（用于验证）"""
         import hashlib
+
         try:
-            with open(path, 'rb') as f:
+            with open(path, "rb") as f:
                 # 只读取前 1MB 用于哈希计算
                 chunk = f.read(HASH_CHUNK_SIZE)
                 return hashlib.md5(chunk).hexdigest()

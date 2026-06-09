@@ -11,6 +11,7 @@ from typing import Any
 
 class SceneType(str, Enum):
     """场景类型"""
+
     ACTION = "action"  # 动作场景
     DIALOGUE = "dialogue"  # 对话场景
     REVERSAL = "reversal"  # 反转场景
@@ -21,6 +22,7 @@ class SceneType(str, Enum):
 
 class EmotionLabel(str, Enum):
     """情绪标签"""
+
     TENSION = "tension"  # 紧张
     JOY = "joy"  # 愉快
     SADNESS = "sadness"  # 悲伤
@@ -32,6 +34,7 @@ class EmotionLabel(str, Enum):
 
 class RecommendedPace(str, Enum):
     """推荐节奏"""
+
     FAST = "fast"  # 快节奏
     NORMAL = "normal"  # 正常节奏
     SLOW = "slow"  # 慢节奏
@@ -40,6 +43,7 @@ class RecommendedPace(str, Enum):
 @dataclass
 class SceneEmotion:
     """场景情绪数据"""
+
     timestamp: float  # 时间戳（秒）
     scene_type: SceneType  # 场景类型
     emotion_label: EmotionLabel  # 情绪标签
@@ -54,6 +58,7 @@ class SceneEmotion:
 @dataclass
 class EmotionDetectionResult:
     """情绪检测结果"""
+
     video_path: str
     duration: float  # 视频时长（秒）
     scene_emotions: list[SceneEmotion] = field(default_factory=list)

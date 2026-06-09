@@ -78,8 +78,10 @@ class VideoDropZone(QFrame):
 
     def _browse(self):
         files, _ = QFileDialog.getOpenFileNames(
-            self, "选择视频文件", "",
-            "视频文件 (*.mp4 *.mov *.avi *.mkv *.flv *.wmv);;所有文件 (*)"
+            self,
+            "选择视频文件",
+            "",
+            "视频文件 (*.mp4 *.mov *.avi *.mkv *.flv *.wmv);;所有文件 (*)",
         )
         if files:
             self.files_dropped.emit(files)
@@ -112,6 +114,7 @@ class FileListItem(QFrame):
         super().__init__(parent)
         self._file_path = file_path
         import os
+
         self._name = os.path.basename(file_path)
         self.setFixedHeight(56)
         self.setObjectName("file_item")
@@ -192,7 +195,9 @@ class StepUploadPage(StepPage):
         # 说明卡片
         info_card = ContentCard("支持格式")
         info_layout = info_card.layout()
-        formats = QLabel("MP4 • MOV • AVI • MKV • FLV • WMV\n推荐分辨率: 1080P 以上 | 单文件建议 < 2GB")
+        formats = QLabel(
+            "MP4 • MOV • AVI • MKV • FLV • WMV\n推荐分辨率: 1080P 以上 | 单文件建议 < 2GB"
+        )
         formats.setFont(QFont("", FontSizes.sm))
         formats.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
         formats.setWordWrap(True)

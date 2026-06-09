@@ -26,7 +26,12 @@
         print(f"高光时刻: {h.timestamp:.1f}s, 置信度: {h.confidence:.2f}")
 """
 
-__all__ = ["HighlightReason", "HighlightSegment", "HighlightDetectorConfig", "HighlightDetector"]
+__all__ = [
+    "HighlightReason",
+    "HighlightSegment",
+    "HighlightDetectorConfig",
+    "HighlightDetector",
+]
 
 import logging
 import subprocess
@@ -45,6 +50,7 @@ logger = logging.getLogger(__name__)
 try:
     import numpy as np  # noqa: F401
     from PIL import Image  # noqa: F401
+
     _OPTIONAL_DEPS_OK = True
 except ImportError:
     _OPTIONAL_DEPS_OK = False
@@ -54,11 +60,12 @@ except ImportError:
 
 class HighlightReason(Enum):
     """高光原因分类"""
-    SCENE_CHANGE = "scene_change"      # 场景突变
-    AUDIO_PEAK = "audio_peak"          # 音频能量峰值
+
+    SCENE_CHANGE = "scene_change"  # 场景突变
+    AUDIO_PEAK = "audio_peak"  # 音频能量峰值
     MOTION_INTENSE = "motion_intense"  # 剧烈运动
-    COLOR_VIBRANT = "color_vibrant"    # 色彩鲜艳
-    COMBINED = "combined"              # 多因素综合
+    COLOR_VIBRANT = "color_vibrant"  # 色彩鲜艳
+    COMBINED = "combined"  # 多因素综合
 
 
 @dataclass
@@ -73,6 +80,7 @@ class HighlightSegment:
         reason: 高光原因
         peak_timestamp: 最具代表性时间点
     """
+
     start: float
     end: float
     confidence: float
@@ -94,13 +102,14 @@ class HighlightSegment:
 @dataclass
 class HighlightDetectorConfig:
     """高光检测配置"""
+
     # 时长阈值
-    min_duration: float = 1.0        # 最小高光时长（秒）
-    max_duration: float = 30.0      # 最大高光时长（秒）
-    min_gap: float = 0.5             # 高光间最小间隔（秒）
+    min_duration: float = 1.0  # 最小高光时长（秒）
+    max_duration: float = 30.0  # 最大高光时长（秒）
+    min_gap: float = 0.5  # 高光间最小间隔（秒）
 
     # 置信度阈值
-    min_confidence: float = 0.5      # 最小置信度 0-1
+    min_confidence: float = 0.5  # 最小置信度 0-1
 
     # 检测策略权重
     scene_change_weight: float = 0.3
@@ -110,8 +119,8 @@ class HighlightDetectorConfig:
 
     # FFmpeg 参数
     sample_rate: int = 44100
-    fps: int = 1                     # 每秒采样帧数（分析用）
-    block_size: int = 1              # 块大小（秒）
+    fps: int = 1  # 每秒采样帧数（分析用）
+    block_size: int = 1  # 块大小（秒）
 
 
 # ── 全局安全执行器（延迟初始化）────────────────────────────────
@@ -123,6 +132,7 @@ def _get_executor():
     global _executor
     if _executor is None:
         from ...utils.security import get_ffmpeg_executor
+
         _executor = get_ffmpeg_executor()
     return _executor
 
@@ -186,13 +196,16 @@ class HighlightDetector:
 
         # 过滤时长
         highlights = [
-            h for h in highlights
+            h
+            for h in highlights
             if self.config.min_duration <= h.duration <= self.config.max_duration
         ]
 
         return highlights
 
-    def _run_ffmpeg(self, cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
+    def _run_ffmpeg(
+        self, cmd: list[str], timeout: int = 60
+    ) -> subprocess.CompletedProcess:
         """执行 ffmpeg 命令"""
         try:
             result = _get_executor().run(cmd, timeout=timeout)
@@ -200,7 +213,9 @@ class HighlightDetector:
         except SecurityError:
             # 命令注入攻击被拦截，不要静默吞噬
             logger.warning(f"FFmpeg command blocked by security policy: {cmd[0]}")
-            return subprocess.CompletedProcess(cmd, 1, "", "SecurityError: command blocked")
+            return subprocess.CompletedProcess(
+                cmd, 1, "", "SecurityError: command blocked"
+            )
         except Exception as e:
             logger.debug(f"FFmpeg 执行失败: {e}")
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
@@ -212,10 +227,14 @@ class HighlightDetector:
         output_prefix = temp_dir / f"{video_path.stem}_{prefix}"
         # 性能优化：在 FFmpeg 中直接缩放，避免处理大图
         cmd = [
-            'ffmpeg', '-y',
-            '-i', str(video_path),
-            '-vf', f"fps={self.config.fps},scale={_TARGET_SIZE[0]}:{_TARGET_SIZE[1]}",
-            '-q:v', '2',
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(video_path),
+            "-vf",
+            f"fps={self.config.fps},scale={_TARGET_SIZE[0]}:{_TARGET_SIZE[1]}",
+            "-q:v",
+            "2",
             f"{output_prefix}%04d.jpg",
         ]
         self._run_ffmpeg(cmd)
@@ -250,8 +269,12 @@ class HighlightDetector:
                 arr = np.array(img, dtype=np.int32)
                 # 合并 RGB 通道直方图（与原 PIL histogram() 等效）
                 if arr.ndim == 3:
-                    hist = np.concatenate([np.histogram(arr[:, :, c], bins=256, range=(0, 256))[0]
-                                           for c in range(arr.shape[2])])
+                    hist = np.concatenate(
+                        [
+                            np.histogram(arr[:, :, c], bins=256, range=(0, 256))[0]
+                            for c in range(arr.shape[2])
+                        ]
+                    )
                 else:
                     hist = np.histogram(arr, bins=256, range=(0, 256))[0]
 
@@ -289,12 +312,17 @@ class HighlightDetector:
 
         # 提取音频
         cmd = [
-            'ffmpeg', '-y',
-            '-i', str(video_path),
-            '-vn',
-            '-acodec', 'pcm_s16le',
-            '-ar', str(self.config.sample_rate),
-            '-ac', '1',
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(video_path),
+            "-vn",
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            str(self.config.sample_rate),
+            "-ac",
+            "1",
             str(audio_path),
         ]
         self._run_ffmpeg(cmd)
@@ -307,14 +335,16 @@ class HighlightDetector:
 
             audio = AudioSegment.from_wav(str(audio_path))
             samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
-            samples = samples / (2 ** 15)  # 归一化
+            samples = samples / (2**15)  # 归一化
 
             # 分块计算能量（向量化，避免逐块循环）
             block_size_samples = int(self.config.sample_rate * self.config.block_size)
             num_blocks = len(samples) // block_size_samples
 
-            blocks = samples[:num_blocks * block_size_samples].reshape(num_blocks, block_size_samples)
-            energies = np.sqrt(np.mean(blocks ** 2, axis=1))
+            blocks = samples[: num_blocks * block_size_samples].reshape(
+                num_blocks, block_size_samples
+            )
+            energies = np.sqrt(np.mean(blocks**2, axis=1))
             mask = energies > 0.3
             peak_indices = np.where(mask)[0]
 
@@ -353,7 +383,7 @@ class HighlightDetector:
         for i, frame_path in enumerate(frame_files):
             timestamp = i / self.config.fps
             # 性能优化：小图已由 FFmpeg 缩放，直接加载灰度
-            img = Image.open(frame_path).convert('L')
+            img = Image.open(frame_path).convert("L")
             data = np.frombuffer(img.getdata(), dtype=np.uint8).astype(np.float32)
 
             if prev_data is not None:
@@ -386,7 +416,7 @@ class HighlightDetector:
         for i, frame_path in enumerate(frame_files):
             timestamp = i / self.config.fps
             # 性能优化：小图已由 FFmpeg 缩放，直接加载 RGB
-            img = Image.open(frame_path).convert('RGB')
+            img = Image.open(frame_path).convert("RGB")
             arr = np.array(img, dtype=np.float32)  # (h, w, 3)
 
             r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
@@ -445,10 +475,10 @@ class HighlightDetector:
         highlights = []
         for ts, scores in sorted(timeline.items()):
             combined = (
-                scores["scene"] * self.config.scene_change_weight +
-                scores["audio"] * self.config.audio_peak_weight +
-                scores["motion"] * self.config.motion_weight +
-                scores["color"] * self.config.color_weight
+                scores["scene"] * self.config.scene_change_weight
+                + scores["audio"] * self.config.audio_peak_weight
+                + scores["motion"] * self.config.motion_weight
+                + scores["color"] * self.config.color_weight
             )
 
             # 判断主要原因：dict dispatch 替代 if/elif 链
@@ -458,15 +488,19 @@ class HighlightDetector:
                 "motion": HighlightReason.MOTION_INTENSE,
                 "color": HighlightReason.COLOR_VIBRANT,
             }
-            reason = _SCORE_REASON_MAP.get(max(scores, key=lambda k: scores[k]), HighlightReason.COMBINED)
+            reason = _SCORE_REASON_MAP.get(
+                max(scores, key=lambda k: scores[k]), HighlightReason.COMBINED
+            )
 
-            highlights.append(HighlightSegment(
-                start=ts,
-                end=ts + self.config.block_size,
-                confidence=combined,
-                reason=reason,
-                peak_timestamp=ts,
-            ))
+            highlights.append(
+                HighlightSegment(
+                    start=ts,
+                    end=ts + self.config.block_size,
+                    confidence=combined,
+                    reason=reason,
+                    peak_timestamp=ts,
+                )
+            )
 
         return highlights
 
@@ -533,11 +567,15 @@ class HighlightDetector:
         highlights = self.detect(video_path, min_confidence)
 
         # 将高光时间戳对齐到最近的强拍
-        beat_timestamps = [b.timestamp for b in beat_info if b.strength.value == "strong"]
+        beat_timestamps = [
+            b.timestamp for b in beat_info if b.strength.value == "strong"
+        ]
 
         for h in highlights:
             if beat_timestamps:
-                nearest_beat = min(beat_timestamps, key=lambda b: abs(b - h.peak_timestamp))
+                nearest_beat = min(
+                    beat_timestamps, key=lambda b: abs(b - h.peak_timestamp)
+                )
                 h.peak_timestamp = nearest_beat
                 h.start = nearest_beat
                 h.end = nearest_beat + h.duration

@@ -9,6 +9,7 @@ from enum import Enum
 
 class WorkflowStep(Enum):
     """工作流步骤枚举"""
+
     IMPORT = "import"
     ANALYZE = "analyze"
     MODE_SELECT = "mode_select"
@@ -22,6 +23,7 @@ class WorkflowStep(Enum):
 
 class CreationMode(Enum):
     """创作模式枚举"""
+
     COMMENTARY = "commentary"
     MASHUP = "mashup"
     MONOLOGUE = "monologue"
@@ -29,6 +31,7 @@ class CreationMode(Enum):
 
 class WorkflowStatus(Enum):
     """工作流状态枚举"""
+
     IDLE = "idle"
     RUNNING = "running"
     PAUSED = "paused"
@@ -38,6 +41,7 @@ class WorkflowStatus(Enum):
 
 class ExportFormat(Enum):
     """导出格式枚举"""
+
     MP4 = "mp4"
     MOV = "mov"
     AVI = "avi"

@@ -2,6 +2,7 @@
 BaseStepWindow - 步骤窗口基类
 所有步骤窗口（上传/场景/配音/导出）继承此基类
 """
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
@@ -11,8 +12,9 @@ class BaseStepWindow(QWidget):
     步骤窗口基类，提供统一的导航信号和布局结构。
     子类通过覆写 _setup_content() 来填充具体内容。
     """
-    next_requested = Signal()   # 请求进入下一步
-    prev_requested = Signal()   # 请求返回上一步
+
+    next_requested = Signal()  # 请求进入下一步
+    prev_requested = Signal()  # 请求返回上一步
 
     def __init__(self, title: str, step_index: int, parent=None):
         super().__init__(parent)

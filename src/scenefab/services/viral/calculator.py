@@ -112,9 +112,7 @@ class ViralScoreCalculator(ContentScorersMixin, EngagementScorersMixin):
         )
 
         # 5. 互动设计评分
-        interaction_design_score = self._calculate_interaction_design_score(
-            script_text
-        )
+        interaction_design_score = self._calculate_interaction_design_score(script_text)
 
         # 计算总分
         total_score = (

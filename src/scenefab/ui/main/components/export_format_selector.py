@@ -58,17 +58,32 @@ class ExportSettingsDialog(QDialog):
         format_layout = QFormLayout(format_group)
 
         self.format_combo = QComboBox()
-        self.format_combo.addItems([
-            "MP4 (H.264)", "MP4 (H.265)", "MOV (ProRes)",
-            "AVI (无压缩)", "MKV (H.264)", "WebM (VP9)",
-            "GIF动画", "MP3音频", "WAV音频", "剪映草稿"
-        ])
+        self.format_combo.addItems(
+            [
+                "MP4 (H.264)",
+                "MP4 (H.265)",
+                "MOV (ProRes)",
+                "AVI (无压缩)",
+                "MKV (H.264)",
+                "WebM (VP9)",
+                "GIF动画",
+                "MP3音频",
+                "WAV音频",
+                "剪映草稿",
+            ]
+        )
 
         self.resolution_combo = QComboBox()
-        self.resolution_combo.addItems([
-            "3840x2160 (4K)", "2560x1440 (2K)", "1920x1080 (1080p)",
-            "1280x720 (720p)", "854x480 (480p)", "自定义"
-        ])
+        self.resolution_combo.addItems(
+            [
+                "3840x2160 (4K)",
+                "2560x1440 (2K)",
+                "1920x1080 (1080p)",
+                "1280x720 (720p)",
+                "854x480 (480p)",
+                "自定义",
+            ]
+        )
 
         self.fps_spin = QSpinBox()
         self.fps_spin.setRange(1, 120)
@@ -101,7 +116,9 @@ class ExportSettingsDialog(QDialog):
 
         self.codec_params_edit = QTextEdit()
         self.codec_params_edit.setMaximumHeight(100)
-        self.codec_params_edit.setPlaceholderText("额外的编码参数，如: -crf 23 -preset medium")
+        self.codec_params_edit.setPlaceholderText(
+            "额外的编码参数，如: -crf 23 -preset medium"
+        )
 
         advanced_layout.addRow("编码参数:", self.codec_params_edit)
 
@@ -113,8 +130,7 @@ class ExportSettingsDialog(QDialog):
 
         # 对话框按钮
         buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok |
-            QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -150,5 +166,5 @@ class ExportSettingsDialog(QDialog):
             "bitrate": self.bitrate_spin.value(),
             "audio_bitrate": self.audio_bitrate_spin.value(),
             "fps": self.fps_spin.value(),
-            "codec_params": self.codec_params_edit.toPlainText()
+            "codec_params": self.codec_params_edit.toPlainText(),
         }

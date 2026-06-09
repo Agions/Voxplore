@@ -34,28 +34,18 @@ class LLMMemoryCache:
         self.access_order: list = []
 
     def _generate_key(
-        self,
-        messages: list,
-        model: str,
-        temperature: float | None = None
+        self, messages: list, model: str, temperature: float | None = None
     ) -> str:
         """生成缓存键"""
         # 创建包含所有参数的字符串
-        data = {
-            "messages": messages,
-            "model": model,
-            "temperature": temperature
-        }
+        data = {"messages": messages, "model": model, "temperature": temperature}
         data_str = json.dumps(data, sort_keys=True, ensure_ascii=False)
 
         # 使用 MD5 哈希生成键
         return hashlib.md5(data_str.encode()).hexdigest()
 
     def get(
-        self,
-        messages: list,
-        model: str,
-        temperature: float | None = None
+        self, messages: list, model: str, temperature: float | None = None
     ) -> str | None:
         """获取缓存响应"""
         key = self._generate_key(messages, model, temperature)
@@ -84,7 +74,7 @@ class LLMMemoryCache:
         messages: list,
         model: str,
         response: str,
-        temperature: float | None = None
+        temperature: float | None = None,
     ) -> None:
         """设置缓存"""
         key = self._generate_key(messages, model, temperature)
@@ -97,10 +87,7 @@ class LLMMemoryCache:
                     del self.cache[oldest_key]
 
         # 添加新条目
-        self.cache[key] = {
-            "response": response,
-            "timestamp": time.time()
-        }
+        self.cache[key] = {"response": response, "timestamp": time.time()}
         self.access_order.append(key)
 
     def clear(self) -> None:
@@ -110,11 +97,7 @@ class LLMMemoryCache:
 
     def get_stats(self) -> dict[str, int]:
         """获取缓存统计信息"""
-        return {
-            "size": len(self.cache),
-            "max_size": self.max_size,
-            "ttl": self.ttl
-        }
+        return {"size": len(self.cache), "max_size": self.max_size, "ttl": self.ttl}
 
 
 class LLMDiskCache:
@@ -125,7 +108,9 @@ class LLMDiskCache:
     使用 SQLite 作为底层存储，支持 TTL 过期和 LRU 淘汰。
     """
 
-    def __init__(self, cache_dir: str = ".llm_cache", max_size_mb: int = 500, ttl: int = 86400) -> None:
+    def __init__(
+        self, cache_dir: str = ".llm_cache", max_size_mb: int = 500, ttl: int = 86400
+    ) -> None:
         """
         初始化磁盘缓存
 
@@ -144,6 +129,7 @@ class LLMDiskCache:
     def _init_db(self) -> None:
         """初始化 SQLite 数据库"""
         import sqlite3
+
         conn = sqlite3.connect(str(self._db_path))
         cursor = conn.cursor()
         cursor.execute("""
@@ -160,27 +146,33 @@ class LLMDiskCache:
                 expires_at INTEGER
             )
         """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_expires ON responses(expires_at)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_expires ON responses(expires_at)"
+        )
         conn.commit()
         conn.close()
 
-    def _generate_key(self, messages: list, model: str, temperature: float | None = None) -> str:
+    def _generate_key(
+        self, messages: list, model: str, temperature: float | None = None
+    ) -> str:
         """生成缓存键"""
         data = {"messages": messages, "model": model, "temperature": temperature}
         data_str = json.dumps(data, sort_keys=True, ensure_ascii=False)
         return hashlib.md5(data_str.encode()).hexdigest()
 
-    def get(self, messages: list, model: str, temperature: float | None = None) -> dict | None:
+    def get(
+        self, messages: list, model: str, temperature: float | None = None
+    ) -> dict | None:
         """获取缓存响应"""
         key = self._generate_key(messages, model, temperature)
         import sqlite3
+
         conn = sqlite3.connect(str(self._db_path))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         now = int(time.time())
         cursor.execute(
-            "SELECT * FROM responses WHERE key=? AND expires_at>?",
-            (key, now)
+            "SELECT * FROM responses WHERE key=? AND expires_at>?", (key, now)
         )
         row = cursor.fetchone()
         conn.close()
@@ -196,20 +188,35 @@ class LLMDiskCache:
         temperature: float | None = None,
         provider: str = "",
         tokens_used: int = 0,
-        latency_ms: float = 0.0
+        latency_ms: float = 0.0,
     ) -> None:
         """设置缓存"""
         key = self._generate_key(messages, model, temperature)
         now = int(time.time())
         import sqlite3
+
         conn = sqlite3.connect(str(self._db_path))
         cursor = conn.cursor()
         prompt_preview = messages[-1]["content"][:100] if messages else ""
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO responses
             (key, provider, model, prompt_preview, temperature, content, tokens_used, latency_ms, created_at, expires_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (key, provider, model, prompt_preview, temperature, content, tokens_used, latency_ms, now, now + self.ttl))
+        """,
+            (
+                key,
+                provider,
+                model,
+                prompt_preview,
+                temperature,
+                content,
+                tokens_used,
+                latency_ms,
+                now,
+                now + self.ttl,
+            ),
+        )
         conn.commit()
         conn.close()
         self._cleanup_if_needed()
@@ -217,24 +224,32 @@ class LLMDiskCache:
     def _cleanup_if_needed(self) -> None:
         """检查并清理缓存大小"""
         import sqlite3
+
         db_size_mb = self._db_path.stat().st_size / (1024 * 1024)
         if db_size_mb > self.max_size_mb:
             conn = sqlite3.connect(str(self._db_path))
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM responses WHERE expires_at < ?", (int(time.time()),))
+            cursor.execute(
+                "DELETE FROM responses WHERE expires_at < ?", (int(time.time()),)
+            )
             conn.commit()
             conn.close()
             import sqlite3
+
             if self._db_path.stat().st_size / (1024 * 1024) > self.max_size_mb:
                 conn = sqlite3.connect(str(self._db_path))
                 cursor = conn.cursor()
-                cursor.execute("DELETE FROM responses WHERE key IN (SELECT key FROM responses ORDER BY created_at ASC LIMIT ?)", (100,))
+                cursor.execute(
+                    "DELETE FROM responses WHERE key IN (SELECT key FROM responses ORDER BY created_at ASC LIMIT ?)",
+                    (100,),
+                )
                 conn.commit()
                 conn.close()
 
     def clear_expired(self) -> int:
         """清理过期缓存，返回删除条目数"""
         import sqlite3
+
         conn = sqlite3.connect(str(self._db_path))
         cursor = conn.cursor()
         now = int(time.time())
@@ -247,10 +262,14 @@ class LLMDiskCache:
     def get_stats(self) -> dict[str, Any]:
         """获取缓存统计"""
         import sqlite3
+
         conn = sqlite3.connect(str(self._db_path))
         cursor = conn.cursor()
         now = int(time.time())
-        cursor.execute("SELECT COUNT(*), SUM(tokens_used) FROM responses WHERE expires_at>?", (now,))
+        cursor.execute(
+            "SELECT COUNT(*), SUM(tokens_used) FROM responses WHERE expires_at>?",
+            (now,),
+        )
         row = cursor.fetchone()
         conn.close()
         return {
@@ -269,7 +288,7 @@ class LLMRetryPolicy:
         max_retries: int = 3,
         base_delay: float = 1.0,
         max_delay: float = 60.0,
-        backoff_factor: float = 2.0
+        backoff_factor: float = 2.0,
     ) -> None:
         """
         初始化重试策略
@@ -295,14 +314,14 @@ class LLMRetryPolicy:
         Returns:
             延迟时间 (秒)
         """
-        delay = self.base_delay * (self.backoff_factor ** retry_count)
+        delay = self.base_delay * (self.backoff_factor**retry_count)
         return min(delay, self.max_delay)
 
 
 def with_retry(
     policy: LLMRetryPolicy | None = None,
     exceptions: tuple = (Exception,),
-    on_retry: Callable[[int, Exception], None] | None = None
+    on_retry: Callable[[int, Exception], None] | None = None,
 ):
     """
     装饰器: 为函数添加重试功能
@@ -344,6 +363,7 @@ def with_retry(
             raise last_exception
 
         return wrapper
+
     return decorator
 
 
@@ -358,14 +378,11 @@ class LLMPerformanceMonitor:
             "total_tokens": 0,
             "total_time": 0.0,
             "cache_hits": 0,
-            "cache_misses": 0
+            "cache_misses": 0,
         }
 
     def record_request(
-        self,
-        success: bool,
-        tokens: int | None = None,
-        time_taken: float | None = None
+        self, success: bool, tokens: int | None = None, time_taken: float | None = None
     ) -> None:
         """记录请求"""
         self.metrics["total_requests"] += 1
@@ -398,11 +415,15 @@ class LLMPerformanceMonitor:
 
         # 计算成功率
         if self.metrics["total_requests"] > 0:
-            stats["success_rate"] = self.metrics["successful_requests"] / self.metrics["total_requests"]
+            stats["success_rate"] = (
+                self.metrics["successful_requests"] / self.metrics["total_requests"]
+            )
 
         # 计算平均响应时间
         if self.metrics["successful_requests"] > 0:
-            stats["avg_response_time"] = self.metrics["total_time"] / self.metrics["successful_requests"]
+            stats["avg_response_time"] = (
+                self.metrics["total_time"] / self.metrics["successful_requests"]
+            )
         else:
             stats["avg_response_time"] = 0.0
 
@@ -433,7 +454,7 @@ class LLMPerformanceMonitor:
         logger.info(f"总 Token 数: {stats['total_tokens']}")
         logger.info(f"估计成本: ¥{stats['estimated_cost']:.2f}")
 
-        if stats['avg_response_time'] > 0:
+        if stats["avg_response_time"] > 0:
             logger.info(f"平均响应时间: {stats['avg_response_time']:.2f} 秒")
 
         logger.info("=" * 50)
@@ -447,7 +468,7 @@ class LLMPerformanceMonitor:
             "total_tokens": 0,
             "total_time": 0.0,
             "cache_hits": 0,
-            "cache_misses": 0
+            "cache_misses": 0,
         }
 
 

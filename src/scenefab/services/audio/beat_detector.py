@@ -24,9 +24,9 @@ _audio_executor = get_ffmpeg_executor()
 
 
 class BeatStrength(Enum):
-    STRONG = "strong"    # 强拍（1拍）
-    MEDIUM = "medium"    # 中拍（3拍，4/4拍中）
-    WEAK = "weak"        # 弱拍
+    STRONG = "strong"  # 强拍（1拍）
+    MEDIUM = "medium"  # 中拍（3拍，4/4拍中）
+    WEAK = "weak"  # 弱拍
 
 
 class MusicSection(Enum):
@@ -41,9 +41,10 @@ class MusicSection(Enum):
 @dataclass
 class BeatInfo:
     """单个节拍信息"""
-    timestamp: float          # 秒
+
+    timestamp: float  # 秒
     strength: BeatStrength
-    bar_position: int = 0     # 小节内位置 (1-4 for 4/4)
+    bar_position: int = 0  # 小节内位置 (1-4 for 4/4)
 
 
 @dataclass
@@ -53,25 +54,28 @@ class BeatSyncCutpoint:
 
     建议的剪辑时间点，基于节拍对齐
     """
-    timestamp: float          # 剪辑时间点
-    strength: BeatStrength   # 节拍强度
-    beat_position: int       # 在小节中的位置
+
+    timestamp: float  # 剪辑时间点
+    strength: BeatStrength  # 节拍强度
+    beat_position: int  # 在小节中的位置
     suggested_cut_before: bool = True  # 是否建议在此点前剪辑
-    energy: float = 0.0      # 该时刻的能量 (0-1)
+    energy: float = 0.0  # 该时刻的能量 (0-1)
 
 
 @dataclass
 class SectionInfo:
     """音乐段落"""
+
     start: float
     end: float
     section_type: MusicSection
-    energy: float = 0.0       # 平均能量 0-1
+    energy: float = 0.0  # 平均能量 0-1
 
 
 @dataclass
 class AudioAnalysisResult:
     """音频分析结果"""
+
     file_path: str
     duration: float
     sample_rate: int
@@ -90,7 +94,9 @@ class AudioAnalysisResult:
     sections: list[SectionInfo] = field(default_factory=list)
 
     # RMS 能量曲线（采样）
-    energy_curve: list[tuple[float, float]] = field(default_factory=list)  # (time, energy)
+    energy_curve: list[tuple[float, float]] = field(
+        default_factory=list
+    )  # (time, energy)
 
     # 频谱特征
     spectral_centroid_mean: float = 0.0  # 平均频谱质心（亮度感）
@@ -115,8 +121,9 @@ class BeatDetector:
     def __init__(self, hop_length: int = 512):
         self._hop_length = hop_length
 
-    def analyze(self, audio_path: str,
-                extract_sections: bool = True) -> AudioAnalysisResult:
+    def analyze(
+        self, audio_path: str, extract_sections: bool = True
+    ) -> AudioAnalysisResult:
         """
         分析音频
 
@@ -128,9 +135,7 @@ class BeatDetector:
             import librosa
             import numpy as np
         except ImportError:
-            raise ImportError(
-                "需要安装 librosa: pip install librosa soundfile"
-            )
+            raise ImportError("需要安装 librosa: pip install librosa soundfile")
 
         path = Path(audio_path)
         if not path.exists():
@@ -151,7 +156,7 @@ class BeatDetector:
             y=y, sr=sr, hop_length=self._hop_length
         )
         # librosa 0.10+ 返回数组
-        if hasattr(tempo, '__len__'):
+        if hasattr(tempo, "__len__"):
             result.bpm = float(tempo[0]) if len(tempo) > 0 else 0.0
         else:
             result.bpm = float(tempo)
@@ -170,18 +175,21 @@ class BeatDetector:
             else:
                 strength = BeatStrength.WEAK
 
-            result.beats.append(BeatInfo(
-                timestamp=float(t),
-                strength=strength,
-                bar_position=bar_pos,
-            ))
+            result.beats.append(
+                BeatInfo(
+                    timestamp=float(t),
+                    strength=strength,
+                    bar_position=bar_pos,
+                )
+            )
 
         # 2. Onset detection（音频能量突变点）
         onset_frames = librosa.onset.onset_detect(
             y=y, sr=sr, hop_length=self._hop_length
         )
         result.onsets = [
-            float(t) for t in librosa.frames_to_time(
+            float(t)
+            for t in librosa.frames_to_time(
                 onset_frames, sr=sr, hop_length=self._hop_length
             )
         ]
@@ -194,8 +202,7 @@ class BeatDetector:
         # 降采样到约每秒 4 个点
         step = max(1, len(rms) // int(duration * 4))
         result.energy_curve = [
-            (float(rms_times[i]), float(rms[i]))
-            for i in range(0, len(rms), step)
+            (float(rms_times[i]), float(rms[i])) for i in range(0, len(rms), step)
         ]
 
         # 4. 频谱质心（音色亮度）
@@ -223,9 +230,7 @@ class BeatDetector:
         import numpy as np
 
         # 使用 MFCC 的自相似矩阵做结构分割
-        mfcc = librosa.feature.mfcc(
-            y=y, sr=sr, n_mfcc=13, hop_length=self._hop_length
-        )
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, hop_length=self._hop_length)
 
         try:
             # 结构边界检测
@@ -239,8 +244,7 @@ class BeatDetector:
             # 降级：简单按时间等分
             logger.warning(f"librosa.segment.agglomerative 失败: {e}，回退到时间等分")
             n_sections = max(2, int(duration / 30))
-            bound_times = [i * duration / n_sections
-                          for i in range(1, n_sections)]
+            bound_times = [i * duration / n_sections for i in range(1, n_sections)]
 
         # 构建段落
         sections = []
@@ -271,12 +275,14 @@ class BeatDetector:
             else:
                 section_type = MusicSection.VERSE
 
-            sections.append(SectionInfo(
-                start=start,
-                end=end,
-                section_type=section_type,
-                energy=seg_energy,
-            ))
+            sections.append(
+                SectionInfo(
+                    start=start,
+                    end=end,
+                    section_type=section_type,
+                    energy=seg_energy,
+                )
+            )
 
         return sections
 
@@ -374,13 +380,15 @@ class BeatDetector:
 
         # 段落摘要
         for section in result.sections:
-            report["sections_summary"].append({
-                "type": section.section_type.value,
-                "start": section.start,
-                "end": section.end,
-                "duration": section.end - section.start,
-                "energy": section.energy,
-            })
+            report["sections_summary"].append(
+                {
+                    "type": section.section_type.value,
+                    "start": section.start,
+                    "end": section.end,
+                    "duration": section.end - section.start,
+                    "energy": section.energy,
+                }
+            )
 
         # 能量分析
         if result.energy_curve:
@@ -393,17 +401,26 @@ class BeatDetector:
 
         return report
 
-    def extract_audio_from_video(self, video_path: str,
-                                  output_path: str | None = None) -> str:
+    def extract_audio_from_video(
+        self, video_path: str, output_path: str | None = None
+    ) -> str:
         """从视频中提取音频"""
         if output_path is None:
-            output_path = str(Path(video_path).with_suffix('.wav'))
+            output_path = str(Path(video_path).with_suffix(".wav"))
 
         cmd = [
-            'ffmpeg', '-y', '-i', video_path,
-            '-vn', '-acodec', 'pcm_s16le',
-            '-ar', '22050', '-ac', '1',
-            output_path
+            "ffmpeg",
+            "-y",
+            "-i",
+            video_path,
+            "-vn",
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            "22050",
+            "-ac",
+            "1",
+            output_path,
         ]
         _audio_executor.run(cmd, timeout=120)
         return output_path

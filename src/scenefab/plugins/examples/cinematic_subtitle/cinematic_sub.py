@@ -33,11 +33,11 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
                 "type": "select",
                 "default": "cinematic",
                 "choices": [
-                    "cinematic",        # 电影黑底白字
-                    "cinematic_intense", # 情绪版带颜色
-                    "minimal",          # 极简透明底
-                    "narration_only",   # 仅解说
-                    "bilingual",        # 双语字幕
+                    "cinematic",  # 电影黑底白字
+                    "cinematic_intense",  # 情绪版带颜色
+                    "minimal",  # 极简透明底
+                    "narration_only",  # 仅解说
+                    "bilingual",  # 双语字幕
                 ],
                 "description": "字幕样式风格",
             },
@@ -135,13 +135,15 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         """生成 ASS 字幕内容"""
 
         # 风格参数映射
-        style_params = self._get_style_params(style, font_size, primary_color, outline_color, outline_width, shadow)
+        style_params = self._get_style_params(
+            style, font_size, primary_color, outline_color, outline_width, shadow
+        )
 
         # 位置映射
         alignment = {
-            "bottom": 2,   # 底部居中
-            "center": 5,   # 居中
-            "top": 8,      # 顶部居中
+            "bottom": 2,  # 底部居中
+            "center": 5,  # 居中
+            "top": 8,  # 顶部居中
         }.get(position, 2)
 
         lines = []
@@ -155,7 +157,9 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         lines.append("")
 
         lines.append("[V4+ Styles]")
-        lines.append("Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding")
+        lines.append(
+            "Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding"
+        )
 
         # 主字幕样式
         style_line = (
@@ -180,7 +184,7 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
                 f"Style: Intense,"
                 f"{style_params['font_name']},"
                 f"{font_size},"
-                f"&H00FFDD44,"   # 金色
+                f"&H00FFDD44,"  # 金色
                 f"&H00000000,"
                 f"&H00000000,"
                 f"0,0,0,0,100,100,0,0,"
@@ -193,7 +197,9 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
         lines.append("")
 
         lines.append("[Events]")
-        lines.append("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text")
+        lines.append(
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
+        )
 
         for sub in subtitles:
             start = sub.get("start", 0.0)
@@ -206,7 +212,12 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
             end_ass = self._format_time_ass(end)
 
             # 选择样式
-            sub_style = "Intense" if style == "cinematic_intense" and emotion in ("suspense", "motivational") else "Default"
+            sub_style = (
+                "Intense"
+                if style == "cinematic_intense"
+                and emotion in ("suspense", "motivational")
+                else "Default"
+            )
 
             # 处理特殊符号
             text = text.replace("\\n", "\\N")
@@ -264,10 +275,22 @@ class CinematicSubtitlePlugin(BaseExportPlugin):
             "description": "电影感 ASS 字幕生成，支持多种预设样式",
             "author": self.manifest.author,
             "styles": [
-                {"id": "cinematic", "name": "电影黑底白字", "description": "经典电影字幕风格"},
-                {"id": "cinematic_intense", "name": "情绪版", "description": "关键场景带颜色高亮"},
+                {
+                    "id": "cinematic",
+                    "name": "电影黑底白字",
+                    "description": "经典电影字幕风格",
+                },
+                {
+                    "id": "cinematic_intense",
+                    "name": "情绪版",
+                    "description": "关键场景带颜色高亮",
+                },
                 {"id": "minimal", "name": "极简透明底", "description": "纯文字无背景"},
-                {"id": "bilingual", "name": "双语字幕", "description": "中英双语上下排列"},
+                {
+                    "id": "bilingual",
+                    "name": "双语字幕",
+                    "description": "中英双语上下排列",
+                },
             ],
             "features": [
                 "ASS 格式支持",

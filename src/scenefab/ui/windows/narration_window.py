@@ -2,6 +2,7 @@
 配音编辑窗口(Step 3)
 AI 生成解说词 + 情感控制 + 预览
 """
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -58,7 +59,9 @@ class NarrationWindow(BaseStepWindow):
         left.addWidget(editor_label)
 
         self.text_editor = QTextEdit()
-        self.text_editor.setPlaceholderText("AI 将根据场景自动生成解说词...\n\n或者直接在此输入自定义解说词")
+        self.text_editor.setPlaceholderText(
+            "AI 将根据场景自动生成解说词...\n\n或者直接在此输入自定义解说词"
+        )
         self.text_editor.setObjectName("narration_editor")
         self.text_editor.setFont(QFont("Inter", 14))
         self.text_editor.setMinimumHeight(200)
@@ -85,7 +88,7 @@ class NarrationWindow(BaseStepWindow):
         self.emotion_combo.addItems(emotions)
         self.emotion_combo.setObjectName("emotion_combo")
         self.emotion_combo.currentTextChanged.connect(
-            lambda t: setattr(self, '_emotion', t)
+            lambda t: setattr(self, "_emotion", t)
         )
         emotion_layout.addWidget(self.emotion_combo)
 
@@ -185,6 +188,7 @@ class NarrationWindow(BaseStepWindow):
     def _preview_audio(self):
         """预览配音(模拟)"""
         from PySide6.QtWidgets import QMessageBox
+
         QMessageBox.information(self, "预览", "配音预览功能开发中...")
 
     def _generate_tts(self):
@@ -195,6 +199,7 @@ class NarrationWindow(BaseStepWindow):
 
         # 模拟进度
         import time
+
         for i in range(0, 101, 5):
             self.tts_progress.setValue(i)
             self.tts_label.setText(f"生成中... {i}%")

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Beat Detector"""
 
-
 from scenefab.services.audio.beat_detector import (
     AudioAnalysisResult,
     BeatDetector,

@@ -24,11 +24,11 @@ class FeedbackAnalyzer:
 
     # 完播率基准线（各时长段）
     COMPLETION_BENCHMARKS = {
-        (0, 30): 0.60,    # 30秒内，完播率基准 60%
-        (30, 60): 0.45,   # 30-60秒，基准 45%
+        (0, 30): 0.60,  # 30秒内，完播率基准 60%
+        (30, 60): 0.45,  # 30-60秒，基准 45%
         (60, 120): 0.30,  # 1-2分钟，基准 30%
-        (120, 300): 0.20, # 2-5分钟，基准 20%
-        (300, 600): 0.12, # 5-10分钟，基准 12%
+        (120, 300): 0.20,  # 2-5分钟，基准 20%
+        (300, 600): 0.12,  # 5-10分钟，基准 12%
     }
 
     # 效果等级阈值
@@ -73,25 +73,33 @@ class FeedbackAnalyzer:
         correlations = []
         for hook in hook_stats:
             avg_views = hook["avg_views"]
-            percentile = (all_avg_views.index(avg_views) + 1) / len(all_avg_views) if all_avg_views else 0
+            percentile = (
+                (all_avg_views.index(avg_views) + 1) / len(all_avg_views)
+                if all_avg_views
+                else 0
+            )
 
-            correlations.append(ContentFeatureCorrelation(
-                feature_name="hook_type",
-                feature_value=hook["hook_type"],
-                metric=MetricType.VIEWS,
-                avg_value=avg_views,
-                sample_count=hook["count"],
-                percentile=round(percentile, 2),
-            ))
+            correlations.append(
+                ContentFeatureCorrelation(
+                    feature_name="hook_type",
+                    feature_value=hook["hook_type"],
+                    metric=MetricType.VIEWS,
+                    avg_value=avg_views,
+                    sample_count=hook["count"],
+                    percentile=round(percentile, 2),
+                )
+            )
 
-            correlations.append(ContentFeatureCorrelation(
-                feature_name="hook_type",
-                feature_value=hook["hook_type"],
-                metric=MetricType.COMPLETION_RATE,
-                avg_value=hook["avg_completion_rate"],
-                sample_count=hook["count"],
-                percentile=0,  # 简化处理
-            ))
+            correlations.append(
+                ContentFeatureCorrelation(
+                    feature_name="hook_type",
+                    feature_value=hook["hook_type"],
+                    metric=MetricType.COMPLETION_RATE,
+                    avg_value=hook["avg_completion_rate"],
+                    sample_count=hook["count"],
+                    percentile=0,  # 简化处理
+                )
+            )
 
         return correlations
 
@@ -108,7 +116,11 @@ class FeedbackAnalyzer:
 
         # 按时长分组
         duration_buckets: dict[str, list[VideoMetrics]] = {
-            "<30s": [], "30-60s": [], "1-2min": [], "2-5min": [], ">5min": [],
+            "<30s": [],
+            "30-60s": [],
+            "1-2min": [],
+            "2-5min": [],
+            ">5min": [],
         }
 
         for m in metrics:
@@ -129,25 +141,31 @@ class FeedbackAnalyzer:
                 continue
 
             avg_views = sum(m.views for m in bucket_metrics) / len(bucket_metrics)
-            avg_completion = sum(m.completion_rate for m in bucket_metrics) / len(bucket_metrics)
+            avg_completion = sum(m.completion_rate for m in bucket_metrics) / len(
+                bucket_metrics
+            )
 
-            correlations.append(ContentFeatureCorrelation(
-                feature_name="duration_range",
-                feature_value=bucket_name,
-                metric=MetricType.VIEWS,
-                avg_value=avg_views,
-                sample_count=len(bucket_metrics),
-                percentile=0,
-            ))
+            correlations.append(
+                ContentFeatureCorrelation(
+                    feature_name="duration_range",
+                    feature_value=bucket_name,
+                    metric=MetricType.VIEWS,
+                    avg_value=avg_views,
+                    sample_count=len(bucket_metrics),
+                    percentile=0,
+                )
+            )
 
-            correlations.append(ContentFeatureCorrelation(
-                feature_name="duration_range",
-                feature_value=bucket_name,
-                metric=MetricType.COMPLETION_RATE,
-                avg_value=avg_completion,
-                sample_count=len(bucket_metrics),
-                percentile=0,
-            ))
+            correlations.append(
+                ContentFeatureCorrelation(
+                    feature_name="duration_range",
+                    feature_value=bucket_name,
+                    metric=MetricType.COMPLETION_RATE,
+                    avg_value=avg_completion,
+                    sample_count=len(bucket_metrics),
+                    percentile=0,
+                )
+            )
 
         return correlations
 
@@ -169,66 +187,79 @@ class FeedbackAnalyzer:
 
             if best_hook["hook_type"] != worst_hook["hook_type"]:
                 improvement = (
-                    (best_hook["avg_views"] - worst_hook["avg_views"])
-                    / worst_hook["avg_views"] * 100
-                ) if worst_hook["avg_views"] > 0 else 0
+                    (
+                        (best_hook["avg_views"] - worst_hook["avg_views"])
+                        / worst_hook["avg_views"]
+                        * 100
+                    )
+                    if worst_hook["avg_views"] > 0
+                    else 0
+                )
 
-                insights.append(PerformanceInsight(
-                    insight_type="hook_best",
-                    title="最佳钩子类型",
-                    description=(
-                        f"「{best_hook['hook_type']}」类型的平均播放量 "
-                        f"({best_hook['avg_views']:.0f}) 显著高于 "
-                        f"「{worst_hook['hook_type']}」({worst_hook['avg_views']:.0f})，"
-                        f"提升 {improvement:.1f}%"
-                    ),
-                    confidence=min(0.9, best_hook["count"] / 30),
-                    data_points=best_hook["count"],
-                    recommendation=f"建议优先使用「{best_hook['hook_type']}」类型的开头钩子",
-                    related_metrics={
-                        "avg_views": best_hook["avg_views"],
-                        "avg_completion_rate": best_hook["avg_completion_rate"],
-                    },
-                ))
+                insights.append(
+                    PerformanceInsight(
+                        insight_type="hook_best",
+                        title="最佳钩子类型",
+                        description=(
+                            f"「{best_hook['hook_type']}」类型的平均播放量 "
+                            f"({best_hook['avg_views']:.0f}) 显著高于 "
+                            f"「{worst_hook['hook_type']}」({worst_hook['avg_views']:.0f})，"
+                            f"提升 {improvement:.1f}%"
+                        ),
+                        confidence=min(0.9, best_hook["count"] / 30),
+                        data_points=best_hook["count"],
+                        recommendation=f"建议优先使用「{best_hook['hook_type']}」类型的开头钩子",
+                        related_metrics={
+                            "avg_views": best_hook["avg_views"],
+                            "avg_completion_rate": best_hook["avg_completion_rate"],
+                        },
+                    )
+                )
 
         # 2. 完播率分析
         avg_completion = stats.get("avg_completion_rate", 0)
         if avg_completion > 0:
             if avg_completion < 0.25:
-                insights.append(PerformanceInsight(
-                    insight_type="completion_low",
-                    title="完播率偏低",
-                    description=f"近 {days} 天平均完播率仅 {avg_completion*100:.1f}%，低于行业基准",
-                    confidence=0.8,
-                    data_points=stats["total_videos"],
-                    recommendation="建议优化开头吸引力，缩短无效内容，增加转折点密度",
-                ))
+                insights.append(
+                    PerformanceInsight(
+                        insight_type="completion_low",
+                        title="完播率偏低",
+                        description=f"近 {days} 天平均完播率仅 {avg_completion * 100:.1f}%，低于行业基准",
+                        confidence=0.8,
+                        data_points=stats["total_videos"],
+                        recommendation="建议优化开头吸引力，缩短无效内容，增加转折点密度",
+                    )
+                )
             elif avg_completion > 0.45:
-                insights.append(PerformanceInsight(
-                    insight_type="completion_high",
-                    title="完播率优秀",
-                    description=f"近 {days} 天平均完播率 {avg_completion*100:.1f}%，表现优秀",
-                    confidence=0.8,
-                    data_points=stats["total_videos"],
-                    recommendation="当前内容节奏良好，可尝试增加视频时长以提升总播放时长",
-                ))
+                insights.append(
+                    PerformanceInsight(
+                        insight_type="completion_high",
+                        title="完播率优秀",
+                        description=f"近 {days} 天平均完播率 {avg_completion * 100:.1f}%，表现优秀",
+                        confidence=0.8,
+                        data_points=stats["total_videos"],
+                        recommendation="当前内容节奏良好，可尝试增加视频时长以提升总播放时长",
+                    )
+                )
 
         # 3. 平台差异分析
         platform_stats = stats.get("platform_stats", [])
         if len(platform_stats) >= 2:
             best_platform = max(platform_stats, key=lambda p: p["avg_completion_rate"])
-            insights.append(PerformanceInsight(
-                insight_type="platform_best",
-                title="最佳表现平台",
-                description=(
-                    f"「{best_platform['platform']}」平台的完播率最高 "
-                    f"({best_platform['avg_completion_rate']*100:.1f}%)，"
-                    f"共 {best_platform['count']} 个视频"
-                ),
-                confidence=0.7,
-                data_points=best_platform["count"],
-                recommendation=f"建议在「{best_platform['platform']}」平台加大投放力度",
-            ))
+            insights.append(
+                PerformanceInsight(
+                    insight_type="platform_best",
+                    title="最佳表现平台",
+                    description=(
+                        f"「{best_platform['platform']}」平台的完播率最高 "
+                        f"({best_platform['avg_completion_rate'] * 100:.1f}%)，"
+                        f"共 {best_platform['count']} 个视频"
+                    ),
+                    confidence=0.7,
+                    data_points=best_platform["count"],
+                    recommendation=f"建议在「{best_platform['platform']}」平台加大投放力度",
+                )
+            )
 
         # 4. 互动率分析
         total_views = stats.get("total_views", 0)
@@ -240,24 +271,28 @@ class FeedbackAnalyzer:
             comment_rate = total_comments / total_views
 
             if like_rate < 0.02:
-                insights.append(PerformanceInsight(
-                    insight_type="engagement_low",
-                    title="互动率偏低",
-                    description=f"点赞率仅 {like_rate*100:.2f}%，低于 2% 基准线",
-                    confidence=0.7,
-                    data_points=stats["total_videos"],
-                    recommendation="建议在视频中增加情感共鸣点和互动引导",
-                ))
+                insights.append(
+                    PerformanceInsight(
+                        insight_type="engagement_low",
+                        title="互动率偏低",
+                        description=f"点赞率仅 {like_rate * 100:.2f}%，低于 2% 基准线",
+                        confidence=0.7,
+                        data_points=stats["total_videos"],
+                        recommendation="建议在视频中增加情感共鸣点和互动引导",
+                    )
+                )
 
             if comment_rate > 0.01:
-                insights.append(PerformanceInsight(
-                    insight_type="comments_high",
-                    title="评论互动活跃",
-                    description=f"评论率 {comment_rate*100:.2f}%，用户参与度高",
-                    confidence=0.7,
-                    data_points=stats["total_videos"],
-                    recommendation="建议在评论区置顶引导性评论，增加二次传播",
-                ))
+                insights.append(
+                    PerformanceInsight(
+                        insight_type="comments_high",
+                        title="评论互动活跃",
+                        description=f"评论率 {comment_rate * 100:.2f}%，用户参与度高",
+                        confidence=0.7,
+                        data_points=stats["total_videos"],
+                        recommendation="建议在评论区置顶引导性评论，增加二次传播",
+                    )
+                )
 
         return insights
 
@@ -277,12 +312,18 @@ class FeedbackAnalyzer:
         # 补充通用建议
         stats = self.store.get_aggregated_stats(days=days)
         if stats["total_videos"] < 10:
-            suggestions.append("样本量不足（<10个视频），建议积累更多数据后再做深度分析")
+            suggestions.append(
+                "样本量不足（<10个视频），建议积累更多数据后再做深度分析"
+            )
 
         avg_duration = stats.get("avg_duration", 0)
         if avg_duration > 180:
-            suggestions.append(f"平均时长 {avg_duration:.0f}s 偏长，建议控制在 2-3 分钟内提升完播率")
+            suggestions.append(
+                f"平均时长 {avg_duration:.0f}s 偏长，建议控制在 2-3 分钟内提升完播率"
+            )
         elif avg_duration < 30:
-            suggestions.append(f"平均时长 {avg_duration:.0f}s 偏短，可尝试 60-90 秒的中等时长")
+            suggestions.append(
+                f"平均时长 {avg_duration:.0f}s 偏短，可尝试 60-90 秒的中等时长"
+            )
 
         return suggestions

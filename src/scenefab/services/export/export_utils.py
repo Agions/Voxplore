@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 # ========== 时间处理工具 ==========
 
+
 def seconds_to_microseconds(seconds: float) -> int:
     """秒转微秒"""
     return int(seconds * 1_000_000)
@@ -48,15 +49,17 @@ def safe_filename(name: str) -> str:
     """生成安全的文件名"""
     invalid_chars = '<>:"/\\|?*'
     for char in invalid_chars:
-        name = name.replace(char, '_')
+        name = name.replace(char, "_")
     return name.strip()
 
 
 # ========== 基础数据模型 ==========
 
+
 @dataclass
 class BaseTrack:
     """轨道基类"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     type: str = "video"  # video, audio, text
 
@@ -64,16 +67,18 @@ class BaseTrack:
 @dataclass
 class BaseSegment:
     """片段基类"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     material_id: str = ""
-    start: float = 0.0      # 目标开始时间（秒）
-    duration: float = 0.0   # 持续时间（秒）
+    start: float = 0.0  # 目标开始时间（秒）
+    duration: float = 0.0  # 持续时间（秒）
     source_start: float = 0.0  # 源开始时间
 
 
 @dataclass
 class BaseMaterial:
     """素材基类"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     path: str = ""
     duration: float = 0.0  # 秒
@@ -82,6 +87,7 @@ class BaseMaterial:
 @dataclass
 class BaseProject:
     """项目基类"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "Untitled Project"
     duration: float = 0.0  # 总时长（秒）
@@ -92,9 +98,11 @@ class BaseProject:
 
 # ========== 配置基类 ==========
 
+
 @dataclass
 class ExporterConfig:
     """导出配置基类"""
+
     copy_materials: bool = True
     output_dir: str = "."
 
@@ -137,15 +145,18 @@ class BaseExporter(ABC, Generic[T, C]):
 
     def _get_output_path(self, output_dir: str, name: str, extension: str) -> Path:
         """获取输出文件路径"""
-        return self._ensure_output_dir(output_dir) / f"{safe_filename(name)}.{extension}"
+        return (
+            self._ensure_output_dir(output_dir) / f"{safe_filename(name)}.{extension}"
+        )
 
     def _write_json(self, path: Path, data: dict, indent: int = 2) -> None:
         """写入 JSON 文件"""
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=indent)
 
 
 # ========== 便捷工具函数 ==========
+
 
 def get_video_duration(video_path: str) -> float:
     """获取视频时长（秒）"""
@@ -183,7 +194,6 @@ __all__ = [
     "get_video_duration",
     "get_video_resolution",
     "copy_material_to_folder",
-
     # 基础类
     "BaseTrack",
     "BaseSegment",

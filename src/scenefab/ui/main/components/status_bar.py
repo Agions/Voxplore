@@ -2,7 +2,6 @@
 状态栏组件 - 显示应用程序状态信息
 """
 
-
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QLabel, QProgressBar, QStatusBar
 
@@ -157,7 +156,10 @@ class StatusBar(QStatusBar, ThemeAwareMixin):
         """设置永久消息"""
         # 移除现有永久消息
         for widget in self.permanent_widgets:
-            if isinstance(widget, QLabel) and widget not in [self.project_label, self.memory_label]:
+            if isinstance(widget, QLabel) and widget not in [
+                self.project_label,
+                self.memory_label,
+            ]:
                 self.removeWidget(widget)
                 widget.deleteLater()
 
@@ -236,7 +238,11 @@ class StatusBar(QStatusBar, ThemeAwareMixin):
         """返回主题样式表"""
         bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
         text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
-        secondary = ThemeColors.TEXT_SECONDARY_DARK if is_dark else ThemeColors.TEXT_SECONDARY_LIGHT
+        secondary = (
+            ThemeColors.TEXT_SECONDARY_DARK
+            if is_dark
+            else ThemeColors.TEXT_SECONDARY_LIGHT
+        )
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
         return f"""
             QStatusBar {{

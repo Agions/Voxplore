@@ -54,7 +54,7 @@ class SceneFabError(Exception):
         code: ErrorCode,
         message: str,
         details: dict[str, Any] | None = None,
-        hint: str | None = None
+        hint: str | None = None,
     ):
         self.code = code
         self.message = message
@@ -83,7 +83,7 @@ class LLMError(SceneFabError):
         message: str,
         provider: str | None = None,
         model: str | None = None,
-        details: dict[str, Any] | None = None
+        details: dict[str, Any] | None = None,
     ):
         code = ErrorCode.LLM_API_ERROR
         hint = None
@@ -107,26 +107,22 @@ class LLMError(SceneFabError):
             if model:
                 details["model"] = model
 
-        super().__init__(
-            code=code,
-            message=message,
-            details=details,
-            hint=hint
-        )
+        super().__init__(code=code, message=message, details=details, hint=hint)
 
 
 class ConfigError(SceneFabError):
     """配置错误"""
 
     def __init__(self, message: str, key: str | None = None):
-        code = ErrorCode.CONFIG_MISSING if "未设置" in message else ErrorCode.CONFIG_INVALID
+        code = (
+            ErrorCode.CONFIG_MISSING
+            if "未设置" in message
+            else ErrorCode.CONFIG_INVALID
+        )
         hint = "请检查配置文件 config/llm.yaml" if key else None
 
         super().__init__(
-            code=code,
-            message=message,
-            details={"key": key} if key else None,
-            hint=hint
+            code=code, message=message, details={"key": key} if key else None, hint=hint
         )
 
 
@@ -134,10 +130,7 @@ class FileError(SceneFabError):
     """文件操作错误"""
 
     def __init__(
-        self,
-        message: str,
-        path: str | None = None,
-        operation: str | None = None
+        self, message: str, path: str | None = None, operation: str | None = None
     ):
         code = ErrorCode.FILE_NOT_FOUND
         hint = None
@@ -153,8 +146,10 @@ class FileError(SceneFabError):
         super().__init__(
             code=code,
             message=message,
-            details={"path": path, "operation": operation} if (path or operation) else None,
-            hint=hint
+            details={"path": path, "operation": operation}
+            if (path or operation)
+            else None,
+            hint=hint,
         )
 
 
@@ -181,12 +176,7 @@ class VideoError(SceneFabError):
         if format:
             details["format"] = format
 
-        super().__init__(
-            code=code,
-            message=message,
-            details=details or None,
-            hint=hint
-        )
+        super().__init__(code=code, message=message, details=details or None, hint=hint)
 
 
 class TTSError(SceneFabError):
@@ -199,7 +189,7 @@ class TTSError(SceneFabError):
             code=ErrorCode.TTS_ERROR,
             message=message,
             details={"voice": voice} if voice else None,
-            hint=hint
+            hint=hint,
         )
 
 
@@ -213,7 +203,7 @@ class NetworkError(SceneFabError):
             code=ErrorCode.NETWORK_ERROR,
             message=message,
             details={"url": url} if url else None,
-            hint=hint
+            hint=hint,
         )
 
 
@@ -293,7 +283,7 @@ class SecurityError(SceneFabError):
             code=ErrorCode.FILE_NOT_FOUND,
             message=message,
             details={"path": path} if path else None,
-            hint="请检查文件路径是否合法"
+            hint="请检查文件路径是否合法",
         )
 
 
@@ -346,7 +336,9 @@ class ProjectError(SceneFabError):
             details={
                 "project_id": project_id,
                 "operation": operation,
-            } if project_id or operation else None,
+            }
+            if project_id or operation
+            else None,
             hint=hint,
         )
 
@@ -356,6 +348,7 @@ class ProjectError(SceneFabError):
 # =============================================================================
 class ServiceError(SceneFabError):
     """服务层错误基类"""
+
     pass
 
 
@@ -464,6 +457,7 @@ def get_error_hint(code: ErrorCode) -> str:
     }
 
     return hints.get(code, "请查看日志获取更多信息")
+
 
 __all__ = [
     "ErrorCode",

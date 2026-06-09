@@ -12,6 +12,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class SubtitleItem:
     """字幕项"""
+
     text: str
     start_time: float
     end_time: float
@@ -40,6 +41,7 @@ class SubtitleItem:
 @dataclass(slots=True)
 class AudioTrack:
     """音频轨道"""
+
     audio_path: str
     duration: float
     voice: str = "zh-CN-XiaoxiaoNeural"

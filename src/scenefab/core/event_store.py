@@ -94,7 +94,9 @@ class EventStore(ABC):
     def replay_to(self, bus: Any, *, since_event_id: str | None = None) -> int:
         """重放事件到事件总线（v2.1）"""
         records = (
-            self.events_after(since_event_id) if since_event_id else self.query(limit=100000)
+            self.events_after(since_event_id)
+            if since_event_id
+            else self.query(limit=100000)
         )
         for r in records:
             try:
@@ -188,7 +190,9 @@ class InMemoryEventStore(EventStore):
 class SQLiteEventStore(EventStore):
     """SQLite 事件存储（v2.1 - 持久化，支持大事件量）"""
 
-    def __init__(self, db_path: str | Path = "~/.cache/scenefab/event_store.db") -> None:
+    def __init__(
+        self, db_path: str | Path = "~/.cache/scenefab/event_store.db"
+    ) -> None:
         self._db_path = Path(db_path).expanduser()
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
@@ -208,9 +212,15 @@ class SQLiteEventStore(EventStore):
                     created_at REAL NOT NULL
                 )
             """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_events_corr ON events(correlation_id)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_events_ts ON events(timestamp)")
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_events_corr ON events(correlation_id)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_events_ts ON events(timestamp)"
+            )
             conn.commit()
 
     @contextmanager
@@ -339,7 +349,9 @@ def create_event_store(backend: str = "memory", **kwargs: Any) -> EventStore:
     if backend in ("memory", "inmemory"):
         return InMemoryEventStore()
     if backend in ("sqlite",):
-        return SQLiteEventStore(kwargs.get("db_path", "~/.cache/scenefab/event_store.db"))
+        return SQLiteEventStore(
+            kwargs.get("db_path", "~/.cache/scenefab/event_store.db")
+        )
     raise ValueError(f"Unknown event store backend: {backend}")
 
 
@@ -379,6 +391,7 @@ def install_event_store_into_bus(bus: Any, store: EventStore) -> None:
         store = SQLiteEventStore(...)
         install_event_store_into_bus(get_event_bus(), store)
     """
+
     # 在 bus 的 publish_event / publish 里 hook。简单实现：注册一个 wildcard handler，
     # 但这样会写两遍。更干净的方案：直接在 bus 内部用 store。当前 v2.1 用
     # "publish_event hook" 方式（handler 写 store）。

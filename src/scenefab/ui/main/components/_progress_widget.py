@@ -51,8 +51,10 @@ class ExportProgressWidget(QWidget):
 
         # 状态标签
         status_label = QLabel(self.task.status.value)
-        status_label.setStyleSheet(f"background-color: {self._get_status_color()}; "
-                                  f"color: white; padding: 2px 8px; border-radius: 4px;")
+        status_label.setStyleSheet(
+            f"background-color: {self._get_status_color()}; "
+            f"color: white; padding: 2px 8px; border-radius: 4px;"
+        )
 
         info_layout.addWidget(name_label)
         info_layout.addStretch()
@@ -67,7 +69,11 @@ class ExportProgressWidget(QWidget):
         details_layout = QHBoxLayout()
 
         # 开始时间
-        start_time_text = self._format_time(self.task.started_at) if self.task.started_at else "未开始"
+        start_time_text = (
+            self._format_time(self.task.started_at)
+            if self.task.started_at
+            else "未开始"
+        )
         start_label = QLabel(f"开始: {start_time_text}")
 
         # 预计剩余时间
@@ -89,8 +95,10 @@ class ExportProgressWidget(QWidget):
         # 错误信息
         if self.task.status == ExportStatus.FAILED and self.task.error_message:
             error_label = QLabel(f"错误: {self.task.error_message}")
-            error_label.setStyleSheet(f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
-                                   "padding: 5px; border-radius: 3px;")
+            error_label.setStyleSheet(
+                f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
+                "padding: 5px; border-radius: 3px;"
+            )
             error_label.setWordWrap(True)
             layout.addWidget(error_label)
 
@@ -127,7 +135,11 @@ class ExportProgressWidget(QWidget):
                     if isinstance(sub_item.widget(), QLabel):
                         label = sub_item.widget()
                         if "开始:" in label.text():
-                            start_time_text = self._format_time(self.task.started_at) if self.task.started_at else "未开始"
+                            start_time_text = (
+                                self._format_time(self.task.started_at)
+                                if self.task.started_at
+                                else "未开始"
+                            )
                             label.setText(f"开始: {start_time_text}")
                         elif "剩余:" in label.text():
                             eta_text = self._calculate_eta()
@@ -151,7 +163,7 @@ class ExportProgressWidget(QWidget):
             ExportStatus.PROCESSING: Colors.Primary,
             ExportStatus.COMPLETED: Colors.Success,
             ExportStatus.FAILED: Colors.Error,
-            ExportStatus.CANCELLED: Colors.TextMuted
+            ExportStatus.CANCELLED: Colors.TextMuted,
         }
         return colors.get(self.task.status, Colors.TextMuted)
 
@@ -190,5 +202,3 @@ class ExportProgressWidget(QWidget):
             hours = int(seconds // 3600)
             minutes = int((seconds % 3600) // 60)
             return f"{hours}小时{minutes}分"
-
-

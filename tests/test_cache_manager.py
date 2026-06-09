@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Cache Manager"""
 
-
 from scenefab.cache_manager import MemoryCache
 from scenefab.interfaces.cache_interface import CachePolicy
 
@@ -83,5 +82,5 @@ class TestMemoryCache:
 
         stats = cache.get_stats()
 
-        assert hasattr(stats, 'hit_count')
-        assert hasattr(stats, 'miss_count')
+        assert hasattr(stats, "hit_count")
+        assert hasattr(stats, "miss_count")

@@ -68,7 +68,9 @@ class EngagementScorersMixin:
             suggestions=suggestions,
         )
 
-    def _calculate_interaction_design_score(self, script_text: str) -> InteractionDesignScore:
+    def _calculate_interaction_design_score(
+        self, script_text: str
+    ) -> InteractionDesignScore:
         """
         计算互动设计评分
 

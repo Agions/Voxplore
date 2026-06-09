@@ -33,8 +33,10 @@ class GradientLogoWidget(QWidget):
 
         # 渐变背景
         gradient = QLinearGradient(
-            center.x() - radius, center.y() - radius,
-            center.x() + radius, center.y() + radius
+            center.x() - radius,
+            center.y() - radius,
+            center.x() + radius,
+            center.y() + radius,
         )
         gradient.setColorAt(0, QColor(_PRIMARY_HEX))
         gradient.setColorAt(0.5, QColor(_PRIMARY_END_HEX))
@@ -48,11 +50,7 @@ class GradientLogoWidget(QWidget):
         painter.setPen(QColor("#FFFFFF"))
         font = QFont("Arial", int(radius * 0.45), QFont.Weight.Bold)
         painter.setFont(font)
-        painter.drawText(
-            self.rect(),
-            Qt.AlignmentFlag.AlignCenter,
-            "CF"
-        )
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "CF")
 
 
 class FeatureCard(QWidget):
@@ -94,7 +92,9 @@ class FeatureCard(QWidget):
         title_font.setPointSize(14)
         title_font.setWeight(QFont.Weight.Bold)
         title_label.setFont(title_font)
-        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        title_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         text_layout.addWidget(title_label)
 
         desc_label = QLabel(self._description)
@@ -139,7 +139,9 @@ class WelcomeScreen(QWidget):
     get_started = Signal()  # 开始使用信号
     skip = Signal()  # 跳过信号
 
-    def __init__(self, app_name: str = "SceneFab", version: str | None = None, parent=None):
+    def __init__(
+        self, app_name: str = "SceneFab", version: str | None = None, parent=None
+    ):
         super().__init__(parent)
         self._app_name = app_name
         self._version = version or self._get_version()
@@ -148,6 +150,7 @@ class WelcomeScreen(QWidget):
     def _get_version(self) -> str:
         try:
             from scenefab import __version__
+
             return f"v{__version__}"
         except Exception:
             return "v1.0.0"
@@ -183,7 +186,9 @@ class WelcomeScreen(QWidget):
         name_font.setPointSize(28)
         name_font.setWeight(QFont.Weight.Bold)
         name_label.setFont(name_font)
-        name_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        name_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(name_label)
 
@@ -204,7 +209,9 @@ class WelcomeScreen(QWidget):
         features_font.setPointSize(16)
         features_font.setWeight(QFont.Weight.Bold)
         features_label.setFont(features_font)
-        features_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        features_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         layout.addWidget(features_label)
 
         # 功能卡片列表

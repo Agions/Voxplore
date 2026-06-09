@@ -61,7 +61,9 @@ class CFLabel(QLabel):
         lbl = CFLabel("辅助说明", muted=True)
     """
 
-    def __init__(self, text: str = "", secondary: bool = False, muted: bool = False, parent=None):
+    def __init__(
+        self, text: str = "", secondary: bool = False, muted: bool = False, parent=None
+    ):
         super().__init__(text, parent)
         self.setStyleSheet(StyleSheet.label(secondary, muted))
 
@@ -82,6 +84,7 @@ class CFCard(QFrame):
 
 class CFPanel(QWidget):
     """SceneFab 面板"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet(StyleSheet.panel())
@@ -104,6 +107,7 @@ class CFInput(QLineEdit):
 
 class CFProgressBar(QProgressBar):
     """SceneFab 进度条"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setStyleSheet(StyleSheet.progress_bar())
@@ -118,7 +122,9 @@ class CFNavButton(CFButton):
         nav.set_selected(False)
     """
 
-    def __init__(self, text: str = "", icon: str = "", selected: bool = False, parent=None):
+    def __init__(
+        self, text: str = "", icon: str = "", selected: bool = False, parent=None
+    ):
         super().__init__(text, variant="ghost", parent=parent)
         self.selected = selected
         if icon:
@@ -210,7 +216,9 @@ class CFToastNotification(QFrame):
         }
         fg_color, bg_subtle, icon = colors.get(self.type, colors["info"])
 
-        self.icon_label.setText(f"<span style='color:{fg_color}; font-size:16px;'>{icon}</span>")
+        self.icon_label.setText(
+            f"<span style='color:{fg_color}; font-size:16px;'>{icon}</span>"
+        )
         self.message_label.setStyleSheet(
             f"color: {Colors.TextPrimary}; font-size: 14px; background: transparent; border: none;"
         )

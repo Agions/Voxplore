@@ -30,20 +30,20 @@ logger = logging.getLogger(__name__)
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "bg_hover":    "oklch(0.14 0.01 250)",
-    "bg_active":   "oklch(0.17 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "border_h":    "oklch(0.30 0.02 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "primary_l":   "oklch(0.70 0.24 250)",
-    "success":     "oklch(0.65 0.22 145)",
-    "warning":     "oklch(0.75 0.20 85)",
-    "error":       "oklch(0.63 0.24 25)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "bg_hover": "oklch(0.14 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "border_h": "oklch(0.30 0.02 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "primary_l": "oklch(0.70 0.24 250)",
+    "success": "oklch(0.65 0.22 145)",
+    "warning": "oklch(0.75 0.20 85)",
+    "error": "oklch(0.63 0.24 25)",
 }
 
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
@@ -59,6 +59,7 @@ class StepGroup(QWidget):
     智能分组结果展示页面
     展示 AI 分析后的视频分组结果，支持手动合并/拆分
     """
+
     group_confirmed = Signal(list)  # 确认后的分组列表
     back_requested = Signal()
     next_requested = Signal(list)  # 分组后的路径列表
@@ -95,12 +96,16 @@ class StepGroup(QWidget):
 
         # 总览标签
         self._overview_label = QLabel("0 个视频，0 个分组")
-        self._overview_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        self._overview_label.setStyleSheet(
+            f"color: {_T['text_muted']}; font-size: 12px;"
+        )
         header.addWidget(self._overview_label)
         layout.addLayout(header)
 
         # 副标题
-        hint = QLabel("AI 已根据场景、内容和角色自动分组。您可以拖拽调整，或手动合并/拆分")
+        hint = QLabel(
+            "AI 已根据场景、内容和角色自动分组。您可以拖拽调整，或手动合并/拆分"
+        )
         hint.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
         layout.addWidget(hint)
 
@@ -115,13 +120,13 @@ class StepGroup(QWidget):
                 background: transparent;
             }}
             QScrollBar:horizontal {{
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
                 border-radius: 4px;
                 height: 8px;
                 margin: 0 2px;
             }}
             QScrollBar::handle:horizontal {{
-                background: {_T['border_h']};
+                background: {_T["border_h"]};
                 border-radius: 4px;
             }}
         """)
@@ -140,8 +145,8 @@ class StepGroup(QWidget):
         self._ungrouped_area.setVisible(False)
         self._ungrouped_area.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
-                border: 2px dashed {_T['border']};
+                background: {_T["bg_card"]};
+                border: 2px dashed {_T["border"]};
                 border-radius: 12px;
             }}
         """)
@@ -164,8 +169,8 @@ class StepGroup(QWidget):
         self._progress_bar.setVisible(False)
         self._progress_bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {_T['bg_input']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 6px;
                 height: 8px;
                 text-align: center;
@@ -173,7 +178,7 @@ class StepGroup(QWidget):
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_T['primary']}, stop:1 {_T['primary_l']});
+                    stop:0 {_T["primary"]}, stop:1 {_T["primary_l"]});
                 border-radius: 6px;
             }}
         """)
@@ -202,8 +207,8 @@ class StepGroup(QWidget):
         """生成演示分组（实际由 AI 调用产生）"""
         # 模拟三个分组
         demo_groups = [
-            ("场景A", 0.92, self._all_videos[:len(self._all_videos)//2]),
-            ("场景B", 0.78, self._all_videos[len(self._all_videos)//2:]),
+            ("场景A", 0.92, self._all_videos[: len(self._all_videos) // 2]),
+            ("场景B", 0.78, self._all_videos[len(self._all_videos) // 2 :]),
         ]
         for label, conf, videos in demo_groups:
             self._group_counter += 1
@@ -211,8 +216,9 @@ class StepGroup(QWidget):
             card = self._add_group_card(gid, label, conf, videos)
             card.video_dropped.connect(self._on_video_dropped)
 
-    def _add_group_card(self, group_id, label: str, confidence: float,
-                        videos: list) -> GroupCard:
+    def _add_group_card(
+        self, group_id, label: str, confidence: float, videos: list
+    ) -> GroupCard:
         """创建并添加一个分组卡片"""
         card = GroupCard(group_id, label, confidence)
         for v in videos:
@@ -227,16 +233,13 @@ class StepGroup(QWidget):
         """新增一个空分组"""
         self._group_counter += 1
         card = self._add_group_card(
-            self._group_counter,
-            f"分组 {self._group_counter}",
-            0.0,
-            []
+            self._group_counter, f"分组 {self._group_counter}", 0.0, []
         )
         card.set_confidence(0.0)
         card.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
-                border: 2px solid {_T['border']};
+                background: {_T["bg_card"]};
+                border: 2px solid {_T["border"]};
                 border-radius: 16px;
             }}
         """)
@@ -264,7 +267,7 @@ class StepGroup(QWidget):
                     # 触发移除
                     for i in range(card._thumb_grid.count()):
                         w = card._thumb_grid.itemAt(i).widget()
-                        if hasattr(w, 'video_path') and w.video_path == video_path:
+                        if hasattr(w, "video_path") and w.video_path == video_path:
                             w.setParent(None)
                             w.deleteLater()
                     if video_path in card._video_items:
@@ -299,11 +302,12 @@ class StepGroup(QWidget):
                 if progress_callback:
                     progress_callback(i)
                 import time
+
                 time.sleep(0.05)
             self._progress_bar.setVisible(False)
             self._new_group_btn.setEnabled(True)
 
         import threading
+
         t = threading.Thread(target=animate, daemon=True)
         t.start()
-

@@ -23,6 +23,7 @@ from ...theme.ds_tokens import Colors, FontSizes, FontWeights, Radii
 # 步骤指示器
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class StepIndicator(QFrame):
     """优雅的步骤指示器"""
 
@@ -70,7 +71,9 @@ class StepIndicator(QFrame):
                 line.setFixedHeight(2)
                 line.setMinimumWidth(40)
                 line.setMaximumWidth(100)
-                line.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+                line.setSizePolicy(
+                    QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+                )
                 layout.addWidget(line)
 
         layout.addStretch()
@@ -78,7 +81,7 @@ class StepIndicator(QFrame):
 
     def _apply_state(self, current: int):
         for i, _name in enumerate(self.STEPS):
-            is_done  = i < current
+            is_done = i < current
             is_active = i == current
             is_pending = i > current  # noqa: F841  # used in style branch below
             _ = is_pending  # suppress unused warning
@@ -103,7 +106,9 @@ class StepIndicator(QFrame):
                     border-radius: 16px;
                     font-weight: bold;
                 """)
-                label.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-weight: {FontWeights.SemiBold};")
+                label.setStyleSheet(
+                    f"color: {Colors.TEXT_PRIMARY}; font-weight: {FontWeights.SemiBold};"
+                )
             else:
                 circle.setText(str(i + 1))
                 circle.setStyleSheet(f"""
@@ -119,7 +124,9 @@ class StepIndicator(QFrame):
                 if is_done:
                     line.setStyleSheet(f"background: {Colors.SUCCESS}; border: none;")
                 else:
-                    line.setStyleSheet(f"background: {Colors.BORDER_DEFAULT}; border: none;")
+                    line.setStyleSheet(
+                        f"background: {Colors.BORDER_DEFAULT}; border: none;"
+                    )
 
     def set_step(self, step: int):
         self._apply_state(step)
@@ -129,6 +136,7 @@ class StepIndicator(QFrame):
 # 底部操作栏
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class ActionBar(QFrame):
     """底部操作栏"""
 
@@ -136,8 +144,13 @@ class ActionBar(QFrame):
     prev_clicked = Signal()
     cancel_clicked = Signal()
 
-    def __init__(self, show_cancel: bool = True, show_prev: bool = True,
-                 show_next: bool = True, parent=None):
+    def __init__(
+        self,
+        show_cancel: bool = True,
+        show_prev: bool = True,
+        show_next: bool = True,
+        parent=None,
+    ):
         super().__init__(parent)
         self._show_cancel = show_cancel
         self._show_prev = show_prev
@@ -194,6 +207,7 @@ class ActionBar(QFrame):
 # 内容卡片容器
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class ContentCard(QFrame):
     """通用内容卡片"""
 
@@ -239,6 +253,7 @@ class ContentCard(QFrame):
 # 步骤页面基类
 # ═══════════════════════════════════════════════════════════════════════
 
+
 class StepPage(QFrame):
     """步骤页面基类，支持淡入动画"""
 
@@ -277,7 +292,9 @@ class StepPage(QFrame):
         content_scroll = QScrollArea()
         content_scroll.setWidgetResizable(True)
         content_scroll.setStyleSheet("border: none; background: transparent;")
-        content_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        content_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
 
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)

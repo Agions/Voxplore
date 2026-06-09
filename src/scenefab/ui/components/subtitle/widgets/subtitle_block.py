@@ -6,7 +6,6 @@
 表示时间线上单个字幕片段，支持拖拽调整时间范围。
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFont, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import QWidget
@@ -33,7 +32,7 @@ class SubtitleBlockWidget(QWidget):
         block: SubtitleBlock,
         style: SubtitleStylePreset,
         scale: float = 50.0,
-        parent: QWidget | None = None
+        parent: QWidget | None = None,
     ):
         super().__init__(parent)
 

@@ -107,9 +107,7 @@ async def create_export_task(
     }
 
     # 后台执行导出
-    background_tasks.add_task(
-        _run_export, task_id, request.project_id, config
-    )
+    background_tasks.add_task(_run_export, task_id, request.project_id, config)
 
     return ExportResponse(
         task_id=task_id,

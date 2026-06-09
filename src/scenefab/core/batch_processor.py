@@ -163,9 +163,7 @@ class BatchCheckpoint:
                     task.attempts,
                     task.error,
                     str(task.result_path) if task.result_path else None,
-                    datetime.fromtimestamp(
-                        task.finished_at, timezone.utc
-                    ).isoformat()
+                    datetime.fromtimestamp(task.finished_at, timezone.utc).isoformat()
                     if task.finished_at
                     else None,
                     json.dumps(task.metadata, ensure_ascii=False),

@@ -3,6 +3,7 @@
 
 类型安全的 Pydantic v2 模型，替代原有的 dataclass。
 """
+
 from collections.abc import Callable
 
 from pydantic import BaseModel, Field
@@ -16,6 +17,7 @@ from .enums import CreationMode, ExportFormat, WorkflowStatus, WorkflowStep
 
 class SceneInfo(BaseModel):
     """场景信息（来自视频分析）"""
+
     index: int = Field(ge=0, description="场景序号")
     start: float = Field(ge=0, description="开始时间（秒）")
     end: float = Field(ge=0, description="结束时间（秒）")
@@ -26,11 +28,14 @@ class SceneInfo(BaseModel):
     avg_brightness: float = Field(default=0.0, ge=0, le=1, description="平均亮度")
     motion_level: float = Field(default=0.0, ge=0, le=1, description="运动程度")
     audio_level: float = Field(default=0.0, ge=0, description="音频音量")
-    suitability_score: float = Field(default=0.0, ge=0, le=100, description="适用性评分")
+    suitability_score: float = Field(
+        default=0.0, ge=0, le=100, description="适用性评分"
+    )
 
 
 class EmotionInfo(BaseModel):
     """情感片段信息（来自语音/视觉分析）"""
+
     start: float = Field(ge=0, description="开始时间（秒）")
     end: float = Field(ge=0, description="结束时间（秒）")
     label: str = Field(default="neutral", description="情感标签")
@@ -39,6 +44,7 @@ class EmotionInfo(BaseModel):
 
 class ScriptSegmentInfo(BaseModel):
     """文案片段信息"""
+
     content: str = Field(default="", description="文案内容")
     start_time: float = Field(default=0.0, ge=0, description="开始时间（秒）")
     duration: float = Field(default=0.0, ge=0, description="持续时间（秒）")
@@ -48,6 +54,7 @@ class ScriptSegmentInfo(BaseModel):
 
 class VideoTrackClip(BaseModel):
     """视频轨道片段"""
+
     id: str = Field(default="", description="片段ID")
     start: float = Field(ge=0, description="开始时间（秒）")
     end: float = Field(ge=0, description="结束时间（秒）")
@@ -56,6 +63,7 @@ class VideoTrackClip(BaseModel):
 
 class AudioTrackClip(BaseModel):
     """音频轨道片段"""
+
     id: str = Field(default="", description="片段ID")
     start: float = Field(ge=0, description="开始时间（秒）")
     end: float = Field(ge=0, description="结束时间（秒）")
@@ -64,6 +72,7 @@ class AudioTrackClip(BaseModel):
 
 class SubtitleTrackClip(BaseModel):
     """字幕轨道片段"""
+
     id: str = Field(default="", description="片段ID")
     start: float = Field(ge=0, description="开始时间（秒）")
     end: float = Field(ge=0, description="结束时间（秒）")
@@ -72,6 +81,7 @@ class SubtitleTrackClip(BaseModel):
 
 class VoiceoverSegment(BaseModel):
     """配音片段"""
+
     content: str = Field(default="", description="配音文案")
     start_time: float = Field(default=0.0, ge=0, description="开始时间（秒）")
     duration: float = Field(default=0.0, ge=0, description="持续时间（秒）")
@@ -85,6 +95,7 @@ class VoiceoverSegment(BaseModel):
 
 class VideoSource(BaseModel):
     """视频素材源"""
+
     id: str = Field(default="", description="素材唯一ID")
     path: str = Field(default="", min_length=1, description="文件路径")
     name: str = Field(default="", description="显示名称")
@@ -97,19 +108,25 @@ class VideoSource(BaseModel):
 
 class AnalysisResult(BaseModel):
     """视频分析结果"""
+
     scenes: list[SceneInfo] = Field(default_factory=list, description="场景列表")
     characters: list[str] = Field(default_factory=list, description="识别的人物列表")
-    emotions: list[EmotionInfo] = Field(default_factory=list, description="情感片段列表")
+    emotions: list[EmotionInfo] = Field(
+        default_factory=list, description="情感片段列表"
+    )
     summary: str = Field(default="", description="分析摘要")
     tags: list[str] = Field(default_factory=list, description="标签列表")
 
 
 class ScriptData(BaseModel):
     """脚本数据"""
+
     id: str = Field(default="", description="脚本ID")
     title: str = Field(default="", description="脚本标题")
     content: str = Field(default="", description="完整文案")
-    segments: list[ScriptSegmentInfo] = Field(default_factory=list, description="分段文案")
+    segments: list[ScriptSegmentInfo] = Field(
+        default_factory=list, description="分段文案"
+    )
     word_count: int = Field(default=0, ge=0, description="总字数")
     estimated_duration: float = Field(default=0.0, ge=0, description="预估时长（秒）")
     style: str = Field(default="", description="文风/风格")
@@ -118,24 +135,37 @@ class ScriptData(BaseModel):
 
 class TimelineData(BaseModel):
     """时间线数据"""
-    video_track: list[VideoTrackClip] = Field(default_factory=list, description="视频轨道")
-    audio_track: list[AudioTrackClip] = Field(default_factory=list, description="音频轨道")
-    subtitle_track: list[SubtitleTrackClip] = Field(default_factory=list, description="字幕轨道")
+
+    video_track: list[VideoTrackClip] = Field(
+        default_factory=list, description="视频轨道"
+    )
+    audio_track: list[AudioTrackClip] = Field(
+        default_factory=list, description="音频轨道"
+    )
+    subtitle_track: list[SubtitleTrackClip] = Field(
+        default_factory=list, description="字幕轨道"
+    )
     total_duration: float = Field(default=0.0, ge=0, description="总时长（秒）")
 
 
 class VoiceoverData(BaseModel):
     """配音数据"""
-    segments: list[VoiceoverSegment] = Field(default_factory=list, description="配音片段列表")
+
+    segments: list[VoiceoverSegment] = Field(
+        default_factory=list, description="配音片段列表"
+    )
     voice_style: str = Field(default="", description="声音风格")
     beat_sync: bool = Field(default=False, description="是否启用节拍同步")
 
 
 class WorkflowState(BaseModel):
     """工作流状态"""
+
     project_id: str = Field(default="", description="项目ID")
     step: WorkflowStep = Field(default=WorkflowStep.IMPORT, description="当前步骤")
-    status: WorkflowStatus = Field(default=WorkflowStatus.IDLE, description="工作流状态")
+    status: WorkflowStatus = Field(
+        default=WorkflowStatus.IDLE, description="工作流状态"
+    )
     progress: float = Field(default=0.0, ge=0, le=1, description="完成进度")
     error: str = Field(default="", description="错误信息")
     mode: CreationMode | None = Field(default=None, description="创作模式")
@@ -150,6 +180,7 @@ class WorkflowState(BaseModel):
 
 class WorkflowCallbacks(BaseModel):
     """工作流回调函数集合"""
+
     on_step_change: Callable[[WorkflowStep], None] | None = Field(
         default=None, description="步骤变化回调"
     )
@@ -159,9 +190,5 @@ class WorkflowCallbacks(BaseModel):
     on_status_change: Callable[[WorkflowStatus], None] | None = Field(
         default=None, description="状态变化回调"
     )
-    on_error: Callable[[str], None] | None = Field(
-        default=None, description="错误回调"
-    )
-    on_complete: Callable[[], None] | None = Field(
-        default=None, description="完成回调"
-    )
+    on_error: Callable[[str], None] | None = Field(default=None, description="错误回调")
+    on_complete: Callable[[], None] | None = Field(default=None, description="完成回调")

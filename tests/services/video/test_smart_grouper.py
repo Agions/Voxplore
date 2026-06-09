@@ -18,7 +18,7 @@ class TestVideoGroup:
             group_id="group_001",
             video_paths=["/path/video1.mp4", "/path/video2.mp4"],
             confidence=0.95,
-            reason="视觉相似度极高"
+            reason="视觉相似度极高",
         )
 
         assert group.group_id == "group_001"
@@ -28,12 +28,7 @@ class TestVideoGroup:
 
     def test_confidence_range(self):
         """测试置信度范围"""
-        group = VideoGroup(
-            group_id="test",
-            video_paths=[],
-            confidence=0.0,
-            reason=""
-        )
+        group = VideoGroup(group_id="test", video_paths=[], confidence=0.0, reason="")
         assert group.confidence == 0.0
 
         group.confidence = 1.0

@@ -58,7 +58,7 @@ class MainWindowEventHandler:
         """更新当前时间显示"""
         try:
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            if hasattr(self.window, 'current_time'):
+            if hasattr(self.window, "current_time"):
                 self.window.current_time.setText(current_time)
         except Exception as e:
             self.logger.error(f"更新时间失败: {e}")

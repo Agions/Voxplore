@@ -64,13 +64,17 @@ class StepIndicator(QWidget):
             # 步骤名称
             if i < len(self._steps) - 1:
                 step_label = QLabel(step)
-                step_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px;")
+                step_label.setStyleSheet(
+                    f"color: {COLORS['text_tertiary']}; font-size: 12px;"
+                )
                 layout.addWidget(step_label)
 
                 # 分隔线
                 separator = QFrame()
                 separator.setFixedSize(40, 2)
-                separator.setStyleSheet(f"background: {COLORS['border']}; border-radius: 1px;")
+                separator.setStyleSheet(
+                    f"background: {COLORS['border']}; border-radius: 1px;"
+                )
                 layout.addWidget(separator)
 
         layout.addStretch()
@@ -120,7 +124,9 @@ class WelcomeStep(StepContent):
         # 描述
         desc = QLabel("让我们用几分钟时间来配置您的创作环境")
         desc.setWordWrap(True)
-        desc.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 14px; background: transparent;")
+        desc.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 14px; background: transparent;"
+        )
         desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(desc)
 
@@ -149,16 +155,22 @@ class AIProviderStep(StepContent):
 
         # 描述
         desc = QLabel("选择您要使用的 AI 服务提供商")
-        desc.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 13px; background: transparent;")
+        desc.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 13px; background: transparent;"
+        )
         layout.addWidget(desc)
 
         # 提供商选择
         provider_label = QLabel("AI 服务提供商")
-        provider_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;")
+        provider_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;"
+        )
         layout.addWidget(provider_label)
 
         self.provider_combo = QComboBox()
-        self.provider_combo.addItems(["DeepSeek", "Kimi", "Qwen", "Claude", "Gemini", "本地模型"])
+        self.provider_combo.addItems(
+            ["DeepSeek", "Kimi", "Qwen", "Claude", "Gemini", "本地模型"]
+        )
         self.provider_combo.setFixedHeight(44)
         self.provider_combo.setStyleSheet(f"""
             QComboBox {{
@@ -188,7 +200,9 @@ class AIProviderStep(StepContent):
 
         # API Key 输入
         api_label = QLabel("API Key（可选）")
-        api_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;")
+        api_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;"
+        )
         layout.addWidget(api_label)
 
         self.api_key_input = QLineEdit()
@@ -216,7 +230,9 @@ class AIProviderStep(StepContent):
 
         # 提示
         hint = QLabel("💡 您可以在设置中随时修改 AI 配置")
-        hint.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;")
+        hint.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;"
+        )
         layout.addWidget(hint)
 
         layout.addStretch()
@@ -225,7 +241,7 @@ class AIProviderStep(StepContent):
         """获取配置数据"""
         return {
             "provider": self.provider_combo.currentText(),
-            "api_key": self.api_key_input.text()
+            "api_key": self.api_key_input.text(),
         }
 
 
@@ -251,16 +267,22 @@ class PreferencesStep(StepContent):
 
         # 描述
         desc = QLabel("根据您的使用习惯进行定制")
-        desc.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 13px; background: transparent;")
+        desc.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 13px; background: transparent;"
+        )
         layout.addWidget(desc)
 
         # 主题选择
         theme_label = QLabel("界面主题")
-        theme_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;")
+        theme_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;"
+        )
         layout.addWidget(theme_label)
 
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["深色主题", "浅色主题", "蓝调深色", "森林绿色", "紫色主题", "橙色主题"])
+        self.theme_combo.addItems(
+            ["深色主题", "浅色主题", "蓝调深色", "森林绿色", "紫色主题", "橙色主题"]
+        )
         self.theme_combo.setCurrentText("深色主题")
         self.theme_combo.setFixedHeight(44)
         self.theme_combo.setStyleSheet(f"""
@@ -291,7 +313,9 @@ class PreferencesStep(StepContent):
 
         # 输出目录
         output_label = QLabel("默认输出目录")
-        output_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;")
+        output_label.setStyleSheet(
+            f"color: {COLORS['text_secondary']}; font-size: 13px; font-weight: 600; background: transparent;"
+        )
         layout.addWidget(output_label)
 
         self.output_input = QLineEdit()
@@ -378,7 +402,7 @@ class PreferencesStep(StepContent):
             "theme": self.theme_combo.currentText(),
             "output_dir": self.output_input.text(),
             "auto_save": self.auto_save_check.isChecked(),
-            "telemetry": self.telemetry_check.isChecked()
+            "telemetry": self.telemetry_check.isChecked(),
         }
 
 
@@ -413,7 +437,9 @@ class CompletionStep(StepContent):
         # 描述
         desc = QLabel("一切准备就绪，开始您的创作之旅吧！")
         desc.setWordWrap(True)
-        desc.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 14px; background: transparent;")
+        desc.setStyleSheet(
+            f"color: {COLORS['text_tertiary']}; font-size: 14px; background: transparent;"
+        )
         desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(desc)
 
@@ -431,7 +457,9 @@ class CompletionStep(StepContent):
         tips_layout.setSpacing(12)
 
         tips_title = QLabel("💡 快捷提示")
-        tips_title.setStyleSheet(f"color: {COLORS['text']}; font-weight: 600; font-size: 13px; background: transparent;")
+        tips_title.setStyleSheet(
+            f"color: {COLORS['text']}; font-weight: 600; font-size: 13px; background: transparent;"
+        )
         tips_layout.addWidget(tips_title)
 
         tips = [
@@ -443,10 +471,11 @@ class CompletionStep(StepContent):
         for tip in tips:
             tip_label = QLabel(tip)
             tip_label.setWordWrap(True)
-            tip_label.setStyleSheet(f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;")
+            tip_label.setStyleSheet(
+                f"color: {COLORS['text_tertiary']}; font-size: 12px; background: transparent;"
+            )
             tips_layout.addWidget(tip_label)
 
         layout.addWidget(tips_widget)
 
         layout.addStretch()
-

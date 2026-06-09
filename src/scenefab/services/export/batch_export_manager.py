@@ -27,6 +27,7 @@ __all__ = [
 
 class ExportStatus(Enum):
     """导出状态"""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -37,6 +38,7 @@ class ExportStatus(Enum):
 @dataclass
 class ExportTask:
     """导出任务"""
+
     id: str
     name: str
     project_path: str
@@ -53,6 +55,7 @@ class ExportTask:
 @dataclass
 class BatchExportResult:
     """批量导出结果"""
+
     total: int
     completed: int
     failed: int
@@ -68,7 +71,7 @@ class BatchExportManager:
         self,
         max_parallel: int = 2,
         on_progress: Callable[[str, float], None] | None = None,
-        on_complete: Callable[[str, bool, str | None], None] | None = None
+        on_complete: Callable[[str, bool, str | None], None] | None = None,
     ):
         """
         初始化批量导出管理器
@@ -93,7 +96,7 @@ class BatchExportManager:
         project_path: str,
         output_path: str,
         format: str = "mp4",
-        quality: str = "high"
+        quality: str = "high",
     ) -> ExportTask:
         """添加导出任务"""
         task = ExportTask(
@@ -102,7 +105,7 @@ class BatchExportManager:
             project_path=project_path,
             output_path=output_path,
             format=format,
-            quality=quality
+            quality=quality,
         )
         self._tasks[task_id] = task
         return task
@@ -112,7 +115,7 @@ class BatchExportManager:
         projects: list[dict[str, Any]],
         output_dir: str,
         format: str = "mp4",
-        quality: str = "high"
+        quality: str = "high",
     ) -> list[ExportTask]:
         """
         从项目列表添加批量任务
@@ -130,18 +133,15 @@ class BatchExportManager:
 
         for project in projects:
             task_id = f"export_{project['id']}"
-            output_path = os.path.join(
-                output_dir,
-                f"{project['name']}.{format}"
-            )
+            output_path = os.path.join(output_dir, f"{project['name']}.{format}")
 
             task = self.add_task(
                 task_id=task_id,
-                name=project['name'],
-                project_path=project['path'],
+                name=project["name"],
+                project_path=project["path"],
                 output_path=output_path,
                 format=format,
-                quality=quality
+                quality=quality,
             )
             tasks.append(task)
 
@@ -153,8 +153,7 @@ class BatchExportManager:
 
         # 准备任务
         pending_tasks = [
-            task for task in self._tasks.values()
-            if task.status == ExportStatus.PENDING
+            task for task in self._tasks.values() if task.status == ExportStatus.PENDING
         ]
 
         completed = 0
@@ -183,22 +182,26 @@ class BatchExportManager:
                 if success:
                     task.status = ExportStatus.COMPLETED
                     completed += 1
-                    results.append({
-                        "task_id": task.id,
-                        "name": task.name,
-                        "output_path": task.output_path,
-                        "success": True
-                    })
+                    results.append(
+                        {
+                            "task_id": task.id,
+                            "name": task.name,
+                            "output_path": task.output_path,
+                            "success": True,
+                        }
+                    )
                 else:
                     task.status = ExportStatus.FAILED
                     task.error = error
                     failed += 1
-                    results.append({
-                        "task_id": task.id,
-                        "name": task.name,
-                        "success": False,
-                        "error": error
-                    })
+                    results.append(
+                        {
+                            "task_id": task.id,
+                            "name": task.name,
+                            "success": False,
+                            "error": error,
+                        }
+                    )
 
             except Exception as e:
                 task.status = ExportStatus.FAILED
@@ -209,9 +212,7 @@ class BatchExportManager:
             # 回调
             if self.on_complete:
                 self.on_complete(
-                    task.id,
-                    task.status == ExportStatus.COMPLETED,
-                    task.error
+                    task.id, task.status == ExportStatus.COMPLETED, task.error
                 )
 
         total_time = time.time() - start_time
@@ -222,7 +223,7 @@ class BatchExportManager:
             failed=failed,
             cancelled=cancelled,
             total_time=total_time,
-            results=results
+            results=results,
         )
 
     def _export_single(self, task: ExportTask) -> tuple[bool, str | None]:
@@ -238,14 +239,14 @@ class BatchExportManager:
             from pathlib import Path
 
             project_path = Path(task.project_path)
-            if project_path.exists() and project_path.suffix == '.json':
-                with open(project_path, encoding='utf-8') as f:
+            if project_path.exists() and project_path.suffix == ".json":
+                with open(project_path, encoding="utf-8") as f:
                     project_data = json.load(f)
             else:
                 # 如果是目录，尝试读取 project.json
-                proj_file = project_path / 'project.json'
+                proj_file = project_path / "project.json"
                 if proj_file.exists():
-                    with open(proj_file, encoding='utf-8') as f:
+                    with open(proj_file, encoding="utf-8") as f:
                         project_data = json.load(f)
                 else:
                     project_data = {"source": str(project_path)}
@@ -266,9 +267,13 @@ class BatchExportManager:
                 quality=task.quality,
                 output_path=task.output_path,
                 progress_callback=lambda p: (
-                    setattr(task, 'progress', p),
-                    self.on_progress(task.id, p) if self.on_progress else None
-                ) if self.on_progress else None,
+                    (
+                        setattr(task, "progress", p),
+                        self.on_progress(task.id, p) if self.on_progress else None,
+                    )
+                    if self.on_progress
+                    else None
+                ),
             )
 
             # 执行实际导出
@@ -318,16 +323,11 @@ class BatchExportManager:
             return {"total": 0, "progress": 0}
 
         completed = sum(
-            1 for t in self._tasks.values()
-            if t.status == ExportStatus.COMPLETED
+            1 for t in self._tasks.values() if t.status == ExportStatus.COMPLETED
         )
-        failed = sum(
-            1 for t in self._tasks.values()
-            if t.status == ExportStatus.FAILED
-        )
+        failed = sum(1 for t in self._tasks.values() if t.status == ExportStatus.FAILED)
         running = sum(
-            1 for t in self._tasks.values()
-            if t.status == ExportStatus.RUNNING
+            1 for t in self._tasks.values() if t.status == ExportStatus.RUNNING
         )
 
         # 计算平均进度
@@ -338,7 +338,7 @@ class BatchExportManager:
             "completed": completed,
             "failed": failed,
             "running": running,
-            "progress": avg_progress
+            "progress": avg_progress,
         }
 
     def clear(self) -> None:

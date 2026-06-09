@@ -57,11 +57,11 @@ class TestPerformanceBenchmarks:
             cache.get(f"key_{i}")
         read_time = time.perf_counter() - start
 
-        print(f"Cache write: {write_time*1000:.2f}ms")
-        print(f"Cache read: {read_time*1000:.2f}ms")
+        print(f"Cache write: {write_time * 1000:.2f}ms")
+        print(f"Cache read: {read_time * 1000:.2f}ms")
 
         assert write_time < 1.0  # 写入应在1秒内
-        assert read_time < 0.5   # 读取应在0.5秒内
+        assert read_time < 0.5  # 读取应在0.5秒内
 
     def test_task_creation(self):
         """任务创建性能（v2.1 - 用 scenefab.core.task_model.UnifiedTask）"""
@@ -72,7 +72,7 @@ class TestPerformanceBenchmarks:
             _ = UnifiedTask(task_id=f"task_{i}", name=f"Task {i}")
         duration = time.perf_counter() - start
 
-        print(f"1000 task creations: {duration*1000:.2f}ms")
+        print(f"1000 task creations: {duration * 1000:.2f}ms")
 
         assert duration < 1.0
 
@@ -94,7 +94,7 @@ class TestMemoryBenchmarks:
         stats = cache.get_stats()
 
         print(f"Cache size: {stats['size']} items")
-        assert stats['size'] > 9000  # 至少90%的缓存被使用
+        assert stats["size"] > 9000  # 至少90%的缓存被使用
 
 
 if __name__ == "__main__":

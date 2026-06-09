@@ -36,10 +36,7 @@ class OnboardingWizard(QWidget):
     def _setup_ui(self):
         """设置 UI"""
         self.setFixedSize(550, 500)
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.Dialog
-        )
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # 主容器
@@ -80,7 +77,7 @@ class OnboardingWizard(QWidget):
             WelcomeStep(),
             AIProviderStep(),
             PreferencesStep(),
-            CompletionStep()
+            CompletionStep(),
         ]
 
         for step in self.steps:
@@ -207,7 +204,7 @@ class OnboardingWizard(QWidget):
         # 收集所有步骤的数据
         all_data = {}
         for step in self.steps:
-            if hasattr(step, 'get_values'):
+            if hasattr(step, "get_values"):
                 all_data.update(step.get_values())
 
         self.finished.emit(all_data)

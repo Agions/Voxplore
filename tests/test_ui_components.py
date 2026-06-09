@@ -6,7 +6,9 @@ Note: UI component tests need macOS/PySide6 environment.
 
 import pytest
 
-pytest.skip("UI component tests need macOS/PySide6 environment", allow_module_level=True)
+pytest.skip(
+    "UI component tests need macOS/PySide6 environment", allow_module_level=True
+)
 
 
 class TestUIComponents:

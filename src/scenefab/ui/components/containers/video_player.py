@@ -31,8 +31,8 @@ class VideoPlayer(QWidget):
     # 信号
     position_changed = Signal(float)  # 当前位置(秒)
     duration_changed = Signal(float)  # 总时长(秒)
-    state_changed = Signal(str)       # 播放状态
-    frame_changed = Signal(int)       # 当前帧
+    state_changed = Signal(str)  # 播放状态
+    frame_changed = Signal(int)  # 当前帧
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -278,9 +278,12 @@ class ThumbnailGenerator:
         # 获取时长
         cmd = [
             "ffprobe",
-            "-v", "error",
-            "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
             video_path,
         ]
         result = _video_executor.run(cmd, timeout=30)
@@ -297,10 +300,14 @@ class ThumbnailGenerator:
             cmd = [
                 "ffmpeg",
                 "-y",
-                "-ss", str(timestamp),
-                "-i", video_path,
-                "-vframes", "1",
-                "-q:v", "2",
+                "-ss",
+                str(timestamp),
+                "-i",
+                video_path,
+                "-vframes",
+                "1",
+                "-q:v",
+                "2",
                 output_path,
             ]
 

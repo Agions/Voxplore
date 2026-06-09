@@ -17,10 +17,10 @@ def _oklch(key: str, mode: str = "dark") -> str:
     return tokens.get(key, COLORS.get(key, "oklch(0.50 0.00 0)"))
 
 
-
 @dataclass
 class ThemeConfig:
     """主题配置（简化版）"""
+
     name: str = "scenefab"
     mode: str = "dark"
 
@@ -28,6 +28,7 @@ class ThemeConfig:
 @dataclass
 class ThemeColors:
     """主题颜色 — OKLCH Design Tokens (SceneFab)"""
+
     # Primary
     primary: str = ""
     secondary: str = ""
@@ -78,6 +79,7 @@ class ThemeColors:
 
 class ThemePreset:
     """主题预设"""
+
     def __init__(self, name: str, mode: str, colors: ThemeColors):
         self.name = name
         self.mode = mode
@@ -111,57 +113,101 @@ class ThemeManager(QObject):
     def _initialize_theme_presets(self) -> None:
         """初始化主题预设 — 深色/浅色使用 OKLCH tokens，彩色变体保留 hex"""
         # OKLCH 深色/浅色主题
-        dark_colors   = ThemeColors.from_mode("dark")
-        light_colors  = ThemeColors.from_mode("light")
+        dark_colors = ThemeColors.from_mode("dark")
+        light_colors = ThemeColors.from_mode("light")
 
         # 蓝调深色 — GitHub 风格（保留定制 hex）
         blue_dark_colors = ThemeColors(
-            primary="#388BFD", secondary="#1F6FEB", background="#0D1117",
-            surface="#161B22", card="#161B22", text="#E6EDF3",
-            text_secondary="#C9D1D9", border="#30363D", divider="#21262D",
-            error="#DA3633", warning="#D29922", success="#238636",
-            info="#388BFD", accent="#A371F7", tertiary="#8B5CF6",
-            light="#DBEAFE", dark="#1E40AF"
+            primary="#388BFD",
+            secondary="#1F6FEB",
+            background="#0D1117",
+            surface="#161B22",
+            card="#161B22",
+            text="#E6EDF3",
+            text_secondary="#C9D1D9",
+            border="#30363D",
+            divider="#21262D",
+            error="#DA3633",
+            warning="#D29922",
+            success="#238636",
+            info="#388BFD",
+            accent="#A371F7",
+            tertiary="#8B5CF6",
+            light="#DBEAFE",
+            dark="#1E40AF",
         )
 
         # 森林绿色（保留定制 hex）
         forest_colors = ThemeColors(
-            primary="#22C55E", secondary="#16A34A", background="#064E3B",
-            surface="#14532D", card="#14532D", text="#ECFDF5",
-            text_secondary="#99F6E4", border="#16A34A", divider="#15803D",
-            error="#EF4444", warning="#F59E0B", success="#22C55E",
-            info="#3B82F6", accent="#8B5CF6", tertiary="#EC4899",
-            light="#BBF7D0", dark="#052E16"
+            primary="#22C55E",
+            secondary="#16A34A",
+            background="#064E3B",
+            surface="#14532D",
+            card="#14532D",
+            text="#ECFDF5",
+            text_secondary="#99F6E4",
+            border="#16A34A",
+            divider="#15803D",
+            error="#EF4444",
+            warning="#F59E0B",
+            success="#22C55E",
+            info="#3B82F6",
+            accent="#8B5CF6",
+            tertiary="#EC4899",
+            light="#BBF7D0",
+            dark="#052E16",
         )
 
         # 紫色主题（保留定制 hex）
         purple_colors = ThemeColors(
-            primary="#9C27B0", secondary="#7B1FA2", background="#121212",
-            surface="#1E1B1E", card="#1E1B1E", text="#FFFFFF",
-            text_secondary="#E0E0E0", border="#4A148C", divider="#311B92",
-            error="#F44336", warning="#FFB300", success="#66BB6A",
-            info="#2196F3", accent="#EC407A", tertiary="#5C6BC0",
-            light="#E1BEE7", dark="#4A148C"
+            primary="#9C27B0",
+            secondary="#7B1FA2",
+            background="#121212",
+            surface="#1E1B1E",
+            card="#1E1B1E",
+            text="#FFFFFF",
+            text_secondary="#E0E0E0",
+            border="#4A148C",
+            divider="#311B92",
+            error="#F44336",
+            warning="#FFB300",
+            success="#66BB6A",
+            info="#2196F3",
+            accent="#EC407A",
+            tertiary="#5C6BC0",
+            light="#E1BEE7",
+            dark="#4A148C",
         )
 
         # 橙色主题（保留定制 hex）
         orange_colors = ThemeColors(
-            primary="#FF5722", secondary="#E64A19", background="#263238",
-            surface="#37474F", card="#37474F", text="#FFFFFF",
-            text_secondary="#CFD8DC", border="#546E7A", divider="#455A64",
-            error="#F44336", warning="#FFB74D", success="#81C784",
-            info="#4FC3F7", accent="#9575CD", tertiary="#FF8A65",
-            light="#FFCCBC", dark="#BF360C"
+            primary="#FF5722",
+            secondary="#E64A19",
+            background="#263238",
+            surface="#37474F",
+            card="#37474F",
+            text="#FFFFFF",
+            text_secondary="#CFD8DC",
+            border="#546E7A",
+            divider="#455A64",
+            error="#F44336",
+            warning="#FFB74D",
+            success="#81C784",
+            info="#4FC3F7",
+            accent="#9575CD",
+            tertiary="#FF8A65",
+            light="#FFCCBC",
+            dark="#BF360C",
         )
 
         # 添加主题预设
         self.theme_presets = [
-            ThemePreset("深色主题",   "dark",  dark_colors),
-            ThemePreset("浅色主题",   "light", light_colors),
-            ThemePreset("蓝调深色",   "dark",  blue_dark_colors),
-            ThemePreset("森林绿色",   "dark",  forest_colors),
-            ThemePreset("紫色主题",   "dark",  purple_colors),
-            ThemePreset("橙色主题",   "dark",  orange_colors),
+            ThemePreset("深色主题", "dark", dark_colors),
+            ThemePreset("浅色主题", "light", light_colors),
+            ThemePreset("蓝调深色", "dark", blue_dark_colors),
+            ThemePreset("森林绿色", "dark", forest_colors),
+            ThemePreset("紫色主题", "dark", purple_colors),
+            ThemePreset("橙色主题", "dark", orange_colors),
             # SceneFab 架构升级 - 新增主题
             ThemePreset("SceneFab 声视界", "scenefab", dark_colors),
         ]
@@ -225,6 +271,7 @@ class ThemeManager(QObject):
     def get_stylesheet(self) -> str:
         """获取样式表"""
         import os
+
         stylesheet_path = ""
 
         if self.current_mode == "scenefab":
@@ -232,10 +279,28 @@ class ThemeManager(QObject):
             stylesheet_path = os.path.join(os.path.dirname(__file__), "theme.qss")
         elif self.current_mode == "dark":
             # 使用外部深色主题样式表
-            stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "dark_theme.qss")
+            stylesheet_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "..",
+                "..",
+                "resources",
+                "styles",
+                "dark_theme.qss",
+            )
         else:
             # 使用外部浅色主题样式表（如果存在）
-            stylesheet_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "resources", "styles", "light_theme.qss")
+            stylesheet_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "..",
+                "..",
+                "resources",
+                "styles",
+                "light_theme.qss",
+            )
 
         try:
             with open(stylesheet_path, encoding="utf-8") as f:
@@ -289,6 +354,7 @@ class ThemeManager(QObject):
     def _apply_to_application(self) -> None:
         """将主题应用到整个应用程序"""
         from PySide6.QtWidgets import QApplication
+
         app = QApplication.instance()
         if app:
             # 获取样式表
@@ -324,7 +390,7 @@ class ThemeManager(QObject):
                 accent=self.colors.accent,
                 tertiary=self.colors.tertiary,
                 light=self.colors.light,
-                dark=self.colors.dark
+                dark=self.colors.dark,
             )
 
             # 应用新主题
@@ -335,7 +401,9 @@ class ThemeManager(QObject):
             self.theme_applied.emit()
 
             # 3秒后恢复原主题（仅用于预览）
-            QTimer.singleShot(3000, lambda: self._restore_theme(original_mode, original_colors))
+            QTimer.singleShot(
+                3000, lambda: self._restore_theme(original_mode, original_colors)
+            )
 
     def _restore_theme(self, original_mode: str, original_colors: ThemeColors) -> None:
         """恢复原始主题"""
@@ -350,7 +418,7 @@ class ThemeManager(QObject):
         return {
             "mode": self.current_mode,
             "colors": self.colors.__dict__,
-            "available_themes": self.get_available_themes()
+            "available_themes": self.get_available_themes(),
         }
 
     # ─── 新设计系统集成 ────────────────────────────────────
@@ -364,6 +432,7 @@ class ThemeManager(QObject):
         full_css = f"""{vars_css}\n{base_css}"""
 
         from PySide6.QtWidgets import QApplication
+
         app = QApplication.instance()
         if widget:
             widget.setStyleSheet(full_css)

@@ -85,8 +85,7 @@ class ProjectsPage(BasePage):
 
         # 右侧：详情面板
         self._details_panel = ProjectDetailsPanel(
-            self._project_manager,
-            self._settings_manager
+            self._project_manager, self._settings_manager
         )
         splitter.addWidget(self._details_panel)
 
@@ -143,10 +142,10 @@ class ProjectsPage(BasePage):
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 info = dialog.get_project_info()
                 project_id = self._project_manager.create_project(
-                    name=info['name'],
-                    project_type=info['type'],
-                    description=info['description'],
-                    template_id=info['template_id']
+                    name=info["name"],
+                    project_type=info["type"],
+                    description=info["description"],
+                    template_id=info["template_id"],
                 )
                 if project_id:
                     QMessageBox.information(self, "成功", "项目创建成功！")
@@ -170,6 +169,7 @@ class ProjectsPage(BasePage):
         )
         if path:
             import os
+
             project_dir = os.path.dirname(path)
             project_id = self._project_manager.open_project(project_dir)
             if project_id:
@@ -204,7 +204,7 @@ class ProjectsPage(BasePage):
 
     def refresh(self):
         """刷新页面"""
-        if hasattr(self, '_list_panel') and self._list_panel:
+        if hasattr(self, "_list_panel") and self._list_panel:
             self._list_panel.load_projects()
 
     def get_page_type(self) -> str:

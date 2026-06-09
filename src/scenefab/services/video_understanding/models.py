@@ -11,6 +11,7 @@ from typing import Any
 
 class UnderstandingLevel(str, Enum):
     """理解级别"""
+
     FLASH = "flash"  # 快速理解（Qwen3.7-Flash）
     STANDARD = "standard"  # 标准理解（Qwen3.7-Max）
     DEEP = "deep"  # 深度理解（Gemini 3.1 Pro）
@@ -19,6 +20,7 @@ class UnderstandingLevel(str, Enum):
 @dataclass
 class VideoSegment:
     """视频片段"""
+
     segment_id: int
     start_time: float  # 开始时间（秒）
     end_time: float  # 结束时间（秒）
@@ -33,6 +35,7 @@ class VideoSegment:
 @dataclass
 class Character:
     """人物信息"""
+
     character_id: str
     name: str
     description: str = ""
@@ -44,6 +47,7 @@ class Character:
 @dataclass
 class PlotEvent:
     """剧情事件"""
+
     event_id: str
     timestamp: float  # 时间戳（秒）
     event_type: str  # event_type: "introduction", "development", "climax", "resolution"
@@ -57,6 +61,7 @@ class PlotEvent:
 @dataclass
 class StoryGraph:
     """剧情图谱"""
+
     title: str = ""
     genre: str = ""  # 类型：action, drama, comedy, etc.
     synopsis: str = ""  # 剧情梗概
@@ -70,6 +75,7 @@ class StoryGraph:
 @dataclass
 class LongVideoUnderstandingResult:
     """长视频理解结果"""
+
     video_path: str
     video_duration: float  # 视频时长（秒）
     understanding_level: UnderstandingLevel

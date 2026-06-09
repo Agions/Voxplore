@@ -43,7 +43,7 @@ class SceneFabPipeline:
         style: NarrationStyle = NarrationStyle.DOCUMENTARY,
         voice: str = "zh-CN-XiaoxiaoNeural",
         progress_callback: Callable | None = None,
-        output_dir: str = None
+        output_dir: str = None,
     ) -> VideoProject:
         if output_dir is None:
             output_dir = os.path.join(os.path.dirname(video_path) or ".", "output")
@@ -52,7 +52,7 @@ class SceneFabPipeline:
             name=os.path.basename(video_path),
             source_videos=[video_path],
             style=style,
-            emotion=emotion
+            emotion=emotion,
         )
 
         def report(progress: float, message: str):
@@ -65,7 +65,9 @@ class SceneFabPipeline:
             segments = self.extractor.extract(
                 video_path,
                 use_cache=True,
-                progress_callback=lambda c, t: report(0.05 + 0.20 * c / t if t > 0 else 0.25, "正在提取第一人称片段...")
+                progress_callback=lambda c, t: report(
+                    0.05 + 0.20 * c / t if t > 0 else 0.25, "正在提取第一人称片段..."
+                ),
             )
             project.segments = segments
             report(0.25, f"找到 {len(segments)} 个片段")
@@ -78,7 +80,9 @@ class SceneFabPipeline:
             report(0.30, "正在分析情感峰值...")
             peaks = self.emotion_detector.detect(
                 segments,
-                progress_callback=lambda c, t: report(0.30 + 0.15 * c / t if t > 0 else 0.45, "正在分析情感...")
+                progress_callback=lambda c, t: report(
+                    0.30 + 0.15 * c / t if t > 0 else 0.45, "正在分析情感..."
+                ),
             )
             project.emotion_peaks = peaks
             report(0.45, f"找到 {len(peaks)} 个情感峰值")
@@ -90,7 +94,9 @@ class SceneFabPipeline:
                 context=context,
                 emotion=emotion,
                 style=style,
-                progress_callback=lambda c, t: report(0.50 + 0.25 * c / t if t > 0 else 0.75, "正在撰写文案...")
+                progress_callback=lambda c, t: report(
+                    0.50 + 0.25 * c / t if t > 0 else 0.75, "正在撰写文案..."
+                ),
             )
             project.narration_blocks = narrations
             report(0.75, "文案生成完成")
@@ -101,7 +107,9 @@ class SceneFabPipeline:
                 narrations,
                 output_dir=output_dir,
                 voice=voice,
-                progress_callback=lambda c, t: report(0.80 + 0.15 * c / t if t > 0 else 0.95, "正在合成语音...")
+                progress_callback=lambda c, t: report(
+                    0.80 + 0.15 * c / t if t > 0 else 0.95, "正在合成语音..."
+                ),
             )
             if audio_track:
                 project.audio_track = audio_track

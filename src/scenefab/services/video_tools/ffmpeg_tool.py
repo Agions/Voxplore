@@ -20,12 +20,13 @@ logger = logging.getLogger(__name__)
 
 class HWAccelType(Enum):
     """硬件加速类型"""
+
     NONE = "none"
-    NVIDIA = "nvenc"           # NVIDIA NVENC
-    INTEL = "qsv"              # Intel Quick Sync
-    AMD = "amf"                # AMD AMF
-    APPLE = "videotoolbox"     # Apple VideoToolbox (macOS)
-    VAAPI = "vaapi"            # Linux VAAPI
+    NVIDIA = "nvenc"  # NVIDIA NVENC
+    INTEL = "qsv"  # Intel Quick Sync
+    AMD = "amf"  # AMD AMF
+    APPLE = "videotoolbox"  # Apple VideoToolbox (macOS)
+    VAAPI = "vaapi"  # Linux VAAPI
 
     @property
     def ffmpeg_hwaccel(self) -> str | None:
@@ -86,7 +87,7 @@ class FFmpegTool:
         """检查 FFmpeg 是否可用"""
         try:
             result = FFmpegTool._executor.run(
-                ['ffmpeg', '-version'],
+                ["ffmpeg", "-version"],
                 timeout=10,
             )
             if result.returncode != 0:
@@ -137,18 +138,18 @@ class FFmpegTool:
         """检测 NVIDIA GPU 和 NVENC 支持"""
         try:
             result = subprocess.run(
-                ['nvidia-smi'],
+                ["nvidia-smi"],
                 capture_output=True,
                 timeout=5,
             )
             if result.returncode == 0:
                 # 进一步检查 FFmpeg 是否支持 h264_nvenc
                 enc_result = subprocess.run(
-                    ['ffmpeg', '-hide_banner', '-encoders'],
+                    ["ffmpeg", "-hide_banner", "-encoders"],
                     capture_output=True,
                     timeout=10,
                 )
-                if 'h264_nvenc' in enc_result.stdout.decode('utf-8', errors='ignore'):
+                if "h264_nvenc" in enc_result.stdout.decode("utf-8", errors="ignore"):
                     return True
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
@@ -159,14 +160,14 @@ class FFmpegTool:
         """检测 VAAPI 支持"""
         try:
             # 检查 /dev/dri/ 是否存在 (Linux 硬件设备)
-            if Path('/dev/dri/').exists():
+            if Path("/dev/dri/").exists():
                 # 检查 FFmpeg 是否支持 vaapi
                 result = subprocess.run(
-                    ['ffmpeg', '-hide_banner', '-encoders'],
+                    ["ffmpeg", "-hide_banner", "-encoders"],
                     capture_output=True,
                     timeout=10,
                 )
-                if 'vaapi' in result.stdout.decode('utf-8', errors='ignore'):
+                if "vaapi" in result.stdout.decode("utf-8", errors="ignore"):
                     return True
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
@@ -178,15 +179,15 @@ class FFmpegTool:
         try:
             if platform.system() == "Windows":
                 result = subprocess.run(
-                    ['wmic', 'cpu', 'get', 'name'],
+                    ["wmic", "cpu", "get", "name"],
                     capture_output=True,
                     timeout=5,
                 )
-                return "Intel" in result.stdout.decode('utf-8', errors='ignore')
+                return "Intel" in result.stdout.decode("utf-8", errors="ignore")
             else:
                 # Linux/macOS 下检测 /proc/cpuinfo
-                with open('/proc/cpuinfo') as f:
-                    return 'genuineintel' in f.read().lower()
+                with open("/proc/cpuinfo") as f:
+                    return "genuineintel" in f.read().lower()
         except Exception:
             pass
         return False
@@ -230,49 +231,64 @@ class FFmpegTool:
     def get_duration(video_path: str) -> float:
         """获取视频时长（秒）"""
         cmd = [
-            'ffprobe', '-v', 'error',
-            '-show_entries', 'format=duration',
-            '-of', 'json', video_path
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "json",
+            video_path,
         ]
         data = FFmpegTool._run_ffprobe_json(cmd)
         if data is None:
             return 0.0
-        return float(data.get('format', {}).get('duration', 0))
+        return float(data.get("format", {}).get("duration", 0))
 
     @staticmethod
     def get_resolution(video_path: str) -> tuple[int, int]:
         """获取视频分辨率 (width, height)"""
         cmd = [
-            'ffprobe', '-v', 'error',
-            '-print_format', 'json',
-            '-show_streams', video_path
+            "ffprobe",
+            "-v",
+            "error",
+            "-print_format",
+            "json",
+            "-show_streams",
+            video_path,
         ]
         data = FFmpegTool._run_ffprobe_json(cmd)
         if data is None:
             return (1920, 1080)
-        for stream in data.get('streams', []):
-            if stream.get('codec_type') == 'video':
-                return (stream.get('width', 1920), stream.get('height', 1080))
+        for stream in data.get("streams", []):
+            if stream.get("codec_type") == "video":
+                return (stream.get("width", 1920), stream.get("height", 1080))
         return (1920, 1080)
 
     @staticmethod
     def get_framerate(video_path: str) -> float:
         """获取视频帧率"""
         cmd = [
-            'ffprobe', '-v', 'error',
-            '-select_streams', 'v:0',
-            '-show_entries', 'stream=r_frame_rate',
-            '-of', 'json', video_path
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=r_frame_rate",
+            "-of",
+            "json",
+            video_path,
         ]
         data = FFmpegTool._run_ffprobe_json(cmd)
         if data is None:
             return 30.0
-        streams = data.get('streams', [])
+        streams = data.get("streams", [])
         if streams:
-            fps_str = streams[0].get('r_frame_rate', '30/1')
-            if '/' in fps_str:
-                num, den = fps_str.split('/')
-                return float(num) / float(den) if den != '0' else 30.0
+            fps_str = streams[0].get("r_frame_rate", "30/1")
+            if "/" in fps_str:
+                num, den = fps_str.split("/")
+                return float(num) / float(den) if den != "0" else 30.0
             return float(fps_str)
         return 30.0
 
@@ -280,22 +296,32 @@ class FFmpegTool:
     def get_bitrate(video_path: str) -> int:
         """获取视频码率 (bps)"""
         cmd = [
-            'ffprobe', '-v', 'error',
-            '-show_entries', 'format=bit_rate',
-            '-of', 'json', video_path
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=bit_rate",
+            "-of",
+            "json",
+            video_path,
         ]
         data = FFmpegTool._run_ffprobe_json(cmd)
         if data is None:
             return 0
-        return int(data.get('format', {}).get('bit_rate', 0))
+        return int(data.get("format", {}).get("bit_rate", 0))
 
     @staticmethod
     def get_video_info(video_path: str) -> dict[str, Any]:
         """获取完整视频信息"""
         cmd = [
-            'ffprobe', '-v', 'quiet',
-            '-print_format', 'json',
-            '-show_format', '-show_streams', video_path
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
+            "-show_format",
+            "-show_streams",
+            video_path,
         ]
         return FFmpegTool._run_ffprobe_json(cmd) or {}
 
@@ -321,11 +347,16 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-ss', str(start),
-            '-to', str(end),
-            '-i', input_path,
-            '-c', 'copy',
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(start),
+            "-to",
+            str(end),
+            "-i",
+            input_path,
+            "-c",
+            "copy",
             output_path,
         ]
 
@@ -354,17 +385,24 @@ class FFmpegTool:
         """
         if method == "concat":
             # 使用 concat 协议（适用于相同编码的视频）
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False
+            ) as f:
                 for p in input_paths:
                     f.write(f"file '{p}'\n")
                 list_path = f.name
 
             cmd = [
-                'ffmpeg', '-y',
-                '-f', 'concat',
-                '-safe', '0',
-                '-i', list_path,
-                '-c', 'copy',
+                "ffmpeg",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                list_path,
+                "-c",
+                "copy",
                 output_path,
             ]
 
@@ -375,18 +413,23 @@ class FFmpegTool:
                 Path(list_path).unlink(missing_ok=True)
         else:
             # 使用 concat demuxer（通用方式）
-            filter_str = ''.join([f"[{i}:v][{i}:a]" for i in range(len(input_paths))])
+            filter_str = "".join([f"[{i}:v][{i}:a]" for i in range(len(input_paths))])
 
-            cmd = ['ffmpeg', '-y']
+            cmd = ["ffmpeg", "-y"]
             for p in input_paths:
-                cmd.extend(['-i', p])
+                cmd.extend(["-i", p])
 
-            cmd.extend([
-                '-filter_complex', f"{filter_str}concat=n={len(input_paths)}:v=1:a=1[v][a]",
-                '-map', '[v]',
-                '-map', '[a]',
-                output_path,
-            ])
+            cmd.extend(
+                [
+                    "-filter_complex",
+                    f"{filter_str}concat=n={len(input_paths)}:v=1:a=1[v][a]",
+                    "-map",
+                    "[v]",
+                    "-map",
+                    "[a]",
+                    output_path,
+                ]
+            )
 
             try:
                 result = FFmpegTool._executor.run(cmd, timeout=600)
@@ -412,10 +455,14 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-i', input_path,
-            '-filter:v', f'setpts={1/speed}*PTS',
-            '-filter:a', f'atempo={speed}',
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-filter:v",
+            f"setpts={1 / speed}*PTS",
+            "-filter:a",
+            f"atempo={speed}",
             output_path,
         ]
 
@@ -441,10 +488,14 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-i', input_path,
-            '-vf', 'reverse',
-            '-af', 'areverse',
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-vf",
+            "reverse",
+            "-af",
+            "areverse",
             output_path,
         ]
 
@@ -474,10 +525,13 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-i', input_path,
-            '-vn',
-            '-acodec', 'copy' if format == 'copy' else format,
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-vn",
+            "-acodec",
+            "copy" if format == "copy" else format,
             output_path,
         ]
 
@@ -510,27 +564,38 @@ class FFmpegTool:
         """
         if mix:
             cmd = [
-                'ffmpeg', '-y',
-                '-i', video_path,
-                '-i', audio_path,
-                '-filter_complex',
-                f'[1:a]volume={audio_volume}[a]',
-                '-map', '0:v',
-                '-map', '[a]',
-                '-shortest',
+                "ffmpeg",
+                "-y",
+                "-i",
+                video_path,
+                "-i",
+                audio_path,
+                "-filter_complex",
+                f"[1:a]volume={audio_volume}[a]",
+                "-map",
+                "0:v",
+                "-map",
+                "[a]",
+                "-shortest",
                 output_path,
             ]
         else:
             cmd = [
-                'ffmpeg', '-y',
-                '-i', video_path,
-                '-i', audio_path,
-                '-filter_complex',
-                f'[1:a]volume={audio_volume}[a]',
-                '-map', '0:v',
-                '-map', '[a]',
-                '-c:v', 'copy',
-                '-shortest',
+                "ffmpeg",
+                "-y",
+                "-i",
+                video_path,
+                "-i",
+                audio_path,
+                "-filter_complex",
+                f"[1:a]volume={audio_volume}[a]",
+                "-map",
+                "0:v",
+                "-map",
+                "[a]",
+                "-c:v",
+                "copy",
+                "-shortest",
                 output_path,
             ]
 
@@ -558,9 +623,12 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-i', input_path,
-            '-af', f'volume={volume}',
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-af",
+            f"volume={volume}",
             output_path,
         ]
 
@@ -594,12 +662,18 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-ss', str(timestamp),
-            '-i', video_path,
-            '-vframes', '1',
-            '-vf', f'scale={width}:{height}',
-            '-q:v', '2',
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(timestamp),
+            "-i",
+            video_path,
+            "-vframes",
+            "1",
+            "-vf",
+            f"scale={width}:{height}",
+            "-q:v",
+            "2",
             output_path,
         ]
 
@@ -629,12 +703,16 @@ class FFmpegTool:
             是否成功
         """
         cmd = [
-            'ffmpeg', '-y',
-            '-i', audio_path,
-            '-filter_complex',
-            f'aformat=channel_layouts=mono,showwavespic=s={width}x{height}',
-            '-frames:v', '1',
-            '-png', output_path,
+            "ffmpeg",
+            "-y",
+            "-i",
+            audio_path,
+            "-filter_complex",
+            f"aformat=channel_layouts=mono,showwavespic=s={width}x{height}",
+            "-frames:v",
+            "1",
+            "-png",
+            output_path,
         ]
 
         try:
@@ -668,23 +746,23 @@ class FFmpegTool:
         Returns:
             是否成功
         """
-        cmd = ['ffmpeg', '-y']
+        cmd = ["ffmpeg", "-y"]
 
         # 自动检测硬件加速
         if use_hw_accel:
             encoder, hwaccel = FFmpegTool.get_hw_accel_encoder(video_codec)
             if hwaccel:
-                cmd.extend(['-hwaccel', hwaccel])
-            cmd.extend(['-c:v', encoder])
+                cmd.extend(["-hwaccel", hwaccel])
+            cmd.extend(["-c:v", encoder])
         else:
-            cmd.extend(['-c:v', video_codec])
+            cmd.extend(["-c:v", video_codec])
 
-        cmd.extend(['-i', input_path])
-        cmd.extend(['-c:a', audio_codec])
+        cmd.extend(["-i", input_path])
+        cmd.extend(["-c:a", audio_codec])
 
         # 仅在 CPU 编码时使用 preset，硬件编码器有自己的质量设置
         if not use_hw_accel or FFmpegTool.detect_hw_accel() == HWAccelType.NONE:
-            cmd.extend(['-preset', preset])
+            cmd.extend(["-preset", preset])
 
         cmd.append(output_path)
 
@@ -710,6 +788,7 @@ class FFmpegTool:
             await FFmpegTool.run_async(['-i', 'in.mp4', '-c:v', 'libx264', 'out.mp4'])
         """
         from scenefab.utils.async_subprocess import run_ffmpeg
+
         return await run_ffmpeg(args, timeout=timeout)
 
     @staticmethod
@@ -719,6 +798,7 @@ class FFmpegTool:
     ) -> dict[str, str]:
         """异步 ffprobe 探测视频元信息"""
         from scenefab.utils.async_subprocess import run_ffprobe
+
         return await run_ffprobe(video_path, timeout=timeout)
 
 

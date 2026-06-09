@@ -5,107 +5,109 @@ SceneFab Design System v6
 """
 
 
-
 # ═══════════════════════════════════════════════════════════════════
 # OKLCH 语义化色彩（午夜极光主题）
 # ═══════════════════════════════════════════════════════════════════
+
 
 class Colors:
     """语义化色彩"""
 
     # ── 背景层 ──────────────────────────────────────────────────
-    BG_BASE      = "#0A0C12"   # 最深层背景
-    BG_SURFACE   = "#12151F"   # 卡片/面板
-    BG_ELEVATED  = "#1A1E2C"   # 悬浮/高亮层
-    BG_OVERLAY   = "#212638"   # 模态/下拉
-    BG_INPUT     = "#0E1018"   # 输入框背景
+    BG_BASE = "#0A0C12"  # 最深层背景
+    BG_SURFACE = "#12151F"  # 卡片/面板
+    BG_ELEVATED = "#1A1E2C"  # 悬浮/高亮层
+    BG_OVERLAY = "#212638"  # 模态/下拉
+    BG_INPUT = "#0E1018"  # 输入框背景
 
     # ── 边框层 ──────────────────────────────────────────────────
-    BORDER_SUBTLE  = "#1E2436"  # 微弱分割
+    BORDER_SUBTLE = "#1E2436"  # 微弱分割
     BORDER_DEFAULT = "#2A3048"  # 默认边框
-    BORDER_STRONG  = "#3D4566"  # 强调边框
-    BORDER_FOCUS   = "#7C3AED"  # 聚焦边框（紫色）
+    BORDER_STRONG = "#3D4566"  # 强调边框
+    BORDER_FOCUS = "#7C3AED"  # 聚焦边框（紫色）
 
     # ── 主色：极光紫 ───────────────────────────────────────────
     PRIMARY_LIGHTEST = "#F5F3FF"
-    PRIMARY_LIGHTER  = "#EDE9FE"
-    PRIMARY_LIGHT    = "#DDD6FE"
-    PRIMARY_NORMAL   = "#C4B5FD"
-    PRIMARY          = "#A78BFA"   # 主色值
-    PRIMARY_DARK     = "#8B5CF6"
-    PRIMARY_DARKER   = "#7C3AED"
-    PRIMARY_DARKEST  = "#6D28D9"
+    PRIMARY_LIGHTER = "#EDE9FE"
+    PRIMARY_LIGHT = "#DDD6FE"
+    PRIMARY_NORMAL = "#C4B5FD"
+    PRIMARY = "#A78BFA"  # 主色值
+    PRIMARY_DARK = "#8B5CF6"
+    PRIMARY_DARKER = "#7C3AED"
+    PRIMARY_DARKEST = "#6D28D9"
 
     # ── 辅助色：冰蓝 ───────────────────────────────────────────
-    ACCENT_LIGHT    = "#E0F2FE"
-    ACCENT_NORMAL    = "#38BDF8"
-    ACCENT           = "#0EA5E9"
-    ACCENT_DARK      = "#0284C7"
+    ACCENT_LIGHT = "#E0F2FE"
+    ACCENT_NORMAL = "#38BDF8"
+    ACCENT = "#0EA5E9"
+    ACCENT_DARK = "#0284C7"
 
     # ── 功能色 ─────────────────────────────────────────────────
-    SUCCESS       = "#10B981"
+    SUCCESS = "#10B981"
     SUCCESS_LIGHT = "#D1FAE5"
-    WARNING       = "#F59E0B"
+    WARNING = "#F59E0B"
     WARNING_LIGHT = "#FEF3C7"
-    ERROR         = "#EF4444"
-    ERROR_LIGHT   = "#FEE2E2"
-    INFO          = "#6366F1"
+    ERROR = "#EF4444"
+    ERROR_LIGHT = "#FEE2E2"
+    INFO = "#6366F1"
 
     # ── 文字层 ─────────────────────────────────────────────────
-    TEXT_PRIMARY   = "#F1F5F9"   # 主要文字
-    TEXT_SECONDARY = "#94A3B8"   # 次要文字
-    TEXT_MUTED     = "#64748B"   # 弱化文字
-    TEXT_DISABLED  = "#475569"   # 禁用文字
-    TEXT_INVERSE   = "#0A0C12"   # 反色文字
+    TEXT_PRIMARY = "#F1F5F9"  # 主要文字
+    TEXT_SECONDARY = "#94A3B8"  # 次要文字
+    TEXT_MUTED = "#64748B"  # 弱化文字
+    TEXT_DISABLED = "#475569"  # 禁用文字
+    TEXT_INVERSE = "#0A0C12"  # 反色文字
 
     # ── 侧边栏渐变 ─────────────────────────────────────────────
-    SIDEBAR_TOP    = "#13111E"
-    SIDEBAR_MID    = "#0D0B16"
+    SIDEBAR_TOP = "#13111E"
+    SIDEBAR_MID = "#0D0B16"
     SIDEBAR_BOTTOM = "#080710"
-    SIDEBAR_GLOW   = "#7C3AED"
+    SIDEBAR_GLOW = "#7C3AED"
 
     # ── 状态色（透明度修饰，RRGGBBAA格式）─────────────────────
-    PRIMARY_10 = "#A78BFA1A"   # 10% 透明度
+    PRIMARY_10 = "#A78BFA1A"  # 10% 透明度
     SUCCESS_10 = "#10B9811A"
-    ERROR_10   = "#EF44441A"
+    ERROR_10 = "#EF44441A"
 
 
 # ═══════════════════════════════════════════════════════════════════
 # 字体系统
 # ═══════════════════════════════════════════════════════════════════
 
+
 class FontSizes:
-    xs   = 11
-    sm   = 12
+    xs = 11
+    sm = 12
     base = 13
-    md   = 14
-    lg   = 16
-    xl   = 18
-    xxl  = 22
+    md = 14
+    lg = 16
+    xl = 18
+    xxl = 22
     xxxl = 28
     display = 36
 
 
 class FontWeights:
-    Normal    = 400
-    Medium    = 500
-    SemiBold  = 600
-    Bold      = 700
+    Normal = 400
+    Medium = 500
+    SemiBold = 600
+    Bold = 700
 
 
 # ═══════════════════════════════════════════════════════════════════
 # 间距系统（8px 基准）
 # ═══════════════════════════════════════════════════════════════════
 
+
 class Spacing:
-    xxs  = 4
-    xs   = 8
-    sm   = 10
-    md   = 12
+    xxs = 4
+    xs = 8
+    sm = 10
+    md = 12
     base = 16
-    lg   = 20
-    xl   = 24
-    xxl  = 32
+    lg = 20
+    xl = 24
+    xxl = 32
     xxxl = 48
     huge = 64
 
@@ -114,35 +116,38 @@ class Spacing:
 # 圆角系统
 # ═══════════════════════════════════════════════════════════════════
 
+
 class Radii:
-    none  = 0
-    sm    = 4
-    base  = 8
-    md    = 10
-    lg    = 12
-    xl    = 16
-    xl2   = 20
-    full  = 9999
+    none = 0
+    sm = 4
+    base = 8
+    md = 10
+    lg = 12
+    xl = 16
+    xl2 = 20
+    full = 9999
 
 
 # ═══════════════════════════════════════════════════════════════════
 # 阴影系统（多层次）
 # ═══════════════════════════════════════════════════════════════════
 
+
 class Shadows:
     NONE = "none"
 
-    SM  = "0 1px 2px rgba(0,0,0,0.4)"
+    SM = "0 1px 2px rgba(0,0,0,0.4)"
     BASE = "0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3)"
-    MD  = "0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.35)"
-    LG  = "0 20px 25px rgba(0,0,0,0.5), 0 8px 10px rgba(0,0,0,0.4)"
-    XL  = "0 25px 50px rgba(0,0,0,0.6)"
+    MD = "0 10px 15px rgba(0,0,0,0.45), 0 4px 6px rgba(0,0,0,0.35)"
+    LG = "0 20px 25px rgba(0,0,0,0.5), 0 8px 10px rgba(0,0,0,0.4)"
+    XL = "0 25px 50px rgba(0,0,0,0.6)"
 
-    GLOW_PURPLE = ("0 0 0 1px rgba(167,139,250,0.3), "
-                   "0 0 20px rgba(139,92,246,0.2), "
-                   "0 0 40px rgba(139,92,246,0.1)")
-    GLOW_ACCENT = ("0 0 0 1px rgba(56,189,248,0.3), "
-                   "0 0 20px rgba(14,165,233,0.2)")
+    GLOW_PURPLE = (
+        "0 0 0 1px rgba(167,139,250,0.3), "
+        "0 0 20px rgba(139,92,246,0.2), "
+        "0 0 40px rgba(139,92,246,0.1)"
+    )
+    GLOW_ACCENT = "0 0 0 1px rgba(56,189,248,0.3), 0 0 20px rgba(14,165,233,0.2)"
     GLOW_SUCCESS = "0 0 0 1px rgba(16,185,129,0.3), 0 0 16px rgba(16,185,129,0.15)"
 
 
@@ -150,25 +155,27 @@ class Shadows:
 # 动效规范
 # ═══════════════════════════════════════════════════════════════════
 
+
 class Durations:
     instant = 50
-    fast    = 100
-    normal  = 200
-    slow    = 300
-    xslow   = 500
+    fast = 100
+    normal = 200
+    slow = 300
+    xslow = 500
 
 
 class Easings:
-    standard   = "cubic-bezier(0.4, 0, 0.2, 1)"
+    standard = "cubic-bezier(0.4, 0, 0.2, 1)"
     decelerate = "cubic-bezier(0, 0, 0.2, 1)"
     accelerate = "cubic-bezier(0.4, 0, 1, 1)"
-    spring     = "cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-    ease_out   = "cubic-bezier(0, 0, 0.2, 1)"
+    spring = "cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+    ease_out = "cubic-bezier(0, 0, 0.2, 1)"
 
 
 # ═══════════════════════════════════════════════════════════════════
 # 组件级 QSS 片段（可直接拼接）
 # ═══════════════════════════════════════════════════════════════════
+
 
 class QSSComponents:
     """可复用的 QSS 片段"""

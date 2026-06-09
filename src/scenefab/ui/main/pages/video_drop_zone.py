@@ -20,12 +20,12 @@ from PySide6.QtWidgets import (
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "bg_hover":    "oklch(0.14 0.01 250)",
-    "bg_active":   "oklch(0.17 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "bg_hover": "oklch(0.14 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 # 视频扩展名
@@ -35,6 +35,7 @@ VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 # ── 拖放区（支持文件夹 + 多文件）────────────────────────────
 class VideoDropZone(QFrame):
     """支持文件夹选择和多文件 Ctrl 多选的视频拖放区"""
+
     files_selected = Signal(list)  # 发送文件列表
 
     def __init__(self, parent=None):
@@ -46,13 +47,13 @@ class VideoDropZone(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                border: 2px dashed {_T['border']};
+                border: 2px dashed {_T["border"]};
                 border-radius: 16px;
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
             }}
             QFrame:hover {{
-                border-color: {_T['primary']};
-                background: {_T['bg_hover']};
+                border-color: {_T["primary"]};
+                background: {_T["bg_hover"]};
             }}
         """)
         layout = QVBoxLayout(self)
@@ -93,8 +94,10 @@ class VideoDropZone(QFrame):
     def _select_files(self):
         """Ctrl 多选文件"""
         paths, _ = QFileDialog.getOpenFileNames(
-            self, "选择视频文件", "",
-            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)"
+            self,
+            "选择视频文件",
+            "",
+            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)",
         )
         if paths:
             self.files_selected.emit(paths)
@@ -121,27 +124,27 @@ class VideoDropZone(QFrame):
             event.acceptProposedAction()
             self.setStyleSheet(f"""
                 QFrame {{
-                    border: 2px solid {_T['primary']};
+                    border: 2px solid {_T["primary"]};
                     border-radius: 16px;
-                    background: {_T['bg_active']};
+                    background: {_T["bg_active"]};
                 }}
             """)
 
     def dragLeaveEvent(self, event):
         self.setStyleSheet(f"""
             QFrame {{
-                border: 2px dashed {_T['border']};
+                border: 2px dashed {_T["border"]};
                 border-radius: 16px;
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
             }}
         """)
 
     def dropEvent(self, event: QDropEvent):
         self.setStyleSheet(f"""
             QFrame {{
-                border: 2px dashed {_T['border']};
+                border: 2px dashed {_T["border"]};
                 border-radius: 16px;
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
             }}
         """)
         paths = []

@@ -6,7 +6,6 @@
 管理字幕编辑时间线视图，整合轨道、时间尺和字幕块。
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
@@ -48,7 +47,7 @@ class SubtitleTimelineWidget(QFrame):
     def __init__(
         self,
         editor: MultiTrackSubtitleEditor | None = None,
-        parent: QWidget | None = None
+        parent: QWidget | None = None,
     ):
         super().__init__(parent)
 

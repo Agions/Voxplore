@@ -13,15 +13,15 @@ from .onboard_wizard import (
 from .welcome import FeatureCard, GradientLogoWidget, WelcomeScreen
 
 __all__ = [
-    'WelcomeScreen',
-    'FeatureCard',
-    'GradientLogoWidget',
-    'OnboardingWizard',
-    'WelcomeStep',
-    'AIProviderStep',
-    'PreferencesStep',
-    'CompletionStep',
-    'FeatureTourDialog',
-    'FeatureTooltip',
-    'FeatureHighlight',
+    "WelcomeScreen",
+    "FeatureCard",
+    "GradientLogoWidget",
+    "OnboardingWizard",
+    "WelcomeStep",
+    "AIProviderStep",
+    "PreferencesStep",
+    "CompletionStep",
+    "FeatureTourDialog",
+    "FeatureTooltip",
+    "FeatureHighlight",
 ]

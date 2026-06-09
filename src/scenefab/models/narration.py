@@ -13,12 +13,13 @@ from typing import Any
 
 class NarrationStyle(Enum):
     """解说风格"""
-    HEALING = "healing"      # 治愈
+
+    HEALING = "healing"  # 治愈
     MYSTERIOUS = "mysterious"  # 悬疑
     INSPIRATIONAL = "inspirational"  # 励志
-    NOSTALGIC = "nostalgic"    # 怀旧
-    ROMANTIC = "romantic"      # 浪漫
-    HUMOROUS = "humorous"      # 幽默
+    NOSTALGIC = "nostalgic"  # 怀旧
+    ROMANTIC = "romantic"  # 浪漫
+    HUMOROUS = "humorous"  # 幽默
     DOCUMENTARY = "documentary"  # 纪录片
 
 
@@ -28,6 +29,7 @@ class EmotionType(str, Enum):
     涵盖所有场景：解说、API、第一人称独白。
     继承 str 以保证 API JSON 序列化兼容性。
     """
+
     # 基础情感（来自原 narration.py）
     NEUTRAL = "neutral"
     CALM = "calm"
@@ -52,6 +54,7 @@ class EmotionType(str, Enum):
 @dataclass(slots=True)
 class NarrationBlock:
     """解说块"""
+
     text: str
     start_time: float
     end_time: float

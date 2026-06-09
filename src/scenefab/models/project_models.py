@@ -24,6 +24,7 @@ from typing import Any, Optional
 def _get_version() -> str:
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -31,6 +32,7 @@ def _get_version() -> str:
 
 class ProjectStatus(Enum):
     """项目状态枚举"""
+
     ACTIVE = "active"
     ARCHIVED = "archived"
     TEMPLATE = "template"
@@ -39,6 +41,7 @@ class ProjectStatus(Enum):
 
 class ProjectType(Enum):
     """项目类型枚举"""
+
     # ── 基础/业务层类型 ────────────────────────────────────────
     VIDEO_EDITING = ("video_editing", "视频剪辑", "基础视频剪辑模式")
     AI_ENHANCEMENT = ("ai_enhancement", "AI 增强", "AI 智能增强画质和音效")
@@ -63,7 +66,7 @@ class ProjectType(Enum):
         return self._value_
 
     @classmethod
-    def _missing_(cls, value: Any) -> Optional['ProjectType']:
+    def _missing_(cls, value: Any) -> Optional["ProjectType"]:
         """支持通过字符串 ID 查找枚举成员（如 ProjectType('ai_enhancement')）"""
         for member in cls:
             if member._value_ == value:
@@ -74,6 +77,7 @@ class ProjectType(Enum):
 @dataclass
 class ProjectMetadata:
     """项目元数据"""
+
     name: str = ""
     description: str = ""
     author: str = ""
@@ -88,12 +92,16 @@ class ProjectMetadata:
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
-        d["project_type"] = self.project_type.value if isinstance(self.project_type, Enum) else self.project_type
+        d["project_type"] = (
+            self.project_type.value
+            if isinstance(self.project_type, Enum)
+            else self.project_type
+        )
         d["status"] = self.status.value
         return d
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectMetadata':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectMetadata":
         status_val = data.get("status", "active")
         if isinstance(status_val, str):
             status = ProjectStatus(status_val)
@@ -124,6 +132,7 @@ class ProjectMetadata:
 @dataclass
 class ProjectSettings:
     """项目设置"""
+
     resolution: str = "1920x1080"
     fps: int = 30
     bitrate: str = "8000k"
@@ -136,7 +145,7 @@ class ProjectSettings:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectSettings':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectSettings":
         return cls(
             resolution=data.get("resolution", "1920x1080"),
             fps=data.get("fps", 30),
@@ -151,6 +160,7 @@ class ProjectSettings:
 @dataclass
 class ProjectMedia:
     """项目媒体文件"""
+
     id: str = ""
     name: str = ""
     type: str = ""  # video, audio, image
@@ -167,7 +177,7 @@ class ProjectMedia:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectMedia':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectMedia":
         return cls(
             id=data.get("id", ""),
             name=data.get("name", ""),
@@ -186,6 +196,7 @@ class ProjectMedia:
 @dataclass
 class ProjectTimeline:
     """项目时间线"""
+
     tracks: list[dict[str, Any]] = field(default_factory=list)
     duration: float = 0.0  # 总时长（秒）
     in_point: float = 0.0
@@ -195,7 +206,7 @@ class ProjectTimeline:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectTimeline':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectTimeline":
         return cls(
             tracks=data.get("tracks", []),
             duration=data.get("duration", 0.0),

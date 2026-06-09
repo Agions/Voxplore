@@ -87,7 +87,9 @@ class EmotionDetector(FeatureExtractorsMixin):
         duration = self._get_video_duration(video_path)
 
         # 采样时间点
-        timestamps = [i * sample_interval for i in range(int(duration / sample_interval) + 1)]
+        timestamps = [
+            i * sample_interval for i in range(int(duration / sample_interval) + 1)
+        ]
         timestamps = [t for t in timestamps if t < duration]
 
         # 预加载音频（并行模式下共享）
@@ -121,13 +123,16 @@ class EmotionDetector(FeatureExtractorsMixin):
         """预加载音频数据（避免重复读取）"""
         try:
             import librosa
+
             y, sr = librosa.load(video_path, sr=22050)
             self._audio_cache[video_path] = {"y": y, "sr": sr}
-            logger.debug(f"音频预加载完成: {len(y)/sr:.1f}s")
+            logger.debug(f"音频预加载完成: {len(y) / sr:.1f}s")
         except Exception as e:
             logger.warning(f"音频预加载失败: {e}")
 
-    def _detect_parallel(self, video_path: str, timestamps: list[float]) -> list[SceneEmotion]:
+    def _detect_parallel(
+        self, video_path: str, timestamps: list[float]
+    ) -> list[SceneEmotion]:
         """并行检测情绪"""
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -147,7 +152,9 @@ class EmotionDetector(FeatureExtractorsMixin):
 
         return [r for r in results if r is not None]
 
-    def _detect_sequential(self, video_path: str, timestamps: list[float]) -> list[SceneEmotion]:
+    def _detect_sequential(
+        self, video_path: str, timestamps: list[float]
+    ) -> list[SceneEmotion]:
         """串行检测情绪"""
         scene_emotions = []
         for timestamp in timestamps:
@@ -183,11 +190,15 @@ class EmotionDetector(FeatureExtractorsMixin):
         """
         try:
             import subprocess
+
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "csv=p=0",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
                 video_path,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -231,9 +242,7 @@ class EmotionDetector(FeatureExtractorsMixin):
         )
 
         # 生成描述
-        description = self._generate_description(
-            scene_type, emotion_label, intensity
-        )
+        description = self._generate_description(scene_type, emotion_label, intensity)
 
         return SceneEmotion(
             timestamp=timestamp,

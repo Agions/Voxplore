@@ -23,9 +23,7 @@ class EmotionPeakDetector:
         self._cache = {}
 
     def detect(
-        self,
-        segments: list[VideoSegment],
-        progress_callback: Callable | None = None
+        self, segments: list[VideoSegment], progress_callback: Callable | None = None
     ) -> list[EmotionPeak]:
         peaks = []
         total = len(segments)
@@ -70,8 +68,8 @@ class EmotionPeakDetector:
         audio_score = self._analyze_audio_emotion(segment)
 
         peak_score = (
-            self.config.visual_weight * visual_score +
-            self.config.audio_weight * audio_score
+            self.config.visual_weight * visual_score
+            + self.config.audio_weight * audio_score
         )
 
         reason = self._determine_reason(visual_score, audio_score)
@@ -81,7 +79,7 @@ class EmotionPeakDetector:
             peak_score=peak_score,
             reason=reason,
             visual_score=visual_score,
-            audio_score=audio_score
+            audio_score=audio_score,
         )
 
         self._cache[cache_key] = peak
@@ -109,7 +107,11 @@ class EmotionPeakDetector:
             max_samples = 100
             sampled = 0
 
-            for f in range(start_frame, min(end_frame, start_frame + max_samples * sample_interval), sample_interval):
+            for f in range(
+                start_frame,
+                min(end_frame, start_frame + max_samples * sample_interval),
+                sample_interval,
+            ):
                 if sampled >= max_samples:
                     break
 
@@ -118,7 +120,9 @@ class EmotionPeakDetector:
                 if ret:
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                     if prev_gray is not None:
-                        diff = np.mean(np.abs(gray.astype(float) - prev_gray.astype(float)))
+                        diff = np.mean(
+                            np.abs(gray.astype(float) - prev_gray.astype(float))
+                        )
                         diffs.append(diff)
                     prev_gray = gray
                     sampled += 1
@@ -145,15 +149,15 @@ class EmotionPeakDetector:
                 segment.video_path,
                 offset=segment.start_time,
                 duration=segment.duration,
-                sr=16000
+                sr=16000,
             )
 
             if len(y) < sr:
                 return 0.5
 
             # 能量计算
-            energy = np.sum(y ** 2) / len(y)
-            energy_norm = min(1.0, float(energy ** 0.5) * 5)
+            energy = np.sum(y**2) / len(y)
+            energy_norm = min(1.0, float(energy**0.5) * 5)
 
             # 音调计算
             try:

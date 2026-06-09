@@ -31,6 +31,7 @@ class TestVisionProvider:
 
     def test_subclass_must_implement(self):
         """测试子类必须实现方法"""
+
         class IncompleteProvider(VisionProvider):
             pass
 
@@ -49,14 +50,11 @@ class TestOpenAIVisionProvider:
 
     def test_init_custom_model(self):
         """测试自定义模型"""
-        provider = OpenAIVisionProvider(
-            api_key="sk-test",
-            model="gpt-4o-mini"
-        )
+        provider = OpenAIVisionProvider(api_key="sk-test", model="gpt-4o-mini")
 
         assert provider.model == "gpt-4o-mini"
 
-    @patch('openai.OpenAI')
+    @patch("openai.OpenAI")
     def test_analyze_image(self, mock_openai):
         """测试图像分析"""
         mock_client = Mock()
@@ -88,7 +86,7 @@ class TestQwenVLProvider:
 
         assert provider.api_key == "test-key"
 
-    @patch('openai.OpenAI')
+    @patch("openai.OpenAI")
     def test_analyze_image(self, mock_openai):
         """测试图像分析"""
         mock_client = Mock()
@@ -112,11 +110,7 @@ class TestVisionAnalyzerFactory:
     @patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"})
     def test_init_with_config(self):
         """测试工厂初始化"""
-        config = {
-            "LLM": {
-                "openai": {"api_key": "sk-test", "vision_model": "gpt-4o"}
-            }
-        }
+        config = {"LLM": {"openai": {"api_key": "sk-test", "vision_model": "gpt-4o"}}}
         factory = VisionAnalyzerFactory(config)
         assert len(factory._providers) >= 0
 

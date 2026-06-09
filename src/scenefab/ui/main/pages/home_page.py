@@ -140,10 +140,10 @@ class HomePage(QFrame):
         cards_layout.setSpacing(16)
 
         actions = [
-            ("new",      "＋", "新建项目",     "从零开始创作视频",     Colors.PRIMARY),
-            ("template", "📋", "使用模板",      "从模板快速创建",      Colors.ACCENT),
-            ("import",   "📁", "导入素材",      "使用本地视频文件",     Colors.INFO),
-            ("ai",       "✨", "AI 助手",       "智能创作建议与优化",   Colors.WARNING),
+            ("new", "＋", "新建项目", "从零开始创作视频", Colors.PRIMARY),
+            ("template", "📋", "使用模板", "从模板快速创建", Colors.ACCENT),
+            ("import", "📁", "导入素材", "使用本地视频文件", Colors.INFO),
+            ("ai", "✨", "AI 助手", "智能创作建议与优化", Colors.WARNING),
         ]
         for _id, icon, title, desc, accent in actions:
             card = QuickCard(_id, icon, title, desc, accent)
@@ -217,11 +217,11 @@ class HomePage(QFrame):
         layout.setSpacing(32)
 
         stats = [
-            ("12",    "总项目数",   Colors.PRIMARY),
-            ("48",    "视频总数",   Colors.ACCENT),
-            ("2.3GB", "存储使用",   Colors.WARNING),
-            ("99%",   "成功率",     Colors.SUCCESS),
-            ("v2.0",  "当前版本",   Colors.INFO),
+            ("12", "总项目数", Colors.PRIMARY),
+            ("48", "视频总数", Colors.ACCENT),
+            ("2.3GB", "存储使用", Colors.WARNING),
+            ("99%", "成功率", Colors.SUCCESS),
+            ("v2.0", "当前版本", Colors.INFO),
         ]
         for val, lbl, color in stats:
             chip = StatChip(val, lbl, color)
@@ -268,4 +268,3 @@ class HomePage(QFrame):
 # ═══════════════════════════════════════════════════════════════════════
 # 空状态卡片
 # ═══════════════════════════════════════════════════════════════════════
-

@@ -30,7 +30,7 @@ class CacheManager:
     统一管理内存缓存和磁盘缓存。
     """
 
-    _instance: Optional['CacheManager'] = None
+    _instance: Optional["CacheManager"] = None
     _lock = Lock()
 
     def __new__(cls):
@@ -48,7 +48,7 @@ class CacheManager:
             self._initialized = True
 
     @classmethod
-    def get_instance(cls) -> 'CacheManager':
+    def get_instance(cls) -> "CacheManager":
         """获取实例"""
         return cls()
 
@@ -90,8 +90,14 @@ class CacheManager:
 
         return None
 
-    def set(self, key: str, value: Any, ttl: int | None = None,
-            use_disk: bool = False, metadata: dict[str, Any] | None = None) -> bool:
+    def set(
+        self,
+        key: str,
+        value: Any,
+        ttl: int | None = None,
+        use_disk: bool = False,
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
         """
         设置缓存值
 
@@ -136,11 +142,9 @@ class CacheManager:
 
     def get_stats(self) -> dict[str, CacheStats]:
         """获取缓存统计"""
-        stats = {
-            'memory': self._memory_cache.get_stats()
-        }
+        stats = {"memory": self._memory_cache.get_stats()}
         if self._disk_cache:
-            stats['disk'] = self._disk_cache.get_stats()
+            stats["disk"] = self._disk_cache.get_stats()
         return stats
 
     def cleanup_expired(self) -> int:
@@ -173,6 +177,7 @@ def cached(ttl: int | None = None, use_disk: bool = False):
         ttl: 过期时间（秒）
         use_disk: 是否使用磁盘缓存
     """
+
     def decorator(func):
         cache_key = f"func:{func.__module__}.{func.__name__}"
 
@@ -195,8 +200,8 @@ def cached(ttl: int | None = None, use_disk: bool = False):
         wrapper.__name__ = func.__name__
         wrapper.__doc__ = func.__doc__
         return wrapper
-    return decorator
 
+    return decorator
 
 
 __all__ = [

@@ -34,9 +34,12 @@ class MemoryCache(ICache):
     基于OrderedDict实现LRU缓存。
     """
 
-    def __init__(self, max_size: int = DEFAULT_CACHE_MAX_ENTRIES,
-                 max_memory_mb: int = DEFAULT_CACHE_MAX_MEMORY_MB,
-                 policy: CachePolicy = CachePolicy.LRU):
+    def __init__(
+        self,
+        max_size: int = DEFAULT_CACHE_MAX_ENTRIES,
+        max_memory_mb: int = DEFAULT_CACHE_MAX_MEMORY_MB,
+        policy: CachePolicy = CachePolicy.LRU,
+    ):
         """
         初始化内存缓存
 
@@ -89,8 +92,13 @@ class MemoryCache(ICache):
             self._hit_count += 1
             return entry.value
 
-    def set(self, key: str, value: Any, ttl: int | None = None,
-            metadata: dict[str, Any] | None = None) -> bool:
+    def set(
+        self,
+        key: str,
+        value: Any,
+        ttl: int | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
         """
         设置缓存值
 
@@ -124,7 +132,7 @@ class MemoryCache(ICache):
                     created_at=datetime.now(),
                     expires_at=expires_at,
                     size_bytes=size_bytes,
-                    metadata=metadata or {}
+                    metadata=metadata or {},
                 )
 
                 # 检查是否需要清理
@@ -193,6 +201,7 @@ class MemoryCache(ICache):
         with self._lock:
             total_size = sum(e.size_bytes for e in self._cache.values())
             from scenefab.cache_impl import calc_hit_rate
+
             hit_rate = calc_hit_rate(self._hit_count, self._miss_count)
 
             return CacheStats(
@@ -204,7 +213,7 @@ class MemoryCache(ICache):
                 hit_rate=hit_rate,
                 avg_entry_size=total_size / len(self._cache) if self._cache else 0,
                 max_size_bytes=self._max_memory_bytes,
-                policy=self._policy
+                policy=self._policy,
             )
 
     def get_entry(self, key: str) -> CacheEntry | None:
@@ -238,6 +247,7 @@ class MemoryCache(ICache):
 
             if pattern:
                 import fnmatch
+
                 keys = [k for k in keys if fnmatch.fnmatch(k, pattern)]
 
             return keys
@@ -251,8 +261,7 @@ class MemoryCache(ICache):
         """
         with self._lock:
             expired_keys = [
-                key for key, entry in self._cache.items()
-                if entry.is_expired
+                key for key, entry in self._cache.items() if entry.is_expired
             ]
 
             for key in expired_keys:
@@ -269,9 +278,10 @@ class MemoryCache(ICache):
         """
         current_size = sum(e.size_bytes for e in self._cache.values())
 
-        while (len(self._cache) >= self._max_size or
-               current_size + required_bytes > self._max_memory_bytes):
-
+        while (
+            len(self._cache) >= self._max_size
+            or current_size + required_bytes > self._max_memory_bytes
+        ):
             if not self._cache:
                 break
 
@@ -282,8 +292,7 @@ class MemoryCache(ICache):
             elif self._policy == CachePolicy.LFU:
                 # 移除访问次数最少的
                 key_to_remove = min(
-                    self._cache.keys(),
-                    key=lambda k: self._cache[k].access_count
+                    self._cache.keys(), key=lambda k: self._cache[k].access_count
                 )
             else:
                 # 默认FIFO

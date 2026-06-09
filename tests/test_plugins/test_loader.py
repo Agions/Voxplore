@@ -14,7 +14,10 @@ class TestPluginLoaderEntryPoints:
         """When no entry_points match, should return empty list"""
         loader = PluginLoader()
         # Patch at the import site inside the method
-        with patch("importlib.metadata.entry_points", return_value=MagicMock(select=lambda group: [])):
+        with patch(
+            "importlib.metadata.entry_points",
+            return_value=MagicMock(select=lambda group: []),
+        ):
             result = loader._discover_via_entry_points()
             assert result == []
 
@@ -24,7 +27,7 @@ class TestPluginLoaderEntryPoints:
 
         # Use proper mock with string attributes matching importlib.metadata Entry object
         fake_ep = MagicMock()
-        fake_ep.module = "my_plugin"        # set explicitly so it returns string
+        fake_ep.module = "my_plugin"  # set explicitly so it returns string
         fake_ep.attr = "MyPlugin"
         fake_ep.name = "my-plugin"
         fake_ep.value = "my_plugin:MyPlugin"

@@ -23,16 +23,16 @@ from .narration_segment_card import NarrationSegmentCard
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "bg_active":   "oklch(0.17 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "border_h":    "oklch(0.30 0.02 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "primary_l":   "oklch(0.70 0.24 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "border_h": "oklch(0.30 0.02 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "primary_l": "oklch(0.70 0.24 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
@@ -42,6 +42,7 @@ class PreviewTextArea(QFrame):
     完整解说文案预览区
     显示所有分段，带标签装饰（开场/高潮/结尾等）
     """
+
     text_changed = Signal(str)  # 整个文案变更
 
     def __init__(self, parent=None):
@@ -52,8 +53,8 @@ class PreviewTextArea(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_card"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 12px;
             }}
         """)
@@ -69,7 +70,9 @@ class PreviewTextArea(QFrame):
         header.addWidget(title)
 
         self._word_count_label = QLabel("0 字")
-        self._word_count_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 11px;")
+        self._word_count_label.setStyleSheet(
+            f"color: {_T['text_muted']}; font-size: 11px;"
+        )
         header.addWidget(self._word_count_label)
         header.addStretch()
 
@@ -77,7 +80,7 @@ class PreviewTextArea(QFrame):
         self._bulk_edit_cb = QCheckBox("全量编辑")
         self._bulk_edit_cb.setStyleSheet(f"""
             QCheckBox {{
-                color: {_T['text_sub']};
+                color: {_T["text_sub"]};
                 font-size: 11px;
             }}
             QCheckBox::indicator {{
@@ -100,13 +103,13 @@ class PreviewTextArea(QFrame):
                 background: transparent;
             }}
             QScrollBar:vertical {{
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
                 border-radius: 4px;
                 width: 6px;
                 margin: 2px 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {_T['border_h']};
+                background: {_T["border_h"]};
                 border-radius: 3px;
             }}
         """)
@@ -122,14 +125,14 @@ class PreviewTextArea(QFrame):
         self._bulk_text_edit.setFont(QFont("", 13))
         self._bulk_text_edit.setStyleSheet(f"""
             QTextEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 12px;
                 line-height: 1.8;
             }}
-            QTextEdit:focus {{ border-color: {_T['primary']}; }}
+            QTextEdit:focus {{ border-color: {_T["primary"]}; }}
         """)
         self._bulk_text_edit.setVisible(False)
         self._bulk_text_edit.textChanged.connect(self._on_bulk_text_changed)
@@ -139,20 +142,20 @@ class PreviewTextArea(QFrame):
         self._segment_tabs = QTabWidget()
         self._segment_tabs.setStyleSheet(f"""
             QTabWidget::pane {{
-                border: 1px solid {_T['border']};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
             }}
             QTabBar::tab {{
                 background: transparent;
-                color: {_T['text_muted']};
+                color: {_T["text_muted"]};
                 padding: 6px 14px;
                 font-size: 11px;
                 border-bottom: 2px solid transparent;
             }}
             QTabBar::tab:selected {{
-                color: {_T['primary']};
-                border-bottom-color: {_T['primary']};
+                color: {_T["primary"]};
+                border-bottom-color: {_T["primary"]};
             }}
         """)
         self._segment_tabs.setVisible(False)
@@ -186,11 +189,7 @@ class PreviewTextArea(QFrame):
         for i in range(self._segments_layout.count()):
             card = self._segments_layout.itemAt(i).widget()
             if isinstance(card, NarrationSegmentCard):
-                result.append((
-                    card._time_range,
-                    card.get_text(),
-                    card._emotion
-                ))
+                result.append((card._time_range, card.get_text(), card._emotion))
         return result
 
     def _on_segment_changed(self, text: str):
@@ -200,9 +199,9 @@ class PreviewTextArea(QFrame):
         if checked:
             # 切换到全量编辑模式
             self._bulk_text_edit.setVisible(True)
-            self._bulk_text_edit.setPlainText("\n\n".join(
-                f"[{s[0]}] {s[1]}" for s in self._segments
-            ))
+            self._bulk_text_edit.setPlainText(
+                "\n\n".join(f"[{s[0]}] {s[1]}" for s in self._segments)
+            )
             # 隐藏分段卡片
             self._segments_container.setVisible(False)
             self._segment_tabs.setVisible(False)

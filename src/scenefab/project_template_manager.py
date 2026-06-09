@@ -25,22 +25,23 @@ class ProjectTemplateManager(QObject):
     """项目模板管理器"""
 
     # 信号定义
-    template_created = Signal(str)      # 模板创建信号
-    template_updated = Signal(str)      # 模板更新信号
+    template_created = Signal(str)  # 模板创建信号
+    template_updated = Signal(str)  # 模板更新信号
 
     @staticmethod
     def _get_version() -> str:
         try:
             from scenefab import __version__
+
             return __version__
         except Exception:
             return "1.0.0"
 
-    template_deleted = Signal(str)      # 模板删除信号
-    template_imported = Signal(str)     # 模板导入信号
-    template_exported = Signal(str)     # 模板导出信号
-    categories_updated = Signal()       # 类别更新信号
-    error_occurred = Signal(str, str)   # 错误发生信号
+    template_deleted = Signal(str)  # 模板删除信号
+    template_imported = Signal(str)  # 模板导入信号
+    template_exported = Signal(str)  # 模板导出信号
+    categories_updated = Signal()  # 类别更新信号
+    error_occurred = Signal(str, str)  # 错误发生信号
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()
@@ -80,7 +81,7 @@ class ProjectTemplateManager(QObject):
             TemplateCategory("social_media", "社交媒体", "share", "#00BCD4"),
             TemplateCategory("education", "教育培训", "school", "#FF9800"),
             TemplateCategory("business", "商务展示", "business", "#607D8B"),
-            TemplateCategory("personal", "个人创作", "person", "#E91E63")
+            TemplateCategory("personal", "个人创作", "person", "#E91E63"),
         ]
 
         for category in default_categories:
@@ -95,7 +96,7 @@ class ProjectTemplateManager(QObject):
             # 加载模板索引
             index_file = self.templates_dir / "templates.json"
             if index_file.exists():
-                with open(index_file, encoding='utf-8') as f:
+                with open(index_file, encoding="utf-8") as f:
                     templates_data = json.load(f)
                     for template_id, template_data in templates_data.items():
                         template_info = TemplateInfo.from_dict(template_data)
@@ -118,7 +119,7 @@ class ProjectTemplateManager(QObject):
                     template_info_file = template_dir / "template_info.json"
                     if template_info_file.exists():
                         try:
-                            with open(template_info_file, encoding='utf-8') as f:
+                            with open(template_info_file, encoding="utf-8") as f:
                                 template_data = json.load(f)
 
                             template_info = TemplateInfo.from_dict(template_data)
@@ -129,9 +130,13 @@ class ProjectTemplateManager(QObject):
                                 self.templates[template_info.id] = template_info
 
                         except Exception as e:
-                            self.logger.warning(f"Failed to load builtin template {template_dir}: {e}")
+                            self.logger.warning(
+                                f"Failed to load builtin template {template_dir}: {e}"
+                            )
 
-            self.logger.info(f"Loaded {len([t for t in self.templates.values() if t.is_builtin])} builtin templates")
+            self.logger.info(
+                f"Loaded {len([t for t in self.templates.values() if t.is_builtin])} builtin templates"
+            )
 
         except Exception as e:
             self.logger.error(f"Failed to load builtin templates: {e}")
@@ -140,8 +145,12 @@ class ProjectTemplateManager(QObject):
         """保存模板信息"""
         try:
             index_file = self.templates_dir / "templates.json"
-            templates_data = {tid: t.to_dict() for tid, t in self.templates.items() if not t.is_builtin}
-            with open(index_file, 'w', encoding='utf-8') as f:
+            templates_data = {
+                tid: t.to_dict()
+                for tid, t in self.templates.items()
+                if not t.is_builtin
+            }
+            with open(index_file, "w", encoding="utf-8") as f:
                 json.dump(templates_data, f, indent=2, ensure_ascii=False)
 
         except Exception as e:
@@ -161,8 +170,14 @@ class ProjectTemplateManager(QObject):
             self.logger.error(f"Failed to calculate directory size: {e}")
             return 0
 
-    def create_template(self, project: Project, template_name: str, category: str,
-                      description: str = "", tags: list[str] = None) -> str | None:
+    def create_template(
+        self,
+        project: Project,
+        template_name: str,
+        category: str,
+        description: str = "",
+        tags: list[str] = None,
+    ) -> str | None:
         """从项目创建模板"""
         try:
             # 生成模板ID
@@ -182,12 +197,12 @@ class ProjectTemplateManager(QObject):
                 author=project.metadata.author,
                 version=self._get_version(),
                 category=category,
-                tags=tags or []
+                tags=tags or [],
             )
 
             # 保存模板元数据
             metadata_file = template_dir / "template_metadata.json"
-            with open(metadata_file, 'w', encoding='utf-8') as f:
+            with open(metadata_file, "w", encoding="utf-8") as f:
                 json.dump(template_metadata.__dict__, f, indent=2, ensure_ascii=False)
 
             # 创建模板信息
@@ -202,11 +217,13 @@ class ProjectTemplateManager(QObject):
                 updated_at=datetime.now(),
                 file_size=self._calculate_directory_size(template_dir),
                 tags=tags or [],
-                project_type=project.metadata.project_type
+                project_type=project.metadata.project_type,
             )
 
             # 复制预览图（如果存在）
-            if project.metadata.thumbnail_path and os.path.exists(project.metadata.thumbnail_path):
+            if project.metadata.thumbnail_path and os.path.exists(
+                project.metadata.thumbnail_path
+            ):
                 preview_dest = template_dir / "preview.png"
                 shutil.copy2(project.metadata.thumbnail_path, preview_dest)
                 template_info.preview_image = str(preview_dest)
@@ -220,7 +237,9 @@ class ProjectTemplateManager(QObject):
             return template_id
 
         except Exception as e:
-            self.logger.error(f"Failed to create template from project {project.id}: {e}")
+            self.logger.error(
+                f"Failed to create template from project {project.id}: {e}"
+            )
             self.error_occurred.emit("TEMPLATE_ERROR", f"创建模板失败: {str(e)}")
             return None
 
@@ -228,27 +247,32 @@ class ProjectTemplateManager(QObject):
         """复制项目文件到模板目录"""
         try:
             # 复制项目配置文件
-            project_file = os.path.join(project_path, 'project.json')
+            project_file = os.path.join(project_path, "project.json")
             if os.path.exists(project_file):
-                shutil.copy2(project_file, template_dir / 'project_template.json')
+                shutil.copy2(project_file, template_dir / "project_template.json")
 
             # 复制媒体文件（可选，可以只复制结构）
-            media_source = Path(project_path) / 'media'
+            media_source = Path(project_path) / "media"
             if media_source.exists():
-                media_dest = template_dir / 'media'
+                media_dest = template_dir / "media"
                 shutil.copytree(media_source, media_dest, dirs_exist_ok=True)
 
             # 复制资产文件
-            assets_source = Path(project_path) / 'assets'
+            assets_source = Path(project_path) / "assets"
             if assets_source.exists():
-                assets_dest = template_dir / 'assets'
+                assets_dest = template_dir / "assets"
                 shutil.copytree(assets_source, assets_dest, dirs_exist_ok=True)
 
         except Exception as e:
             self.logger.error(f"Failed to copy project to template: {e}")
 
-    def apply_template(self, template_id: str, project_name: str,
-                      project_path: str, variables: dict[str, Any] = None) -> bool:
+    def apply_template(
+        self,
+        template_id: str,
+        project_name: str,
+        project_path: str,
+        variables: dict[str, Any] = None,
+    ) -> bool:
         """应用模板创建项目"""
         try:
             if template_id not in self.templates:
@@ -264,7 +288,9 @@ class ProjectTemplateManager(QObject):
                 template_path = self.templates_dir / template_id
 
             if not template_path.exists():
-                self.error_occurred.emit("TEMPLATE_ERROR", f"模板文件不存在: {template_id}")
+                self.error_occurred.emit(
+                    "TEMPLATE_ERROR", f"模板文件不存在: {template_id}"
+                )
                 return False
 
             # 创建项目目录
@@ -272,7 +298,7 @@ class ProjectTemplateManager(QObject):
             project_dir.mkdir(parents=True, exist_ok=True)
 
             # 创建子目录
-            subdirs = ['media', 'exports', 'backups', 'cache', 'assets']
+            subdirs = ["media", "exports", "backups", "cache", "assets"]
             for subdir in subdirs:
                 (project_dir / subdir).mkdir(exist_ok=True)
 
@@ -284,7 +310,9 @@ class ProjectTemplateManager(QObject):
                 template_info.download_count += 1
                 self._save_templates()
 
-            self.logger.info(f"Applied template {template_id} to project {project_name}")
+            self.logger.info(
+                f"Applied template {template_id} to project {project_name}"
+            )
             return True
 
         except Exception as e:
@@ -292,44 +320,51 @@ class ProjectTemplateManager(QObject):
             self.error_occurred.emit("TEMPLATE_ERROR", f"应用模板失败: {str(e)}")
             return False
 
-    def _copy_template_to_project(self, template_path: Path, project_dir: Path,
-                                 variables: dict[str, Any]) -> None:
+    def _copy_template_to_project(
+        self, template_path: Path, project_dir: Path, variables: dict[str, Any]
+    ) -> None:
         """复制模板文件到项目目录"""
         try:
             # 处理模板项目文件
-            template_project_file = template_path / 'project_template.json'
+            template_project_file = template_path / "project_template.json"
             if template_project_file.exists():
-                with open(template_project_file, encoding='utf-8') as f:
+                with open(template_project_file, encoding="utf-8") as f:
                     project_data = json.load(f)
 
                 # 应用变量替换
                 self._apply_variables_to_project(project_data, variables)
 
                 # 更新项目元数据
-                if 'metadata' in project_data:
-                    project_data['metadata']['name'] = variables.get('project_name', 'Untitled Project')
-                    project_data['metadata']['created_at'] = datetime.now().isoformat()
-                    project_data['metadata']['modified_at'] = datetime.now().isoformat()
+                if "metadata" in project_data:
+                    project_data["metadata"]["name"] = variables.get(
+                        "project_name", "Untitled Project"
+                    )
+                    project_data["metadata"]["created_at"] = datetime.now().isoformat()
+                    project_data["metadata"]["modified_at"] = datetime.now().isoformat()
 
                 # 保存项目文件
-                with open(project_dir / 'project.json', 'w', encoding='utf-8') as f:
+                with open(project_dir / "project.json", "w", encoding="utf-8") as f:
                     json.dump(project_data, f, indent=2, ensure_ascii=False)
 
             # 复制媒体文件
-            media_source = template_path / 'media'
+            media_source = template_path / "media"
             if media_source.exists():
-                media_dest = project_dir / 'media'
+                media_dest = project_dir / "media"
                 shutil.copytree(media_source, media_dest, dirs_exist_ok=True)
 
             # 复制资产文件
-            assets_source = template_path / 'assets'
+            assets_source = template_path / "assets"
             if assets_source.exists():
-                assets_dest = project_dir / 'assets'
+                assets_dest = project_dir / "assets"
                 shutil.copytree(assets_source, assets_dest, dirs_exist_ok=True)
 
             # 复制其他文件
-            for file_path in template_path.rglob('*'):
-                if file_path.is_file() and file_path.name not in ['project_template.json', 'template_metadata.json', 'template_info.json']:
+            for file_path in template_path.rglob("*"):
+                if file_path.is_file() and file_path.name not in [
+                    "project_template.json",
+                    "template_metadata.json",
+                    "template_info.json",
+                ]:
                     relative_path = file_path.relative_to(template_path)
                     dest_path = project_dir / relative_path
                     dest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -338,7 +373,9 @@ class ProjectTemplateManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to copy template to project: {e}")
 
-    def _apply_variables_to_project(self, project_data: dict[str, Any], variables: dict[str, Any]) -> None:
+    def _apply_variables_to_project(
+        self, project_data: dict[str, Any], variables: dict[str, Any]
+    ) -> None:
         """应用变量到项目数据"""
         try:
             # 递归替换变量
@@ -380,7 +417,7 @@ class ProjectTemplateManager(QObject):
                 template_dir = self.templates_dir / template_id
                 if template_dir.exists():
                     metadata_file = template_dir / "template_info.json"
-                    with open(metadata_file, 'w') as f:
+                    with open(metadata_file, "w") as f:
                         json.dump(template_info.to_dict(), f, indent=2)
 
             self._save_templates()
@@ -442,8 +479,9 @@ class ProjectTemplateManager(QObject):
         """获取所有类别"""
         return list(self.categories.values())
 
-    def search_templates(self, query: str, category: str = None,
-                        project_type: ProjectType = None) -> list[TemplateInfo]:
+    def search_templates(
+        self, query: str, category: str = None, project_type: ProjectType = None
+    ) -> list[TemplateInfo]:
         """搜索模板"""
         results = []
 
@@ -458,9 +496,11 @@ class ProjectTemplateManager(QObject):
 
             # 检查搜索条件
             query_lower = query.lower()
-            if (query_lower in template.name.lower() or
-                query_lower in template.description.lower() or
-                any(query_lower in tag.lower() for tag in template.tags)):
+            if (
+                query_lower in template.name.lower()
+                or query_lower in template.description.lower()
+                or any(query_lower in tag.lower() for tag in template.tags)
+            ):
                 results.append(template)
 
         return results
@@ -483,21 +523,21 @@ class ProjectTemplateManager(QObject):
                 return False
 
             # 创建ZIP文件
-            with zipfile.ZipFile(export_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            with zipfile.ZipFile(export_path, "w", zipfile.ZIP_DEFLATED) as zipf:
                 # 添加模板文件
-                for file_path in template_path.rglob('*'):
+                for file_path in template_path.rglob("*"):
                     if file_path.is_file():
                         arcname = file_path.relative_to(template_path)
                         zipf.write(file_path, arcname)
 
                 # 添加导出信息
                 export_info = {
-                    'template_info': template_info.to_dict(),
-                    'exported_at': datetime.now().isoformat(),
-                    'cineai_version': '2.0.0'
+                    "template_info": template_info.to_dict(),
+                    "exported_at": datetime.now().isoformat(),
+                    "cineai_version": "2.0.0",
                 }
 
-                zipf.writestr('export_info.json', json.dumps(export_info, indent=2))
+                zipf.writestr("export_info.json", json.dumps(export_info, indent=2))
 
             self.template_exported.emit(template_id)
             self.logger.info(f"Exported template: {template_id} to {export_path}")
@@ -511,15 +551,18 @@ class ProjectTemplateManager(QObject):
         """导入模板"""
         try:
             # 创建临时目录
-            temp_dir = self.temp_dir / f"template_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            temp_dir = (
+                self.temp_dir
+                / f"template_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            )
             temp_dir.mkdir(parents=True, exist_ok=True)
 
             # 解压ZIP文件
-            with zipfile.ZipFile(import_path, 'r') as zipf:
+            with zipfile.ZipFile(import_path, "r") as zipf:
                 zipf.extractall(temp_dir)
 
             # 检查导出信息
-            export_info_file = temp_dir / 'export_info.json'
+            export_info_file = temp_dir / "export_info.json"
             if not export_info_file.exists():
                 self.error_occurred.emit("TEMPLATE_ERROR", "无效的模板文件")
                 return None
@@ -527,7 +570,7 @@ class ProjectTemplateManager(QObject):
             with open(export_info_file) as f:
                 export_info = json.load(f)
 
-            template_data = export_info['template_info']
+            template_data = export_info["template_info"]
             template_info = TemplateInfo.from_dict(template_data)
 
             # 生成新模板ID
@@ -541,8 +584,8 @@ class ProjectTemplateManager(QObject):
             shutil.copytree(temp_dir, template_dir)
 
             # 更新模板信息文件
-            info_file = template_dir / 'template_info.json'
-            with open(info_file, 'w') as f:
+            info_file = template_dir / "template_info.json"
+            with open(info_file, "w") as f:
                 json.dump(template_info.to_dict(), f, indent=2)
 
             # 添加到模板列表
@@ -583,19 +626,29 @@ class ProjectTemplateManager(QObject):
         """获取模板统计信息"""
         try:
             total_templates = len(self.templates)
-            builtin_templates = len([t for t in self.templates.values() if t.is_builtin])
+            builtin_templates = len(
+                [t for t in self.templates.values() if t.is_builtin]
+            )
             user_templates = total_templates - builtin_templates
 
             # 按类别统计
             category_stats = {}
             for category in self.categories.values():
-                count = len([t for t in self.templates.values() if t.category == category.name])
+                count = len(
+                    [t for t in self.templates.values() if t.category == category.name]
+                )
                 category_stats[category.name] = count
 
             # 按类型统计
             type_stats = {}
             for project_type in ProjectType:
-                count = len([t for t in self.templates.values() if t.project_type == project_type])
+                count = len(
+                    [
+                        t
+                        for t in self.templates.values()
+                        if t.project_type == project_type
+                    ]
+                )
                 type_stats[project_type.value] = count
 
             # 下载统计
@@ -603,17 +656,21 @@ class ProjectTemplateManager(QObject):
 
             # 评分统计
             rated_templates = [t for t in self.templates.values() if t.rating > 0]
-            avg_rating = sum(t.rating for t in rated_templates) / len(rated_templates) if rated_templates else 0.0
+            avg_rating = (
+                sum(t.rating for t in rated_templates) / len(rated_templates)
+                if rated_templates
+                else 0.0
+            )
 
             return {
-                'total_templates': total_templates,
-                'builtin_templates': builtin_templates,
-                'user_templates': user_templates,
-                'category_stats': category_stats,
-                'type_stats': type_stats,
-                'total_downloads': total_downloads,
-                'average_rating': avg_rating,
-                'rated_templates_count': len(rated_templates)
+                "total_templates": total_templates,
+                "builtin_templates": builtin_templates,
+                "user_templates": user_templates,
+                "category_stats": category_stats,
+                "type_stats": type_stats,
+                "total_downloads": total_downloads,
+                "average_rating": avg_rating,
+                "rated_templates_count": len(rated_templates),
             }
 
         except Exception as e:
@@ -624,7 +681,7 @@ class ProjectTemplateManager(QObject):
         """验证模板完整性"""
         try:
             if template_id not in self.templates:
-                return {'valid': False, 'errors': ['模板不存在']}
+                return {"valid": False, "errors": ["模板不存在"]}
 
             template_info = self.templates[template_id]
 
@@ -635,35 +692,37 @@ class ProjectTemplateManager(QObject):
                 template_path = self.templates_dir / template_id
 
             if not template_path.exists():
-                return {'valid': False, 'errors': ['模板目录不存在']}
+                return {"valid": False, "errors": ["模板目录不存在"]}
 
             errors = []
             warnings = []
 
             # 检查必需文件
-            required_files = ['project_template.json']
+            required_files = ["project_template.json"]
             for file_name in required_files:
                 file_path = template_path / file_name
                 if not file_path.exists():
                     errors.append(f"缺少必需文件: {file_name}")
 
             # 检查模板信息
-            info_file = template_path / 'template_info.json'
+            info_file = template_path / "template_info.json"
             if not info_file.exists():
                 warnings.append("缺少模板信息文件")
 
             # 检查文件大小
             actual_size = self._calculate_directory_size(template_path)
             if actual_size != template_info.file_size:
-                warnings.append(f"文件大小不匹配: 预期 {template_info.file_size}, 实际 {actual_size}")
+                warnings.append(
+                    f"文件大小不匹配: 预期 {template_info.file_size}, 实际 {actual_size}"
+                )
 
             return {
-                'valid': len(errors) == 0,
-                'errors': errors,
-                'warnings': warnings,
-                'actual_size': actual_size
+                "valid": len(errors) == 0,
+                "errors": errors,
+                "warnings": warnings,
+                "actual_size": actual_size,
             }
 
         except Exception as e:
             self.logger.error(f"Failed to validate template {template_id}: {e}")
-            return {'valid': False, 'errors': [f"验证失败: {str(e)}"]}
+            return {"valid": False, "errors": [f"验证失败: {str(e)}"]}

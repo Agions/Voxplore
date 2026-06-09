@@ -31,7 +31,9 @@ class ThemePresetSelector(QWidget):
 
         # 深色主题区域
         dark_label = QLabel("深色主题")
-        dark_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
+        dark_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;"
+        )
         layout.addWidget(dark_label)
 
         dark_grid = QHBoxLayout()
@@ -45,7 +47,9 @@ class ThemePresetSelector(QWidget):
 
         # 浅色主题区域
         light_label = QLabel("浅色主题")
-        light_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;")
+        light_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; font-size: 12px; font-weight: 600;"
+        )
         layout.addWidget(light_label)
 
         light_grid = QHBoxLayout()
@@ -72,9 +76,9 @@ class ThemePresetSelector(QWidget):
             QPushButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                     stop:0 {bg},
-                    stop:0.5 {colors.get('surface', bg)},
+                    stop:0.5 {colors.get("surface", bg)},
                     stop:1 {bg});
-                border: 2px solid {colors.get('border', '#30363D')};
+                border: 2px solid {colors.get("border", "#30363D")};
                 border-radius: 8px;
             }}
             QPushButton:hover {{
@@ -86,5 +90,3 @@ class ThemePresetSelector(QWidget):
         btn.clicked.connect(lambda: self.theme_selected.emit(name, colors))
 
         return btn
-
-

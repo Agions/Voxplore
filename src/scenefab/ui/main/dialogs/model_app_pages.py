@@ -34,6 +34,7 @@ from ...icon_manager import get_icon
 
 class ApplicationStep(Enum):
     """申请步骤枚举"""
+
     SELECT_PROVIDER = "select_provider"
     VIEW_REQUIREMENTS = "view_requirements"
     FILL_APPLICATION = "fill_application"
@@ -46,6 +47,7 @@ class ApplicationStep(Enum):
 @dataclass
 class ProviderInfo:
     """提供商信息"""
+
     name: str
     service_name: str
     website: str
@@ -309,7 +311,9 @@ class ApplicationFormPage(QWizardPage):
 
         # 申请类型
         self.app_type_combo = QComboBox()
-        self.app_type_combo.addItems(["个人开发者", "企业开发者", "学术研究", "商业应用"])
+        self.app_type_combo.addItems(
+            ["个人开发者", "企业开发者", "学术研究", "商业应用"]
+        )
         form_layout.addRow("申请类型:", self.app_type_combo)
 
         # 用途描述
@@ -320,7 +324,9 @@ class ApplicationFormPage(QWizardPage):
 
         # 预期用量
         self.usage_combo = QComboBox()
-        self.usage_combo.addItems(["少量测试", "个人项目", "小型商业", "中型商业", "大型商业"])
+        self.usage_combo.addItems(
+            ["少量测试", "个人项目", "小型商业", "中型商业", "大型商业"]
+        )
         form_layout.addRow("预期用量:", self.usage_combo)
 
         # 联系方式
@@ -339,7 +345,9 @@ class ApplicationFormPage(QWizardPage):
         self.terms_check.setProperty("class", "wizard-checkbox")
         terms_layout.addWidget(self.terms_check)
 
-        self.responsibility_check = QCheckBox("我承诺合规使用AI服务，不违反相关法律法规")
+        self.responsibility_check = QCheckBox(
+            "我承诺合规使用AI服务，不违反相关法律法规"
+        )
         self.responsibility_check.setProperty("class", "wizard-checkbox")
         terms_layout.addWidget(self.responsibility_check)
 
@@ -359,10 +367,12 @@ class ApplicationFormPage(QWizardPage):
         return 3
 
     def isComplete(self) -> bool:
-        return (self.purpose_edit.toPlainText().strip() and
-                self.contact_edit.text().strip() and
-                self.terms_check.isChecked() and
-                self.responsibility_check.isChecked())
+        return (
+            self.purpose_edit.toPlainText().strip()
+            and self.contact_edit.text().strip()
+            and self.terms_check.isChecked()
+            and self.responsibility_check.isChecked()
+        )
 
 
 class SubmitApplicationPage(QWizardPage):
@@ -456,11 +466,10 @@ class SubmitApplicationPage(QWizardPage):
                 f"已为您打开 {self.provider.name} 的申请页面。\n\n"
                 f"请按照页面指引完成申请流程。\n\n"
                 f"申请完成后，您将获得API密钥。\n\n"
-                f"预计审核时间: {self.provider.estimated_time}"
+                f"预计审核时间: {self.provider.estimated_time}",
             )
         except Exception as e:
             QMessageBox.warning(self, "打开失败", f"无法打开申请页面: {e}")
 
     def nextId(self) -> int:
         return -1  # 完成向导
-

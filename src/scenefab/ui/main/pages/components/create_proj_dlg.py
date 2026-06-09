@@ -101,14 +101,9 @@ class CreateProjectDialog(QDialog):
         type_layout.addWidget(type_label)
 
         self.type_combo = QComboBox()
-        self.type_combo.addItems([
-            "视频剪辑",
-            "AI 增强",
-            "混剪合成",
-            "AI 解说",
-            "剧情分析",
-            "多媒体"
-        ])
+        self.type_combo.addItems(
+            ["视频剪辑", "AI 增强", "混剪合成", "AI 解说", "剧情分析", "多媒体"]
+        )
         type_layout.addWidget(self.type_combo, 1)
 
         content_layout.addWidget(type_row)

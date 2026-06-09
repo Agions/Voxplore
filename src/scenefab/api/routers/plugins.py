@@ -3,8 +3,6 @@ Plugins Router
 插件管理 API
 """
 
-
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -76,7 +74,9 @@ async def get_plugin(plugin_id: str):
         registry = loader.get_registry()
 
         if plugin_id not in registry:
-            raise HTTPException(status_code=404, detail=f"Plugin '{plugin_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Plugin '{plugin_id}' not found"
+            )
 
         reg_entry = registry[plugin_id]
         manifest = reg_entry.get("manifest", {})
@@ -109,7 +109,9 @@ async def enable_plugin(plugin_id: str, request: PluginEnableRequest):
         registry = loader.get_registry()
 
         if plugin_id not in registry:
-            raise HTTPException(status_code=404, detail=f"Plugin '{plugin_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Plugin '{plugin_id}' not found"
+            )
 
         registry[plugin_id]["enabled"] = request.enabled
 

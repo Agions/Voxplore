@@ -25,6 +25,7 @@ class ExportWorker(QThread):
     def run(self):
         try:
             from scenefab.services.video.monologue_maker import MonologueMaker
+
             maker = MonologueMaker()
             maker.set_progress_callback(self._on_progress)
 

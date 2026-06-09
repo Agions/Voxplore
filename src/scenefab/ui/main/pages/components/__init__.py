@@ -10,8 +10,11 @@ from .project_cards import ProjectCard, TemplateCard
 from .settings_dialog import ProjectSettingsDialog
 
 __all__ = [
-    "ProjectCard", "TemplateCard",
-    "CreateProjectDialog", "ProjectSettingsDialog",
-    "ProjectDetailsPanel", "ProjectsListPanel",
+    "ProjectCard",
+    "TemplateCard",
+    "CreateProjectDialog",
+    "ProjectSettingsDialog",
+    "ProjectDetailsPanel",
+    "ProjectsListPanel",
     "stats",
 ]

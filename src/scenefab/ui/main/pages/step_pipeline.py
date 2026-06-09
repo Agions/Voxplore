@@ -21,34 +21,41 @@ from ...components import MacCard
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
     # Surface
-    "bg_card":   "oklch(0.16 0.01 250)",   # 卡片背景
-    "bg_input":  "oklch(0.13 0.01 250)",   # 输入/日志背景
-    "bg_active": "oklch(0.17 0.01 250)",   # 运行中背景
-    "bg_base":   "oklch(0.13 0.01 250)",   # 页面背景
+    "bg_card": "oklch(0.16 0.01 250)",  # 卡片背景
+    "bg_input": "oklch(0.13 0.01 250)",  # 输入/日志背景
+    "bg_active": "oklch(0.17 0.01 250)",  # 运行中背景
+    "bg_base": "oklch(0.13 0.01 250)",  # 页面背景
     # Border
-    "border":    "oklch(0.24 0.01 250)",   # 默认边框
+    "border": "oklch(0.24 0.01 250)",  # 默认边框
     # Text
-    "text":      "oklch(0.93 0.01 250)",   # 主要文字
-    "text_sub":  "oklch(0.75 0.01 250)",   # 次要文字
-    "text_muted":"oklch(0.55 0.01 250)",   # 辅助文字
+    "text": "oklch(0.93 0.01 250)",  # 主要文字
+    "text_sub": "oklch(0.75 0.01 250)",  # 次要文字
+    "text_muted": "oklch(0.55 0.01 250)",  # 辅助文字
     # Stage state colors
-    "idle":      "oklch(0.24 0.01 250)",   # #2e2e2e 闲置
-    "running":   "oklch(0.65 0.20 250)",   # #388BFD 运行中
-    "running_l":  "oklch(0.70 0.24 250)",  # 运行中亮色（脉冲用）
-    "done":      "oklch(0.65 0.22 145)",   # #2EA043 完成
-    "error":     "oklch(0.75 0.20 85)",    # #D29922 错误
-    "skip_c":    "oklch(0.40 0.01 250)",   # 跳过/灰显
+    "idle": "oklch(0.24 0.01 250)",  # #2e2e2e 闲置
+    "running": "oklch(0.65 0.20 250)",  # #388BFD 运行中
+    "running_l": "oklch(0.70 0.24 250)",  # 运行中亮色（脉冲用）
+    "done": "oklch(0.65 0.22 145)",  # #2EA043 完成
+    "error": "oklch(0.75 0.20 85)",  # #D29922 错误
+    "skip_c": "oklch(0.40 0.01 250)",  # 跳过/灰显
     # Gradient
     "primary_g1": "oklch(0.65 0.20 250)",
     "primary_g2": "oklch(0.72 0.22 200)",
 }
 
-_STAGE_COLORS = {"idle": _T["idle"], "running": _T["running"], "done": _T["done"], "error": _T["error"], "skip": _T["skip_c"]}
-_STAGE_ICONS  = {"idle": "⏸", "running": "⚡", "done": "✓", "error": "✗", "skip": "⊘"}
+_STAGE_COLORS = {
+    "idle": _T["idle"],
+    "running": _T["running"],
+    "done": _T["done"],
+    "error": _T["error"],
+    "skip": _T["skip_c"],
+}
+_STAGE_ICONS = {"idle": "⏸", "running": "⚡", "done": "✓", "error": "✗", "skip": "⊘"}
 
 
 class StageCard(QFrame):
     """Pipeline 阶段卡片 — OKLCH: 圆角12px · 脉冲动画"""
+
     stage_clicked = Signal(PipelineStage)
 
     def __init__(self, stage: PipelineStage, label: str, parent=None):
@@ -82,14 +89,14 @@ class StageCard(QFrame):
         self.progress_bar.setRange(0, 1000)
         self.progress_bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {_T['idle']};
+                background: {_T["idle"]};
                 border: none;
                 border-radius: 2px;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_T['primary_g1']},
-                    stop:1 {_T['primary_g2']});
+                    stop:0 {_T["primary_g1"]},
+                    stop:1 {_T["primary_g2"]});
                 border-radius: 2px;
             }}
         """)
@@ -105,7 +112,9 @@ class StageCard(QFrame):
         color = _STAGE_COLORS.get(self._state, _T["idle"])
         bg = _T["bg_active"] if self._state == "running" else _T["bg_card"]
         border_w = "2px" if self._state == "running" else "1px"
-        self.setStyleSheet(f"QFrame {{ background: {bg}; border: {border_w} solid {color}; border-radius: 12px; }}")
+        self.setStyleSheet(
+            f"QFrame {{ background: {bg}; border: {border_w} solid {color}; border-radius: 12px; }}"
+        )
 
     def set_state(self, state: str, sub: str = ""):
         self._state = state
@@ -129,7 +138,9 @@ class StageCard(QFrame):
     def _pulse_border(self):
         self._anim_toggle = not self._anim_toggle
         color = _T["running_l"] if self._anim_toggle else _T["running"]
-        self.setStyleSheet(f"QFrame {{ background: {_T['bg_active']}; border: 2px solid {color}; border-radius: 12px; }}")
+        self.setStyleSheet(
+            f"QFrame {{ background: {_T['bg_active']}; border: 2px solid {color}; border-radius: 12px; }}"
+        )
 
     def _stop_animation(self):
         if hasattr(self, "_anim_timer"):
@@ -138,6 +149,7 @@ class StageCard(QFrame):
 
 class ScriptEditor(QWidget):
     """解说词编辑器 — OKLCH"""
+
     script_changed = Signal(str)
     retry_requested = Signal()
 
@@ -156,7 +168,9 @@ class ScriptEditor(QWidget):
         title.setStyleSheet(f"color: {_T['text']};")
         header.addWidget(title)
         self.word_count_label = QLabel("0 字")
-        self.word_count_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        self.word_count_label.setStyleSheet(
+            f"color: {_T['text_muted']}; font-size: 12px;"
+        )
         header.addWidget(self.word_count_label)
         header.addStretch()
         self.edit_btn = QPushButton("✏️ 编辑")
@@ -176,20 +190,22 @@ class ScriptEditor(QWidget):
         self.editor.setMinimumHeight(200)
         self.editor.setStyleSheet(f"""
             QTextEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 12px;
                 font-size: 13px;
                 line-height: 1.6;
             }}
-            QTextEdit:focus {{ border-color: {_T['running']}; }}
+            QTextEdit:focus {{ border-color: {_T["running"]}; }}
         """)
-        self.editor.textChanged.connect(lambda: (
-            self.word_count_label.setText(f"{len(self.editor.toPlainText())} 字"),
-            self.script_changed.emit(self.editor.toPlainText())
-        ))
+        self.editor.textChanged.connect(
+            lambda: (
+                self.word_count_label.setText(f"{len(self.editor.toPlainText())} 字"),
+                self.script_changed.emit(self.editor.toPlainText()),
+            )
+        )
         layout.addWidget(self.editor)
 
     def _toggle_edit(self):
@@ -213,13 +229,14 @@ class ScriptEditor(QWidget):
 
 class StepPipeline(QWidget):
     """Step 2 — OKLCH Design Tokens"""
+
     finished = Signal(str)
 
     _STAGES = [
         (PipelineStage.ANALYZING, "场景理解"),
-        (PipelineStage.SCRIPT,  "解说生成"),
-        (PipelineStage.VOICE,    "配音合成"),
-        (PipelineStage.CAPTION,  "字幕制作"),
+        (PipelineStage.SCRIPT, "解说生成"),
+        (PipelineStage.VOICE, "配音合成"),
+        (PipelineStage.CAPTION, "字幕制作"),
     ]
 
     def __init__(self, parent=None):
@@ -256,16 +273,18 @@ class StepPipeline(QWidget):
         log_layout = QVBoxLayout(log_card)
         log_layout.setContentsMargins(12, 12, 12, 12)
         log_header = QLabel("处理日志")
-        log_header.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px; font-weight: 600;")
+        log_header.setStyleSheet(
+            f"color: {_T['text_muted']}; font-size: 12px; font-weight: 600;"
+        )
         log_layout.addWidget(log_header)
         self.log_area = QTextEdit()
         self.log_area.setReadOnly(True)
         self.log_area.setMaximumHeight(120)
         self.log_area.setStyleSheet(f"""
             QTextEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text_muted']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text_muted"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 8px;
                 font-size: 11px;

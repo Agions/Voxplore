@@ -2,6 +2,7 @@
 视频上传窗口（Step 1）
 支持拖拽上传 + 文件列表管理
 """
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import (
@@ -97,11 +98,12 @@ class UploadWindow(BaseStepWindow):
     def _browse_files(self):
         """打开文件选择对话框"""
         from PySide6.QtWidgets import QFileDialog
+
         paths, _ = QFileDialog.getOpenFileNames(
             self,
             "选择视频文件",
             "",
-            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)"
+            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)",
         )
         if paths:
             self._on_files_dropped(paths)
@@ -184,11 +186,12 @@ class DropZone(QFrame):
 
     def _on_click(self):
         from PySide6.QtWidgets import QFileDialog
+
         paths, _ = QFileDialog.getOpenFileNames(
             self,
             "选择视频文件",
             "",
-            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)"
+            "视频文件 (*.mp4 *.mov *.avi *.mkv *.webm);;所有文件 (*)",
         )
         if paths:
             self.file_dropped.emit(paths)

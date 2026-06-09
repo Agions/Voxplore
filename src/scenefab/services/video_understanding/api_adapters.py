@@ -38,7 +38,9 @@ class APIAdapterMixin:
             import numpy as np
 
             # 打开视频
-            cap = cv2.VideoCapture(segment.video_path if hasattr(segment, 'video_path') else "")
+            cap = cv2.VideoCapture(
+                segment.video_path if hasattr(segment, "video_path") else ""
+            )
             cap.set(cv2.CAP_PROP_POS_MSEC, segment.start_time * 1000)
 
             key_frames = []
@@ -57,12 +59,14 @@ class APIAdapterMixin:
                 brightness = float(np.mean(gray))
                 contrast = float(np.std(gray))
 
-                key_frames.append({
-                    "timestamp": timestamp,
-                    "brightness": brightness,
-                    "contrast": contrast,
-                    "frame_number": frame_count,
-                })
+                key_frames.append(
+                    {
+                        "timestamp": timestamp,
+                        "brightness": brightness,
+                        "contrast": contrast,
+                        "frame_number": frame_count,
+                    }
+                )
 
                 # 跳过帧
                 for _ in range(int(interval * 30)):  # 假设 30fps
@@ -101,13 +105,7 @@ class APIAdapterMixin:
 
             # 构建请求（简化版，实际需要上传视频片段）
             payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": prompt}
-                        ]
-                    }
-                ],
+                "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
                     "maxOutputTokens": 4096,
                 },

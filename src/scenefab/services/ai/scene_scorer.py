@@ -15,14 +15,14 @@ from .scene_models import SceneInfo, SceneType
 # 场景类型优先级（数值越高越重要）
 # =============================================================================
 SCENE_TYPE_PRIORITY: dict[SceneType, int] = {
-    SceneType.LANDSCAPE: 10,     # 风景画面 - 最适合展示
-    SceneType.B_ROLL: 8,         # 素材画面 - 适合混剪
-    SceneType.ACTION: 6,         # 动作场景
-    SceneType.TALKING_HEAD: 4,   # 人物讲话 - 较少使用
-    SceneType.TRANSITION: 2,     # 转场 - 不适合
-    SceneType.TITLE: 3,          # 标题画面
-    SceneType.PRODUCT: 5,        # 产品展示
-    SceneType.UNKNOWN: 1,        # 未知 - 最低优先级
+    SceneType.LANDSCAPE: 10,  # 风景画面 - 最适合展示
+    SceneType.B_ROLL: 8,  # 素材画面 - 适合混剪
+    SceneType.ACTION: 6,  # 动作场景
+    SceneType.TALKING_HEAD: 4,  # 人物讲话 - 较少使用
+    SceneType.TRANSITION: 2,  # 转场 - 不适合
+    SceneType.TITLE: 3,  # 标题画面
+    SceneType.PRODUCT: 5,  # 产品展示
+    SceneType.UNKNOWN: 1,  # 未知 - 最低优先级
 }
 
 
@@ -149,19 +149,19 @@ class SceneScorer:
         score = 50.0  # 基础分
 
         duration_score = self.score_duration(scene.duration)
-        score += duration_score * weights.get('duration', 0.20) * 2
+        score += duration_score * weights.get("duration", 0.20) * 2
 
         brightness_score = self.score_brightness(scene.avg_brightness)
-        score += brightness_score * weights.get('brightness', 0.15) * 2
+        score += brightness_score * weights.get("brightness", 0.15) * 2
 
         motion_score = self.score_motion(scene.motion_level)
-        score += motion_score * weights.get('motion', 0.15) * 2
+        score += motion_score * weights.get("motion", 0.15) * 2
 
         type_score = self.score_scene_type(scene.type)
-        score += type_score * weights.get('scene_type', 0.30) * 2
+        score += type_score * weights.get("scene_type", 0.30) * 2
 
         audio_score = self.score_audio(scene.audio_level)
-        score += audio_score * weights.get('audio', 0.20) * 2
+        score += audio_score * weights.get("audio", 0.20) * 2
 
         return max(0.0, min(100.0, score))
 
@@ -175,9 +175,8 @@ class SceneScorer:
         Returns:
             叙事重要性 (0-1)
         """
-        type_weight = (
-            SCENE_TYPE_PRIORITY.get(scene.type, 1)
-            / max(SCENE_TYPE_PRIORITY.values())
+        type_weight = SCENE_TYPE_PRIORITY.get(scene.type, 1) / max(
+            SCENE_TYPE_PRIORITY.values()
         )
 
         if 3.0 <= scene.duration <= 15.0:
@@ -190,9 +189,7 @@ class SceneScorer:
         suitability_weight = scene.suitability_score / 100.0
 
         importance = (
-            type_weight * 0.4 +
-            duration_weight * 0.3 +
-            suitability_weight * 0.3
+            type_weight * 0.4 + duration_weight * 0.3 + suitability_weight * 0.3
         )
 
         return max(0.0, min(1.0, importance))

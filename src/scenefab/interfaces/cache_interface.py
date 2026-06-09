@@ -14,14 +14,16 @@ from typing import Any
 
 class CachePolicy(Enum):
     """缓存策略"""
-    LRU = "lru"    # 最近最少使用
-    LFU = "lfu"    # 最不经常使用
+
+    LRU = "lru"  # 最近最少使用
+    LFU = "lfu"  # 最不经常使用
     FIFO = "fifo"  # 先进先出
 
 
 @dataclass
 class CacheEntry:
     """缓存条目"""
+
     key: str
     value: Any
     created_at: datetime
@@ -42,6 +44,7 @@ class CacheEntry:
 @dataclass
 class CacheStats:
     """缓存统计"""
+
     total_entries: int = 0
     total_size_bytes: int = 0
     hit_count: int = 0
@@ -62,8 +65,13 @@ class ICache(ABC):
         pass
 
     @abstractmethod
-    def set(self, key: str, value: Any, ttl: int | None = None,
-            metadata: dict[str, Any] | None = None) -> bool:
+    def set(
+        self,
+        key: str,
+        value: Any,
+        ttl: int | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
         """设置缓存值"""
         pass
 
@@ -93,9 +101,9 @@ def generate_cache_key(func_name: str, *args, **kwargs) -> str:
     生成缓存键
     """
     key_data = {
-        'func': func_name,
-        'args': str(args),
-        'kwargs': str(sorted(kwargs.items()))
+        "func": func_name,
+        "args": str(args),
+        "kwargs": str(sorted(kwargs.items())),
     }
     key_str = json.dumps(key_data, sort_keys=True, default=str)
     return hashlib.md5(key_str.encode()).hexdigest()

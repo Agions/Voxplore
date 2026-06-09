@@ -57,6 +57,7 @@ try:
         PipelineStarted,
         PipelineStepCompleted,
     )
+
     _HAS_V21_PIPELINE_EVENTS = True
 except ImportError:  # pragma: no cover
     _HAS_V21_PIPELINE_EVENTS = False
@@ -320,7 +321,9 @@ class PipelineEngine:
                 if not ready_steps and not pending_futures:
                     self._raise_deadlock_error()
 
-                self._submit_ready_steps(ready_steps, context, executor, pending_futures)
+                self._submit_ready_steps(
+                    ready_steps, context, executor, pending_futures
+                )
                 self._drain_completed_futures(pending_futures)
 
                 if self._should_fail_fast():
@@ -329,11 +332,7 @@ class PipelineEngine:
 
     def _raise_deadlock_error(self) -> None:
         """Raise a RuntimeError when the pipeline is stuck with no runnable steps."""
-        stuck = [
-            sid
-            for sid, st in self.states.items()
-            if st == StepStatus.PENDING
-        ]
+        stuck = [sid for sid, st in self.states.items() if st == StepStatus.PENDING]
         raise RuntimeError(
             f"Pipeline stuck: pending steps have unresolvable deps: {stuck}"
         )
@@ -392,9 +391,7 @@ class PipelineEngine:
         self._mark_skipped()
         always_ready = self._get_ready_steps()
         if always_ready:
-            logger.info(
-                f"Running {len(always_ready)} always_run step(s) before exit"
-            )
+            logger.info(f"Running {len(always_ready)} always_run step(s) before exit")
             for step in always_ready:
                 self._execute_step(step, context)
 
@@ -508,7 +505,9 @@ class PipelineEngine:
                         )
                     )
                 except Exception:
-                    logger.debug("PipelineStepCompleted event publish failed", exc_info=True)
+                    logger.debug(
+                        "PipelineStepCompleted event publish failed", exc_info=True
+                    )
 
         except Exception as e:
             import traceback
@@ -551,7 +550,10 @@ class PipelineEngine:
                         )
                     )
                 except Exception:
-                    logger.debug("PipelineStepCompleted(failed) event publish failed", exc_info=True)
+                    logger.debug(
+                        "PipelineStepCompleted(failed) event publish failed",
+                        exc_info=True,
+                    )
 
     def _mark_skipped(self) -> None:
         """将所有 PENDING 步骤标记为 SKIPPED（保留 always_run 步骤以便执行）"""

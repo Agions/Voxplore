@@ -1,6 +1,7 @@
 """
 SceneFab 主窗口 — 完整的窗口管理器 + Pipeline 集成
 """
+
 from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
@@ -60,10 +61,10 @@ class MainWindow(QMainWindow):
         self.narration_win = NarrationWindow()
         self.export_win = ExportWindow()
 
-        self.pages.addWidget(self.upload_win)    # index 0
-        self.pages.addWidget(self.scene_win)     # index 1
-        self.pages.addWidget(self.narration_win) # index 2
-        self.pages.addWidget(self.export_win)    # index 3
+        self.pages.addWidget(self.upload_win)  # index 0
+        self.pages.addWidget(self.scene_win)  # index 1
+        self.pages.addWidget(self.narration_win)  # index 2
+        self.pages.addWidget(self.export_win)  # index 3
 
         # 初始显示第一步（会触发 ProjectsWindow 入口）
         self.pages.setCurrentIndex(0)
@@ -126,7 +127,9 @@ class MainWindow(QMainWindow):
         indices_to_remove = []
         for i in range(self.pages.count()):
             w = self.pages.widget(i)
-            if isinstance(w, (UploadWindow, SceneWindow, NarrationWindow, ExportWindow)):
+            if isinstance(
+                w, (UploadWindow, SceneWindow, NarrationWindow, ExportWindow)
+            ):
                 indices_to_remove.append(i)
         # 逆序删除
         for i in sorted(indices_to_remove, reverse=True):
@@ -152,28 +155,31 @@ class MainWindow(QMainWindow):
         """Step 2 完成：保存场景数据，进入 Step 3"""
         data = self.scene_win.get_data()
         self._shared_data["scenes"] = data["scenes"]
-        self.narration_win.set_shared_data({
-            "files": self._shared_data.get("files", []),
-            "scenes": data["scenes"],
-        })
+        self.narration_win.set_shared_data(
+            {
+                "files": self._shared_data.get("files", []),
+                "scenes": data["scenes"],
+            }
+        )
         self._go_to_step(2)
 
     def _on_narration_done(self):
         """Step 3 完成：保存配音数据，进入 Step 4"""
         data = self.narration_win.get_data()
         self._shared_data["narration"] = data
-        self.export_win.set_shared_data({
-            "files": self._shared_data.get("files", []),
-            "scenes": self._shared_data.get("scenes", []),
-            "narration": data,
-        })
+        self.export_win.set_shared_data(
+            {
+                "files": self._shared_data.get("files", []),
+                "scenes": self._shared_data.get("scenes", []),
+                "narration": data,
+            }
+        )
         self._go_to_step(3)
 
     def _on_pipeline_done(self):
         """Pipeline 完成"""
         QMessageBox.information(
-            self, "🎉 完成",
-            "视频导出成功！\n\n文件已保存至：~/Videos/SceneFab/"
+            self, "🎉 完成", "视频导出成功！\n\n文件已保存至：~/Videos/SceneFab/"
         )
         # 返回项目列表
         self._show_projects_page()
@@ -182,13 +188,13 @@ class MainWindow(QMainWindow):
     def _on_stage_changed(self, stage: str, desc: str):
         """Pipeline 阶段变化"""
         current = self.pages.currentWidget()
-        if hasattr(current, 'on_pipeline_stage'):
+        if hasattr(current, "on_pipeline_stage"):
             current.on_pipeline_stage(stage, desc)
 
     def _on_progress(self, stage: str, pct: float):
         """Pipeline 进度更新"""
         current = self.pages.currentWidget()
-        if hasattr(current, 'on_pipeline_progress'):
+        if hasattr(current, "on_pipeline_progress"):
             current.on_pipeline_progress(stage, pct)
 
     def _on_error(self, msg: str):

@@ -8,6 +8,7 @@ AnimationHelper — 通用动画辅助类
 - 淡入 / 淡出 / 滑入 / 缩放 / 脉冲 动画
 - 动画时长自动适配（减少动画时缩短至 10ms 内）
 """
+
 import logging
 import platform
 
@@ -58,6 +59,7 @@ class AnimationHelper:
         """macOS: 通过 QStyle.SH_ReducedAnimation 检测"""
         try:
             from PySide6.QtGui import QGuiApplication
+
             app = QGuiApplication.instance()
             if app:
                 # QStyle.SH_ReducedAnimation = 44
@@ -71,10 +73,11 @@ class AnimationHelper:
         """Windows: 检查 EaseOfAccess ShowAnimation 注册表项"""
         try:
             import winreg
+
             key = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER,
                 r"SOFTWARE\Microsoft\Ease of Access Details",
-                0
+                0,
             )
             # "Show animation" DWORD: 1 = on, 0 = off
             value, _ = winreg.QueryValueEx(key, "ShowAnimation")
@@ -91,8 +94,7 @@ class AnimationHelper:
         # GNOME GTK
         try:
             gtk_settings = QSettings(
-                "org.gnome.desktop.interface",
-                QSettings.Format.NativeFormat
+                "org.gnome.desktop.interface", QSettings.Format.NativeFormat
             )
             if not gtk_settings.value("enable-animations", True, bool):
                 return True
@@ -102,8 +104,7 @@ class AnimationHelper:
         # KDE
         try:
             kwin_settings = QSettings(
-                "KDE Animation Speed",
-                QSettings.Format.NativeFormat
+                "KDE Animation Speed", QSettings.Format.NativeFormat
             )
             return kwin_settings.value("AnimationSpeedMultiplier", 1.0) == 0.0
         except (TypeError, RuntimeError) as e:
@@ -125,7 +126,11 @@ class AnimationHelper:
         return duration
 
     @staticmethod
-    def fade_in(widget: QWidget, duration: int = 300, easing: QEasingCurve.Type = QEasingCurve.Type.InOutQuad):
+    def fade_in(
+        widget: QWidget,
+        duration: int = 300,
+        easing: QEasingCurve.Type = QEasingCurve.Type.InOutQuad,
+    ):
         """淡入动画
 
         当系统启用了 prefers-reduced-motion 时：
@@ -155,8 +160,12 @@ class AnimationHelper:
         return animation
 
     @staticmethod
-    def fade_out(widget: QWidget, duration: int = 300, easing: QEasingCurve.Type = QEasingCurve.Type.InOutQuad,
-                 hide_on_complete: bool = True):
+    def fade_out(
+        widget: QWidget,
+        duration: int = 300,
+        easing: QEasingCurve.Type = QEasingCurve.Type.InOutQuad,
+        hide_on_complete: bool = True,
+    ):
         """淡出动画
 
         当系统启用了 prefers-reduced-motion 时：

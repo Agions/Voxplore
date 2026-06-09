@@ -70,9 +70,7 @@ class ProjectDetailsPanel(QWidget):
 
         # 空状态
         empty = MacEmptyState(
-            icon="📭",
-            title="未选择项目",
-            description="请在左侧选择一个项目查看详情"
+            icon="📭", title="未选择项目", description="请在左侧选择一个项目查看详情"
         )
         self._stack.addWidget(empty)
 
@@ -111,17 +109,23 @@ class ProjectDetailsPanel(QWidget):
         self._icon_label.setFixedSize(80, 80)
         self._icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._icon_label.setStyleSheet("font-size: 48px;")
-        preview_layout.addWidget(self._icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        preview_layout.addWidget(
+            self._icon_label, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self._name_label = MacTitleLabel("")
         self._name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._name_label.setStyleSheet("font-size: 18px; font-weight: bold;")
-        preview_layout.addWidget(self._name_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        preview_layout.addWidget(
+            self._name_label, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self._type_badge = MacBadge("")
         self._type_badge.setProperty("class", "badge badge-primary")
         self._type_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        preview_layout.addWidget(self._type_badge, alignment=Qt.AlignmentFlag.AlignCenter)
+        preview_layout.addWidget(
+            self._type_badge, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         layout.addWidget(preview_card)
 
@@ -155,10 +159,14 @@ class ProjectDetailsPanel(QWidget):
         info_layout.addWidget(info_title)
 
         self._created_label = MacLabel("", css_class="text-base")
-        info_layout.addWidget(self._create_detail_row("🗓️ 创建时间:", self._created_label))
+        info_layout.addWidget(
+            self._create_detail_row("🗓️ 创建时间:", self._created_label)
+        )
 
         self._modified_label = MacLabel("", css_class="text-base")
-        info_layout.addWidget(self._create_detail_row("🔄 修改时间:", self._modified_label))
+        info_layout.addWidget(
+            self._create_detail_row("🔄 修改时间:", self._modified_label)
+        )
 
         layout.addWidget(info_card)
 
@@ -227,8 +235,13 @@ class ProjectDetailsPanel(QWidget):
 
     def _set_buttons_enabled(self, enabled: bool):
         """设置按钮启用状态"""
-        for btn in (self._open_btn, self._edit_btn, self._settings_btn,
-                    self._export_btn, self._delete_btn):
+        for btn in (
+            self._open_btn,
+            self._edit_btn,
+            self._settings_btn,
+            self._export_btn,
+            self._delete_btn,
+        ):
             btn.setEnabled(enabled)
 
     # ── 公开方法 ──────────────────────────────────────────────
@@ -260,12 +273,15 @@ class ProjectDetailsPanel(QWidget):
         """更新详情显示"""
         # 图标
         icon_map = {
-            "视频剪辑": "🎬", "视频合成": "🎨",
-            "音频处理": "🎵", "字幕制作": "📝", "格式转换": "🔄"
+            "视频剪辑": "🎬",
+            "视频合成": "🎨",
+            "音频处理": "🎵",
+            "字幕制作": "📝",
+            "格式转换": "🔄",
         }
-        self._icon_label.setText(icon_map.get(
-            project.metadata.project_type.value, "📁"
-        ))
+        self._icon_label.setText(
+            icon_map.get(project.metadata.project_type.value, "📁")
+        )
 
         # 名称和类型
         self._name_label.setText(project.metadata.name)
@@ -283,8 +299,12 @@ class ProjectDetailsPanel(QWidget):
         self._stat_status.stat_value_label.setText(project.metadata.status.value)
 
         # 时间
-        self._created_label.setText(project.metadata.created_at.strftime("%Y-%m-%d %H:%M:%S"))
-        self._modified_label.setText(project.metadata.modified_at.strftime("%Y-%m-%d %H:%M:%S"))
+        self._created_label.setText(
+            project.metadata.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        )
+        self._modified_label.setText(
+            project.metadata.modified_at.strftime("%Y-%m-%d %H:%M:%S")
+        )
 
         # 描述
         self._description_label.setText(project.metadata.description or "暂无描述")
@@ -293,7 +313,7 @@ class ProjectDetailsPanel(QWidget):
         """计算项目大小"""
         try:
             total = 0
-            for fp in Path(project.path).rglob('*'):
+            for fp in Path(project.path).rglob("*"):
                 if fp.is_file():
                     total += fp.stat().st_size
             return total
@@ -330,15 +350,17 @@ class ProjectDetailsPanel(QWidget):
         if self._current_project_id:
             project = self._project_manager.get_project(self._current_project_id)
             if project:
-                QMessageBox.information(self, "编辑项目",
-                    f"正在编辑项目: {project.metadata.name}")
+                QMessageBox.information(
+                    self, "编辑项目", f"正在编辑项目: {project.metadata.name}"
+                )
 
     def _on_edit(self):
         if self._current_project_id:
             project = self._project_manager.get_project(self._current_project_id)
             if project:
-                QMessageBox.information(self, "编辑项目",
-                    f"正在编辑项目: {project.metadata.name}")
+                QMessageBox.information(
+                    self, "编辑项目", f"正在编辑项目: {project.metadata.name}"
+                )
 
     def _on_settings(self):
         if self._current_project_id:
@@ -352,11 +374,14 @@ class ProjectDetailsPanel(QWidget):
     def _on_export(self):
         if self._current_project_id:
             from PySide6.QtWidgets import QFileDialog
+
             path, _ = QFileDialog.getSaveFileName(
                 self, "导出项目", "", "SceneFab项目包 (*.zip)"
             )
             if path:
-                self._project_manager.export_project(self._current_project_id, path, True)
+                self._project_manager.export_project(
+                    self._current_project_id, path, True
+                )
                 QMessageBox.information(self, "成功", "项目导出成功！")
 
     def _on_delete(self):
@@ -364,9 +389,10 @@ class ProjectDetailsPanel(QWidget):
             project = self._project_manager.get_project(self._current_project_id)
             if project:
                 reply = QMessageBox.question(
-                    self, "确认删除",
+                    self,
+                    "确认删除",
                     f"确定要删除项目 '{project.metadata.name}' 吗？\n此操作不可撤销！",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 )
                 if reply == QMessageBox.StandardButton.Yes:
                     if self._project_manager.delete_project(self._current_project_id):

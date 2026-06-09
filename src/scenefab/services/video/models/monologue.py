@@ -19,20 +19,22 @@ from scenefab.models.narration import EmotionType
 
 class MonologueStyle(Enum):
     """独白风格"""
-    MELANCHOLIC = "melancholic"    # 惆怅/忧郁
+
+    MELANCHOLIC = "melancholic"  # 惆怅/忧郁
     INSPIRATIONAL = "inspirational"  # 励志/向上
-    ROMANTIC = "romantic"          # 浪漫/温馨
-    MYSTERIOUS = "mysterious"      # 神秘/悬疑
-    NOSTALGIC = "nostalgic"        # 怀旧/追忆
+    ROMANTIC = "romantic"  # 浪漫/温馨
+    MYSTERIOUS = "mysterious"  # 神秘/悬疑
+    NOSTALGIC = "nostalgic"  # 怀旧/追忆
     PHILOSOPHICAL = "philosophical"  # 哲思/沉思
-    HEALING = "healing"            # 治愈/温暖
+    HEALING = "healing"  # 治愈/温暖
 
 
 @dataclass
 class MonologueSegment:
     """独白片段"""
-    script: str                    # 独白文案
-    emotion: EmotionType           # 情感
+
+    script: str  # 独白文案
+    emotion: EmotionType  # 情感
 
     # 视频片段
     video_start: float
@@ -41,7 +43,9 @@ class MonologueSegment:
     # 音频
     audio_path: str = ""
     audio_duration: float = 0.0
-    sentence_timestamps: list[dict] = field(default_factory=list)  # EdgeTTS 句子级时间戳
+    sentence_timestamps: list[dict] = field(
+        default_factory=list
+    )  # EdgeTTS 句子级时间戳
 
     # 字幕
     captions: list[dict] = field(default_factory=list)

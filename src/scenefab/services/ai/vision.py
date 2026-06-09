@@ -1,6 +1,7 @@
 """
 Vision 视觉服务
 """
+
 import hashlib
 import logging
 from typing import Any
@@ -28,12 +29,10 @@ class VisionService:
 
         # HTTP 会话
         import requests
+
         self.session = requests.Session()
-        adapter = requests.adapters.HTTPAdapter(
-            pool_connections=5,
-            pool_maxsize=5
-        )
-        self.session.mount('https://', adapter)
+        adapter = requests.adapters.HTTPAdapter(pool_connections=5, pool_maxsize=5)
+        self.session.mount("https://", adapter)
 
         # 分析结果缓存
         self.frame_cache = LRUCache(max_size=500)
@@ -46,9 +45,7 @@ class VisionService:
         }
 
     def analyze_frame(
-        self,
-        frame_data: bytes,
-        prompt: str = "分析这张图片中的场景和人物视角"
+        self, frame_data: bytes, prompt: str = "分析这张图片中的场景和人物视角"
     ) -> dict[str, Any] | None:
         if not self.enabled:
             return self._mock_result()
@@ -71,13 +68,15 @@ class VisionService:
 
             data = {
                 "model": self.model,
-                "messages": [{
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "image": "frame.jpg"},
-                        {"type": "text", "text": prompt}
-                    ]
-                }],
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image", "image": "frame.jpg"},
+                            {"type": "text", "text": prompt},
+                        ],
+                    }
+                ],
                 "max_tokens": 200,
             }
 
@@ -86,7 +85,7 @@ class VisionService:
                 headers=headers,
                 files=files,
                 data=data,
-                timeout=30
+                timeout=30,
             )
 
             if response.status_code == 200:
@@ -110,9 +109,7 @@ class VisionService:
             return self._mock_result()
 
     def analyze_frames_batch(
-        self,
-        frames: list[bytes],
-        prompts: list[str] = None
+        self, frames: list[bytes], prompts: list[str] = None
     ) -> list[dict[str, Any] | None]:
         """
         批量分析帧
@@ -148,17 +145,20 @@ class VisionService:
         return {
             "is_first_person": is_first_person,
             "confidence": confidence,
-            "description": content[:100]
+            "description": content[:100],
         }
 
     def _mock_result(self) -> dict[str, Any]:
         import random
+
         is_first_person = random.random() < 0.3
 
         return {
             "is_first_person": is_first_person,
-            "confidence": random.uniform(0.6, 0.9) if is_first_person else random.uniform(0.1, 0.4),
-            "description": "第一人称街头漫步" if is_first_person else "第三人称观察"
+            "confidence": random.uniform(0.6, 0.9)
+            if is_first_person
+            else random.uniform(0.1, 0.4),
+            "description": "第一人称街头漫步" if is_first_person else "第三人称观察",
         }
 
 

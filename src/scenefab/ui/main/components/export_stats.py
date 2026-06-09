@@ -87,11 +87,17 @@ class ExportStatisticsWidget(QWidget):
     def update_statistics(self, tasks):
         """更新统计信息"""
         self.total_tasks = len(tasks)
-        self.processing_tasks = len([t for t in tasks if t.status == ExportStatus.PROCESSING])
-        self.completed_tasks = len([t for t in tasks if t.status == ExportStatus.COMPLETED])
+        self.processing_tasks = len(
+            [t for t in tasks if t.status == ExportStatus.PROCESSING]
+        )
+        self.completed_tasks = len(
+            [t for t in tasks if t.status == ExportStatus.COMPLETED]
+        )
         self.failed_tasks = len([t for t in tasks if t.status == ExportStatus.FAILED])
 
         self.total_widget.findChild(QLabel).setText(str(self.total_tasks))
-        self.processing_widget.findChildren(QLabel)[0].setText(str(self.processing_tasks))
+        self.processing_widget.findChildren(QLabel)[0].setText(
+            str(self.processing_tasks)
+        )
         self.completed_widget.findChildren(QLabel)[0].setText(str(self.completed_tasks))
         self.failed_widget.findChildren(QLabel)[0].setText(str(self.failed_tasks))

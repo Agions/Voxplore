@@ -63,20 +63,21 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=120.0)
 
         # Claude 有特殊的请求头
-        self._init_http_client({
-            "x-api-key": api_key,
-            "Content-Type": "application/json",
-            "anthropic-version": "2025-01-01",
-        })
+        self._init_http_client(
+            {
+                "x-api-key": api_key,
+                "Content-Type": "application/json",
+                "anthropic-version": "2025-01-01",
+            }
+        )
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
         model = self._get_model_name(request.model)
 
-        messages = [{
-            "role": "user",
-            "content": [{"type": "text", "text": request.prompt}]
-        }]
+        messages = [
+            {"role": "user", "content": [{"type": "text", "text": request.prompt}]}
+        ]
 
         payload = {
             "model": model,
@@ -103,8 +104,8 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         return LLMResponse(
             content=content,
             model=model,
-            tokens_used=data.get("usage", {}).get("input_tokens", 0) +
-                       data.get("usage", {}).get("output_tokens", 0),
+            tokens_used=data.get("usage", {}).get("input_tokens", 0)
+            + data.get("usage", {}).get("output_tokens", 0),
             finish_reason=data.get("stop_reason", "stop"),
         )
 
@@ -131,20 +132,22 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         elif image_path.suffix.lower() == ".webp":
             mime_type = "image/webp"
 
-        messages = [{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": mime_type,
-                        "data": image_data,
-                    }
-                },
-                {"type": "text", "text": request.prompt},
-            ]
-        }]
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": mime_type,
+                            "data": image_data,
+                        },
+                    },
+                    {"type": "text", "text": request.prompt},
+                ],
+            }
+        ]
 
         payload = {
             "model": model,
@@ -170,9 +173,7 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         return LLMResponse(
             content=content,
             model=model,
-            tokens_used=data.get("usage", {}).get("input_tokens", 0) +
-                       data.get("usage", {}).get("output_tokens", 0),
+            tokens_used=data.get("usage", {}).get("input_tokens", 0)
+            + data.get("usage", {}).get("output_tokens", 0),
             finish_reason=data.get("stop_reason", "stop"),
         )
-
-

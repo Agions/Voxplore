@@ -3,6 +3,7 @@ SceneFab 基础样式系统
 所有样式基于 tokens.py，不硬编码颜色值
 """
 
+
 def get_base_qss() -> str:
     """返回全局基础 QSS"""
     return """

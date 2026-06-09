@@ -3,6 +3,7 @@ FFmpeg 会话管理模块
 
 复用 FFmpeg 进程避免重复启动开销。
 """
+
 from __future__ import annotations
 
 import json
@@ -55,27 +56,36 @@ class FFmpegSession:
         try:
             result = subprocess.run(
                 [
-                    "ffprobe", "-v", "quiet",
-                    "-print_format", "json",
-                    "-show_format", "-show_streams",
-                    video_path
+                    "ffprobe",
+                    "-v",
+                    "quiet",
+                    "-print_format",
+                    "json",
+                    "-show_format",
+                    "-show_streams",
+                    video_path,
                 ],
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
             )
 
             if result.returncode == 0:
                 data = json.loads(result.stdout)
 
                 video_stream = next(
-                    (s for s in data.get("streams", []) if s.get("codec_type") == "video"),
-                    {}
+                    (
+                        s
+                        for s in data.get("streams", [])
+                        if s.get("codec_type") == "video"
+                    ),
+                    {},
                 )
 
                 format_info = data.get("format", {})
 
                 from fractions import Fraction
+
                 fps_str = video_stream.get("r_frame_rate", "30/1")
                 if fps_str == "0/0":
                     fps = 30.0
@@ -136,10 +146,7 @@ class FFmpegSession:
             return None
 
     def extract_frames_batch(
-        self,
-        video_path: str,
-        timestamps: list[float],
-        progress_callback=None
+        self, video_path: str, timestamps: list[float], progress_callback=None
     ) -> list[tuple[float, np.ndarray]]:
         """
         批量提取帧 - 使用 decord 加速（如果可用）
@@ -148,9 +155,12 @@ class FFmpegSession:
         # 尝试使用 decord
         try:
             import importlib.util
+
             spec = importlib.util.find_spec("decord")
             if spec is not None:
-                return self._extract_frames_decord(video_path, timestamps, progress_callback)
+                return self._extract_frames_decord(
+                    video_path, timestamps, progress_callback
+                )
         except ImportError:
             pass
 
@@ -158,10 +168,7 @@ class FFmpegSession:
         return self._extract_frames_opencv(video_path, timestamps, progress_callback)
 
     def _extract_frames_decord(
-        self,
-        video_path: str,
-        timestamps: list[float],
-        progress_callback=None
+        self, video_path: str, timestamps: list[float], progress_callback=None
     ) -> list[tuple[float, np.ndarray]]:
         """使用 decord 提取帧"""
         try:
@@ -190,13 +197,12 @@ class FFmpegSession:
 
         except Exception as e:
             logger.warning(f"decord extraction failed: {e}, falling back to OpenCV")
-            return self._extract_frames_opencv(video_path, timestamps, progress_callback)
+            return self._extract_frames_opencv(
+                video_path, timestamps, progress_callback
+            )
 
     def _extract_frames_opencv(
-        self,
-        video_path: str,
-        timestamps: list[float],
-        progress_callback=None
+        self, video_path: str, timestamps: list[float], progress_callback=None
     ) -> list[tuple[float, np.ndarray]]:
         """使用 OpenCV 提取帧（回退方案）"""
         results = []
@@ -236,20 +242,27 @@ class FFmpegSession:
     def extract_audio(self, video_path: str, output_path: str = None) -> str | None:
         """提取音频"""
         if output_path is None:
-            output_path = video_path.rsplit('.', 1)[0] + '.wav'
+            output_path = video_path.rsplit(".", 1)[0] + ".wav"
 
         try:
             subprocess.run(
                 [
-                    "ffmpeg", "-y",
-                    "-i", video_path,
-                    "-vn", "-acodec", "pcm_s16le",
-                    "-ar", "16000", "-ac", "1",
-                    output_path
+                    "ffmpeg",
+                    "-y",
+                    "-i",
+                    video_path,
+                    "-vn",
+                    "-acodec",
+                    "pcm_s16le",
+                    "-ar",
+                    "16000",
+                    "-ac",
+                    "1",
+                    output_path,
                 ],
                 capture_output=True,
                 timeout=300,
-                check=True
+                check=True,
             )
             return output_path
 

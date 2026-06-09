@@ -33,8 +33,9 @@ __all__ = ["TranscriptSegment", "TranscriptionResult", "WhisperASRProvider"]
 @dataclass
 class TranscriptSegment:
     """识别结果片段"""
-    start: float   # 秒
-    end: float     # 秒
+
+    start: float  # 秒
+    end: float  # 秒
     text: str
     language: str | None = None
     confidence: float = 1.0
@@ -43,6 +44,7 @@ class TranscriptSegment:
 @dataclass
 class TranscriptionResult:
     """完整识别结果"""
+
     text: str
     segments: list[TranscriptSegment]
     language: str | None = None
@@ -88,6 +90,7 @@ class WhisperASRProvider:
         # 1. 优先: faster-whisper
         try:
             import faster_whisper  # noqa: F401
+
             self._backend = "faster-whisper"
             logger.info(f"使用 faster-whisper ({self.model_size})")
             return
@@ -97,6 +100,7 @@ class WhisperASRProvider:
         # 2. 回退: openai-whisper
         try:
             import whisper  # noqa: F401
+
             self._backend = "openai-whisper"
             logger.info(f"使用 openai-whisper ({self.model_size})")
             return
@@ -105,6 +109,7 @@ class WhisperASRProvider:
 
         # 3. 最终回退: API (需要 OPENAI_API_KEY)
         import os
+
         if os.getenv("OPENAI_API_KEY"):
             self._backend = "api"
             logger.info("使用 OpenAI Whisper API")

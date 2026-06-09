@@ -79,6 +79,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         if "qwen" in self.api_keys:
             try:
                 from openai import OpenAI
+
                 self.qwen_client = OpenAI(
                     api_key=self.api_keys["qwen"],
                     base_url=DASHSCOPE_BASE_URL,
@@ -93,6 +94,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         if "gemini" in self.api_keys:
             try:
                 import httpx
+
                 self.gemini_client = httpx.Client(timeout=300.0)
                 self.gemini_api_key = self.api_keys["gemini"]
             except Exception as e:
@@ -203,7 +205,9 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         Returns:
             VideoSegment: 理解后的片段
         """
-        config = self.MODEL_CONFIGS.get(level, self.MODEL_CONFIGS[UnderstandingLevel.STANDARD])
+        config = self.MODEL_CONFIGS.get(
+            level, self.MODEL_CONFIGS[UnderstandingLevel.STANDARD]
+        )
 
         # 提取关键帧
         key_frames = self._extract_key_frames(segment, config["max_frames_per_segment"])
@@ -213,7 +217,9 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         if config["model"] == "gemini-3.1-pro" and self.gemini_client:
             understanding = self._understand_with_gemini(segment, key_frames)
         elif self.qwen_client:
-            understanding = self._understand_with_qwen(segment, key_frames, config["model"])
+            understanding = self._understand_with_qwen(
+                segment, key_frames, config["model"]
+            )
         else:
             understanding = self._understand_locally(segment, key_frames)
 

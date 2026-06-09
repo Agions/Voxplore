@@ -27,20 +27,22 @@ __all__ = [
 
 class ExportFormat(Enum):
     """导出格式"""
-    JIANYING = "jianying"       # 剪映草稿
-    MP4 = "mp4"                 # 直接导出 MP4
-    MOV = "mov"                 # 直接导出 MOV
-    GIF = "gif"                 # 导出 GIF
+
+    JIANYING = "jianying"  # 剪映草稿
+    MP4 = "mp4"  # 直接导出 MP4
+    MOV = "mov"  # 直接导出 MOV
+    GIF = "gif"  # 导出 GIF
 
 
 @dataclass
 class ExportConfig:
     """导出配置"""
+
     format: ExportFormat = ExportFormat.MP4
-    quality: str = "high"       # low/medium/high/ultra
-    resolution: str = "1080p"   # 720p/1080p/4k
+    quality: str = "high"  # low/medium/high/ultra
+    resolution: str = "1080p"  # 720p/1080p/4k
     fps: int = 30
-    codec: str = "h264"         # h264/h265/vp9
+    codec: str = "h264"  # h264/h265/vp9
     audio_codec: str = "aac"
     bitrate: str = "8M"
     output_path: str | None = None
@@ -62,11 +64,7 @@ class ExportManager:
         }
         self._last_error: str | None = None
 
-    def export(
-        self,
-        project_data: dict[str, Any],
-        config: ExportConfig
-    ) -> bool:
+    def export(self, project_data: dict[str, Any], config: ExportConfig) -> bool:
         """
         导出项目
 
@@ -108,6 +106,7 @@ class ExportManager:
             suffix = config.format.value
 
         import time
+
         return str(output_dir / f"export_{int(time.time())}.{suffix}")
 
     def get_supported_formats(self) -> list[ExportFormat]:

@@ -4,7 +4,6 @@
 AI监控面板 - 页面创建
 """
 
-
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -109,9 +108,13 @@ class MonitorPages:
 
         # 保存引用
         self.panel.service_stats_label = service_frame.findChild(QLabel, "value_label")
-        self.panel.requests_stats_label = requests_frame.findChild(QLabel, "value_label")
+        self.panel.requests_stats_label = requests_frame.findChild(
+            QLabel, "value_label"
+        )
         self.panel.success_stats_label = success_frame.findChild(QLabel, "value_label")
-        self.panel.response_stats_label = response_frame.findChild(QLabel, "value_label")
+        self.panel.response_stats_label = response_frame.findChild(
+            QLabel, "value_label"
+        )
         self.panel.cost_stats_label = cost_frame.findChild(QLabel, "value_label")
         self.panel.alerts_stats_label = alerts_frame.findChild(QLabel, "value_label")
 
@@ -127,7 +130,9 @@ class MonitorPages:
         # 服务列表
         self.panel.services_table = QTableWidget()
         self.panel.services_table.setColumnCount(6)
-        self.panel.services_table.setHorizontalHeaderLabels(["服务", "状态", "响应时间", "错误率", "成功率", "操作"])
+        self.panel.services_table.setHorizontalHeaderLabels(
+            ["服务", "状态", "响应时间", "错误率", "成功率", "操作"]
+        )
         self.panel.services_table.horizontalHeader().setStretchLastSection(True)
         self.panel.services_table.verticalHeader().setVisible(False)
         self.panel.services_table.setAlternatingRowColors(True)
@@ -183,7 +188,9 @@ class MonitorPages:
 
         self.panel.usage_table = QTableWidget()
         self.panel.usage_table.setColumnCount(5)
-        self.panel.usage_table.setHorizontalHeaderLabels(["服务", "请求数", "成功数", "失败数", "成本"])
+        self.panel.usage_table.setHorizontalHeaderLabels(
+            ["服务", "请求数", "成功数", "失败数", "成本"]
+        )
         self.panel.usage_table.horizontalHeader().setStretchLastSection(True)
         self.panel.usage_table.verticalHeader().setVisible(False)
         self.panel.usage_table.setAlternatingRowColors(True)
@@ -210,7 +217,9 @@ class MonitorPages:
 
         self.panel.alert_filter_combo = QComboBox()
         self.panel.alert_filter_combo.addItems(["全部", "信息", "警告", "错误", "严重"])
-        self.panel.alert_filter_combo.currentTextChanged.connect(self.panel._filter_alerts)
+        self.panel.alert_filter_combo.currentTextChanged.connect(
+            self.panel._filter_alerts
+        )
         filter_layout.addWidget(self.panel.alert_filter_combo)
 
         filter_layout.addStretch()

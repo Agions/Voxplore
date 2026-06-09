@@ -1,6 +1,7 @@
 """
 ASR 语音识别服务
 """
+
 import logging
 from typing import Any
 
@@ -24,7 +25,7 @@ class ASRService:
         audio_path: str,
         language: str = "zh",
         word_timestamps: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any] | None:
         # 检查缓存
         cache_key = f"{audio_path}:{language}:{word_timestamps}"
@@ -51,7 +52,7 @@ class ASRService:
         audio_paths: list[str],
         language: str = "zh",
         word_timestamps: bool = True,
-        max_workers: int = 2
+        max_workers: int = 2,
     ) -> list[dict[str, Any] | None]:
         """
         批量转写（并行进程）
@@ -66,11 +67,8 @@ class ASRService:
             path, lang, wts, model_name = args
             try:
                 from faster_whisper import WhisperModel
-                model = WhisperModel(
-                    model_name,
-                    device="cpu",
-                    compute_type="int8"
-                )
+
+                model = WhisperModel(model_name, device="cpu", compute_type="int8")
                 segments, info = model.transcribe(
                     path,
                     language=lang if lang != "auto" else None,
@@ -78,11 +76,9 @@ class ASRService:
                 )
                 result_segments = []
                 for seg in segments:
-                    result_segments.append({
-                        "start": seg.start,
-                        "end": seg.end,
-                        "text": seg.text.strip()
-                    })
+                    result_segments.append(
+                        {"start": seg.start, "end": seg.end, "text": seg.text.strip()}
+                    )
                 return {
                     "text": "".join(s["text"] for s in result_segments),
                     "segments": result_segments,
@@ -93,8 +89,7 @@ class ASRService:
                 return None
 
         args_list = [
-            (path, language, word_timestamps, self.model_name)
-            for path in audio_paths
+            (path, language, word_timestamps, self.model_name) for path in audio_paths
         ]
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -114,19 +109,14 @@ class ASRService:
         return results
 
     def _faster_whisper(
-        self,
-        audio_path: str,
-        language: str,
-        word_timestamps: bool
+        self, audio_path: str, language: str, word_timestamps: bool
     ) -> dict[str, Any] | None:
         try:
             from faster_whisper import WhisperModel
 
             if self.model is None:
                 self.model = WhisperModel(
-                    self.model_name,
-                    device="cpu",
-                    compute_type="int8"
+                    self.model_name, device="cpu", compute_type="int8"
                 )
 
             # 使用 batch_size 提升吞吐量
@@ -139,11 +129,9 @@ class ASRService:
 
             result_segments = []
             for seg in segments:
-                result_segments.append({
-                    "start": seg.start,
-                    "end": seg.end,
-                    "text": seg.text.strip()
-                })
+                result_segments.append(
+                    {"start": seg.start, "end": seg.end, "text": seg.text.strip()}
+                )
 
             return {
                 "text": "".join(s["text"] for s in result_segments),

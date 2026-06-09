@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Video Exporter"""
 
-
 from scenefab.services.export.video_exporter import (
     AudioCodec,
     ExportConfig,

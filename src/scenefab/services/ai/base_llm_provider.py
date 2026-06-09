@@ -44,14 +44,15 @@ logger = logging.getLogger(__name__)
 
 
 # ============ 公共常量 ============
-DEFAULT_CACHE_TTL = 3600.0           # 默认请求缓存 TTL: 1小时（秒）
-DEFAULT_LONG_CACHE_TTL = 86400.0    # 长缓存 TTL: 24小时（秒）
-DEFAULT_RETRY_MAX_DELAY = 30.0      # 重试最大延迟（秒）
-DEFAULT_KEEPALIVE_EXPIRY = 30.0     # HTTP keepalive 过期时间（秒）
-DEFAULT_LOCAL_TIMEOUT = 300.0       # 本地 LLM 请求超时（秒，5分钟）
+DEFAULT_CACHE_TTL = 3600.0  # 默认请求缓存 TTL: 1小时（秒）
+DEFAULT_LONG_CACHE_TTL = 86400.0  # 长缓存 TTL: 24小时（秒）
+DEFAULT_RETRY_MAX_DELAY = 30.0  # 重试最大延迟（秒）
+DEFAULT_KEEPALIVE_EXPIRY = 30.0  # HTTP keepalive 过期时间（秒）
+DEFAULT_LOCAL_TIMEOUT = 300.0  # 本地 LLM 请求超时（秒，5分钟）
 
 
 # ============ RequestCache ============
+
 
 class RequestCache:
     """
@@ -71,6 +72,7 @@ class RequestCache:
         """生成缓存键"""
         content = f"{request.model}:{request.prompt[:100]}:{request.temperature}"
         return hashlib.md5(content.encode()).hexdigest()
+
     async def get(self, request: LLMRequest) -> LLMResponse | None:
         """获取缓存的响应（通过 request 对象）"""
         key = self._make_key(request)
@@ -101,11 +103,7 @@ class RequestCache:
             # 清理过期项
             if len(self._cache) >= self.max_size:
                 self._cleanup()
-            self._cache[key] = (
-                response,
-                time.monotonic() + self.ttl
-            )
-
+            self._cache[key] = (response, time.monotonic() + self.ttl)
 
     def _cleanup(self) -> None:
         """清理过期缓存"""
@@ -116,10 +114,9 @@ class RequestCache:
 
         # 如果还是太多，删除最老的
         if len(self._cache) >= self.max_size:
-            oldest = sorted(
-                self._cache.items(),
-                key=lambda x: x[1][1]
-            )[:len(self._cache) // 2]
+            oldest = sorted(self._cache.items(), key=lambda x: x[1][1])[
+                : len(self._cache) // 2
+            ]
             for k, _ in oldest:
                 del self._cache[k]
 
@@ -136,11 +133,12 @@ class RequestCache:
             "hits": self._hits,
             "misses": self._misses,
             "size": len(self._cache),
-            "hit_rate": f"{hit_rate:.1f}%"
+            "hit_rate": f"{hit_rate:.1f}%",
         }
 
 
 # ============ 混入类 (Mixins) ============
+
 
 class HTTPClientMixin:
     """HTTP客户端混入类 - 提供通用的HTTP请求功能"""
@@ -153,9 +151,7 @@ class HTTPClientMixin:
         self._default_headers: dict[str, str] = {}
         # ✅ 新增：重试处理器
         self._retry_handler = RetryHandler(
-            max_attempts=3,
-            base_delay=1.0,
-            max_delay=DEFAULT_RETRY_MAX_DELAY
+            max_attempts=3, base_delay=1.0, max_delay=DEFAULT_RETRY_MAX_DELAY
         )
 
     def _init_http_client(self, headers: dict[str, str] | None = None) -> None:
@@ -172,8 +168,8 @@ class HTTPClientMixin:
             limits=httpx.Limits(
                 max_keepalive_connections=10,
                 max_connections=20,
-                keepalive_expiry=DEFAULT_KEEPALIVE_EXPIRY
-            )
+                keepalive_expiry=DEFAULT_KEEPALIVE_EXPIRY,
+            ),
         )
 
     async def _close_http_client(self) -> None:
@@ -189,7 +185,9 @@ class HTTPClientMixin:
         messages.append({"role": "user", "content": request.prompt})
         return messages
 
-    def _parse_response(self, data: dict[str, Any], model: str, latency_ms: float = 0) -> LLMResponse:
+    def _parse_response(
+        self, data: dict[str, Any], model: str, latency_ms: float = 0
+    ) -> LLMResponse:
         """解析标准OpenAI格式的响应"""
         if "error" in data:
             raise ProviderError(data["error"]["message"])
@@ -349,6 +347,7 @@ class ModelManagerMixin:
 
 # ============ 基类 ============
 
+
 class BaseLLMProvider(ABC):
     """LLM 提供商抽象基类"""
 
@@ -406,6 +405,7 @@ class BaseLLMProvider(ABC):
             提供商是否可用
         """
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
@@ -426,6 +426,7 @@ class BaseLLMProvider(ABC):
             return result is not None
         except (asyncio.TimeoutError, Exception):
             return False
+
     async def generate_cached(self, request: LLMRequest) -> LLMResponse:
         """
         生成文本（带缓存）✅ 优化：重复 prompt 直接返回缓存结果
@@ -477,32 +478,28 @@ class BaseLLMProvider(ABC):
             if use_cache:
                 unique_results = await gather_with_concurrency(
                     max_concurrency,
-                    *[self.generate_cached(req) for req in unique_requests]
+                    *[self.generate_cached(req) for req in unique_requests],
                 )
             else:
                 unique_results = await gather_with_concurrency(
-                    max_concurrency,
-                    *[self.generate(req) for req in unique_requests]
+                    max_concurrency, *[self.generate(req) for req in unique_requests]
                 )
 
             # 将结果映射回原始顺序
-            return [unique_results[idx] if idx < len(unique_results) else None for idx in index_map]
+            return [
+                unique_results[idx] if idx < len(unique_results) else None
+                for idx in index_map
+            ]
 
         if use_cache:
             results = await gather_with_concurrency(
-                max_concurrency,
-                *[self.generate_cached(req) for req in requests]
+                max_concurrency, *[self.generate_cached(req) for req in requests]
             )
         else:
             results = await gather_with_concurrency(
-                max_concurrency,
-                *[self.generate(req) for req in requests]
+                max_concurrency, *[self.generate(req) for req in requests]
             )
-        return [
-            r if isinstance(r, LLMResponse) else None
-            for r in results
-        ]
-
+        return [r if isinstance(r, LLMResponse) else None for r in results]
 
     async def close(self) -> None:
         """关闭连接"""
@@ -514,10 +511,9 @@ class BaseLLMProvider(ABC):
 
 # ============ 工具函数 ============
 
+
 async def gather_with_concurrency(
-    n: int,
-    *tasks,
-    return_exceptions: bool = True
+    n: int, *tasks, return_exceptions: bool = True
 ) -> list[Any]:
     """
     控制并发数的 asyncio.gather ✅ 新增
@@ -538,7 +534,7 @@ async def gather_with_concurrency(
 
     return await asyncio.gather(
         *[_run_with_semaphore(task) for task in tasks],
-        return_exceptions=return_exceptions
+        return_exceptions=return_exceptions,
     )
 
 

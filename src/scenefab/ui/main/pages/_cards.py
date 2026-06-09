@@ -24,7 +24,6 @@ from ...theme.ds_tokens import Colors, FontSizes, Radii
 # ═══════════════════════════════════════════════════════════════════════
 
 
-
 class GlassCard(QFrame):
     """带微妙玻璃模糊效果的卡片"""
 
@@ -52,7 +51,7 @@ class GlassCard(QFrame):
         self.setStyleSheet(f"""
             QFrame#glass_card_{self._card_id} {{
                 background: {Colors.BG_ELEVATED};
-                border: 1px solid {Colors.PRIMARY_10.replace('1A', '33')};
+                border: 1px solid {Colors.PRIMARY_10.replace("1A", "33")};
                 border-radius: {Radii.xl};
             }}
         """)
@@ -76,8 +75,15 @@ class GlassCard(QFrame):
 class QuickCard(GlassCard):
     """快捷操作卡片"""
 
-    def __init__(self, card_id: str, icon: str, title: str, desc: str,
-                 accent: str = Colors.PRIMARY, parent=None):
+    def __init__(
+        self,
+        card_id: str,
+        icon: str,
+        title: str,
+        desc: str,
+        accent: str = Colors.PRIMARY,
+        parent=None,
+    ):
         super().__init__(card_id, parent)
         self._icon = icon
         self._title = title
@@ -154,8 +160,15 @@ class QuickCard(GlassCard):
 class ProjectCard(GlassCard):
     """项目卡片"""
 
-    def __init__(self, project_id: str, name: str, thumbnail: str = "",
-                 duration: str = "", date: str = "", parent=None):
+    def __init__(
+        self,
+        project_id: str,
+        name: str,
+        thumbnail: str = "",
+        duration: str = "",
+        date: str = "",
+        parent=None,
+    ):
         super().__init__(f"proj_{project_id}", parent)
         self._project_id = project_id
         self._name = name
@@ -271,5 +284,3 @@ class StatChip(QFrame):
 # ═══════════════════════════════════════════════════════════════════════
 # 首页
 # ═══════════════════════════════════════════════════════════════════════
-
-

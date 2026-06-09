@@ -34,14 +34,14 @@ from .style_preset_panel import StylePresetPanel
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "primary_l":   "oklch(0.70 0.24 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "primary_l": "oklch(0.70 0.24 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
@@ -51,13 +51,18 @@ class StepPreview(QWidget):
     解说预览 + 编辑页面
     整合：文案预览区 + 风格设置 + 分段编辑
     """
+
     back_requested = Signal()
     generate_requested = Signal(str, str, str, str)
     # back_requested: 返回上一步
 
-
-    def __init__(self, video_path: str = "", narration_text: str = "",
-                 style: str = "治愈", parent=None):
+    def __init__(
+        self,
+        video_path: str = "",
+        narration_text: str = "",
+        style: str = "治愈",
+        parent=None,
+    ):
         super().__init__(parent)
         self._video_path = video_path
         self._narration_text = narration_text
@@ -99,8 +104,9 @@ class StepPreview(QWidget):
 
         # 左侧：文案预览
         self._preview_area = PreviewTextArea()
-        self._preview_area.setSizePolicy(QSizePolicy.Policy.Expanding,
-                                         QSizePolicy.Policy.Expanding)
+        self._preview_area.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         main_split.addWidget(self._preview_area)
 
         # 右侧：风格设置
@@ -121,15 +127,15 @@ class StepPreview(QWidget):
         self._progress_bar.setVisible(False)
         self._progress_bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {_T['bg_input']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 6px;
                 height: 8px;
                 text-align: center;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_T['primary']}, stop:1 {_T['primary_l']});
+                    stop:0 {_T["primary"]}, stop:1 {_T["primary_l"]});
                 border-radius: 6px;
             }}
         """)
@@ -166,9 +172,21 @@ class StepPreview(QWidget):
         """加载示例分段（演示用）"""
         # 模拟分段
         segments = [
-            ("00:00-00:10", "【开场】今天天气真好，阳光从窗户洒进来，让人心情格外舒畅。", "happy"),
-            ("00:10-00:25", "【叙述】我独自坐在咖啡馆里工作，周围的氛围安静而温馨。", "neutral"),
-            ("00:25-00:40", "【高潮】突然，一位陌生人走过来，问我能否借用一下充电宝...", "excited"),
+            (
+                "00:00-00:10",
+                "【开场】今天天气真好，阳光从窗户洒进来，让人心情格外舒畅。",
+                "happy",
+            ),
+            (
+                "00:10-00:25",
+                "【叙述】我独自坐在咖啡馆里工作，周围的氛围安静而温馨。",
+                "neutral",
+            ),
+            (
+                "00:25-00:40",
+                "【高潮】突然，一位陌生人走过来，问我能否借用一下充电宝...",
+                "excited",
+            ),
             ("00:40-00:55", "【转折】我抬头一看，竟然是多年未见的老朋友！", "tense"),
             ("00:55-01:10", "【结尾】这个世界真小，缘分就是这么奇妙。", "nostalgic"),
         ]
@@ -194,20 +212,17 @@ class StepPreview(QWidget):
             return
 
         # 如果有当前项目，直接保存
-        if hasattr(self, '_project_id') and self._project_id:
+        if hasattr(self, "_project_id") and self._project_id:
             self._save_to_project(text)
             return
 
         # 否则弹出文件保存对话框
         file_path, _ = QFileDialog.getSaveFileName(
-            self,
-            "保存解说文案",
-            "narrations.txt",
-            "文本文件 (*.txt);;所有文件 (*.*)"
+            self, "保存解说文案", "narrations.txt", "文本文件 (*.txt);;所有文件 (*.*)"
         )
         if file_path:
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(text)
                 self._save_btn.setText("✅ 已保存")
                 QTimer.singleShot(1500, lambda: self._save_btn.setText("💾 保存草稿"))
@@ -219,6 +234,7 @@ class StepPreview(QWidget):
         try:
             # 获取 ProjectManager
             from scenefab.services.orchestration import ProjectManager
+
             manager = ProjectManager()
             project = manager.get_project(self._project_id)
             if project:
@@ -247,13 +263,15 @@ class StepPreview(QWidget):
             self,
             "导出解说文案",
             "narrations.txt",
-            "文本文件 (*.txt);;Markdown (*.md);;所有文件 (*.*)"
+            "文本文件 (*.txt);;Markdown (*.md);;所有文件 (*.*)",
         )
         if file_path:
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(text)
-                QMessageBox.information(self, "导出成功", f"文案已导出至：\n{file_path}")
+                QMessageBox.information(
+                    self, "导出成功", f"文案已导出至：\n{file_path}"
+                )
             except Exception as e:
                 QMessageBox.warning(self, "导出失败", f"无法导出文件：{e}")
 
@@ -278,11 +296,14 @@ class StepPreview(QWidget):
 
     def _animate_progress(self):
         """动画进度条（演示用）"""
+
         def update():
             for i in range(0, 101, 2):
                 self._progress_bar.setValue(i)
                 import time
+
                 time.sleep(0.03)
             self._progress_bar.setVisible(False)
+
         t = threading.Thread(target=update, daemon=True)
         t.start()

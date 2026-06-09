@@ -20,13 +20,11 @@ __all__ = [
     # 工具
     "FFmpegTool",
     "HWAccelType",
-
     # 基类
     "IVideoProcessor",
     "BaseVideoProcessor",
     "VideoMetadata",
     "ProcessingResult",
-
     # 字幕生成
     "CaptionGenerator",
     "Caption",

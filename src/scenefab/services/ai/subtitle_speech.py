@@ -37,13 +37,24 @@ class SpeechSubtitleExtractor:
         "medium": {"name": "Whisper Medium", "params": "~769M", "VRAM": "~5GB"},
         "large": {"name": "Whisper Large", "params": "~1550M", "VRAM": "~10GB"},
         # Faster-Whisper 额外支持量化模型
-        "large-v2": {"name": "Whisper Large V2", "params": "~1550M", "VRAM": "~5GB (int8)"},
-        "large-v3": {"name": "Whisper Large V3", "params": "~1550M", "VRAM": "~5GB (int8)"},
+        "large-v2": {
+            "name": "Whisper Large V2",
+            "params": "~1550M",
+            "VRAM": "~5GB (int8)",
+        },
+        "large-v3": {
+            "name": "Whisper Large V3",
+            "params": "~1550M",
+            "VRAM": "~5GB (int8)",
+        },
     }
 
-    def __init__(self, api_key: str | None = None,
-                 mode: str = "local",
-                 local_model: str = "medium"):
+    def __init__(
+        self,
+        api_key: str | None = None,
+        mode: str = "local",
+        local_model: str = "medium",
+    ):
         """
         Args:
             api_key: OpenAI API key(mode=api 时需要)
@@ -53,11 +64,14 @@ class SpeechSubtitleExtractor:
         """
         self._api_key = api_key or os.getenv("OPENAI_API_KEY")
         self._mode = mode
-        self._local_model = local_model if local_model in self.WHISPER_MODELS else "base"
+        self._local_model = (
+            local_model if local_model in self.WHISPER_MODELS else "base"
+        )
         self._local_model_instance = None  # 缓存加载的模型
 
-    def extract(self, video_path: str,
-                language: str = "zh") -> SubtitleExtractionResult:
+    def extract(
+        self, video_path: str, language: str = "zh"
+    ) -> SubtitleExtractionResult:
         """
         从视频/音频提取语音字幕
 
@@ -96,14 +110,13 @@ class SpeechSubtitleExtractor:
 
         return result
 
-    def _transcribe_api(self, audio_path: str,
-                        language: str) -> list[SubtitleSegment]:
+    def _transcribe_api(self, audio_path: str, language: str) -> list[SubtitleSegment]:
         """使用 OpenAI Whisper API 转录"""
         from openai import OpenAI
 
         client = OpenAI(api_key=self._api_key)
 
-        with open(audio_path, 'rb') as f:
+        with open(audio_path, "rb") as f:
             response = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=f,
@@ -113,27 +126,37 @@ class SpeechSubtitleExtractor:
             )
 
         segments = []
-        if hasattr(response, 'segments') and response.segments:
+        if hasattr(response, "segments") and response.segments:
             for seg in response.segments:
-                segments.append(SubtitleSegment(
-                    start=get_seg_attr(seg, "start", getattr(seg, "start", 0)),
-                    end=get_seg_attr(seg, "end", getattr(seg, "end", 0)),
-                    text=get_seg_attr(seg, "text", getattr(seg, "text", "")).strip(),
-                    confidence=get_seg_attr(seg, "avg_logprob", getattr(seg, "avg_logprob", 0)),
-                    source="speech",
-                ))
-        elif hasattr(response, 'text'):
+                segments.append(
+                    SubtitleSegment(
+                        start=get_seg_attr(seg, "start", getattr(seg, "start", 0)),
+                        end=get_seg_attr(seg, "end", getattr(seg, "end", 0)),
+                        text=get_seg_attr(
+                            seg, "text", getattr(seg, "text", "")
+                        ).strip(),
+                        confidence=get_seg_attr(
+                            seg, "avg_logprob", getattr(seg, "avg_logprob", 0)
+                        ),
+                        source="speech",
+                    )
+                )
+        elif hasattr(response, "text"):
             # 无时间戳,整段返回
-            segments.append(SubtitleSegment(
-                start=0, end=FFmpegTool.get_duration(audio_path),
-                text=response.text.strip(),
-                source="speech",
-            ))
+            segments.append(
+                SubtitleSegment(
+                    start=0,
+                    end=FFmpegTool.get_duration(audio_path),
+                    text=response.text.strip(),
+                    source="speech",
+                )
+            )
 
         return segments
 
-    def _transcribe_local(self, audio_path: str,
-                          language: str) -> list[SubtitleSegment]:
+    def _transcribe_local(
+        self, audio_path: str, language: str
+    ) -> list[SubtitleSegment]:
         """使用本地 faster-whisper 模型转录(CPU/GPU 自动检测)"""
         try:
             from faster_whisper import WhisperModel
@@ -149,7 +172,9 @@ class SpeechSubtitleExtractor:
                 device, compute_type, batch_size = self._detect_device()
 
                 if device == "cuda":
-                    logger.info(f"Faster-Whisper 使用 GPU 加速 ({compute_type}, batch_size={batch_size})")
+                    logger.info(
+                        f"Faster-Whisper 使用 GPU 加速 ({compute_type}, batch_size={batch_size})"
+                    )
                 else:
                     logger.info(f"Faster-Whisper 使用 CPU ({compute_type})")
 
@@ -167,7 +192,7 @@ class SpeechSubtitleExtractor:
                 )
 
         model = self._local_model_instance
-        batch_size = getattr(model, '_batch_size', None)
+        batch_size = getattr(model, "_batch_size", None)
 
         # 转录参数
         transcribe_options = {
@@ -193,12 +218,14 @@ class SpeechSubtitleExtractor:
         for seg in segments_gen:
             text = seg.text.strip()
             if text:  # 跳过空文本
-                segments.append(SubtitleSegment(
-                    start=seg.start,
-                    end=seg.end,
-                    text=text,
-                    source="speech",
-                ))
+                segments.append(
+                    SubtitleSegment(
+                        start=seg.start,
+                        end=seg.end,
+                        text=text,
+                        source="speech",
+                    )
+                )
 
         return segments
 
@@ -215,6 +242,7 @@ class SpeechSubtitleExtractor:
         # 优先检测 CUDA/GPU
         try:
             import torch
+
             if torch.cuda.is_available():
                 # GPU 可用：float16 + batch_size=8（8.9x 加速，benchmark 数据）
                 # 参考：faster-whisper batch=8 @ RTX 3070 Ti: 16s vs 143s (8.9x)
@@ -233,16 +261,24 @@ class SpeechSubtitleExtractor:
         """从视频提取音频"""
         # 如果已经是音频文件,直接返回
         ext = Path(video_path).suffix.lower()
-        if ext in ('.mp3', '.wav', '.m4a', '.flac', '.ogg', '.aac'):
+        if ext in (".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"):
             return video_path
 
-        fd, output = tempfile.mkstemp(suffix='.wav', prefix='narrafiilm_stt_')
+        fd, output = tempfile.mkstemp(suffix=".wav", prefix="narrafiilm_stt_")
         os.close(fd)  # mkstemp 创建文件，ffmpeg 会覆盖它
         cmd = [
-            'ffmpeg', '-y', '-i', video_path,
-            '-vn', '-acodec', 'pcm_s16le',
-            '-ar', '16000', '-ac', '1',
-            output
+            "ffmpeg",
+            "-y",
+            "-i",
+            video_path,
+            "-vn",
+            "-acodec",
+            "pcm_s16le",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            output,
         ]
         r = _audio_executor.run(cmd, timeout=120)
         if r.returncode != 0:

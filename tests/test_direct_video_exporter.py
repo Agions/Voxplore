@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Direct Video Exporter"""
 
-
 from scenefab.services.export.direct_video_exporter import (
     DirectVideoExporter,
     HWAccel,

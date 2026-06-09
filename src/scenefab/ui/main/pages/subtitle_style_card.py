@@ -10,13 +10,13 @@ from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":    "oklch(0.16 0.01 250)",
-    "bg_active":  "oklch(0.17 0.01 250)",
-    "border":     "oklch(0.24 0.01 250)",
-    "border_h":   "oklch(0.30 0.02 250)",
-    "primary":    "oklch(0.65 0.20 250)",
-    "text":       "oklch(0.93 0.01 250)",
-    "text_sub":   "oklch(0.75 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "border_h": "oklch(0.30 0.02 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
 }
 
 
@@ -32,8 +32,8 @@ class SubtitleStyleCard(QFrame):
 
     _STYLES = {
         "cinematic": ("电影字幕", "黑底白字，居中，适合故事叙述"),
-        "minimal":   ("简约白字", "无背景白色文字，适合教程"),
-        "dynamic":   ("动感字幕", "打字机效果，适合短内容"),
+        "minimal": ("简约白字", "无背景白色文字，适合教程"),
+        "dynamic": ("动感字幕", "打字机效果，适合短内容"),
     }
 
     def __init__(self, style_id: str, parent=None):
@@ -88,8 +88,8 @@ class SubtitleStyleCard(QFrame):
             # OKLCH: 主色发光边框 + 背景加深
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: {_T['bg_active']};
-                    border: 2px solid {_T['primary']};
+                    background: {_T["bg_active"]};
+                    border: 2px solid {_T["primary"]};
                     border-radius: 14px;
                     box-shadow: 0 0 16px oklch(0.65 0.20 250 / 0.20);
                 }}
@@ -98,12 +98,12 @@ class SubtitleStyleCard(QFrame):
             # OKLCH: 默认边框
             self.setStyleSheet(f"""
                 QFrame {{
-                    background: {_T['bg_card']};
-                    border: 1px solid {_T['border']};
+                    background: {_T["bg_card"]};
+                    border: 1px solid {_T["border"]};
                     border-radius: 14px;
                 }}
                 QFrame:hover {{
-                    border-color: {_T['primary']}99;
+                    border-color: {_T["primary"]}99;
                 }}
             """)
 

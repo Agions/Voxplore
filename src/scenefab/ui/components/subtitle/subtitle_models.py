@@ -28,6 +28,7 @@ from .subtitle_core import (
 # 字幕导出器
 # ─────────────────────────────────────────────────────────────
 
+
 class SubtitleExporter:
     """
     字幕导出器
@@ -151,12 +152,16 @@ class SubtitleExporter:
 
         # 添加样式
         style = editor.presets.get("cinematic", DEFAULT_PRESETS["cinematic"])
-        lines.append(f"Style: Default,{style.font_family},{int(style.font_size * 10)},"
-                    f"&H00{style.font_color[1:]},&H0000FFFF,&H00{style.font_color[1:]},"
-                    f"&H00000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1")
+        lines.append(
+            f"Style: Default,{style.font_family},{int(style.font_size * 10)},"
+            f"&H00{style.font_color[1:]},&H0000FFFF,&H00{style.font_color[1:]},"
+            f"&H00000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1"
+        )
         lines.append("")
         lines.append("[Events]")
-        lines.append("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text")
+        lines.append(
+            "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
+        )
 
         tracks = editor.tracks
         if track_id:
@@ -199,7 +204,9 @@ class SubtitleExporter:
         return json.dumps(editor.to_dict(), ensure_ascii=False, indent=indent)
 
     @staticmethod
-    def to_jianying(editor: MultiTrackSubtitleEditor, track_id: str = None) -> list[dict]:
+    def to_jianying(
+        editor: MultiTrackSubtitleEditor, track_id: str = None
+    ) -> list[dict]:
         """
         导出为剪映字幕格式
 
@@ -253,13 +260,14 @@ class SubtitleExporter:
         else:
             content = SubtitleExporter.to_json(editor, indent=2)
 
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(content)
 
 
 # ─────────────────────────────────────────────────────────────
 # 字幕导入器
 # ─────────────────────────────────────────────────────────────
+
 
 class SubtitleImporter:
     """
@@ -284,10 +292,10 @@ class SubtitleImporter:
 
         # 解析SRT
         pattern = re.compile(
-            r'(\d+)\s*\r?\n'
-            r'(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})\s*\r?\n'
-            r'([\s\S]*?)(?=\r?\n\r?\n|\Z)',
-            re.MULTILINE
+            r"(\d+)\s*\r?\n"
+            r"(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})\s*\r?\n"
+            r"([\s\S]*?)(?=\r?\n\r?\n|\Z)",
+            re.MULTILINE,
         )
 
         for match in pattern.finditer(content):
@@ -310,7 +318,7 @@ class SubtitleImporter:
     @classmethod
     def _parse_srt_time(cls, time_str: str) -> float:
         """解析SRT时间"""
-        parts = time_str.replace(',', ':').split(':')
+        parts = time_str.replace(",", ":").split(":")
         hours = int(parts[0])
         minutes = int(parts[1])
         seconds = float(parts[2])
@@ -331,13 +339,13 @@ class SubtitleImporter:
         track = SubtitleTrack(name=track_name, style_id="cinematic")
 
         # 移除WEBVTT头
-        content = re.sub(r'^WEBVTT.*?\n\n', '', content, flags=re.MULTILINE)
+        content = re.sub(r"^WEBVTT.*?\n\n", "", content, flags=re.MULTILINE)
 
         # 解析VTT
         pattern = re.compile(
-            r'(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\s*\r?\n'
-            r'([\s\S]*?)(?=\r?\n\r?\n|\Z)',
-            re.MULTILINE
+            r"(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})\s*\r?\n"
+            r"([\s\S]*?)(?=\r?\n\r?\n|\Z)",
+            re.MULTILINE,
         )
 
         for match in pattern.finditer(content):
@@ -360,7 +368,7 @@ class SubtitleImporter:
     @classmethod
     def _parse_vtt_time(cls, time_str: str) -> float:
         """解析VTT时间"""
-        parts = time_str.split(':')
+        parts = time_str.split(":")
         hours = int(parts[0])
         minutes = int(parts[1])
         seconds = float(parts[2])
@@ -382,8 +390,8 @@ class SubtitleImporter:
 
         # 解析Dialogue行
         pattern = re.compile(
-            r'Dialogue:\s*\d+,(\d+:\d{2}:\d{2}\.\d{2}),(\d+:\d{2}:\d{2}\.\d{2}),.*?,,.*?(?:\d+,)*(\d+),(\d+),(\d+),,([\s\S]*?)(?:\r?\n|$)',
-            re.MULTILINE
+            r"Dialogue:\s*\d+,(\d+:\d{2}:\d{2}\.\d{2}),(\d+:\d{2}:\d{2}\.\d{2}),.*?,,.*?(?:\d+,)*(\d+),(\d+),(\d+),,([\s\S]*?)(?:\r?\n|$)",
+            re.MULTILINE,
         )
 
         for match in pattern.finditer(content):
@@ -391,7 +399,7 @@ class SubtitleImporter:
             if not text:
                 continue
 
-            text = text.replace('\\N', '\n').replace('\\n', '\n')
+            text = text.replace("\\N", "\n").replace("\\n", "\n")
 
             start = cls._parse_ass_time(match.group(1))
             end = cls._parse_ass_time(match.group(2))
@@ -408,7 +416,7 @@ class SubtitleImporter:
     @classmethod
     def _parse_ass_time(cls, time_str: str) -> float:
         """解析ASS时间"""
-        parts = time_str.split(':')
+        parts = time_str.split(":")
         hours = int(parts[0])
         minutes = int(parts[1])
         seconds = float(parts[2])
@@ -444,16 +452,16 @@ class SubtitleImporter:
         if not path.exists():
             raise FileNotFoundError(f"文件不存在: {file_path}")
 
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
 
         suffix = path.suffix.lower()
 
         _LOADER_MAP = {
-            '.srt': lambda: cls.from_srt(content, track_name=path.stem),
-            '.vtt': lambda: cls.from_vtt(content, track_name=path.stem),
-            '.ass': lambda: cls.from_ass(content, track_name=path.stem),
-            '.json': lambda: cls.from_json(content),
+            ".srt": lambda: cls.from_srt(content, track_name=path.stem),
+            ".vtt": lambda: cls.from_vtt(content, track_name=path.stem),
+            ".ass": lambda: cls.from_ass(content, track_name=path.stem),
+            ".json": lambda: cls.from_json(content),
         }
         if suffix in _LOADER_MAP:
             return _LOADER_MAP[suffix]()

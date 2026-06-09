@@ -24,6 +24,7 @@ from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
     from PySide6.QtMultimediaWidgets import QVideoWidget
+
     HAS_MULTIMEDIA = True
 except ImportError:
     HAS_MULTIMEDIA = False
@@ -33,7 +34,7 @@ class VideoPreview(QWidget, ThemeAwareMixin):
     """视频预览播放器"""
 
     playback_position_changed = Signal(int)  # ms
-    playback_state_changed = Signal(bool)     # is_playing
+    playback_state_changed = Signal(bool)  # is_playing
 
     def __init__(self, application=None):
         super().__init__(application)
@@ -79,7 +80,9 @@ class VideoPreview(QWidget, ThemeAwareMixin):
 
         # 控制栏
         controls = QFrame()
-        controls.setStyleSheet(f"background-color: {Colors.BgOverlay}; border-top: 1px solid {Colors.BorderDefault};")
+        controls.setStyleSheet(
+            f"background-color: {Colors.BgOverlay}; border-top: 1px solid {Colors.BorderDefault};"
+        )
         ctrl_layout = QVBoxLayout(controls)
         ctrl_layout.setContentsMargins(8, 4, 8, 4)
         ctrl_layout.setSpacing(4)
@@ -101,16 +104,22 @@ class VideoPreview(QWidget, ThemeAwareMixin):
 
         self._play_btn = QPushButton("▶")
         self._play_btn.setFixedSize(32, 28)
-        self._play_btn.setStyleSheet(f"QPushButton {{ background: {Colors.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}")
+        self._play_btn.setStyleSheet(
+            f"QPushButton {{ background: {Colors.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
+        )
         self._play_btn.clicked.connect(self.toggle_play)
 
         self._stop_btn = QPushButton("⏹")
         self._stop_btn.setFixedSize(32, 28)
-        self._stop_btn.setStyleSheet(f"QPushButton {{ background: {Colors.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}")
+        self._stop_btn.setStyleSheet(
+            f"QPushButton {{ background: {Colors.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
+        )
         self._stop_btn.clicked.connect(self.stop)
 
         self._time_label = QLabel("00:00 / 00:00")
-        self._time_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
+        self._time_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; font-size: 11px;"
+        )
 
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
         self._volume_slider.setRange(0, 100)
@@ -166,7 +175,9 @@ class VideoPreview(QWidget, ThemeAwareMixin):
             self._progress.blockSignals(True)
             self._progress.setValue(int(pos_ms / self._duration_ms * 1000))
             self._progress.blockSignals(False)
-        self._time_label.setText(f"{self._format_time(pos_ms)} / {self._format_time(self._duration_ms)}")
+        self._time_label.setText(
+            f"{self._format_time(pos_ms)} / {self._format_time(self._duration_ms)}"
+        )
         self.playback_position_changed.emit(pos_ms)
 
     def _on_duration_changed(self, duration_ms: int):

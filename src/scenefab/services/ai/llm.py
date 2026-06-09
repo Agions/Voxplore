@@ -1,6 +1,7 @@
 """
 LLM 服务
 """
+
 import logging
 import time
 from typing import Any
@@ -30,20 +31,19 @@ class LLMService:
 
         self.rate_limiter = RateLimiter(
             rate=config.get("requests_per_second", 10.0),
-            burst=config.get("burst_size", 20)
+            burst=config.get("burst_size", 20),
         )
         self.circuit_breaker = CircuitBreaker()
 
         # HTTP 会话复用
         import requests
+
         self.session = requests.Session()
         adapter = requests.adapters.HTTPAdapter(
-            pool_connections=10,
-            pool_maxsize=10,
-            max_retries=0
+            pool_connections=10, pool_maxsize=10, max_retries=0
         )
-        self.session.mount('http://', adapter)
-        self.session.mount('https://', adapter)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
 
         self._stats = {
             "requests": 0,
@@ -52,11 +52,7 @@ class LLMService:
         }
 
     def generate(
-        self,
-        prompt: str,
-        system: str = "",
-        max_retries: int = 3,
-        **kwargs
+        self, prompt: str, system: str = "", max_retries: int = 3, **kwargs
     ) -> str | None:
         if not self.enabled:
             return None
@@ -86,22 +82,17 @@ class LLMService:
 
                 # 指数退避
                 if attempt < max_retries - 1:
-                    wait_time = min(2 ** attempt, 8)
+                    wait_time = min(2**attempt, 8)
                     time.sleep(wait_time)
 
         self.circuit_breaker.record_failure()
         logger.error(f"LLM call failed after {max_retries} attempts: {last_error}")
         return None
 
-    def _call_api(
-        self,
-        prompt: str,
-        system: str = "",
-        **kwargs
-    ) -> str:
+    def _call_api(self, prompt: str, system: str = "", **kwargs) -> str:
         headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         messages = []
@@ -120,7 +111,7 @@ class LLMService:
             f"{self.base_url}/chat/completions",
             headers=headers,
             json=data,
-            timeout=kwargs.get("timeout", 60)
+            timeout=kwargs.get("timeout", 60),
         )
 
         if response.status_code == 200:

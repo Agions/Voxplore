@@ -49,6 +49,7 @@ class SceneAnalyzer:
     def _check_pyscenect(self) -> bool:
         """检查 PySceneDetect 是否可用"""
         import importlib.util
+
         return importlib.util.find_spec("scenedetect") is not None
 
     def analyze(self, video_path: str) -> list[SceneInfo]:
@@ -67,6 +68,7 @@ class SceneAnalyzer:
 
         # 获取视频时长
         from ..video_tools.ffmpeg_tool import FFmpegTool
+
         duration = FFmpegTool.get_duration(str(video_path))
 
         # 检测场景变化 - 优先使用 PySceneDetect
@@ -101,10 +103,11 @@ class SceneAnalyzer:
 
             if self.config.detector_type == "adaptive":
                 from scenedetect.detectors.adaptive_detector import AdaptiveDetector
+
                 scene_manager.add_detector(
                     AdaptiveDetector(
                         adaptive_threshold=threshold * 50,
-                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15),
                     )
                 )
             elif self.config.detector_type == "threshold":
@@ -115,7 +118,7 @@ class SceneAnalyzer:
                 scene_manager.add_detector(
                     ContentDetector(
                         threshold=threshold * 50,
-                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15)
+                        min_scene_len=max(int(self.config.min_scene_duration * 30), 15),
                     )
                 )
 
@@ -150,9 +153,14 @@ class SceneAnalyzer:
         threshold = self.config.scene_threshold
 
         cmd = [
-            'ffmpeg', '-i', video_path,
-            '-filter:v', f"select='gt(scene,{threshold})',showinfo",
-            '-f', 'null', '-'
+            "ffmpeg",
+            "-i",
+            video_path,
+            "-filter:v",
+            f"select='gt(scene,{threshold})',showinfo",
+            "-f",
+            "null",
+            "-",
         ]
 
         try:
@@ -160,12 +168,15 @@ class SceneAnalyzer:
 
             scene_times = [0.0]
 
-            pattern = r'pts_time:(\d+\.?\d*)'
+            pattern = r"pts_time:(\d+\.?\d*)"
             matches = re.findall(pattern, result.stderr)
 
             for match in matches:
                 time = float(match)
-                if not scene_times or (time - scene_times[-1]) >= self.config.min_scene_duration:
+                if (
+                    not scene_times
+                    or (time - scene_times[-1]) >= self.config.min_scene_duration
+                ):
                     scene_times.append(time)
 
             return scene_times
@@ -177,7 +188,9 @@ class SceneAnalyzer:
             logger.error(f"场景检测失败: {e}")
             return [0.0]
 
-    def _build_scenes(self, scene_times: list[float], total_duration: float) -> list[SceneInfo]:
+    def _build_scenes(
+        self, scene_times: list[float], total_duration: float
+    ) -> list[SceneInfo]:
         """根据场景变化时间点构建场景列表"""
         scenes = []
 
@@ -228,8 +241,18 @@ class SceneAnalyzer:
         """通用的 FFmpeg 视频指标提取"""
         try:
             cmd = [
-                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
-                '-i', video_path, '-vf', vf, '-f', 'null', '-'
+                "ffmpeg",
+                "-ss",
+                str(start),
+                "-t",
+                str(min(duration, 2)),
+                "-i",
+                video_path,
+                "-vf",
+                vf,
+                "-f",
+                "null",
+                "-",
             ]
             result = self._executor.run(cmd, timeout=30)
             match = re.search(regex, result.stderr)
@@ -239,27 +262,41 @@ class SceneAnalyzer:
             pass
         return default
 
-    def _get_avg_brightness(self, video_path: str, start: float, duration: float) -> float:
+    def _get_avg_brightness(
+        self, video_path: str, start: float, duration: float
+    ) -> float:
         """获取场景平均亮度"""
         val = self._run_video_metric(
-            video_path, start, duration,
-            vf='signalstats',
-            regex=r'YAVG:(\d+\.?\d*)',
+            video_path,
+            start,
+            duration,
+            vf="signalstats",
+            regex=r"YAVG:(\d+\.?\d*)",
             default=0.5,
         )
         return val / 255.0
 
-    def _get_motion_level(self, video_path: str, start: float, duration: float) -> float:
+    def _get_motion_level(
+        self, video_path: str, start: float, duration: float
+    ) -> float:
         """获取场景运动程度"""
         try:
             cmd = [
-                'ffmpeg', '-ss', str(start), '-t', str(min(duration, 2)),
-                '-i', video_path,
-                '-filter:v', "select='gte(scene,0)',metadata=print",
-                '-f', 'null', '-'
+                "ffmpeg",
+                "-ss",
+                str(start),
+                "-t",
+                str(min(duration, 2)),
+                "-i",
+                video_path,
+                "-filter:v",
+                "select='gte(scene,0)',metadata=print",
+                "-f",
+                "null",
+                "-",
             ]
             result = self._executor.run(cmd, timeout=30)
-            scores = re.findall(r'lavfi\.scene_score=(\d+\.?\d*)', result.stderr)
+            scores = re.findall(r"lavfi\.scene_score=(\d+\.?\d*)", result.stderr)
             if scores:
                 avg_score = sum(float(s) for s in scores) / len(scores)
                 return min(1.0, avg_score * 2)
@@ -270,9 +307,11 @@ class SceneAnalyzer:
     def _get_audio_level(self, video_path: str, start: float, duration: float) -> float:
         """获取场景音频音量"""
         db = self._run_video_metric(
-            video_path, start, duration,
-            vf='volumedetect',
-            regex=r'mean_volume:\s*([-\d.]+)',
+            video_path,
+            start,
+            duration,
+            vf="volumedetect",
+            regex=r"mean_volume:\s*([-\d.]+)",
             default=-60.0,
         )
         return max(0, min(1, (db + 60) / 60))
@@ -328,11 +367,17 @@ class SceneAnalyzer:
 
             try:
                 cmd = [
-                    'ffmpeg', '-ss', str(timestamp),
-                    '-i', video_path,
-                    '-vframes', '1',
-                    '-q:v', '2',
-                    '-y', str(output_path)
+                    "ffmpeg",
+                    "-ss",
+                    str(timestamp),
+                    "-i",
+                    video_path,
+                    "-vframes",
+                    "1",
+                    "-q:v",
+                    "2",
+                    "-y",
+                    str(output_path),
                 ]
 
                 result = self._executor.run(cmd, timeout=60)

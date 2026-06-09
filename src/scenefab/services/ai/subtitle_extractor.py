@@ -45,14 +45,13 @@ class OCRSubtitleExtractor:
     从视频关键帧中通过 Vision API 识别画面中的字幕文字
     """
 
-    def __init__(self, api_key: str | None = None,
-                 provider: str = "openai"):
+    def __init__(self, api_key: str | None = None, provider: str = "openai"):
         self._api_key = api_key or os.getenv("OPENAI_API_KEY")
         self._provider = provider
 
-    def extract(self, video_path: str,
-                sample_interval: float = 1.0,
-                max_frames: int = 60) -> SubtitleExtractionResult:
+    def extract(
+        self, video_path: str, sample_interval: float = 1.0, max_frames: int = 60
+    ) -> SubtitleExtractionResult:
         """
         从视频提取 OCR 字幕
 
@@ -75,8 +74,7 @@ class OCRSubtitleExtractor:
         )
 
         # 提取关键帧
-        frames = self._extract_frames(video_path, duration,
-                                       sample_interval, max_frames)
+        frames = self._extract_frames(video_path, duration, sample_interval, max_frames)
 
         if not frames:
             return result
@@ -87,7 +85,7 @@ class OCRSubtitleExtractor:
 
         for timestamp, frame_path in frames:
             try:
-                with open(frame_path, 'rb') as f:
+                with open(frame_path, "rb") as f:
                     img_b64 = base64.b64encode(f.read()).decode()
 
                 text = self._ocr_frame(img_b64)
@@ -97,12 +95,14 @@ class OCRSubtitleExtractor:
                     if segments and segments[-1].text == prev_text:
                         segments[-1].end = timestamp
 
-                    segments.append(SubtitleSegment(
-                        start=timestamp,
-                        end=timestamp + sample_interval,
-                        text=text,
-                        source="ocr",
-                    ))
+                    segments.append(
+                        SubtitleSegment(
+                            start=timestamp,
+                            end=timestamp + sample_interval,
+                            text=text,
+                            source="ocr",
+                        )
+                    )
                     prev_text = text
                 elif text and text == prev_text and segments:
                     # 字幕延续
@@ -135,16 +135,24 @@ class OCRSubtitleExtractor:
         client = OpenAI(api_key=self._api_key)
         response = client.chat.completions.create(
             model="gpt-5-mini",
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "提取这张视频截图中的字幕文字。只返回字幕文字内容，如果没有字幕则返回空字符串。不要加任何解释。"},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_base64}",
-                        "detail": "low"
-                    }}
-                ]
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "提取这张视频截图中的字幕文字。只返回字幕文字内容，如果没有字幕则返回空字符串。不要加任何解释。",
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}",
+                                "detail": "low",
+                            },
+                        },
+                    ],
+                }
+            ],
             max_tokens=200,
         )
         text = response.choices[0].message.content.strip()
@@ -152,8 +160,9 @@ class OCRSubtitleExtractor:
             return ""
         return text
 
-    def _extract_frames(self, video_path: str, duration: float,
-                        interval: float, max_frames: int) -> list[tuple[float, str]]:
+    def _extract_frames(
+        self, video_path: str, duration: float, interval: float, max_frames: int
+    ) -> list[tuple[float, str]]:
         """提取关键帧"""
         tmpdir = tempfile.mkdtemp(prefix="narrafiilm_ocr_")
         frames = []
@@ -165,9 +174,17 @@ class OCRSubtitleExtractor:
                 break
             out = os.path.join(tmpdir, f"frame_{i:04d}.jpg")
             cmd = [
-                'ffmpeg', '-y', '-ss', str(ts),
-                '-i', video_path, '-vframes', '1',
-                '-q:v', '5', out
+                "ffmpeg",
+                "-y",
+                "-ss",
+                str(ts),
+                "-i",
+                video_path,
+                "-vframes",
+                "1",
+                "-q:v",
+                "5",
+                out,
             ]
             r = _video_executor.run(cmd, timeout=30)
             if r.returncode == 0 and os.path.exists(out):
@@ -178,10 +195,13 @@ class OCRSubtitleExtractor:
 
 # ========== 便捷函数 ==========
 
-def extract_subtitles(video_path: str,
-                      method: str = "speech",
-                      api_key: str | None = None,
-                      language: str = "zh") -> SubtitleExtractionResult:
+
+def extract_subtitles(
+    video_path: str,
+    method: str = "speech",
+    api_key: str | None = None,
+    language: str = "zh",
+) -> SubtitleExtractionResult:
     """
     提取字幕的便捷函数
 
@@ -215,11 +235,13 @@ def extract_subtitles(video_path: str,
         raise ValueError(f"不支持的方法: {method}，可选: ocr/speech/both")
 
 
-def translate_subtitles(subtitle_result: SubtitleExtractionResult,
-                       target_lang: str = "en",
-                       source_lang: str = "auto",
-                       provider: str = "openai",
-                       api_key: str | None = None) -> SubtitleExtractionResult:
+def translate_subtitles(
+    subtitle_result: SubtitleExtractionResult,
+    target_lang: str = "en",
+    source_lang: str = "auto",
+    provider: str = "openai",
+    api_key: str | None = None,
+) -> SubtitleExtractionResult:
     """
     翻译字幕的便捷函数
 

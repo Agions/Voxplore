@@ -15,6 +15,7 @@ from typing import Any
 
 class ServiceState(Enum):
     """服务状态"""
+
     UNREGISTERED = "unregistered"
     REGISTERED = "registered"
     INITIALIZING = "initializing"
@@ -28,22 +29,25 @@ class ServiceState(Enum):
 
 class ServiceLifetime(Enum):
     """服务生命周期类型"""
+
     SINGLETON = "singleton"  # 单例，整个应用生命周期内唯一
     TRANSIENT = "transient"  # 瞬态，每次请求都创建新实例
-    SCOPED = "scoped"        # 作用域，在特定作用域内唯一
+    SCOPED = "scoped"  # 作用域，在特定作用域内唯一
 
 
 @dataclass
 class ServiceDependency:
     """服务依赖定义"""
+
     service_name: str
     required: bool = True  # 是否必需
-    lazy: bool = False     # 是否延迟加载
+    lazy: bool = False  # 是否延迟加载
 
 
 @dataclass
 class ServiceDefinition:
     """服务定义"""
+
     name: str
     service_type: type
     factory: Callable | None = None
@@ -102,26 +106,31 @@ class ServiceLifecycleHook(ABC):
 
 class ServiceError(Exception):
     """服务相关错误基类"""
+
     pass
 
 
 class ServiceNotFoundError(ServiceError):
     """服务未找到错误"""
+
     pass
 
 
 class ServiceDependencyError(ServiceError):
     """服务依赖错误"""
+
     pass
 
 
 class ServiceInitializationError(ServiceError):
     """服务初始化错误"""
+
     pass
 
 
 class ServiceTimeoutError(ServiceError):
     """服务操作超时错误"""
+
     pass
 
 

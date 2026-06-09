@@ -81,14 +81,18 @@ class ProjectCard(MacCard):
         # 导出按钮
         self.export_btn = MacIconButton("📤", 28)
         self.export_btn.setToolTip("导出项目")
-        self.export_btn.clicked.connect(lambda: self.export_clicked.emit(self.project.id))
+        self.export_btn.clicked.connect(
+            lambda: self.export_clicked.emit(self.project.id)
+        )
         button_layout.addWidget(self.export_btn)
 
         # 删除按钮（使用危险样式）
         self.delete_btn = MacIconButton("🗑️", 28)
         self.delete_btn.setProperty("class", "button icon-only danger")
         self.delete_btn.setToolTip("删除项目")
-        self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.project.id))
+        self.delete_btn.clicked.connect(
+            lambda: self.delete_clicked.emit(self.project.id)
+        )
         button_layout.addWidget(self.delete_btn)
 
         button_layout.addStretch()
@@ -148,14 +152,18 @@ class TemplateCard(MacCard):
         self.preview_label.setFixedSize(160, 90)
         self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.preview_label.setProperty("class", "template-preview")
-        preview_layout.addWidget(self.preview_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        preview_layout.addWidget(
+            self.preview_label, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self.layout().addWidget(preview_container)
 
         # 模板类别徽章
         self.category_badge = MacBadge("", "primary")
         self.category_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout().addWidget(self.category_badge, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout().addWidget(
+            self.category_badge, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
     def _update_display(self):
         """更新显示"""
@@ -165,7 +173,12 @@ class TemplateCard(MacCard):
         # 加载预览图
         if self.template.preview_image and os.path.exists(self.template.preview_image):
             pixmap = QPixmap(self.template.preview_image)
-            scaled_pixmap = pixmap.scaled(160, 90, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(
+                160,
+                90,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
             self.preview_label.setPixmap(scaled_pixmap)
         else:
             self.preview_label.setText("🖼️")

@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class RetryStrategy(Enum):
     """重试策略"""
+
     EXPONENTIAL = "exponential"
     LINEAR = "linear"
     CONSTANT = "constant"
@@ -147,10 +148,7 @@ class RateLimiter:
             async with self._lock:
                 now = datetime.now()
                 elapsed = (now - self._last_update).total_seconds()
-                self._tokens = min(
-                    self.capacity,
-                    self._tokens + elapsed * self.rate
-                )
+                self._tokens = min(self.capacity, self._tokens + elapsed * self.rate)
                 self._last_update = now
 
                 if self._tokens >= 1:
@@ -167,8 +165,9 @@ class RateLimiter:
 
 class CircuitState(Enum):
     """熔断器状态"""
-    CLOSED = "closed"      # 正常状态，请求正常通过
-    OPEN = "open"          # 熔断状态，请求被拒绝
+
+    CLOSED = "closed"  # 正常状态，请求正常通过
+    OPEN = "open"  # 熔断状态，请求被拒绝
     HALF_OPEN = "half_open"  # 半开状态，允许部分请求通过
 
 
@@ -267,7 +266,10 @@ class CircuitBreaker:
             self._failure_count += 1
             self._last_failure_time = datetime.now()
 
-            if self._state == CircuitState.HALF_OPEN or self._failure_count >= self.failure_threshold:
+            if (
+                self._state == CircuitState.HALF_OPEN
+                or self._failure_count >= self.failure_threshold
+            ):
                 logger.warning("Circuit breaker transitioning to OPEN")
                 self._state = CircuitState.OPEN
 

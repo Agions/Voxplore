@@ -20,7 +20,7 @@ class TestVideoSegment:
             start_time=10.0,
             end_time=30.0,
             confidence=0.85,
-            description="第一人称视角，展示行走场景"
+            description="第一人称视角，展示行走场景",
         )
 
         assert segment.video_path == "/test/video.mp4"
@@ -35,7 +35,7 @@ class TestVideoSegment:
             start_time=10.0,
             end_time=30.0,
             confidence=0.8,
-            description=""
+            description="",
         )
         assert segment.end_time - segment.start_time == 20.0
 
@@ -43,7 +43,9 @@ class TestVideoSegment:
 class MockVisionModel:
     """模拟 Qwen3.7 模型"""
 
-    def __init__(self, first_person_responses: dict[str, list[tuple[float, float, float]]]):
+    def __init__(
+        self, first_person_responses: dict[str, list[tuple[float, float, float]]]
+    ):
         # first_person_responses[video_path] = [(start, end, confidence), ...]
         self._responses = first_person_responses
 
@@ -58,16 +60,20 @@ class MockVisionModel:
                 return {
                     "is_first_person": True,
                     "confidence": conf,
-                    "description": f"第一人称视角 @ {timestamp}s"
+                    "description": f"第一人称视角 @ {timestamp}s",
                 }
 
         return {"is_first_person": False, "confidence": 0.2, "description": ""}
 
 
-def create_mock_vision_model(video_fp_segments: dict[str, list[tuple[float, float, float]]]):
+def create_mock_vision_model(
+    video_fp_segments: dict[str, list[tuple[float, float, float]]],
+):
     """创建模拟视觉模型"""
     model = MagicMock()
-    model.analyze_frame = lambda vp, ts: MockVisionModel(video_fp_segments).analyze_frame(vp, ts)
+    model.analyze_frame = lambda vp, ts: MockVisionModel(
+        video_fp_segments
+    ).analyze_frame(vp, ts)
     return model
 
 
@@ -95,13 +101,16 @@ class TestFirstPersonExtractor:
         extractor = FirstPersonExtractor()
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
-        segments = extractor.extract_first_person_segments(video_path, group_id="group_001")
+        segments = extractor.extract_first_person_segments(
+            video_path, group_id="group_001"
+        )
 
         assert len(segments) >= 1
         for seg in segments:
             assert seg.video_path == video_path
-            assert 9.0 <= (seg.end_time - seg.start_time) <= 60.0, \
+            assert 9.0 <= (seg.end_time - seg.start_time) <= 60.0, (
                 f"片段时长 {(seg.end_time - seg.start_time):.1f}s 应在 9-60s 范围内"
+            )
 
     def test_extract_segments_duration_9_to_60_seconds(self):
         """测试：片段时长 9-60 秒（符合短视频长度）"""
@@ -109,8 +118,8 @@ class TestFirstPersonExtractor:
 
         fp_segments = {
             video_path: [
-                (5.0, 20.0, 0.9),   # 15s → OK
-                (20.0, 28.0, 0.85), # 8s → 太短，会被过滤或合并
+                (5.0, 20.0, 0.9),  # 15s → OK
+                (20.0, 28.0, 0.85),  # 8s → 太短，会被过滤或合并
                 (28.0, 70.0, 0.8),  # 42s → OK
             ]
         }
@@ -118,13 +127,16 @@ class TestFirstPersonExtractor:
         extractor = FirstPersonExtractor()
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
-        segments = extractor.extract_first_person_segments(video_path, group_id="group_001")
+        segments = extractor.extract_first_person_segments(
+            video_path, group_id="group_001"
+        )
 
         # 过滤后时长应该在 9-60s
         for seg in segments:
             duration = seg.end_time - seg.start_time
-            assert 9.0 <= duration <= 60.0 or duration < 9.0, \
+            assert 9.0 <= duration <= 60.0 or duration < 9.0, (
                 f"片段 {seg.start_time:.1f}s-{seg.end_time:.1f}s 时长 {duration:.1f}s 超出范围"
+            )
 
     def test_extract_segments_sorted_by_confidence(self):
         """测试：置信度排序（最高在前）"""
@@ -132,21 +144,24 @@ class TestFirstPersonExtractor:
 
         fp_segments = {
             video_path: [
-                (0.0, 15.0, 0.6),   # 低置信度
-                (15.0, 35.0, 0.95), # 高置信度
-                (35.0, 50.0, 0.75), # 中置信度
+                (0.0, 15.0, 0.6),  # 低置信度
+                (15.0, 35.0, 0.95),  # 高置信度
+                (35.0, 50.0, 0.75),  # 中置信度
             ]
         }
 
         extractor = FirstPersonExtractor()
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
-        segments = extractor.extract_first_person_segments(video_path, group_id="group_001")
+        segments = extractor.extract_first_person_segments(
+            video_path, group_id="group_001"
+        )
 
         if len(segments) > 1:
             confidences = [s.confidence for s in segments]
-            assert confidences == sorted(confidences, reverse=True), \
+            assert confidences == sorted(confidences, reverse=True), (
                 f"置信度应降序排列: {confidences}"
+            )
 
     def test_extract_no_first_person(self):
         """测试：无第一人称片段"""
@@ -158,7 +173,9 @@ class TestFirstPersonExtractor:
         extractor = FirstPersonExtractor()
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
-        segments = extractor.extract_first_person_segments(video_path, group_id="group_001")
+        segments = extractor.extract_first_person_segments(
+            video_path, group_id="group_001"
+        )
 
         # 可能返回空或低置信度片段
         assert isinstance(segments, list)
@@ -177,8 +194,7 @@ class TestFirstPersonExtractor:
         extractor._vision_model = create_mock_vision_model(fp_segments)
 
         segments = extractor.extract_first_person_segments(
-            video_path,
-            group_id="test_group_123"
+            video_path, group_id="test_group_123"
         )
 
         # group_id 用于未来扩展，当前实现可不使用
@@ -195,7 +211,7 @@ class TestVideoSegmentDataclass:
             start_time=10.0,
             end_time=30.0,
             confidence=0.88,
-            description="测试片段"
+            description="测试片段",
         )
 
         d = asdict(segment)

@@ -9,9 +9,9 @@ from .pulse_indicator import LoadingOverlay, PulseIndicator
 from .skeleton import SkeletonBar, SkeletonCircle, SkeletonWidget
 
 __all__ = [
-    'SkeletonWidget',
-    'SkeletonBar',
-    'SkeletonCircle',
-    'PulseIndicator',
-    'LoadingOverlay',
+    "SkeletonWidget",
+    "SkeletonBar",
+    "SkeletonCircle",
+    "PulseIndicator",
+    "LoadingOverlay",
 ]

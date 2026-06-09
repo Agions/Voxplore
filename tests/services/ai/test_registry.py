@@ -20,6 +20,7 @@ from scenefab.services.ai.model_registry import ProviderRegistry
 # Mock Providers
 # =============================================================================
 
+
 class MockVisionProvider(VisionProvider):
     """模拟视觉理解 Provider"""
 
@@ -69,6 +70,7 @@ class MockTTSProvider(TTSProvider):
 # =============================================================================
 # Tests
 # =============================================================================
+
 
 class TestProviderRegistrySingleton:
     """测试单例模式"""
@@ -293,9 +295,7 @@ providers:
       enabled: true
       voice: zh-CN-Xiaoxiao
 """
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(config_content)
             temp_path = f.name
 

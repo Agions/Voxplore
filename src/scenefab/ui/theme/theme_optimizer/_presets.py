@@ -1,6 +1,3 @@
-
-
-
 class ThemePresets:
     """主题配色方案预设"""
 
@@ -228,5 +225,3 @@ class ThemePresets:
         if theme_type in _THEME_MAP:
             return list(_THEME_MAP[theme_type].keys())
         return list(cls.DARK_THEMES.keys()) + list(cls.LIGHT_THEMES.keys())
-
-

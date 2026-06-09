@@ -119,7 +119,9 @@ class TestLLMRetryPolicy:
 
     def test_custom_init(self):
         """Test custom initialization"""
-        policy = LLMRetryPolicy(max_retries=5, base_delay=2.0, max_delay=120.0, backoff_factor=3.0)
+        policy = LLMRetryPolicy(
+            max_retries=5, base_delay=2.0, max_delay=120.0, backoff_factor=3.0
+        )
 
         assert policy.max_retries == 5
         assert policy.base_delay == 2.0
@@ -255,7 +257,7 @@ class TestLLMPerformanceMonitor:
         assert stats["total_requests"] == 3
         assert stats["successful_requests"] == 2
         assert stats["failed_requests"] == 1
-        assert stats["success_rate"] == 2/3
+        assert stats["success_rate"] == 2 / 3
         assert stats["avg_response_time"] == 1.5
         assert stats["cache_hit_rate"] == 0.5
 

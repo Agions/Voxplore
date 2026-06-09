@@ -25,8 +25,10 @@ JIANYING_VERSION = 360000  # 剪映版本号
 
 # ─── 枚举定义 ────────────────────────────────────────────────
 
+
 class TrackType(Enum):
     """轨道类型"""
+
     VIDEO = "video"
     AUDIO = "audio"
     TEXT = "text"
@@ -36,6 +38,7 @@ class TrackType(Enum):
 
 class MaterialType(Enum):
     """素材类型"""
+
     VIDEO = "video"
     AUDIO = "audio"
     TEXT = "text"
@@ -44,6 +47,7 @@ class MaterialType(Enum):
 
 
 # ─── 轨道模型 ────────────────────────────────────────────────
+
 
 @dataclass
 class TimeRange:
@@ -54,16 +58,14 @@ class TimeRange:
         start: 开始时间（微秒）
         duration: 持续时间（微秒）
     """
+
     start: int = 0
     duration: int = 0
 
     @classmethod
-    def from_seconds(cls, start: float, duration: float) -> 'TimeRange':
+    def from_seconds(cls, start: float, duration: float) -> "TimeRange":
         """从秒转换"""
-        return cls(
-            start=int(start * 1_000_000),
-            duration=int(duration * 1_000_000)
-        )
+        return cls(start=int(start * 1_000_000), duration=int(duration * 1_000_000))
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -76,6 +78,7 @@ class Segment:
 
     对应剪映中的一个视频/音频/字幕片段
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     material_id: str = ""
     target_timerange: TimeRange = field(default_factory=TimeRange)
@@ -108,6 +111,7 @@ class Track:
 
     一个轨道可以包含多个片段
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     type: TrackType = TrackType.VIDEO
     segments: list[Segment] = field(default_factory=list)
@@ -130,9 +134,11 @@ class Track:
 
 # ─── 素材模型 ────────────────────────────────────────────────
 
+
 @dataclass
 class VideoMaterial:
     """视频素材"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     path: str = ""
     duration: int = 0  # 微秒
@@ -148,6 +154,7 @@ class VideoMaterial:
 @dataclass
 class AudioMaterial:
     """音频素材"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     path: str = ""
     duration: int = 0  # 微秒
@@ -164,6 +171,7 @@ class TextMaterial:
 
     剪映字幕的核心结构
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     content: str = ""
 
@@ -186,6 +194,7 @@ class TextMaterial:
 @dataclass
 class JianyingMaterials:
     """素材集合"""
+
     videos: list[VideoMaterial] = field(default_factory=list)
     audios: list[AudioMaterial] = field(default_factory=list)
     texts: list[TextMaterial] = field(default_factory=list)
@@ -197,12 +206,14 @@ class JianyingMaterials:
 @dataclass
 class CanvasConfig:
     """画布配置"""
+
     width: int = DEFAULT_VIDEO_HEIGHT  # 竖屏短视频
     height: int = DEFAULT_VIDEO_WIDTH
     ratio: str = "9:16"
 
 
 # ─── 复合模型 ────────────────────────────────────────────────
+
 
 @dataclass
 class JianyingDraft:
@@ -211,6 +222,7 @@ class JianyingDraft:
 
     这是导出的核心数据结构，包含所有轨道、素材和配置信息
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "SceneFab Project"
     duration: int = 0  # 总时长（微秒）
@@ -225,8 +237,12 @@ class JianyingDraft:
     canvas_config: CanvasConfig = field(default_factory=CanvasConfig)
 
     # 元数据
-    create_time: int = field(default_factory=lambda: int(datetime.now().timestamp() * 1000))
-    update_time: int = field(default_factory=lambda: int(datetime.now().timestamp() * 1000))
+    create_time: int = field(
+        default_factory=lambda: int(datetime.now().timestamp() * 1000)
+    )
+    update_time: int = field(
+        default_factory=lambda: int(datetime.now().timestamp() * 1000)
+    )
 
     # 版本
     version: int = JIANYING_VERSION  # 剪映版本号
@@ -284,11 +300,13 @@ class JianyingDraft:
 
 # ─── 导出配置 ────────────────────────────────────────────────
 
+
 @dataclass
 class JianyingConfig:
     """导出配置"""
+
     copy_materials: bool = True  # 是否复制素材到草稿目录
-    canvas_ratio: str = "9:16"   # 画布比例: 9:16, 16:9, 1:1
+    canvas_ratio: str = "9:16"  # 画布比例: 9:16, 16:9, 1:1
     version: int = JIANYING_VERSION  # 剪映版本号
 
 

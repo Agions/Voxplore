@@ -28,10 +28,10 @@ class FormatCard(QFrame):
     format_selected = Signal(str)
 
     FORMATS = [
-        ("mp4", "MP4",    "通用性强，画质好",       "🎬"),
-        ("mov", "MOV",    "Apple 专属，高质量",     "🍎"),
-        ("avi", "AVI",    "Windows 兼容",           "🪟"),
-        ("mkv", "MKV",    "支持多音轨/字幕",         "📦"),
+        ("mp4", "MP4", "通用性强，画质好", "🎬"),
+        ("mov", "MOV", "Apple 专属，高质量", "🍎"),
+        ("avi", "AVI", "Windows 兼容", "🪟"),
+        ("mkv", "MKV", "支持多音轨/字幕", "📦"),
     ]
 
     def __init__(self, parent=None):
@@ -71,7 +71,9 @@ class FormatOptionCard(QFrame):
 
     selected = Signal(str)
 
-    def __init__(self, fmt: str, name: str, desc: str, icon: str, checked: bool, parent=None):
+    def __init__(
+        self, fmt: str, name: str, desc: str, icon: str, checked: bool, parent=None
+    ):
         super().__init__(parent)
         self._fmt = fmt
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -292,7 +294,9 @@ class StepExportPage(StepPage):
         qual_row.addStretch()
 
         res_combo = QComboBox()
-        res_combo.addItems(["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)", "原始分辨率"])
+        res_combo.addItems(
+            ["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)", "原始分辨率"]
+        )
         res_combo.setFixedWidth(200)
         res_combo.setStyleSheet(f"""
             QComboBox {{
@@ -367,6 +371,7 @@ class StepExportPage(StepPage):
         import subprocess
         import sys
         from pathlib import Path
+
         export_dir = Path.home() / "SceneFab" / "Exports"
         if not export_dir.exists():
             return

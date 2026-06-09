@@ -7,6 +7,7 @@ SceneFab 任务管理 V2
 - 批量操作优化
 - **v2.1 增强**：发布 DomainEvent 到 UnifiedEventBus（订阅者可观察任务生命周期）
 """
+
 import logging
 import os
 import threading
@@ -30,6 +31,7 @@ try:
         TaskStatusChanged as _TaskStatusEvent,
     )
     from scenefab.core.unified_event_bus import get_event_bus
+
     _HAS_V21_BUS = True
 except ImportError:
     _HAS_V21_BUS = False
@@ -37,15 +39,21 @@ except ImportError:
 # orjson 性能比标准 json 快 5-10 倍
 try:
     import orjson
+
     _json_loads = orjson.loads
+
     def _json_dumps(obj):
         return orjson.dumps(obj, option=orjson.OPT_INDENT_2)
+
     _use_orjson = True
 except ImportError:
     import json
+
     _json_loads = json.load
+
     def _json_dumps(obj):
         return json.dumps(obj, ensure_ascii=False, indent=2)
+
     _use_orjson = False
 
 logger = logging.getLogger(__name__)
@@ -53,6 +61,7 @@ logger = logging.getLogger(__name__)
 
 class TaskStatus(Enum):
     """任务状态"""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -64,6 +73,7 @@ class TaskStatus(Enum):
 @dataclass(slots=True)
 class TaskCheckpoint:
     """任务检查点"""
+
     task_id: str
     step: int
     step_name: str
@@ -76,6 +86,7 @@ class TaskCheckpoint:
 @dataclass
 class Task:
     """任务"""
+
     task_id: str
     name: str
     status: TaskStatus
@@ -121,7 +132,7 @@ class TaskManager:
     - 批量操作支持
     """
 
-    _instance: Optional['TaskManager'] = None
+    _instance: Optional["TaskManager"] = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -152,10 +163,10 @@ class TaskManager:
             for file in Path(self._task_dir).glob("*.json"):
                 try:
                     if _use_orjson:
-                        with open(file, 'rb') as f:
+                        with open(file, "rb") as f:
                             data = orjson.loads(f.read())
                     else:
-                        with open(file, encoding='utf-8') as f:
+                        with open(file, encoding="utf-8") as f:
                             data = json.load(f)
                     task = self._dict_to_task(data)
                     self._tasks[task.task_id] = task
@@ -166,15 +177,18 @@ class TaskManager:
 
     def _save_task_async(self, task: Task):
         """异步保存任务到磁盘"""
+
         def _write():
             try:
                 file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
                 temp_path = file_path + ".tmp"
                 if _use_orjson:
-                    with open(temp_path, 'wb') as f:
-                        f.write(orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2))
+                    with open(temp_path, "wb") as f:
+                        f.write(
+                            orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2)
+                        )
                 else:
-                    with open(temp_path, 'w', encoding='utf-8') as f:
+                    with open(temp_path, "w", encoding="utf-8") as f:
                         json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
                 os.replace(temp_path, file_path)
             except Exception as e:
@@ -188,10 +202,10 @@ class TaskManager:
             file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
             temp_path = file_path + ".tmp"
             if _use_orjson:
-                with open(temp_path, 'wb') as f:
+                with open(temp_path, "wb") as f:
                     f.write(orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2))
             else:
-                with open(temp_path, 'w', encoding='utf-8') as f:
+                with open(temp_path, "w", encoding="utf-8") as f:
                     json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
             os.replace(temp_path, file_path)
         except Exception as e:
@@ -199,9 +213,7 @@ class TaskManager:
 
     def _dict_to_task(self, data: dict) -> Task:
         """从字典创建任务"""
-        checkpoints = [
-            TaskCheckpoint(**cp) for cp in data.get("checkpoints", [])
-        ]
+        checkpoints = [TaskCheckpoint(**cp) for cp in data.get("checkpoints", [])]
 
         return Task(
             task_id=data["task_id"],
@@ -216,14 +228,11 @@ class TaskManager:
             created_at=data["created_at"],
             updated_at=data["updated_at"],
             checkpoints=checkpoints,
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
     def create_task(
-        self,
-        name: str,
-        steps: list[str] = None,
-        metadata: dict[str, Any] = None
+        self, name: str, steps: list[str] = None, metadata: dict[str, Any] = None
     ) -> str:
         """
         创建新任务
@@ -255,7 +264,7 @@ class TaskManager:
             error=None,
             created_at=now,
             updated_at=now,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         with self._lock:
@@ -296,7 +305,7 @@ class TaskManager:
         progress: float,
         step: str = None,
         step_index: int = None,
-        **kwargs
+        **kwargs,
     ):
         """更新任务进度"""
         with self._lock:
@@ -320,7 +329,7 @@ class TaskManager:
                     step_name=step or task.current_step,
                     progress=progress,
                     data=kwargs,
-                    timestamp=datetime.now().timestamp()
+                    timestamp=datetime.now().timestamp(),
                 )
                 task.checkpoints.append(checkpoint)
 
@@ -341,11 +350,7 @@ class TaskManager:
                 logger.debug(f"TaskProgressUpdated event publish failed: {e}")
 
     def set_status(
-        self,
-        task_id: str,
-        status: TaskStatus,
-        error: str = None,
-        result: Any = None
+        self, task_id: str, status: TaskStatus, error: str = None, result: Any = None
     ):
         """设置任务状态"""
         with self._lock:
@@ -445,11 +450,7 @@ class TaskManager:
         return task.checkpoints[-1]
 
     def save_checkpoint(
-        self,
-        task_id: str,
-        step: int,
-        step_name: str,
-        data: dict[str, Any]
+        self, task_id: str, step: int, step_name: str, data: dict[str, Any]
     ):
         """保存检查点（JSON 格式）"""
         checkpoint = {
@@ -458,21 +459,20 @@ class TaskManager:
             "step_name": step_name,
             "progress": 0.0,
             "data": data,
-            "timestamp": datetime.now().timestamp()
+            "timestamp": datetime.now().timestamp(),
         }
 
         checkpoint_file = os.path.join(
-            self._checkpoints_dir,
-            f"{task_id}_checkpoint_{step}.json"
+            self._checkpoints_dir, f"{task_id}_checkpoint_{step}.json"
         )
 
         try:
             temp_path = checkpoint_file + ".tmp"
             if _use_orjson:
-                with open(temp_path, 'wb') as f:
+                with open(temp_path, "wb") as f:
                     f.write(orjson.dumps(checkpoint, option=orjson.OPT_INDENT_2))
             else:
-                with open(temp_path, 'w', encoding='utf-8') as f:
+                with open(temp_path, "w", encoding="utf-8") as f:
                     json.dump(checkpoint, f, ensure_ascii=False, indent=2)
             os.replace(temp_path, checkpoint_file)
         except Exception as e:
@@ -481,8 +481,7 @@ class TaskManager:
     def load_checkpoint(self, task_id: str, step: int) -> TaskCheckpoint | None:
         """加载检查点"""
         checkpoint_file = os.path.join(
-            self._checkpoints_dir,
-            f"{task_id}_checkpoint_{step}.json"
+            self._checkpoints_dir, f"{task_id}_checkpoint_{step}.json"
         )
 
         if not os.path.exists(checkpoint_file):
@@ -490,10 +489,10 @@ class TaskManager:
 
         try:
             if _use_orjson:
-                with open(checkpoint_file, 'rb') as f:
+                with open(checkpoint_file, "rb") as f:
                     data = orjson.loads(f.read())
             else:
-                with open(checkpoint_file, encoding='utf-8') as f:
+                with open(checkpoint_file, encoding="utf-8") as f:
                     data = json.load(f)
             return TaskCheckpoint(**data)
         except Exception as e:

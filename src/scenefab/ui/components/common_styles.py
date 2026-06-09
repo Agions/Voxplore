@@ -8,7 +8,6 @@ OKLCH 色彩系统 · frontend-design-pro compliant
 """
 
 
-
 class ColorPalette:
     """
     色彩系统 — OKLCH 近似值（QSS 使用 HEX 转换）
@@ -19,37 +18,37 @@ class ColorPalette:
     """
 
     # --- Primary ---
-    PRIMARY       = "#0A84FF"   # 主强调色
-    PRIMARY_LIGHT = "#2196FF"   # 主色悬停
-    PRIMARY_DARK  = "#0070E0"   # 主色按下
+    PRIMARY = "#0A84FF"  # 主强调色
+    PRIMARY_LIGHT = "#2196FF"  # 主色悬停
+    PRIMARY_DARK = "#0070E0"  # 主色按下
 
     # --- Status ---
-    SUCCESS       = "#10B981"   # oklch 0.70 0.18 160
-    WARNING       = "#F59E0B"   # oklch 0.75 0.18 85
-    ERROR         = "#EF4444"   # oklch 0.65 0.20 25
-    INFO         = "#3B82F6"   # oklch 0.65 0.20 255
+    SUCCESS = "#10B981"  # oklch 0.70 0.18 160
+    WARNING = "#F59E0B"  # oklch 0.75 0.18 85
+    ERROR = "#EF4444"  # oklch 0.65 0.20 25
+    INFO = "#3B82F6"  # oklch 0.65 0.20 255
 
     # --- Neutral — all tinted, no pure gray ---
     # Background
-    BG_BASE       = "#0C1018"   # oklch(0.12 0.015 265)
-    BG_RAISED     = "#0E1520"   # oklch(0.15 0.015 265)
-    BG_SUNKEN     = "#0A0E16"   # oklch(0.10 0.015 265)
-    BG_OVERLAY    = "#111827"   # hover state
+    BG_BASE = "#0C1018"  # oklch(0.12 0.015 265)
+    BG_RAISED = "#0E1520"  # oklch(0.15 0.015 265)
+    BG_SUNKEN = "#0A0E16"  # oklch(0.10 0.015 265)
+    BG_OVERLAY = "#111827"  # hover state
 
     # Border
-    BORDER_SUBTLE = "#141E2E"   # oklch(0.17 0.012 265)
-    BORDER_DEFAULT= "#1A2332"   # oklch(0.18 0.015 265)
-    BORDER_STRONG = "#2A3A50"   # oklch(0.28 0.02 265)
+    BORDER_SUBTLE = "#141E2E"  # oklch(0.17 0.012 265)
+    BORDER_DEFAULT = "#1A2332"  # oklch(0.18 0.015 265)
+    BORDER_STRONG = "#2A3A50"  # oklch(0.28 0.02 265)
 
     # Text
-    TEXT_PRIMARY  = "#E2E8F0"   # oklch(0.93 0.01 265) — 主文字
-    TEXT_SECONDARY= "#8098B0"   # oklch(0.65 0.03 265) — 次级文字
-    TEXT_MUTED   = "#4A5A70"   # oklch(0.45 0.03 265) — 占位/禁用
-    TEXT_DISABLED= "#3A4A60"   # oklch(0.35 0.02 265) — 最暗文字
+    TEXT_PRIMARY = "#E2E8F0"  # oklch(0.93 0.01 265) — 主文字
+    TEXT_SECONDARY = "#8098B0"  # oklch(0.65 0.03 265) — 次级文字
+    TEXT_MUTED = "#4A5A70"  # oklch(0.45 0.03 265) — 占位/禁用
+    TEXT_DISABLED = "#3A4A60"  # oklch(0.35 0.02 265) — 最暗文字
 
     # Accent tints
-    TINT_IDLE    = "#1E2D42"   # idle state
-    TINT_RUNNING  = "#0A1028"   # running/highlight state
+    TINT_IDLE = "#1E2D42"  # idle state
+    TINT_RUNNING = "#0A1028"  # running/highlight state
 
 
 class Spacing:
@@ -57,12 +56,13 @@ class Spacing:
     间距系统 — 4px 基础模数
     REDESIGN: 规范化间距，避免随意数字
     """
-    XS  = "4px"    # 微间距（图标内填充）
-    SM  = "8px"    # 小间距（标签与内容）
-    MD  = "12px"   # 组件内间距
-    LG  = "16px"   # 标准间距
-    XL  = "24px"   # 区块间距
-    XXL = "32px"   # 大区块间距
+
+    XS = "4px"  # 微间距（图标内填充）
+    SM = "8px"  # 小间距（标签与内容）
+    MD = "12px"  # 组件内间距
+    LG = "16px"  # 标准间距
+    XL = "24px"  # 区块间距
+    XXL = "32px"  # 大区块间距
     XXL_PLUS = "48px"  # 页面边距
 
 
@@ -70,11 +70,12 @@ class Radius:
     """
     圆角系统 — 分级设计
     """
-    SM  = "6px"    # 复选框、标签
-    MD  = "10px"   # 按钮、输入框
-    LG  = "14px"   # 卡片、面板
-    XL  = "20px"   # 拖放区、模态
-    FULL= "9999px" # 全圆（头像、徽章）
+
+    SM = "6px"  # 复选框、标签
+    MD = "10px"  # 按钮、输入框
+    LG = "14px"  # 卡片、面板
+    XL = "20px"  # 拖放区、模态
+    FULL = "9999px"  # 全圆（头像、徽章）
 
 
 class ButtonStyles:
@@ -198,10 +199,11 @@ class InputStyles:
 # Public helpers
 # ========================================================================
 
+
 def get_button_styles(button_type: str = "primary") -> str:
     """获取按钮样式字符串"""
     styles = {
-        "primary":   ButtonStyles.PRIMARY,
+        "primary": ButtonStyles.PRIMARY,
         "secondary": ButtonStyles.SECONDARY,
     }
     base = styles.get(button_type, ButtonStyles.PRIMARY)
@@ -212,7 +214,7 @@ def get_card_styles(card_type: str = "default") -> str:
     """获取卡片样式字符串"""
     styles = {
         "default": CardStyles.DEFAULT,
-        "hover":   CardStyles.HOVER,
-        "glass":   CardStyles.GLASS,
+        "hover": CardStyles.HOVER,
+        "glass": CardStyles.GLASS,
     }
     return styles.get(card_type, CardStyles.DEFAULT)

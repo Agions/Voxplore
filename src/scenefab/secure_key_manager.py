@@ -50,7 +50,9 @@ class SecureKeyManager:
         """初始化系统密钥库"""
         try:
             # 遍历该平台的所有后端，按优先级尝试
-            for backend_path, class_name, _fallback_name in self._KEYRING_BACKENDS.get(platform.system(), []):
+            for backend_path, class_name, _fallback_name in self._KEYRING_BACKENDS.get(
+                platform.system(), []
+            ):
                 try:
                     module = __import__(backend_path, fromlist=[class_name])
                     keyring_class = getattr(module, class_name)
@@ -58,7 +60,11 @@ class SecureKeyManager:
                     self.logger.debug("Keyring backend initialized: %s", backend_path)
                     break
                 except (ImportError, AttributeError) as e:
-                    self.logger.debug("Keyring backend %s unavailable: %s, trying fallback", backend_path, e)
+                    self.logger.debug(
+                        "Keyring backend %s unavailable: %s, trying fallback",
+                        backend_path,
+                        e,
+                    )
             else:
                 self.logger.debug("No keyring backend available for this platform")
 
@@ -108,7 +114,7 @@ class SecureKeyManager:
 
         if key_file.exists():
             try:
-                with open(key_file, 'rb') as f:
+                with open(key_file, "rb") as f:
                     return f.read()
             except Exception as e:
                 self.logger.error(f"Failed to read key file: {e}")
@@ -116,7 +122,7 @@ class SecureKeyManager:
         # 生成新密钥
         key = Fernet.generate_key()
         try:
-            with open(key_file, 'wb') as f:
+            with open(key_file, "wb") as f:
                 f.write(key)
             # 设置文件权限（仅用户可读）
             os.chmod(key_file, 0o600)
@@ -126,7 +132,9 @@ class SecureKeyManager:
 
         return key
 
-    def store_api_key(self, provider: str, api_key: str, metadata: dict[str, Any] = None) -> bool:
+    def store_api_key(
+        self, provider: str, api_key: str, metadata: dict[str, Any] = None
+    ) -> bool:
         """安全存储API密钥"""
         try:
             key_data = {
@@ -134,7 +142,7 @@ class SecureKeyManager:
                 "provider": provider,
                 "metadata": metadata or {},
                 "created_at": str(Path().cwd().stat().st_mtime),
-                "app_version": "2.0.0"
+                "app_version": "2.0.0",
             }
 
             # 首先尝试系统密钥库
@@ -144,7 +152,9 @@ class SecureKeyManager:
                 self.logger.info(f"API key for {provider} stored in system keyring")
                 return True
             except Exception as e:
-                self.logger.warning(f"System keyring failed: {e}, using encrypted file storage")
+                self.logger.warning(
+                    f"System keyring failed: {e}, using encrypted file storage"
+                )
 
             # 降级到加密文件存储
             return self._store_encrypted_key(provider, key_data)
@@ -167,7 +177,7 @@ class SecureKeyManager:
             secure_dir.mkdir(parents=True, exist_ok=True)
 
             key_file = secure_dir / f"{provider}.key"
-            with open(key_file, 'wb') as f:
+            with open(key_file, "wb") as f:
                 f.write(encrypted_data)
 
             # 设置文件权限
@@ -192,7 +202,9 @@ class SecureKeyManager:
                     return key_data
             except Exception as e:
                 # keyring 访问失败，降级到加密文件
-                self.logger.warning(f"keyring access failed, falling back to encrypted file: {e}")
+                self.logger.warning(
+                    f"keyring access failed, falling back to encrypted file: {e}"
+                )
 
             # 降级到加密文件
             return self._get_encrypted_key(provider)
@@ -213,7 +225,7 @@ class SecureKeyManager:
             encryption_key = self._get_master_key()
             cipher = Fernet(encryption_key)
 
-            with open(key_file, 'rb') as f:
+            with open(key_file, "rb") as f:
                 encrypted_data = f.read()
 
             # 解密数据
@@ -294,7 +306,9 @@ class SecureKeyManager:
 
             # 重新存储所有密钥（使用新的主密钥）
             for provider, key_data in stored_keys.items():
-                self.store_api_key(provider, key_data["api_key"], key_data.get("metadata"))
+                self.store_api_key(
+                    provider, key_data["api_key"], key_data.get("metadata")
+                )
 
             self.logger.info("Master key rotated successfully")
             return True
@@ -322,8 +336,10 @@ class SecureKeyManager:
         return {
             "keyring_available": self._is_keyring_available(),
             "stored_keys_count": len(self.list_stored_keys()),
-            "encryption_method": "system_keyring" if self._is_keyring_available() else "file_based",
-            "key_integrity": self.validate_key_integrity()
+            "encryption_method": "system_keyring"
+            if self._is_keyring_available()
+            else "file_based",
+            "key_integrity": self.validate_key_integrity(),
         }
 
     def _is_keyring_available(self) -> bool:

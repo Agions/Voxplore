@@ -26,9 +26,11 @@ class SubtitleMerger:
     """
 
     @staticmethod
-    def merge(ocr_result: SubtitleExtractionResult,
-              speech_result: SubtitleExtractionResult,
-              overlap_threshold: float = 0.5) -> SubtitleExtractionResult:
+    def merge(
+        ocr_result: SubtitleExtractionResult,
+        speech_result: SubtitleExtractionResult,
+        overlap_threshold: float = 0.5,
+    ) -> SubtitleExtractionResult:
         """
         合并两种来源的字幕
 
@@ -55,13 +57,15 @@ class SubtitleMerger:
             ocr_starts = [seg.start for _, seg in ocr_sorted]
 
             for sp_seg in speech_segs:
-                merged.segments.append(SubtitleSegment(
-                    start=sp_seg.start,
-                    end=sp_seg.end,
-                    text=sp_seg.text,
-                    confidence=sp_seg.confidence,
-                    source="speech",
-                ))
+                merged.segments.append(
+                    SubtitleSegment(
+                        start=sp_seg.start,
+                        end=sp_seg.end,
+                        text=sp_seg.text,
+                        confidence=sp_seg.confidence,
+                        source="speech",
+                    )
+                )
 
                 # 二分查找可能重叠的 OCR 字幕范围
                 # OCR start ≤ sp_seg.end + max_span 的都是候选
@@ -70,28 +74,35 @@ class SubtitleMerger:
                 hi = bisect.bisect_right(ocr_starts, sp_seg.end + max_span)
                 for idx in range(lo, hi):
                     orig_idx, ocr_seg = ocr_sorted[idx]
-                    if SubtitleMerger._overlap_ratio(sp_seg, ocr_seg) > overlap_threshold:
+                    if (
+                        SubtitleMerger._overlap_ratio(sp_seg, ocr_seg)
+                        > overlap_threshold
+                    ):
                         used_ocr.add(orig_idx)
         else:
             for sp_seg in speech_segs:
-                merged.segments.append(SubtitleSegment(
-                    start=sp_seg.start,
-                    end=sp_seg.end,
-                    text=sp_seg.text,
-                    confidence=sp_seg.confidence,
-                    source="speech",
-                ))
+                merged.segments.append(
+                    SubtitleSegment(
+                        start=sp_seg.start,
+                        end=sp_seg.end,
+                        text=sp_seg.text,
+                        confidence=sp_seg.confidence,
+                        source="speech",
+                    )
+                )
 
         # 添加未匹配的 OCR 字幕（画面标题、注释等）
         for i, ocr_seg in enumerate(ocr_segs):
             if i not in used_ocr and ocr_seg.text.strip():
-                merged.segments.append(SubtitleSegment(
-                    start=ocr_seg.start,
-                    end=ocr_seg.end,
-                    text=f"[画面] {ocr_seg.text}",
-                    confidence=ocr_seg.confidence,
-                    source="ocr",
-                ))
+                merged.segments.append(
+                    SubtitleSegment(
+                        start=ocr_seg.start,
+                        end=ocr_seg.end,
+                        text=f"[画面] {ocr_seg.text}",
+                        confidence=ocr_seg.confidence,
+                        source="ocr",
+                    )
+                )
 
         # 按时间排序
         merged.segments.sort(key=lambda s: s.start)

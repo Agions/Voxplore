@@ -75,9 +75,11 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端
-        self._init_http_client({
-            "Content-Type": "application/json",
-        })
+        self._init_http_client(
+            {
+                "Content-Type": "application/json",
+            }
+        )
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
@@ -94,7 +96,7 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     "Temperature": request.temperature or 0.7,
                     "TopP": request.top_p or 0.95,
                     "Stream": 0,
-                }
+                },
             )
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
@@ -108,9 +110,8 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         if "Response" in result:
             resp_data = result["Response"]
             usage_data = resp_data.get("Usage", {})
-            tokens_used = (
-                usage_data.get("PromptTokens", 0) +
-                usage_data.get("CompletionTokens", 0)
+            tokens_used = usage_data.get("PromptTokens", 0) + usage_data.get(
+                "CompletionTokens", 0
             )
             return LLMResponse(
                 content=resp_data["Choices"][0]["Message"]["Content"],

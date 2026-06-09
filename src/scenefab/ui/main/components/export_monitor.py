@@ -60,8 +60,10 @@ class ExportProgressWidget(QWidget):
 
         # 状态标签
         status_label = QLabel(self.task.status.value)
-        status_label.setStyleSheet(f"background-color: {self._get_status_color()}; "
-                                  f"color: white; padding: 2px 8px; border-radius: 4px;")
+        status_label.setStyleSheet(
+            f"background-color: {self._get_status_color()}; "
+            f"color: white; padding: 2px 8px; border-radius: 4px;"
+        )
 
         info_layout.addWidget(name_label)
         info_layout.addStretch()
@@ -76,7 +78,11 @@ class ExportProgressWidget(QWidget):
         details_layout = QHBoxLayout()
 
         # 开始时间
-        start_time_text = self._format_time(self.task.started_at) if self.task.started_at else "未开始"
+        start_time_text = (
+            self._format_time(self.task.started_at)
+            if self.task.started_at
+            else "未开始"
+        )
         start_label = QLabel(f"开始: {start_time_text}")
 
         # 预计剩余时间
@@ -98,8 +104,10 @@ class ExportProgressWidget(QWidget):
         # 错误信息
         if self.task.status == ExportStatus.FAILED and self.task.error_message:
             error_label = QLabel(f"错误: {self.task.error_message}")
-            error_label.setStyleSheet(f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
-                                   "padding: 5px; border-radius: 3px;")
+            error_label.setStyleSheet(
+                f"color: {Colors.Error}; background-color: {Colors.ErrorSubtle}; "
+                "padding: 5px; border-radius: 3px;"
+            )
             error_label.setWordWrap(True)
             layout.addWidget(error_label)
 
@@ -136,7 +144,11 @@ class ExportProgressWidget(QWidget):
                     if isinstance(sub_item.widget(), QLabel):
                         label = sub_item.widget()
                         if "开始:" in label.text():
-                            start_time_text = self._format_time(self.task.started_at) if self.task.started_at else "未开始"
+                            start_time_text = (
+                                self._format_time(self.task.started_at)
+                                if self.task.started_at
+                                else "未开始"
+                            )
                             label.setText(f"开始: {start_time_text}")
                         elif "剩余:" in label.text():
                             eta_text = self._calculate_eta()
@@ -160,7 +172,7 @@ class ExportProgressWidget(QWidget):
             ExportStatus.PROCESSING: Colors.Primary,
             ExportStatus.COMPLETED: Colors.Success,
             ExportStatus.FAILED: Colors.Error,
-            ExportStatus.CANCELLED: Colors.TextMuted
+            ExportStatus.CANCELLED: Colors.TextMuted,
         }
         return colors.get(self.task.status, Colors.TextMuted)
 
@@ -269,7 +281,11 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
             tasks = self.export_system.get_task_history()
 
             # 过滤出活动任务（处理中、排队中、待处理）
-            active_tasks = [t for t in tasks if t.status.value in ["processing", "queued", "pending"]]
+            active_tasks = [
+                t
+                for t in tasks
+                if t.status.value in ["processing", "queued", "pending"]
+            ]
 
             # 更新统计信息
             self.statistics_widget.update_statistics(tasks)
@@ -363,7 +379,9 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
         """返回主题样式表"""
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
         text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
-        progress_bg = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        progress_bg = (
+            ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        )
         return f"""
             QGroupBox {{
                 border: 1px solid {border};
@@ -438,9 +456,9 @@ class ExportProgressDialog(QDialog):
     def on_export_progress(self, task_id: str, progress: float):
         """导出进度事件"""
         # 更新进度条
-        if hasattr(self, 'progress_bar'):
+        if hasattr(self, "progress_bar"):
             self.progress_bar.setValue(int(progress * 100))
-        if hasattr(self, 'progress_label'):
+        if hasattr(self, "progress_label"):
             self.progress_label.setText(f"{int(progress * 100)}%")
 
     def on_export_completed(self, task_id: str, output_path: str):
@@ -448,7 +466,11 @@ class ExportProgressDialog(QDialog):
         # 检查是否所有任务都已完成
         try:
             tasks = self.export_system.get_task_history()
-            active_tasks = [t for t in tasks if t.status.value in ["processing", "queued", "pending"]]
+            active_tasks = [
+                t
+                for t in tasks
+                if t.status.value in ["processing", "queued", "pending"]
+            ]
 
             if not active_tasks:
                 # 所有任务完成，显示完成通知
@@ -460,22 +482,22 @@ class ExportProgressDialog(QDialog):
         """导出失败事件"""
         # 显示错误通知
         from PySide6.QtWidgets import QMessageBox
+
         QMessageBox.critical(
-            self,
-            "导出失败",
-            f"任务 {task_id} 导出失败：\n{error_message}"
+            self, "导出失败", f"任务 {task_id} 导出失败：\n{error_message}"
         )
         # 更新状态显示
-        if hasattr(self, 'status_label'):
+        if hasattr(self, "status_label"):
             self.status_label.setText("导出失败")
-        if hasattr(self, 'progress_bar'):
+        if hasattr(self, "progress_bar"):
             self.progress_bar.setValue(0)
 
     def cancel_all_tasks(self):
         """取消所有任务"""
         reply = self.logger.question(
-            "确认取消", "确定要取消所有导出任务吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            "确认取消",
+            "确定要取消所有导出任务吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if reply == QMessageBox.StandardButton.Yes:
@@ -488,7 +510,9 @@ class ExportProgressDialog(QDialog):
                         if self.export_system.cancel_export(task.id):
                             cancelled_count += 1
 
-                QMessageBox.information(self, "成功", f"已取消 {cancelled_count} 个任务")
+                QMessageBox.information(
+                    self, "成功", f"已取消 {cancelled_count} 个任务"
+                )
 
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"取消任务失败: {str(e)}")

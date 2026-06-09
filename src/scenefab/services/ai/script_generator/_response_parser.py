@@ -12,16 +12,16 @@ def parse_response(content: str, config: ScriptConfig) -> GeneratedScript:
     content = content.strip()
 
     # 分段
-    paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
+    paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
 
     # 计算每段时长
-    total_words = len(content.replace(' ', '').replace('\n', ''))
+    total_words = len(content.replace(" ", "").replace("\n", ""))
 
     segments = []
     current_time = 0.0
 
     for i, para in enumerate(paragraphs):
-        para_words = len(para.replace(' ', ''))
+        para_words = len(para.replace(" ", ""))
         para_duration = para_words / config.words_per_second
 
         segment = ScriptSegment(
@@ -37,8 +37,8 @@ def parse_response(content: str, config: ScriptConfig) -> GeneratedScript:
     hook = ""
     if segments:
         first = segments[0].content
-        if '。' in first:
-            hook = first.split('。')[0] + '。'
+        if "。" in first:
+            hook = first.split("。")[0] + "。"
         else:
             hook = first
 
@@ -124,11 +124,11 @@ def split_to_captions(
 
     for segment in script.segments:
         # 按标点拆分
-        sentences = re.split(r'([。！？，；])', segment.content)
+        sentences = re.split(r"([。！？，；])", segment.content)
 
         current_start = segment.start_time
         segment_duration = segment.duration
-        segment_words = len(segment.content.replace(' ', ''))
+        segment_words = len(segment.content.replace(" ", ""))
 
         current_text = ""
         for _i, part in enumerate(sentences):
@@ -136,18 +136,20 @@ def split_to_captions(
                 continue
 
             # 如果是标点，添加到当前文本
-            if part in '。！？，；':
+            if part in "。！？，；":
                 current_text += part
 
                 if len(current_text) > 5:  # 至少5个字才生成字幕
                     word_count = len(current_text)
                     duration = (word_count / max(segment_words, 1)) * segment_duration
 
-                    captions.append({
-                        "text": current_text,
-                        "start": current_start,
-                        "duration": duration,
-                    })
+                    captions.append(
+                        {
+                            "text": current_text,
+                            "start": current_start,
+                            "duration": duration,
+                        }
+                    )
 
                     current_start += duration
                     current_text = ""
@@ -159,10 +161,12 @@ def split_to_captions(
             word_count = len(current_text)
             duration = (word_count / max(segment_words, 1)) * segment_duration
 
-            captions.append({
-                "text": current_text,
-                "start": current_start,
-                "duration": max(duration, 0.5),
-            })
+            captions.append(
+                {
+                    "text": current_text,
+                    "start": current_start,
+                    "duration": max(duration, 0.5),
+                }
+            )
 
     return captions

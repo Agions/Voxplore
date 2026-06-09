@@ -39,11 +39,14 @@ try:
     _HAS_PYDANTIC_SETTINGS = True
 except ImportError:
     _HAS_PYDANTIC_SETTINGS = False
+
     # type: ignore[assignment]
     def Field(*args, **kwargs):  # type: ignore[misc]
         return None
+
     # type: ignore[assignment]
     BaseSettings = object
+
     # type: ignore[assignment]
     def SettingsConfigDict(**kwargs):  # type: ignore[misc]
         return {}
@@ -51,6 +54,7 @@ except ImportError:
     def field_validator(*args, **kwargs):  # type: ignore[no-redef]
         def decorator(fn):
             return fn
+
         return decorator
 
 
@@ -259,7 +263,9 @@ if _HAS_PYDANTIC_SETTINGS:
             return self.model_dump()
 
         def to_json(self, indent: int = 2) -> str:
-            return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent, default=str)
+            return json.dumps(
+                self.to_dict(), ensure_ascii=False, indent=indent, default=str
+            )
 
         def to_json_schema(self) -> dict[str, Any]:
             """生成 JSON Schema（用于文档）"""
@@ -291,6 +297,7 @@ def get_settings() -> Any:
         )
     if _settings is None:
         import threading
+
         if _settings_lock is None:
             _settings_lock = threading.Lock()
         with _settings_lock:

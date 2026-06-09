@@ -23,6 +23,7 @@ from typing import Any
 
 class _NarrafiilmVersion(Enum):
     """narrafiilm 项目文件版本（内部使用）"""
+
     V1 = "1.0"
     V2 = "2.0"  # 当前版本，支持更多元数据
 
@@ -33,18 +34,19 @@ class ProjectFileMetadata:
 
     用于 .narrafiilm 项目文件的持久化与交换。
     """
-    id: str = ""                    # 项目唯一ID
-    name: str = "未命名项目"         # 项目名称
-    version: str = "2.0"            # 项目格式版本
-    project_type: str = "raw"       # 项目类型
-    created_at: str = ""            # 创建时间
-    modified_at: str = ""           # 修改时间
-    author: str = ""                # 作者
-    description: str = ""           # 项目描述
+
+    id: str = ""  # 项目唯一ID
+    name: str = "未命名项目"  # 项目名称
+    version: str = "2.0"  # 项目格式版本
+    project_type: str = "raw"  # 项目类型
+    created_at: str = ""  # 创建时间
+    modified_at: str = ""  # 修改时间
+    author: str = ""  # 作者
+    description: str = ""  # 项目描述
 
     # 软件信息
-    app_version: str = "2.0.0"      # SceneFab 版本
-    platform: str = "windows"      # 平台
+    app_version: str = "2.0.0"  # SceneFab 版本
+    platform: str = "windows"  # 平台
 
     # 输出设置
     output_width: int = 1920

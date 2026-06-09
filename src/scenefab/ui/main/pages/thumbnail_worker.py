@@ -23,6 +23,7 @@ VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 # ── 缩略图生成线程 ──────────────────────────────────────────
 class ThumbnailWorker(QThread):
     """后台线程生成缩略图"""
+
     thumbnail_ready = Signal(str, str)  # path, thumbnail_path
     finished = Signal()
 
@@ -46,14 +47,24 @@ class ThumbnailWorker(QThread):
             return thumb_path
 
         try:
-            result = _video_executor.run([
-                "ffmpeg", "-y", "-ss", "1",
-                "-i", video_path,
-                "-vframes", "1",
-                "-q:v", "3",
-                "-vf", "scale=160:90",
-                thumb_path,
-            ], timeout=15)
+            result = _video_executor.run(
+                [
+                    "ffmpeg",
+                    "-y",
+                    "-ss",
+                    "1",
+                    "-i",
+                    video_path,
+                    "-vframes",
+                    "1",
+                    "-q:v",
+                    "3",
+                    "-vf",
+                    "scale=160:90",
+                    thumb_path,
+                ],
+                timeout=15,
+            )
             if result.returncode != 0:
                 logger.warning(f"Thumbnail generation failed: {result.stderr}")
         except SecurityError as e:

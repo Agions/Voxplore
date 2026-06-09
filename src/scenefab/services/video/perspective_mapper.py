@@ -66,7 +66,9 @@ class PerspectiveMapper:
             emotion_curve = [0.3] * max(len(narration_segments), 1)
 
         shots = []
-        for i, (scene, narration) in enumerate(zip(scenes, narration_segments, strict=False)):
+        for i, (scene, narration) in enumerate(
+            zip(scenes, narration_segments, strict=False)
+        ):
             # 提取视角锚点
             viewpoint = self._extract_viewpoint(scene, video_keyframes, i)
 
@@ -77,13 +79,13 @@ class PerspectiveMapper:
             show_original = self._should_show_original(
                 narration=narration,
                 scene=scene,
-                emotional_intensity=emotional_intensity
+                emotional_intensity=emotional_intensity,
             )
 
             # 计算原片权重
             original_weight = self._calculate_original_weight(
                 emotional_intensity=emotional_intensity,
-                narration_importance=scene.narration_importance
+                narration_importance=scene.narration_importance,
             )
 
             shot = PerspectiveShot(
@@ -128,7 +130,7 @@ class PerspectiveMapper:
                 spatial_y=50.0,
                 spatial_depth=1,
                 emotional_tone=self._infer_emotion(scene.atmosphere),
-                narration_pov="first"
+                narration_pov="first",
             )
 
         # 找主角
@@ -150,10 +152,12 @@ class PerspectiveMapper:
             spatial_y=spatial_y,
             spatial_depth=spatial_depth,
             emotional_tone=self._infer_emotion(scene.atmosphere),
-            narration_pov="first"
+            narration_pov="first",
         )
 
-    def _find_protagonist(self, subjects: list[SubjectPosition]) -> SubjectPosition | None:
+    def _find_protagonist(
+        self, subjects: list[SubjectPosition]
+    ) -> SubjectPosition | None:
         """找到主角（Protagonist）"""
         for subject in subjects:
             if subject.role == SubjectRole.PROTAGONIST:
@@ -203,8 +207,16 @@ class PerspectiveMapper:
         """检查解说是否包含具体指代（需要可视化）"""
         # 简化的启发式判断
         specific_words = [
-            "看", "这里", "这个", "那个人", "这个东西",
-            "左边", "右边", "前面", "后面", "上方"
+            "看",
+            "这里",
+            "这个",
+            "那个人",
+            "这个东西",
+            "左边",
+            "右边",
+            "前面",
+            "后面",
+            "上方",
         ]
         return any(word in text for word in specific_words)
 
@@ -262,7 +274,7 @@ class PerspectiveMapper:
                 spatial_y=50.0,
                 spatial_depth=1,
                 emotional_tone="neutral",
-                narration_pov="first"
+                narration_pov="first",
             )
 
         protagonist = self._find_protagonist(subject_positions)
@@ -272,14 +284,15 @@ class PerspectiveMapper:
                 spatial_y=protagonist.y_percent,
                 spatial_depth=protagonist.depth_layer,
                 emotional_tone="neutral",
-                narration_pov="first"
+                narration_pov="first",
             )
 
         avg_x = sum(s.x_percent for s in subject_positions) / len(subject_positions)
         return ViewpointAnchor(
             spatial_x=avg_x,
-            spatial_y=sum(s.y_percent for s in subject_positions) / len(subject_positions),
+            spatial_y=sum(s.y_percent for s in subject_positions)
+            / len(subject_positions),
             spatial_depth=1,
             emotional_tone="neutral",
-            narration_pov="first"
+            narration_pov="first",
         )

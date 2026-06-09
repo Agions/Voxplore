@@ -8,6 +8,7 @@ from enum import Enum
 
 class PageType(Enum):
     """页面类型"""
+
     HOME = "home"
     SETTINGS = "settings"
     PROJECTS = "projects"
@@ -20,6 +21,7 @@ class PageType(Enum):
 @dataclass
 class WindowConfig:
     """窗口配置"""
+
     title: str = "SceneFab"
     width: int = 1200
     height: int = 800

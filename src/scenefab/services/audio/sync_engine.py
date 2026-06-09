@@ -26,39 +26,43 @@ __all__ = [
 
 
 class SyncStrategy(Enum):
-    BEAT_SYNC = "beat_sync"       # 每个节拍切
-    PHRASE_SYNC = "phrase_sync"   # 按乐句切
+    BEAT_SYNC = "beat_sync"  # 每个节拍切
+    PHRASE_SYNC = "phrase_sync"  # 按乐句切
     ENERGY_SYNC = "energy_sync"  # 按能量切
-    HYBRID = "hybrid"            # 混合（推荐）
+    HYBRID = "hybrid"  # 混合（推荐）
 
 
 class TransitionType(Enum):
-    HARD_CUT = "hard_cut"         # 硬切
-    CROSSFADE = "crossfade"       # 交叉淡化
+    HARD_CUT = "hard_cut"  # 硬切
+    CROSSFADE = "crossfade"  # 交叉淡化
     FADE_IN = "fade_in"
     FADE_OUT = "fade_out"
-    ZOOM = "zoom"                 # 缩放转场
-    WHIP = "whip"                 # 甩镜
+    ZOOM = "zoom"  # 缩放转场
+    WHIP = "whip"  # 甩镜
 
 
 @dataclass
 class SyncPoint:
     """同步点"""
-    timestamp: float              # 在音乐中的时间
-    clip_index: int = -1          # 应该使用的视频片段索引
+
+    timestamp: float  # 在音乐中的时间
+    clip_index: int = -1  # 应该使用的视频片段索引
     transition: TransitionType = TransitionType.HARD_CUT
-    speed_factor: float = 1.0     # 片段播放速度（<1慢放，>1快放）
+    speed_factor: float = 1.0  # 片段播放速度（<1慢放，>1快放）
     beat_strength: BeatStrength = BeatStrength.WEAK
 
 
 @dataclass
 class SyncPlan:
     """同步计划"""
+
     total_duration: float
     bpm: float
     strategy: SyncStrategy
     sync_points: list[SyncPoint] = field(default_factory=list)
-    speed_curve: list[tuple[float, float]] = field(default_factory=list)  # (time, speed)
+    speed_curve: list[tuple[float, float]] = field(
+        default_factory=list
+    )  # (time, speed)
 
 
 class SyncEngine:
@@ -110,10 +114,18 @@ class SyncEngine:
         )
 
         _SYNC_MAP = {
-            SyncStrategy.BEAT_SYNC: lambda: self._beat_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
-            SyncStrategy.PHRASE_SYNC: lambda: self._phrase_sync(plan, audio_analysis, num_clips),
-            SyncStrategy.ENERGY_SYNC: lambda: self._energy_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
-            SyncStrategy.HYBRID: lambda: self._hybrid_sync(plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration),
+            SyncStrategy.BEAT_SYNC: lambda: self._beat_sync(
+                plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration
+            ),
+            SyncStrategy.PHRASE_SYNC: lambda: self._phrase_sync(
+                plan, audio_analysis, num_clips
+            ),
+            SyncStrategy.ENERGY_SYNC: lambda: self._energy_sync(
+                plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration
+            ),
+            SyncStrategy.HYBRID: lambda: self._hybrid_sync(
+                plan, audio_analysis, num_clips, min_clip_duration, max_clip_duration
+            ),
         }
         _SYNC_MAP.get(strategy, _SYNC_MAP[SyncStrategy.HYBRID])()
 
@@ -122,10 +134,14 @@ class SyncEngine:
 
         return plan
 
-    def _beat_sync(self, plan: SyncPlan,
-                   audio: AudioAnalysisResult,
-                   num_clips: int,
-                   min_dur: float, max_dur: float):
+    def _beat_sync(
+        self,
+        plan: SyncPlan,
+        audio: AudioAnalysisResult,
+        num_clips: int,
+        min_dur: float,
+        max_dur: float,
+    ):
         """节拍同步：在每个（或每隔N个）节拍处切换"""
         beats = audio.beats
         if not beats:
@@ -145,17 +161,17 @@ class SyncEngine:
 
                 transition = self._beat_to_transition(beat.strength)
 
-                plan.sync_points.append(SyncPoint(
-                    timestamp=beat.timestamp,
-                    clip_index=clip_idx % num_clips,
-                    transition=transition,
-                    beat_strength=beat.strength,
-                ))
+                plan.sync_points.append(
+                    SyncPoint(
+                        timestamp=beat.timestamp,
+                        clip_index=clip_idx % num_clips,
+                        transition=transition,
+                        beat_strength=beat.strength,
+                    )
+                )
                 clip_idx += 1
 
-    def _phrase_sync(self, plan: SyncPlan,
-                     audio: AudioAnalysisResult,
-                     num_clips: int):
+    def _phrase_sync(self, plan: SyncPlan, audio: AudioAnalysisResult, num_clips: int):
         """乐句同步：在段落边界切换"""
         if not audio.sections:
             # 降级到节拍同步
@@ -169,17 +185,23 @@ class SyncEngine:
             elif section.section_type == MusicSection.BRIDGE:
                 transition = TransitionType.FADE_IN
 
-            plan.sync_points.append(SyncPoint(
-                timestamp=section.start,
-                clip_index=clip_idx % num_clips,
-                transition=transition,
-            ))
+            plan.sync_points.append(
+                SyncPoint(
+                    timestamp=section.start,
+                    clip_index=clip_idx % num_clips,
+                    transition=transition,
+                )
+            )
             clip_idx += 1
 
-    def _energy_sync(self, plan: SyncPlan,
-                     audio: AudioAnalysisResult,
-                     num_clips: int,
-                     min_dur: float, max_dur: float):
+    def _energy_sync(
+        self,
+        plan: SyncPlan,
+        audio: AudioAnalysisResult,
+        num_clips: int,
+        min_dur: float,
+        max_dur: float,
+    ):
         """能量同步：在能量突变处切换"""
         onsets = audio.onsets
         if not onsets:
@@ -198,17 +220,23 @@ class SyncEngine:
                 if gap < min_dur:
                     continue
 
-            plan.sync_points.append(SyncPoint(
-                timestamp=t,
-                clip_index=clip_idx % num_clips,
-                transition=TransitionType.HARD_CUT,
-            ))
+            plan.sync_points.append(
+                SyncPoint(
+                    timestamp=t,
+                    clip_index=clip_idx % num_clips,
+                    transition=TransitionType.HARD_CUT,
+                )
+            )
             clip_idx += 1
 
-    def _hybrid_sync(self, plan: SyncPlan,
-                     audio: AudioAnalysisResult,
-                     num_clips: int,
-                     min_dur: float, max_dur: float):
+    def _hybrid_sync(
+        self,
+        plan: SyncPlan,
+        audio: AudioAnalysisResult,
+        num_clips: int,
+        min_dur: float,
+        max_dur: float,
+    ):
         """
         混合同步（推荐）
 
@@ -229,8 +257,7 @@ class SyncEngine:
         for section in sections:
             # 获取此段落内的节拍
             section_beats = [
-                b for b in beats
-                if section.start <= b.timestamp < section.end
+                b for b in beats if section.start <= b.timestamp < section.end
             ]
 
             if section.section_type == MusicSection.CHORUS:
@@ -243,23 +270,29 @@ class SyncEngine:
                             if gap < min_dur:
                                 continue
 
-                        plan.sync_points.append(SyncPoint(
-                            timestamp=beat.timestamp,
-                            clip_index=clip_idx % num_clips,
-                            transition=self._beat_to_transition(beat.strength),
-                            beat_strength=beat.strength,
-                            speed_factor=1.0,
-                        ))
+                        plan.sync_points.append(
+                            SyncPoint(
+                                timestamp=beat.timestamp,
+                                clip_index=clip_idx % num_clips,
+                                transition=self._beat_to_transition(beat.strength),
+                                beat_strength=beat.strength,
+                                speed_factor=1.0,
+                            )
+                        )
                         clip_idx += 1
 
             elif section.section_type in (MusicSection.INTRO, MusicSection.OUTRO):
                 # Intro/Outro：整个段落一个片段
-                plan.sync_points.append(SyncPoint(
-                    timestamp=section.start,
-                    clip_index=clip_idx % num_clips,
-                    transition=TransitionType.FADE_IN if section.section_type == MusicSection.INTRO else TransitionType.FADE_OUT,
-                    speed_factor=0.8,  # 稍慢
-                ))
+                plan.sync_points.append(
+                    SyncPoint(
+                        timestamp=section.start,
+                        clip_index=clip_idx % num_clips,
+                        transition=TransitionType.FADE_IN
+                        if section.section_type == MusicSection.INTRO
+                        else TransitionType.FADE_OUT,
+                        speed_factor=0.8,  # 稍慢
+                    )
+                )
                 clip_idx += 1
 
             else:
@@ -272,12 +305,14 @@ class SyncEngine:
                             if gap < min_dur:
                                 continue
 
-                        plan.sync_points.append(SyncPoint(
-                            timestamp=beat.timestamp,
-                            clip_index=clip_idx % num_clips,
-                            transition=TransitionType.CROSSFADE,
-                            beat_strength=beat.strength,
-                        ))
+                        plan.sync_points.append(
+                            SyncPoint(
+                                timestamp=beat.timestamp,
+                                clip_index=clip_idx % num_clips,
+                                transition=TransitionType.CROSSFADE,
+                                beat_strength=beat.strength,
+                            )
+                        )
                         clip_idx += 1
 
     def _beat_to_transition(self, strength: BeatStrength) -> TransitionType:

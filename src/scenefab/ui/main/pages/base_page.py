@@ -14,12 +14,12 @@ class BasePage(QWidget):
     """页面基类"""
 
     # 信号定义
-    page_loaded = Signal()                    # 页面加载完成
-    page_activated = Signal()                 # 页面激活
-    page_deactivated = Signal()              # 页面停用
-    status_changed = Signal(str)              # 状态变化
-    error_occurred = Signal(str, str)         # 错误发生
-    action_requested = Signal(str, object)    # 请求执行操作
+    page_loaded = Signal()  # 页面加载完成
+    page_activated = Signal()  # 页面激活
+    page_deactivated = Signal()  # 页面停用
+    status_changed = Signal(str)  # 状态变化
+    error_occurred = Signal(str, str)  # 错误发生
+    action_requested = Signal(str, object)  # 请求执行操作
 
     def __init__(self, page_id: str, title: str, application):
         super().__init__()
@@ -60,11 +60,11 @@ class BasePage(QWidget):
     def _connect_signals(self) -> None:
         """连接信号"""
         # 监听应用程序事件
-        if hasattr(self.application, 'state_changed'):
+        if hasattr(self.application, "state_changed"):
             self.application.state_changed.connect(self._on_application_state_changed)
 
         # 监听配置变化
-        if self.config_manager and hasattr(self.config_manager, 'add_watcher'):
+        if self.config_manager and hasattr(self.config_manager, "add_watcher"):
             self.config_manager.add_watcher(self._on_config_changed)
 
     def initialize(self) -> bool:
@@ -219,19 +219,19 @@ class BasePage(QWidget):
 
     def on_event(self, event_type: str, handler) -> None:
         """监听事件"""
-        if self.event_bus and hasattr(self.event_bus, 'subscribe'):
+        if self.event_bus and hasattr(self.event_bus, "subscribe"):
             self.event_bus.subscribe(event_type, handler)
 
     def off_event(self, event_type: str, handler) -> None:
         """取消监听事件"""
-        if self.event_bus and hasattr(self.event_bus, 'unsubscribe'):
+        if self.event_bus and hasattr(self.event_bus, "unsubscribe"):
             self.event_bus.unsubscribe(event_type, handler)
 
     def get_service(self, service_type: type):
         """获取服务"""
         return self.application.get_service(service_type)
 
-    def get_config_value(self, key: str, default = None):
+    def get_config_value(self, key: str, default=None):
         """获取配置值"""
         if self.config_manager:
             return self.config_manager.get_value(key, default)
@@ -272,7 +272,9 @@ class BasePage(QWidget):
             if item.widget():
                 item.widget().deleteLater()
 
-    def set_main_layout_margins(self, left: int, top: int, right: int, bottom: int) -> None:
+    def set_main_layout_margins(
+        self, left: int, top: int, right: int, bottom: int
+    ) -> None:
         """设置主布局边距"""
         self.main_layout.setContentsMargins(left, top, right, bottom)
 
@@ -293,6 +295,7 @@ class BasePage(QWidget):
     def handle_error(self, error: Exception, context: str = "") -> None:
         """处理错误"""
         from ....utils.error_handler import ErrorInfo as UIErrorInfo
+
         error_message = f"Error in {self.title}"
         if context:
             error_message += f" ({context})"
@@ -301,6 +304,6 @@ class BasePage(QWidget):
             error_type="ui",
             severity="medium",
             message=f"{error_message}: {str(error)}",
-            exception=error
+            exception=error,
         )
         self.error_handler.handle_error(error_info)

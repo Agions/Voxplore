@@ -3,6 +3,7 @@
 SceneFab 配置管理
 统一管理系统配置、环境变量、参数设置
 """
+
 import os
 from dataclasses import dataclass, field
 from enum import Enum
@@ -18,6 +19,7 @@ load_dotenv()
 
 class LLMProviderType(Enum):
     """LLM 提供商类型"""
+
     QWEN = "qwen"
     KIMI = "kimi"
     GLM5 = "glm5"
@@ -27,6 +29,7 @@ class LLMProviderType(Enum):
 @dataclass(slots=True)
 class LLMConfig:
     """LLM 提供者配置"""
+
     name: str
     enabled: bool = False
     api_key: str = ""
@@ -45,6 +48,7 @@ class LLMConfig:
 @dataclass(slots=True)
 class TTSConfig:
     """TTS 配音配置"""
+
     provider: str = "edge"  # edge, f5, openai
     voice: str = "zh-CN-XiaoxiaoNeural"
     rate: float = 1.0
@@ -55,6 +59,7 @@ class TTSConfig:
 @dataclass(slots=True)
 class VideoConfig:
     """视频处理配置"""
+
     min_segment_duration: float = 9.0  # 最小片段时长（秒）
     max_segment_duration: float = 60.0  # 最大片段时长（秒）
     frame_sample_interval: float = 1.0  # 帧采样间隔（秒）
@@ -66,6 +71,7 @@ class VideoConfig:
 @dataclass(slots=True)
 class CacheConfig:
     """缓存配置"""
+
     enabled: bool = True
     max_size: int = 100
     ttl: int = 3600
@@ -79,6 +85,7 @@ class CacheConfig:
 def _get_version() -> str:
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -87,6 +94,7 @@ def _get_version() -> str:
 @dataclass
 class AppConfig:
     """应用配置"""
+
     name: str = "SceneFab"
     version: str = field(default_factory=_get_version)
     debug: bool = False
@@ -103,7 +111,7 @@ class ConfigManager:
     负责加载、验证和管理所有配置
     """
 
-    _instance: Optional['ConfigManager'] = None
+    _instance: Optional["ConfigManager"] = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -181,7 +189,7 @@ class ConfigManager:
         # 从 YAML 文件加载（如果存在）
         if self._config_file.exists():
             try:
-                with open(self._config_file, encoding='utf-8') as f:
+                with open(self._config_file, encoding="utf-8") as f:
                     yaml_config = yaml.safe_load(f) or {}
                     self._merge_config(config_data, yaml_config)
             except Exception as e:
@@ -231,10 +239,7 @@ class ConfigManager:
 
     def get_enabled_llm(self) -> list[LLMConfig]:
         """获取所有启用的 LLM"""
-        return [
-            cfg for cfg in self._config.llm_providers.values()
-            if cfg.enabled
-        ]
+        return [cfg for cfg in self._config.llm_providers.values() if cfg.enabled]
 
     def reload(self):
         """重新加载配置"""
@@ -284,7 +289,7 @@ class ConfigManager:
             "default_llm": self._config.default_llm,
         }
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(config_data, f, allow_unicode=True, default_flow_style=False)
 
 

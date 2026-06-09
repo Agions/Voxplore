@@ -4,6 +4,7 @@ SceneFab Auto-Update Checker
 启动时检测 GitHub Releases 最新版本。
 有新版时提示用户下载，不自动下载/安装（安全优先）。
 """
+
 import logging
 import re
 from dataclasses import dataclass

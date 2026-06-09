@@ -58,8 +58,8 @@ class TopBar(QFrame):
         actions_layout.setSpacing(4)
 
         for _id, icon, tip in [
-            ("undo",   "↩", "撤销 (Ctrl+Z)"),
-            ("redo",   "↪", "重做 (Ctrl+Y)"),
+            ("undo", "↩", "撤销 (Ctrl+Z)"),
+            ("redo", "↪", "重做 (Ctrl+Y)"),
             ("export", "↑", "导出 (Ctrl+E)"),
             ("search", "🔍", "搜索 (Ctrl+F)"),
         ]:

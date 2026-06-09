@@ -3,8 +3,6 @@ Timeline Shuttle Component
 时间线穿梭器 - 解说与原片时间线对照编辑
 """
 
-
-
 from PySide6.QtCore import QPoint, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import (
@@ -37,9 +35,9 @@ class TimelineRuler(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.duration = 0.0       # 总时长（秒）
-        self.position = 0.0       # 当前播放位置
-        self.scale = 50.0          # 每秒像素数
+        self.duration = 0.0  # 总时长（秒）
+        self.position = 0.0  # 当前播放位置
+        self.scale = 50.0  # 每秒像素数
         self.markers: list[tuple[float, str]] = []  # (时间, 标签)
 
         self.setMinimumHeight(30)
@@ -128,11 +126,13 @@ class TimelineRuler(QWidget):
                 QPoint(int(pos_x), 8),
             ]
             # 简化绘制
-            painter.drawPolygon([
-                QPoint(int(pos_x) - 6, 0),
-                QPoint(int(pos_x) + 6, 0),
-                QPoint(int(pos_x), 8)
-            ])
+            painter.drawPolygon(
+                [
+                    QPoint(int(pos_x) - 6, 0),
+                    QPoint(int(pos_x) + 6, 0),
+                    QPoint(int(pos_x), 8),
+                ]
+            )
 
     def mousePressEvent(self, event):
         self._update_position(event.position().x())
@@ -211,30 +211,23 @@ class TimelineTrack(QWidget):
                 continue
 
             # 片段矩形
-            painter.fillRect(
-                max(0, x1), 4,
-                min(seg_w, w - x1),
-                h - 8,
-                QColor(color)
-            )
+            painter.fillRect(max(0, x1), 4, min(seg_w, w - x1), h - 8, QColor(color))
 
             # 圆角效果
             painter.setPen(QPen(QColor(color).lighter(120), 1))
-            painter.drawRoundedRect(
-                max(0, x1), 4,
-                min(seg_w, w - x1),
-                h - 8, 4, 4
-            )
+            painter.drawRoundedRect(max(0, x1), 4, min(seg_w, w - x1), h - 8, 4, 4)
 
             # 标签
             if seg_w > 40:
                 text = seg.get("label", "")
                 painter.setPen(QPen(QColor("#FFFFFF"), 1))
                 painter.drawText(
-                    max(0, x1) + 4, h // 2 + 4,
+                    max(0, x1) + 4,
+                    h // 2 + 4,
                     min(seg_w - 8, w - x1 - 8),
-                    16, Qt.AlignLeft | Qt.AlignVCenter,
-                    text[:10]
+                    16,
+                    Qt.AlignLeft | Qt.AlignVCenter,
+                    text[:10],
                 )
 
 
@@ -250,9 +243,9 @@ class TimelineShuttle(QFrame):
     """
 
     # 信号
-    position_changed = Signal(float)       # 秒
-    segment_clicked = Signal(str, str)      # segment_id, track_type
-    playback_requested = Signal(float)       # 开始播放时间
+    position_changed = Signal(float)  # 秒
+    segment_clicked = Signal(str, str)  # segment_id, track_type
+    playback_requested = Signal(float)  # 开始播放时间
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -435,12 +428,14 @@ class TimelineShuttle(QFrame):
         narration_segs = []
         for d in timeline.decisions:
             ns = d.narration_segment
-            narration_segs.append({
-                "start": ns.start_time,
-                "end": ns.end_time,
-                "label": ns.text[:15],
-                "color": "#6366F1",
-            })
+            narration_segs.append(
+                {
+                    "start": ns.start_time,
+                    "end": ns.end_time,
+                    "label": ns.text[:15],
+                    "color": "#6366F1",
+                }
+            )
 
         self.narration_track.set_segments(narration_segs)
         self.narration_track.set_duration(self.duration)
@@ -459,12 +454,14 @@ class TimelineShuttle(QFrame):
                     TransitionType.ZOOM_HIGHLIGHT: "#22D3EE",
                 }.get(d.transition, "#334155")
 
-                original_segs.append({
-                    "start": d.original_start or cs.start_time,
-                    "end": d.original_end or cs.end_time,
-                    "label": "原片",
-                    "color": color,
-                })
+                original_segs.append(
+                    {
+                        "start": d.original_start or cs.start_time,
+                        "end": d.original_end or cs.end_time,
+                        "label": "原片",
+                        "color": color,
+                    }
+                )
 
         self.original_track.set_segments(original_segs)
         self.original_track.set_duration(self.duration)
@@ -484,12 +481,15 @@ class TimelineShuttle(QFrame):
 
         self.ruler.set_duration(self.duration)
 
-        narration_segs = [{
-            "start": s.start_time,
-            "end": s.end_time,
-            "label": s.text[:15],
-            "color": "#6366F1",
-        } for s in segments]
+        narration_segs = [
+            {
+                "start": s.start_time,
+                "end": s.end_time,
+                "label": s.text[:15],
+                "color": "#6366F1",
+            }
+            for s in segments
+        ]
 
         self.narration_track.set_segments(narration_segs)
         self.narration_track.set_duration(self.duration)
@@ -499,12 +499,15 @@ class TimelineShuttle(QFrame):
         """设置原片片段"""
         self.original_clips = clips
 
-        original_segs = [{
-            "start": c.start_time,
-            "end": c.end_time,
-            "label": "原片",
-            "color": "#334155",
-        } for c in clips]
+        original_segs = [
+            {
+                "start": c.start_time,
+                "end": c.end_time,
+                "label": "原片",
+                "color": "#334155",
+            }
+            for c in clips
+        ]
 
         self.original_track.set_segments(original_segs)
         self.original_track.set_duration(self.duration)
@@ -548,7 +551,7 @@ class TimelineShuttle(QFrame):
 
     def _on_zoom_changed(self, value: int):
         self.scale = float(value)
-        self.zoom_label.setText(f"{value/50:.1f}x")
+        self.zoom_label.setText(f"{value / 50:.1f}x")
 
         self.ruler.set_scale(self.scale)
         self.narration_track.set_scale(self.scale)

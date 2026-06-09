@@ -312,7 +312,9 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
         return None
 
-    def configure(self, api_key: str, base_url: str | None = None, model: str | None = None) -> None:
+    def configure(
+        self, api_key: str, base_url: str | None = None, model: str | None = None
+    ) -> None:
         """
         配置插件参数
 
@@ -340,10 +342,13 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                 "流式生成 - 实时预览脚本生成过程",
             ],
             "supported_emotions": [
-                "neutral", "happy", "sad", "suspenseful",
-                "motivational", "dramatic", "relaxed"
+                "neutral",
+                "happy",
+                "sad",
+                "suspenseful",
+                "motivational",
+                "dramatic",
+                "relaxed",
             ],
-            "supported_styles": [
-                "纪录片", "短视频", "电影解说", "新闻播报", "自媒体"
-            ],
+            "supported_styles": ["纪录片", "短视频", "电影解说", "新闻播报", "自媒体"],
         }

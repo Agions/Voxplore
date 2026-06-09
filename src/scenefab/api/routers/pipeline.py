@@ -38,6 +38,7 @@ def _get_integrator() -> PipelineIntegrator:
 # 端点
 # ──────────────────────────────────────────────────────────
 
+
 @router.post("/pipeline/narrate", status_code=202)
 async def create_narration_task(request: NarrationRequest):
     """
@@ -101,6 +102,7 @@ async def cancel_task(task_id: str):
 # 内部处理
 # ──────────────────────────────────────────────────────────
 
+
 async def _process_narration(task_id: str):
     """
     调用 PipelineIntegrator 真实处理流程
@@ -155,21 +157,29 @@ async def _process_narration(task_id: str):
         # ── 步骤 7: 导出 ──
         _update(task_id, "exporting", 95.0, "正在生成最终视频...")
         _ = integrator.export_to_jianying(
-            project,
-            req.get("output_dir", "./output/jianying_drafts")
+            project, req.get("output_dir", "./output/jianying_drafts")
         )
 
         _update(
-            task_id, "completed", 100.0, "处理完成",
-            result_url=f"/api/v1/export/{task_id}/download"
+            task_id,
+            "completed",
+            100.0,
+            "处理完成",
+            result_url=f"/api/v1/export/{task_id}/download",
         )
 
     except Exception as e:
         _update(task_id, "error", 0.0, f"处理失败: {str(e)}", error=str(e))
 
 
-def _update(task_id: str, status: str, progress: float, current_step: str,
-            result_url=None, error=None):
+def _update(
+    task_id: str,
+    status: str,
+    progress: float,
+    current_step: str,
+    result_url=None,
+    error=None,
+):
     """更新任务状态（v2.1 - 通过 TaskStore 持久化）"""
     updates: dict[str, Any] = {
         "status": status,

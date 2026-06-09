@@ -6,6 +6,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class PipelineConfig:
     """流水线配置 V2"""
+
     min_segment_duration: float = 9.0
     max_segment_duration: float = 60.0
     frame_sample_interval: float = 1.0

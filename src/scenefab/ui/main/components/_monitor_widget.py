@@ -93,7 +93,11 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
             tasks = self.export_system.get_task_history()
 
             # 过滤出活动任务（处理中、排队中、待处理）
-            active_tasks = [t for t in tasks if t.status.value in ["processing", "queued", "pending"]]
+            active_tasks = [
+                t
+                for t in tasks
+                if t.status.value in ["processing", "queued", "pending"]
+            ]
 
             # 更新统计信息
             self.statistics_widget.update_statistics(tasks)
@@ -187,7 +191,9 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
         """返回主题样式表"""
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
         text = ThemeColors.TEXT_DARK if is_dark else ThemeColors.TEXT_LIGHT
-        progress_bg = ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        progress_bg = (
+            ThemeColors.BG_ELEVATED_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        )
         return f"""
             QGroupBox {{
                 border: 1px solid {border};
@@ -206,5 +212,3 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
                 background-color: #388BFD;
             }}
         """
-
-

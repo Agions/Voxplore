@@ -14,6 +14,7 @@ from typing import Any
 
 class SettingType(Enum):
     """设置类型枚举"""
+
     STRING = "string"
     INTEGER = "integer"
     FLOAT = "float"
@@ -28,6 +29,7 @@ class SettingType(Enum):
 @dataclass
 class SettingDefinition:
     """设置定义"""
+
     key: str
     name: str
     description: str
@@ -46,6 +48,7 @@ class SettingDefinition:
 @dataclass
 class ProjectSettingsProfile:
     """项目设置配置文件"""
+
     name: str
     description: str
     settings: dict[str, Any]

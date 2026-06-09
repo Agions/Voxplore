@@ -233,6 +233,7 @@ class Qwen37Provider(VisionProvider):
         # 尝试解析 JSON
         try:
             import json
+
             # 从响应中提取 JSON
             response_text = result.raw_response
             # 查找 JSON 块

@@ -108,7 +108,9 @@ class WSHub:
     维护一组 WS 连接，统一从 UnifiedEventBus 接收事件后分发。
     """
 
-    def __init__(self, *, name: str = "default", loop: asyncio.AbstractEventLoop | None = None):
+    def __init__(
+        self, *, name: str = "default", loop: asyncio.AbstractEventLoop | None = None
+    ):
         self.name = name
         self._connections: dict[str, WSConnection] = {}
         self._lock = asyncio.Lock()
@@ -128,7 +130,9 @@ class WSHub:
             self._loop = self._loop or asyncio.get_running_loop()
         except RuntimeError:
             self._loop = None
-        self._unsubscribe_fn = bus.subscribe("*", self._on_event, name=f"ws_hub_{self.name}")
+        self._unsubscribe_fn = bus.subscribe(
+            "*", self._on_event, name=f"ws_hub_{self.name}"
+        )
         self._started = True
         logger.info(f"WSHub '{self.name}' started")
 
@@ -160,7 +164,9 @@ class WSHub:
         target_loop = self._loop
         if target_loop is not None and not target_loop.is_closed():
             try:
-                asyncio.run_coroutine_threadsafe(self._dispatch(event_name, payload), target_loop)
+                asyncio.run_coroutine_threadsafe(
+                    self._dispatch(event_name, payload), target_loop
+                )
                 return
             except RuntimeError:
                 pass
@@ -230,7 +236,9 @@ class WSHub:
         )
         async with self._lock:
             self._connections[cid] = conn
-        await conn.send_json({"event": "connected", "data": {"client_id": cid}, "ts": time.time()})
+        await conn.send_json(
+            {"event": "connected", "data": {"client_id": cid}, "ts": time.time()}
+        )
         logger.info(f"WS connected: {cid} (total: {len(self._connections)})")
         return conn
 
@@ -240,7 +248,9 @@ class WSHub:
             for cid, conn in list(self._connections.items()):
                 if conn.websocket is websocket:
                     del self._connections[cid]
-                    logger.info(f"WS disconnected: {cid} (remaining: {len(self._connections)})")
+                    logger.info(
+                        f"WS disconnected: {cid} (remaining: {len(self._connections)})"
+                    )
                     return
 
     def list_clients(self) -> list[dict[str, Any]]:

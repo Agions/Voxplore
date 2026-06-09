@@ -51,8 +51,7 @@ class SubtitleTranslator:
         "uk": "乌克兰语",
     }
 
-    def __init__(self, api_key: str | None = None,
-                 provider: str = "openai"):
+    def __init__(self, api_key: str | None = None, provider: str = "openai"):
         """
         Args:
             api_key: API 密钥
@@ -62,12 +61,14 @@ class SubtitleTranslator:
         self._deepl_key = os.getenv("DEEPL_API_KEY")
         self._provider = provider
 
-    def translate(self,
-                 subtitle_result: SubtitleExtractionResult,
-                 target_lang: str = "en",
-                 source_lang: str = "auto",
-                 batch_size: int = 20,
-                 max_concurrent_batches: int = 5) -> SubtitleExtractionResult:
+    def translate(
+        self,
+        subtitle_result: SubtitleExtractionResult,
+        target_lang: str = "en",
+        source_lang: str = "auto",
+        batch_size: int = 20,
+        max_concurrent_batches: int = 5,
+    ) -> SubtitleExtractionResult:
         """
         翻译字幕
 
@@ -112,23 +113,27 @@ class SubtitleTranslator:
 
         # 构建翻译后的字幕片段
         for i, seg in enumerate(subtitle_result.segments):
-            translated.segments.append(SubtitleSegment(
-                start=seg.start,
-                end=seg.end,
-                text=translated_texts[i] if i < len(translated_texts) else seg.text,
-                confidence=seg.confidence,
-                source=f"translated_{seg.source}",
-            ))
+            translated.segments.append(
+                SubtitleSegment(
+                    start=seg.start,
+                    end=seg.end,
+                    text=translated_texts[i] if i < len(translated_texts) else seg.text,
+                    confidence=seg.confidence,
+                    source=f"translated_{seg.source}",
+                )
+            )
 
         translated.full_text = " ".join(t.text for t in translated.segments)
         return translated
 
-    async def translate_async(self,
-                 subtitle_result: SubtitleExtractionResult,
-                 target_lang: str = "en",
-                 source_lang: str = "auto",
-                 batch_size: int = 20,
-                 max_concurrent_batches: int = 5) -> SubtitleExtractionResult:
+    async def translate_async(
+        self,
+        subtitle_result: SubtitleExtractionResult,
+        target_lang: str = "en",
+        source_lang: str = "auto",
+        batch_size: int = 20,
+        max_concurrent_batches: int = 5,
+    ) -> SubtitleExtractionResult:
         """
         异步翻译字幕（仅支持 OpenAI）
 
@@ -166,43 +171,58 @@ class SubtitleTranslator:
         translated_texts = await loop.run_in_executor(
             None,
             self._translate_openai,
-            all_texts, target_lang, source_lang, batch_size, max_concurrent_batches
+            all_texts,
+            target_lang,
+            source_lang,
+            batch_size,
+            max_concurrent_batches,
         )
 
         # 构建翻译后的字幕片段
         for i, seg in enumerate(subtitle_result.segments):
-            translated.segments.append(SubtitleSegment(
-                start=seg.start,
-                end=seg.end,
-                text=translated_texts[i] if i < len(translated_texts) else seg.text,
-                confidence=seg.confidence,
-                source=f"translated_{seg.source}",
-            ))
+            translated.segments.append(
+                SubtitleSegment(
+                    start=seg.start,
+                    end=seg.end,
+                    text=translated_texts[i] if i < len(translated_texts) else seg.text,
+                    confidence=seg.confidence,
+                    source=f"translated_{seg.source}",
+                )
+            )
 
         translated.full_text = " ".join(t.text for t in translated.segments)
         return translated
 
-    def _translate_openai(self, texts: list[str],
-                         target_lang: str,
-                         source_lang: str,
-                         batch_size: int,
-                         max_concurrent_batches: int = 5) -> list[str]:
+    def _translate_openai(
+        self,
+        texts: list[str],
+        target_lang: str,
+        source_lang: str,
+        batch_size: int,
+        max_concurrent_batches: int = 5,
+    ) -> list[str]:
         """使用 OpenAI GPT 翻译（并行批次）"""
         from openai import OpenAI
 
         client = OpenAI(api_key=self._api_key)
         target_name = self.SUPPORTED_LANGUAGES.get(target_lang, target_lang)
-        source_name = self.SUPPORTED_LANGUAGES.get(source_lang, source_lang) if source_lang != "auto" else "源语言"
+        source_name = (
+            self.SUPPORTED_LANGUAGES.get(source_lang, source_lang)
+            if source_lang != "auto"
+            else "源语言"
+        )
 
         # 准备批次
         batches = []
         for i in range(0, len(texts), batch_size):
-            batches.append((i, texts[i:i + batch_size]))
+            batches.append((i, texts[i : i + batch_size]))
 
         def translate_batch(batch_info):
             """翻译单个批次"""
             batch_idx, batch = batch_info
-            prompt = self._build_translate_prompt(batch, target_name, source_name, source_lang)
+            prompt = self._build_translate_prompt(
+                batch, target_name, source_name, source_lang
+            )
 
             try:
                 response = client.chat.completions.create(
@@ -213,12 +233,12 @@ class SubtitleTranslator:
                 )
 
                 result_text = response.choices[0].message.content.strip()
-                lines = result_text.split('\n')
+                lines = result_text.split("\n")
                 translated_lines = []
                 for line in lines:
                     line = line.strip()
-                    if line and line[0].isdigit() and '.' in line[:3]:
-                        line = line.split('.', 1)[-1].strip()
+                    if line and line[0].isdigit() and "." in line[:3]:
+                        line = line.split(".", 1)[-1].strip()
                     translated_lines.append(line)
                 return batch_idx, translated_lines
 
@@ -229,7 +249,9 @@ class SubtitleTranslator:
         # 并行翻译批次
         results = {}
         with ThreadPoolExecutor(max_workers=max_concurrent_batches) as executor:
-            futures = {executor.submit(translate_batch, batch): batch for batch in batches}
+            futures = {
+                executor.submit(translate_batch, batch): batch for batch in batches
+            }
             for future in as_completed(futures):
                 batch_idx, translated_lines = future.result()
                 results[batch_idx] = translated_lines
@@ -244,10 +266,11 @@ class SubtitleTranslator:
         while len(translated) < len(texts):
             translated.append(texts[len(translated)])
 
-        return translated[:len(texts)]
+        return translated[: len(texts)]
 
-    def _build_translate_prompt(self, batch: list[str], target_name: str,
-                                source_name: str, source_lang: str) -> str:
+    def _build_translate_prompt(
+        self, batch: list[str], target_name: str, source_name: str, source_lang: str
+    ) -> str:
         """构建翻译提示词"""
         if source_lang == "auto":
             return f"""将以下{len(batch)}段字幕翻译成{target_name}。
@@ -262,17 +285,26 @@ class SubtitleTranslator:
 原文:
 {chr(10).join(batch)}"""
 
-    def _translate_deepl(self, texts: list[str],
-                        target_lang: str,
-                        source_lang: str) -> list[str]:
+    def _translate_deepl(
+        self, texts: list[str], target_lang: str, source_lang: str
+    ) -> list[str]:
         """使用 DeepL API 翻译"""
         import deepl
 
         # DeepL 语言代码映射
         deepl_lang_map = {
-            "zh": "ZH", "en": "EN", "ja": "JA", "ko": "KO",
-            "fr": "FR", "de": "DE", "es": "ES", "pt": "PT",
-            "it": "IT", "ru": "RU", "pl": "PL", "nl": "NL",
+            "zh": "ZH",
+            "en": "EN",
+            "ja": "JA",
+            "ko": "KO",
+            "fr": "FR",
+            "de": "DE",
+            "es": "ES",
+            "pt": "PT",
+            "it": "IT",
+            "ru": "RU",
+            "pl": "PL",
+            "nl": "NL",
         }
 
         target_code = deepl_lang_map.get(target_lang, target_lang.upper())
@@ -284,10 +316,14 @@ class SubtitleTranslator:
             combined_text = "\n".join(f"[{i}] {t}" for i, t in enumerate(texts))
 
             if source_lang == "auto":
-                result = translator.translate_text(combined_text, target_lang=target_code)
+                result = translator.translate_text(
+                    combined_text, target_lang=target_code
+                )
             else:
                 source_code = deepl_lang_map.get(source_lang, source_lang.upper())
-                result = translator.translate_text(combined_text, source_lang=source_code, target_lang=target_code)
+                result = translator.translate_text(
+                    combined_text, source_lang=source_code, target_lang=target_code
+                )
 
             # 解析结果
             result_text = result.text
@@ -296,8 +332,12 @@ class SubtitleTranslator:
                 marker = f"[{i}]"
                 start = result_text.find(marker)
                 if start != -1:
-                    end = result_text.find(f"[{i+1}]", start) if i + 1 < len(texts) else len(result_text)
-                    text = result_text[start + len(marker):end].strip()
+                    end = (
+                        result_text.find(f"[{i + 1}]", start)
+                        if i + 1 < len(texts)
+                        else len(result_text)
+                    )
+                    text = result_text[start + len(marker) : end].strip()
                     translated.append(text)
                 else:
                     translated.append(texts[i])
@@ -308,9 +348,9 @@ class SubtitleTranslator:
             logger.error(f"DeepL 翻译失败: {e}")
             return texts
 
-    def _translate_google(self, texts: list[str],
-                          target_lang: str,
-                          source_lang: str) -> list[str]:
+    def _translate_google(
+        self, texts: list[str], target_lang: str, source_lang: str
+    ) -> list[str]:
         """使用 Google Translate 翻译"""
         try:
             from googletrans import Translator
@@ -318,7 +358,9 @@ class SubtitleTranslator:
             try:
                 from deep_translator import GoogleTranslator
             except ImportError:
-                raise ImportError("Google 翻译需要安装: pip install googletrans 或 pip install deep-translator")
+                raise ImportError(
+                    "Google 翻译需要安装: pip install googletrans 或 pip install deep-translator"
+                )
 
         try:
             # 尝试使用 deep_translator（googletrans 已停止维护）
@@ -342,7 +384,9 @@ class SubtitleTranslator:
             translated = []
             for text in texts:
                 try:
-                    result = translator.translate(text, src=source_lang, dest=target_lang)
+                    result = translator.translate(
+                        text, src=source_lang, dest=target_lang
+                    )
                     translated.append(result.text)
                 except Exception as e:
                     logger.error(f"Google 翻译失败 '{text[:20]}...': {e}")

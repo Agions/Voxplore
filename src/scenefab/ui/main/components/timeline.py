@@ -33,8 +33,16 @@ from ...components.design_system import Colors
 
 class TimelineClip:
     """时间线上的片段"""
-    def __init__(self, clip_id: str, start: float, end: float,
-                 label: str = "", color: str = "#667eea", track_type: str = "video"):
+
+    def __init__(
+        self,
+        clip_id: str,
+        start: float,
+        end: float,
+        label: str = "",
+        color: str = "#667eea",
+        track_type: str = "video",
+    ):
         self.id = clip_id
         self.start = start
         self.end = end
@@ -50,10 +58,13 @@ class TimelineClip:
 
 class TimelineTrackWidget(QFrame):
     """单条轨道"""
+
     clip_clicked = Signal(str)  # clip_id
     clip_moved = Signal(str, float)  # clip_id, new_start
 
-    def __init__(self, track_id: str, track_type: str, label: str, color: str, parent=None):
+    def __init__(
+        self, track_id: str, track_type: str, label: str, color: str, parent=None
+    ):
         super().__init__(parent)
         self.track_id = track_id
         self.track_type = track_type
@@ -68,7 +79,9 @@ class TimelineTrackWidget(QFrame):
         self.setFixedHeight(48)
         self.setMinimumWidth(600)
         self.setMouseTracking(True)
-        self.setStyleSheet(f"background-color: {Colors.BgSurface}; border: none; border-bottom: 1px solid {Colors.BorderDefault};")
+        self.setStyleSheet(
+            f"background-color: {Colors.BgSurface}; border: none; border-bottom: 1px solid {Colors.BorderDefault};"
+        )
 
     def set_duration(self, duration: float):
         self.total_duration = max(duration, 1)
@@ -101,7 +114,11 @@ class TimelineTrackWidget(QFrame):
         # 轨道标签
         painter.setPen(QColor(Colors.TextSecondary))
         painter.setFont(QFont("Arial", 10))
-        painter.drawText(QRect(4, 0, 72, self.height()), Qt.AlignmentFlag.AlignVCenter, self.track_label)
+        painter.drawText(
+            QRect(4, 0, 72, self.height()),
+            Qt.AlignmentFlag.AlignVCenter,
+            self.track_label,
+        )
 
         # 绘制片段
         for clip in self.clips:
@@ -124,8 +141,11 @@ class TimelineTrackWidget(QFrame):
                 painter.setPen(QColor(Colors.TextPrimary))
                 painter.setFont(QFont("Arial", 8))
                 text_rect = QRect(x1 + 4, y, w - 8, h)
-                painter.drawText(text_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
-                                 clip.label[:20])
+                painter.drawText(
+                    text_rect,
+                    Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+                    clip.label[:20],
+                )
 
         painter.end()
 
@@ -165,6 +185,7 @@ class TimelineTrackWidget(QFrame):
 
 class TimelineRuler(QWidget):
     """时间标尺"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedHeight(24)
@@ -242,7 +263,9 @@ class Timeline(QWidget, ThemeAwareMixin):
         self.fit_btn.clicked.connect(self._fit_to_view)
 
         self.time_label = QLabel("00:00 / 00:00")
-        self.time_label.setStyleSheet(f"color: {Colors.TextSecondary}; font-size: 11px;")
+        self.time_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; font-size: 11px;"
+        )
 
         toolbar.addWidget(self.zoom_out_btn)
         toolbar.addWidget(self.zoom_in_btn)
@@ -252,7 +275,9 @@ class Timeline(QWidget, ThemeAwareMixin):
 
         toolbar_widget = QWidget()
         toolbar_widget.setLayout(toolbar)
-        toolbar_widget.setStyleSheet(f"background-color: {Colors.BgElevated}; border-bottom: 1px solid {Colors.BorderStrong};")
+        toolbar_widget.setStyleSheet(
+            f"background-color: {Colors.BgElevated}; border-bottom: 1px solid {Colors.BorderStrong};"
+        )
         layout.addWidget(toolbar_widget)
 
         # 滚动区域
@@ -280,7 +305,9 @@ class Timeline(QWidget, ThemeAwareMixin):
         scroll.setWidget(self._track_container)
         layout.addWidget(scroll)
 
-    def _add_track(self, track_type: str, label: str, color: str) -> TimelineTrackWidget:
+    def _add_track(
+        self, track_type: str, label: str, color: str
+    ) -> TimelineTrackWidget:
         track = TimelineTrackWidget(f"track-{track_type}", track_type, label, color)
         track.clip_clicked.connect(self.clip_selected.emit)
         track.set_duration(self._duration)
@@ -321,29 +348,48 @@ class Timeline(QWidget, ThemeAwareMixin):
         video_track = next((t for t in self._tracks if t.track_type == "video"), None)
         for clip_data in data.get("video", data.get("video_track", [])):
             if video_track:
-                video_track.add_clip(TimelineClip(
-                    clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
-                    label=clip_data.get("source", "").split("/")[-1][:15] if clip_data.get("source") else "",
-                    color=Colors.Primary, track_type="video",
-                ))
+                video_track.add_clip(
+                    TimelineClip(
+                        clip_data.get("id", ""),
+                        clip_data.get("start", 0),
+                        clip_data.get("end", 0),
+                        label=clip_data.get("source", "").split("/")[-1][:15]
+                        if clip_data.get("source")
+                        else "",
+                        color=Colors.Primary,
+                        track_type="video",
+                    )
+                )
 
         # 音频轨
         audio_track = next((t for t in self._tracks if t.track_type == "audio"), None)
         for clip_data in data.get("audio", data.get("audio_track", [])):
             if audio_track:
-                audio_track.add_clip(TimelineClip(
-                    clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
-                    label="🔊", color=Colors.Success, track_type="audio",
-                ))
+                audio_track.add_clip(
+                    TimelineClip(
+                        clip_data.get("id", ""),
+                        clip_data.get("start", 0),
+                        clip_data.get("end", 0),
+                        label="🔊",
+                        color=Colors.Success,
+                        track_type="audio",
+                    )
+                )
 
         # 字幕轨
         sub_track = next((t for t in self._tracks if t.track_type == "subtitle"), None)
         for clip_data in data.get("subtitle", data.get("subtitle_track", [])):
             if sub_track:
-                sub_track.add_clip(TimelineClip(
-                    clip_data.get("id", ""), clip_data.get("start", 0), clip_data.get("end", 0),
-                    label=clip_data.get("text", "")[:12], color=Colors.Accent, track_type="subtitle",
-                ))
+                sub_track.add_clip(
+                    TimelineClip(
+                        clip_data.get("id", ""),
+                        clip_data.get("start", 0),
+                        clip_data.get("end", 0),
+                        label=clip_data.get("text", "")[:12],
+                        color=Colors.Accent,
+                        track_type="subtitle",
+                    )
+                )
 
     def set_playback_position(self, position_ms: int):
         self._playback_pos = position_ms / 1000.0

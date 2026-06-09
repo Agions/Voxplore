@@ -131,7 +131,15 @@ class ClipCard(QFrame):
 
     selected = Signal(str)
 
-    def __init__(self, clip_id: str, icon: str, title: str, duration: str, clip_type: str, parent=None):
+    def __init__(
+        self,
+        clip_id: str,
+        icon: str,
+        title: str,
+        duration: str,
+        clip_type: str,
+        parent=None,
+    ):
         super().__init__(parent)
         self._clip_id = clip_id
         self.setFixedHeight(72)
@@ -238,12 +246,12 @@ class StepEditPage(StepPage):
         clips_layout.setSpacing(12)
 
         clips = [
-            ("1", "🎙️", "开场白",          "0:00 - 0:32",  "语音"),
-            ("2", "🎬", "精彩镜头A",        "0:32 - 1:05",  "画面"),
-            ("3", "🎙️", "自我介绍",         "1:05 - 2:10",  "语音"),
-            ("4", "✨", "高光时刻",          "2:10 - 2:45",  "AI识别"),
-            ("5", "🎬", "精彩镜头B",        "2:45 - 3:20",  "画面"),
-            ("6", "🎙️", "总结陈词",         "3:20 - 4:00",  "语音"),
+            ("1", "🎙️", "开场白", "0:00 - 0:32", "语音"),
+            ("2", "🎬", "精彩镜头A", "0:32 - 1:05", "画面"),
+            ("3", "🎙️", "自我介绍", "1:05 - 2:10", "语音"),
+            ("4", "✨", "高光时刻", "2:10 - 2:45", "AI识别"),
+            ("5", "🎬", "精彩镜头B", "2:45 - 3:20", "画面"),
+            ("6", "🎙️", "总结陈词", "3:20 - 4:00", "语音"),
         ]
         for i, (cid, icon, title, dur, ctype) in enumerate(clips):
             card = ClipCard(cid, icon, title, dur, ctype)

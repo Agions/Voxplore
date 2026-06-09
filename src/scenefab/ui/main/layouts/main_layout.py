@@ -53,6 +53,7 @@ class MainLayout(QVBoxLayout):
         separator_layout.setSpacing(0)
 
         from ...common.widgets.separator import Separator
+
         separator = Separator(orientation=Qt.Orientation.Horizontal)
         separator_layout.addWidget(separator)
 

@@ -27,9 +27,11 @@ from .sync_engine import (
 
 # ============ 配置类 ============
 
+
 @dataclass
 class SyncConfig:
     """音画同步配置"""
+
     strategy: SyncStrategy = SyncStrategy.BEAT_SYNC
     transition: TransitionType = TransitionType.HARD_CUT
     beat_match_tolerance: float = 0.1  # 秒
@@ -46,7 +48,6 @@ __all__ = [
     "MusicSection",
     "SectionInfo",
     "AudioAnalysisResult",
-
     # Sync Engine
     "SyncEngine",
     "SyncConfig",

@@ -47,10 +47,7 @@ class TestProjectMetadata:
     """测试项目元数据"""
 
     def test_creation(self):
-        metadata = ProjectMetadata(
-            name="测试项目",
-            description="这是一个测试项目"
-        )
+        metadata = ProjectMetadata(name="测试项目", description="这是一个测试项目")
 
         assert metadata.name == "测试项目"
         assert metadata.description == "这是一个测试项目"
@@ -65,11 +62,7 @@ class TestProjectMetadata:
         assert metadata.status == ProjectStatus.ACTIVE
 
     def test_to_dict(self):
-        metadata = ProjectMetadata(
-            name="测试",
-            description="描述",
-            author="作者"
-        )
+        metadata = ProjectMetadata(name="测试", description="描述", author="作者")
 
         d = metadata.to_dict()
 

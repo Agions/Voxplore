@@ -59,7 +59,9 @@ class ThemeToggleButton(QWidget):
 
         # 主题名称
         self.theme_label = QLabel(self._current_theme)
-        self.theme_label.setStyleSheet("color: #C9D1D9; font-size: 12px; background: transparent;")
+        self.theme_label.setStyleSheet(
+            "color: #C9D1D9; font-size: 12px; background: transparent;"
+        )
         layout.addWidget(self.theme_label)
 
         # 下拉箭头
@@ -111,13 +113,17 @@ class ThemeToggleButton(QWidget):
         dark_group = self._menu.addMenu("🌙 深色主题")
         for name in ThemePresets.DARK_THEMES:
             action = dark_group.addAction(name)
-            action.triggered.connect(lambda checked, n=name: self._select_theme(n, True))
+            action.triggered.connect(
+                lambda checked, n=name: self._select_theme(n, True)
+            )
 
         # 浅色主题组
         light_group = self._menu.addMenu("☀️ 浅色主题")
         for name in ThemePresets.LIGHT_THEMES:
             action = light_group.addAction(name)
-            action.triggered.connect(lambda checked, n=name: self._select_theme(n, False))
+            action.triggered.connect(
+                lambda checked, n=name: self._select_theme(n, False)
+            )
 
         # 显示菜单
         pos = self.mapToGlobal(QPoint(0, self.height()))
@@ -151,7 +157,9 @@ class QuickThemeSwitcher(QWidget):
 
         # 标题
         title = QLabel("主题")
-        title.setStyleSheet("color: #8B949E; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;")
+        title.setStyleSheet(
+            "color: #8B949E; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"
+        )
         layout.addWidget(title)
 
         # 主题选项网格
@@ -245,9 +253,9 @@ class ThemePreviewCard(QWidget):
             QWidget {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                     stop:0 {bg},
-                    stop:0.5 {self._colors.get('surface', bg)},
+                    stop:0.5 {self._colors.get("surface", bg)},
                     stop:1 {bg});
-                border: 1px solid {self._colors.get('border', '#30363D')};
+                border: 1px solid {self._colors.get("border", "#30363D")};
                 border-radius: 12px;
             }}
             QWidget:hover {{
@@ -274,6 +282,7 @@ class ThemePreviewCard(QWidget):
 
         # 绘制主题名称
         from PySide6.QtGui import QFont
+
         painter.setPen(QColor(self._colors.get("text", "#E6EDF3")))
         font = QFont()
         font.setPointSize(10)

@@ -22,6 +22,7 @@ from .voice_models import (
 logger = logging.getLogger(__name__)
 _audio_executor = get_ffmpeg_executor()
 
+
 class TTSProvider(ABC):
     """TTS 提供者抽象基类"""
 
@@ -45,6 +46,7 @@ class TTSProvider(ABC):
         # 优先用 pydub（适合本地 wav/mp3）
         try:
             from pydub import AudioSegment
+
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0
         except ImportError:
@@ -55,9 +57,14 @@ class TTSProvider(ABC):
         # ffprobe 兜底
         try:
             cmd = [
-                'ffprobe', '-v', 'quiet',
-                '-show_entries', 'format=duration',
-                '-of', 'csv=p=0', audio_path
+                "ffprobe",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
+                audio_path,
             ]
             result = _audio_executor.run(cmd, timeout=30)
             if result.returncode == 0:
@@ -100,6 +107,7 @@ class EdgeTTSProvider(TTSProvider):
     def __init__(self) -> None:
         try:
             import edge_tts
+
             self.edge_tts = edge_tts
         except ImportError:
             raise ImportError("请安装 edge-tts: pip install edge-tts")
@@ -115,8 +123,16 @@ class EdgeTTSProvider(TTSProvider):
         voice = config.voice_id or self._select_voice(config)
 
         # 构建语速/音调参数
-        rate_str = f"+{int((config.rate - 1) * 100)}%" if config.rate >= 1 else f"{int((config.rate - 1) * 100)}%"
-        pitch_str = f"+{int((config.pitch - 1) * 50)}Hz" if config.pitch >= 1 else f"{int((config.pitch - 1) * 50)}Hz"
+        rate_str = (
+            f"+{int((config.rate - 1) * 100)}%"
+            if config.rate >= 1
+            else f"{int((config.rate - 1) * 100)}%"
+        )
+        pitch_str = (
+            f"+{int((config.pitch - 1) * 50)}Hz"
+            if config.pitch >= 1
+            else f"{int((config.pitch - 1) * 50)}Hz"
+        )
 
         # 异步生成（同时收集时间戳）
         sentence_timestamps: list[dict[str, Any]] = []
@@ -138,11 +154,13 @@ class EdgeTTSProvider(TTSProvider):
                     # 转换为秒（offset/duration 单位是 100-nanoseconds）
                     start_s = chunk["offset"] / 10_000_000
                     end_s = (chunk["offset"] + chunk["duration"]) / 10_000_000
-                    sentence_timestamps.append({
-                        "text": chunk["text"],
-                        "start": start_s,
-                        "end": end_s,
-                    })
+                    sentence_timestamps.append(
+                        {
+                            "text": chunk["text"],
+                            "start": start_s,
+                            "end": end_s,
+                        }
+                    )
                 elif chunk["type"] == "audio":
                     audio_chunks.append(chunk["data"])
 
@@ -156,6 +174,7 @@ class EdgeTTSProvider(TTSProvider):
             asyncio.get_running_loop()
             # 已有 loop，在新线程中运行（EdgeTTS 必须在自己的 loop 中）
             import concurrent.futures
+
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                 pool.submit(asyncio.run, _generate()).result()
         except RuntimeError:
@@ -201,8 +220,16 @@ class EdgeTTSProvider(TTSProvider):
         voice = config.voice_id or self._select_voice(config)
 
         # 构建语速/音调参数
-        rate_str = f"+{int((config.rate - 1) * 100)}%" if config.rate >= 1 else f"{int((config.rate - 1) * 100)}%"
-        pitch_str = f"+{int((config.pitch - 1) * 50)}Hz" if config.pitch >= 1 else f"{int((config.pitch - 1) * 50)}Hz"
+        rate_str = (
+            f"+{int((config.rate - 1) * 100)}%"
+            if config.rate >= 1
+            else f"{int((config.rate - 1) * 100)}%"
+        )
+        pitch_str = (
+            f"+{int((config.pitch - 1) * 50)}Hz"
+            if config.pitch >= 1
+            else f"{int((config.pitch - 1) * 50)}Hz"
+        )
 
         sentence_timestamps: list[dict[str, Any]] = []
 
@@ -275,7 +302,9 @@ class EdgeTTSProvider(TTSProvider):
         import concurrent.futures
 
         async def _generate():
-            return await self.generate_streaming(text, output_path, config, progress_callback)
+            return await self.generate_streaming(
+                text, output_path, config, progress_callback
+            )
 
         try:
             asyncio.get_running_loop()
@@ -303,20 +332,24 @@ class EdgeTTSProvider(TTSProvider):
         voices = []
 
         for voice_id, name in self.CHINESE_VOICES["female"]:
-            voices.append(VoiceInfo(
-                id=voice_id,
-                name=name,
-                gender=VoiceGender.FEMALE,
-                language=language,
-            ))
+            voices.append(
+                VoiceInfo(
+                    id=voice_id,
+                    name=name,
+                    gender=VoiceGender.FEMALE,
+                    language=language,
+                )
+            )
 
         for voice_id, name in self.CHINESE_VOICES["male"]:
-            voices.append(VoiceInfo(
-                id=voice_id,
-                name=name,
-                gender=VoiceGender.MALE,
-                language=language,
-            ))
+            voices.append(
+                VoiceInfo(
+                    id=voice_id,
+                    name=name,
+                    gender=VoiceGender.MALE,
+                    language=language,
+                )
+            )
 
         return voices
 
@@ -341,6 +374,7 @@ class OpenAITTSProvider(TTSProvider):
         self.api_key = api_key
         try:
             from openai import OpenAI
+
             self.client = OpenAI(api_key=api_key)
         except ImportError:
             raise ImportError("请安装 openai: pip install openai")
@@ -415,6 +449,7 @@ class F5TTSProvider(TTSProvider):
             # 自动检测设备
             import torch
             from f5_tts import F5TTS
+
             device = "cuda" if torch.cuda.is_available() else "cpu"
             self._f5_tts = F5TTS(device=device)
             self._available = True
@@ -488,8 +523,14 @@ class F5TTSProvider(TTSProvider):
     def _convert_to_mp3(self, input_path: str, output_path: str) -> None:
         """将 WAV 转码为 MP3"""
         cmd = [
-            "ffmpeg", "-y", "-i", input_path,
-            "-codec:a", "libmp3lame", "-q:a", "2",
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-codec:a",
+            "libmp3lame",
+            "-q:a",
+            "2",
             output_path,
         ]
         _audio_executor.run(cmd, timeout=60)
@@ -501,4 +542,3 @@ class F5TTSProvider(TTSProvider):
         """
         # 当无可用参考时返回空列表
         return []
-

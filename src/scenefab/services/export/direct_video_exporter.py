@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 
 class Resolution(Enum):
     """分辨率预设"""
+
     # 横屏
     SD_480P = (854, 480)
     HD_720P = (1280, 720)
@@ -72,6 +73,7 @@ class Resolution(Enum):
 
 class VideoFormat(Enum):
     """视频格式"""
+
     MP4 = "mp4"
     MOV = "mov"
     WEBM = "webm"
@@ -81,6 +83,7 @@ class VideoFormat(Enum):
 
 class VideoCodec(Enum):
     """视频编码器"""
+
     H264 = "libx264"
     H265 = "libx265"
     VP9 = "libvpx-vp9"
@@ -90,6 +93,7 @@ class VideoCodec(Enum):
 
 class AudioCodec(Enum):
     """音频编码器"""
+
     AAC = "aac"
     MP3 = "libmp3lame"
     OPUS = "libopus"
@@ -98,17 +102,19 @@ class AudioCodec(Enum):
 
 class HWAccel(Enum):
     """硬件加速类型"""
+
     NONE = "none"
-    NVIDIA = "nvenc"           # NVIDIA NVENC
-    INTEL = "qsv"              # Intel Quick Sync
-    AMD = "amf"                # AMD AMF
-    APPLE = "videotoolbox"     # Apple VideoToolbox (macOS)
-    VAAPI = "vaapi"            # Linux VAAPI
+    NVIDIA = "nvenc"  # NVIDIA NVENC
+    INTEL = "qsv"  # Intel Quick Sync
+    AMD = "amf"  # AMD AMF
+    APPLE = "videotoolbox"  # Apple VideoToolbox (macOS)
+    VAAPI = "vaapi"  # Linux VAAPI
 
 
 @dataclass
 class VideoExportConfig:
     """视频导出配置"""
+
     # 分辨率和帧率
     resolution: Resolution = Resolution.FHD_1080P
     fps: float = 30.0
@@ -119,17 +125,17 @@ class VideoExportConfig:
     audio_codec: AudioCodec = AudioCodec.AAC
 
     # 质量设置
-    video_bitrate: str = "5M"      # 视频码率
-    audio_bitrate: str = "192k"    # 音频码率
-    crf: int = 23                  # 恒定质量因子 (0-51)
-    preset: str = "medium"         # 编码预设
+    video_bitrate: str = "5M"  # 视频码率
+    audio_bitrate: str = "192k"  # 音频码率
+    crf: int = 23  # 恒定质量因子 (0-51)
+    preset: str = "medium"  # 编码预设
 
     # 硬件加速
     hw_accel: HWAccel = HWAccel.NONE
 
     # 其他选项
     include_subtitles: bool = True  # 是否烧录字幕
-    audio_normalize: bool = True    # 音频归一化
+    audio_normalize: bool = True  # 音频归一化
 
 
 class DirectVideoExporter:
@@ -289,18 +295,30 @@ class DirectVideoExporter:
     ) -> None:
         """提取视频片段"""
         cmd = [
-            'ffmpeg', '-y',
-            '-ss', str(start),
-            '-t', str(duration),
-            '-i', video_path,
-            '-vf', f'scale={config.resolution.width}:{config.resolution.height}:force_original_aspect_ratio=decrease,pad={config.resolution.width}:{config.resolution.height}:(ow-iw)/2:(oh-ih)/2',
-            '-c:v', self._get_video_codec(config),
-            '-preset', config.preset,
-            '-crf', str(config.crf),
-            '-c:a', 'aac',
-            '-b:a', config.audio_bitrate,
-            '-ar', '48000',
-            '-pix_fmt', 'yuv420p',
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(start),
+            "-t",
+            str(duration),
+            "-i",
+            video_path,
+            "-vf",
+            f"scale={config.resolution.width}:{config.resolution.height}:force_original_aspect_ratio=decrease,pad={config.resolution.width}:{config.resolution.height}:(ow-iw)/2:(oh-ih)/2",
+            "-c:v",
+            self._get_video_codec(config),
+            "-preset",
+            config.preset,
+            "-crf",
+            str(config.crf),
+            "-c:a",
+            "aac",
+            "-b:a",
+            config.audio_bitrate,
+            "-ar",
+            "48000",
+            "-pix_fmt",
+            "yuv420p",
             output_path,
         ]
 
@@ -318,13 +336,19 @@ class DirectVideoExporter:
     ) -> None:
         """合并视频和音频"""
         cmd = [
-            'ffmpeg', '-y',
-            '-i', video_path,
-            '-i', audio_path,
-            '-c:v', 'copy',
-            '-c:a', config.audio_codec.value,
-            '-b:a', config.audio_bitrate,
-            '-shortest',
+            "ffmpeg",
+            "-y",
+            "-i",
+            video_path,
+            "-i",
+            audio_path,
+            "-c:v",
+            "copy",
+            "-c:a",
+            config.audio_codec.value,
+            "-b:a",
+            config.audio_bitrate,
+            "-shortest",
             output_path,
         ]
 
@@ -337,7 +361,7 @@ class DirectVideoExporter:
     ) -> Path:
         """创建拼接列表"""
         list_file = temp_path / "concat_list.txt"
-        with open(list_file, 'w') as f:
+        with open(list_file, "w") as f:
             for segment in segment_files:
                 # 转义路径中的单引号，防止 FFmpeg concat 注入
                 escaped = str(segment).replace("'", "'\\''")
@@ -352,11 +376,16 @@ class DirectVideoExporter:
     ) -> None:
         """拼接视频"""
         cmd = [
-            'ffmpeg', '-y',
-            '-f', 'concat',
-            '-safe', '0',
-            '-i', str(list_file),
-            '-c', 'copy',
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(list_file),
+            "-c",
+            "copy",
             output_path,
         ]
 
@@ -375,15 +404,22 @@ class DirectVideoExporter:
         # 收集所有字幕
         all_subtitles = []
         for segment in project.segments:
-            if hasattr(segment, 'captions'):
+            if hasattr(segment, "captions"):
                 for cap in segment.captions:
-                    if hasattr(cap, 'text') and hasattr(cap, 'start_time') and hasattr(cap, 'end_time'):
+                    if (
+                        hasattr(cap, "text")
+                        and hasattr(cap, "start_time")
+                        and hasattr(cap, "end_time")
+                    ):
                         from scenefab.models.media import SubtitleItem
-                        all_subtitles.append(SubtitleItem(
-                            text=cap.text,
-                            start_time=cap.start_time,
-                            end_time=cap.end_time,
-                        ))
+
+                        all_subtitles.append(
+                            SubtitleItem(
+                                text=cap.text,
+                                start_time=cap.start_time,
+                                end_time=cap.end_time,
+                            )
+                        )
 
         if not all_subtitles:
             # 无字幕，直接复制视频
@@ -397,13 +433,20 @@ class DirectVideoExporter:
             SubtitleExporter.export_srt(all_subtitles, subtitle_file)
 
             cmd = [
-                'ffmpeg', '-y',
-                '-i', video_path,
-                '-vf', f'subtitles={subtitle_file}:force_style=FontSize=24',
-                '-c:v', self._get_video_codec(config),
-                '-preset', config.preset,
-                '-crf', str(config.crf),
-                '-c:a', 'copy',
+                "ffmpeg",
+                "-y",
+                "-i",
+                video_path,
+                "-vf",
+                f"subtitles={subtitle_file}:force_style=FontSize=24",
+                "-c:v",
+                self._get_video_codec(config),
+                "-preset",
+                config.preset,
+                "-crf",
+                str(config.crf),
+                "-c:a",
+                "copy",
                 output_path,
             ]
             self._executor.run(cmd, timeout=600)
@@ -424,20 +467,27 @@ class DirectVideoExporter:
     # 硬件加速 + 编码器 → ffmpeg 编码器名称
     _CODEC_MAP: dict = {
         HWAccel.NVIDIA: {VideoCodec.H265: "hevc_nvenc", VideoCodec.H264: "h264_nvenc"},
-        HWAccel.APPLE: {VideoCodec.H265: "hevc_videotoolbox", VideoCodec.H264: "h264_videotoolbox"},
+        HWAccel.APPLE: {
+            VideoCodec.H265: "hevc_videotoolbox",
+            VideoCodec.H264: "h264_videotoolbox",
+        },
         HWAccel.INTEL: {VideoCodec.H265: "hevc_qsv", VideoCodec.H264: "h264_qsv"},
     }
 
     def _get_video_codec(self, config: VideoExportConfig) -> str:
         """获取视频编码器"""
-        return self._CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec) \
+        return (
+            self._CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec)
             or config.video_codec.value
+        )
 
-    def _add_hw_accel_params(self, cmd: list[str], config: VideoExportConfig) -> list[str]:
+    def _add_hw_accel_params(
+        self, cmd: list[str], config: VideoExportConfig
+    ) -> list[str]:
         """添加硬件加速参数"""
         hwaccel_arg = self._HWACCEL_ARG.get(config.hw_accel)
         if hwaccel_arg:
-            cmd.insert(1, '-hwaccel')
+            cmd.insert(1, "-hwaccel")
             cmd.insert(2, hwaccel_arg)
         return cmd
 
@@ -495,7 +545,7 @@ class DirectVideoExporter:
             # 检测 NVIDIA
             try:
                 result = self._executor.run(
-                    ['nvidia-smi'],
+                    ["nvidia-smi"],
                     timeout=5,
                 )
                 if result.returncode == 0:
@@ -506,7 +556,7 @@ class DirectVideoExporter:
             # 检测 Intel
             try:
                 result = self._executor.run(
-                    ['wmic', 'cpu', 'get', 'name'],
+                    ["wmic", "cpu", "get", "name"],
                     timeout=5,
                 )
                 if "Intel" in result.stdout:

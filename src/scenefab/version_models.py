@@ -14,6 +14,7 @@ from typing import Any
 @dataclass
 class ProjectVersion:
     """项目版本信息"""
+
     version_id: str
     timestamp: datetime
     description: str
@@ -26,35 +27,36 @@ class ProjectVersion:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'version_id': self.version_id,
-            'timestamp': self.timestamp.isoformat(),
-            'description': self.description,
-            'changes': self.changes,
-            'file_hash': self.file_hash,
-            'size': self.size,
-            'tags': self.tags,
-            'is_auto_backup': self.is_auto_backup,
-            'is_major': self.is_major
+            "version_id": self.version_id,
+            "timestamp": self.timestamp.isoformat(),
+            "description": self.description,
+            "changes": self.changes,
+            "file_hash": self.file_hash,
+            "size": self.size,
+            "tags": self.tags,
+            "is_auto_backup": self.is_auto_backup,
+            "is_major": self.is_major,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectVersion':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectVersion":
         return cls(
-            version_id=data['version_id'],
-            timestamp=datetime.fromisoformat(data['timestamp']),
-            description=data['description'],
-            changes=data['changes'],
-            file_hash=data['file_hash'],
-            size=data['size'],
-            tags=data.get('tags', []),
-            is_auto_backup=data.get('is_auto_backup', False),
-            is_major=data.get('is_major', False)
+            version_id=data["version_id"],
+            timestamp=datetime.fromisoformat(data["timestamp"]),
+            description=data["description"],
+            changes=data["changes"],
+            file_hash=data["file_hash"],
+            size=data["size"],
+            tags=data.get("tags", []),
+            is_auto_backup=data.get("is_auto_backup", False),
+            is_major=data.get("is_major", False),
         )
 
 
 @dataclass
 class ProjectBranch:
     """项目分支信息"""
+
     name: str
     created_at: datetime
     description: str
@@ -64,23 +66,23 @@ class ProjectBranch:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'name': self.name,
-            'created_at': self.created_at.isoformat(),
-            'description': self.description,
-            'parent_branch': self.parent_branch,
-            'is_active': self.is_active,
-            'versions': self.versions
+            "name": self.name,
+            "created_at": self.created_at.isoformat(),
+            "description": self.description,
+            "parent_branch": self.parent_branch,
+            "is_active": self.is_active,
+            "versions": self.versions,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'ProjectBranch':
+    def from_dict(cls, data: dict[str, Any]) -> "ProjectBranch":
         return cls(
-            name=data['name'],
-            created_at=datetime.fromisoformat(data['created_at']),
-            description=data['description'],
-            parent_branch=data.get('parent_branch'),
-            is_active=data.get('is_active', True),
-            versions=data.get('versions', [])
+            name=data["name"],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            description=data["description"],
+            parent_branch=data.get("parent_branch"),
+            is_active=data.get("is_active", True),
+            versions=data.get("versions", []),
         )
 
 

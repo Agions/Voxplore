@@ -71,18 +71,14 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
         contents = []
         if request.system_prompt:
-            contents.append({
-                "role": "user",
-                "parts": [{"text": f"System: {request.system_prompt}"}]
-            })
-            contents.append({
-                "role": "model",
-                "parts": [{"text": "Understood."}]
-            })
-        contents.append({
-            "role": "user",
-            "parts": [{"text": request.prompt}]
-        })
+            contents.append(
+                {
+                    "role": "user",
+                    "parts": [{"text": f"System: {request.system_prompt}"}],
+                }
+            )
+            contents.append({"role": "model", "parts": [{"text": "Understood."}]})
+        contents.append({"role": "user", "parts": [{"text": request.prompt}]})
 
         payload = {
             "contents": contents,
@@ -110,8 +106,9 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         content_parts = candidates[0].get("content", {}).get("parts", [])
         content = "".join(part.get("text", "") for part in content_parts)
         usage = data.get("usageMetadata", {})
-        tokens_used = (usage.get("promptTokenCount", 0) +
-                       usage.get("candidatesTokenCount", 0))
+        tokens_used = usage.get("promptTokenCount", 0) + usage.get(
+            "candidatesTokenCount", 0
+        )
 
         return LLMResponse(
             content=content,
@@ -148,22 +145,23 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
         contents = []
         if request.system_prompt:
-            contents.append({
-                "role": "user",
-                "parts": [{"text": f"System: {request.system_prompt}"}]
-            })
-            contents.append({
-                "role": "model",
-                "parts": [{"text": "Understood."}]
-            })
+            contents.append(
+                {
+                    "role": "user",
+                    "parts": [{"text": f"System: {request.system_prompt}"}],
+                }
+            )
+            contents.append({"role": "model", "parts": [{"text": "Understood."}]})
 
-        contents.append({
-            "role": "user",
-            "parts": [
-                {"inlineData": {"mimeType": mime_type, "data": image_data}},
-                {"text": request.prompt},
-            ]
-        })
+        contents.append(
+            {
+                "role": "user",
+                "parts": [
+                    {"inlineData": {"mimeType": mime_type, "data": image_data}},
+                    {"text": request.prompt},
+                ],
+            }
+        )
 
         payload = {
             "contents": contents,
@@ -190,8 +188,9 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         content_parts = candidates[0].get("content", {}).get("parts", [])
         content = "".join(part.get("text", "") for part in content_parts)
         usage = data.get("usageMetadata", {})
-        tokens_used = (usage.get("promptTokenCount", 0) +
-                       usage.get("candidatesTokenCount", 0))
+        tokens_used = usage.get("promptTokenCount", 0) + usage.get(
+            "candidatesTokenCount", 0
+        )
 
         return LLMResponse(
             content=content,

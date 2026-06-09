@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-
 """
 统一配置管理
 集中管理所有配置项
@@ -16,9 +15,12 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
 def _get_version() -> str:
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -27,6 +29,7 @@ def _get_version() -> str:
 @dataclass
 class AppConfig:
     """应用配置"""
+
     # 应用信息
     name: str = "SceneFab"
     version: str = field(default_factory=_get_version)
@@ -69,6 +72,7 @@ class AppConfig:
 @dataclass
 class APIKeys:
     """API 密钥配置"""
+
     openai: str = ""
     anthropic: str = ""
     google: str = ""
@@ -133,7 +137,7 @@ class ConfigManager:
 
         if path.exists():
             try:
-                with open(path, encoding='utf-8') as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
                 return AppConfig(**data)
             except (json.JSONDecodeError, TypeError, OSError) as e:
@@ -149,15 +153,15 @@ class ConfigManager:
         keys = APIKeys()
 
         env_mappings = {
-            'openai': 'OPENAI_API_KEY',
-            'anthropic': 'ANTHROPIC_API_KEY',
-            'google': 'GOOGLE_API_KEY',
-            'deepseek': 'DEEPSEEK_API_KEY',
-            'kimi': 'KIMI_API_KEY',
-            'qwen': 'QWEN_API_KEY',
-            'glm': 'GLM_API_KEY',
-            'doubao': 'DOUBAO_API_KEY',
-            'hunyuan': 'HUNYUAN_API_KEY',
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "google": "GOOGLE_API_KEY",
+            "deepseek": "DEEPSEEK_API_KEY",
+            "kimi": "KIMI_API_KEY",
+            "qwen": "QWEN_API_KEY",
+            "glm": "GLM_API_KEY",
+            "doubao": "DOUBAO_API_KEY",
+            "hunyuan": "HUNYUAN_API_KEY",
         }
 
         for attr, env_var in env_mappings.items():
@@ -168,7 +172,7 @@ class ConfigManager:
         # 从文件加载（环境变量优先）
         if path.exists():
             try:
-                with open(path, encoding='utf-8') as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
                 for key, value in data.items():
                     if not getattr(keys, key, ""):  # 环境变量已设置的值不覆盖
@@ -181,13 +185,13 @@ class ConfigManager:
     def save_config(self):
         """保存配置"""
         path = self._get_config_path()
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(asdict(self.config), f, indent=2, ensure_ascii=False)
 
     def save_api_keys(self):
         """保存 API 密钥"""
         path = self._get_keys_path()
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(asdict(self.api_keys), f, indent=2, ensure_ascii=False)
 
     def update(self, **kwargs):

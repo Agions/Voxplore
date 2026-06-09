@@ -121,9 +121,9 @@ class DataFeedbackManager:
         Returns:
             FeedbackReport: 完整报告
         """
-        report_id = hashlib.md5(
-            f"{datetime.now().isoformat()}".encode()
-        ).hexdigest()[:12]
+        report_id = hashlib.md5(f"{datetime.now().isoformat()}".encode()).hexdigest()[
+            :12
+        ]
 
         stats = self.store.get_aggregated_stats(days=days)
         insights = self.analyzer.generate_insights(days)
@@ -148,7 +148,7 @@ class DataFeedbackManager:
         trend = (
             f"近 {days} 天共发布 {total_videos} 个视频，"
             f"平均播放 {avg_views:.0f} 次，"
-            f"平均完播率 {stats['avg_completion_rate']*100:.1f}%"
+            f"平均完播率 {stats['avg_completion_rate'] * 100:.1f}%"
         )
 
         report = FeedbackReport(
@@ -202,11 +202,14 @@ class DataFeedbackManager:
         """
         with sqlite3.connect(self.store.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute("""
+            rows = conn.execute(
+                """
                 SELECT * FROM feedback_snapshots
                 WHERE video_id = ? AND platform = ?
                 ORDER BY snapshot_time ASC
-            """, (video_id, platform.value)).fetchall()
+            """,
+                (video_id, platform.value),
+            ).fetchall()
 
         return [dict(r) for r in rows]
 

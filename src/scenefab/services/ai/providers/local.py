@@ -134,7 +134,9 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             finish_reason="stop",
         )
 
-    async def _generate_openai_compatible(self, request: LLMRequest, model: str) -> LLMResponse:
+    async def _generate_openai_compatible(
+        self, request: LLMRequest, model: str
+    ) -> LLMResponse:
         """使用 OpenAI 兼容 API 生成"""
         messages = self._build_messages(request)
 
@@ -167,16 +169,15 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "stream": False,
         }
 
-        data = await self._call_api(
-            "POST", f"{self.base_url}/completion", json=payload
-        )
+        data = await self._call_api("POST", f"{self.base_url}/completion", json=payload)
 
         if "error" in data:
             raise ProviderError(data["error"])
         return LLMResponse(
             content=data.get("content", ""),
             model=model,
-            tokens_used=data.get("tokens_evaluated", 0) + data.get("tokens_predicted", 0),
+            tokens_used=data.get("tokens_evaluated", 0)
+            + data.get("tokens_predicted", 0),
             finish_reason="stop",
         )
 
@@ -186,11 +187,17 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             data = await self._call_api("GET", f"{self.base_url}/api/tags")
             models = data.get("models", [])
             return [
-                {"name": m.get("name"), "size": m.get("size"), "modified_at": m.get("modified_at")}
+                {
+                    "name": m.get("name"),
+                    "size": m.get("size"),
+                    "modified_at": m.get("modified_at"),
+                }
                 for m in models
             ]
-        return [{"name": name, "description": info["description"]}
-                for name, info in self.MODELS.items()]
+        return [
+            {"name": name, "description": info["description"]}
+            for name, info in self.MODELS.items()
+        ]
 
     async def pull_model(self, model: str) -> bool:
         """拉取模型（仅 Ollama）"""
@@ -214,4 +221,3 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     def get_model_info(self, model: str) -> dict[str, Any]:
         """获取模型信息"""
         return self.MODELS.get(model, {})
-

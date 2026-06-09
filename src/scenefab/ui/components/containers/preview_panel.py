@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (
 )
 
 logger = logging.getLogger(__name__)
+
+
 class PreviewPanel(QWidget):
     """视频预览面板"""
 

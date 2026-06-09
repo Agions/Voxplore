@@ -2,6 +2,7 @@
 场景理解窗口（Step 2）
 AI 分析视频场景，生成场景描述卡片
 """
+
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QFrame,
@@ -88,26 +89,32 @@ class SceneWindow(BaseStepWindow):
         """当 MainWindow 设置共享数据时调用（来自上一步骤）"""
         files = data.get("files", [])
         if files:
-            self.progress_label.setText(f"已加载 {len(files)} 个视频文件，可点击「开始分析」")
+            self.progress_label.setText(
+                f"已加载 {len(files)} 个视频文件，可点击「开始分析」"
+            )
 
     def _simulate_analysis(self):
         """模拟 AI 分析过程（真实场景中替换为实际 AI 调用）"""
         import random
+
         self._scenes = []
         # 模拟 3-5 个场景
         for i in range(random.randint(3, 5)):
-            self._scenes.append({
-                "id": i,
-                "start": i * 15,
-                "end": (i + 1) * 15,
-                "description": f"场景 {i+1}：主角 '{'走在街上' if i % 2 == 0 else '进入房间'}'，周围环境 '{'城市街道' if i % 2 == 0 else '室内空间'}'",
-            })
+            self._scenes.append(
+                {
+                    "id": i,
+                    "start": i * 15,
+                    "end": (i + 1) * 15,
+                    "description": f"场景 {i + 1}：主角 '{'走在街上' if i % 2 == 0 else '进入房间'}'，周围环境 '{'城市街道' if i % 2 == 0 else '室内空间'}'",
+                }
+            )
 
         # 模拟进度动画
         self._animate_progress(0, 100, 2000)
 
     def _animate_progress(self, start, end, duration_ms):
         import time
+
         steps = 20
         step_ms = duration_ms // steps
         for i in range(steps + 1):
@@ -130,9 +137,7 @@ class SceneWindow(BaseStepWindow):
         for scene in self._scenes:
             card = SceneCard(scene)
             # 在 stretch 之前插入
-            self.scenes_layout.insertWidget(
-                self.scenes_layout.count() - 1, card
-            )
+            self.scenes_layout.insertWidget(self.scenes_layout.count() - 1, card)
 
         self.btn_next.setEnabled(True)
 
@@ -176,7 +181,9 @@ class SceneCard(QFrame):
         layout.setSpacing(8)
 
         # 时间范围
-        time_label = QLabel(f"⏱ {self.scene['start']:02d}:00 — {self.scene['end']:02d}:00")
+        time_label = QLabel(
+            f"⏱ {self.scene['start']:02d}:00 — {self.scene['end']:02d}:00"
+        )
         time_label.setObjectName("scene_time")
 
         # 描述

@@ -26,8 +26,9 @@ logger = logging.getLogger(__name__)
 class OpenAIVisionProvider(VisionProvider):
     """OpenAI GPT-5 Vision"""
 
-    def __init__(self, api_key: str, model: str = "gpt-4o",
-                 base_url: str | None = None) -> None:
+    def __init__(
+        self, api_key: str, model: str = "gpt-4o", base_url: str | None = None
+    ) -> None:
         self.api_key = api_key
         self.model = model
         self.base_url = base_url
@@ -35,9 +36,11 @@ class OpenAIVisionProvider(VisionProvider):
     def get_name(self) -> str:
         return f"OpenAI/{self.model}"
 
-    def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_image(
+        self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         from openai import OpenAI
+
         kwargs = {"api_key": self.api_key}
         if self.base_url:
             kwargs["base_url"] = self.base_url
@@ -45,16 +48,21 @@ class OpenAIVisionProvider(VisionProvider):
         client = OpenAI(**kwargs)
         response = client.chat.completions.create(
             model=self.model,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_base64}",
-                        "detail": "low"
-                    }}
-                ]
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}",
+                                "detail": "low",
+                            },
+                        },
+                    ],
+                }
+            ],
             max_tokens=800,
         )
         return self._parse_json_response(response.choices[0].message.content)
@@ -66,9 +74,12 @@ class OpenAIVisionProvider(VisionProvider):
 class QwenVLProvider(VisionProvider):
     """通义千问 Qwen-VL（Plus/Max）"""
 
-    def __init__(self, api_key: str,
-                 base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                 model: str = "qwen-vl-plus") -> None:
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        model: str = "qwen-vl-plus",
+    ) -> None:
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
@@ -76,21 +87,28 @@ class QwenVLProvider(VisionProvider):
     def get_name(self) -> str:
         return f"Qwen/{self.model}"
 
-    def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_image(
+        self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         from openai import OpenAI
+
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         response = client.chat.completions.create(
             model=self.model,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_base64}"
-                    }}
-                ]
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}"
+                            },
+                        },
+                    ],
+                }
+            ],
             max_tokens=800,
         )
         return self._parse_json_response(response.choices[0].message.content)
@@ -107,9 +125,12 @@ class Qwen25VLProvider(VisionProvider):
     推荐作为第一人称解说场景理解的主力模型。
     """
 
-    def __init__(self, api_key: str,
-                 base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                 model: str = "qwen2.5-vl-72b-instruct") -> None:
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        model: str = "qwen2.5-vl-72b-instruct",
+    ) -> None:
         self.api_key = api_key
         self.base_url = base_url
         self.model = model
@@ -117,31 +138,39 @@ class Qwen25VLProvider(VisionProvider):
     def get_name(self) -> str:
         return f"Qwen3.7/{self.model}"
 
-    def analyze_image(self, image_base64: str,
-                      prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_image(
+        self, image_base64: str, prompt: str = FIRST_PERSON_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         """
         使用 Qwen3.7 进行第一人称解说专用分析。
         默认 prompt 使用 FIRST_PERSON_ANALYSIS_PROMPT。
         """
         from openai import OpenAI
+
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
         response = client.chat.completions.create(
             model=self.model,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/jpeg;base64,{image_base64}"
-                    }},
-                    {"type": "text", "text": prompt}
-                ]
-            }],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}"
+                            },
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
             max_tokens=1024,
         )
         return self._parse_json_response(response.choices[0].message.content)
 
-    def analyze_video_frames(self, frames: list[dict[str, Any]],
-                            narrative_prompt: str | None = None) -> list[dict[str, Any]]:
+    def analyze_video_frames(
+        self, frames: list[dict[str, Any]], narrative_prompt: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         分析多帧视频（支持 Native 视频输入模式）。
 
@@ -156,15 +185,20 @@ class Qwen25VLProvider(VisionProvider):
             return []
 
         from openai import OpenAI
+
         client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
         # 构建多帧消息
         content_parts = []
         for frame in frames:
-            content_parts.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/jpeg;base64,{frame['image_base64']}"}
-            })
+            content_parts.append(
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{frame['image_base64']}"
+                    },
+                }
+            )
 
         prompt = narrative_prompt or (
             "这是一个视频的连续帧（按时间顺序）。"
@@ -192,7 +226,7 @@ class Qwen25VLProvider(VisionProvider):
         self,
         frames: list[dict[str, Any]],
         batch_size: int = 6,
-        progress_callback: Callable[[int, int], None] | None = None
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> list[dict[str, Any]]:
         """
         批量分析帧（优化版，减少 60% API 延迟）
@@ -217,8 +251,10 @@ class Qwen25VLProvider(VisionProvider):
             batch_end = min(batch_start + batch_size, total_frames)
             batch = frames[batch_start:batch_end]
 
-            logger.debug(f"Processing batch {batch_start // batch_size + 1}/{(total_frames + batch_size - 1) // batch_size}, "
-                        f"frames {batch_start + 1}-{batch_end}/{total_frames}")
+            logger.debug(
+                f"Processing batch {batch_start // batch_size + 1}/{(total_frames + batch_size - 1) // batch_size}, "
+                f"frames {batch_start + 1}-{batch_end}/{total_frames}"
+            )
 
             # 构建批次提示词
             batch_prompt = (
@@ -230,15 +266,21 @@ class Qwen25VLProvider(VisionProvider):
             )
 
             try:
-                results = self.analyze_video_frames(batch, narrative_prompt=batch_prompt)
+                results = self.analyze_video_frames(
+                    batch, narrative_prompt=batch_prompt
+                )
 
                 # 确保结果数量匹配
                 if isinstance(results, list) and len(results) == len(batch):
                     total_results.extend(results)
                 else:
                     # 如果结果数量不匹配，填充空结果
-                    logger.warning(f"Batch result count mismatch: expected {len(batch)}, got {len(results) if isinstance(results, list) else 'non-list'}")
-                    total_results.extend(results if isinstance(results, list) else [results])
+                    logger.warning(
+                        f"Batch result count mismatch: expected {len(batch)}, got {len(results) if isinstance(results, list) else 'non-list'}"
+                    )
+                    total_results.extend(
+                        results if isinstance(results, list) else [results]
+                    )
 
             except Exception as e:
                 logger.error(f"Batch {batch_start // batch_size + 1} failed: {e}")
@@ -258,31 +300,40 @@ class Qwen25VLProvider(VisionProvider):
 class GeminiVisionProvider(VisionProvider):
     """Google Gemini 3.x Vision"""
 
-    def __init__(self, api_key: str, model: str = "gemini-2.5-flash-preview-0506") -> None:
+    def __init__(
+        self, api_key: str, model: str = "gemini-2.5-flash-preview-0506"
+    ) -> None:
         self.api_key = api_key
         self.model = model
 
     def get_name(self) -> str:
         return f"Gemini/{self.model}"
 
-    def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_image(
+        self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         import httpx
 
-        url = (f"https://generativelanguage.googleapis.com/v1beta/"
-               f"models/{self.model}:generateContent?key={self.api_key}")
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/"
+            f"models/{self.model}:generateContent?key={self.api_key}"
+        )
 
         payload = {
-            "contents": [{
-                "parts": [
-                    {"text": prompt},
-                    {"inline_data": {
-                        "mime_type": "image/jpeg",
-                        "data": image_base64
-                    }}
-                ]
-            }],
-            "generationConfig": {"maxOutputTokens": 800}
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt},
+                        {
+                            "inline_data": {
+                                "mime_type": "image/jpeg",
+                                "data": image_base64,
+                            }
+                        },
+                    ]
+                }
+            ],
+            "generationConfig": {"maxOutputTokens": 800},
         }
 
         resp = httpx.post(url, json=payload, timeout=30)
@@ -313,6 +364,7 @@ class VisionAnalyzerFactory:
         """延迟加载 Provider 映射，避免循环导入"""
         from .providers.gemini35_flash import Gemini35FlashProvider
         from .providers.qwen37 import Qwen37Provider
+
         return {
             "openai": OpenAIVisionProvider,
             "qwen": QwenVLProvider,
@@ -339,45 +391,61 @@ class VisionAnalyzerFactory:
         qwen37_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
         vision_model = os.getenv("VISION_MODEL", "qwen3.7-plus")
         if qwen37_key and not qwen37_key.startswith("${"):
-            self._providers.append(Qwen37Provider(
-                api_key=qwen37_key,
-                model=vision_model,
-            ))
+            self._providers.append(
+                Qwen37Provider(
+                    api_key=qwen37_key,
+                    model=vision_model,
+                )
+            )
             logger.info(f"✅ Qwen3.7 ({vision_model}) 已启用 — 多模态 Agent")
 
         # Qwen-VL Plus（备选）
         qwen_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
         if qwen_key and not qwen_key.startswith("${"):
-            self._providers.append(QwenVLProvider(
-                api_key=qwen_key,
-                model=llm.get("qwen", {}).get("vision_model", "qwen-vl-plus"),
-            ))
+            self._providers.append(
+                QwenVLProvider(
+                    api_key=qwen_key,
+                    model=llm.get("qwen", {}).get("vision_model", "qwen-vl-plus"),
+                )
+            )
 
         # OpenAI GPT-4o
-        openai_key = os.getenv("OPENAI_API_KEY") or llm.get("openai", {}).get("api_key", "")
+        openai_key = os.getenv("OPENAI_API_KEY") or llm.get("openai", {}).get(
+            "api_key", ""
+        )
         if openai_key and not openai_key.startswith("${"):
-            self._providers.append(OpenAIVisionProvider(
-                api_key=openai_key,
-                model="gpt-4o",
-                base_url=llm.get("openai", {}).get("base_url"),
-            ))
+            self._providers.append(
+                OpenAIVisionProvider(
+                    api_key=openai_key,
+                    model="gpt-4o",
+                    base_url=llm.get("openai", {}).get("base_url"),
+                )
+            )
 
         # Gemini 3.5 Flash（2026年5月最新）
-        gemini_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get("api_key", "")
+        gemini_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get(
+            "api_key", ""
+        )
         if gemini_key and not gemini_key.startswith("${"):
-            self._providers.append(Gemini35FlashProvider(
-                api_key=gemini_key,
-                model="gemini-3.5-flash",
-            ))
+            self._providers.append(
+                Gemini35FlashProvider(
+                    api_key=gemini_key,
+                    model="gemini-3.5-flash",
+                )
+            )
             logger.info("✅ Gemini 3.5 Flash 已启用 — Flash 级别成本")
 
         # Gemini 旧版（备选）
-        gemini_legacy_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get("api_key", "")
+        gemini_legacy_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get(
+            "api_key", ""
+        )
         if gemini_legacy_key and not gemini_legacy_key.startswith("${"):
-            self._providers.append(GeminiVisionProvider(
-                api_key=gemini_legacy_key,
-                model="gemini-2.5-flash-preview-0506",
-            ))
+            self._providers.append(
+                GeminiVisionProvider(
+                    api_key=gemini_legacy_key,
+                    model="gemini-2.5-flash-preview-0506",
+                )
+            )
 
     def get_provider(self, preferred: str | None = None) -> VisionProvider | None:
         """获取可用的 Vision 提供者（优先返回指定的）"""
@@ -387,8 +455,9 @@ class VisionAnalyzerFactory:
                     return p
         return self._providers[0] if self._providers else None
 
-    def analyze_with_fallback(self, image_base64: str,
-                               prompt: str = FIRST_PERSON_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_with_fallback(
+        self, image_base64: str, prompt: str = FIRST_PERSON_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         """带 fallback 的分析，自动切换提供者直到成功"""
         last_error = None
         tried = []
@@ -403,8 +472,7 @@ class VisionAnalyzerFactory:
                 continue
 
         raise RuntimeError(
-            f"所有视觉分析提供者均失败（已尝试: {tried}），"
-            f"最后错误: {last_error}"
+            f"所有视觉分析提供者均失败（已尝试: {tried}），最后错误: {last_error}"
         )
 
     def get_available_providers(self) -> list[str]:

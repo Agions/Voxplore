@@ -26,7 +26,9 @@ class AIOptionCard(QFrame):
 
     toggled = Signal(bool)
 
-    def __init__(self, icon: str, title: str, desc: str, enabled: bool = True, parent=None):
+    def __init__(
+        self, icon: str, title: str, desc: str, enabled: bool = True, parent=None
+    ):
         super().__init__(parent)
         self._icon = icon
         self._title = title
@@ -184,12 +186,12 @@ class StepAnalysisPage(StepPage):
         opts_layout = options_card.layout()
 
         self.options = [
-            ("🎙️", "语音识别",       "自动提取视频中的语音内容", True),
-            ("✂️", "精彩片段检测",   "智能识别高光时刻", True),
-            ("👤", "人脸识别",       "检测画面中的人物", False),
-            ("📝", "字幕生成",       "自动生成同步字幕", True),
-            ("🏷️", "场景分类",       "自动识别场景类型", False),
-            ("🎭", "情感分析",       "分析视频情感基调", False),
+            ("🎙️", "语音识别", "自动提取视频中的语音内容", True),
+            ("✂️", "精彩片段检测", "智能识别高光时刻", True),
+            ("👤", "人脸识别", "检测画面中的人物", False),
+            ("📝", "字幕生成", "自动生成同步字幕", True),
+            ("🏷️", "场景分类", "自动识别场景类型", False),
+            ("🎭", "情感分析", "分析视频情感基调", False),
         ]
 
         for icon, title, desc, default in self.options:

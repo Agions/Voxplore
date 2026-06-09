@@ -2,6 +2,7 @@
 AI 服务基础设施
 包含限流器、断路器、LRU缓存、持久化缓存等公共组件
 """
+
 import hashlib
 import logging
 import os
@@ -89,7 +90,10 @@ class CircuitBreaker:
                 return True
 
             if self.state == "open":
-                if self.last_failure_time and time.time() - self.last_failure_time >= self.recovery_timeout:
+                if (
+                    self.last_failure_time
+                    and time.time() - self.last_failure_time >= self.recovery_timeout
+                ):
                     self.state = "half_open"
                     return True
                 return False
@@ -147,10 +151,12 @@ class PersistentCache:
         # orjson 性能比标准 json 快 5-10 倍
         try:
             import orjson
+
             self._json = orjson
             self._use_orjson = True
         except ImportError:
             import json
+
             self._json = json
             self._use_orjson = False
 
@@ -162,12 +168,12 @@ class PersistentCache:
         path = self._get_path(key)
         if os.path.exists(path):
             try:
-                with open(path, 'rb' if self._use_orjson else 'r') as f:
+                with open(path, "rb" if self._use_orjson else "r") as f:
                     if self._use_orjson:
                         data = self._json.loads(f.read())
                     else:
                         data = self._json.load(f)
-                    if data.get("expires", float('inf')) < time.time():
+                    if data.get("expires", float("inf")) < time.time():
                         os.remove(path)
                         return None
                     return data.get("value")
@@ -178,15 +184,12 @@ class PersistentCache:
     def set(self, key: str, value: Any, ttl: int = 3600):
         path = self._get_path(key)
         try:
-            cache_data = {
-                "value": value,
-                "expires": time.time() + ttl
-            }
+            cache_data = {"value": value, "expires": time.time() + ttl}
             if self._use_orjson:
-                with open(path, 'wb') as f:
+                with open(path, "wb") as f:
                     f.write(self._json.dumps(cache_data))
             else:
-                with open(path, 'w') as f:
+                with open(path, "w") as f:
                     self._json.dump(cache_data, f)
         except Exception as e:
             logger.warning(f"Failed to write cache: {e}")

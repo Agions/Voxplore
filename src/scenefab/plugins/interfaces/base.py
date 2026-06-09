@@ -13,31 +13,33 @@ from typing import Any
 
 class PluginType(Enum):
     """插件类型枚举"""
-    AI_GENERATOR = "ai_generator"       # AI 生成器插件
-    EXPORT = "export"                     # 导出格式插件
-    UI_EXTENSION = "ui_extension"         # UI 扩展插件
-    VOICE_CLONE = "voice_clone"           # 音色克隆插件
-    SUBTITLE_STYLE = "subtitle_style"     # 字幕样式插件
-    VIDEO_EFFECT = "video_effect"         # 视频特效插件
-    SCENE_DETECTOR = "scene_detector"     # 场景检测插件
+
+    AI_GENERATOR = "ai_generator"  # AI 生成器插件
+    EXPORT = "export"  # 导出格式插件
+    UI_EXTENSION = "ui_extension"  # UI 扩展插件
+    VOICE_CLONE = "voice_clone"  # 音色克隆插件
+    SUBTITLE_STYLE = "subtitle_style"  # 字幕样式插件
+    VIDEO_EFFECT = "video_effect"  # 视频特效插件
+    SCENE_DETECTOR = "scene_detector"  # 场景检测插件
 
 
 @dataclass
 class PluginManifest:
     """插件清单数据结构"""
-    id: str                               # 唯一标识符 (e.g. "scenefab.wordstrike-subtitle")
-    name: str                              # 显示名称
-    version: str                           # 版本号 (semver)
-    author: str                            # 作者
-    description: str                       # 描述
-    plugin_type: PluginType                # 插件类型
-    homepage: str | None = None         # 主页
-    license: str = "MIT"                  # 许可证
+
+    id: str  # 唯一标识符 (e.g. "scenefab.wordstrike-subtitle")
+    name: str  # 显示名称
+    version: str  # 版本号 (semver)
+    author: str  # 作者
+    description: str  # 描述
+    plugin_type: PluginType  # 插件类型
+    homepage: str | None = None  # 主页
+    license: str = "MIT"  # 许可证
     dependencies: dict[str, str] = field(default_factory=dict)  # 依赖
-    entry_point: str = ""                  # 入口点 "module.path:ClassName"
-    permissions: list[str] = field(default_factory=list)          # 权限列表
-    min_app_version: str = "1.0.0"         # 最低应用版本
-    tags: list[str] = field(default_factory=list)                # 标签
+    entry_point: str = ""  # 入口点 "module.path:ClassName"
+    permissions: list[str] = field(default_factory=list)  # 权限列表
+    min_app_version: str = "1.0.0"  # 最低应用版本
+    tags: list[str] = field(default_factory=list)  # 标签
 
     @classmethod
     def from_json(cls, json_str: str) -> "PluginManifest":
@@ -81,6 +83,7 @@ class PluginManifest:
 def _get_version() -> str:
     try:
         from scenefab import __version__
+
         return __version__
     except Exception:
         return "1.0.0"
@@ -89,12 +92,13 @@ def _get_version() -> str:
 @dataclass
 class AppContext:
     """应用上下文，插件通过此获取应用服务"""
+
     app_name: str = "SceneFab"
     app_version: str = field(default_factory=_get_version)
-    data_dir: str = ""                    # 用户数据目录
-    config_dir: str = ""                  # 配置目录
-    cache_dir: str = ""                   # 缓存目录
-    plugin_dir: str = ""                  # 插件目录
+    data_dir: str = ""  # 用户数据目录
+    config_dir: str = ""  # 配置目录
+    cache_dir: str = ""  # 缓存目录
+    plugin_dir: str = ""  # 插件目录
     services: dict[str, Any] | None = field(default_factory=dict)  # 可用服务
 
 
@@ -183,6 +187,7 @@ class BasePlugin(ABC):
     def _setup_logger(self) -> None:
         """设置日志记录器（可选覆盖）"""
         import logging
+
         self._logger = logging.getLogger(f"plugin.{self.id}")
 
     def _on_enable(self) -> None:

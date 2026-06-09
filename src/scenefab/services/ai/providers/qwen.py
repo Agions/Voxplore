@@ -24,6 +24,8 @@ from ..base_llm_provider import (
 )
 
 logger = logging.getLogger(__name__)
+
+
 class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     """
     通义千问提供商
@@ -85,10 +87,12 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端
-        self._init_http_client({
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        })
+        self._init_http_client(
+            {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
+        )
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""

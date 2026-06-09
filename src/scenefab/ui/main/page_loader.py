@@ -3,15 +3,23 @@
 """
 
 
-
-
 class PageLoader:
     """页面加载器"""
 
     # 页面配置映射（仅包含 main_window 实际使用的页面）
     PAGES_CONFIG = [
-        {"id": "creator", "name": "AI视频创作", "class": "CreationWizardPage", "attribute": "creation_wizard_page"},
-        {"id": "settings", "name": "设置页面", "class": "SettingsPage", "attribute": "settings_page"},
+        {
+            "id": "creator",
+            "name": "AI视频创作",
+            "class": "CreationWizardPage",
+            "attribute": "creation_wizard_page",
+        },
+        {
+            "id": "settings",
+            "name": "设置页面",
+            "class": "SettingsPage",
+            "attribute": "settings_page",
+        },
     ]
 
     @staticmethod
@@ -29,6 +37,7 @@ class PageLoader:
             raise ImportError(f"未知的页面类: {page_class_name}")
 
         from importlib import import_module
+
         module = import_module(module_path)
         return getattr(module, page_class_name)
 

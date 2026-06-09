@@ -22,8 +22,10 @@ from enum import Enum
 # 字幕样式预设
 # ─────────────────────────────────────────────────────────────
 
+
 class SubtitlePosition(Enum):
     """字幕位置"""
+
     TOP = "top"
     CENTER = "center"
     BOTTOM = "bottom"
@@ -32,6 +34,7 @@ class SubtitlePosition(Enum):
 
 class SubtitleAnimation(Enum):
     """字幕动画"""
+
     NONE = "none"
     FADE = "fade"
     TYPEWRITER = "typewriter"
@@ -47,18 +50,19 @@ class SubtitleStylePreset:
 
     定义字幕的外观和行为样式。
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "默认样式"
 
     # 字体设置
     font_family: str = "思源黑体"
-    font_size: float = 8.0          # 剪映相对尺寸
-    font_weight: int = 400          # 字重
+    font_size: float = 8.0  # 剪映相对尺寸
+    font_weight: int = 400  # 字重
     font_color: str = "#FFFFFF"
 
     # 背景设置
     background_color: str = ""
-    background_alpha: float = 0.0   # 0-1
+    background_alpha: float = 0.0  # 0-1
     background_radius: float = 0.0  # 圆角
 
     # 描边/阴影
@@ -73,11 +77,11 @@ class SubtitleStylePreset:
     position: SubtitlePosition = SubtitlePosition.BOTTOM
     position_x_percent: float = 50.0  # X位置百分比
     position_y_percent: float = 85.0  # Y位置百分比
-    alignment: int = 1                # 0=左, 1=中, 2=右
+    alignment: int = 1  # 0=左, 1=中, 2=右
 
     # 动画
     animation: SubtitleAnimation = SubtitleAnimation.FADE
-    animation_duration: float = 0.3   # 秒
+    animation_duration: float = 0.3  # 秒
 
     # 行间距
     line_spacing: float = 1.2
@@ -90,7 +94,7 @@ class SubtitleStylePreset:
         return d
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'SubtitleStylePreset':
+    def from_dict(cls, data: dict) -> "SubtitleStylePreset":
         """从字典创建"""
         data = dict(data)
         if "position" in data and isinstance(data["position"], str):
@@ -146,6 +150,7 @@ DEFAULT_PRESETS = {
 # 字幕块
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class SubtitleBlock:
     """
@@ -153,6 +158,7 @@ class SubtitleBlock:
 
     表示时间线上的一段字幕。
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     track_id: str = ""
 
@@ -168,8 +174,8 @@ class SubtitleBlock:
 
     # 元数据
     emphasis_words: list[str] = field(default_factory=list)  # 重音词
-    translation: str = ""                                    # 翻译
-    notes: str = ""                                          # 备注
+    translation: str = ""  # 翻译
+    notes: str = ""  # 备注
 
     @property
     def duration(self) -> float:
@@ -181,19 +187,19 @@ class SubtitleBlock:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'SubtitleBlock':
+    def from_dict(cls, data: dict) -> "SubtitleBlock":
         """从字典创建"""
         return cls(**data)
 
-    def overlaps(self, other: 'SubtitleBlock') -> bool:
+    def overlaps(self, other: "SubtitleBlock") -> bool:
         """检测与另一个字幕块是否重叠"""
-        return (self.start_time < other.end_time and
-                self.end_time > other.start_time)
+        return self.start_time < other.end_time and self.end_time > other.start_time
 
 
 # ─────────────────────────────────────────────────────────────
 # 字幕轨道
 # ─────────────────────────────────────────────────────────────
+
 
 @dataclass
 class SubtitleTrack:
@@ -202,6 +208,7 @@ class SubtitleTrack:
 
     包含多个字幕块，属于同一轨道共享样式。
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "字幕轨道"
 
@@ -254,7 +261,7 @@ class SubtitleTrack:
         return d
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'SubtitleTrack':
+    def from_dict(cls, data: dict) -> "SubtitleTrack":
         """从字典创建"""
         blocks_data = data.pop("blocks", [])
         track = cls(**data)
@@ -268,6 +275,7 @@ class SubtitleTrack:
 # 多轨道字幕编辑器数据模型
 # ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class MultiTrackSubtitleEditor:
     """
@@ -275,6 +283,7 @@ class MultiTrackSubtitleEditor:
 
     管理所有字幕轨道，提供统一的编辑接口。
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = "多轨道字幕编辑器"
 
@@ -285,7 +294,7 @@ class MultiTrackSubtitleEditor:
     presets: dict[str, SubtitleStylePreset] = field(default_factory=dict)
 
     # 项目设置
-    duration: float = 0.0       # 总时长（秒）
+    duration: float = 0.0  # 总时长（秒）
     fps: float = 30.0
 
     # 当前状态
@@ -393,7 +402,7 @@ class MultiTrackSubtitleEditor:
         return d
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'MultiTrackSubtitleEditor':
+    def from_dict(cls, data: dict) -> "MultiTrackSubtitleEditor":
         """从字典创建"""
         tracks_data = data.pop("tracks", [])
         presets_data = data.pop("presets", {})
@@ -424,6 +433,7 @@ class MultiTrackSubtitleEditor:
 # 导出为剪映格式
 # ─────────────────────────────────────────────────────────────
 
+
 def export_to_jianying_text_track(
     editor: MultiTrackSubtitleEditor,
     track: SubtitleTrack,
@@ -442,12 +452,14 @@ def export_to_jianying_text_track(
     segments = []
 
     for block in sorted(track.blocks, key=lambda b: b.start_time):
-        segments.append({
-            "text": block.text,
-            "start": block.start_time,
-            "duration": block.duration,
-            "style": style.to_dict(),
-        })
+        segments.append(
+            {
+                "text": block.text,
+                "start": block.start_time,
+                "duration": block.duration,
+                "style": style.to_dict(),
+            }
+        )
 
     return segments
 

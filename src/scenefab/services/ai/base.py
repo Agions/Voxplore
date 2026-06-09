@@ -2,6 +2,7 @@
 AI 服务基类
 提供公共接口、重试逻辑、错误处理、统计收集
 """
+
 import logging
 import time
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ class ServiceStatus(Enum):
 
     涵盖所有场景：AI 服务、通用服务。
     """
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
@@ -69,7 +71,7 @@ class BaseAIService:
         base_delay: float = 1.0,
         max_delay: float = 8.0,
         *args,
-        **kwargs
+        **kwargs,
     ) -> Any:
         """
         带指数退避的重试装饰器
@@ -81,7 +83,7 @@ class BaseAIService:
             except Exception as e:
                 last_error = e
                 if attempt < max_retries - 1:
-                    wait_time = min(base_delay * (2 ** attempt), max_delay)
+                    wait_time = min(base_delay * (2**attempt), max_delay)
                     time.sleep(wait_time)
         raise last_error
 

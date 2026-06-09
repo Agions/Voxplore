@@ -68,7 +68,7 @@ class MediaLibrary(QWidget, ThemeAwareMixin):
             "🎥 示例视频1.mp4",
             "🎵 示例音频1.mp3",
             "🖼️ 示例图片1.png",
-            "🎥 示例视频2.mp4"
+            "🎥 示例视频2.mp4",
         ]
 
         for item_text in items:
@@ -90,6 +90,7 @@ class MediaLibrary(QWidget, ThemeAwareMixin):
         """添加媒体文件"""
         for file_path in file_paths:
             import os
+
             filename = os.path.basename(file_path)
             item = QListWidgetItem(f"📄 {filename}")
             self.media_list.addItem(item)

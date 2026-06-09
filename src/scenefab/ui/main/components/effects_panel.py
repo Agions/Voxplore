@@ -60,7 +60,7 @@ class EffectsPanel(QWidget, ThemeAwareMixin):
             "⚡ 速度控制",
             "🔄 旋转效果",
             "💫 粒子效果",
-            "🎭 滤镜效果"
+            "🎭 滤镜效果",
         ]
 
         for effect in effects:

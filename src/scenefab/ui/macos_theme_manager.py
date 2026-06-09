@@ -18,9 +18,9 @@ class MacOSThemeManager(QObject):
     """macOS 设计系统主题管理器"""
 
     # 信号
-    theme_changed = Signal(str)      # 主题切换信号
-    before_apply = Signal()          # 样式应用前
-    after_apply = Signal()           # 样式应用后
+    theme_changed = Signal(str)  # 主题切换信号
+    before_apply = Signal()  # 样式应用前
+    after_apply = Signal()  # 样式应用后
 
     def __init__(self, app: QApplication):
         super().__init__()
@@ -99,7 +99,7 @@ class MacOSThemeManager(QObject):
             file_path = self.styles_dir / f"macOS_{theme}.qss"
 
         if file_path.exists():
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding="utf-8")
             self._cache[str(file_path)] = content
             return content
 
@@ -109,7 +109,9 @@ class MacOSThemeManager(QObject):
     def _set_app_font(self):
         """设置应用字体 - 使用系统字体栈"""
         font = QFont()
-        font.setFamily("-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif")
+        font.setFamily(
+            "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+        )
         font.setPixelSize(13)  # macOS 默认字号
         self.app.setFont(font)
 

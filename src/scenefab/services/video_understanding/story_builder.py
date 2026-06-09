@@ -32,11 +32,15 @@ class StoryBuilderMixin:
         """
         try:
             import subprocess
+
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "csv=p=0",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
                 video_path,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
@@ -176,8 +180,10 @@ class StoryBuilderMixin:
         emotional_arc = []
         for segment in segments:
             if segment.emotions:
-                emotional_arc.append({
-                    "timestamp": segment.start_time,
-                    "emotions": segment.emotions,
-                })
+                emotional_arc.append(
+                    {
+                        "timestamp": segment.start_time,
+                        "emotions": segment.emotions,
+                    }
+                )
         return emotional_arc

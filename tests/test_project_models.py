@@ -1,4 +1,5 @@
 """Test project_models data classes"""
+
 from scenefab.models.project_models import (
     ProjectMedia,
     ProjectMetadata,
@@ -34,8 +35,7 @@ class TestProjectType:
 class TestProjectMetadata:
     def test_creation(self):
         meta = ProjectMetadata(
-            name="Test Project",
-            project_type=ProjectType.VIDEO_EDITING
+            name="Test Project", project_type=ProjectType.VIDEO_EDITING
         )
         assert meta.name == "Test Project"
         assert meta.project_type == ProjectType.VIDEO_EDITING
@@ -48,7 +48,11 @@ class TestProjectMetadata:
         assert d["project_type"] == "video_editing"
 
     def test_from_dict(self):
-        data = {"name": "From Dict", "project_type": "ai_enhancement", "status": "archived"}
+        data = {
+            "name": "From Dict",
+            "project_type": "ai_enhancement",
+            "status": "archived",
+        }
         meta = ProjectMetadata.from_dict(data)
         assert meta.name == "From Dict"
         assert meta.project_type == ProjectType.AI_ENHANCEMENT
@@ -82,7 +86,9 @@ class TestProjectSettings:
 
 class TestProjectMedia:
     def test_creation(self):
-        media = ProjectMedia(id="media1", name="test.mp4", type="video", path="/path/test.mp4")
+        media = ProjectMedia(
+            id="media1", name="test.mp4", type="video", path="/path/test.mp4"
+        )
         assert media.id == "media1"
         assert media.type == "video"
         assert media.path == "/path/test.mp4"

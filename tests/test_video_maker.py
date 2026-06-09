@@ -112,9 +112,9 @@ class TestBaseVideoMaker:
         maker = MockVideoMaker()
 
         # 应该包含 ProgressMixin 的功能
-        assert hasattr(maker, '_progress_callback')
-        assert hasattr(maker, 'set_progress_callback')
-        assert hasattr(maker, '_report_progress')
+        assert hasattr(maker, "_progress_callback")
+        assert hasattr(maker, "set_progress_callback")
+        assert hasattr(maker, "_report_progress")
 
     def test_progress_callback_integration(self):
         """测试进度回调集成"""

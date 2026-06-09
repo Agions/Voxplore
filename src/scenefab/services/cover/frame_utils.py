@@ -51,12 +51,14 @@ class FrameUtilsMixin:
                 # 提取帧
                 frame_path = self._extract_frame(video_path, timestamp)
 
-                highlight_frames.append(HighlightFrame(
-                    timestamp=timestamp,
-                    frame_path=frame_path,
-                    emotion_score=intensity,
-                    combined_score=intensity,
-                ))
+                highlight_frames.append(
+                    HighlightFrame(
+                        timestamp=timestamp,
+                        frame_path=frame_path,
+                        emotion_score=intensity,
+                        combined_score=intensity,
+                    )
+                )
         else:
             # 如果没有情绪数据，均匀采样
             duration = self._get_video_duration(video_path)
@@ -66,13 +68,15 @@ class FrameUtilsMixin:
                 timestamp = interval * (i + 1)
                 frame_path = self._extract_frame(video_path, timestamp)
 
-                highlight_frames.append(HighlightFrame(
-                    timestamp=timestamp,
-                    frame_path=frame_path,
-                    visual_score=0.5,
-                    emotion_score=0.5,
-                    combined_score=0.5,
-                ))
+                highlight_frames.append(
+                    HighlightFrame(
+                        timestamp=timestamp,
+                        frame_path=frame_path,
+                        visual_score=0.5,
+                        emotion_score=0.5,
+                        combined_score=0.5,
+                    )
+                )
 
         # 计算视觉显著性分数
         for frame in highlight_frames:
@@ -106,9 +110,12 @@ class FrameUtilsMixin:
 
             cmd = [
                 "ffmpeg",
-                "-i", video_path,
-                "-ss", str(timestamp),
-                "-vframes", "1",
+                "-i",
+                video_path,
+                "-ss",
+                str(timestamp),
+                "-vframes",
+                "1",
                 "-y",
                 output_path,
             ]
@@ -199,11 +206,15 @@ class FrameUtilsMixin:
         """
         try:
             import subprocess
+
             cmd = [
                 "ffprobe",
-                "-v", "quiet",
-                "-show_entries", "format=duration",
-                "-of", "csv=p=0",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
                 video_path,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)

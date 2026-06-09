@@ -25,6 +25,7 @@ from ...theme.ds_tokens import Colors, FontSizes, Radii
 # 设置分组卡片
 # ═══════════════════════════════════════════════════════════════
 
+
 class SettingsGroup(QFrame):
     """设置分组"""
 
@@ -84,6 +85,7 @@ class SettingsGroup(QFrame):
 # ═══════════════════════════════════════════════════════════════
 # 设置项行
 # ═══════════════════════════════════════════════════════════════
+
 
 class SettingsRow(QFrame):
     """设置项行"""
@@ -172,6 +174,7 @@ class ToggleSwitch(QFrame):
 # 设置页面
 # ═══════════════════════════════════════════════════════════════
 
+
 class SettingsPage(QFrame):
     """设置页面"""
 
@@ -242,7 +245,9 @@ class SettingsPage(QFrame):
         gen_layout.insertWidget(0, theme_row)
 
         # 自动保存
-        autosave_row = SettingsRow("自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目")
+        autosave_row = SettingsRow(
+            "自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目"
+        )
         gen_layout.insertWidget(1, autosave_row)
 
         # 关闭时最小化到托盘（默认关闭：点击X直接退出）

@@ -17,13 +17,13 @@ from PySide6.QtWidgets import (
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
@@ -33,10 +33,17 @@ class NarrationSegmentCard(QFrame):
     单个解说分段卡片
     包含：时间段标签 + 文案预览/编辑 + 情感标记
     """
+
     content_changed = Signal(str)  # 发送编辑后的文案
 
-    def __init__(self, segment_id: int, time_range: str, text: str,
-                 emotion: str = "neutral", parent=None):
+    def __init__(
+        self,
+        segment_id: int,
+        time_range: str,
+        text: str,
+        emotion: str = "neutral",
+        parent=None,
+    ):
         super().__init__(parent)
         self._segment_id = segment_id
         self._time_range = time_range
@@ -49,8 +56,8 @@ class NarrationSegmentCard(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_card"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 12px;
             }}
         """)
@@ -66,8 +73,8 @@ class NarrationSegmentCard(QFrame):
         self._time_label = QLabel(self._time_range)
         self._time_label.setFont(QFont("", 11, QFont.Weight.SemiBold))
         self._time_label.setStyleSheet(f"""
-            color: {_T['primary']};
-            background: {_T['primary']}20;
+            color: {_T["primary"]};
+            background: {_T["primary"]}20;
             padding: 3px 8px;
             border-radius: 6px;
         """)
@@ -95,22 +102,24 @@ class NarrationSegmentCard(QFrame):
         self._text_label.setWordWrap(True)
         self._text_label.setFont(QFont("", 13))
         self._text_label.setStyleSheet(f"color: {_T['text']}; line-height: 1.6;")
-        self._text_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self._text_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
         layout.addWidget(self._text_label)
 
         self._text_edit = QTextEdit()
         self._text_edit.setFont(QFont("", 13))
         self._text_edit.setStyleSheet(f"""
             QTextEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 10px;
                 line-height: 1.6;
             }}
             QTextEdit:focus {{
-                border-color: {_T['primary']};
+                border-color: {_T["primary"]};
             }}
         """)
         self._text_edit.setVisible(False)
@@ -150,7 +159,7 @@ class NarrationSegmentCard(QFrame):
             self._edit_btn.setText("保存")
             self._edit_btn.setStyleSheet(f"""
                 QPushButton {{
-                    background: {_T['primary']};
+                    background: {_T["primary"]};
                     color: white;
                     border: none;
                     border-radius: 8px;
@@ -169,14 +178,14 @@ class NarrationSegmentCard(QFrame):
             self._edit_btn.setStyleSheet(f"""
                 QPushButton {{
                     background: transparent;
-                    color: {_T['text_sub']};
-                    border: 1px solid {_T['border']};
+                    color: {_T["text_sub"]};
+                    border: 1px solid {_T["border"]};
                     border-radius: 8px;
                     padding: 6px 16px;
                     font-size: 12px;
                 }}
                 QPushButton:hover {{
-                    border-color: {_T['primary']};
+                    border-color: {_T["primary"]};
                 }}
             """)
             self.content_changed.emit(self._text)

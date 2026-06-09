@@ -36,7 +36,7 @@ def _safe_pickle_load(file_path: Path) -> Any:
     # 检查文件所有者
     if os.getuid() != file_stat.st_uid:
         raise PermissionError(f"Cache file {file_path} not owned by current user")
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         return pickle.load(f)
 
 
@@ -75,7 +75,7 @@ class DiskCache(ICache):
 
     def _get_metadata_path(self, cache_path: Path) -> Path:
         """获取元数据文件路径"""
-        return cache_path.with_suffix('.meta')
+        return cache_path.with_suffix(".meta")
 
     def get(self, key: str) -> Any | None:
         """获取缓存值"""
@@ -92,7 +92,7 @@ class DiskCache(ICache):
                 metadata = json.load(f)
 
             # 检查过期
-            expires_at = metadata.get('expires_at')
+            expires_at = metadata.get("expires_at")
             if expires_at:
                 expires = datetime.fromisoformat(expires_at)
                 if datetime.now() > expires:
@@ -104,9 +104,9 @@ class DiskCache(ICache):
             value = _safe_pickle_load(cache_path)
 
             # 更新访问次数
-            metadata['access_count'] = metadata.get('access_count', 0) + 1
-            metadata['last_accessed'] = datetime.now().isoformat()
-            with open(meta_path, 'w') as f:
+            metadata["access_count"] = metadata.get("access_count", 0) + 1
+            metadata["last_accessed"] = datetime.now().isoformat()
+            with open(meta_path, "w") as f:
                 json.dump(metadata, f)
 
             self._hit_count += 1
@@ -117,8 +117,9 @@ class DiskCache(ICache):
             self._miss_count += 1
             return None
 
-    def set(self, key: str, value: Any, ttl: int | None = None,
-            metadata: dict | None = None) -> bool:
+    def set(
+        self, key: str, value: Any, ttl: int | None = None, metadata: dict | None = None
+    ) -> bool:
         """设置缓存值"""
         try:
             cache_path = self._get_cache_path(key)
@@ -132,22 +133,24 @@ class DiskCache(ICache):
             self._evict_if_needed(size_bytes)
 
             # 写入缓存文件
-            with open(cache_path, 'wb') as f:
+            with open(cache_path, "wb") as f:
                 f.write(data)
 
             # 写入元数据
             meta = {
-                'key': key,
-                'created_at': datetime.now().isoformat(),
-                'size_bytes': size_bytes,
-                'access_count': 0,
-                'metadata': metadata or {}
+                "key": key,
+                "created_at": datetime.now().isoformat(),
+                "size_bytes": size_bytes,
+                "access_count": 0,
+                "metadata": metadata or {},
             }
 
             if ttl:
-                meta['expires_at'] = (datetime.now() + timedelta(seconds=ttl)).isoformat()
+                meta["expires_at"] = (
+                    datetime.now() + timedelta(seconds=ttl)
+                ).isoformat()
 
-            with open(meta_path, 'w') as f:
+            with open(meta_path, "w") as f:
                 json.dump(meta, f)
 
             return True
@@ -179,7 +182,7 @@ class DiskCache(ICache):
             with open(meta_path) as f:
                 metadata = json.load(f)
 
-            expires_at = metadata.get('expires_at')
+            expires_at = metadata.get("expires_at")
             if expires_at:
                 expires = datetime.fromisoformat(expires_at)
                 if datetime.now() > expires:
@@ -197,6 +200,7 @@ class DiskCache(ICache):
         """清空缓存"""
         if self._cache_dir.exists():
             import shutil
+
             shutil.rmtree(self._cache_dir)
             self._cache_dir.mkdir(parents=True, exist_ok=True)
 
@@ -205,11 +209,12 @@ class DiskCache(ICache):
         total_size = 0
         total_entries = 0
 
-        for cache_file in self._cache_dir.rglob('*.cache'):
+        for cache_file in self._cache_dir.rglob("*.cache"):
             total_size += cache_file.stat().st_size
             total_entries += 1
 
         from scenefab.cache_impl import calc_hit_rate
+
         hit_rate = calc_hit_rate(self._hit_count, self._miss_count)
 
         return CacheStats(
@@ -221,7 +226,7 @@ class DiskCache(ICache):
             hit_rate=hit_rate,
             avg_entry_size=total_size / total_entries if total_entries > 0 else 0,
             max_size_bytes=self._max_size_bytes,
-            policy=CachePolicy.LRU
+            policy=CachePolicy.LRU,
         )
 
     def get_entry(self, key: str) -> CacheEntry | None:
@@ -236,7 +241,7 @@ class DiskCache(ICache):
             with open(meta_path) as f:
                 metadata = json.load(f)
 
-            expires_at = metadata.get('expires_at')
+            expires_at = metadata.get("expires_at")
             if expires_at:
                 expires = datetime.fromisoformat(expires_at)
                 if datetime.now() > expires:
@@ -245,12 +250,14 @@ class DiskCache(ICache):
             return CacheEntry(
                 key=key,
                 value=None,  # 不加载值
-                created_at=datetime.fromisoformat(metadata['created_at']),
+                created_at=datetime.fromisoformat(metadata["created_at"]),
                 expires_at=expires,
-                access_count=metadata.get('access_count', 0),
-                last_accessed=datetime.fromisoformat(metadata.get('last_accessed', metadata['created_at'])),
-                size_bytes=metadata['size_bytes'],
-                metadata=metadata.get('metadata', {})
+                access_count=metadata.get("access_count", 0),
+                last_accessed=datetime.fromisoformat(
+                    metadata.get("last_accessed", metadata["created_at"])
+                ),
+                size_bytes=metadata["size_bytes"],
+                metadata=metadata.get("metadata", {}),
             )
         except json.JSONDecodeError:
             return None
@@ -261,16 +268,17 @@ class DiskCache(ICache):
     def keys(self, pattern: str | None = None) -> list[str]:
         """获取所有键"""
         keys = []
-        for meta_file in self._cache_dir.rglob('*.meta'):
+        for meta_file in self._cache_dir.rglob("*.meta"):
             try:
                 with open(meta_file) as f:
                     metadata = json.load(f)
-                key = metadata.get('key')
+                key = metadata.get("key")
                 if key:
                     if pattern is None:
                         keys.append(key)
                     else:
                         import fnmatch
+
                         if fnmatch.fnmatch(key, pattern):
                             keys.append(key)
             except Exception as e:
@@ -280,16 +288,16 @@ class DiskCache(ICache):
     def cleanup_expired(self) -> int:
         """清理过期条目"""
         count = 0
-        for meta_file in list(self._cache_dir.rglob('*.meta')):
+        for meta_file in list(self._cache_dir.rglob("*.meta")):
             try:
                 with open(meta_file) as f:
                     metadata = json.load(f)
 
-                expires_at = metadata.get('expires_at')
+                expires_at = metadata.get("expires_at")
                 if expires_at:
                     expires = datetime.fromisoformat(expires_at)
                     if datetime.now() > expires:
-                        cache_path = meta_file.with_suffix('.cache')
+                        cache_path = meta_file.with_suffix(".cache")
                         self._delete_files(cache_path, meta_file)
                         count += 1
             except Exception as e:
@@ -309,9 +317,7 @@ class DiskCache(ICache):
     def _evict_if_needed(self, required_bytes: int) -> None:
         """如果需要则清理空间"""
         current_size = sum(
-            f.stat().st_size
-            for f in self._cache_dir.rglob('*')
-            if f.is_file()
+            f.stat().st_size for f in self._cache_dir.rglob("*") if f.is_file()
         )
 
         while current_size + required_bytes > self._max_size_bytes:
@@ -319,7 +325,7 @@ class DiskCache(ICache):
             oldest_file = None
             oldest_time = None
 
-            for meta_file in self._cache_dir.rglob('*.meta'):
+            for meta_file in self._cache_dir.rglob("*.meta"):
                 try:
                     mtime = meta_file.stat().st_mtime
                     if oldest_time is None or mtime < oldest_time:
@@ -331,7 +337,7 @@ class DiskCache(ICache):
             if oldest_file is None:
                 break
 
-            cache_path = oldest_file.with_suffix('.cache')
+            cache_path = oldest_file.with_suffix(".cache")
             self._delete_files(cache_path, oldest_file)
 
             if cache_path.exists():

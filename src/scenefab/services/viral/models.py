@@ -12,6 +12,7 @@ from typing import Any
 @dataclass
 class HookScore:
     """开篇钩子评分"""
+
     score: float  # 0-100
     hook_type: str  # "conflict", "suspense", "result_first", "question", "shock"
     detected_elements: list[str] = field(default_factory=list)
@@ -21,9 +22,12 @@ class HookScore:
 @dataclass
 class EmotionCurveScore:
     """情绪曲线评分"""
+
     score: float  # 0-100
     emotion_points: list[dict[str, Any]] = field(default_factory=list)
-    curve_type: str = "wave"  # "rising", "falling", "wave", "climax_early", "climax_late"
+    curve_type: str = (
+        "wave"  # "rising", "falling", "wave", "climax_early", "climax_late"
+    )
     peak_timestamps: list[float] = field(default_factory=list)
     suggestions: list[str] = field(default_factory=list)
 
@@ -31,6 +35,7 @@ class EmotionCurveScore:
 @dataclass
 class InformationDensityScore:
     """信息密度评分"""
+
     score: float  # 0-100
     density_map: list[dict[str, Any]] = field(default_factory=list)  # 每 10 秒的密度
     average_density: float = 0.0
@@ -41,6 +46,7 @@ class InformationDensityScore:
 @dataclass
 class RhythmMatchScore:
     """节奏匹配评分"""
+
     score: float  # 0-100
     current_bpm: float = 0.0
     target_bpm: float = 0.0
@@ -52,6 +58,7 @@ class RhythmMatchScore:
 @dataclass
 class InteractionDesignScore:
     """互动设计评分"""
+
     score: float  # 0-100
     cta_count: int = 0
     cta_types: list[str] = field(default_factory=list)
@@ -63,6 +70,7 @@ class InteractionDesignScore:
 @dataclass
 class ViralScoreResult:
     """爆款评分结果"""
+
     total_score: float  # 0-100
     hook_score: HookScore
     emotion_curve_score: EmotionCurveScore

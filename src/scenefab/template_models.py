@@ -16,6 +16,7 @@ from .project_manager import ProjectType
 @dataclass
 class TemplateCategory:
     """模板类别"""
+
     name: str
     description: str
     icon: str = "folder"
@@ -25,6 +26,7 @@ class TemplateCategory:
 @dataclass
 class TemplateInfo:
     """模板信息"""
+
     id: str
     name: str
     description: str
@@ -44,49 +46,50 @@ class TemplateInfo:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'category': self.category,
-            'author': self.author,
-            'version': self.version,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'file_size': self.file_size,
-            'preview_image': self.preview_image,
-            'tags': self.tags,
-            'rating': self.rating,
-            'download_count': self.download_count,
-            'is_builtin': self.is_builtin,
-            'project_type': self.project_type.value,
-            'requirements': self.requirements
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "category": self.category,
+            "author": self.author,
+            "version": self.version,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "file_size": self.file_size,
+            "preview_image": self.preview_image,
+            "tags": self.tags,
+            "rating": self.rating,
+            "download_count": self.download_count,
+            "is_builtin": self.is_builtin,
+            "project_type": self.project_type.value,
+            "requirements": self.requirements,
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'TemplateInfo':
+    def from_dict(cls, data: dict[str, Any]) -> "TemplateInfo":
         return cls(
-            id=data['id'],
-            name=data['name'],
-            description=data['description'],
-            category=data['category'],
-            author=data['author'],
-            version=data['version'],
-            created_at=datetime.fromisoformat(data['created_at']),
-            updated_at=datetime.fromisoformat(data['updated_at']),
-            file_size=data['file_size'],
-            preview_image=data.get('preview_image'),
-            tags=data.get('tags', []),
-            rating=data.get('rating', 0.0),
-            download_count=data.get('download_count', 0),
-            is_builtin=data.get('is_builtin', False),
-            project_type=ProjectType(data.get('project_type', 'video_editing')),
-            requirements=data.get('requirements', {})
+            id=data["id"],
+            name=data["name"],
+            description=data["description"],
+            category=data["category"],
+            author=data["author"],
+            version=data["version"],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            updated_at=datetime.fromisoformat(data["updated_at"]),
+            file_size=data["file_size"],
+            preview_image=data.get("preview_image"),
+            tags=data.get("tags", []),
+            rating=data.get("rating", 0.0),
+            download_count=data.get("download_count", 0),
+            is_builtin=data.get("is_builtin", False),
+            project_type=ProjectType(data.get("project_type", "video_editing")),
+            requirements=data.get("requirements", {}),
         )
 
 
 @dataclass
 class TemplateMetadata:
     """模板元数据"""
+
     name: str
     description: str
     author: str

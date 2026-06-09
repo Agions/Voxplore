@@ -23,7 +23,6 @@ from ...theme.ds_tokens import Colors, FontSizes, Radii
 # ═══════════════════════════════════════════════════════════════════════
 
 
-
 class EmptyStateCard(QFrame):
     """空状态卡片"""
 
@@ -63,4 +62,3 @@ class EmptyStateCard(QFrame):
         desc.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
         desc.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(desc)
-

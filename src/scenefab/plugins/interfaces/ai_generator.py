@@ -13,18 +13,20 @@ from scenefab.plugins.interfaces.base import BasePlugin, PluginType
 @dataclass
 class SceneAnalysis:
     """场景分析结果"""
+
     scene_id: str
-    scene_type: str           # indoor, outdoor, transition
-    location: str             # 地点
-    atmosphere: str           # 氛围
-    subjects: list[dict]       # 主体
-    key_objects: list[str]    # 关键物体
-    importance: float          # 叙事重要性 0-1
+    scene_type: str  # indoor, outdoor, transition
+    location: str  # 地点
+    atmosphere: str  # 氛围
+    subjects: list[dict]  # 主体
+    key_objects: list[str]  # 关键物体
+    importance: float  # 叙事重要性 0-1
 
 
 @dataclass
 class ScriptGeneration:
     """脚本生成结果"""
+
     script_id: str
     text: str
     emotion: str

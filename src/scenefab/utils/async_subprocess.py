@@ -71,16 +71,17 @@ async def run_ffprobe(
         解析后的 key=value 字典
     """
     cmd = [
-        "ffprobe", "-v", "error",
-        "-show_entries", "format=duration,size:stream=width,height,r_frame_rate,codec_name",
-        "-of", "default=noprint_wrappers=1",
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration,size:stream=width,height,r_frame_rate,codec_name",
+        "-of",
+        "default=noprint_wrappers=1",
         str(video_path),
     ]
     _, stdout, _ = await run_subprocess(cmd, timeout=timeout)
-    return dict(
-        line.split("=", 1)
-        for line in stdout.splitlines() if "=" in line
-    )
+    return dict(line.split("=", 1) for line in stdout.splitlines() if "=" in line)
 
 
 async def retry_async(
@@ -113,7 +114,9 @@ async def retry_async(
             if attempt == max_attempts:
                 logger.error(f"Retry failed after {max_attempts} attempts: {e}")
                 raise
-            logger.warning(f"Attempt {attempt}/{max_attempts} failed: {e}, retrying in {current_delay}s")
+            logger.warning(
+                f"Attempt {attempt}/{max_attempts} failed: {e}, retrying in {current_delay}s"
+            )
             await asyncio.sleep(current_delay)
             current_delay *= backoff
     raise RuntimeError("unreachable")  # pragma: no cover

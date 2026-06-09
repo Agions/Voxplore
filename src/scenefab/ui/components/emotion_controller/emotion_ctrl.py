@@ -18,7 +18,6 @@ Emotion Controller Component
     controller.curve_confirmed.connect(on_curve_confirmed)
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -50,7 +49,7 @@ class EmotionController(QWidget):
     """
 
     emotion_changed = Signal(str, float)  # emotion_name, intensity
-    curve_confirmed = Signal(list)         # curve_data (11 floats)
+    curve_confirmed = Signal(list)  # curve_data (11 floats)
 
     def __init__(self, parent: QWidget | None = None):
         """
@@ -64,7 +63,9 @@ class EmotionController(QWidget):
         # 状态
         self._current_emotion: str = "healing"
         self._current_intensity: float = 0.5
-        self._current_curve: list[float] = EMOTION_PRESETS["healing"]["curve_template"].copy()
+        self._current_curve: list[float] = EMOTION_PRESETS["healing"][
+            "curve_template"
+        ].copy()
 
         # 预设按钮
         self._preset_buttons: dict[str, EmotionPresetButton] = {}
@@ -116,7 +117,13 @@ class EmotionController(QWidget):
         preset_layout.setSpacing(12)
 
         # 创建预设按钮
-        preset_keys = ["healing", "mysterious", "inspirational", "nostalgic", "romantic"]
+        preset_keys = [
+            "healing",
+            "mysterious",
+            "inspirational",
+            "nostalgic",
+            "romantic",
+        ]
         for key in preset_keys:
             btn = EmotionPresetButton(key)
             btn.setCheckable(True)
@@ -338,8 +345,7 @@ class EmotionController(QWidget):
         # 更新曲线 widget
         if self._curve_widget:
             self._curve_widget.set_curve_from_preset(
-                preset["curve_template"],
-                preset["color_hex"]
+                preset["curve_template"], preset["color_hex"]
             )
 
         # 更新状态标签
@@ -423,9 +429,13 @@ class EmotionController(QWidget):
     def _update_state_label(self):
         """更新状态标签"""
         if self._state_label:
-            emotion_cn = EMOTION_PRESETS.get(self._current_emotion, {}).get("name_cn", "未知")
+            emotion_cn = EMOTION_PRESETS.get(self._current_emotion, {}).get(
+                "name_cn", "未知"
+            )
             intensity_percent = int(self._current_intensity * 100)
-            self._state_label.setText(f"当前情感: {emotion_cn} | 强度: {intensity_percent}%")
+            self._state_label.setText(
+                f"当前情感: {emotion_cn} | 强度: {intensity_percent}%"
+            )
 
     def get_current_emotion(self) -> str:
         """
@@ -490,6 +500,7 @@ class EmotionController(QWidget):
 # ============================================================
 # 便捷函数
 # ============================================================
+
 
 def create_emotion_controller(parent: QWidget | None = None) -> EmotionController:
     """

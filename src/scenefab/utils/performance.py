@@ -60,9 +60,9 @@ class MemoryCache:
             if key in self._cache:
                 entry = self._cache[key]
                 # 检查是否过期
-                if time.time() - entry['timestamp'] < self._ttl:
-                    entry['hits'] += 1
-                    return entry['value']
+                if time.time() - entry["timestamp"] < self._ttl:
+                    entry["hits"] += 1
+                    return entry["value"]
                 else:
                     del self._cache[key]
         return None
@@ -72,13 +72,13 @@ class MemoryCache:
         with self._lock:
             # 如果满了，删除最老的
             if len(self._cache) >= self._max_size:
-                oldest = min(self._cache.items(), key=lambda x: x[1]['timestamp'])
+                oldest = min(self._cache.items(), key=lambda x: x[1]["timestamp"])
                 del self._cache[oldest[0]]
 
             self._cache[key] = {
-                'value': value,
-                'timestamp': time.time(),
-                'hits': 0,
+                "value": value,
+                "timestamp": time.time(),
+                "hits": 0,
             }
 
     def clear(self):
@@ -89,11 +89,11 @@ class MemoryCache:
     def get_stats(self) -> dict:
         """获取缓存统计"""
         with self._lock:
-            total_hits = sum(e['hits'] for e in self._cache.values())
+            total_hits = sum(e["hits"] for e in self._cache.values())
             return {
-                'size': len(self._cache),
-                'max_size': self._max_size,
-                'total_hits': total_hits,
+                "size": len(self._cache),
+                "max_size": self._max_size,
+                "total_hits": total_hits,
             }
 
 
@@ -105,6 +105,7 @@ def cached(cache: MemoryCache, key_fn: Callable | None = None):
         cache: MemoryCache 实例
         key_fn: 可选的键生成函数
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -126,7 +127,9 @@ def cached(cache: MemoryCache, key_fn: Callable | None = None):
             cache.set(cache_key, result)
 
             return result
+
         return wrapper
+
     return decorator
 
 
@@ -150,6 +153,7 @@ class PerformanceMonitor:
 
     def timing(self, name: str):
         """计时装饰器"""
+
         def decorator(func):
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
@@ -159,7 +163,9 @@ class PerformanceMonitor:
                 finally:
                     duration = time.time() - start
                     self.record(name or func.__name__, duration)
+
             return wrapper
+
         return decorator
 
     def get_stats(self, name: str = None) -> dict:
@@ -170,18 +176,15 @@ class PerformanceMonitor:
                 if not times:
                     return {}
                 return {
-                    'count': len(times),
-                    'total': sum(times),
-                    'avg': sum(times) / len(times),
-                    'min': min(times),
-                    'max': max(times),
+                    "count": len(times),
+                    "total": sum(times),
+                    "avg": sum(times) / len(times),
+                    "min": min(times),
+                    "max": max(times),
                 }
             else:
                 # 返回所有
-                return {
-                    name: self.get_stats(name)
-                    for name in self._metrics
-                }
+                return {name: self.get_stats(name) for name in self._metrics}
 
     def reset(self):
         """重置统计"""
@@ -208,7 +211,9 @@ def cached_property(ttl: int = 300):
                 result = func(self)
                 cache.set(key, result)
             return result
+
         return wrapper
+
     return decorator
 
 

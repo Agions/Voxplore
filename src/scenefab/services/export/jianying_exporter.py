@@ -98,8 +98,8 @@ class JianyingExporter:
     _CANVAS_CONFIGS = {
         "9:16": CanvasConfig(width=1080, height=1920, ratio="9:16"),  # 竖屏
         "16:9": CanvasConfig(width=1920, height=1080, ratio="16:9"),  # 横屏
-        "1:1": CanvasConfig(width=1080, height=1080, ratio="1:1"),    # 方形
-        "3:4": CanvasConfig(width=1080, height=1440, ratio="3:4"),    # 小红书
+        "1:1": CanvasConfig(width=1080, height=1080, ratio="1:1"),  # 方形
+        "3:4": CanvasConfig(width=1080, height=1440, ratio="3:4"),  # 小红书
     }
 
     def _get_canvas_config(self, ratio: str) -> CanvasConfig:
@@ -123,6 +123,7 @@ class JianyingExporter:
         Returns:
             草稿文件夹路径
         """
+
         def _report(phase: str, p: float):
             if progress_callback:
                 progress_callback(phase, p)
@@ -198,7 +199,9 @@ class JianyingExporter:
         if not tracks or not tracks[0].segments:
             return 0.0
         last_seg = tracks[0].segments[-1]
-        return (last_seg.target_timerange.start + last_seg.target_timerange.duration) / 1_000_000
+        return (
+            last_seg.target_timerange.start + last_seg.target_timerange.duration
+        ) / 1_000_000
 
     def _add_segment(
         self,
@@ -277,7 +280,7 @@ class JianyingExporter:
 
     def _write_json(self, path: Path, data: dict) -> None:
         """写入 JSON 文件"""
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     # =========== 便捷方法 ===========
@@ -309,9 +312,11 @@ class JianyingExporter:
         # 创建素材
         material = VideoMaterial(
             path=video_path,
-            duration=video_info.get('duration', TimeRange.from_seconds(0, duration).duration),
-            width=video_info.get('width', 1920),
-            height=video_info.get('height', 1080),
+            duration=video_info.get(
+                "duration", TimeRange.from_seconds(0, duration).duration
+            ),
+            width=video_info.get("width", 1920),
+            height=video_info.get("height", 1080),
         )
         draft.add_video(material)
 
@@ -420,10 +425,10 @@ class JianyingExporter:
             info = FFmpegTool.get_video_info(video_path)
             meta = extract_video_metadata(info)
             return {
-                'width': meta['width'],
-                'height': meta['height'],
-                'duration': TimeRange.from_seconds(0, meta['duration']).duration,
+                "width": meta["width"],
+                "height": meta["height"],
+                "duration": TimeRange.from_seconds(0, meta["duration"]).duration,
             }
         except Exception as e:
             logger.error(f"获取视频信息失败: {e}")
-            return {'width': 1920, 'height': 1080, 'duration': 0}
+            return {"width": 1920, "height": 1080, "duration": 0}

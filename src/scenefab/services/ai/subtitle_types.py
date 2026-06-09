@@ -12,19 +12,21 @@ __all__ = ["SubtitleSegment", "SubtitleExtractionResult"]
 @dataclass
 class SubtitleSegment:
     """字幕片段"""
-    start: float           # 开始时间（秒）
-    end: float             # 结束时间（秒）
-    text: str              # 字幕文本
+
+    start: float  # 开始时间（秒）
+    end: float  # 结束时间（秒）
+    text: str  # 字幕文本
     confidence: float = 1.0
-    source: str = ""       # "ocr" / "speech" / "merged"
+    source: str = ""  # "ocr" / "speech" / "merged"
 
 
 @dataclass
 class SubtitleExtractionResult:
     """字幕提取结果"""
+
     video_path: str
     duration: float
     segments: list[SubtitleSegment] = field(default_factory=list)
     full_text: str = ""
     language: str = "zh"
-    method: str = ""       # "ocr" / "speech" / "both"
+    method: str = ""  # "ocr" / "speech" / "both"

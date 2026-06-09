@@ -14,7 +14,7 @@ class PropertiesPanel(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedWidth(0)   # 初始折叠
+        self.setFixedWidth(0)  # 初始折叠
         self.setObjectName("props_panel")
         self._expanded = False
         self._content_width = 280

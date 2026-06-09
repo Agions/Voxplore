@@ -44,5 +44,3 @@ class ThemeColorPreview(QWidget):
         """设置颜色"""
         self._colors = colors
         self.update()
-
-

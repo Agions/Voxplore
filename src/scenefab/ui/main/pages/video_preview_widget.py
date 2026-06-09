@@ -15,14 +15,15 @@ from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "border":      "oklch(0.24 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
 # ── 视频预览播放器（小窗）────────────────────────────────────
 class VideoPreviewWidget(QFrame):
     """小尺寸视频预览（用于选择文件后预览）"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._player = QMediaPlayer()
@@ -36,7 +37,7 @@ class VideoPreviewWidget(QFrame):
             QFrame {{
                 background: #000;
                 border-radius: 12px;
-                border: 1px solid {_T['border']};
+                border: 1px solid {_T["border"]};
             }}
         """)
         layout = QVBoxLayout(self)
@@ -51,7 +52,7 @@ class VideoPreviewWidget(QFrame):
         self._info_label = QLabel("未选择视频")
         self._info_label.setFont(QFont("", 10))
         self._info_label.setStyleSheet(f"""
-            color: {_T['text_muted']};
+            color: {_T["text_muted"]};
             background: rgba(0,0,0,0.7);
             padding: 4px 8px;
         """)

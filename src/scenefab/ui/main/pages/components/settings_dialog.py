@@ -30,7 +30,9 @@ from ....components import (
 class ProjectSettingsDialog(QDialog):
     """项目设置对话框 - macOS 风格"""
 
-    def __init__(self, project: Project, settings_manager: ProjectSettingsManager, parent=None):
+    def __init__(
+        self, project: Project, settings_manager: ProjectSettingsManager, parent=None
+    ):
         super().__init__(parent)
         self.project = project
         self.settings_manager = settings_manager
@@ -128,13 +130,15 @@ class ProjectSettingsDialog(QDialog):
         resolution_layout = QVBoxLayout(resolution_group)
 
         self.resolution_combo = QComboBox()
-        self.resolution_combo.addItems([
-            "3840x2160 (4K)",
-            "2560x1440 (2K)",
-            "1920x1080 (1080p)",
-            "1280x720 (720p)",
-            "854x480 (480p)"
-        ])
+        self.resolution_combo.addItems(
+            [
+                "3840x2160 (4K)",
+                "2560x1440 (2K)",
+                "1920x1080 (1080p)",
+                "1280x720 (720p)",
+                "854x480 (480p)",
+            ]
+        )
         resolution_layout.addWidget(self.resolution_combo)
 
         layout.addWidget(resolution_group)
@@ -200,7 +204,9 @@ class ProjectSettingsDialog(QDialog):
         provider_layout = QVBoxLayout(provider_group)
 
         self.ai_provider_combo = QComboBox()
-        self.ai_provider_combo.addItems(["DeepSeek-V4", "通义千问", "Kimi", "智谱 GLM-5"])
+        self.ai_provider_combo.addItems(
+            ["DeepSeek-V4", "通义千问", "Kimi", "智谱 GLM-5"]
+        )
         provider_layout.addWidget(self.ai_provider_combo)
 
         layout.addWidget(provider_group)
@@ -261,16 +267,23 @@ class ProjectSettingsDialog(QDialog):
 
         # 视频设置
         resolution_map = {
-            "3840x2160": 0, "2560x1440": 1, "1920x1080": 2,
-            "1280x720": 3, "854x480": 4
+            "3840x2160": 0,
+            "2560x1440": 1,
+            "1920x1080": 2,
+            "1280x720": 3,
+            "854x480": 4,
         }
         if resolution_map.get(settings.resolution):
-            self.resolution_combo.setCurrentIndex(resolution_map.get(settings.resolution, 2))
+            self.resolution_combo.setCurrentIndex(
+                resolution_map.get(settings.resolution, 2)
+            )
 
         # 音频设置
         sample_map = {"44100": 0, "48000": 1, "96000": 2}
         if sample_map.get(str(settings.sample_rate)):
-            self.sample_rate_combo.setCurrentIndex(sample_map.get(str(settings.sample_rate), 0))
+            self.sample_rate_combo.setCurrentIndex(
+                sample_map.get(str(settings.sample_rate), 0)
+            )
 
     def _on_save(self):
         """保存设置"""

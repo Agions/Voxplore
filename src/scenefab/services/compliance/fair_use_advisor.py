@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FairUseAssessment:
     """合理使用评估结果"""
+
     is_fair_use: bool
     confidence: float  # 0.0 - 1.0
     factors: dict[str, Any] = field(default_factory=dict)
@@ -52,9 +53,9 @@ class FairUseAdvisor:
     # 合理使用四要素权重
     FACTOR_WEIGHTS = {
         "purpose": 0.30,  # 使用目的
-        "nature": 0.20,   # 作品性质
-        "amount": 0.30,   # 使用数量
-        "effect": 0.20,   # 市场影响
+        "nature": 0.20,  # 作品性质
+        "amount": 0.30,  # 使用数量
+        "effect": 0.20,  # 市场影响
     }
 
     # 安全阈值
@@ -103,9 +104,7 @@ class FairUseAdvisor:
         factors["nature"] = self._assess_nature(source_duration)
 
         # 要素 3：使用数量
-        factors["amount"] = self._assess_amount(
-            source_duration, usage_duration
-        )
+        factors["amount"] = self._assess_amount(source_duration, usage_duration)
 
         # 要素 4：市场影响
         factors["effect"] = self._assess_effect(
@@ -113,19 +112,14 @@ class FairUseAdvisor:
         )
 
         # 计算综合得分
-        total_score = sum(
-            factors[key] * self.FACTOR_WEIGHTS[key]
-            for key in factors
-        )
+        total_score = sum(factors[key] * self.FACTOR_WEIGHTS[key] for key in factors)
 
         # 判断是否构成合理使用
         is_fair_use = total_score >= 0.6
         confidence = total_score
 
         # 计算安全使用时长
-        safe_duration = self._calculate_safe_duration(
-            source_duration, usage_duration
-        )
+        safe_duration = self._calculate_safe_duration(source_duration, usage_duration)
 
         # 生成建议
         recommendations = self._generate_recommendations(
@@ -140,7 +134,9 @@ class FairUseAdvisor:
             safe_duration=safe_duration,
         )
 
-        logger.info(f"合理使用评估完成: 合理使用={is_fair_use}, 置信度={confidence:.2f}")
+        logger.info(
+            f"合理使用评估完成: 合理使用={is_fair_use}, 置信度={confidence:.2f}"
+        )
         return result
 
     def _assess_purpose(
@@ -168,13 +164,13 @@ class FairUseAdvisor:
 
         # 目的加分
         purpose_scores = {
-            "commentary": 0.2,   # 评论
-            "criticism": 0.2,    # 批评
-            "education": 0.15,   # 教育
-            "news": 0.15,        # 新闻
-            "parody": 0.2,       # 模仿
-            "research": 0.1,     # 研究
-            "personal": 0.05,    # 个人使用
+            "commentary": 0.2,  # 评论
+            "criticism": 0.2,  # 批评
+            "education": 0.15,  # 教育
+            "news": 0.15,  # 新闻
+            "parody": 0.2,  # 模仿
+            "research": 0.1,  # 研究
+            "personal": 0.05,  # 个人使用
         }
         score += purpose_scores.get(purpose, 0.0)
 

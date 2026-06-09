@@ -11,7 +11,9 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 from .components.labels import MacBadge, MacLabel
 
 
-def create_icon_text_row(icon: str, text: str, parent: QWidget | None = None) -> QWidget:
+def create_icon_text_row(
+    icon: str, text: str, parent: QWidget | None = None
+) -> QWidget:
     """创建图标+文字行"""
     widget = QWidget(parent)
     layout = QHBoxLayout(widget)

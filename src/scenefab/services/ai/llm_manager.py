@@ -32,15 +32,30 @@ logger = logging.getLogger(__name__)
 
 # Provider 注册表: (配置键名, ProviderType, 提供商类, 默认 base_url)
 _PROVIDER_REGISTRY = [
-    ("qwen",     ProviderType.QWEN,     QwenProvider,     ""),
-    ("kimi",     ProviderType.KIMI,    KimiProvider,     ""),
-    ("glm5",     ProviderType.GLM5,    GLM5Provider,     ""),
-    ("claude",   ProviderType.CLAUDE,   ClaudeProvider,   "https://api.anthropic.com"),
-    ("gemini",   ProviderType.GEMINI,  GeminiProvider,   "https://generativelanguage.googleapis.com"),
-    ("local",    ProviderType.LOCAL,   LocalProvider,    "http://localhost:11434"),
+    ("qwen", ProviderType.QWEN, QwenProvider, ""),
+    ("kimi", ProviderType.KIMI, KimiProvider, ""),
+    ("glm5", ProviderType.GLM5, GLM5Provider, ""),
+    ("claude", ProviderType.CLAUDE, ClaudeProvider, "https://api.anthropic.com"),
+    (
+        "gemini",
+        ProviderType.GEMINI,
+        GeminiProvider,
+        "https://generativelanguage.googleapis.com",
+    ),
+    ("local", ProviderType.LOCAL, LocalProvider, "http://localhost:11434"),
     ("deepseek", ProviderType.DEEPSEEK, DeepSeekProvider, "https://api.deepseek.com"),
-    ("doubao",   ProviderType.DOUBAO,  DoubaoProvider,   "https://ark.cn-beijing.volces.com/api/v3"),
-    ("hunyuan",  ProviderType.HUNYUAN, HunyuanProvider, "https://hunyuan.tencentcloudapi.com"),
+    (
+        "doubao",
+        ProviderType.DOUBAO,
+        DoubaoProvider,
+        "https://ark.cn-beijing.volces.com/api/v3",
+    ),
+    (
+        "hunyuan",
+        ProviderType.HUNYUAN,
+        HunyuanProvider,
+        "https://hunyuan.tencentcloudapi.com",
+    ),
 ]
 
 
@@ -64,16 +79,25 @@ class LLMManager:
         """初始化所有提供商"""
         llm_config = self.config.get("LLM", {})
 
-        for cfg_key, provider_type, provider_cls, default_base_url in _PROVIDER_REGISTRY:
+        for (
+            cfg_key,
+            provider_type,
+            provider_cls,
+            default_base_url,
+        ) in _PROVIDER_REGISTRY:
             cfg = llm_config.get(cfg_key, {})
             if not cfg.get("enabled", False):
                 continue
             api_key = cfg.get("api_key", "")
             if not api_key or api_key.startswith("${"):
-                logger.debug(f"⏭️  LLM Provider [{cfg_key}] 已启用但 API Key 未配置或为占位符")
+                logger.debug(
+                    f"⏭️  LLM Provider [{cfg_key}] 已启用但 API Key 未配置或为占位符"
+                )
                 continue
             base_url = cfg.get("base_url", default_base_url)
-            self.providers[provider_type] = provider_cls(api_key=api_key, base_url=base_url)
+            self.providers[provider_type] = provider_cls(
+                api_key=api_key, base_url=base_url
+            )
             logger.info(f"✅ LLM Provider [{cfg_key}] 已加载")
 
         # 设置默认提供商
@@ -87,7 +111,9 @@ class LLMManager:
                 self._default_provider = None
 
         if self.providers:
-            logger.info(f"📦 LLM Manager 初始化完成，共 {len(self.providers)} 个 Provider")
+            logger.info(
+                f"📦 LLM Manager 初始化完成，共 {len(self.providers)} 个 Provider"
+            )
 
     async def generate(
         self,
@@ -140,10 +166,7 @@ class LLMManager:
 
     def health_check(self) -> dict[ProviderType, bool]:
         """检查所有 Provider 健康状态"""
-        return {
-            p: provider.health_check()
-            for p, provider in self.providers.items()
-        }
+        return {p: provider.health_check() for p, provider in self.providers.items()}
 
     async def stream_generate(
         self,
@@ -170,7 +193,7 @@ class LLMManager:
             return
 
         p = self.providers[provider]
-        if not hasattr(p, 'stream_generate'):
+        if not hasattr(p, "stream_generate"):
             response = await p.generate(request)
             yield response.content
             return
@@ -193,7 +216,7 @@ class LLMManager:
             if p != failed_provider:
                 try:
                     prov = self.providers[p]
-                    if hasattr(prov, 'stream_generate'):
+                    if hasattr(prov, "stream_generate"):
                         async for chunk in prov.stream_generate(request):
                             yield chunk
                     else:
@@ -209,16 +232,23 @@ class LLMManager:
         for provider in self.providers.values():
             await provider.close()
 
-    def generate_sync(self, request: LLMRequest, provider: ProviderType | None = None) -> LLMResponse:
+    def generate_sync(
+        self, request: LLMRequest, provider: ProviderType | None = None
+    ) -> LLMResponse:
         """同步生成（内部使用）"""
         import asyncio
+
         return asyncio.run(self.generate(request, provider))
 
-    def ask(self, question: str, context: str = "", provider: ProviderType | None = None) -> str:
+    def ask(
+        self, question: str, context: str = "", provider: ProviderType | None = None
+    ) -> str:
         """快捷方法：简单问答"""
         request = LLMRequest(
             prompt=question,
-            system_prompt=f"你是一个有帮助的AI助手。{context}" if context else "你是一个有帮助的AI助手。",
+            system_prompt=f"你是一个有帮助的AI助手。{context}"
+            if context
+            else "你是一个有帮助的AI助手。",
             model="",
             max_tokens=2048,
             temperature=0.7,
@@ -236,6 +266,7 @@ class LLMManager:
 def load_llm_config(config_file: str = "config/llm.yaml") -> dict[str, Any]:
     """加载 LLM 配置"""
     import yaml
+
     try:
         with open(config_file, encoding="utf-8") as f:
             config = yaml.safe_load(f)
@@ -252,6 +283,7 @@ def load_llm_config(config_file: str = "config/llm.yaml") -> dict[str, Any]:
             return [replace_env_vars(item) for item in obj]
         elif isinstance(obj, str) and obj.startswith("env:"):
             import os
+
             env_key = obj[4:]
             return os.environ.get(env_key, obj)
         return obj

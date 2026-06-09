@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PlatformTagSuggestion:
     """平台标签建议"""
+
     platform: str
     tags: list[str] = field(default_factory=list)
     trending_tags: list[str] = field(default_factory=list)
@@ -34,6 +35,7 @@ class PlatformTagSuggestion:
 @dataclass
 class DanmakuTriggerPoint:
     """弹幕触发点"""
+
     timestamp: float  # 秒
     trigger_type: str  # "question", "climax", "humor", "suspense"
     suggested_text: str  # 建议的弹幕内容
@@ -43,6 +45,7 @@ class DanmakuTriggerPoint:
 @dataclass
 class CallToAction:
     """行动号召"""
+
     platform: str
     cta_type: str  # "like", "share", "subscribe", "comment"
     text: str  # CTA 文本
@@ -53,6 +56,7 @@ class CallToAction:
 @dataclass
 class CoverTextSpec:
     """封面文字规范"""
+
     platform: str
     max_lines: int
     max_chars_per_line: int
@@ -66,6 +70,7 @@ class CoverTextSpec:
 @dataclass
 class PlatformExtendedConfig:
     """平台扩展配置"""
+
     platform: str
     display_name: str
     tag_suggestion: PlatformTagSuggestion
@@ -306,7 +311,12 @@ class PlatformExtendedManager:
                 platform="youtube",
                 tags=["movie review", "film analysis", "cinema", "entertainment"],
                 trending_tags=["2026 movies", "best films", "must watch", "top 10"],
-                category_tags=["Movies", "Entertainment", "Education", "People & Blogs"],
+                category_tags=[
+                    "Movies",
+                    "Entertainment",
+                    "Education",
+                    "People & Blogs",
+                ],
                 recommendation="Use 5-15 tags, include both broad and specific tags",
             ),
             danmaku_triggers=[],
@@ -577,7 +587,9 @@ class PlatformExtendedManager:
         return config.seo_keywords
 
 
-def get_platform_extended_manager(config_dir: str | None = None) -> PlatformExtendedManager:
+def get_platform_extended_manager(
+    config_dir: str | None = None,
+) -> PlatformExtendedManager:
     """
     便捷函数：获取平台扩展管理器
 

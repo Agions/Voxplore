@@ -36,10 +36,10 @@ class SceneFabMainWindow(QMainWindow):
     navigate = Signal(str)
 
     PAGE_TITLES = {
-        "home":     ("主界面",   ""),
-        "create":   ("创作台",   ""),
+        "home": ("主界面", ""),
+        "create": ("创作台", ""),
         "projects": ("项目管理", ""),
-        "settings": ("设置",     ""),
+        "settings": ("设置", ""),
     }
 
     def __init__(self):
@@ -86,10 +86,10 @@ class SceneFabMainWindow(QMainWindow):
         from ..main.pages.home_page import HomePage
         from ..main.pages.settings_page import SettingsPage
 
-        self.content.add_page("home",     HomePage())
-        self.content.add_page("create",   PlaceholderPage("创作台", "＋"))
+        self.content.add_page("home", HomePage())
+        self.content.add_page("create", PlaceholderPage("创作台", "＋"))
         self.content.add_page("projects", PlaceholderPage("项目管理", "☰"))
-        self.content.add_page("settings",  SettingsPage())
+        self.content.add_page("settings", SettingsPage())
 
     def _connect_signals(self):
         self.sidebar.navigated.connect(self._on_navigate)
@@ -103,12 +103,14 @@ class SceneFabMainWindow(QMainWindow):
         """初始化系统托盘（始终可用，是否激活由设置决定）"""
         try:
             from .tray_manager import get_tray_manager
+
             self._tray = get_tray_manager()
             self._tray.show_window_requested.connect(self._restore_from_tray)
             self._tray.open_settings_requested.connect(self._open_settings_from_tray)
             self._tray.quit_requested.connect(self._quit_application)
         except Exception as e:
             import logging
+
             logging.getLogger(__name__).warning(f"Tray init failed: {e}")
             self._tray = None
 
@@ -181,6 +183,7 @@ class SceneFabMainWindow(QMainWindow):
     def show_message(self, message: str, level: str = "info"):
         """显示消息提示"""
         from PySide6.QtWidgets import QMessageBox
+
         if level == "error":
             QMessageBox.critical(self, "错误", message)
         elif level == "warning":

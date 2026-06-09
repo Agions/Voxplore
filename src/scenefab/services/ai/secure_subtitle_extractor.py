@@ -37,8 +37,7 @@ class SecureSubtitleExtractor:
 
         # 初始化安全执行器
         self.executor = SecureExecutor(
-            allowed_base_dirs=[self.base_dir],
-            allowed_commands=['ffmpeg', 'ffprobe']
+            allowed_base_dirs=[self.base_dir], allowed_commands=["ffmpeg", "ffprobe"]
         )
 
         # 路径验证器
@@ -67,8 +66,7 @@ class SecureSubtitleExtractor:
 
         # 验证扩展名
         ext_result = self.path_validator.validate_extension(
-            clean_path,
-            ALLOWED_VIDEO_EXTENSIONS
+            clean_path, ALLOWED_VIDEO_EXTENSIONS
         )
         if not ext_result.passed:
             raise SecurityError(f"视频格式不支持: {ext_result.message}")
@@ -84,7 +82,7 @@ class SecureSubtitleExtractor:
         video_path: str,
         method: str = "whisper",
         language: str = "zh",
-        api_key: str | None = None
+        api_key: str | None = None,
     ) -> SubtitleExtractionResult:
         """
         安全提取字幕
@@ -111,10 +109,7 @@ class SecureSubtitleExtractor:
         base_extractor = SpeechSubtitleExtractor(api_key=api_key)
 
         try:
-            result = base_extractor.extract(
-                video_path=safe_path,
-                language=language
-            )
+            result = base_extractor.extract(video_path=safe_path, language=language)
             logger.info(f"字幕提取成功: {safe_path}")
             return result
 
@@ -125,9 +120,7 @@ class SecureSubtitleExtractor:
             raise SecurityError(f"字幕提取失败: {e}")
 
     def extract_with_ocr(
-        self,
-        video_path: str,
-        api_key: str | None = None
+        self, video_path: str, api_key: str | None = None
     ) -> SubtitleExtractionResult:
         """安全的 OCR 字幕提取"""
         safe_path = self._validate_video_path(video_path)
@@ -145,7 +138,7 @@ class SecureSubtitleExtractor:
         video_path: str,
         whisper_api_key: str | None = None,
         ocr_api_key: str | None = None,
-        language: str = "zh"
+        language: str = "zh",
     ) -> SubtitleExtractionResult:
         """安全地结合 OCR 和语音识别"""
         safe_path = self._validate_video_path(video_path)
@@ -166,7 +159,7 @@ class SecureSubtitleExtractor:
             segments=all_segments,
             full_text=whisper_result.full_text,
             language=language,
-            method="both"
+            method="both",
         )
 
 

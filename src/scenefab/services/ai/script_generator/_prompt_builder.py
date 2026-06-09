@@ -9,7 +9,9 @@ def build_prompt(topic: str, config: ScriptConfig) -> str:
     parts = [f"请为以下主题生成视频文案：\n\n{topic}\n"]
 
     # 字数要求
-    parts.append(f"\n字数要求：约 {config.target_words} 字（适合 {config.target_duration:.0f} 秒视频）")
+    parts.append(
+        f"\n字数要求：约 {config.target_words} 字（适合 {config.target_duration:.0f} 秒视频）"
+    )
 
     # 语气要求
     parts.append(f"语气风格：{TONE_MAP.get(config.tone, '中性')}")

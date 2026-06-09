@@ -12,14 +12,16 @@ from typing import Any
 
 class ProviderType(Enum):
     """Provider 类型"""
-    VIDEO_ANALYSIS = "video_analysis"   # 视频理解模型
-    SCRIPT_LLM = "script_llm"           # 脚本生成模型
-    VOICE_TTS = "voice_tts"             # 语音合成
+
+    VIDEO_ANALYSIS = "video_analysis"  # 视频理解模型
+    SCRIPT_LLM = "script_llm"  # 脚本生成模型
+    VOICE_TTS = "voice_tts"  # 语音合成
 
 
 @dataclass
 class ProviderConfig:
     """Provider 配置"""
+
     name: str
     api_key: str | None = None
     base_url: str | None = None
@@ -33,6 +35,7 @@ class ProviderConfig:
 @dataclass
 class ProviderMetadata:
     """Provider 元数据"""
+
     id: str
     name: str
     provider_type: ProviderType
@@ -81,7 +84,7 @@ class BaseLLMAdapter(ABC):
             capabilities=[],
             models=[self.config.model] if self.config.model else [],
             requires_api_key=bool(self.config.api_key),
-            is_local=self.config.base_url and "localhost" in self.config.base_url
+            is_local=self.config.base_url and "localhost" in self.config.base_url,
         )
 
     @abstractmethod
@@ -114,10 +117,13 @@ class BaseLLMAdapter(ABC):
 
 class VideoAnalysisAdapter(BaseLLMAdapter):
     """视频理解 Adapter - Qwen3.7 等"""
+
     provider_type = ProviderType.VIDEO_ANALYSIS
 
     @abstractmethod
-    async def analyze_video(self, video_path: str, frames: list[float]) -> dict[str, Any]:
+    async def analyze_video(
+        self, video_path: str, frames: list[float]
+    ) -> dict[str, Any]:
         """
         分析视频
 
@@ -133,6 +139,7 @@ class VideoAnalysisAdapter(BaseLLMAdapter):
 
 class ScriptLLMAdapter(BaseLLMAdapter):
     """脚本生成 Adapter - DeepSeek-V4, Qwen-Plus 等"""
+
     provider_type = ProviderType.SCRIPT_LLM
 
     @abstractmethod
@@ -159,6 +166,7 @@ class ScriptLLMAdapter(BaseLLMAdapter):
 
 class TTSAdapter(BaseLLMAdapter):
     """语音合成 Adapter - Edge-TTS, F5-TTS 等"""
+
     provider_type = ProviderType.VOICE_TTS
 
     @abstractmethod

@@ -15,13 +15,17 @@ import yaml
 # ✅ 新增：python-dotenv 支持
 try:
     from dotenv import find_dotenv, load_dotenv
+
     DOTENV_AVAILABLE = True
 except ImportError:
     DOTENV_AVAILABLE = False
+
     def load_dotenv(*args, **kwargs):
         return None
+
     def find_dotenv(*args, **kwargs):
         return None
+
 
 from ..utils.security import InputSanitizer, PathValidator, SecurityError
 
@@ -46,7 +50,7 @@ class SecureConfigLoader:
             os.path.expanduser("~/.narrafiilm"),
             os.path.expanduser("~/SceneFab"),
             "/etc/narrafiilm",
-            os.path.join(os.path.dirname(__file__), '..', '..', 'config')
+            os.path.join(os.path.dirname(__file__), "..", "..", "config"),
         ]
         self.allowed_dirs = [os.path.abspath(d) for d in self.allowed_dirs]
 
@@ -55,9 +59,15 @@ class SecureConfigLoader:
 
         # ✅ 敏感配置项（这些值不会被记录到日志）
         self._sensitive_keys = {
-            'api_key', 'api_secret', 'password', 'secret',
-            'token', 'access_token', 'refresh_token',
-            'private_key', 'public_key'
+            "api_key",
+            "api_secret",
+            "password",
+            "secret",
+            "token",
+            "access_token",
+            "refresh_token",
+            "private_key",
+            "public_key",
         }
 
     def _load_environment(self, env_file: str | None = None) -> None:
@@ -85,7 +95,9 @@ class SecureConfigLoader:
                 load_dotenv(env_path, override=True)
                 logger.debug(f"自动加载环境变量: {env_path}")
 
-    def get_env(self, key: str, default: str | None = None, required: bool = False) -> str | None:
+    def get_env(
+        self, key: str, default: str | None = None, required: bool = False
+    ) -> str | None:
         """
         获取环境变量 ✅ 新增便捷方法
 
@@ -130,12 +142,14 @@ class SecureConfigLoader:
             possible_keys.append(env_var)
 
         if provider:
-            possible_keys.extend([
-                f"{provider.upper()}_API_KEY",
-                f"{provider.upper()}_API_TOKEN",
-            ])
+            possible_keys.extend(
+                [
+                    f"{provider.upper()}_API_KEY",
+                    f"{provider.upper()}_API_TOKEN",
+                ]
+            )
 
-        possible_keys.extend(['API_KEY', 'API_TOKEN', 'OPENAI_API_KEY'])
+        possible_keys.extend(["API_KEY", "API_TOKEN", "OPENAI_API_KEY"])
 
         for key in possible_keys:
             value = os.getenv(key)
@@ -144,8 +158,7 @@ class SecureConfigLoader:
                 return value
 
         raise SecurityError(
-            f"未找到 {provider} 的 API Key。"
-            f"请设置环境变量：{possible_keys[0]}"
+            f"未找到 {provider} 的 API Key。请设置环境变量：{possible_keys[0]}"
         )
 
     def load_yaml(self, config_path: str, resolve_env: bool = True) -> dict[str, Any]:
@@ -170,8 +183,7 @@ class SecureConfigLoader:
 
         # 验证扩展名
         ext_result = self.path_validator.validate_extension(
-            clean_path,
-            {'.yaml', '.yml'}
+            clean_path, {".yaml", ".yml"}
         )
         if not ext_result.passed:
             raise SecurityError(f"配置文件类型不支持: {ext_result.message}")
@@ -186,7 +198,7 @@ class SecureConfigLoader:
 
         # 安全加载 YAML
         try:
-            with open(clean_path, encoding='utf-8') as f:
+            with open(clean_path, encoding="utf-8") as f:
                 # 使用 safe_load 防止代码执行
                 config = yaml.safe_load(f)
 
@@ -223,16 +235,13 @@ class SecureConfigLoader:
             raise SecurityError(f"配置路径验证失败: {result.message}")
 
         # 验证扩展名
-        ext_result = self.path_validator.validate_extension(
-            clean_path,
-            {'.json'}
-        )
+        ext_result = self.path_validator.validate_extension(clean_path, {".json"})
         if not ext_result.passed:
             raise SecurityError(f"配置文件类型不支持: {ext_result.message}")
 
         # 加载 JSON
         try:
-            with open(clean_path, encoding='utf-8') as f:
+            with open(clean_path, encoding="utf-8") as f:
                 config = json.load(f)
 
             config = self._validate_config(config)
@@ -287,14 +296,14 @@ class SecureConfigLoader:
             var_expr = match.group(1)
 
             # 处理默认值语法 ${VAR:-default}
-            if ':-' in var_expr:
-                var_name, default = var_expr.split(':-', 1)
+            if ":-" in var_expr:
+                var_name, default = var_expr.split(":-", 1)
                 return os.getenv(var_name.strip(), default.strip())
             else:
                 return os.getenv(var_expr.strip(), value)
 
         # 匹配 ${VAR} 或 ${VAR:-default}
-        return re.sub(r'\$\{([^}]+)\}', replacer, value)
+        return re.sub(r"\$\{([^}]+)\}", replacer, value)
 
     def _validate_config(self, config: Any) -> dict[str, Any]:
         """
@@ -355,8 +364,7 @@ class SecureConfigLoader:
 
         # 验证扩展名
         ext_result = self.path_validator.validate_extension(
-            clean_path,
-            {'.yaml', '.yml'}
+            clean_path, {".yaml", ".yml"}
         )
         if not ext_result.passed:
             raise SecurityError(f"配置文件类型不支持: {ext_result.message}")
@@ -368,13 +376,13 @@ class SecureConfigLoader:
 
         # 安全保存
         try:
-            with open(clean_path, 'w', encoding='utf-8') as f:
+            with open(clean_path, "w", encoding="utf-8") as f:
                 yaml.safe_dump(
                     config,
                     f,
                     default_flow_style=False,
                     allow_unicode=True,
-                    sort_keys=False
+                    sort_keys=False,
                 )
             logger.info(f"安全保存配置: {clean_path}")
         except Exception as e:

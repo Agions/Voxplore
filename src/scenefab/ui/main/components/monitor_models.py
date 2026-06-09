@@ -12,6 +12,7 @@ from typing import Any
 
 class MonitorMode:
     """监控模式"""
+
     OVERVIEW = "overview"
     SERVICES = "services"
     PERFORMANCE = "performance"
@@ -22,6 +23,7 @@ class MonitorMode:
 @dataclass
 class AlertData:
     """告警数据"""
+
     id: str
     service_name: str
     level: str  # info, warning, error, critical

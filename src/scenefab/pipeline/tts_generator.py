@@ -15,6 +15,7 @@ class TTSGenerator:
 
     def __init__(self, tts_service=None):
         from ..services import get_ai_service_manager
+
         ai_service_manager = get_ai_service_manager()
         self.tts = tts_service or ai_service_manager.tts
 
@@ -25,7 +26,7 @@ class TTSGenerator:
         voice: str = "zh-CN-XiaoxiaoNeural",
         progress_callback: Callable | None = None,
         use_async: bool = True,
-        max_concurrent: int = 4
+        max_concurrent: int = 4,
     ) -> AudioTrack | None:
         """
         生成配音
@@ -36,9 +37,11 @@ class TTSGenerator:
         """
         os.makedirs(output_dir, exist_ok=True)
 
-        if use_async and hasattr(self.tts, 'generate_batch_async'):
+        if use_async and hasattr(self.tts, "generate_batch_async"):
             # 使用异步并行生成
-            return self._generate_async(narrations, output_dir, voice, progress_callback, max_concurrent)
+            return self._generate_async(
+                narrations, output_dir, voice, progress_callback, max_concurrent
+            )
         else:
             # 回退到串行生成
             return self._generate_sync(narrations, output_dir, voice, progress_callback)
@@ -49,7 +52,7 @@ class TTSGenerator:
         output_dir: str,
         voice: str,
         progress_callback: Callable | None,
-        max_concurrent: int
+        max_concurrent: int,
     ) -> AudioTrack | None:
         """异步并行流式生成配音（边生成边通知进度）"""
         import asyncio
@@ -73,12 +76,15 @@ class TTSGenerator:
                 if progress_callback and info:
                     # 转换句子级进度为整体进度
                     progress_callback(narr_idx + 1, len(narrations))
+
             return wrapper
 
         # 使用流式批量生成
-        items = [(text, path, voice) for text, path in zip(texts, output_paths, strict=False)]
+        items = [
+            (text, path, voice) for text, path in zip(texts, output_paths, strict=False)
+        ]
 
-        if hasattr(self.tts, 'generate_batch_streaming'):
+        if hasattr(self.tts, "generate_batch_streaming"):
             # 使用新的流式异步方法
             async def run_streaming():
                 return await self.tts.generate_batch_streaming(
@@ -114,6 +120,7 @@ class TTSGenerator:
 
         if len(audio_files) == 1:
             import shutil
+
             shutil.copy(audio_files[0], final_audio)
         else:
             self._concatenate_audio(audio_files, final_audio)
@@ -122,10 +129,7 @@ class TTSGenerator:
             progress_callback(len(narrations), len(narrations))
 
         return AudioTrack(
-            audio_path=final_audio,
-            duration=total_duration,
-            voice=voice,
-            rate=1.0
+            audio_path=final_audio, duration=total_duration, voice=voice, rate=1.0
         )
 
     def _generate_sync(
@@ -133,7 +137,7 @@ class TTSGenerator:
         narrations: list[NarrationBlock],
         output_dir: str,
         voice: str,
-        progress_callback: Callable | None
+        progress_callback: Callable | None,
     ) -> AudioTrack | None:
         """串行生成配音（回退方案）"""
         audio_files = []
@@ -149,10 +153,7 @@ class TTSGenerator:
 
             if self.tts:
                 result = self.tts.generate_speech(
-                    text=text,
-                    output_path=output_path,
-                    voice=voice,
-                    rate=rate
+                    text=text, output_path=output_path, voice=voice, rate=rate
                 )
 
                 if result and os.path.exists(result):
@@ -173,15 +174,13 @@ class TTSGenerator:
 
         if len(audio_files) == 1:
             import shutil
+
             shutil.copy(audio_files[0], final_audio)
         else:
             self._concatenate_audio(audio_files, final_audio)
 
         return AudioTrack(
-            audio_path=final_audio,
-            duration=total_duration,
-            voice=voice,
-            rate=1.0
+            audio_path=final_audio, duration=total_duration, voice=voice, rate=1.0
         )
 
     def _concatenate_audio(self, audio_files: list[str], output_path: str) -> bool:
@@ -189,17 +188,27 @@ class TTSGenerator:
             import subprocess
 
             list_file = output_path + ".list.txt"
-            with open(list_file, 'w') as f:
+            with open(list_file, "w") as f:
                 for af in audio_files:
                     f.write(f"file '{af}'\n")
 
-            subprocess.run([
-                "ffmpeg", "-y",
-                "-f", "concat", "-safe", "0",
-                "-i", list_file,
-                "-c", "copy",
-                output_path
-            ], capture_output=True, check=True)
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-y",
+                    "-f",
+                    "concat",
+                    "-safe",
+                    "0",
+                    "-i",
+                    list_file,
+                    "-c",
+                    "copy",
+                    output_path,
+                ],
+                capture_output=True,
+                check=True,
+            )
 
             os.remove(list_file)
             return True

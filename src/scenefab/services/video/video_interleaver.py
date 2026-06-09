@@ -82,17 +82,12 @@ class VideoInterleaver:
 
             # 查找重叠的原片片段
             overlapping_clips = self._find_overlapping_clips(
-                narration.start_time,
-                narration.end_time,
-                original_clips
+                narration.start_time, narration.end_time, original_clips
             )
 
             # 选择最佳原片片段
             selected_clip = self._select_best_clip(
-                overlapping_clips,
-                narration,
-                shot,
-                emotional_intensity
+                overlapping_clips, narration, shot, emotional_intensity
             )
 
             # 决定穿插策略
@@ -101,7 +96,7 @@ class VideoInterleaver:
                 clip=selected_clip,
                 shot=shot,
                 emotional_intensity=emotional_intensity,
-                ctx=ctx
+                ctx=ctx,
             )
             decisions.append(decision)
 
@@ -116,12 +111,16 @@ class VideoInterleaver:
         return InterleaveTimeline(
             decisions=decisions,
             total_duration=total_duration,
-            original_video_duration=original_clips[-1].end_time if original_clips else 0,
+            original_video_duration=original_clips[-1].end_time
+            if original_clips
+            else 0,
             narration_duration=total_duration,
-            original_coverage_percent=original_duration / total_duration if total_duration > 0 else 0,
+            original_coverage_percent=original_duration / total_duration
+            if total_duration > 0
+            else 0,
             narration_coverage_percent=100.0,
             interleave_mode=self._infer_interleave_mode(emotion_curve),
-            emotion_curve=emotion_curve
+            emotion_curve=emotion_curve,
         )
 
     def _find_overlapping_clips(
@@ -132,8 +131,7 @@ class VideoInterleaver:
     ) -> list[ClipSegment]:
         """查找与给定时间范围重叠的原片片段"""
         return [
-            clip for clip in clips
-            if clip.start_time < end and clip.end_time > start
+            clip for clip in clips if clip.start_time < end and clip.end_time > start
         ]
 
     def _select_best_clip(
@@ -189,14 +187,10 @@ class VideoInterleaver:
             original_weight = emotional_intensity
 
         # 确定转场
-        transition = self._decide_transition(
-            emotional_intensity, show_original, clip
-        )
+        transition = self._decide_transition(emotional_intensity, show_original, clip)
 
         # 决定音量
-        narration_volume, original_volume = self._decide_volumes(
-            original_weight, ctx
-        )
+        narration_volume, original_volume = self._decide_volumes(original_weight, ctx)
 
         # 决定放大
         zoom_factor = 1.0
@@ -222,7 +216,7 @@ class VideoInterleaver:
             narration_volume=narration_volume,
             original_audio_volume=original_volume,
             subtitle_text=subtitle_text,
-            subtitle_style=subtitle_style
+            subtitle_style=subtitle_style,
         )
 
     def _decide_transition(
@@ -274,12 +268,7 @@ class VideoInterleaver:
         zoom = 1.5
 
         # 高亮框 (x, y, width, height) 百分比
-        box = (
-            subject.x_percent - 10,
-            subject.y_percent - 10,
-            20,
-            20
-        )
+        box = (subject.x_percent - 10, subject.y_percent - 10, 20, 20)
 
         return zoom, box
 
@@ -303,7 +292,14 @@ class VideoInterleaver:
         role = subject.role
 
         # 内心情感 → 主角（第一人称代入感）
-        inner_emotions = {"sad", "melancholy", "nostalgic", "fearful", "tender", "neutral"}
+        inner_emotions = {
+            "sad",
+            "melancholy",
+            "nostalgic",
+            "fearful",
+            "tender",
+            "neutral",
+        }
         # 叙述性情感 → 配角/背景（观察者视角）
         narrative_emotions = {"excited", "neutral", "calm", "tense"}
 
@@ -325,10 +321,10 @@ class VideoInterleaver:
         cx, cy = subject.x_percent, subject.y_percent
         is_center = 40 <= cx <= 60 and 40 <= cy <= 60
         is_golden = (
-            (55 <= cx <= 65 and 35 <= cy <= 45) or   # 右上黄金点
-            (35 <= cx <= 45 and 55 <= cy <= 65) or   # 左下黄金点
-            (55 <= cx <= 65 and 55 <= cy <= 65) or   # 右下黄金点
-            (35 <= cx <= 45 and 35 <= cy <= 45)       # 左上黄金点
+            (55 <= cx <= 65 and 35 <= cy <= 45)  # 右上黄金点
+            or (35 <= cx <= 45 and 55 <= cy <= 65)  # 左下黄金点
+            or (55 <= cx <= 65 and 55 <= cy <= 65)  # 右下黄金点
+            or (35 <= cx <= 45 and 35 <= cy <= 45)  # 左上黄金点
         )
         if is_center:
             score += 0.5
@@ -369,4 +365,3 @@ class VideoInterleaver:
             return InterleaveMode.NARRATION_PRIORITY
         else:
             return InterleaveMode.MINIMALIST
-

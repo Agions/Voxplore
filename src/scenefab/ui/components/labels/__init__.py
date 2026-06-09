@@ -2,7 +2,6 @@
 标签组件 - MacLabel, MacTitleLabel, MacBadge 等
 """
 
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
@@ -11,7 +10,9 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 class MacLabel(QLabel):
     """macOS 风格标签"""
 
-    def __init__(self, text: str = "", parent: QWidget | None = None, css_class: str = "label"):
+    def __init__(
+        self, text: str = "", parent: QWidget | None = None, css_class: str = "label"
+    ):
         super().__init__(text, parent)
         if css_class:
             self.setProperty("class", css_class)

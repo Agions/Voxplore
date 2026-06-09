@@ -33,20 +33,20 @@ logger = logging.getLogger(__name__)
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "bg_hover":    "oklch(0.14 0.01 250)",
-    "bg_active":   "oklch(0.17 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "border_h":    "oklch(0.30 0.02 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "primary_l":   "oklch(0.70 0.24 250)",
-    "success":     "oklch(0.65 0.22 145)",
-    "warning":     "oklch(0.75 0.20 85)",
-    "error":       "oklch(0.63 0.24 25)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "bg_hover": "oklch(0.14 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "border_h": "oklch(0.30 0.02 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "primary_l": "oklch(0.70 0.24 250)",
+    "success": "oklch(0.65 0.22 145)",
+    "warning": "oklch(0.75 0.20 85)",
+    "error": "oklch(0.63 0.24 25)",
 }
 
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
@@ -60,11 +60,13 @@ class GroupCard(QFrame):
     单个分组卡片，内含缩略图网格
     支持视频项拖入（合并）/拖出（拆分）
     """
+
     video_dropped = Signal(str, object)  # video_path, group_id
     confidence_changed = Signal(object, float)  # group_id, new_confidence
 
-    def __init__(self, group_id: object, group_label: str, confidence: float = 0.0,
-                 parent=None):
+    def __init__(
+        self, group_id: object, group_label: str, confidence: float = 0.0, parent=None
+    ):
         super().__init__(parent)
         self._group_id = group_id
         self._group_label = group_label
@@ -79,7 +81,7 @@ class GroupCard(QFrame):
 
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
+                background: {_T["bg_card"]};
                 border: 2px solid {conf_color};
                 border-radius: 16px;
                 padding: 0px;
@@ -96,8 +98,8 @@ class GroupCard(QFrame):
         header = QFrame()
         header.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_input']};
-                border-bottom: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                border-bottom: 1px solid {_T["border"]};
                 border-radius: 14px 14px 0 0;
             }}
         """)
@@ -118,12 +120,12 @@ class GroupCard(QFrame):
         self._label_edit.setStyleSheet(f"""
             QLineEdit {{
                 background: transparent;
-                color: {_T['text']};
+                color: {_T["text"]};
                 border: none;
                 padding: 2px 4px;
             }}
             QLineEdit:focus {{
-                border: 1px solid {_T['border_h']};
+                border: 1px solid {_T["border_h"]};
                 border-radius: 4px;
             }}
         """)
@@ -160,13 +162,13 @@ class GroupCard(QFrame):
                 background: transparent;
             }}
             QScrollBar:vertical {{
-                background: {_T['bg_input']};
+                background: {_T["bg_input"]};
                 border-radius: 4px;
                 width: 6px;
                 margin: 2px 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {_T['border_h']};
+                background: {_T["border_h"]};
                 border-radius: 3px;
             }}
         """)
@@ -184,8 +186,8 @@ class GroupCard(QFrame):
         footer = QFrame()
         footer.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_input']};
-                border-top: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                border-top: 1px solid {_T["border"]};
                 border-radius: 0 0 14px 14px;
             }}
         """)
@@ -205,14 +207,14 @@ class GroupCard(QFrame):
         self._delete_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {_T['error']};
-                border: 1px solid {_T['error']}60;
+                color: {_T["error"]};
+                border: 1px solid {_T["error"]}60;
                 border-radius: 8px;
                 padding: 6px 12px;
                 font-size: 11px;
             }}
             QPushButton:hover {{
-                background: {_T['error']}20;
+                background: {_T["error"]}20;
             }}
         """)
         self._delete_btn.setFixedSize(80, 28)
@@ -223,10 +225,10 @@ class GroupCard(QFrame):
 
     def _get_confidence_color(self) -> str:
         if self._confidence >= 0.8:
-            return _T['success']
+            return _T["success"]
         elif self._confidence >= 0.6:
-            return _T['warning']
-        return _T['error']
+            return _T["warning"]
+        return _T["error"]
 
     def _on_label_changed(self, text: str):
         self._group_label = text
@@ -258,7 +260,7 @@ class GroupCard(QFrame):
         # 找到并移除缩略图组件
         for i in range(self._thumb_grid.count()):
             w = self._thumb_grid.itemAt(i).widget()
-            if hasattr(w, 'video_path') and w.video_path == path:
+            if hasattr(w, "video_path") and w.video_path == path:
                 w.setParent(None)
                 w.deleteLater()
                 break
@@ -315,7 +317,7 @@ class GroupCard(QFrame):
         conf_color = self._get_confidence_color()
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
+                background: {_T["bg_card"]};
                 border: 2px solid {conf_color};
                 border-radius: 16px;
                 padding: 0px;

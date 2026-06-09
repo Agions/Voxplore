@@ -33,12 +33,14 @@ class FeatureExtractorsMixin:
         """
         curve_data = []
         for emotion in scene_emotions:
-            curve_data.append({
-                "timestamp": emotion.timestamp,
-                "intensity": emotion.intensity,
-                "emotion": emotion.emotion_label.value,
-                "scene_type": emotion.scene_type.value,
-            })
+            curve_data.append(
+                {
+                    "timestamp": emotion.timestamp,
+                    "intensity": emotion.intensity,
+                    "emotion": emotion.emotion_label.value,
+                    "scene_type": emotion.scene_type.value,
+                }
+            )
         return curve_data
 
     def _detect_peak_moments(
@@ -64,17 +66,21 @@ class FeatureExtractorsMixin:
             # 检测峰值（比前后都高）
             if curr_intensity > prev_intensity and curr_intensity > next_intensity:
                 if curr_intensity > self.INTENSITY_THRESHOLDS["high"]:
-                    peak_moments.append({
-                        "timestamp": scene_emotions[i].timestamp,
-                        "intensity": curr_intensity,
-                        "emotion": scene_emotions[i].emotion_label.value,
-                        "scene_type": scene_emotions[i].scene_type.value,
-                        "description": scene_emotions[i].description,
-                    })
+                    peak_moments.append(
+                        {
+                            "timestamp": scene_emotions[i].timestamp,
+                            "intensity": curr_intensity,
+                            "emotion": scene_emotions[i].emotion_label.value,
+                            "scene_type": scene_emotions[i].scene_type.value,
+                            "description": scene_emotions[i].description,
+                        }
+                    )
 
         return peak_moments
 
-    def _extract_audio_features(self, video_path: str, timestamp: float) -> dict[str, Any]:
+    def _extract_audio_features(
+        self, video_path: str, timestamp: float
+    ) -> dict[str, Any]:
         """
         提取音频特征
 
@@ -111,15 +117,21 @@ class FeatureExtractorsMixin:
             # 提取特征
             features = {
                 "energy": float(np.mean(librosa.feature.rms(y=y))),
-                "zero_crossing_rate": float(np.mean(librosa.feature.zero_crossing_rate(y))),
-                "spectral_centroid": float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))),
+                "zero_crossing_rate": float(
+                    np.mean(librosa.feature.zero_crossing_rate(y))
+                ),
+                "spectral_centroid": float(
+                    np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
+                ),
                 "tempo": float(librosa.beat.tempo(y=y, sr=sr)[0]) if len(y) > 0 else 0,
             }
 
             # 计算音调变化
             if len(y) > 0:
                 pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-                features["pitch_variation"] = float(np.std(pitches[pitches > 0])) if np.any(pitches > 0) else 0
+                features["pitch_variation"] = (
+                    float(np.std(pitches[pitches > 0])) if np.any(pitches > 0) else 0
+                )
             else:
                 features["pitch_variation"] = 0
 
@@ -135,7 +147,9 @@ class FeatureExtractorsMixin:
                 "pitch_variation": 0,
             }
 
-    def _extract_visual_features(self, video_path: str, timestamp: float) -> dict[str, Any]:
+    def _extract_visual_features(
+        self, video_path: str, timestamp: float
+    ) -> dict[str, Any]:
         """
         提取视觉特征
 
@@ -267,7 +281,9 @@ class FeatureExtractorsMixin:
         Returns:
             str: 场景描述
         """
-        intensity_desc = "强烈" if intensity > 0.7 else "中等" if intensity > 0.4 else "轻微"
+        intensity_desc = (
+            "强烈" if intensity > 0.7 else "中等" if intensity > 0.4 else "轻微"
+        )
 
         scene_desc = {
             SceneType.ACTION: "动作场景",

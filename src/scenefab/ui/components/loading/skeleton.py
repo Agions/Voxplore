@@ -36,8 +36,10 @@ class ShimmerEffect(QWidget):
 
         # 创建渐变
         gradient = QLinearGradient(
-            self.width() * self._gradient_pos, 0,
-            self.width() * (self._gradient_pos + 0.5), 0
+            self.width() * self._gradient_pos,
+            0,
+            self.width() * (self._gradient_pos + 0.5),
+            0,
         )
 
         base_color = QColor(48, 54, 61)

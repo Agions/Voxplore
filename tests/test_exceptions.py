@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试异常模块"""
 
-
 from scenefab.exceptions import (
     ConfigError,
     ErrorCode,
@@ -43,10 +42,7 @@ class TestSceneFabError:
 
     def test_basic_creation(self):
         """测试基本创建"""
-        err = SceneFabError(
-            code=ErrorCode.UNKNOWN_ERROR,
-            message="测试错误"
-        )
+        err = SceneFabError(code=ErrorCode.UNKNOWN_ERROR, message="测试错误")
 
         assert err.code == ErrorCode.UNKNOWN_ERROR
         assert err.message == "测试错误"
@@ -59,7 +55,7 @@ class TestSceneFabError:
             code=ErrorCode.FILE_NOT_FOUND,
             message="文件未找到",
             details={"path": "/test/file.mp4"},
-            hint="检查文件路径"
+            hint="检查文件路径",
         )
 
         assert err.details["path"] == "/test/file.mp4"
@@ -67,10 +63,7 @@ class TestSceneFabError:
 
     def test_str_representation(self):
         """测试字符串表示"""
-        err = SceneFabError(
-            code=ErrorCode.CONFIG_MISSING,
-            message="配置缺失"
-        )
+        err = SceneFabError(code=ErrorCode.CONFIG_MISSING, message="配置缺失")
 
         err_str = str(err)
         assert "CFG001" in err_str
@@ -102,11 +95,7 @@ class TestLLMError:
 
     def test_with_provider_info(self):
         """测试带提供商信息"""
-        err = LLMError(
-            "API error",
-            provider="openai",
-            model="gpt-4"
-        )
+        err = LLMError("API error", provider="openai", model="gpt-4")
 
         assert err.details["provider"] == "openai"
         assert err.details["model"] == "gpt-4"
@@ -134,11 +123,7 @@ class TestFileError:
 
     def test_with_path(self):
         """测试带路径的文件错误"""
-        err = FileError(
-            "文件读取失败",
-            path="/test/video.mp4",
-            operation="read"
-        )
+        err = FileError("文件读取失败", path="/test/video.mp4", operation="read")
 
         assert err.details["path"] == "/test/video.mp4"
         assert err.details["operation"] == "read"

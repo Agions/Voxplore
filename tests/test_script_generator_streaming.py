@@ -29,6 +29,7 @@ class TestStreamingScriptGeneratorInit:
     def test_inherits_from_script_generator(self):
         """测试继承自 ScriptGenerator"""
         from scenefab.services.ai.script_generator import ScriptGenerator
+
         assert issubclass(StreamingScriptGenerator, ScriptGenerator)
 
 
@@ -91,10 +92,12 @@ class TestModuleExports:
     def test_all_exports(self):
         """测试 __all__ 导出"""
         from scenefab.services.ai import script_stream as sg_streaming
+
         assert "StreamingScriptGenerator" in sg_streaming.__all__
         assert "generate_script_streaming" in sg_streaming.__all__
 
     def test_import_from_package(self):
         """测试从包级别导入"""
         from scenefab.services.ai import StreamingScriptGenerator
+
         assert StreamingScriptGenerator is not None

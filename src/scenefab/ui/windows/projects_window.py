@@ -2,6 +2,7 @@
 项目列表窗口
 接入真实 ProjectManager，支持项目 CRUD
 """
+
 import logging
 
 from PySide6.QtCore import Qt, QTimer, Signal
@@ -28,6 +29,7 @@ class ProjectCard(QFrame):
     项目卡片
     显示项目信息，支持双击打开、右键菜单
     """
+
     open_requested = Signal(str)  # 项目路径
     delete_requested = Signal(str, str)  # (project_id, project_path)
 
@@ -67,8 +69,17 @@ class ProjectCard(QFrame):
             "done": "#10B981",
             "error": "#EF4444",
         }
-        self.status_label = QLabel({"draft": "📝 草稿", "processing": "⚙️ 处理中", "done": "✅ 完成", "error": "❌ 错误"}.get(status, ""))
-        self.status_label.setStyleSheet(f"color: {status_colors.get(status, '#888')}; font-size: 11px;")
+        self.status_label = QLabel(
+            {
+                "draft": "📝 草稿",
+                "processing": "⚙️ 处理中",
+                "done": "✅ 完成",
+                "error": "❌ 错误",
+            }.get(status, "")
+        )
+        self.status_label.setStyleSheet(
+            f"color: {status_colors.get(status, '#888')}; font-size: 11px;"
+        )
         layout.addWidget(self.status_label)
 
         # 名称
@@ -97,12 +108,13 @@ class ProjectCard(QFrame):
     def _show_context_menu(self):
         menu = QMenu(self)
         open_act = QAction("打开项目", self)
-        open_act.triggered.connect(lambda: self.open_requested.emit(self.project.get("path", "")))
+        open_act.triggered.connect(
+            lambda: self.open_requested.emit(self.project.get("path", ""))
+        )
         delete_act = QAction("删除项目", self)
         delete_act.triggered.connect(
             lambda: self.delete_requested.emit(
-                self.project.get("id", ""),
-                self.project.get("path", "")
+                self.project.get("id", ""), self.project.get("path", "")
             )
         )
         menu.addAction(open_act)
@@ -120,6 +132,7 @@ class ProjectsWindow(QWidget):
     - 打开已有项目
     - 删除项目
     """
+
     project_selected = Signal(str)  # 项目路径，发给 MainWindow
 
     def __init__(self, parent=None):
@@ -185,20 +198,32 @@ class ProjectsWindow(QWidget):
         self._projects = []
         try:
             for proj in self._pm.get_all_projects():
-                self._projects.append({
-                    "id": proj.id,
-                    "name": proj.metadata.name,
-                    "date": proj.metadata.modified_at.strftime("%Y-%m-%d") if proj.metadata.modified_at else "未知",
-                    "status": proj.metadata.status.value if proj.metadata.status else "draft",
-                    "path": proj.path,
-                    "thumb": self._get_thumb_for_status(proj.metadata.status.value if proj.metadata.status else "draft"),
-                })
+                self._projects.append(
+                    {
+                        "id": proj.id,
+                        "name": proj.metadata.name,
+                        "date": proj.metadata.modified_at.strftime("%Y-%m-%d")
+                        if proj.metadata.modified_at
+                        else "未知",
+                        "status": proj.metadata.status.value
+                        if proj.metadata.status
+                        else "draft",
+                        "path": proj.path,
+                        "thumb": self._get_thumb_for_status(
+                            proj.metadata.status.value
+                            if proj.metadata.status
+                            else "draft"
+                        ),
+                    }
+                )
         except Exception as e:
             logging.getLogger(__name__).warning(f"加载项目失败: {e}")
         self._render_projects()
 
     def _get_thumb_for_status(self, status: str) -> str:
-        return {"draft": "📁", "processing": "⚙️", "done": "🎬", "error": "❌"}.get(status, "📁")
+        return {"draft": "📁", "processing": "⚙️", "done": "🎬", "error": "❌"}.get(
+            status, "📁"
+        )
 
     def _render_projects(self):
         """渲染项目卡片网格"""
@@ -244,8 +269,11 @@ class ProjectsWindow(QWidget):
     def _delete_project(self, project_id: str, project_path: str):
         """删除项目"""
         reply = QMessageBox.question(
-            self, "确认删除", f"确定要删除项目「{project_path.split('/')[-1]}」吗？\n此操作不可恢复。",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            self,
+            "确认删除",
+            f"确定要删除项目「{project_path.split('/')[-1]}」吗？\n此操作不可恢复。",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
             success = self._pm.delete_project(project_id)

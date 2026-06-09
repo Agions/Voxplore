@@ -139,7 +139,9 @@ class InMemoryTaskStore(TaskStore):
         with self._lock:
             # 顺手清理过期
             now = time.time()
-            expired = [k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at]
+            expired = [
+                k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
+            ]
             for k in expired:
                 self._tasks.pop(k, None)
             return list(self._tasks.keys())
@@ -148,7 +150,9 @@ class InMemoryTaskStore(TaskStore):
         with self._lock:
             # 顺手清理过期
             now = time.time()
-            expired = [k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at]
+            expired = [
+                k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
+            ]
             for k in expired:
                 self._tasks.pop(k, None)
             return [dict(v.data) for v in self._tasks.values()]
@@ -162,7 +166,9 @@ class InMemoryTaskStore(TaskStore):
     def cleanup_expired(self) -> int:
         with self._lock:
             now = time.time()
-            expired = [k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at]
+            expired = [
+                k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
+            ]
             for k in expired:
                 self._tasks.pop(k, None)
             return len(expired)
@@ -215,7 +221,12 @@ class SQLiteTaskStore(TaskStore):
             expires = row[0] if row else None
             conn.execute(
                 "INSERT OR REPLACE INTO tasks VALUES (?, ?, ?, ?)",
-                (task_id, json.dumps(task, ensure_ascii=False, default=str), expires, time.time()),
+                (
+                    task_id,
+                    json.dumps(task, ensure_ascii=False, default=str),
+                    expires,
+                    time.time(),
+                ),
             )
             conn.commit()
 
@@ -245,9 +256,14 @@ class SQLiteTaskStore(TaskStore):
         with self._lock, self._conn() as conn:
             now = time.time()
             # 清理过期
-            conn.execute("DELETE FROM tasks WHERE expires_at IS NOT NULL AND expires_at < ?", (now,))
+            conn.execute(
+                "DELETE FROM tasks WHERE expires_at IS NOT NULL AND expires_at < ?",
+                (now,),
+            )
             conn.commit()
-            rows = conn.execute("SELECT task_id FROM tasks ORDER BY updated_at DESC").fetchall()
+            rows = conn.execute(
+                "SELECT task_id FROM tasks ORDER BY updated_at DESC"
+            ).fetchall()
             return [r[0] for r in rows]
 
     def list_all(self) -> list[dict[str, Any]]:
@@ -291,9 +307,7 @@ class RedisTaskStore(TaskStore):
         try:
             import redis as _redis  # type: ignore[import-untyped]
         except ImportError as e:
-            raise ImportError(
-                "RedisTaskStore requires `pip install redis`"
-            ) from e
+            raise ImportError("RedisTaskStore requires `pip install redis`") from e
         self._client = _redis.from_url(url, decode_responses=True)
         self._prefix = prefix
         self._lock = threading.RLock()

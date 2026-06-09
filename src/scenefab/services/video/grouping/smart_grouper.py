@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 class GroupingReason(Enum):
     """分组原因枚举"""
+
     VISUAL_SIMILAR = "视觉相似"
     AUDIO_SIMILAR = "声纹匹配"
     VISUAL_AUDIO_COMBINED = "视觉+声纹综合"
@@ -34,6 +35,7 @@ class GroupingReason(Enum):
 @dataclass
 class VideoGroup:
     """视频分组"""
+
     group_id: str
     video_paths: list[str]
     confidence: float  # 0.0 ~ 1.0
@@ -151,7 +153,9 @@ class SmartGrouper:
             return []
 
         if len(video_paths) == 1:
-            return [self._make_group([video_paths[0]], 1.0, GroupingReason.VISUAL_SIMILAR)]
+            return [
+                self._make_group([video_paths[0]], 1.0, GroupingReason.VISUAL_SIMILAR)
+            ]
 
         # 1. 提取 embedding
         vision_embeddings = {}
@@ -175,7 +179,9 @@ class SmartGrouper:
                 audio_embeddings[vp] = list(np.random.randn(64))
 
         if failed_vision > 0 or failed_audio > 0:
-            logger.warning(f"Embedding extraction failed: vision={failed_vision}, audio={failed_audio}")
+            logger.warning(
+                f"Embedding extraction failed: vision={failed_vision}, audio={failed_audio}"
+            )
 
         # 2. 计算两两相似度矩阵
         n = len(video_paths)
@@ -202,11 +208,9 @@ class SmartGrouper:
                 continue
             if len(cluster) == 1:
                 # 单视频单独成一组，置信度较低
-                groups.append(self._make_group(
-                    [cluster[0]],
-                    0.5,
-                    GroupingReason.VISUAL_SIMILAR
-                ))
+                groups.append(
+                    self._make_group([cluster[0]], 0.5, GroupingReason.VISUAL_SIMILAR)
+                )
             else:
                 # 计算组内平均相似度作为置信度
                 total_sim = 0.0

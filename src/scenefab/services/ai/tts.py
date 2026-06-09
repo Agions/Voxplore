@@ -1,6 +1,7 @@
 """
 TTS 文本转语音服务
 """
+
 import logging
 from typing import Any
 
@@ -30,7 +31,7 @@ class TTSService:
         output_path: str,
         voice: str = None,
         rate: float = None,
-        **kwargs
+        **kwargs,
     ) -> str | None:
         voice = voice or self.voice
         rate = rate or self.rate
@@ -49,7 +50,7 @@ class TTSService:
         output_path: str,
         voice: str = None,
         rate: float = None,
-        **kwargs
+        **kwargs,
     ) -> str | None:
         """
         异步生成语音（edge-tts 原生支持异步）
@@ -81,7 +82,7 @@ class TTSService:
     async def generate_batch_async(
         items: list[tuple[str, str, str]],  # (text, output_path, voice)
         rate: float = 1.0,
-        max_concurrent: int = 4
+        max_concurrent: int = 4,
     ) -> list[str | None]:
         """
         批量异步生成语音
@@ -133,7 +134,9 @@ class TTSService:
         semaphore = asyncio.Semaphore(max_concurrent)
         completed_count = 0
 
-        async def generate_one(index: int, text: str, output_path: str, voice: str) -> str | None:
+        async def generate_one(
+            index: int, text: str, output_path: str, voice: str
+        ) -> str | None:
             nonlocal completed_count
             async with semaphore:
                 try:
@@ -145,29 +148,36 @@ class TTSService:
                         async for chunk in communicate.stream():
                             if chunk["type"] == "audio":
                                 f.write(chunk["data"])
-                            elif chunk["type"] == "SentenceBoundary" and progress_callback:
-                                progress_callback(index, len(items), {
-                                    "text": chunk["text"],
-                                    "start": chunk["offset"] / 10_000_000,
-                                    "end": (chunk["offset"] + chunk["duration"]) / 10_000_000,
-                                })
+                            elif (
+                                chunk["type"] == "SentenceBoundary"
+                                and progress_callback
+                            ):
+                                progress_callback(
+                                    index,
+                                    len(items),
+                                    {
+                                        "text": chunk["text"],
+                                        "start": chunk["offset"] / 10_000_000,
+                                        "end": (chunk["offset"] + chunk["duration"])
+                                        / 10_000_000,
+                                    },
+                                )
 
                     return output_path
                 except Exception as e:
                     logger.error(f"TTS streaming failed for {output_path}: {e}")
                     return None
 
-        tasks = [generate_one(i, text, path, voice) for i, (text, path, voice) in enumerate(items)]
+        tasks = [
+            generate_one(i, text, path, voice)
+            for i, (text, path, voice) in enumerate(items)
+        ]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         return [r if not isinstance(r, Exception) else None for r in results]
 
     def _edge_tts(
-        self,
-        text: str,
-        output_path: str,
-        voice: str,
-        rate: float
+        self, text: str, output_path: str, voice: str, rate: float
     ) -> str | None:
         try:
             import edge_tts
@@ -179,6 +189,7 @@ class TTSService:
                 await communicate.save(output_path)
 
             import asyncio
+
             asyncio.run(generate())
             return output_path
 

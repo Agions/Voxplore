@@ -13,16 +13,17 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidg
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
 # ── 视频缩略图列表项 ────────────────────────────────────────
 class VideoThumbnailItem(QWidget):
     """单个视频缩略图卡片（用于列表展示）"""
+
     clicked = Signal(str)
     selection_changed = Signal(str, bool)  # path, selected
 
@@ -39,8 +40,8 @@ class VideoThumbnailItem(QWidget):
         self.setFixedSize(160, 140)
         self.setStyleSheet(f"""
             QWidget {{
-                background: {_T['bg_card']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_card"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 10px;
             }}
         """)
@@ -85,8 +86,12 @@ class VideoThumbnailItem(QWidget):
         if thumb_path and os.path.exists(thumb_path):
             pixmap = QPixmap(thumb_path)
             if not pixmap.isNull():
-                scaled = pixmap.scaled(148, 84, Qt.AspectRatioMode.KeepAspectRatio,
-                                       Qt.TransformationMode.SmoothTransformation)
+                scaled = pixmap.scaled(
+                    148,
+                    84,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
                 self._thumb_label.setPixmap(scaled)
                 self._thumb_label.setText("")
 
@@ -100,10 +105,10 @@ class VideoThumbnailItem(QWidget):
         self._update_border()
 
     def _update_border(self):
-        color = _T['primary'] if self._selected else _T['border']
+        color = _T["primary"] if self._selected else _T["border"]
         self.setStyleSheet(f"""
             QWidget {{
-                background: {_T['bg_card']};
+                background: {_T["bg_card"]};
                 border: 2px solid {color};
                 border-radius: 10px;
             }}

@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 class Language(str, Enum):
     """支持的语言"""
+
     ZH = "zh"  # 中文
     EN = "en"  # 英文
     JA = "ja"  # 日文
@@ -41,6 +42,7 @@ class Language(str, Enum):
 @dataclass
 class LanguageConfig:
     """语言配置"""
+
     language: Language
     display_name: str
     speed_coefficient: float  # 相对于中文的语速系数
@@ -52,6 +54,7 @@ class LanguageConfig:
 @dataclass
 class TranslationResult:
     """翻译结果"""
+
     original_text: str
     translated_text: str
     source_language: Language
@@ -67,18 +70,22 @@ class TranslationResult:
 @dataclass
 class DurationAdjustment:
     """时长调整"""
+
     original_text: str
     adjusted_text: str
     target_duration: float  # 目标时长（秒）
     original_duration: float  # 原始时长（秒）
     adjustment_type: str  # "compress", "expand", "none"
     adjustment_ratio: float  # 调整比例
-    frame_adjustments: list[dict[str, Any]] = field(default_factory=list)  # 画面调整建议
+    frame_adjustments: list[dict[str, Any]] = field(
+        default_factory=list
+    )  # 画面调整建议
 
 
 @dataclass
 class MultiLanguageResult:
     """多语言适配结果"""
+
     original_script: str
     original_language: Language
     translations: dict[str, TranslationResult] = field(default_factory=dict)
@@ -162,6 +169,7 @@ class MultiLanguageAdapter:
         if self.deepl_api_key:
             try:
                 import httpx
+
                 self.deepl_client = httpx.Client(timeout=60.0)
             except Exception as e:
                 logger.warning(f"DeepL 客户端初始化失败: {e}")
@@ -266,7 +274,9 @@ class MultiLanguageAdapter:
 
         # 计算差异
         duration_difference = estimated_duration - target_duration
-        duration_difference_percent = duration_difference / target_duration if target_duration > 0 else 0
+        duration_difference_percent = (
+            duration_difference / target_duration if target_duration > 0 else 0
+        )
 
         # 判断是否需要调整
         needs_adjustment = abs(duration_difference_percent) > self.DURATION_THRESHOLD
@@ -275,9 +285,13 @@ class MultiLanguageAdapter:
         adjustment_suggestions = []
         if needs_adjustment:
             if duration_difference > 0:
-                adjustment_suggestions.append(f"翻译后时长超出 {abs(duration_difference_percent)*100:.1f}%，建议压缩文案")
+                adjustment_suggestions.append(
+                    f"翻译后时长超出 {abs(duration_difference_percent) * 100:.1f}%，建议压缩文案"
+                )
             else:
-                adjustment_suggestions.append(f"翻译后时长不足 {abs(duration_difference_percent)*100:.1f}%，建议扩展文案")
+                adjustment_suggestions.append(
+                    f"翻译后时长不足 {abs(duration_difference_percent) * 100:.1f}%，建议扩展文案"
+                )
 
         return TranslationResult(
             original_text=text,
@@ -476,23 +490,29 @@ class MultiLanguageAdapter:
         if adjustment_type == "compress":
             # 压缩建议
             speed_ratio = original_duration / target_duration
-            adjustments.append({
-                "type": "speed_up",
-                "ratio": speed_ratio,
-                "description": f"将视频加速 {speed_ratio:.2f} 倍",
-            })
+            adjustments.append(
+                {
+                    "type": "speed_up",
+                    "ratio": speed_ratio,
+                    "description": f"将视频加速 {speed_ratio:.2f} 倍",
+                }
+            )
         elif adjustment_type == "expand":
             # 扩展建议
             speed_ratio = original_duration / target_duration
-            adjustments.append({
-                "type": "slow_down",
-                "ratio": speed_ratio,
-                "description": f"将视频减速至 {speed_ratio:.2f} 倍",
-            })
-            adjustments.append({
-                "type": "add_pause",
-                "description": "在关键节点添加停顿",
-            })
+            adjustments.append(
+                {
+                    "type": "slow_down",
+                    "ratio": speed_ratio,
+                    "description": f"将视频减速至 {speed_ratio:.2f} 倍",
+                }
+            )
+            adjustments.append(
+                {
+                    "type": "add_pause",
+                    "description": "在关键节点添加停顿",
+                }
+            )
 
         return adjustments
 

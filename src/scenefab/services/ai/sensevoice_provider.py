@@ -34,6 +34,7 @@ __all__ = [
 
 class Emotion(str, Enum):
     """情感类型"""
+
     HAPPY = "happy"
     SAD = "sad"
     ANGRY = "angry"
@@ -43,8 +44,17 @@ class Emotion(str, Enum):
 
 
 EMOTION_KEYWORDS: dict[Emotion, list[str]] = {
-    Emotion.HAPPY: ["哈哈", "开心", "高兴", "太好了", "哈哈哈", "笑",
-                    "happy", "great", "awesome"],
+    Emotion.HAPPY: [
+        "哈哈",
+        "开心",
+        "高兴",
+        "太好了",
+        "哈哈哈",
+        "笑",
+        "happy",
+        "great",
+        "awesome",
+    ],
     Emotion.SAD: ["难过", "伤心", "悲伤", "哭了", "sad", "unhappy", "terrible"],
     Emotion.ANGRY: ["生气", "愤怒", "可恶", "讨厌", "angry", "mad", "hate"],
     Emotion.FEARFUL: ["害怕", "紧张", "担心", "fear", "worried", "nervous"],
@@ -55,6 +65,7 @@ EMOTION_KEYWORDS: dict[Emotion, list[str]] = {
 @dataclass
 class EmotionSegment:
     """情感片段"""
+
     start: float
     end: float
     emotion: Emotion
@@ -64,6 +75,7 @@ class EmotionSegment:
 @dataclass
 class SpeakerSegment:
     """说话人片段"""
+
     start: float
     end: float
     speaker_id: str
@@ -73,6 +85,7 @@ class SpeakerSegment:
 @dataclass
 class AudioEvent:
     """音频事件"""
+
     start: float
     end: float
     event_type: str  # "laughter" | "applause" | "silence" | "music"
@@ -105,6 +118,7 @@ class SenseVoiceProvider:
         # 优先检查 SenseVoice (ctranslate2)
         try:
             import ctranslate2  # noqa: F401
+
             self._available = True
             logger.info("SenseVoice (ctranslate2) 可用")
             return True
@@ -115,6 +129,7 @@ class SenseVoiceProvider:
         try:
             import librosa  # noqa: F401
             import scipy  # noqa: F401
+
             self._available = True
             self._use_librosa_fallback = True
             logger.info("使用 librosa 回退方案进行语音分析")
@@ -148,7 +163,6 @@ class SenseVoiceProvider:
             # 实际部署时需要提前下载模型文件
             model_path = self._get_model_path()
             if model_path and Path(model_path).exists():
-
                 logger.info("SenseVoice 模型加载成功")
             else:
                 logger.warning(
@@ -163,6 +177,7 @@ class SenseVoiceProvider:
             logger.error(f"加载 SenseVoice 模型失败: {e}，回退到 librosa 方案")
             try:
                 import librosa  # noqa: F401
+
                 self._use_librosa_fallback = True
                 self._available = True
             except ImportError:
@@ -173,14 +188,13 @@ class SenseVoiceProvider:
         """获取本地模型路径"""
         # 优先从环境变量读取
         import os
+
         return os.getenv("SENSEVOICE_MODEL_PATH")
 
     # ── Emotion Extraction ───────────────────────────────────────────────────
 
     def extract_emotions(
-        self,
-        audio_path: str,
-        segment_duration: float = 3.0
+        self, audio_path: str, segment_duration: float = 3.0
     ) -> list[EmotionSegment]:
         """
         提取音频情感
@@ -208,9 +222,7 @@ class SenseVoiceProvider:
         )
 
     def extract_emotions_librosa(
-        self,
-        audio_path: str,
-        segment_duration: float = 3.0
+        self, audio_path: str, segment_duration: float = 3.0
     ) -> list[EmotionSegment]:
         """
         基于 librosa 声学特征的轻量情感分析（公开方法）。
@@ -225,9 +237,7 @@ class SenseVoiceProvider:
         return self._extract_emotions_librosa(audio_path, segment_duration)
 
     def _extract_emotions_librosa(
-        self,
-        audio_path: str,
-        segment_duration: float = 3.0
+        self, audio_path: str, segment_duration: float = 3.0
     ) -> list[EmotionSegment]:
         """基于声学特征的轻量情感分析"""
         import librosa
@@ -251,7 +261,11 @@ class SenseVoiceProvider:
             # 提取基频 (pitch) — 反映情感
             try:
                 pitches, magnitudes = librosa.piptrack(y=segment, sr=sr)
-                pitch_mean = pitches[magnitudes > 0.05].mean() if (pitches[magnitudes > 0.05].size > 0) else 0
+                pitch_mean = (
+                    pitches[magnitudes > 0.05].mean()
+                    if (pitches[magnitudes > 0.05].size > 0)
+                    else 0
+                )
             except Exception as e:
                 logger.debug(f"Pitch extraction failed: {e}")
                 pitch_mean = 0
@@ -263,7 +277,13 @@ class SenseVoiceProvider:
             try:
                 onset_env = librosa.onset.onset_strength(y=segment, sr=sr)
                 tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
-                tempo = float(tempo) if np.isscalar(tempo) else float(tempo[0]) if len(tempo) > 0 else 0
+                tempo = (
+                    float(tempo)
+                    if np.isscalar(tempo)
+                    else float(tempo[0])
+                    if len(tempo) > 0
+                    else 0
+                )
             except Exception as e:
                 logger.debug(f"Tempo extraction failed: {e}")
                 tempo = 0
@@ -276,25 +296,24 @@ class SenseVoiceProvider:
                 pitch_mean=pitch_mean,
                 energy=rms,
                 tempo=tempo,
-                energy_delta=energy_delta
+                energy_delta=energy_delta,
             )
 
             if emotion is not None and confidence > 0.4:
-                results.append(EmotionSegment(
-                    start=float(start),
-                    end=float(end),
-                    emotion=emotion,
-                    confidence=confidence
-                ))
+                results.append(
+                    EmotionSegment(
+                        start=float(start),
+                        end=float(end),
+                        emotion=emotion,
+                        confidence=confidence,
+                    )
+                )
 
         return results
 
     @staticmethod
     def _infer_emotion_from_features(
-        pitch_mean: float,
-        energy: float,
-        tempo: float,
-        energy_delta: float
+        pitch_mean: float, energy: float, tempo: float, energy_delta: float
     ) -> tuple[Emotion | None, float]:
         """根据声学特征推断情感"""
         if tempo > 160 and energy > 0.15:
@@ -313,9 +332,7 @@ class SenseVoiceProvider:
     # ── Speaker Diarization ─────────────────────────────────────────────────
 
     def diarize(
-        self,
-        audio_path: str,
-        num_speakers: int | None = None
+        self, audio_path: str, num_speakers: int | None = None
     ) -> list[SpeakerSegment]:
         """
         说话人分离
@@ -342,9 +359,7 @@ class SenseVoiceProvider:
         )
 
     def diarize_librosa(
-        self,
-        audio_path: str,
-        num_speakers: int | None = None
+        self, audio_path: str, num_speakers: int | None = None
     ) -> list[SpeakerSegment]:
         """
         基于 librosa MFCC 特征的轻量说话人分离（公开方法）。
@@ -359,9 +374,7 @@ class SenseVoiceProvider:
         return self._diarize_librosa(audio_path, num_speakers)
 
     def _diarize_librosa(
-        self,
-        audio_path: str,
-        num_speakers: int | None = None
+        self, audio_path: str, num_speakers: int | None = None
     ) -> list[SpeakerSegment]:
         """
         基于 MFCC 特征的轻量说话人分离。
@@ -390,7 +403,11 @@ class SenseVoiceProvider:
 
         if duration < 2.0:
             # 音频太短，不做分离
-            return [SpeakerSegment(start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5)]
+            return [
+                SpeakerSegment(
+                    start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5
+                )
+            ]
 
         # 提取 MFCC 特征
         mfccs = []
@@ -405,7 +422,11 @@ class SenseVoiceProvider:
             timestamps.append(start)
 
         if len(mfccs) < 2:
-            return [SpeakerSegment(start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5)]
+            return [
+                SpeakerSegment(
+                    start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5
+                )
+            ]
 
         X = np.array(mfccs)
         scaler = StandardScaler()
@@ -426,31 +447,33 @@ class SenseVoiceProvider:
             if labels[i] != labels[i - 1]:
                 # 说话人切换
                 seg_end = timestamps[i]
-                results.append(SpeakerSegment(
-                    start=seg_start,
-                    end=seg_end,
-                    speaker_id=current_speaker,
-                    confidence=max(0.5, 1 - abs(labels[i] - labels[i-1]) * 0.1)
-                ))
+                results.append(
+                    SpeakerSegment(
+                        start=seg_start,
+                        end=seg_end,
+                        speaker_id=current_speaker,
+                        confidence=max(0.5, 1 - abs(labels[i] - labels[i - 1]) * 0.1),
+                    )
+                )
                 current_speaker = f"SPEAKER_{labels[i] + 1}"
                 seg_start = timestamps[i]
 
         # 最后一个片段
-        results.append(SpeakerSegment(
-            start=seg_start,
-            end=duration,
-            speaker_id=current_speaker,
-            confidence=0.7
-        ))
+        results.append(
+            SpeakerSegment(
+                start=seg_start,
+                end=duration,
+                speaker_id=current_speaker,
+                confidence=0.7,
+            )
+        )
 
         return results
 
     # ── Audio Event Detection ────────────────────────────────────────────────
 
     def detect_audio_events(
-        self,
-        audio_path: str,
-        energy_threshold: float = 0.05
+        self, audio_path: str, energy_threshold: float = 0.05
     ) -> list[AudioEvent]:
         """
         检测音频事件（笑声、掌声、静音、音乐等）
@@ -498,9 +521,7 @@ class SenseVoiceProvider:
 
     @staticmethod
     def _detect_silence_regions(
-        times: np.ndarray,
-        rms: np.ndarray,
-        threshold: float
+        times: np.ndarray, rms: np.ndarray, threshold: float
     ) -> list[AudioEvent]:
         """检测静音区间"""
         events: list[AudioEvent] = []
@@ -517,21 +538,16 @@ class SenseVoiceProvider:
                 seg_end = float(times[i - 1])
                 duration = seg_end - seg_start
                 if duration > 0.3:  # 只记录超过 0.3 秒的静音
-                    events.append(AudioEvent(
-                        start=seg_start,
-                        end=seg_end,
-                        event_type="silence"
-                    ))
+                    events.append(
+                        AudioEvent(start=seg_start, end=seg_end, event_type="silence")
+                    )
             in_silence = is_silence
 
         return events
 
     @staticmethod
     def _detect_energy_bursts(
-        times: np.ndarray,
-        rms: np.ndarray,
-        sr: int,
-        hop_length: int
+        times: np.ndarray, rms: np.ndarray, sr: int, hop_length: int
     ) -> list[AudioEvent]:
         """检测高能量爆发（笑声/掌声）"""
         events: list[AudioEvent] = []
@@ -549,16 +565,14 @@ class SenseVoiceProvider:
                 duration = seg_end - seg_start
                 if duration > 0.2:
                     # 尝试区分笑声和掌声（掌声有更规律的节奏）
-                    spectral = rms[max(0, i - 50):i]
+                    spectral = rms[max(0, i - 50) : i]
                     if len(spectral) > 0 and np.std(spectral) > std_energy:
                         event_type = "applause"
                     else:
                         event_type = "laughter"
-                    events.append(AudioEvent(
-                        start=seg_start,
-                        end=seg_end,
-                        event_type=event_type
-                    ))
+                    events.append(
+                        AudioEvent(start=seg_start, end=seg_end, event_type=event_type)
+                    )
             in_burst = is_burst
 
         return events

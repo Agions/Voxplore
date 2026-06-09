@@ -66,12 +66,14 @@ class TextUtilsMixin:
             # 合并关键词
             all_keywords = list(set(script_keywords + trending_keywords[:3]))
 
-            cover_texts.append(CoverText(
-                title=title[:20],  # 限制标题长度
-                subtitle=subtitle,
-                hook=hook,
-                keywords=all_keywords,
-            ))
+            cover_texts.append(
+                CoverText(
+                    title=title[:20],  # 限制标题长度
+                    subtitle=subtitle,
+                    hook=hook,
+                    keywords=all_keywords,
+                )
+            )
 
         return cover_texts
 
@@ -90,8 +92,18 @@ class TextUtilsMixin:
 
         # 常见电影相关关键词
         movie_keywords = [
-            "电影", "剧情", "解说", "推荐", "高分", "神作",
-            "悬疑", "动作", "喜剧", "爱情", "科幻", "恐怖",
+            "电影",
+            "剧情",
+            "解说",
+            "推荐",
+            "高分",
+            "神作",
+            "悬疑",
+            "动作",
+            "喜剧",
+            "爱情",
+            "科幻",
+            "恐怖",
         ]
 
         for keyword in movie_keywords:
@@ -134,7 +146,7 @@ class TextUtilsMixin:
         for word in conflict_words:
             if word in script_text:
                 idx = script_text.index(word)
-                return script_text[max(0, idx-5):idx+10][:15]
+                return script_text[max(0, idx - 5) : idx + 10][:15]
 
         return f"太震惊了！{script_text[:10]}"
 
@@ -152,7 +164,7 @@ class TextUtilsMixin:
         for word in suspense_words:
             if word in script_text:
                 idx = script_text.index(word)
-                return script_text[max(0, idx-5):idx+10][:15]
+                return script_text[max(0, idx - 5) : idx + 10][:15]
 
         return f"这个秘密你知道吗？{script_text[:8]}"
 

@@ -6,7 +6,6 @@
 在字幕编辑时间线上显示时间刻度，支持缩放和拖拽定位。
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPoint
 from PySide6.QtWidgets import QWidget
@@ -100,7 +99,7 @@ class TimeRulerWidget(QWidget):
                 painter.drawPolygon(
                     QPoint(int(pos_x) - 6, 0),
                     QPoint(int(pos_x) + 6, 0),
-                    QPoint(int(pos_x), 8)
+                    QPoint(int(pos_x), 8),
                 )
 
     def mousePressEvent(self, event: QMouseEvent) -> None:

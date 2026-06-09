@@ -14,6 +14,7 @@ from typing import Any
 @dataclass
 class VisionAnalysisResult:
     """视觉分析结果"""
+
     description: str = ""
     content_type: str = "unknown"
     objects: list[str] = field(default_factory=list)
@@ -23,10 +24,10 @@ class VisionAnalysisResult:
     confidence: float = 0.0
     raw_response: str = ""
     # 第一人称解说专用字段
-    scene_narrative: str = ""      # 场景叙事（"我"看到什么）
-    protagonist_action: str = ""    # 主角动作
-    environment_mood: str = ""      # 环境氛围
-    first_person_hook: str = ""     # 适合第一人称的开场钩子
+    scene_narrative: str = ""  # 场景叙事（"我"看到什么）
+    protagonist_action: str = ""  # 主角动作
+    environment_mood: str = ""  # 环境氛围
+    first_person_hook: str = ""  # 适合第一人称的开场钩子
 
 
 # ============================================================================
@@ -82,8 +83,9 @@ class VisionProvider(ABC):
     """视觉分析提供者基类"""
 
     @abstractmethod
-    def analyze_image(self, image_base64: str,
-                      prompt: str = VISION_ANALYSIS_PROMPT) -> dict[str, Any]:
+    def analyze_image(
+        self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
+    ) -> dict[str, Any]:
         """分析图片，返回解析后的字典"""
         pass
 

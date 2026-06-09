@@ -15,14 +15,14 @@ from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QVBoxLayout
 
 # ── Design Tokens ─────────────────────────────────────────
 _T = {
-    "bg_card":    "oklch(0.16 0.01 250)",
-    "bg_input":   "oklch(0.13 0.01 250)",
-    "border":     "oklch(0.24 0.01 250)",
-    "border_h":   "oklch(0.30 0.02 250)",
-    "primary":    "oklch(0.65 0.20 250)",
-    "text":       "oklch(0.93 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "border_h": "oklch(0.30 0.02 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text": "oklch(0.93 0.01 250)",
     "text_muted": "oklch(0.55 0.01 250)",
-    "error":      "oklch(0.63 0.24 25)",
+    "error": "oklch(0.63 0.24 25)",
 }
 
 MIME_TYPE = "application/x-scenefab-video"
@@ -30,12 +30,12 @@ MIME_TYPE = "application/x-scenefab-video"
 
 class _VideoMimeData(QFrame):
     """自定义拖拽数据（用于跨分组拖拽）"""
+
     def __init__(self, video_path: str, group_id, parent=None):
         super().__init__(parent)
-        self._data = json.dumps({
-            "path": video_path,
-            "group_id": str(group_id)
-        }).encode("utf-8")
+        self._data = json.dumps({"path": video_path, "group_id": str(group_id)}).encode(
+            "utf-8"
+        )
 
     def data(self, mime_type: str) -> bytes:
         if mime_type == MIME_TYPE:
@@ -45,6 +45,7 @@ class _VideoMimeData(QFrame):
 
 class _GroupThumbItem(QFrame):
     """分组内的视频缩略图项"""
+
     remove_requested = Signal(str)
     drag_started = Signal(str)
 
@@ -61,12 +62,12 @@ class _GroupThumbItem(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_input']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
             }}
             QFrame:hover {{
-                border-color: {_T['primary']};
+                border-color: {_T["primary"]};
             }}
         """)
 
@@ -86,9 +87,10 @@ class _GroupThumbItem(QFrame):
             pixmap = QPixmap(self._thumb)
             if not pixmap.isNull():
                 scaled = pixmap.scaled(
-                    92, 52,
+                    92,
+                    52,
                     Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
+                    Qt.TransformationMode.SmoothTransformation,
                 )
                 self._thumb_label.setPixmap(scaled)
                 self._thumb_label.setText("")
@@ -111,15 +113,13 @@ class _GroupThumbItem(QFrame):
         self._remove_btn.setFixedSize(16, 16)
         self._remove_btn.setStyleSheet(f"""
             QPushButton {{
-                background: {_T['error']};
+                background: {_T["error"]};
                 color: white;
                 border-radius: 8px;
                 padding: 0px;
             }}
         """)
-        self._remove_btn.clicked.connect(
-            lambda: self.remove_requested.emit(self._path)
-        )
+        self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self._path))
         self._remove_btn.setVisible(False)
         layout.addWidget(self._remove_btn, alignment=Qt.AlignmentFlag.AlignRight)
 

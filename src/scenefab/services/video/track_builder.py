@@ -80,7 +80,9 @@ def build_monologue_tracks(
                 segment.video_start,
                 min(segment.audio_duration, segment.video_end - segment.video_start),
             ),
-            target_timerange=TimeRange.from_seconds(current_time, segment.audio_duration),
+            target_timerange=TimeRange.from_seconds(
+                current_time, segment.audio_duration
+            ),
         )
         video_track.add_segment(video_segment)
         current_time += segment.audio_duration
@@ -102,7 +104,9 @@ def build_monologue_tracks(
             audio_segment = Segment(
                 material_id=audio_material.id,
                 source_timerange=TimeRange.from_seconds(0, segment.audio_duration),
-                target_timerange=TimeRange.from_seconds(current_time, segment.audio_duration),
+                target_timerange=TimeRange.from_seconds(
+                    current_time, segment.audio_duration
+                ),
             )
             audio_track.add_segment(audio_segment)
 

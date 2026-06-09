@@ -2,6 +2,7 @@
 导出窗口（Step 4）
 格式选择 + 预览 + 导出进度
 """
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -93,7 +94,9 @@ class ExportWindow(BaseStepWindow):
         preview_title.setObjectName("section_title")
         preview_layout.addWidget(preview_title)
 
-        self.preview_placeholder = QLabel("🎬 视频预览区域\n\n点击「开始导出」生成最终视频")
+        self.preview_placeholder = QLabel(
+            "🎬 视频预览区域\n\n点击「开始导出」生成最终视频"
+        )
         self.preview_placeholder.setAlignment(Qt.AlignCenter)
         self.preview_placeholder.setObjectName("preview_placeholder")
         self.preview_placeholder.setMinimumHeight(200)
@@ -146,6 +149,7 @@ class ExportWindow(BaseStepWindow):
         self.progress_group.show()
 
         import time
+
         steps = [
             ("正在合成音视频...", 20),
             ("正在处理字幕...", 45),
@@ -159,7 +163,9 @@ class ExportWindow(BaseStepWindow):
             self.export_label.setText(label_text)
             time.sleep(0.8)
 
-        self.preview_placeholder.setText("✅ 导出完成!\n\n文件已保存至：~/Videos/SceneFab/")
+        self.preview_placeholder.setText(
+            "✅ 导出完成!\n\n文件已保存至：~/Videos/SceneFab/"
+        )
         self.finished.emit()
 
     def can_proceed(self) -> bool:

@@ -26,32 +26,37 @@ logger = logging.getLogger(__name__)
 
 # ============ 枚举定义 ============
 
+
 class ErrorCategory(Enum):
     """错误类别"""
-    NETWORK = "network"          # 网络错误
-    API = "api"                  # API 调用错误
-    FILE = "file"                # 文件操作错误
-    VALIDATION = "validation"    # 验证错误
-    PERMISSION = "permission"     # 权限错误
-    UNKNOWN = "unknown"           # 未知错误
+
+    NETWORK = "network"  # 网络错误
+    API = "api"  # API 调用错误
+    FILE = "file"  # 文件操作错误
+    VALIDATION = "validation"  # 验证错误
+    PERMISSION = "permission"  # 权限错误
+    UNKNOWN = "unknown"  # 未知错误
 
 
 # ============ 数据类 ============
 
+
 @dataclass
 class ErrorInfo:
     """错误信息数据类"""
+
     error_type: str
     severity: str
     message: str
-    category: str = "unknown"     # ✅ 新增：错误类别
+    category: str = "unknown"  # ✅ 新增：错误类别
     exception: Exception | None = None
     details: str = ""
-    retry_count: int = 0         # ✅ 新增：重试次数
+    retry_count: int = 0  # ✅ 新增：重试次数
     context: dict[str, Any] = field(default_factory=dict)  # ✅ 新增：上下文
 
 
 # ============ 错误恢复策略 ============
+
 
 class RetryStrategy:
     """
@@ -65,7 +70,7 @@ class RetryStrategy:
         base_delay: float = 1.0,
         max_delay: float = 30.0,
         exponential_base: float = 2.0,
-        retryable_categories: tuple = (ErrorCategory.NETWORK, ErrorCategory.API)
+        retryable_categories: tuple = (ErrorCategory.NETWORK, ErrorCategory.API),
     ):
         self.max_attempts = max_attempts
         self.base_delay = base_delay
@@ -87,12 +92,14 @@ class RetryStrategy:
     def get_delay(self, attempt: int) -> float:
         """计算延迟时间"""
         import random
-        delay = min(self.base_delay * (self.exponential_base ** attempt), self.max_delay)
+
+        delay = min(self.base_delay * (self.exponential_base**attempt), self.max_delay)
         # 添加 jitter
         return delay * (0.5 + random.random() * 0.5)
 
 
 # ============ 异步错误处理 ============
+
 
 class AsyncErrorHandler:
     """
@@ -117,7 +124,7 @@ class AsyncErrorHandler:
         *args,
         error_message: str = "异步操作失败",
         on_retry: Callable[[ErrorInfo], None] = None,
-        **kwargs
+        **kwargs,
     ) -> Any | None:
         """
         安全执行异步函数
@@ -147,7 +154,7 @@ class AsyncErrorHandler:
                     exception=e,
                     details=str(e),
                     retry_count=attempt,
-                    context={"args": str(args)[:100], "kwargs": str(kwargs)[:100]}
+                    context={"args": str(args)[:100], "kwargs": str(kwargs)[:100]},
                 )
 
                 self._record_error(error_info)
@@ -175,6 +182,7 @@ class AsyncErrorHandler:
 
 
 # ============ 错误处理器 ============
+
 
 class ErrorHandler:
     """错误处理器"""
@@ -210,7 +218,7 @@ class ErrorHandler:
                 traceback.print_exception(
                     type(error_info.exception),
                     error_info.exception,
-                    error_info.exception.__traceback__
+                    error_info.exception.__traceback__,
                 )
 
     def show_error_dialog(
@@ -219,7 +227,7 @@ class ErrorHandler:
         title: str,
         message: str,
         details: str = "",
-        category: str = "unknown"
+        category: str = "unknown",
     ) -> None:
         """显示错误对话框
 
@@ -256,10 +264,7 @@ class ErrorHandler:
             QMessageBox.critical(None, title, message)
 
     def log_and_show_error(
-        self,
-        parent: QWidget | None,
-        error_info: ErrorInfo,
-        show_dialog: bool = True
+        self, parent: QWidget | None, error_info: ErrorInfo, show_dialog: bool = True
     ) -> None:
         """记录错误并可选显示错误对话框
 
@@ -276,7 +281,7 @@ class ErrorHandler:
                 "错误",
                 error_info.message,
                 error_info.details,
-                error_info.category
+                error_info.category,
             )
 
     def get_error_summary(self) -> dict[str, int]:
@@ -293,12 +298,15 @@ class ErrorHandler:
 
 # ============ 装饰器 ============
 
+
 def _compute_delay(attempt: int, base_delay: float) -> float:
     """计算带抖动的指数退避延迟"""
-    return base_delay * (2 ** attempt) * (0.5 + random.random() * 0.5)
+    return base_delay * (2**attempt) * (0.5 + random.random() * 0.5)
 
 
-def _log_retry(func_name: str, attempt: int, max_attempts: int, e: Exception, delay: float) -> None:
+def _log_retry(
+    func_name: str, attempt: int, max_attempts: int, e: Exception, delay: float
+) -> None:
     """记录重试日志"""
     logger.warning(
         f"{func_name} 失败 (尝试 {attempt + 1}/{max_attempts}): {e}. "
@@ -309,7 +317,7 @@ def _log_retry(func_name: str, attempt: int, max_attempts: int, e: Exception, de
 def async_retry(
     max_attempts: int = 3,
     base_delay: float = 1.0,
-    retryable_exceptions: tuple = (Exception,)
+    retryable_exceptions: tuple = (Exception,),
 ):
     """
     异步重试装饰器
@@ -319,6 +327,7 @@ def async_retry(
         base_delay: 基础延迟（秒）
         retryable_exceptions: 可重试的异常类型元组
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -336,13 +345,14 @@ def async_retry(
             return None
 
         return wrapper
+
     return decorator
 
 
 def sync_retry(
     max_attempts: int = 3,
     base_delay: float = 1.0,
-    retryable_exceptions: tuple = (Exception,)
+    retryable_exceptions: tuple = (Exception,),
 ):
     """
     同步重试装饰器
@@ -352,6 +362,7 @@ def sync_retry(
         base_delay: 基础延迟（秒）
         retryable_exceptions: 可重试的异常类型元组
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -369,10 +380,12 @@ def sync_retry(
             return None
 
         return wrapper
+
     return decorator
 
 
 # ============ 全局异常处理 ============
+
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     """处理未捕获的异常"""
@@ -385,7 +398,7 @@ def show_error_dialog(
     title: str,
     message: str,
     details: str = "",
-    category: str = "unknown"
+    category: str = "unknown",
 ) -> None:
     """显示错误对话框
 
@@ -423,19 +436,24 @@ def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
     Returns:
         ErrorHandler: 错误处理器实例
     """
+
     def exception_handler(exc_type, exc_value, exc_traceback):
         error_info = ErrorInfo(
             error_type="UnhandledException",
             severity="critical",
             message=f"未捕获的异常: {exc_value}",
             exception=exc_value,
-            details=str(exc_value)
+            details=str(exc_value),
         )
 
         if log:
-            log.critical(error_info.message, exc_info=(exc_type, exc_value, exc_traceback))
+            log.critical(
+                error_info.message, exc_info=(exc_type, exc_value, exc_traceback)
+            )
         else:
-            logging.getLogger("error_handler").critical(f"{error_info.error_type}: {error_info.message}")
+            logging.getLogger("error_handler").critical(
+                f"{error_info.error_type}: {error_info.message}"
+            )
             traceback.print_exception(exc_type, exc_value, exc_traceback)
 
     sys.excepthook = exception_handler
@@ -446,10 +464,10 @@ def safe_execute(
     func: Callable,
     parent: QWidget | None = None,
     error_message: str = "操作失败",
-    logger = None,
+    logger=None,
     category: str = "unknown",
     *args,
-    **kwargs
+    **kwargs,
 ) -> Any | None:
     """安全执行函数
 
@@ -474,19 +492,23 @@ def safe_execute(
             message=error_message,
             exception=e,
             details=str(e),
-            category=category
+            category=category,
         )
 
         # 记录错误
         if logger:
             logger.error(error_info.message, exc_info=e)
         else:
-            logging.getLogger("error_handler").error(f"{error_info.error_type}: {error_info.message}")
+            logging.getLogger("error_handler").error(
+                f"{error_info.error_type}: {error_info.message}"
+            )
             traceback.print_exception(type(e), e, e.__traceback__)
 
         # 显示错误对话框
         if parent:
-            show_error_dialog(parent, "错误", error_info.message, error_info.details, category)
+            show_error_dialog(
+                parent, "错误", error_info.message, error_info.details, category
+            )
 
         return None
 

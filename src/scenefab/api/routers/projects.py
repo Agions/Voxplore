@@ -33,7 +33,7 @@ async def create_project(request: ProjectCreate):
         description=request.description,
         created_at=now,
         updated_at=now,
-        status="active"
+        status="active",
     )
 
     _projects_db[project_id] = project
@@ -44,10 +44,7 @@ async def create_project(request: ProjectCreate):
 async def list_projects():
     """列出所有项目"""
     projects = list(_projects_db.values())
-    return ProjectListResponse(
-        projects=projects,
-        total=len(projects)
-    )
+    return ProjectListResponse(projects=projects, total=len(projects))
 
 
 @router.get("/projects/{project_id}", response_model=ProjectResponse)

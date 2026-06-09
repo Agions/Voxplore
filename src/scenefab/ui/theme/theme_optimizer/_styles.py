@@ -1,6 +1,3 @@
-
-
-
 def generate_theme_stylesheet(colors: dict, is_dark: bool = True) -> str:
     """根据配色生成完整的主题样式表"""
     primary_light = colors.get("primary", "#6366F1")
@@ -134,6 +131,5 @@ QToolTip {{
         _list_selected_bg=_list_selected_bg,
         _menu_bg=_menu_bg,
         _menu_selected_color=_menu_selected_color,
-        **{k: v for k, v in colors.items() if k not in ("name", "primary")}
+        **{k: v for k, v in colors.items() if k not in ("name", "primary")},
     )
-

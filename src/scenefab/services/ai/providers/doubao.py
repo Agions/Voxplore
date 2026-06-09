@@ -72,10 +72,12 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
 
         # 初始化HTTP客户端
-        self._init_http_client({
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        })
+        self._init_http_client(
+            {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
+        )
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""
@@ -92,11 +94,13 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                     "temperature": request.temperature or 0.7,
                     "top_p": request.top_p,
                     "stream": False,
-                }
+                },
             )
 
             if response.status_code != 200:
-                raise ProviderError(f"API Error: {response.status_code} - {response.text}")
+                raise ProviderError(
+                    f"API Error: {response.status_code} - {response.text}"
+                )
 
             result = response.json()
         except httpx.HTTPStatusError as e:
@@ -105,9 +109,8 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             raise ProviderError(f"生成失败: {str(e)}")
 
         usage_data = result.get("usage", {})
-        tokens_used = (
-            usage_data.get("prompt_tokens", 0) +
-            usage_data.get("completion_tokens", 0)
+        tokens_used = usage_data.get("prompt_tokens", 0) + usage_data.get(
+            "completion_tokens", 0
         )
 
         return LLMResponse(

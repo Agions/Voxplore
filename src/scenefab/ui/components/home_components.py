@@ -21,9 +21,12 @@ from ..pro_components import GradientButton
 
 class QuickActionCard(QFrame):
     """快捷操作卡片"""
+
     clicked = Signal(str)
 
-    def __init__(self, icon: str, title: str, description: str, action_id: str, parent=None):
+    def __init__(
+        self, icon: str, title: str, description: str, action_id: str, parent=None
+    ):
         super().__init__(parent)
         self._action_id = action_id
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -69,13 +72,17 @@ class QuickActionCard(QFrame):
         # 标题
         title_label = QLabel(title)
         title_label.setFont(QFont("", 16, QFont.Weight.Bold))
-        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        title_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         layout.addWidget(title_label)
 
         # 描述
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
+        desc_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; background: transparent;"
+        )
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
 
@@ -87,6 +94,7 @@ class QuickActionCard(QFrame):
 
 class ProjectPreviewCard(QFrame):
     """项目预览卡片"""
+
     clicked = Signal(str)
 
     def __init__(self, project_data: dict, parent=None):
@@ -149,7 +157,9 @@ class ProjectPreviewCard(QFrame):
         name = self._project_data.get("name", "未命名项目")
         name_label = QLabel(name)
         name_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
-        name_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        name_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         info_layout.addWidget(name_label)
 
         # 时间和状态
@@ -213,7 +223,9 @@ class FeatureShowcase(QFrame):
 
         title_label = QLabel(title)
         title_label.setFont(QFont("", 20, QFont.Weight.Bold))
-        title_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        title_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         header.addWidget(title_label)
 
         header.addStretch()
@@ -232,7 +244,9 @@ class FeatureShowcase(QFrame):
 
             feature_label = QLabel(feature)
             feature_label.setFont(QFont("", 13))
-            feature_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
+            feature_label.setStyleSheet(
+                f"color: {Colors.TextSecondary}; background: transparent;"
+            )
             feature_item.addWidget(feature_label)
 
             feature_item.addStretch()
@@ -266,12 +280,16 @@ class AIPowerBadge(QFrame):
 
         title_label = QLabel(f"⚡ {title}")
         title_label.setFont(QFont("", 14, QFont.Weight.SemiBold))
-        title_label.setStyleSheet(f"color: {Colors.AccentSubtle}; background: transparent;")
+        title_label.setStyleSheet(
+            f"color: {Colors.AccentSubtle}; background: transparent;"
+        )
         layout.addWidget(title_label)
 
         desc_label = QLabel(description)
         desc_label.setFont(QFont("", 12))
-        desc_label.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
+        desc_label.setStyleSheet(
+            f"color: {Colors.TextSecondary}; background: transparent;"
+        )
         layout.addWidget(desc_label)
 
 
@@ -292,7 +310,9 @@ class WelcomeHeader(QWidget):
         # 欢迎文字
         welcome = QLabel(f"欢迎回来{', ' + user_name if user_name else ''} 👋")
         welcome.setFont(QFont("", 14))
-        welcome.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
+        welcome.setStyleSheet(
+            f"color: {Colors.TextSecondary}; background: transparent;"
+        )
         layout.addWidget(welcome)
 
         # 主标题
@@ -310,7 +330,9 @@ class WelcomeHeader(QWidget):
         # 副标题
         subtitle = QLabel("AI 驱动的专业视频创作平台")
         subtitle.setFont(QFont("", 18))
-        subtitle.setStyleSheet(f"color: {Colors.TextSecondary}; background: transparent;")
+        subtitle.setStyleSheet(
+            f"color: {Colors.TextSecondary}; background: transparent;"
+        )
         layout.addWidget(subtitle)
 
         # 快捷操作
@@ -399,12 +421,16 @@ class StatsRow(QWidget):
 
         value_label = QLabel(value)
         value_label.setFont(QFont("", 28, QFont.Weight.Bold))
-        value_label.setStyleSheet(f"color: {Colors.TextPrimary}; background: transparent;")
+        value_label.setStyleSheet(
+            f"color: {Colors.TextPrimary}; background: transparent;"
+        )
         layout.addWidget(value_label)
 
         label_widget = QLabel(label)
         label_widget.setFont(QFont("", 12))
-        label_widget.setStyleSheet(f"color: {Colors.TextMuted}; background: transparent;")
+        label_widget.setStyleSheet(
+            f"color: {Colors.TextMuted}; background: transparent;"
+        )
         layout.addWidget(label_widget)
 
         return card

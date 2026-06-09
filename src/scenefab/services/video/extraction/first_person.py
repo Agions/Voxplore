@@ -24,11 +24,12 @@ logger = logging.getLogger(__name__)
 @dataclass
 class VideoSegment:
     """视频片段"""
+
     video_path: str
     start_time: float  # 秒
-    end_time: float    # 秒
+    end_time: float  # 秒
     confidence: float  # 0.0 ~ 1.0，第一人称置信度
-    description: str   # 片段描述
+    description: str  # 片段描述
 
 
 @runtime_checkable
@@ -146,15 +147,22 @@ class FirstPersonExtractor:
             except Exception as e:
                 frame_errors += 1
                 logger.warning(f"Frame analysis failed at {timestamp}s: {e}")
-                frame_results.append((timestamp, {
-                    "is_first_person": False,
-                    "confidence": 0.0,
-                    "description": "",
-                }))
+                frame_results.append(
+                    (
+                        timestamp,
+                        {
+                            "is_first_person": False,
+                            "confidence": 0.0,
+                            "description": "",
+                        },
+                    )
+                )
             timestamp += self._frame_interval
 
         if frame_errors > 0:
-            logger.warning(f"Frame analysis errors: {frame_errors}/{int(duration / self._frame_interval) + 1}")
+            logger.warning(
+                f"Frame analysis errors: {frame_errors}/{int(duration / self._frame_interval) + 1}"
+            )
 
         # 聚类连续的第一人称帧
         segments = self._cluster_segments(frame_results, video_path)
@@ -180,7 +188,10 @@ class FirstPersonExtractor:
         current_descriptions = []
 
         for timestamp, result in frame_results:
-            if result["is_first_person"] and result["confidence"] >= self._min_confidence:
+            if (
+                result["is_first_person"]
+                and result["confidence"] >= self._min_confidence
+            ):
                 if current_start is None:
                     current_start = timestamp
                     current_end = timestamp
@@ -194,16 +205,25 @@ class FirstPersonExtractor:
             else:
                 if current_start is not None:
                     # 完成当前片段
-                    avg_conf = np.mean(current_confidences) if current_confidences else 0.0
-                    desc = "; ".join(current_descriptions[:3]) if current_descriptions else ""
+                    avg_conf = (
+                        np.mean(current_confidences) if current_confidences else 0.0
+                    )
+                    desc = (
+                        "; ".join(current_descriptions[:3])
+                        if current_descriptions
+                        else ""
+                    )
 
-                    segments.append(VideoSegment(
-                        video_path=video_path,
-                        start_time=current_start,
-                        end_time=current_end + self._frame_interval,
-                        confidence=avg_conf,
-                        description=desc or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",
-                    ))
+                    segments.append(
+                        VideoSegment(
+                            video_path=video_path,
+                            start_time=current_start,
+                            end_time=current_end + self._frame_interval,
+                            confidence=avg_conf,
+                            description=desc
+                            or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",
+                        )
+                    )
 
                     current_start = None
                     current_end = None
@@ -212,13 +232,16 @@ class FirstPersonExtractor:
         if current_start is not None:
             avg_conf = np.mean(current_confidences) if current_confidences else 0.0
             desc = "; ".join(current_descriptions[:3]) if current_descriptions else ""
-            segments.append(VideoSegment(
-                video_path=video_path,
-                start_time=current_start,
-                end_time=current_end + self._frame_interval,
-                confidence=avg_conf,
-                description=desc or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",
-            ))
+            segments.append(
+                VideoSegment(
+                    video_path=video_path,
+                    start_time=current_start,
+                    end_time=current_end + self._frame_interval,
+                    confidence=avg_conf,
+                    description=desc
+                    or f"第一人称视角 [{current_start:.1f}s-{current_end:.1f}s]",
+                )
+            )
 
         return segments
 
@@ -256,13 +279,15 @@ class FirstPersonExtractor:
             sub_start = seg.start_time + i * sub_duration
             sub_end = sub_start + sub_duration
 
-            sub_segs.append(VideoSegment(
-                video_path=seg.video_path,
-                start_time=sub_start,
-                end_time=sub_end,
-                confidence=seg.confidence,
-                description=f"{seg.description} (片段{i+1}/{num_splits})",
-            ))
+            sub_segs.append(
+                VideoSegment(
+                    video_path=seg.video_path,
+                    start_time=sub_start,
+                    end_time=sub_end,
+                    confidence=seg.confidence,
+                    description=f"{seg.description} (片段{i + 1}/{num_splits})",
+                )
+            )
 
         return sub_segs
 

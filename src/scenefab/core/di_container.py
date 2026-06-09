@@ -133,8 +133,12 @@ class DIContainer:
             else:
                 self._services[service_type] = _ServiceEntry(
                     lifetime=ServiceLifetime.TRANSIENT,
-                    service_type=factory_or_type if isinstance(factory_or_type, type) else None,
-                    factory=factory_or_type if not isinstance(factory_or_type, type) else None,
+                    service_type=factory_or_type
+                    if isinstance(factory_or_type, type)
+                    else None,
+                    factory=factory_or_type
+                    if not isinstance(factory_or_type, type)
+                    else None,
                 )
 
     def register_scoped(
@@ -352,13 +356,17 @@ def inject(container: DIContainer, service_name: str | type):
             else:
                 instance = container.get(service_name)
             kwargs.setdefault(
-                "_inject_target" if service_name == "_inject_target" else
-                (func.__annotations__.get("inject_param") or
-                 next(iter(func.__annotations__), None) or
-                 "service"),
+                "_inject_target"
+                if service_name == "_inject_target"
+                else (
+                    func.__annotations__.get("inject_param")
+                    or next(iter(func.__annotations__), None)
+                    or "service"
+                ),
                 instance,
             )
             return func(*args, **kwargs)
+
         return wrapper
 
     return decorator
@@ -383,10 +391,11 @@ def get_app_container() -> DIContainer:
                 # v2.1: 自动注入事件总线
                 try:
                     from scenefab.core.unified_event_bus import get_event_bus
+
+                    _global_container.register_singleton("event_bus", get_event_bus())
                     _global_container.register_singleton(
-                        "event_bus", get_event_bus()
+                        type(get_event_bus()), get_event_bus()
                     )
-                    _global_container.register_singleton(type(get_event_bus()), get_event_bus())
                 except ImportError:
                     pass
     return _global_container

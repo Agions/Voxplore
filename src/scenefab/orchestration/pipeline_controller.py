@@ -13,12 +13,13 @@ from scenefab.services.video.monologue_maker import MonologueMaker, MonologuePro
 
 class PipelineStage(Enum):
     """Pipeline 阶段"""
+
     IDLE = "idle"
-    ANALYZING = "analyzing"      # Step1: 分析视频
-    SCRIPT = "script"             # Step2: 生成文案
-    VOICE = "voice"              # Step2: 生成配音
-    CAPTION = "caption"          # Step2: 生成字幕
-    EXPORTING = "exporting"       # Step3: 导出
+    ANALYZING = "analyzing"  # Step1: 分析视频
+    SCRIPT = "script"  # Step2: 生成文案
+    VOICE = "voice"  # Step2: 生成配音
+    CAPTION = "caption"  # Step2: 生成字幕
+    EXPORTING = "exporting"  # Step3: 导出
     DONE = "done"
     ERROR = "error"
 
@@ -169,9 +170,15 @@ class PipelineController(QObject):
 
         try:
             _STAGE_MAP = {
-                PipelineStage.SCRIPT: (PipelineStage.SCRIPT, self._maker.generate_script),
+                PipelineStage.SCRIPT: (
+                    PipelineStage.SCRIPT,
+                    self._maker.generate_script,
+                ),
                 PipelineStage.VOICE: (PipelineStage.VOICE, self._maker.generate_voice),
-                PipelineStage.CAPTION: (PipelineStage.CAPTION, self._maker.generate_captions),
+                PipelineStage.CAPTION: (
+                    PipelineStage.CAPTION,
+                    self._maker.generate_captions,
+                ),
             }
             if stage in _STAGE_MAP:
                 self._set_stage(_STAGE_MAP[stage][0])

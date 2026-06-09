@@ -34,11 +34,11 @@ class SceneAnalyzerV2(SceneAnalyzer):
         """
         super().__init__(config)
         self._importance_weights = {
-            'duration': 0.20,
-            'brightness': 0.15,
-            'motion': 0.15,
-            'scene_type': 0.30,
-            'audio': 0.20,
+            "duration": 0.20,
+            "brightness": 0.15,
+            "motion": 0.15,
+            "scene_type": 0.30,
+            "audio": 0.20,
         }
         self._scorer = SceneScorer()
 
@@ -72,8 +72,13 @@ class SceneAnalyzerV2(SceneAnalyzer):
 
             if narration_importance_fn is not None:
                 scene.narration_importance = narration_importance_fn(scene)
-            elif not hasattr(scene, 'narration_importance') or scene.narration_importance <= 0:
-                scene.narration_importance = self._calculate_default_narration_importance(scene)
+            elif (
+                not hasattr(scene, "narration_importance")
+                or scene.narration_importance <= 0
+            ):
+                scene.narration_importance = (
+                    self._calculate_default_narration_importance(scene)
+                )
             # else: 保留现有 scene.narration_importance 值
 
         return scenes
@@ -96,9 +101,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
         filtered = [s for s in scenes if s.suitability_score >= min_score]
 
         sorted_scenes = sorted(
-            filtered,
-            key=lambda s: s.suitability_score,
-            reverse=True
+            filtered, key=lambda s: s.suitability_score, reverse=True
         )
 
         return sorted_scenes[:top_k]
@@ -113,9 +116,7 @@ class SceneAnalyzerV2(SceneAnalyzer):
         filtered = [s for s in scenes if s.type == scene_type]
 
         sorted_scenes = sorted(
-            filtered,
-            key=lambda s: s.suitability_score,
-            reverse=True
+            filtered, key=lambda s: s.suitability_score, reverse=True
         )
 
         return sorted_scenes[:top_k]
@@ -166,13 +167,13 @@ class SceneAnalyzerV2(SceneAnalyzer):
         if not scenes:
             return "视频包含0个有效场景。"
 
-        sorted_scenes = sorted(
-            scenes,
-            key=lambda s: s.suitability_score,
-            reverse=True
-        )[:max_scenes]
+        sorted_scenes = sorted(scenes, key=lambda s: s.suitability_score, reverse=True)[
+            :max_scenes
+        ]
 
-        parts = [f"视频共 {len(scenes)} 个场景，选取最重要的 {len(sorted_scenes)} 个：\n"]
+        parts = [
+            f"视频共 {len(scenes)} 个场景，选取最重要的 {len(sorted_scenes)} 个：\n"
+        ]
 
         for scene in sorted_scenes:
             start_str = self._format_timestamp(scene.start)

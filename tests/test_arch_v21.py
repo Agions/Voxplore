@@ -76,7 +76,11 @@ class TestUnifiedEventBus:
 
     def test_event_log_captures_typed_events(self):
         self.bus.publish_event(PipelineStarted(pipeline_id="p1", total_steps=1))
-        self.bus.publish_event(PipelineStepCompleted(pipeline_id="p1", step_id="a", status="success", duration_ms=10))
+        self.bus.publish_event(
+            PipelineStepCompleted(
+                pipeline_id="p1", step_id="a", status="success", duration_ms=10
+            )
+        )
         time.sleep(0.05)
         log = self.bus.log()
         assert log is not None
@@ -86,7 +90,14 @@ class TestUnifiedEventBus:
     def test_replay_all(self):
         received = []
         self.bus.subscribe("pipeline.completed", lambda e: received.append(e))
-        self.bus.publish_event(PipelineCompleted(pipeline_id="p1", total_duration_ms=100, success_count=1, failure_count=0))
+        self.bus.publish_event(
+            PipelineCompleted(
+                pipeline_id="p1",
+                total_duration_ms=100,
+                success_count=1,
+                failure_count=0,
+            )
+        )
         time.sleep(0.05)
         received.clear()  # 清空初始触发的
         replayed = self.bus.replay_all()
@@ -133,8 +144,14 @@ class TestUnifiedEventBus:
             lambda e: received.append(e),
             filter_fn=lambda e: e.new_status == "completed",
         )
-        self.bus.publish_event(TaskStatusChanged(task_id="t1", old_status="running", new_status="running"))
-        self.bus.publish_event(TaskStatusChanged(task_id="t1", old_status="running", new_status="completed"))
+        self.bus.publish_event(
+            TaskStatusChanged(task_id="t1", old_status="running", new_status="running")
+        )
+        self.bus.publish_event(
+            TaskStatusChanged(
+                task_id="t1", old_status="running", new_status="completed"
+            )
+        )
         time.sleep(0.05)
         assert len(received) == 1
         assert received[0].new_status == "completed"
@@ -150,17 +167,20 @@ class TestV1XCompatibility:
 
     def test_core_eventbus_delegates(self):
         from scenefab.core import EventBus as CoreEventBus
+
         b = CoreEventBus()
         # 委托到 UnifiedEventBus 默认实例
         assert b._backend is UnifiedEventBus.get_default()
 
     def test_event_bus_module_delegates(self):
         from scenefab.event_bus import EventBus as CompatEventBus
+
         b = CompatEventBus()
         assert b._backend is UnifiedEventBus.get_default()
 
     def test_v1x_publish_subscribe(self):
         from scenefab.event_bus import event_bus as compat_event_bus
+
         received = []
         compat_event_bus.clear_handlers()
         compat_event_bus.subscribe("v1x.test", lambda d: received.append(d))
@@ -179,12 +199,14 @@ class TestUnifiedTask:
 
     def test_initial_state_pending(self):
         from scenefab.core.task_model import UnifiedTask
+
         t = UnifiedTask()
         assert t.status.value == "pending"
         assert t.progress == 0.0
 
     def test_legal_transitions(self):
         from scenefab.core.task_model import TaskStatus, UnifiedTask
+
         t = UnifiedTask()
         t.mark_running()
         assert t.status == TaskStatus.RUNNING
@@ -202,6 +224,7 @@ class TestUnifiedTask:
             TaskStatus,
             UnifiedTask,
         )
+
         t = UnifiedTask()
         # pending → completed 不合法（必须先经过 running）
         with pytest.raises(IllegalTransitionError):
@@ -212,6 +235,7 @@ class TestUnifiedTask:
             IllegalTransitionError,
             UnifiedTask,
         )
+
         t = UnifiedTask()
         t.mark_running()
         t.mark_failed("oops")
@@ -220,10 +244,9 @@ class TestUnifiedTask:
 
     def test_update_progress_emits_event(self):
         from scenefab.core.task_model import UnifiedTask
+
         received = []
-        t = UnifiedTask(
-            on_event=lambda e: received.append(e)
-        )
+        t = UnifiedTask(on_event=lambda e: received.append(e))
         t.update_progress(0.5, current_step_name="analyzing")
         assert len(received) == 1
         assert received[0].progress == 0.5
@@ -231,6 +254,7 @@ class TestUnifiedTask:
 
     def test_cancel_token(self):
         from scenefab.core.task_model import CancelToken
+
         token = CancelToken()
         assert not token.cancelled
         token.cancel("user")
@@ -248,18 +272,24 @@ class TestDIContainer:
 
     def test_v1x_singleton(self):
         from scenefab.core.di_container import DIContainer
+
         c = DIContainer()
+
         class Svc:
             pass
+
         instance = Svc()
         c.register(Svc, instance)
         assert c.get(Svc) is instance
 
     def test_transient_creates_new(self):
         from scenefab.core.di_container import DIContainer
+
         c = DIContainer()
+
         class Svc:
             pass
+
         c.register_transient("svc", Svc)
         a = c.get_by_name("svc")
         b = c.get_by_name("svc")
@@ -267,9 +297,12 @@ class TestDIContainer:
 
     def test_scoped_creates_per_scope(self):
         from scenefab.core.di_container import DIContainer
+
         c = DIContainer()
+
         class Svc:
             pass
+
         c.register_scoped(Svc, Svc)
         with c.enter_scope():
             a = c.get(Svc)
@@ -281,6 +314,7 @@ class TestDIContainer:
 
     def test_resolve_hook(self):
         from scenefab.core.di_container import DIContainer
+
         c = DIContainer()
         seen = []
         c.on_resolve(lambda name, inst: seen.append(name))
@@ -290,6 +324,7 @@ class TestDIContainer:
 
     def test_app_container_has_event_bus(self):
         from scenefab.core.di_container import get_app_container
+
         c = get_app_container()
         assert c.has_by_name("event_bus")
 
@@ -304,6 +339,7 @@ class TestTaskStore:
 
     def test_inmemory_basic(self):
         from scenefab.core.task_store import InMemoryTaskStore
+
         s = InMemoryTaskStore()
         s.save("t1", {"status": "running"})
         assert s.get("t1") == {"status": "running"}
@@ -313,6 +349,7 @@ class TestTaskStore:
 
     def test_inmemory_ttl(self):
         from scenefab.core.task_store import InMemoryTaskStore
+
         s = InMemoryTaskStore()
         s.save("t1", {"x": 1})
         s.set_ttl("t1", 0)  # 立即过期
@@ -321,6 +358,7 @@ class TestTaskStore:
 
     def test_sqlite_persists_across_instances(self):
         from scenefab.core.task_store import SQLiteTaskStore
+
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
             path = f.name
         try:
@@ -333,6 +371,7 @@ class TestTaskStore:
 
     def test_factory(self):
         from scenefab.core.task_store import create_task_store
+
         mem = create_task_store("memory")
         assert mem.__class__.__name__ == "InMemoryTaskStore"
         sq = create_task_store("sqlite", db_path=":memory:")
@@ -340,6 +379,7 @@ class TestTaskStore:
 
     def test_update_partial(self):
         from scenefab.core.task_store import InMemoryTaskStore
+
         s = InMemoryTaskStore()
         s.save("t1", {"a": 1, "b": 2})
         s.update("t1", b=99, c=3)
@@ -356,16 +396,19 @@ class TestSettingsV2:
 
     def test_available(self):
         from scenefab.core.config_v2 import is_settings_v2_available
+
         assert is_settings_v2_available()
 
     def test_get_settings(self):
         from scenefab.core.config_v2 import get_settings
+
         s = get_settings()
         assert s.app_name == "scenefab"
         assert s.profile.value == "development"
 
     def test_json_schema(self):
         from scenefab.core.config_v2 import get_settings
+
         s = get_settings()
         schema = s.to_json_schema()
         assert "properties" in schema
@@ -373,6 +416,7 @@ class TestSettingsV2:
 
     def test_to_dict(self):
         from scenefab.core.config_v2 import get_settings
+
         s = get_settings()
         d = s.to_dict()
         assert "llm" in d
@@ -390,6 +434,7 @@ class TestEventStore:
 
     def test_inmemory_basic(self):
         from scenefab.core.event_store import InMemoryEventStore
+
         s = InMemoryEventStore()
         s.append("e1", {"a": 1})
         s.append("e2", {"b": 2})
@@ -397,6 +442,7 @@ class TestEventStore:
 
     def test_query_by_name(self):
         from scenefab.core.event_store import InMemoryEventStore
+
         s = InMemoryEventStore()
         s.append("pipeline.started", {"x": 1})
         s.append("task.created", {"y": 2})
@@ -406,6 +452,7 @@ class TestEventStore:
 
     def test_query_by_correlation(self):
         from scenefab.core.event_store import InMemoryEventStore
+
         s = InMemoryEventStore()
         s.append("a", 1, correlation_id="c1")
         s.append("b", 2, correlation_id="c1")
@@ -415,6 +462,7 @@ class TestEventStore:
 
     def test_sqlite_persists(self):
         from scenefab.core.event_store import SQLiteEventStore
+
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
             path = f.name
         try:
@@ -432,6 +480,7 @@ class TestEventStore:
         )
         from scenefab.core.event_types import TaskCreated
         from scenefab.core.unified_event_bus import UnifiedEventBus
+
         bus = UnifiedEventBus()
         store = InMemoryEventStore()
         install_event_store_into_bus(bus, store)
@@ -455,8 +504,12 @@ class TestWSHub:
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
-            async def send_json(self, msg): pass
-            async def close(self): pass
+
+            async def send_json(self, msg):
+                pass
+
+            async def close(self):
+                pass
 
         async def main():
             hub = WSHub()
@@ -466,6 +519,7 @@ class TestWSHub:
             await hub.disconnect(ws)
             assert hub.count() == 0
             await hub.stop()
+
         asyncio.run(main())
 
     def test_event_filtering(self):
@@ -477,10 +531,15 @@ class TestWSHub:
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
+
             def __init__(self):
                 self.received = []
-            async def send_json(self, msg): self.received.append(msg)
-            async def close(self): pass
+
+            async def send_json(self, msg):
+                self.received.append(msg)
+
+            async def close(self):
+                pass
 
         async def main():
             bus = UnifiedEventBus()
@@ -497,6 +556,7 @@ class TestWSHub:
             # 收到：connected + task.created = 2 条（pipeline.started 被过滤）
             assert len(ws.received) == 2
             await hub.stop()
+
         asyncio.run(main())
 
     def test_wildcard_subscription(self):
@@ -508,10 +568,15 @@ class TestWSHub:
 
         class MockWS:
             client_state = WebSocketState.CONNECTED
+
             def __init__(self):
                 self.received = []
-            async def send_json(self, msg): self.received.append(msg)
-            async def close(self): pass
+
+            async def send_json(self, msg):
+                self.received.append(msg)
+
+            async def close(self):
+                pass
 
         async def main():
             bus = UnifiedEventBus()
@@ -528,6 +593,7 @@ class TestWSHub:
             # connected + 2 events = 3
             assert len(ws.received) == 3
             await hub.stop()
+
         asyncio.run(main())
 
 
@@ -547,6 +613,7 @@ class TestPipelineEngineV21Integration:
         bus.clear_log()
         bus.clear_handlers()
         from scenefab.core.unified_event_bus import set_event_bus
+
         set_event_bus(bus)
 
         engine = PipelineEngine(event_bus=bus, pipeline_id="integration-test")
@@ -572,12 +639,14 @@ class TestTaskManagerV21Integration:
 
     def test_create_task_publishes_event(self):
         from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
+
         bus = UnifiedEventBus()
         bus.clear_log()
         bus.clear_handlers()
         set_event_bus(bus)
 
         from scenefab.task_manager import task_manager
+
         # task_manager 是 singleton；用 create_task 看是否走事件总线
         # 注意：可能受其他测试污染，只校验事件被发出去
         received = []

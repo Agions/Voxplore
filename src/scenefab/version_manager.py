@@ -24,19 +24,19 @@ class ProjectVersionManager(QObject):
     """项目版本管理器"""
 
     # 信号定义
-    version_created = Signal(str, str)    # 版本创建信号 (project_id, version_id)
-    version_restored = Signal(str, str)   # 版本恢复信号 (project_id, version_id)
-    branch_created = Signal(str, str)     # 分支创建信号 (project_id, branch_name)
-    branch_switched = Signal(str, str)    # 分支切换信号 (project_id, branch_name)
-    error_occurred = Signal(str, str)     # 错误发生信号
+    version_created = Signal(str, str)  # 版本创建信号 (project_id, version_id)
+    version_restored = Signal(str, str)  # 版本恢复信号 (project_id, version_id)
+    branch_created = Signal(str, str)  # 分支创建信号 (project_id, branch_name)
+    branch_switched = Signal(str, str)  # 分支切换信号 (project_id, branch_name)
+    error_occurred = Signal(str, str)  # 错误发生信号
 
     def __init__(self, project_path: str):
         super().__init__()
 
         self.project_path = project_path
         self.logger = logging.getLogger(__name__)
-        self.version_dir = os.path.join(project_path, 'versions')
-        self.current_branch = 'main'
+        self.version_dir = os.path.join(project_path, "versions")
+        self.current_branch = "main"
 
         # 确保版本目录存在
         os.makedirs(self.version_dir, exist_ok=True)
@@ -50,23 +50,27 @@ class ProjectVersionManager(QObject):
         """加载版本信息"""
         try:
             # 加载版本信息
-            versions_file = os.path.join(self.version_dir, 'versions.json')
+            versions_file = os.path.join(self.version_dir, "versions.json")
             if os.path.exists(versions_file):
-                with open(versions_file, encoding='utf-8') as f:
+                with open(versions_file, encoding="utf-8") as f:
                     versions_data = json.load(f)
                     for version_id, version_data in versions_data.items():
-                        self.versions[version_id] = ProjectVersion.from_dict(version_data)
+                        self.versions[version_id] = ProjectVersion.from_dict(
+                            version_data
+                        )
 
             # 加载分支信息
-            branches_file = os.path.join(self.version_dir, 'branches.json')
+            branches_file = os.path.join(self.version_dir, "branches.json")
             if os.path.exists(branches_file):
-                with open(branches_file, encoding='utf-8') as f:
+                with open(branches_file, encoding="utf-8") as f:
                     branches_data = json.load(f)
                     for branch_name, branch_data in branches_data.items():
-                        self.branches[branch_name] = ProjectBranch.from_dict(branch_data)
+                        self.branches[branch_name] = ProjectBranch.from_dict(
+                            branch_data
+                        )
 
             # 确保主分支存在
-            if 'main' not in self.branches:
+            if "main" not in self.branches:
                 self._create_main_branch()
 
         except Exception as e:
@@ -75,28 +79,29 @@ class ProjectVersionManager(QObject):
     def _create_main_branch(self) -> None:
         """创建主分支"""
         main_branch = ProjectBranch(
-            name='main',
-            created_at=datetime.now(),
-            description='主分支',
-            is_active=True
+            name="main", created_at=datetime.now(), description="主分支", is_active=True
         )
-        self.branches['main'] = main_branch
+        self.branches["main"] = main_branch
         self._save_branch_info()
 
     def _save_version_info(self) -> None:
         """保存版本信息"""
-        versions_file = os.path.join(self.version_dir, 'versions.json')
-        self._save_json_file(versions_file, {vid: v.to_dict() for vid, v in self.versions.items()})
+        versions_file = os.path.join(self.version_dir, "versions.json")
+        self._save_json_file(
+            versions_file, {vid: v.to_dict() for vid, v in self.versions.items()}
+        )
 
     def _save_branch_info(self) -> None:
         """保存分支信息"""
-        branches_file = os.path.join(self.version_dir, 'branches.json')
-        self._save_json_file(branches_file, {name: b.to_dict() for name, b in self.branches.items()})
+        branches_file = os.path.join(self.version_dir, "branches.json")
+        self._save_json_file(
+            branches_file, {name: b.to_dict() for name, b in self.branches.items()}
+        )
 
     def _save_json_file(self, file_path: str, data: dict) -> None:
         """安全保存 JSON 文件"""
         try:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
@@ -104,7 +109,7 @@ class ProjectVersionManager(QObject):
     def _calculate_file_hash(self, file_path: str) -> str:
         """计算文件哈希值"""
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 return hashlib.sha256(f.read()).hexdigest()
         except Exception as e:
             self.logger.error(f"Failed to calculate file hash: {e}")
@@ -117,20 +122,20 @@ class ProjectVersionManager(QObject):
             os.makedirs(dest_path, exist_ok=True)
 
             # 复制项目文件
-            project_file = os.path.join(source_path, 'project.json')
+            project_file = os.path.join(source_path, "project.json")
             if os.path.exists(project_file):
-                shutil.copy2(project_file, os.path.join(dest_path, 'project.json'))
+                shutil.copy2(project_file, os.path.join(dest_path, "project.json"))
 
             # 复制媒体目录
-            media_source = os.path.join(source_path, 'media')
+            media_source = os.path.join(source_path, "media")
             if os.path.exists(media_source):
-                media_dest = os.path.join(dest_path, 'media')
+                media_dest = os.path.join(dest_path, "media")
                 shutil.copytree(media_source, media_dest, dirs_exist_ok=True)
 
             # 复制资产目录
-            assets_source = os.path.join(source_path, 'assets')
+            assets_source = os.path.join(source_path, "assets")
             if os.path.exists(assets_source):
-                assets_dest = os.path.join(dest_path, 'assets')
+                assets_dest = os.path.join(dest_path, "assets")
                 shutil.copytree(assets_source, assets_dest, dirs_exist_ok=True)
 
             return True
@@ -139,9 +144,14 @@ class ProjectVersionManager(QObject):
             self.logger.error(f"Failed to copy project files: {e}")
             return False
 
-    def create_version(self, description: str, changes: list[str],
-                      tags: list[str] = None, is_major: bool = False,
-                      is_auto_backup: bool = False) -> str | None:
+    def create_version(
+        self,
+        description: str,
+        changes: list[str],
+        tags: list[str] = None,
+        is_major: bool = False,
+        is_auto_backup: bool = False,
+    ) -> str | None:
         """创建新版本"""
         try:
             # 生成版本ID
@@ -149,11 +159,13 @@ class ProjectVersionManager(QObject):
             version_id = f"v_{timestamp}"
 
             # 计算项目文件哈希
-            project_file = os.path.join(self.project_path, 'project.json')
+            project_file = os.path.join(self.project_path, "project.json")
             file_hash = self._calculate_file_hash(project_file)
 
             # 获取文件大小
-            file_size = os.path.getsize(project_file) if os.path.exists(project_file) else 0
+            file_size = (
+                os.path.getsize(project_file) if os.path.exists(project_file) else 0
+            )
 
             # 创建版本信息
             version = ProjectVersion(
@@ -165,7 +177,7 @@ class ProjectVersionManager(QObject):
                 size=file_size,
                 tags=tags or [],
                 is_auto_backup=is_auto_backup,
-                is_major=is_major
+                is_major=is_major,
             )
 
             # 创建版本目录
@@ -204,14 +216,16 @@ class ProjectVersionManager(QObject):
             version_path = os.path.join(self.version_dir, version_id)
 
             if not os.path.exists(version_path):
-                self.error_occurred.emit("VERSION_ERROR", f"版本文件不存在: {version_id}")
+                self.error_occurred.emit(
+                    "VERSION_ERROR", f"版本文件不存在: {version_id}"
+                )
                 return False
 
             # 创建当前版本的备份
             self.create_version(
                 description=f"恢复前备份 - {version_id}",
                 changes=["自动创建恢复前备份"],
-                is_auto_backup=True
+                is_auto_backup=True,
             )
 
             # 恢复文件
@@ -275,8 +289,9 @@ class ProjectVersionManager(QObject):
 
         return sorted(versions, key=lambda v: v.timestamp, reverse=True)
 
-    def create_branch(self, branch_name: str, description: str,
-                     parent_branch: str = None) -> bool:
+    def create_branch(
+        self, branch_name: str, description: str, parent_branch: str = None
+    ) -> bool:
         """创建新分支"""
         try:
             if branch_name in self.branches:
@@ -288,7 +303,7 @@ class ProjectVersionManager(QObject):
                 name=branch_name,
                 created_at=datetime.now(),
                 description=description,
-                parent_branch=parent_branch or self.current_branch
+                parent_branch=parent_branch or self.current_branch,
             )
 
             self.branches[branch_name] = branch
@@ -313,7 +328,7 @@ class ProjectVersionManager(QObject):
             self.create_version(
                 description="切换分支前备份",
                 changes=["自动创建分支切换备份"],
-                is_auto_backup=True
+                is_auto_backup=True,
             )
 
             # 切换分支
@@ -336,7 +351,7 @@ class ProjectVersionManager(QObject):
     def delete_branch(self, branch_name: str) -> bool:
         """删除分支"""
         try:
-            if branch_name == 'main':
+            if branch_name == "main":
                 self.error_occurred.emit("BRANCH_ERROR", "不能删除主分支")
                 return False
 
@@ -345,7 +360,7 @@ class ProjectVersionManager(QObject):
 
             # 如果是当前分支，切换到主分支
             if self.current_branch == branch_name:
-                self.switch_branch('main')
+                self.switch_branch("main")
 
             # 删除分支
             del self.branches[branch_name]
@@ -380,11 +395,11 @@ class ProjectVersionManager(QObject):
             version2 = self.versions[version_id2]
 
             diff = {
-                'version1': version1.to_dict(),
-                'version2': version2.to_dict(),
-                'time_diff': (version2.timestamp - version1.timestamp).total_seconds(),
-                'size_diff': version2.size - version1.size,
-                'hash_changed': version1.file_hash != version2.file_hash
+                "version1": version1.to_dict(),
+                "version2": version2.to_dict(),
+                "time_diff": (version2.timestamp - version1.timestamp).total_seconds(),
+                "size_diff": version2.size - version1.size,
+                "hash_changed": version1.file_hash != version2.file_hash,
             }
 
             return diff
@@ -436,14 +451,14 @@ class ProjectVersionManager(QObject):
 
             # 创建导出信息
             export_info = {
-                'version': _version.to_dict(),
-                'exported_at': datetime.now().isoformat(),
-                'project_path': self.project_path
+                "version": _version.to_dict(),
+                "exported_at": datetime.now().isoformat(),
+                "project_path": self.project_path,
             }
 
             # 保存导出信息
-            info_file = os.path.join(version_path, 'export_info.json')
-            with open(info_file, 'w') as f:
+            info_file = os.path.join(version_path, "export_info.json")
+            with open(info_file, "w") as f:
                 json.dump(export_info, f, indent=2)
 
             # 复制到导出路径
@@ -460,15 +475,17 @@ class ProjectVersionManager(QObject):
         """导入版本"""
         try:
             # 检查导入信息
-            info_file = os.path.join(import_path, 'export_info.json')
+            info_file = os.path.join(import_path, "export_info.json")
             if not os.path.exists(info_file):
                 return None
 
             with open(info_file) as f:
                 import_info = json.load(f)
 
-            version_data = import_info['version']
-            version_data['description'] = description or f"导入版本 - {version_data['description']}"
+            version_data = import_info["version"]
+            version_data["description"] = (
+                description or f"导入版本 - {version_data['description']}"
+            )
 
             # 生成新版本ID
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -520,13 +537,13 @@ class ProjectVersionManager(QObject):
                 time_span = 0
 
             return {
-                'total_versions': total_versions,
-                'total_branches': total_branches,
-                'total_size_mb': total_size / (1024 * 1024),
-                'major_versions': major_versions,
-                'auto_backups': auto_backups,
-                'time_span_days': time_span,
-                'current_branch': self.current_branch
+                "total_versions": total_versions,
+                "total_branches": total_branches,
+                "total_size_mb": total_size / (1024 * 1024),
+                "major_versions": major_versions,
+                "auto_backups": auto_backups,
+                "time_span_days": time_span,
+                "current_branch": self.current_branch,
             }
 
         except Exception as e:

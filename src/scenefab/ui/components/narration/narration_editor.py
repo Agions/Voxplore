@@ -3,7 +3,6 @@ Narration Editor Component
 解说编辑器组件 - 所见即所得的解说稿编辑
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
@@ -27,16 +26,16 @@ class NarrationSegmentItem(QFrame):
     显示：时间、文本预览、情感标签、操作按钮
     """
 
-    clicked = Signal(str)          # segment_id
-    edit_requested = Signal(str)    # segment_id
+    clicked = Signal(str)  # segment_id
+    edit_requested = Signal(str)  # segment_id
     delete_requested = Signal(str)  # segment_id
 
     EMOTION_COLORS = {
-        "healing": "#10B981",       # 治愈 - 翠绿
-        "suspense": "#8B5CF6",     # 悬疑 - 紫色
-        "motivational": "#F59E0B", # 励志 - 琥珀
-        "nostalgic": "#6366F1",     # 怀旧 - 靛蓝
-        "romantic": "#EC4899",      # 浪漫 - 粉色
+        "healing": "#10B981",  # 治愈 - 翠绿
+        "suspense": "#8B5CF6",  # 悬疑 - 紫色
+        "motivational": "#F59E0B",  # 励志 - 琥珀
+        "nostalgic": "#6366F1",  # 怀旧 - 靛蓝
+        "romantic": "#EC4899",  # 浪漫 - 粉色
     }
 
     def __init__(self, segment: NarrationSegment, parent=None):
@@ -174,11 +173,11 @@ class NarrationEditor(QFrame):
     """
 
     # 信号
-    segment_selected = Signal(str)           # segment_id
-    segment_updated = Signal(str, dict)     # segment_id, changes
-    segment_deleted = Signal(str)            # segment_id
-    emotion_changed = Signal(str, str)      # segment_id, emotion
-    playback_requested = Signal(str)          # segment_id
+    segment_selected = Signal(str)  # segment_id
+    segment_updated = Signal(str, dict)  # segment_id, changes
+    segment_deleted = Signal(str)  # segment_id
+    emotion_changed = Signal(str, str)  # segment_id, emotion
+    playback_requested = Signal(str)  # segment_id
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -269,7 +268,9 @@ class NarrationEditor(QFrame):
         emotion_row.addWidget(QLabel("情感风格:"))
 
         self.emotion_combo = QComboBox()
-        self.emotion_combo.addItems(["healing", "suspense", "motivational", "nostalgic", "romantic"])
+        self.emotion_combo.addItems(
+            ["healing", "suspense", "motivational", "nostalgic", "romantic"]
+        )
         emotion_row.addWidget(self.emotion_combo)
 
         emotion_row.addStretch()
@@ -428,10 +429,13 @@ class NarrationEditor(QFrame):
             segment.text = new_text
             segment.emotion = new_emotion
 
-            self.segment_updated.emit(self.selected_id, {
-                "text": new_text,
-                "emotion": new_emotion,
-            })
+            self.segment_updated.emit(
+                self.selected_id,
+                {
+                    "text": new_text,
+                    "emotion": new_emotion,
+                },
+            )
 
             self._refresh_list()
             self.editor_panel.setVisible(False)

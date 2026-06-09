@@ -240,7 +240,10 @@ class UnifiedEventBus:
         """
         is_async = inspect.iscoroutinefunction(handler)
         entry = _HandlerEntry(
-            handler=handler, is_async=is_async, name=name or handler.__name__, filter_fn=filter_fn
+            handler=handler,
+            is_async=is_async,
+            name=name or handler.__name__,
+            filter_fn=filter_fn,
         )
         with self._lock:
             if event_name == "*":
@@ -263,7 +266,8 @@ class UnifiedEventBus:
         """取消订阅"""
         with self._lock:
             target_list = (
-                self._wildcard_handlers if event_name == "*"
+                self._wildcard_handlers
+                if event_name == "*"
                 else self._handlers.get(event_name, [])
             )
             for i, entry in enumerate(target_list):
@@ -272,7 +276,9 @@ class UnifiedEventBus:
                     return True
         return False
 
-    def on(self, event_name: str, handler: EventHandler | AsyncEventHandler) -> Callable[[], None]:
+    def on(
+        self, event_name: str, handler: EventHandler | AsyncEventHandler
+    ) -> Callable[[], None]:
         """链式风格别名（与 EventEmitter 兼容）"""
         return self.subscribe(event_name, handler)
 
@@ -363,7 +369,8 @@ class UnifiedEventBus:
         else:
             # 多 handler 并行
             futures = [
-                self._executor.submit(self._invoke, h, event_name, data) for h in handlers
+                self._executor.submit(self._invoke, h, event_name, data)
+                for h in handlers
             ]
             # 不阻塞主调，handler 完成即可
             for f in futures:
@@ -372,7 +379,9 @@ class UnifiedEventBus:
         # 统计
         with self._stats_lock:
             self._stats.published_count += 1
-            self._stats.per_event[event_name] = self._stats.per_event.get(event_name, 0) + 1
+            self._stats.per_event[event_name] = (
+                self._stats.per_event.get(event_name, 0) + 1
+            )
 
     def _invoke(self, entry: _HandlerEntry, event_name: str, data: Any) -> None:
         start = time.perf_counter()
@@ -415,7 +424,9 @@ class UnifiedEventBus:
         try:
             coro = entry.handler(data)
             if self._async_loop and not self._async_loop.is_closed():
-                asyncio.run_coroutine_threadsafe(coro, self._async_loop).result(timeout=30)
+                asyncio.run_coroutine_threadsafe(coro, self._async_loop).result(
+                    timeout=30
+                )
             else:
                 loop = asyncio.new_event_loop()
                 try:
@@ -472,7 +483,8 @@ class UnifiedEventBus:
         with self._stats_lock:
             avg_ms = (
                 self._stats.total_handler_time_ms / self._stats.handler_invocations
-                if self._stats.handler_invocations > 0 else 0.0
+                if self._stats.handler_invocations > 0
+                else 0.0
             )
             return {
                 "published_count": self._stats.published_count,
@@ -494,7 +506,9 @@ class UnifiedEventBus:
     def handler_count(self, event_name: str | None = None) -> int:
         with self._lock:
             if event_name is None:
-                return sum(len(v) for v in self._handlers.values()) + len(self._wildcard_handlers)
+                return sum(len(v) for v in self._handlers.values()) + len(
+                    self._wildcard_handlers
+                )
             return len(self._handlers.get(event_name, []))
 
     def registered_events(self) -> list[str]:

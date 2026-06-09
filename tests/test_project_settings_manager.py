@@ -47,7 +47,7 @@ class TestSettingDefinition:
             name="测试设置",
             description="这是一个测试设置",
             setting_type=SettingType.STRING,
-            default_value="默认值"
+            default_value="默认值",
         )
 
         assert definition.key == "test_key"
@@ -60,7 +60,7 @@ class TestSettingDefinition:
             name="测试",
             description="描述",
             setting_type=SettingType.BOOLEAN,
-            default_value=False
+            default_value=False,
         )
 
         assert definition.category == "general"
@@ -74,7 +74,7 @@ class TestSettingDefinition:
             description="应用主题",
             setting_type=SettingType.STRING,
             default_value="dark",
-            options=["light", "dark", "auto"]
+            options=["light", "dark", "auto"],
         )
 
         assert definition.options == ["light", "dark", "auto"]
@@ -87,7 +87,7 @@ class TestSettingDefinition:
             setting_type=SettingType.FLOAT,
             default_value=1.0,
             min_value=0.1,
-            max_value=1.0
+            max_value=1.0,
         )
 
         assert definition.min_value == 0.1

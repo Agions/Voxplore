@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class HookType(str, Enum):
     """钩子类型"""
+
     RESULT_FIRST = "result_first"  # 结果前置
     CONFLICT = "conflict"  # 冲突开头
     SUSPENSE = "suspense"  # 悬念钩子
@@ -32,6 +33,7 @@ class HookType(str, Enum):
 
 class CTAType(str, Enum):
     """CTA 类型"""
+
     LIKE = "like"  # 点赞
     SHARE = "share"  # 分享
     SUBSCRIBE = "subscribe"  # 关注
@@ -42,6 +44,7 @@ class CTAType(str, Enum):
 @dataclass
 class ScriptVariant:
     """解说稿变体"""
+
     variant_id: str
     hook_type: HookType
     hook_text: str  # 开头钩子文案
@@ -59,6 +62,7 @@ class ScriptVariant:
 @dataclass
 class ABTestResult:
     """A/B 测试结果"""
+
     original_script: str  # 原始解说稿
     variants: list[ScriptVariant] = field(default_factory=list)
     best_variant: ScriptVariant | None = None
@@ -205,7 +209,7 @@ class ABScriptGenerator:
 
             variant = self._generate_variant(
                 original_script=original_script,
-                variant_id=f"v{i+1}",
+                variant_id=f"v{i + 1}",
                 hook_type=hook_type,
                 cta_type=cta_type,
                 platform=platform,
@@ -507,16 +511,18 @@ class ABScriptGenerator:
         """
         table = []
         for variant in variants:
-            table.append({
-                "variant_id": variant.variant_id,
-                "hook_type": variant.hook_type.value,
-                "hook_text": variant.hook_text[:30],
-                "cta_type": variant.cta_type.value,
-                "viral_score": variant.viral_score,
-                "hook_strength": variant.hook_strength,
-                "completion_rate": variant.completion_rate_estimate,
-                "interaction_potential": variant.interaction_potential,
-            })
+            table.append(
+                {
+                    "variant_id": variant.variant_id,
+                    "hook_type": variant.hook_type.value,
+                    "hook_text": variant.hook_text[:30],
+                    "cta_type": variant.cta_type.value,
+                    "viral_score": variant.viral_score,
+                    "hook_strength": variant.hook_strength,
+                    "completion_rate": variant.completion_rate_estimate,
+                    "interaction_potential": variant.interaction_potential,
+                }
+            )
         return table
 
 

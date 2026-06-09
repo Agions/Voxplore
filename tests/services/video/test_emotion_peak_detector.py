@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试情感峰值检测服务"""
 
-
 from scenefab.services.video.extraction.emotion_peak import (
     EmotionPeak,
     EmotionPeakDetector,
@@ -19,13 +18,11 @@ class TestEmotionPeak:
             start_time=10.0,
             end_time=30.0,
             confidence=0.85,
-            description="测试片段"
+            description="测试片段",
         )
 
         peak = EmotionPeak(
-            segment=segment,
-            peak_score=0.95,
-            reason="高复杂度场景，动作密集"
+            segment=segment, peak_score=0.95, reason="高复杂度场景，动作密集"
         )
 
         assert peak.segment == segment
@@ -77,9 +74,9 @@ class TestEmotionPeakDetector:
 
         # 设置不同复杂度
         complexity_scores = {
-            "/test/v1.mp4": 0.3,   # 低复杂度
+            "/test/v1.mp4": 0.3,  # 低复杂度
             "/test/v2.mp4": 0.95,  # 高复杂度
-            "/test/v3.mp4": 0.5,   # 中复杂度
+            "/test/v3.mp4": 0.5,  # 中复杂度
         }
 
         detector = EmotionPeakDetector()
@@ -91,8 +88,7 @@ class TestEmotionPeakDetector:
         assert len(peaks) <= 3 and len(peaks) >= 1
         # 验证按 peak_score 降序排列
         scores = [p.peak_score for p in peaks]
-        assert scores == sorted(scores, reverse=True), \
-            f"峰值评分应降序排列: {scores}"
+        assert scores == sorted(scores, reverse=True), f"峰值评分应降序排列: {scores}"
         # 最高分应该是 v2（复杂度 0.95）
         assert peaks[0].segment.video_path == "/test/v2.mp4"
 
@@ -139,7 +135,7 @@ class TestEmotionPeakDetector:
         ]
 
         complexity_scores = {
-            "/test/v1.mp4": 0.9,   # 动作密度高
+            "/test/v1.mp4": 0.9,  # 动作密度高
             "/test/v2.mp4": 0.85,  # 情绪强
             "/test/v3.mp4": 0.88,  # 信息密度高
         }
@@ -152,9 +148,11 @@ class TestEmotionPeakDetector:
 
         reasons = [p.reason for p in peaks]
         # 应该有不同的峰值原因（高复杂度/强情绪/动作密度）
-        assert any("复杂度" in r or "信息密度" in r for r in reasons) or \
-               any("情绪" in r or "音频" in r for r in reasons) or \
-               any("动作" in r for r in reasons)
+        assert (
+            any("复杂度" in r or "信息密度" in r for r in reasons)
+            or any("情绪" in r or "音频" in r for r in reasons)
+            or any("动作" in r for r in reasons)
+        )
 
     def test_detect_peaks_with_audio_emotion(self):
         """测试音频情绪检测影响峰值评分"""

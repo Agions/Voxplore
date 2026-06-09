@@ -20,10 +20,10 @@ class SubtitleExporter:
     @staticmethod
     def export_srt(subtitles: list[Any], output_path: str) -> bool:
         try:
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 for i, sub in enumerate(subtitles, 1):
                     f.write(sub.to_srt(i))
-                    f.write('\n')
+                    f.write("\n")
             logger.info(f"Exported SRT to: {output_path}")
             return True
         except Exception as e:
@@ -33,7 +33,7 @@ class SubtitleExporter:
     @staticmethod
     def export_vtt(subtitles: list[Any], output_path: str) -> bool:
         try:
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write("WEBVTT\n\n")
                 for i, sub in enumerate(subtitles, 1):
                     start = SubtitleExporter._format_vtt_time(sub.start_time)
@@ -47,7 +47,7 @@ class SubtitleExporter:
     @staticmethod
     def export_lrc(subtitles: list[Any], output_path: str) -> bool:
         try:
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 for sub in subtitles:
                     minutes = int(sub.start_time // 60)
                     seconds = int(sub.start_time % 60)

@@ -2,6 +2,7 @@
 """
 SceneFab 命令行界面
 """
+
 import argparse
 import logging
 import os
@@ -29,7 +30,7 @@ def setup_logging(verbose: bool = False):
     logging.basicConfig(
         level=level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%H:%M:%S"
+        datefmt="%H:%M:%S",
     )
 
 
@@ -41,39 +42,48 @@ def init_services():
     # 注册 LLM 服务
     for name, llm_config in config.llm_providers.items():
         if llm_config.enabled:
-            ai_service_manager.register_llm(name, {
-                "name": name,
-                "enabled": llm_config.enabled,
-                "api_key": llm_config.api_key,
-                "base_url": llm_config.base_url,
-                "model": llm_config.model,
-                "max_tokens": llm_config.max_tokens,
-                "temperature": llm_config.temperature,
-            })
+            ai_service_manager.register_llm(
+                name,
+                {
+                    "name": name,
+                    "enabled": llm_config.enabled,
+                    "api_key": llm_config.api_key,
+                    "base_url": llm_config.base_url,
+                    "model": llm_config.model,
+                    "max_tokens": llm_config.max_tokens,
+                    "temperature": llm_config.temperature,
+                },
+            )
 
     # 注册视觉服务
     qwen_config = config.llm_providers.get("qwen")
     if qwen_config and qwen_config.enabled:
-        ai_service_manager.register_vision({
-            "name": "qwen",
-            "enabled": True,
-            "api_key": qwen_config.api_key,
-            "base_url": qwen_config.base_url,
-            "model": qwen_config.model,
-        })
+        ai_service_manager.register_vision(
+            {
+                "name": "qwen",
+                "enabled": True,
+                "api_key": qwen_config.api_key,
+                "base_url": qwen_config.base_url,
+                "model": qwen_config.model,
+            }
+        )
 
     # 注册 TTS
-    ai_service_manager.register_tts({
-        "provider": config.tts.provider,
-        "voice": config.tts.voice,
-        "rate": config.tts.rate,
-    })
+    ai_service_manager.register_tts(
+        {
+            "provider": config.tts.provider,
+            "voice": config.tts.voice,
+            "rate": config.tts.rate,
+        }
+    )
 
     # 注册 ASR
-    ai_service_manager.register_asr({
-        "provider": "faster-whisper",
-        "model": "large-v3",
-    })
+    ai_service_manager.register_asr(
+        {
+            "provider": "faster-whisper",
+            "model": "large-v3",
+        }
+    )
 
 
 def cmd_analyze(args):
@@ -95,7 +105,7 @@ def cmd_analyze(args):
         scenes = VideoAnalyzer.detect_scenes(args.video)
         print(f"  发现 {len(scenes)} 个场景")
         for i, (start, end) in enumerate(scenes[:5]):
-            print(f"    场景 {i+1}: {start:.1f}s - {end:.1f}s ({(end-start):.1f}s)")
+            print(f"    场景 {i + 1}: {start:.1f}s - {end:.1f}s ({(end - start):.1f}s)")
         if len(scenes) > 5:
             print(f"    ... 还有 {len(scenes) - 5} 个场景")
 
@@ -120,7 +130,7 @@ def cmd_process(args):
     # 进度回调
     def progress_callback(progress, message):
         bar = "█" * int(progress * 30) + "░" * (30 - int(progress * 30))
-        print(f"\r[{bar}] {progress*100:.0f}% {message}", end="", flush=True)
+        print(f"\r[{bar}] {progress * 100:.0f}% {message}", end="", flush=True)
 
     # 处理
     style = NarrationStyle(args.style.lower())
@@ -134,7 +144,7 @@ def cmd_process(args):
             style=style,
             voice=args.voice,
             progress_callback=progress_callback,
-            output_dir=args.output or "./output"
+            output_dir=args.output or "./output",
         )
 
         print("\n\n✅ 处理完成!")
@@ -210,7 +220,7 @@ def cmd_commentary(args):
 
     def progress_callback(progress, message):
         bar = "█" * int(progress * 30) + "░" * (30 - int(progress * 30))
-        print(f"\r[{bar}] {progress*100:.0f}% {message}", end="", flush=True)
+        print(f"\r[{bar}] {progress * 100:.0f}% {message}", end="", flush=True)
 
     try:
         project = pipeline.process(
@@ -237,7 +247,9 @@ def cmd_commentary(args):
             print("\n✅ commentary 创建完成!")
             print(f"   视频: {args.video}")
             print(f"   风格: {args.style}")
-            print(f"   片段: {result['segments']} | 情感峰值: {result['emotion_peaks']} | 解说块: {result['narration_blocks']}")
+            print(
+                f"   片段: {result['segments']} | 情感峰值: {result['emotion_peaks']} | 解说块: {result['narration_blocks']}"
+            )
             if args.export:
                 export_project(project, args)
 
@@ -245,7 +257,11 @@ def cmd_commentary(args):
 
     except Exception as e:
         if args.format == "json":
-            print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {"success": False, "error": str(e)}, ensure_ascii=False, indent=2
+                )
+            )
         else:
             print(f"\n❌ commentary 创建失败: {e}")
         return 1
@@ -259,7 +275,9 @@ def cmd_batch(args):
     for pattern in args.patterns:
         video_files.extend(Path(".").glob(pattern))
 
-    video_files = [str(v) for v in video_files if v.suffix.lower() in [".mp4", ".mov", ".avi"]]
+    video_files = [
+        str(v) for v in video_files if v.suffix.lower() in [".mp4", ".mov", ".avi"]
+    ]
 
     if not video_files:
         print("❌ 未找到视频文件")
@@ -295,7 +313,9 @@ def cmd_batch(args):
                 completed += 1
 
                 if success:
-                    print(f"[{completed}/{len(video_files)}] ✅ {video}: {count} 个片段")
+                    print(
+                        f"[{completed}/{len(video_files)}] ✅ {video}: {count} 个片段"
+                    )
                 else:
                     print(f"[{completed}/{len(video_files)}] ❌ {video}: {error}")
 
@@ -303,7 +323,7 @@ def cmd_batch(args):
     else:
         # 串行处理
         for i, video in enumerate(video_files):
-            print(f"\n[{i+1}/{len(video_files)}] 处理: {video}")
+            print(f"\n[{i + 1}/{len(video_files)}] 处理: {video}")
 
             try:
                 project = pipeline.process(video)
@@ -339,24 +359,46 @@ def main():
     process_parser = subparsers.add_parser("process", help="处理视频")
     process_parser.add_argument("video", help="视频文件路径")
     process_parser.add_argument("-o", "--output", help="输出目录")
-    process_parser.add_argument("-s", "--style", default="documentary",
-                                choices=["healing", "mysterious", "inspirational",
-                                        "nostalgic", "romantic", "humorous", "documentary"],
-                                help="解说风格")
-    process_parser.add_argument("-e", "--emotion", default="neutral",
-                               choices=["calm", "excited", "emotional", "mysterious", "neutral"],
-                               help="情感类型")
+    process_parser.add_argument(
+        "-s",
+        "--style",
+        default="documentary",
+        choices=[
+            "healing",
+            "mysterious",
+            "inspirational",
+            "nostalgic",
+            "romantic",
+            "humorous",
+            "documentary",
+        ],
+        help="解说风格",
+    )
+    process_parser.add_argument(
+        "-e",
+        "--emotion",
+        default="neutral",
+        choices=["calm", "excited", "emotional", "mysterious", "neutral"],
+        help="情感类型",
+    )
     process_parser.add_argument("-c", "--context", help="背景上下文")
-    process_parser.add_argument("--voice", default="zh-CN-XiaoxiaoNeural", help="配音语音")
+    process_parser.add_argument(
+        "--voice", default="zh-CN-XiaoxiaoNeural", help="配音语音"
+    )
     process_parser.add_argument("--export", action="store_true", help="处理后导出")
-    process_parser.add_argument("--format", default="jianying",
-                               choices=["jianying", "mp4", "srt"],
-                               help="导出格式")
+    process_parser.add_argument(
+        "--format",
+        default="jianying",
+        choices=["jianying", "mp4", "srt"],
+        help="导出格式",
+    )
 
     # batch 命令
     batch_parser = subparsers.add_parser("batch", help="批量处理")
     batch_parser.add_argument("patterns", nargs="+", help="文件匹配模式，如 *.mp4")
-    batch_parser.add_argument("-w", "--workers", type=int, default=4, help="并行 worker 数")
+    batch_parser.add_argument(
+        "-w", "--workers", type=int, default=4, help="并行 worker 数"
+    )
 
     # commentary 命令（对应 SPEC 定义）
     commentary_parser = subparsers.add_parser("commentary", help="生成视频解说")
@@ -367,19 +409,28 @@ def main():
     for sub_cmd in ["create-movie", "create-drama"]:
         sub = commentary_subparsers.add_parser(sub_cmd, help=f"{sub_cmd} - 生成解说")
         sub.add_argument("video", help="视频文件路径")
-        sub.add_argument("--style", default="纪录片",
-                        choices=["纪录片", "悬疑", "治愈", "励志", "幽默"],
-                        help="解说风格（默认：纪录片）")
-        sub.add_argument("--emotion", default="neutral",
-                        choices=["neutral", "calm", "excited", "emotional", "mysterious"],
-                        help="情感类型")
+        sub.add_argument(
+            "--style",
+            default="纪录片",
+            choices=["纪录片", "悬疑", "治愈", "励志", "幽默"],
+            help="解说风格（默认：纪录片）",
+        )
+        sub.add_argument(
+            "--emotion",
+            default="neutral",
+            choices=["neutral", "calm", "excited", "emotional", "mysterious"],
+            help="情感类型",
+        )
         sub.add_argument("--voice", default="zh-CN-XiaoxiaoNeural", help="配音语音")
         sub.add_argument("-o", "--output", help="输出目录")
         sub.add_argument("--context", help="背景上下文")
         sub.add_argument("--export", action="store_true", help="处理后导出")
-        sub.add_argument("--format", default="jianying",
-                        choices=["jianying", "mp4", "srt", "json"],
-                        help="导出格式（默认：jianying）")
+        sub.add_argument(
+            "--format",
+            default="jianying",
+            choices=["jianying", "mp4", "srt", "json"],
+            help="导出格式（默认：jianying）",
+        )
 
     args = parser.parse_args()
 

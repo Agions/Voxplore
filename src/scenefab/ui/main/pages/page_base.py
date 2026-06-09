@@ -116,11 +116,13 @@ class PageBase(ABC):
     def get_service(self, service_type: type):
         """获取服务"""
         from scenefab.services import ServiceManager
+
         return ServiceManager.get(service_type)
 
     def get_config(self, key: str = None, default: Any = None) -> Any:
         """获取配置"""
         from scenefab.utils.config import get_config
+
         config = get_config()
         if key is None:
             return config
@@ -168,7 +170,9 @@ class PageRegistry:
 # 便捷装饰器
 def register_page(page_id: str):
     """页面注册装饰器"""
+
     def decorator(cls):
         PageRegistry.register(page_id, cls)
         return cls
+
     return decorator

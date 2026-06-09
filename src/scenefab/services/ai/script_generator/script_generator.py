@@ -31,7 +31,6 @@ AI 文案生成器 (Script Generator)
     generator = ScriptGenerator(api_key="your-api-key")
 """
 
-
 import asyncio
 import logging
 import os
@@ -117,8 +116,12 @@ class ScriptGenerator:
 
             self.llm_manager = LLMManager(load)
             logger.info("LLMManager 初始化成功")
-            logger.info(f"默认提供商: {load.get('LLM', {}).get('default_provider', 'qwen')}")
-            logger.info(f"可用提供商: {[p.value for p in self.llm_manager.get_available_providers()]}")
+            logger.info(
+                f"默认提供商: {load.get('LLM', {}).get('default_provider', 'qwen')}"
+            )
+            logger.info(
+                f"可用提供商: {[p.value for p in self.llm_manager.get_available_providers()]}"
+            )
 
         elif api_key:
             # 使用传统方式 (兼容)
@@ -164,8 +167,11 @@ class ScriptGenerator:
                 asyncio.get_running_loop()
                 # 已有 loop，在新线程中运行
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(asyncio.run, _run()).result()
+                    raw_content, provider_used = pool.submit(
+                        asyncio.run, _run()
+                    ).result()
             except RuntimeError:
                 # 没有运行中的 loop
                 raw_content, provider_used = asyncio.run(_run())
@@ -197,14 +203,14 @@ class ScriptGenerator:
         if config.provider:
             try:
                 from ..llm_manager import ProviderType
+
                 provider_type = ProviderType(config.provider)
             except ValueError:
                 logger.debug(f"Invalid provider '{config.provider}', using default")
 
         # 构建请求
         system_prompt = self.STYLE_PROMPTS.get(
-            config.style,
-            self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+            config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
         )
         user_prompt = build_prompt(topic, config)
 
@@ -218,7 +224,9 @@ class ScriptGenerator:
 
         # 调用 LLMManager
         response = await self.llm_manager.generate(request, provider=provider_type)
-        provider_name = response.model.split("-")[0] if "-" in response.model else response.model
+        provider_name = (
+            response.model.split("-")[0] if "-" in response.model else response.model
+        )
 
         return response.content, provider_name
 
@@ -239,6 +247,7 @@ class ScriptGenerator:
             return []
 
         if self.use_llm_manager:
+
             async def _run():
                 results = await self._generate_batch_async(requests)
                 await self.llm_manager.close_all()
@@ -247,6 +256,7 @@ class ScriptGenerator:
             try:
                 asyncio.get_running_loop()
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                     results = pool.submit(asyncio.run, _run()).result()
             except RuntimeError:
@@ -273,7 +283,7 @@ class ScriptGenerator:
 
         # 分类：短请求 vs 长请求
         short_reqs = []  # 需要合并的短请求
-        long_reqs = []   # 单独处理的长请求
+        long_reqs = []  # 单独处理的长请求
 
         for topic, config in requests:
             if config.target_words < self.min_words_for_batch:
@@ -301,7 +311,11 @@ class ScriptGenerator:
             try:
                 response = await self.llm_manager.generate(request)
                 script = parse_response(response.content, config)
-                script.provider_used = response.model.split("-")[0] if "-" in response.model else response.model
+                script.provider_used = (
+                    response.model.split("-")[0]
+                    if "-" in response.model
+                    else response.model
+                )
                 results.append(script)
             except Exception as e:
                 logger.warning(f"长请求生成失败: {e}")
@@ -312,7 +326,7 @@ class ScriptGenerator:
         if short_reqs:
             # 分批：每批最多 batch_size 个
             for i in range(0, len(short_reqs), self.batch_size):
-                batch = short_reqs[i:i + self.batch_size]
+                batch = short_reqs[i : i + self.batch_size]
                 if len(batch) == 1:
                     topic, config = batch[0]
                     script = self._generate_single_fallback(topic, config)
@@ -341,7 +355,9 @@ class ScriptGenerator:
         first_topic, first_config = batch[0]
         style = first_config.style
 
-        system_prompt = self.STYLE_PROMPTS.get(style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY])
+        system_prompt = self.STYLE_PROMPTS.get(
+            style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+        )
 
         # 构建批量请求的提示词
         user_prompt = build_batch_prompt(batch)
@@ -363,7 +379,9 @@ class ScriptGenerator:
             return parse_batch_response(response.content, batch)
         except Exception as e:
             logger.warning(f"批量生成失败，回退到逐段调用: {e}")
-            return [self._generate_single_fallback(topic, config) for topic, config in batch]
+            return [
+                self._generate_single_fallback(topic, config) for topic, config in batch
+            ]
 
     def _generate_single_fallback(
         self,
@@ -374,6 +392,7 @@ class ScriptGenerator:
         单独生成单个文案（回退方法）
         """
         if self.use_llm_manager and self.llm_manager:
+
             async def _run():
                 result = await self._generate_async(topic, config)
                 await self.llm_manager.close_all()
@@ -382,8 +401,11 @@ class ScriptGenerator:
             try:
                 asyncio.get_running_loop()
                 import concurrent.futures
+
                 with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(asyncio.run, _run()).result()
+                    raw_content, provider_used = pool.submit(
+                        asyncio.run, _run()
+                    ).result()
             except RuntimeError:
                 raw_content, provider_used = asyncio.run(_run())
 
@@ -408,8 +430,7 @@ class ScriptGenerator:
             client = OpenAI(api_key=self.api_key)
 
             system_prompt = self.STYLE_PROMPTS.get(
-                config.style,
-                self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+                config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
             )
             user_prompt = build_prompt(topic, config)
 
@@ -419,7 +440,9 @@ class ScriptGenerator:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                temperature=config.temperature if hasattr(config, 'temperature') else 0.7,
+                temperature=config.temperature
+                if hasattr(config, "temperature")
+                else 0.7,
                 max_tokens=2000,
             )
 
@@ -492,15 +515,21 @@ class ScriptGenerator:
     ) -> list[GeneratedScript]:
         return parse_batch_response(content, batch)
 
-    def _extract_segment(self, content: str, segment_num: int, config: ScriptConfig) -> str:
+    def _extract_segment(
+        self, content: str, segment_num: int, config: ScriptConfig
+    ) -> str:
         from ._response_parser import extract_segment
+
         return extract_segment(content, segment_num, config)
 
-    def split_to_captions(self, script: GeneratedScript, _max_chars: int = 20) -> list[dict[str, Any]]:
+    def split_to_captions(
+        self, script: GeneratedScript, _max_chars: int = 20
+    ) -> list[dict[str, Any]]:
         return split_to_captions(script, _max_chars)
 
 
 # =========== 便捷函数 ===========
+
 
 def generate_script(
     topic: str,

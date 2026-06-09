@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """测试片段选择服务"""
 
-
 from scenefab.services.video.extraction.first_person import VideoSegment
 from scenefab.services.video.selection.seg_selector import (
     SegmentSelector,
@@ -64,13 +63,13 @@ class TestSegmentSelector:
 
         # 设置叙事分数（开头和结尾高）
         narrative_scores = {
-            "/test/v1.mp4": 0.95,   # 完整开头
+            "/test/v1.mp4": 0.95,  # 完整开头
             "/test/v2.mp4": 0.6,
-            "/test/v3.mp4": 0.9,    # 高潮
+            "/test/v3.mp4": 0.9,  # 高潮
             "/test/v4.mp4": 0.5,
-            "/test/v5.mp4": 0.85,   # 高潮
-            "/test/v6.mp4": 0.7,    # 结尾
-            "/test/v7.mp4": 0.8,    # 结尾
+            "/test/v5.mp4": 0.85,  # 高潮
+            "/test/v6.mp4": 0.7,  # 结尾
+            "/test/v7.mp4": 0.8,  # 结尾
             "/test/v8.mp4": 0.6,
             "/test/v9.mp4": 0.5,
             "/test/v10.mp4": 0.4,
@@ -88,8 +87,9 @@ class TestSegmentSelector:
         # 计算总时长
         total_duration = sum(s.end_time - s.start_time for s in selected)
 
-        assert 40.0 <= total_duration <= 65.0, \
+        assert 40.0 <= total_duration <= 65.0, (
             f"总时长 {total_duration:.1f}s 应在 40-65s 范围内"
+        )
         assert len(selected) <= len(segments)
         assert len(selected) >= 1
 
@@ -103,7 +103,7 @@ class TestSegmentSelector:
 
         narrative_scores = {
             "/test/narrative.mp4": 0.95,  # 高叙事完整性
-            "/test/peak.mp4": 0.3,        # 低叙事完整性
+            "/test/peak.mp4": 0.3,  # 低叙事完整性
             "/test/middle.mp4": 0.4,
         }
 
@@ -140,8 +140,9 @@ class TestSegmentSelector:
         )
 
         total_duration = sum(s.end_time - s.start_time for s in selected)
-        assert total_duration <= 130.0, \
+        assert total_duration <= 130.0, (
             f"总时长 {total_duration:.1f}s 不应超过上限 130s"
+        )
 
     def test_select_empty_input(self):
         """测试空输入"""

@@ -2,7 +2,6 @@
 布局组件 - Grid, PageToolbar, EmptyState, ScrollArea
 """
 
-
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QFrame,
@@ -52,7 +51,12 @@ class MacGrid(QWidget):
 class MacPageToolbar(QWidget):
     """页面工具栏"""
 
-    def __init__(self, title: str = "", actions: list | None = None, parent: QWidget | None = None):
+    def __init__(
+        self,
+        title: str = "",
+        actions: list | None = None,
+        parent: QWidget | None = None,
+    ):
         super().__init__(parent)
         self._setup_ui(title, actions)
 
@@ -80,6 +84,7 @@ class MacPageToolbar(QWidget):
 
         if actions:
             from PySide6.QtWidgets import QPushButton
+
             for icon, tooltip, callback in actions:
                 btn = QPushButton(icon)
                 btn.setToolTip(tooltip)
@@ -104,8 +109,13 @@ class MacPageToolbar(QWidget):
 class MacEmptyState(QWidget):
     """空状态"""
 
-    def __init__(self, icon: str = "📭", title: str = "暂无内容",
-                 description: str = "", parent: QWidget | None = None):
+    def __init__(
+        self,
+        icon: str = "📭",
+        title: str = "暂无内容",
+        description: str = "",
+        parent: QWidget | None = None,
+    ):
         super().__init__(parent)
         self._setup_ui(icon, title, description)
 
@@ -120,7 +130,9 @@ class MacEmptyState(QWidget):
 
         self.title = QLabel(title, self)
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.title.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TextPrimary};")
+        self.title.setStyleSheet(
+            f"font-size: 18px; font-weight: bold; color: {Colors.TextPrimary};"
+        )
 
         layout.addWidget(self.icon)
         layout.addWidget(self.title)
@@ -128,5 +140,7 @@ class MacEmptyState(QWidget):
         if description:
             self.description = QLabel(description, self)
             self.description.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.description.setStyleSheet(f"font-size: 14px; color: {Colors.TextSecondary};")
+            self.description.setStyleSheet(
+                f"font-size: 14px; color: {Colors.TextSecondary};"
+            )
             layout.addWidget(self.description)

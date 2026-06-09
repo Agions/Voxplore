@@ -18,6 +18,7 @@ from .video import EmotionPeak, VideoSegment
 @dataclass
 class VideoProject:
     """视频项目"""
+
     name: str
     source_videos: list[str] = field(default_factory=list)
     segments: list[VideoSegment] = field(default_factory=list)
@@ -58,7 +59,9 @@ class VideoProject:
                 "audio_path": self.audio_track.audio_path,
                 "duration": self.audio_track.duration,
                 "voice": self.audio_track.voice,
-            } if self.audio_track else None,
+            }
+            if self.audio_track
+            else None,
             "output_path": self.output_path,
             "style": self.style.value,
             "emotion": self.emotion.value,
@@ -70,6 +73,7 @@ class VideoProject:
 @dataclass(slots=True)
 class TaskProgress:
     """任务进度"""
+
     task_id: str
     task_name: str
     status: str  # pending, running, paused, completed, failed, cancelled
@@ -103,6 +107,7 @@ class TaskProgress:
 @dataclass
 class VideoGroup:
     """视频分组（用于多视频混剪）"""
+
     group_id: str
     name: str = ""
     video_paths: list[str] = field(default_factory=list)

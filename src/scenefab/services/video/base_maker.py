@@ -31,6 +31,7 @@ from ..export.jianying_exporter import JianyingExporter
 @dataclass
 class BaseProject:
     """项目基类"""
+
     id: str = ""
     name: str = "新建项目"
     source_video: str = ""
@@ -104,7 +105,9 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
 
         # 分析场景
         project.scenes = self.scene_analyzer.analyze(source_video)
-        project.video_duration = sum(s.duration for s in project.scenes) if project.scenes else 0
+        project.video_duration = (
+            sum(s.duration for s in project.scenes) if project.scenes else 0
+        )
 
         return project
 
@@ -120,10 +123,12 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
         """
         self._report_progress("导出剪映", 0.0)
 
-        exporter = JianyingExporter(JianyingConfig(
-            canvas_ratio="9:16",
-            copy_materials=True,
-        ))
+        exporter = JianyingExporter(
+            JianyingConfig(
+                canvas_ratio="9:16",
+                copy_materials=True,
+            )
+        )
 
         self._report_progress("构建轨道", 0.0)
         draft = exporter.create_draft(project.name)
@@ -137,7 +142,9 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
             overall_p = 0.5 + phase_p * 0.5
             self._report_progress(f"导出: {phase}", overall_p)
 
-        draft_path = exporter.export(draft, jianying_drafts_dir, progress_callback=_on_exporter_progress)
+        draft_path = exporter.export(
+            draft, jianying_drafts_dir, progress_callback=_on_exporter_progress
+        )
         self._report_progress("导出剪映", 1.0)
 
         return draft_path
@@ -199,17 +206,19 @@ def _add_segments_to_track(
     if not segments_data:
         return
     for seg in segments_data:
-        track.add_segment(Segment(
-            material_id=material_id,
-            source_timerange=TimeRange.from_seconds(
-                seg.get("source_start", 0),
-                seg.get("duration", 0),
-            ),
-            target_timerange=TimeRange.from_seconds(
-                seg.get("target_start", 0),
-                seg.get("duration", 0),
-            ),
-        ))
+        track.add_segment(
+            Segment(
+                material_id=material_id,
+                source_timerange=TimeRange.from_seconds(
+                    seg.get("source_start", 0),
+                    seg.get("duration", 0),
+                ),
+                target_timerange=TimeRange.from_seconds(
+                    seg.get("target_start", 0),
+                    seg.get("duration", 0),
+                ),
+            )
+        )
 
     def _create_text_track(
         self,
@@ -231,7 +240,9 @@ def _add_segments_to_track(
             text_material = TextMaterial(
                 content=cap.get("text", ""),
                 font_size=cap.get("font_size", default_style.get("font_size", 6.0)),
-                font_color=cap.get("font_color", default_style.get("font_color", "#FFFFFF")),
+                font_color=cap.get(
+                    "font_color", default_style.get("font_color", "#FFFFFF")
+                ),
                 has_shadow=cap.get("has_shadow", default_style.get("has_shadow", True)),
             )
             draft.add_text(text_material)

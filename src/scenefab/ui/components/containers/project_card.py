@@ -97,11 +97,16 @@ class ProjectCard(QFrame):
     def _load_thumbnail(self, path: str) -> None:
         """加载并显示缩略图"""
         from PySide6.QtGui import QPixmap
+
         pixmap = QPixmap(path)
         if not pixmap.isNull():
             self._thumbnail_label.setPixmap(
-                pixmap.scaled(120, 80, Qt.AspectRatioMode.KeepAspectRatio,
-                             Qt.TransformationMode.SmoothTransformation)
+                pixmap.scaled(
+                    120,
+                    80,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
             )
 
     def _create_info(self) -> QWidget:
@@ -121,7 +126,9 @@ class ProjectCard(QFrame):
         # 描述
         description = self._project_data.get("description", "")
         if description:
-            desc_label = QLabel(description[:50] + "..." if len(description) > 50 else description)
+            desc_label = QLabel(
+                description[:50] + "..." if len(description) > 50 else description
+            )
             desc_label.setFont(QFont("", 12))
             desc_label.setStyleSheet("color: #71717A;")
             layout.addWidget(desc_label)

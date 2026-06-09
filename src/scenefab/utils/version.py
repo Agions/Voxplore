@@ -14,10 +14,12 @@ def _safe_import():
     """安全导入 tomli"""
     try:
         import tomli
+
         return tomli
     except ImportError:
         try:
             import tomllib
+
             return tomllib
         except ImportError:
             return None

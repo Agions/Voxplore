@@ -6,7 +6,6 @@
 显示和管理同一轨道的所有字幕块。
 """
 
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -35,7 +34,7 @@ class SubtitleTrackWidget(QFrame):
         track: SubtitleTrack,
         style,  # SubtitleStylePreset - imported but unused in this file
         scale: float = 50.0,
-        parent: QWidget | None = None
+        parent: QWidget | None = None,
     ):
         super().__init__(parent)
 

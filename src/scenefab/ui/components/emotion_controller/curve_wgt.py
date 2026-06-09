@@ -14,7 +14,6 @@ Emotion Curve Widget
 - 平滑动画效果
 """
 
-
 from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, QSize, Qt, Signal
 from PySide6.QtGui import (
     QBrush,
@@ -209,10 +208,14 @@ class EmotionCurveWidget(QWidget):
 
         # 绘制网格
         if self._show_time_grid:
-            self._draw_time_grid(painter, w, h, margin_left, margin_right, margin_top, margin_bottom)
+            self._draw_time_grid(
+                painter, w, h, margin_left, margin_right, margin_top, margin_bottom
+            )
 
         if self._show_intensity_grid:
-            self._draw_intensity_grid(painter, w, h, margin_left, margin_right, margin_top, margin_bottom)
+            self._draw_intensity_grid(
+                painter, w, h, margin_left, margin_right, margin_top, margin_bottom
+            )
 
         # 绘制曲线
         self._draw_curve(
@@ -225,10 +228,14 @@ class EmotionCurveWidget(QWidget):
         )
 
         # 绘制时间标签
-        self._draw_time_labels(painter, w, h, margin_left, margin_right, margin_top, margin_bottom)
+        self._draw_time_labels(
+            painter, w, h, margin_left, margin_right, margin_top, margin_bottom
+        )
 
         # 绘制强度标签
-        self._draw_intensity_labels(painter, w, h, margin_left, margin_right, margin_top, margin_bottom)
+        self._draw_intensity_labels(
+            painter, w, h, margin_left, margin_right, margin_top, margin_bottom
+        )
 
         # 绘制悬停提示
         if self._hover_point is not None and self._hover_index is not None:
@@ -245,8 +252,14 @@ class EmotionCurveWidget(QWidget):
             painter.fillRect(0, 0, w, h, self._background_color)
 
     def _draw_time_grid(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制时间网格"""
         plot_width = w - margin_left - margin_right
@@ -259,8 +272,14 @@ class EmotionCurveWidget(QWidget):
             painter.drawLine(int(x), margin_top, int(x), h - margin_bottom)
 
     def _draw_intensity_grid(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制强度网格"""
         plot_height = h - margin_top - margin_bottom
@@ -273,8 +292,14 @@ class EmotionCurveWidget(QWidget):
             painter.drawLine(margin_left, int(y), w - margin_right, int(y))
 
     def _draw_curve(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制平滑 bezier 曲线"""
         plot_width = w - margin_left - margin_right
@@ -313,7 +338,17 @@ class EmotionCurveWidget(QWidget):
         painter.drawPath(path)
 
         # 绘制曲线下的渐变填充
-        self._draw_curve_fill(painter, path, points, w, h, margin_left, margin_right, margin_top, margin_bottom)
+        self._draw_curve_fill(
+            painter,
+            path,
+            points,
+            w,
+            h,
+            margin_left,
+            margin_right,
+            margin_top,
+            margin_bottom,
+        )
 
         # 绘制数据点
         painter.setPen(Qt.NoPen)
@@ -325,9 +360,16 @@ class EmotionCurveWidget(QWidget):
             painter.drawEllipse(pt, 4, 4)
 
     def _draw_curve_fill(
-        self, painter: QPainter, path: QPainterPath, points: list[QPoint],
-        w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        path: QPainterPath,
+        points: list[QPoint],
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制曲线下的渐变填充"""
         if not points:
@@ -350,8 +392,14 @@ class EmotionCurveWidget(QWidget):
         painter.fillPath(fill_path, gradient)
 
     def _draw_position_indicator(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制当前位置指示器"""
         plot_width = w - margin_left - margin_right
@@ -366,8 +414,13 @@ class EmotionCurveWidget(QWidget):
         upper_idx = min(lower_idx + 1, 10)
         frac = idx - lower_idx
 
-        if lower_idx < len(self._animated_curve) and upper_idx < len(self._animated_curve):
-            value = self._animated_curve[lower_idx] * (1 - frac) + self._animated_curve[upper_idx] * frac
+        if lower_idx < len(self._animated_curve) and upper_idx < len(
+            self._animated_curve
+        ):
+            value = (
+                self._animated_curve[lower_idx] * (1 - frac)
+                + self._animated_curve[upper_idx] * frac
+            )
         else:
             value = 0.5
 
@@ -389,8 +442,14 @@ class EmotionCurveWidget(QWidget):
         painter.drawEllipse(QPoint(x, y), 3, 3)
 
     def _draw_time_labels(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制时间标签"""
         painter.setPen(QPen(self._text_color, 9))
@@ -401,11 +460,17 @@ class EmotionCurveWidget(QWidget):
 
         for i in labels:
             x = int(margin_left + i * plot_width / 10)
-            painter.drawText(x - 10, h - 5, 20, 14, Qt.AlignCenter, f"{i*10}%")
+            painter.drawText(x - 10, h - 5, 20, 14, Qt.AlignCenter, f"{i * 10}%")
 
     def _draw_intensity_labels(
-        self, painter: QPainter, w: int, h: int,
-        margin_left: int, margin_right: int, margin_top: int, margin_bottom: int
+        self,
+        painter: QPainter,
+        w: int,
+        h: int,
+        margin_left: int,
+        margin_right: int,
+        margin_top: int,
+        margin_bottom: int,
     ):
         """绘制强度标签"""
         painter.setPen(QPen(self._text_color, 9))
@@ -496,8 +561,12 @@ class EmotionCurveWidget(QWidget):
         margin_bottom = 25
 
         # 检查是否在绘图区域内
-        if (pos.x() < margin_left or pos.x() > self.width() - margin_right or
-            pos.y() < margin_top or pos.y() > self.height() - margin_bottom):
+        if (
+            pos.x() < margin_left
+            or pos.x() > self.width() - margin_right
+            or pos.y() < margin_top
+            or pos.y() > self.height() - margin_bottom
+        ):
             if self._hover_point is not None:
                 self._hover_point = None
                 self._hover_index = None

@@ -100,7 +100,7 @@ class ProjectsListPanel(QWidget):
     def _on_filter_changed(self):
         """过滤项目"""
         search_text = ""
-        if hasattr(self, '_search_box') and self._search_box:
+        if hasattr(self, "_search_box") and self._search_box:
             search_text = self._search_box.input.text().lower()
 
         type_filter = self._type_filter.currentText()
@@ -112,8 +112,8 @@ class ProjectsListPanel(QWidget):
 
             if search_text:
                 matches = (
-                    search_text in project.metadata.name.lower() or
-                    search_text in project.metadata.description.lower()
+                    search_text in project.metadata.name.lower()
+                    or search_text in project.metadata.description.lower()
                 )
 
             if matches and type_filter != "全部类型":
@@ -175,8 +175,11 @@ class ProjectsListPanel(QWidget):
     def _add_empty_spacer(self):
         """添加空白间隔"""
         self._grid_layout.addItem(
-            QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding),
-            0, 0
+            QSpacerItem(
+                1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            ),
+            0,
+            0,
         )
 
     def _emit_project_selected(self, project_id: str):

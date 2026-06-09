@@ -29,8 +29,12 @@ class ModelApplicationDialog(QWizard):
         self.setProperty("class", "model-application-wizard")
 
         # 设置提供商标题
-        self.setPixmap(QWizard.WizardPixmap.LogoPixmap, get_icon("ai", 64).pixmap(64, 64))
-        self.setPixmap(QWizard.WizardPixmap.BannerPixmap, get_icon("settings", 64).pixmap(64, 64))
+        self.setPixmap(
+            QWizard.WizardPixmap.LogoPixmap, get_icon("ai", 64).pixmap(64, 64)
+        )
+        self.setPixmap(
+            QWizard.WizardPixmap.BannerPixmap, get_icon("settings", 64).pixmap(64, 64)
+        )
 
         # 创建页面
         self._create_pages()
@@ -50,12 +54,12 @@ class ModelApplicationDialog(QWizard):
                     "需要注册百度云账号",
                     "需要完成实名认证",
                     "需要创建应用获取API密钥",
-                    "部分功能需要企业认证"
+                    "部分功能需要企业认证",
                 ],
                 estimated_time="1-3个工作日",
                 difficulty="easy",
                 features=["文本生成", "翻译", "代码生成"],
-                pricing="免费额度 + 按量付费"
+                pricing="免费额度 + 按量付费",
             ),
             ProviderInfo(
                 name="科大讯飞星火",
@@ -68,12 +72,12 @@ class ModelApplicationDialog(QWizard):
                     "需要注册讯飞开放平台账号",
                     "需要完成实名认证",
                     "需要创建应用获取API密钥",
-                    "部分功能需要审核"
+                    "部分功能需要审核",
                 ],
                 estimated_time="1-2个工作日",
                 difficulty="easy",
                 features=["语音识别", "文本生成", "翻译"],
-                pricing="免费额度 + 按量付费"
+                pricing="免费额度 + 按量付费",
             ),
             ProviderInfo(
                 name="阿里云通义千问",
@@ -86,12 +90,12 @@ class ModelApplicationDialog(QWizard):
                     "需要注册阿里云账号",
                     "需要完成实名认证",
                     "需要开通DashScope服务",
-                    "需要创建API-KEY"
+                    "需要创建API-KEY",
                 ],
                 estimated_time="1-3个工作日",
                 difficulty="medium",
                 features=["文本生成", "代码生成", "多模态"],
-                pricing="按量付费"
+                pricing="按量付费",
             ),
             ProviderInfo(
                 name="智谱AI",
@@ -104,12 +108,12 @@ class ModelApplicationDialog(QWizard):
                     "需要注册智谱AI平台账号",
                     "需要完成实名认证",
                     "需要创建应用获取API密钥",
-                    "支持个人和企业用户"
+                    "支持个人和企业用户",
                 ],
                 estimated_time="1-2个工作日",
                 difficulty="easy",
                 features=["文本生成", "代码生成", "长文本"],
-                pricing="免费额度 + 按量付费"
+                pricing="免费额度 + 按量付费",
             ),
             ProviderInfo(
                 name="百川智能",
@@ -122,12 +126,12 @@ class ModelApplicationDialog(QWizard):
                     "需要注册百川AI平台账号",
                     "需要完成实名认证",
                     "需要创建应用获取API密钥",
-                    "支持个人和企业用户"
+                    "支持个人和企业用户",
                 ],
                 estimated_time="1-2个工作日",
                 difficulty="easy",
                 features=["文本生成", "翻译", "代码生成"],
-                pricing="免费额度 + 按量付费"
+                pricing="免费额度 + 按量付费",
             ),
             ProviderInfo(
                 name="月之暗面",
@@ -140,13 +144,13 @@ class ModelApplicationDialog(QWizard):
                     "需要注册月之暗面平台账号",
                     "需要完成实名认证",
                     "需要创建API密钥",
-                    "支持个人和企业用户"
+                    "支持个人和企业用户",
                 ],
                 estimated_time="1-2个工作日",
                 difficulty="easy",
                 features=["长文本", "文本生成", "代码生成"],
-                pricing="按量付费"
-            )
+                pricing="按量付费",
+            ),
         ]
 
         # 添加页面

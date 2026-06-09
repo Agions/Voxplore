@@ -78,14 +78,6 @@ class ExportPanel(QWidget, ThemeAwareMixin):
 
         layout.addWidget(self.tab_widget)
 
-
-
-
-
-
-
-
-
     def connect_signals(self):
         """连接信号"""
         # 导出系统信号
@@ -102,7 +94,9 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         self.current_project_id = project_id
         self.project_name_label.setText(project_info.get("name", "未知项目"))
         self.project_duration_label.setText(project_info.get("duration", "00:00:00"))
-        self.project_resolution_label.setText(project_info.get("resolution", "1920x1080"))
+        self.project_resolution_label.setText(
+            project_info.get("resolution", "1920x1080")
+        )
 
     def refresh_presets(self):
         """刷新预设列表"""
@@ -122,7 +116,9 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         for i, preset in enumerate(presets):
             self.presets_table.setItem(i, 0, QTableWidgetItem(preset.name))
             self.presets_table.setItem(i, 1, QTableWidgetItem(preset.format.value))
-            self.presets_table.setItem(i, 2, QTableWidgetItem(f"{preset.resolution[0]}x{preset.resolution[1]}"))
+            self.presets_table.setItem(
+                i, 2, QTableWidgetItem(f"{preset.resolution[0]}x{preset.resolution[1]}")
+            )
             self.presets_table.setItem(i, 3, QTableWidgetItem(f"{preset.bitrate} kbps"))
 
             # 操作按钮
@@ -135,7 +131,9 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             actions_layout.addWidget(edit_btn)
 
             delete_btn = QPushButton("删除")
-            delete_btn.clicked.connect(lambda checked, p=preset: self.delete_preset_data(p))
+            delete_btn.clicked.connect(
+                lambda checked, p=preset: self.delete_preset_data(p)
+            )
             actions_layout.addWidget(delete_btn)
 
             actions_layout.addStretch()
@@ -144,17 +142,17 @@ class ExportPanel(QWidget, ThemeAwareMixin):
     def browse_output_path(self):
         """浏览输出路径"""
         file_path, _ = QFileDialog.getSaveFileName(
-            self, "选择输出文件", "",
-            "视频文件 (*.mp4 *.avi *.mov *.mkv *.webm);;音频文件 (*.mp3 *.wav);;所有文件 (*)"
+            self,
+            "选择输出文件",
+            "",
+            "视频文件 (*.mp4 *.avi *.mov *.mkv *.webm);;音频文件 (*.mp3 *.wav);;所有文件 (*)",
         )
         if file_path:
             self.output_path_edit.setText(file_path)
 
     def browse_batch_output_dir(self):
         """浏览批量输出目录"""
-        dir_path = QFileDialog.getExistingDirectory(
-            self, "选择输出目录"
-        )
+        dir_path = QFileDialog.getExistingDirectory(self, "选择输出目录")
         if dir_path:
             self.batch_output_dir_edit.setText(dir_path)
 
@@ -198,8 +196,8 @@ class ExportPanel(QWidget, ThemeAwareMixin):
                 metadata={
                     "project_name": self.project_name_label.text(),
                     "duration": self.project_duration_label.text(),
-                    "resolution": self.project_resolution_label.text()
-                }
+                    "resolution": self.project_resolution_label.text(),
+                },
             )
 
             QMessageBox.information(self, "成功", f"导出任务已添加到队列: {task_id}")
@@ -228,15 +226,16 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             batch_configs = []
             for project in selected_projects:
                 output_path = os.path.join(
-                    output_dir,
-                    f"{project['name']}_{preset_id}.mp4"
+                    output_dir, f"{project['name']}_{preset_id}.mp4"
                 )
-                batch_configs.append({
-                    "project_id": project["id"],
-                    "output_path": output_path,
-                    "preset_id": preset_id,
-                    "metadata": project
-                })
+                batch_configs.append(
+                    {
+                        "project_id": project["id"],
+                        "output_path": output_path,
+                        "preset_id": preset_id,
+                        "metadata": project,
+                    }
+                )
 
             task_ids = self.export_system.export_batch(batch_configs)
             QMessageBox.information(self, "成功", f"已添加 {len(task_ids)} 个导出任务")
@@ -250,12 +249,16 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         for i in range(self.batch_projects_table.rowCount()):
             checkbox = self.batch_projects_table.cellWidget(i, 0)
             if checkbox and checkbox.isChecked():
-                selected_projects.append({
-                    "id": self.batch_projects_table.item(i, 1).data(Qt.ItemDataRole.UserRole),
-                    "name": self.batch_projects_table.item(i, 1).text(),
-                    "duration": self.batch_projects_table.item(i, 2).text(),
-                    "resolution": self.batch_projects_table.item(i, 3).text()
-                })
+                selected_projects.append(
+                    {
+                        "id": self.batch_projects_table.item(i, 1).data(
+                            Qt.ItemDataRole.UserRole
+                        ),
+                        "name": self.batch_projects_table.item(i, 1).text(),
+                        "duration": self.batch_projects_table.item(i, 2).text(),
+                        "resolution": self.batch_projects_table.item(i, 3).text(),
+                    }
+                )
         return selected_projects
 
     def select_all_projects(self):
@@ -382,8 +385,10 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             return
 
         reply = QMessageBox.question(
-            self, "确认删除", "确定要删除选中的预设吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            self,
+            "确认删除",
+            "确定要删除选中的预设吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if reply == QMessageBox.StandardButton.Yes:
@@ -392,8 +397,10 @@ class ExportPanel(QWidget, ThemeAwareMixin):
     def delete_preset_data(self, preset: ExportPreset):
         """删除预设数据"""
         reply = QMessageBox.question(
-            self, "确认删除", f"确定要删除预设 '{preset.name}' 吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            self,
+            "确认删除",
+            f"确定要删除预设 '{preset.name}' 吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if reply == QMessageBox.StandardButton.Yes:
@@ -447,7 +454,9 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         """返回主题样式表"""
         border = ThemeColors.BORDER_DARK if is_dark else ThemeColors.BORDER_LIGHT
         bg = ThemeColors.BG_DARK if is_dark else ThemeColors.BG_LIGHT
-        alt_bg = ThemeColors.BG_SURFACE_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        alt_bg = (
+            ThemeColors.BG_SURFACE_DARK if is_dark else ThemeColors.BG_SURFACE_LIGHT
+        )
         return f"""
             QGroupBox {{
                 border: 1px solid {border};
@@ -460,4 +469,3 @@ class ExportPanel(QWidget, ThemeAwareMixin):
                 alternate-background-color: {alt_bg};
             }}
         """
-

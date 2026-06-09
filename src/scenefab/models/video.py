@@ -13,8 +13,9 @@ from typing import Any
 @dataclass(slots=True)
 class TimeRange:
     """时间范围"""
+
     start: float  # 秒
-    end: float    # 秒
+    end: float  # 秒
 
     @property
     def duration(self) -> float:
@@ -24,13 +25,14 @@ class TimeRange:
         return {"start": self.start, "end": self.end}
 
     @classmethod
-    def from_seconds(cls, start: float, end: float) -> 'TimeRange':
+    def from_seconds(cls, start: float, end: float) -> "TimeRange":
         return cls(start=start, end=end)
 
 
 @dataclass(slots=True)
 class VideoSegment:
     """视频片段"""
+
     video_path: str
     start_time: float
     end_time: float
@@ -61,6 +63,7 @@ class VideoSegment:
 @dataclass(slots=True)
 class EmotionPeak:
     """情感峰值"""
+
     segment: VideoSegment
     peak_score: float
     reason: str

@@ -19,6 +19,7 @@ from scenefab.plugins.interfaces.base import (
 
 class PluginState(Enum):
     """插件状态"""
+
     UNINSTALLED = "uninstalled"
     INSTALLED = "installed"
     LOADED = "loaded"
@@ -31,6 +32,7 @@ class PluginState(Enum):
 @dataclass
 class PluginEntry:
     """插件条目"""
+
     manifest: PluginManifest
     state: PluginState = PluginState.UNINSTALLED
     instance: BasePlugin | None = None
@@ -273,7 +275,8 @@ class PluginRegistry:
         """保存已启用的插件列表"""
         os.makedirs(os.path.dirname(path), exist_ok=True)
         enabled = [
-            pid for pid, entry in self._plugins.items()
+            pid
+            for pid, entry in self._plugins.items()
             if entry.state == PluginState.ENABLED
         ]
         with open(path, "w", encoding="utf-8") as f:
@@ -285,10 +288,12 @@ class PluginRegistry:
 
     def log_info(self, message: str) -> None:
         import logging
+
         logging.getLogger("scenefab.plugins").info(message)
 
     def log_error(self, message: str) -> None:
         import logging
+
         logging.getLogger("scenefab.plugins").error(message)
 
     def __len__(self) -> int:

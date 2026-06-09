@@ -18,20 +18,21 @@ from PySide6.QtWidgets import (
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
-    "bg_card":     "oklch(0.16 0.01 250)",
-    "bg_input":    "oklch(0.13 0.01 250)",
-    "bg_active":   "oklch(0.17 0.01 250)",
-    "border":      "oklch(0.24 0.01 250)",
-    "primary":     "oklch(0.65 0.20 250)",
-    "text":        "oklch(0.93 0.01 250)",
-    "text_sub":    "oklch(0.75 0.01 250)",
-    "text_muted":  "oklch(0.55 0.01 250)",
+    "bg_card": "oklch(0.16 0.01 250)",
+    "bg_input": "oklch(0.13 0.01 250)",
+    "bg_active": "oklch(0.17 0.01 250)",
+    "border": "oklch(0.24 0.01 250)",
+    "primary": "oklch(0.65 0.20 250)",
+    "text": "oklch(0.93 0.01 250)",
+    "text_sub": "oklch(0.75 0.01 250)",
+    "text_muted": "oklch(0.55 0.01 250)",
 }
 
 
 # ── 风格预设面板 ────────────────────────────────────────────
 class StylePresetPanel(QFrame):
     """风格/角色参数调整面板"""
+
     style_changed = Signal(str, str, str)  # style, role, custom_params
 
     # 预设风格
@@ -52,8 +53,8 @@ class StylePresetPanel(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T['bg_card']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_card"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 12px;
             }}
         """)
@@ -78,19 +79,19 @@ class StylePresetPanel(QFrame):
         self._style_combo.currentTextChanged.connect(self._on_style_changed)
         self._style_combo.setStyleSheet(f"""
             QComboBox {{
-                background-color: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background-color: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 8px 12px;
                 font-size: 12px;
             }}
             QComboBox QAbstractItemView {{
-                background-color: {_T['bg_card']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background-color: {_T["bg_card"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
-                selection-background-color: {_T['bg_active']};
+                selection-background-color: {_T["bg_active"]};
             }}
         """)
         style_row.addWidget(self._style_combo, stretch=1)
@@ -118,15 +119,15 @@ class StylePresetPanel(QFrame):
         self._role_input.setPlaceholderText("默认为「我」")
         self._role_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 6px 10px;
                 font-size: 12px;
             }}
-            QLineEdit:focus {{ border-color: {_T['primary']}; }}
-            QLineEdit::placeholder {{ color: {_T['text_muted']}; }}
+            QLineEdit:focus {{ border-color: {_T["primary"]}; }}
+            QLineEdit::placeholder {{ color: {_T["text_muted"]}; }}
         """)
         self._role_input.textChanged.connect(self._emit_change)
         role_row.addWidget(self._role_input, stretch=1)
@@ -142,15 +143,15 @@ class StylePresetPanel(QFrame):
         self._param_input.setPlaceholderText("如：年龄30、性格内向…")
         self._param_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {_T['bg_input']};
-                color: {_T['text']};
-                border: 1px solid {_T['border']};
+                background: {_T["bg_input"]};
+                color: {_T["text"]};
+                border: 1px solid {_T["border"]};
                 border-radius: 8px;
                 padding: 6px 10px;
                 font-size: 12px;
             }}
-            QLineEdit:focus {{ border-color: {_T['primary']}; }}
-            QLineEdit::placeholder {{ color: {_T['text_muted']}; }}
+            QLineEdit:focus {{ border-color: {_T["primary"]}; }}
+            QLineEdit::placeholder {{ color: {_T["text_muted"]}; }}
         """)
         self._param_input.textChanged.connect(self._emit_change)
         param_row.addWidget(self._param_input, stretch=1)
@@ -173,7 +174,7 @@ class StylePresetPanel(QFrame):
         self.style_changed.emit(
             self._style_combo.currentText(),
             self._role_input.text().strip(),
-            self._param_input.text().strip()
+            self._param_input.text().strip(),
         )
 
     def _on_regenerate(self):
@@ -181,7 +182,7 @@ class StylePresetPanel(QFrame):
         self.style_changed.emit(
             self._style_combo.currentText(),
             self._role_input.text().strip(),
-            self._param_input.text().strip()
+            self._param_input.text().strip(),
         )
 
     def get_current_style(self) -> str:

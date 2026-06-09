@@ -38,6 +38,7 @@ class PluginLoader:
     def _get_version() -> str:
         try:
             from scenefab import __version__
+
             return __version__
         except Exception:
             return "1.0.0"
@@ -140,7 +141,9 @@ class PluginLoader:
                 if isinstance(manifest_data, dict):
                     manifest_data.setdefault("entry_point", f"{ep.module}:{ep.attr}")
                     if isinstance(manifest_data.get("plugin_type"), str):
-                        manifest_data["plugin_type"] = PluginType(manifest_data["plugin_type"])
+                        manifest_data["plugin_type"] = PluginType(
+                            manifest_data["plugin_type"]
+                        )
                     return PluginManifest(**manifest_data)
 
             # 策略2：从插件类的 Meta 属性读取
@@ -177,7 +180,9 @@ class PluginLoader:
 
         # 从模块名提取插件 ID
         module_parts = ep.module.split(".")
-        plugin_id = ".".join(module_parts[-2:]) if len(module_parts) >= 2 else module_parts[-1]
+        plugin_id = (
+            ".".join(module_parts[-2:]) if len(module_parts) >= 2 else module_parts[-1]
+        )
 
         return PluginManifest(
             id=plugin_id,
@@ -282,10 +287,14 @@ class PluginLoader:
             return True
 
         except Exception as e:
-            logger.warning("Failed to load plugin from entry_point %s: %s", manifest.id, e)
+            logger.warning(
+                "Failed to load plugin from entry_point %s: %s", manifest.id, e
+            )
             return False
 
-    def _safe_load_entry_point(self, plugin_dir: Path, manifest: PluginManifest) -> None:
+    def _safe_load_entry_point(
+        self, plugin_dir: Path, manifest: PluginManifest
+    ) -> None:
         """
         安全地加载插件入口点，避免 sys.path 注入攻击
         """
@@ -296,14 +305,18 @@ class PluginLoader:
             for allowed_dir in self._plugin_dirs
         )
         if not is_allowed:
-            raise ValueError(f"Plugin directory not in allowed plugin dirs: {plugin_dir}")
+            raise ValueError(
+                f"Plugin directory not in allowed plugin dirs: {plugin_dir}"
+            )
 
         module_path, class_name = manifest.entry_point.split(":", 1)
         module_file_path = plugin_dir / f"{module_path.replace('.', '/')}.py"
 
         module_file_resolved = module_file_path.resolve()
         if not module_file_resolved.is_relative_to(plugin_dir_resolved):
-            raise ValueError(f"Entry point path escapes plugin directory: {module_file_path}")
+            raise ValueError(
+                f"Entry point path escapes plugin directory: {module_file_path}"
+            )
 
         spec = importlib.util.spec_from_file_location(module_path, module_file_path)
         if spec is None or spec.loader is None:
@@ -330,15 +343,16 @@ class PluginLoader:
 
             # 判断来源：entry_point vs 目录
             if ":" in manifest.entry_point and not any(
-                allowed_dir.resolve() in Path(self._find_plugin_dir(plugin_id) or ".")
-                .resolve()
-                .parents
+                allowed_dir.resolve()
+                in Path(self._find_plugin_dir(plugin_id) or ".").resolve().parents
                 for allowed_dir in self._plugin_dirs
             ):
                 # entry_point 来源（检查是否是目录插件）
                 plugin_dir = self._find_plugin_dir(plugin_id)
                 if plugin_dir and plugin_dir.exists():
-                    success = self.load_plugin_from_directory(plugin_dir, manifest, context)
+                    success = self.load_plugin_from_directory(
+                        plugin_dir, manifest, context
+                    )
                 else:
                     success = self.load_plugin_from_entry_point(manifest, context)
             else:
@@ -400,6 +414,7 @@ class PluginLoader:
     def _parse_version(self, version: str) -> tuple:
         """解析版本号为元组"""
         import re
+
         match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
         if match:
             return tuple(int(x) for x in match.groups())

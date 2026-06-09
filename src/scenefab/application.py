@@ -24,9 +24,9 @@ __all__ = [
 ]
 
 
-
 class ApplicationState(Enum):
     """应用程序状态枚举"""
+
     INITIALIZING = "initializing"
     STARTING = "starting"
     READY = "ready"
@@ -38,6 +38,7 @@ class ApplicationState(Enum):
 
 class ErrorType(Enum):
     """错误类型枚举"""
+
     SYSTEM = "system"
     UI = "ui"
     FILE = "file"
@@ -48,6 +49,7 @@ class ErrorType(Enum):
 
 class ErrorSeverity(Enum):
     """错误严重程度枚举"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -57,25 +59,33 @@ class ErrorSeverity(Enum):
 @dataclass
 class ErrorInfo:
     """错误信息数据类"""
+
     error_type: ErrorType
     severity: ErrorSeverity
     message: str
     details: str | None = None
     exception: Exception | None = None
-    timestamp: float = field(default_factory=lambda: (__import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication.instance() or {}).get('timestamp', 0))
+    timestamp: float = field(
+        default_factory=lambda: (
+            __import__(
+                "PySide6.QtWidgets", fromlist=["QApplication"]
+            ).QApplication.instance()
+            or {}
+        ).get("timestamp", 0)
+    )
 
 
 class Application(QObject):
     """SceneFab 应用程序核心类"""
 
     # 信号定义
-    state_changed = Signal(ApplicationState)        # 应用程序状态变化信号
-    error_occurred = Signal(str, str)             # 应用程序错误信号
-    progress_updated = Signal(int, str)            # 进度更新信号
-    message_logged = Signal(str, str)              # 消息日志信号
-    config_changed = Signal(str, object)              # 配置变更信号
-    service_registered = Signal(str, object)      # 服务注册信号
-    service_unregistered = Signal(str)             # 服务注销信号
+    state_changed = Signal(ApplicationState)  # 应用程序状态变化信号
+    error_occurred = Signal(str, str)  # 应用程序错误信号
+    progress_updated = Signal(int, str)  # 进度更新信号
+    message_logged = Signal(str, str)  # 消息日志信号
+    config_changed = Signal(str, object)  # 配置变更信号
+    service_registered = Signal(str, object)  # 服务注册信号
+    service_unregistered = Signal(str)  # 服务注销信号
 
     def __init__(self, config):
         """初始化应用程序"""
@@ -87,6 +97,7 @@ class Application(QObject):
 
         # 服务容器
         from .service_container import ServiceContainer
+
         self._service_container = ServiceContainer()
 
         # 事件系统
@@ -103,7 +114,7 @@ class Application(QObject):
             ("event_bus", self._init_event_bus),
             ("error_handler", self._init_error_handler),
             ("icon_manager", self._init_icon_manager),
-            ("services", self._init_services)
+            ("services", self._init_services),
         ]
 
     def initialize(self, argv: list[str]) -> bool:
@@ -112,21 +123,32 @@ class Application(QObject):
             self._set_state(ApplicationState.INITIALIZING)
 
             # 确保QApplication存在 - 应该已经在main.py中创建
-            QApplication = __import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication
+            QApplication = __import__(
+                "PySide6.QtWidgets", fromlist=["QApplication"]
+            ).QApplication
             app = QApplication.instance()
             if not app:
-                self.error_occurred.emit("INIT_ERROR", "QApplication not created. Call QApplication.instance() first.")
+                self.error_occurred.emit(
+                    "INIT_ERROR",
+                    "QApplication not created. Call QApplication.instance() first.",
+                )
                 return False
 
             # 执行初始化序列
             for name, init_func in self._init_sequence:
                 if not init_func():
-                    self.error_occurred.emit("INIT_ERROR", f"Failed to initialize {name}")
+                    self.error_occurred.emit(
+                        "INIT_ERROR", f"Failed to initialize {name}"
+                    )
                     return False
 
                 self.progress_updated.emit(
-                    int((self._init_sequence.index((name, init_func)) + 1) / len(self._init_sequence) * 100),
-                    f"正在初始化 {name}..."
+                    int(
+                        (self._init_sequence.index((name, init_func)) + 1)
+                        / len(self._init_sequence)
+                        * 100
+                    ),
+                    f"正在初始化 {name}...",
                 )
 
             # 加载配置
@@ -148,10 +170,15 @@ class Application(QObject):
             self._set_state(ApplicationState.STARTING)
 
             # 启动所有服务
-            for service_name, service in self._service_container._services_by_name.items():
-                if hasattr(service, 'start'):
+            for (
+                service_name,
+                service,
+            ) in self._service_container._services_by_name.items():
+                if hasattr(service, "start"):
                     if not service.start():
-                        self.error_occurred.emit("SERVICE_ERROR", f"Failed to start service: {service_name}")
+                        self.error_occurred.emit(
+                            "SERVICE_ERROR", f"Failed to start service: {service_name}"
+                        )
                         return False
 
             # 启动定时器
@@ -180,11 +207,14 @@ class Application(QObject):
             # 使用列表副本进行反向迭代
             services_list = list(self._service_container._services_by_name.items())
             for service_name, service in reversed(services_list):
-                if hasattr(service, 'stop'):
+                if hasattr(service, "stop"):
                     try:
                         service.stop()
                     except Exception as e:
-                        self.error_occurred.emit("SERVICE_ERROR", f"Error stopping service {service_name}: {str(e)}")
+                        self.error_occurred.emit(
+                            "SERVICE_ERROR",
+                            f"Error stopping service {service_name}: {str(e)}",
+                        )
 
             # 保存配置
             self._save_configuration()
@@ -200,7 +230,9 @@ class Application(QObject):
     def run(self) -> int:
         """运行应用程序主循环"""
         try:
-            QApplication = __import__('PySide6.QtWidgets', fromlist=['QApplication']).QApplication
+            QApplication = __import__(
+                "PySide6.QtWidgets", fromlist=["QApplication"]
+            ).QApplication
             app = QApplication.instance()
             if not app:
                 self.error_occurred.emit("RUN_ERROR", "QApplication not found")
@@ -289,9 +321,13 @@ class Application(QObject):
                     try:
                         handler(data)
                     except Exception as e:
-                        self.error_occurred.emit("EVENT_ERROR", f"Event handler error: {str(e)}")
+                        self.error_occurred.emit(
+                            "EVENT_ERROR", f"Event handler error: {str(e)}"
+                        )
 
-    def add_timer(self, name: str, interval: int, callback: Callable, single_shot: bool = False) -> object:
+    def add_timer(
+        self, name: str, interval: int, callback: Callable, single_shot: bool = False
+    ) -> object:
         """
         添加定时器
 
@@ -300,7 +336,7 @@ class Application(QObject):
         确保所有定时器相关调用都在主线程中执行，或使用 QMetaObject.invokeMethod
         将定时器操作调度到主线程。
         """
-        QTimer = __import__('PySide6.QtCore', fromlist=['QTimer']).QTimer
+        QTimer = __import__("PySide6.QtCore", fromlist=["QTimer"]).QTimer
         timer = QTimer()
         timer.setInterval(interval)
         timer.setSingleShot(single_shot)
@@ -354,7 +390,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            if hasattr(self, 'logger'):
+            if hasattr(self, "logger"):
                 self.logger.error(f"配置管理器初始化失败: {e}")
             return False
 
@@ -371,7 +407,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            if hasattr(self, 'logger'):
+            if hasattr(self, "logger"):
                 self.logger.error(f"事件总线初始化失败: {e}")
             return False
 
@@ -388,7 +424,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            if hasattr(self, 'logger'):
+            if hasattr(self, "logger"):
                 self.logger.error(f"错误处理器初始化失败: {e}")
             return False
 
@@ -405,7 +441,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            if hasattr(self, 'logger'):
+            if hasattr(self, "logger"):
                 self.logger.error(f"图标管理器初始化失败: {e}")
             return False
 
@@ -447,7 +483,7 @@ class Application(QObject):
             return True
 
         except Exception as e:
-            if hasattr(self, 'logger'):
+            if hasattr(self, "logger"):
                 self.logger.error(f"服务初始化失败: {e}")
             return False
 
@@ -455,7 +491,7 @@ class Application(QObject):
         """加载配置"""
         try:
             # 从 PySide6 QSettings 加载
-            QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
+            QSettings = __import__("PySide6.QtCore", fromlist=["QSettings"]).QSettings
             settings = QSettings("SceneFab", "Application")
             self.logger.info("配置加载完成: %s keys", settings.allKeys().__len__())
         except Exception as e:
@@ -465,7 +501,7 @@ class Application(QObject):
         """保存配置"""
         try:
             # 保存到 PySide6 QSettings
-            QSettings = __import__('PySide6.QtCore', fromlist=['QSettings']).QSettings
+            QSettings = __import__("PySide6.QtCore", fromlist=["QSettings"]).QSettings
             QSettings("SceneFab", "Application")  # persist session config
             self.logger.info("配置保存完成")
         except Exception as e:

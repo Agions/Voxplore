@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Test Caption Generator"""
 
-
 from scenefab.services.video_tools.caption_gen import (
     Caption,
     CaptionConfig,
@@ -186,7 +185,7 @@ class TestCaptionGeneratorMethods:
                 "words": [
                     {"word": "你", "start": 0.0, "end": 0.25},
                     {"word": "好", "start": 0.25, "end": 0.5},
-                ]
+                ],
             }
         ]
         captions = generator.generate_from_transcript(transcript)
