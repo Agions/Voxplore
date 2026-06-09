@@ -80,7 +80,7 @@ class OCRSubtitleExtractor:
             return result
 
         # 批量 OCR
-        segments = []
+        segments = []  # type: ignore[var-annotated]
         prev_text = ""
 
         for timestamp, frame_path in frames:

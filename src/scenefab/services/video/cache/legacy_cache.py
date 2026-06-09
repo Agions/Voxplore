@@ -39,8 +39,8 @@ class VideoCache:
 
     def __init__(self, max_size: int = 100):
         self.max_size = max_size
-        self._cache = {}
-        self._access_order = []
+        self._cache = {}  # type: ignore[var-annotated]
+        self._access_order = []  # type: ignore[var-annotated]
 
     def get(self, key: str) -> np.ndarray | None:
         if key in self._cache:

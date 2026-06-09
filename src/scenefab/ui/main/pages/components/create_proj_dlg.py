@@ -34,7 +34,7 @@ class CreateProjectDialog(QDialog):
         super().__init__(parent)
         self.template_manager = template_manager
         self.selected_template = None
-        self.templates = []
+        self.templates = []  # type: ignore[var-annotated]
         self.setProperty("class", "modal-container")
         self._setup_ui()
         if template_manager is not None:

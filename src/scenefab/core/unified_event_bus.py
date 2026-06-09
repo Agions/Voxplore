@@ -390,7 +390,7 @@ class UnifiedEventBus:
                 coro = entry.handler(data)
                 if self._async_loop and not self._async_loop.is_closed():
                     # 在主事件循环跑 async handler
-                    future = asyncio.run_coroutine_threadsafe(coro, self._async_loop)
+                    future = asyncio.run_coroutine_threadsafe(coro, self._async_loop)  # type: ignore[var-annotated, arg-type]
                     future.result(timeout=30)
                 else:
                     # 临时事件循环（一次性）

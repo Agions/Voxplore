@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
     """
 
     # 共享数据（各步骤产生的数据）
-    _shared_data = {}  # key: "files" | "scenes" | "narration" | "export_config"
+    _shared_data = {}  # type: ignore[var-annotated]  # key: "files" | "scenes" | "narration" | "export_config"
 
     def __init__(self):
         super().__init__()

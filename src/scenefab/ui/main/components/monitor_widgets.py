@@ -118,7 +118,7 @@ class PerformanceChart(QWidget):
         super().__init__()
         self.title = title
         self.max_value = max_value
-        self.data_points = []
+        self.data_points = []  # type: ignore[var-annotated]
         self.max_points = 50
         self.setFixedSize(300, 100)
 

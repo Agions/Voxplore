@@ -286,7 +286,7 @@ class ErrorHandler:
 
     def get_error_summary(self) -> dict[str, int]:
         """获取错误统计摘要"""
-        summary = {}
+        summary = {}  # type: ignore[var-annotated]
         for error in self._error_history:
             summary[error.category] = summary.get(error.category, 0) + 1
         return summary

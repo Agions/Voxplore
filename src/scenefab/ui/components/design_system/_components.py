@@ -158,7 +158,7 @@ class CFToastNotification(QFrame):
     类型：success / warning / error / info
     """
 
-    _active_toasts = []  # 追踪所有活跃的 toast
+    _active_toasts = []  # type: ignore[var-annotated]  # 追踪所有活跃的 toast
 
     def __init__(
         self,

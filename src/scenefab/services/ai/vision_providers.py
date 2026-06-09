@@ -374,7 +374,7 @@ class VisionAnalyzerFactory:
             "gemini35": Gemini35FlashProvider,
         }
 
-    PROVIDER_MAP = {}  # 保留兼容，实际用 _get_provider_map()
+    PROVIDER_MAP = {}  # type: ignore[var-annotated]  # 保留兼容，实际用 _get_provider_map()
 
     def __init__(self, config: dict[str, Any]) -> None:
         self._config = config

@@ -20,7 +20,7 @@ class EmotionPeakDetector:
 
     def __init__(self, config: PipelineConfig = None):
         self.config = config or PipelineConfig()
-        self._cache = {}
+        self._cache = {}  # type: ignore[var-annotated]
 
     def detect(
         self, segments: list[VideoSegment], progress_callback: Callable | None = None

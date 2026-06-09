@@ -184,8 +184,8 @@ class FirstPersonExtractor:
         segments = []
         current_start = None
         current_end = None
-        current_confidences = []
-        current_descriptions = []
+        current_confidences = []  # type: ignore[var-annotated]
+        current_descriptions = []  # type: ignore[var-annotated]
 
         for timestamp, result in frame_results:
             if (

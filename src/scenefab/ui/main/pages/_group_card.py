@@ -71,7 +71,7 @@ class GroupCard(QFrame):
         self._group_id = group_id
         self._group_label = group_label
         self._confidence = confidence
-        self._video_items = []  # 当前分组内的视频路径列表
+        self._video_items = []  # type: ignore[var-annotated]  # 当前分组内的视频路径列表
         self._setup_ui()
         self.setAcceptDrops(True)
 

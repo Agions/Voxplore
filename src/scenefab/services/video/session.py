@@ -73,7 +73,7 @@ class FFmpegSession:
             if result.returncode == 0:
                 data = json.loads(result.stdout)
 
-                video_stream = next(
+                video_stream = next(  # type: ignore[var-annotated]
                     (
                         s
                         for s in data.get("streams", [])
@@ -205,7 +205,7 @@ class FFmpegSession:
         self, video_path: str, timestamps: list[float], progress_callback=None
     ) -> list[tuple[float, np.ndarray]]:
         """使用 OpenCV 提取帧（回退方案）"""
-        results = []
+        results = []  # type: ignore[var-annotated]
 
         try:
             import cv2

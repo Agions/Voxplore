@@ -84,7 +84,7 @@ def main():
 
         # 初始化核心应用程序实例
         # 这里传入简单的配置字典作为示例，实际可从配置文件加载
-        app_config = {}
+        app_config = {}  # type: ignore[var-annotated]
         application = Application(app_config)
 
         # 初始化应用程序服务

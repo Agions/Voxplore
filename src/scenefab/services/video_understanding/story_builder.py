@@ -119,7 +119,7 @@ class StoryBuilderMixin:
             characters.append(character)
 
         # 收集所有事件
-        all_events = []
+        all_events = []  # type: ignore[var-annotated]
         for segment in segments:
             for event in segment.events:
                 plot_event = PlotEvent(

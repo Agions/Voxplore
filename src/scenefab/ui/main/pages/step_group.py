@@ -67,8 +67,8 @@ class StepGroup(QWidget):
     def __init__(self, video_paths: list = None, parent=None):
         super().__init__(parent)
         self._all_videos = list(video_paths) if video_paths else []
-        self._groups = []  # list of (group_id, label, confidence, videos)
-        self._ungrouped = []  # 尚未分组的视频
+        self._groups = []  # type: ignore[var-annotated]  # list of (group_id, label, confidence, videos)
+        self._ungrouped = []  # type: ignore[var-annotated]  # 尚未分组的视频
         self._group_counter = 0
         self._setup_ui()
 

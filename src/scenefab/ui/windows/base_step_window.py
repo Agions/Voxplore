@@ -20,7 +20,7 @@ class BaseStepWindow(QWidget):
         super().__init__(parent)
         self._title = title
         self._step_index = step_index
-        self._shared_data = {}  # MainWindow 设置的共享数据（上一步结果）
+        self._shared_data = {}  # type: ignore[var-annotated]  # MainWindow 设置的共享数据（上一步结果）
         self._setup_ui()
 
     def _setup_ui(self):

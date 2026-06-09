@@ -26,7 +26,7 @@ class MacOSThemeManager(QObject):
         super().__init__()
         self.app = app
         self.current_theme = "dark"
-        self._cache = {}
+        self._cache = {}  # type: ignore[var-annotated]
         self._fallback_stylesheet = ""
         self.logger = logging.getLogger(__name__)
 

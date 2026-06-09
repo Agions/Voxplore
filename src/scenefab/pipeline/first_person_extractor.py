@@ -30,7 +30,7 @@ class FirstPersonExtractor:
     ):
         self.config = config or PipelineConfig()
         self.emotion_detector = EmotionPeakDetector(config)
-        self._frame_cache = {}
+        self._frame_cache = {}  # type: ignore[var-annotated]
         self._vision_provider = vision_provider  # 依赖注入，可选
 
     def extract(

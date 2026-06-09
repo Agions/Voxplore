@@ -27,7 +27,7 @@ class VideoThumbnailItem(QWidget):
     clicked = Signal(str)
     selection_changed = Signal(str, bool)  # path, selected
 
-    _CHECKED_FILES = set()  # 类级别已选中文件集合
+    _CHECKED_FILES = set()  # type: ignore[var-annotated]  # 类级别已选中文件集合
 
     def __init__(self, video_path: str, parent=None):
         super().__init__(parent)

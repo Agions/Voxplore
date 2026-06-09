@@ -85,7 +85,7 @@ def extract_video_metadata(info: dict[str, Any]) -> dict[str, Any]:
     Returns:
         包含 width, height, duration, fps 的字典
     """
-    video_stream = next(
+    video_stream = next(  # type: ignore[var-annotated]
         (s for s in info.get("streams", []) if s.get("codec_type") == "video"), {}
     )
     format_info = info.get("format", {})

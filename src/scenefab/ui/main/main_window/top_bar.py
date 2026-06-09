@@ -17,7 +17,7 @@ class TopBar(QFrame):
     def __init__(self, title: str = "", parent=None):
         super().__init__(parent)
         self._title = title
-        self._breadcrumb = []
+        self._breadcrumb = []  # type: ignore[var-annotated]
         self.setFixedHeight(52)
         self.setObjectName("topbar")
         self._setup_style()

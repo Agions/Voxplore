@@ -217,7 +217,7 @@ class ContentScorersMixin:
             InformationDensityScore: 信息密度评分
         """
         score = 50.0  # 基础分
-        density_map = []
+        density_map = []  # type: ignore[var-annotated]
         average_density = 0.0
         high_density_segments = []
         suggestions = []

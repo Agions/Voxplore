@@ -29,7 +29,7 @@ class BasePage(QWidget):
         self.application = application
         self.is_loaded = False
         self.is_active = False
-        self.page_state = {}
+        self.page_state = {}  # type: ignore[var-annotated]
 
         # 核心服务
         self.logger = application.get_service_by_name("logger")
