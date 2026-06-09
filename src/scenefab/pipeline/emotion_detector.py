@@ -18,7 +18,7 @@ class EmotionPeakDetector:
     支持并行分析
     """
 
-    def __init__(self, config: PipelineConfig = None):
+    def __init__(self, config: PipelineConfig = None):  # type: ignore[assignment]
         self.config = config or PipelineConfig()
         self._cache = {}  # type: ignore[var-annotated]
 

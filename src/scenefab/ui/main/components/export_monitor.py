@@ -343,7 +343,7 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
                     estimated_size = 100  # MB (假设值)
                     processed_size = estimated_size * (task.progress / 100)
                     speed = processed_size / elapsed_time  # MB/s
-                    total_speed += speed
+                    total_speed += speed  # type: ignore[assignment]
                     active_count += 1
 
         # 添加到速度历史

@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
                 indices_to_remove.append(i)
         # 逆序删除
         for i in sorted(indices_to_remove, reverse=True):
-            self.pages.removeWidget(self.pages.widget(i))
+            self.pages.removeWidget(self.pages.widget(i))  # type: ignore[arg-type]
 
         self.pages.insertWidget(0, self.upload_win)
         self.pages.insertWidget(1, self.scene_win)

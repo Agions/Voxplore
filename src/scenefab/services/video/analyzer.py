@@ -82,7 +82,7 @@ class VideoAnalyzer:
                         scene_end = frame_idx / fps
                         if scene_end - scene_start >= min_scene_duration:
                             scenes.append((scene_start, scene_end))
-                        scene_start = scene_end
+                        scene_start = scene_end  # type: ignore[assignment]
 
                 prev_frame = gray
                 frame_idx += sample_interval
@@ -100,7 +100,7 @@ class VideoAnalyzer:
             return []
 
     @staticmethod
-    def extract_audio(video_path: str, output_path: str = None) -> str | None:
+    def extract_audio(video_path: str, output_path: str = None) -> str | None:  # type: ignore[assignment]
         """提取音频"""
         session = FFmpegSession()
         return session.extract_audio(video_path, output_path)

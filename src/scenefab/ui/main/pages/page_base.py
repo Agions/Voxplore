@@ -117,9 +117,9 @@ class PageBase(ABC):
         """获取服务"""
         from scenefab.services import ServiceManager
 
-        return ServiceManager.get(service_type)
+        return ServiceManager.get(service_type)  # type: ignore[arg-type]
 
-    def get_config(self, key: str = None, default: Any = None) -> Any:
+    def get_config(self, key: str = None, default: Any = None) -> Any:  # type: ignore[assignment]
         """获取配置"""
         from scenefab.utils.config import get_config  # type: ignore[attr-defined]
 

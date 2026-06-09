@@ -162,10 +162,10 @@ class FeedbackDataStore:
             params.append(hook_type)
         if min_views:
             conditions.append("views >= ?")
-            params.append(min_views)
+            params.append(min_views)  # type: ignore[arg-type]
 
         where = " AND ".join(conditions) if conditions else "1=1"
-        params.append(limit)
+        params.append(limit)  # type: ignore[arg-type]
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row

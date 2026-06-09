@@ -402,7 +402,7 @@ class ProjectSettingsManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to save profiles: {e}")
 
-    def export_settings(self, export_path: str, profile_name: str = None) -> bool:
+    def export_settings(self, export_path: str, profile_name: str = None) -> bool:  # type: ignore[assignment]
         """导出设置"""
         try:
             if profile_name:

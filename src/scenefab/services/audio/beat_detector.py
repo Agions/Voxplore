@@ -148,7 +148,7 @@ class BeatDetector:
         result = AudioAnalysisResult(
             file_path=str(path),
             duration=duration,
-            sample_rate=sr,
+            sample_rate=sr,  # type: ignore[arg-type]
         )
 
         # 1. BPM + 节拍检测

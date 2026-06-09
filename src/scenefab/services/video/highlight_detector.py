@@ -54,8 +54,8 @@ try:
     _OPTIONAL_DEPS_OK = True
 except ImportError:
     _OPTIONAL_DEPS_OK = False
-    np = None
-    Image = None
+    np = None  # type: ignore[assignment]
+    Image = None  # type: ignore[assignment]
 
 
 class HighlightReason(Enum):
@@ -168,17 +168,17 @@ class HighlightDetector:
         Returns:
             高光片段列表，按开始时间排序
         """
-        video_path = Path(video_path)
+        video_path = Path(video_path)  # type: ignore[assignment]
         if not video_path.exists():  # type: ignore[attr-defined]
             raise FileNotFoundError(f"视频文件不存在: {video_path}")
 
         threshold = min_confidence or self.config.min_confidence
 
         # 并行运行多种检测
-        scene_changes = self._detect_scene_changes(video_path)
-        audio_peaks = self._detect_audio_peaks(video_path)
-        motion_intense = self._detect_motion_intensity(video_path)
-        color_vibrant = self._detect_color_vibrancy(video_path)
+        scene_changes = self._detect_scene_changes(video_path)  # type: ignore[arg-type]
+        audio_peaks = self._detect_audio_peaks(video_path)  # type: ignore[arg-type]
+        motion_intense = self._detect_motion_intensity(video_path)  # type: ignore[arg-type]
+        color_vibrant = self._detect_color_vibrancy(video_path)  # type: ignore[arg-type]
 
         # 合并评分
         highlights = self._merge_highlights(
@@ -335,7 +335,7 @@ class HighlightDetector:
 
             audio = AudioSegment.from_wav(str(audio_path))
             samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
-            samples = samples / (2**15)  # 归一化
+            samples = samples / (2**15)  # 归一化  # type: ignore[assignment]
 
             # 分块计算能量（向量化，避免逐块循环）
             block_size_samples = int(self.config.sample_rate * self.config.block_size)

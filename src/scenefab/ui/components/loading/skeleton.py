@@ -163,7 +163,7 @@ class SkeletonCard(QFrame):
         title_text_layout.setSpacing(6)
         title_text_layout.addWidget(SkeletonBar(height=14))
         title_text_layout.addWidget(SkeletonBar(width=150, height=12))
-        title_layout.addWidget(title_text_layout)
+        title_layout.addWidget(title_text_layout)  # type: ignore[arg-type]
 
         layout.addLayout(title_layout)
 
@@ -207,7 +207,7 @@ class SkeletonList(QWidget):
             text_layout.setSpacing(4)
             text_layout.addWidget(SkeletonBar(height=14))
             text_layout.addWidget(SkeletonBar(width=200, height=12))
-            row_layout.addWidget(text_layout)
+            row_layout.addWidget(text_layout)  # type: ignore[arg-type]
 
             row_layout.addStretch()
 

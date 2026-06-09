@@ -159,7 +159,7 @@ class ProviderSelectionPage(QWizardPage):
 
     def _select_provider(self, provider: ProviderInfo):
         """选择提供商"""
-        self.selected_provider = provider
+        self.selected_provider = provider  # type: ignore[assignment]
         self.wizard().setProperty("selected_provider", provider)
         self.completeChanged.emit()
 

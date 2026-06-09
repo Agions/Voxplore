@@ -86,9 +86,9 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
                 )
             except Exception as e:
                 logger.warning(f"Qwen 客户端初始化失败: {e}")
-                self.qwen_client = None
+                self.qwen_client = None  # type: ignore[assignment]
         else:
-            self.qwen_client = None
+            self.qwen_client = None  # type: ignore[assignment]
 
         # Gemini 客户端
         if "gemini" in self.api_keys:
@@ -99,9 +99,9 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
                 self.gemini_api_key = self.api_keys["gemini"]
             except Exception as e:
                 logger.warning(f"Gemini 客户端初始化失败: {e}")
-                self.gemini_client = None
+                self.gemini_client = None  # type: ignore[assignment]
         else:
-            self.gemini_client = None
+            self.gemini_client = None  # type: ignore[assignment]
 
     def understand(
         self,
@@ -210,7 +210,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         )
 
         # 提取关键帧
-        key_frames = self._extract_key_frames(segment, config["max_frames_per_segment"])
+        key_frames = self._extract_key_frames(segment, config["max_frames_per_segment"])  # type: ignore[arg-type]
         segment.key_frames = key_frames
 
         # 调用模型理解
@@ -218,7 +218,7 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
             understanding = self._understand_with_gemini(segment, key_frames)
         elif self.qwen_client:
             understanding = self._understand_with_qwen(
-                segment, key_frames, config["model"]
+                segment, key_frames, config["model"]  # type: ignore[arg-type]
             )
         else:
             understanding = self._understand_locally(segment, key_frames)

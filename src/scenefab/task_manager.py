@@ -232,7 +232,7 @@ class TaskManager:
         )
 
     def create_task(
-        self, name: str, steps: list[str] = None, metadata: dict[str, Any] = None
+        self, name: str, steps: list[str] = None, metadata: dict[str, Any] = None  # type: ignore[assignment]
     ) -> str:
         """
         创建新任务
@@ -303,8 +303,8 @@ class TaskManager:
         self,
         task_id: str,
         progress: float,
-        step: str = None,
-        step_index: int = None,
+        step: str = None,  # type: ignore[assignment]
+        step_index: int = None,  # type: ignore[assignment]
         **kwargs,
     ):
         """更新任务进度"""
@@ -350,7 +350,7 @@ class TaskManager:
                 logger.debug(f"TaskProgressUpdated event publish failed: {e}")
 
     def set_status(
-        self, task_id: str, status: TaskStatus, error: str = None, result: Any = None
+        self, task_id: str, status: TaskStatus, error: str = None, result: Any = None  # type: ignore[assignment]
     ):
         """设置任务状态"""
         with self._lock:

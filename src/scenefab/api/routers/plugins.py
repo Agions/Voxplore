@@ -42,11 +42,11 @@ async def list_plugins():
 
         plugins = []
         for pid in discovered:
-            reg_entry = registry.get(pid, {})
+            reg_entry = registry.get(pid, {})  # type: ignore[arg-type]
             manifest = reg_entry.get("manifest", {})
             plugins.append(
                 PluginInfo(
-                    id=pid,
+                    id=pid,  # type: ignore[arg-type]
                     name=manifest.get("name", pid),
                     version=manifest.get("version", "0.0.0"),
                     description=manifest.get("description", ""),

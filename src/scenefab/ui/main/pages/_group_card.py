@@ -274,16 +274,16 @@ class GroupCard(QFrame):
             items.append(self._thumb_grid.itemAt(i).widget())  # type: ignore[union-attr]
         # 重新按列排
         for i, w in enumerate(items):
-            self._thumb_grid.removeWidget(w)
+            self._thumb_grid.removeWidget(w)  # type: ignore[arg-type]
             row = i // 3
             col = i % 3
-            self._thumb_grid.addWidget(w, row, col)
+            self._thumb_grid.addWidget(w, row, col)  # type: ignore[arg-type]
 
     def _on_item_drag_start(self, path: str):
         """视频项开始拖拽"""
         drag = QDrag(self)
         mime_data = _VideoMimeData(path, self._group_id)
-        drag.setMimeData(mime_data)
+        drag.setMimeData(mime_data)  # type: ignore[arg-type]
         drag.exec(Qt.DropAction.MoveAction)
 
     def _on_split(self):

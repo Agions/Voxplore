@@ -77,7 +77,7 @@ class AIMonitorPanel(QWidget):
     def _get_ai_service_manager(self):
         """获取AI服务管理器"""
         try:
-            self.ai_service_manager = self.application.get_service_by_name(
+            self.ai_service_manager = self.application.get_service_by_name(  # type: ignore[assignment]
                 "ai_service_manager"
             )
             if not self.ai_service_manager:

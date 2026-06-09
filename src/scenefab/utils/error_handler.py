@@ -107,7 +107,7 @@ class AsyncErrorHandler:
     支持异步操作的安全执行和自动重试
     """
 
-    def __init__(self, retry_strategy: RetryStrategy = None):
+    def __init__(self, retry_strategy: RetryStrategy = None):  # type: ignore[assignment]
         self.retry_strategy = retry_strategy or RetryStrategy()
         self._error_history: list = []
         self._max_history = 100
@@ -123,7 +123,7 @@ class AsyncErrorHandler:
         func: Callable,
         *args,
         error_message: str = "异步操作失败",
-        on_retry: Callable[[ErrorInfo], None] = None,
+        on_retry: Callable[[ErrorInfo], None] = None,  # type: ignore[assignment]
         **kwargs,
     ) -> Any | None:
         """
@@ -187,7 +187,7 @@ class AsyncErrorHandler:
 class ErrorHandler:
     """错误处理器"""
 
-    def __init__(self, logger: logging.Logger = None):
+    def __init__(self, logger: logging.Logger = None):  # type: ignore[assignment]
         """初始化错误处理器"""
         self.logger = logger
         # ✅ 新增：错误历史
@@ -427,7 +427,7 @@ def show_error_dialog(
         QMessageBox.critical(None, title, message)
 
 
-def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:
+def setup_global_exception_handler(log: logging.Logger = None) -> ErrorHandler:  # type: ignore[assignment]
     """设置全局异常处理器
 
     Args:

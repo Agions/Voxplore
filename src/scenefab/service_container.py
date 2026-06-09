@@ -108,7 +108,7 @@ class ServiceContainer:
         else:
             self._services[service_type] = _ServiceEntry(
                 lifetime=ServiceLifetime.TRANSIENT,
-                service_type=factory_or_type,
+                service_type=factory_or_type,  # type: ignore[arg-type]
                 factory=factory_or_type
                 if not isinstance(factory_or_type, type)
                 else None,

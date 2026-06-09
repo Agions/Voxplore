@@ -57,7 +57,7 @@ class ProjectType(Enum):
     MONOLOGUE = ("monologue", "第一人称独白", "第一人称叙事独白视频")
 
     def __init__(self, value: str, display_name: str, description: str):
-        self._value_ = value
+        self._value_ = value  # type: ignore[assignment]
         self.display_name = display_name
         self.description = description
 

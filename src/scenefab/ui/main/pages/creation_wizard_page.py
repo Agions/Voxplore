@@ -268,7 +268,7 @@ class CreationWizardPage(BasePage):
         new_widget.setGeometry(rect)  # type: ignore[union-attr]
         new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))  # type: ignore[union-attr]
         self.page_stack.setCurrentIndex(index)
-        new_anim = QPropertyAnimation(new_widget, b"pos")
+        new_anim = QPropertyAnimation(new_widget, b"pos")  # type: ignore[arg-type]
         new_anim.setDuration(_ANIM_DURATION)
         new_anim.setStartValue(new_widget.pos())  # type: ignore[union-attr]
         new_anim.setEndValue(new_widget.pos())  # type: ignore[union-attr]

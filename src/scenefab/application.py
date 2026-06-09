@@ -468,15 +468,15 @@ class Application(QObject):
                 self.register_service("config_manager", config_manager)
 
             # 创建并注册项目管理器
-            project_manager = ProjectManager(config_manager)
+            project_manager = ProjectManager(config_manager)  # type: ignore[arg-type]
             self.register_service("project_manager", project_manager)
 
             # 创建并注册模板管理器
-            template_manager = ProjectTemplateManager(config_manager)
+            template_manager = ProjectTemplateManager(config_manager)  # type: ignore[arg-type]
             self.register_service("template_manager", template_manager)
 
             # 创建并注册设置管理器
-            settings_manager = ProjectSettingsManager(config_manager)
+            settings_manager = ProjectSettingsManager(config_manager)  # type: ignore[arg-type]
             self.register_service("settings_manager", settings_manager)
 
             self.logger.info("服务初始化完成")

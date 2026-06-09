@@ -91,7 +91,7 @@ class WhisperASRProvider:
         try:
             import faster_whisper  # noqa: F401
 
-            self._backend = "faster-whisper"
+            self._backend = "faster-whisper"  # type: ignore[assignment]
             logger.info(f"使用 faster-whisper ({self.model_size})")
             return
         except ImportError:
@@ -101,7 +101,7 @@ class WhisperASRProvider:
         try:
             import whisper  # noqa: F401
 
-            self._backend = "openai-whisper"
+            self._backend = "openai-whisper"  # type: ignore[assignment]
             logger.info(f"使用 openai-whisper ({self.model_size})")
             return
         except ImportError:
@@ -111,7 +111,7 @@ class WhisperASRProvider:
         import os
 
         if os.getenv("OPENAI_API_KEY"):
-            self._backend = "api"
+            self._backend = "api"  # type: ignore[assignment]
             logger.info("使用 OpenAI Whisper API")
             return
 

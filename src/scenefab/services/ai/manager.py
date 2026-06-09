@@ -45,7 +45,7 @@ class AIServiceManager:
         self._vision_service = VisionService(config)
         logger.info(f"Registered vision service: {config.get('name', 'unknown')}")
 
-    def register_tts(self, config: dict[str, Any] = None) -> None:
+    def register_tts(self, config: dict[str, Any] = None) -> None:  # type: ignore[assignment]
         from scenefab.services.ai.tts import TTSService
 
         self._tts_service = TTSService(config)
@@ -53,7 +53,7 @@ class AIServiceManager:
             f"Registered TTS service: {config.get('provider', 'edge') if config else 'edge'}"
         )
 
-    def register_asr(self, config: dict[str, Any] = None) -> None:
+    def register_asr(self, config: dict[str, Any] = None) -> None:  # type: ignore[assignment]
         from scenefab.services.ai.asr import ASRService
 
         self._asr_service = ASRService(config)
@@ -61,7 +61,7 @@ class AIServiceManager:
             f"Registered ASR service: {config.get('provider', 'faster-whisper') if config else 'faster-whisper'}"
         )
 
-    def get_llm(self, name: str = None) -> Any | None:
+    def get_llm(self, name: str = None) -> Any | None:  # type: ignore[assignment]
         if name:
             return self._llm_services.get(name)
         for service in self._llm_services.values():

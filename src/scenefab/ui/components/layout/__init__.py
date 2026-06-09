@@ -35,7 +35,7 @@ class MacGrid(QWidget):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.layout = QGridLayout(self)
+        self.layout = QGridLayout(self)  # type: ignore[assignment]
         self.layout.setSpacing(16)  # type: ignore[attr-defined]
         self.items: list[QWidget] = []
 

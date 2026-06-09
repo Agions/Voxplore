@@ -173,7 +173,7 @@ class ProjectManager:
         Returns:
             保存的文件路径
         """
-        output_path = Path(output_path)
+        output_path = Path(output_path)  # type: ignore[assignment]
 
         # 确保扩展名正确
         if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:  # type: ignore[attr-defined]
@@ -187,10 +187,10 @@ class ProjectManager:
 
         if compress:
             # 使用 zip 压缩
-            return self._save_compressed(project_dict, output_path, include_sources)
+            return self._save_compressed(project_dict, output_path, include_sources)  # type: ignore[arg-type]
         else:
             # 直接保存 JSON
-            return self._save_json(project_dict, output_path)
+            return self._save_json(project_dict, output_path)  # type: ignore[arg-type]
 
     def load(self, project_path: str) -> SceneFabProject:
         """
@@ -202,21 +202,21 @@ class ProjectManager:
         Returns:
             项目对象
         """
-        project_path = Path(project_path)
+        project_path = Path(project_path)  # type: ignore[assignment]
 
         if not project_path.exists():  # type: ignore[attr-defined]
             raise FileNotFoundError(f"项目文件不存在: {project_path}")
 
         # 根据扩展名选择加载方式
-        if project_path.suffix.lower() == ".zip" or self._is_compressed(project_path):  # type: ignore[attr-defined]
-            project_dict = self._load_compressed(project_path)
+        if project_path.suffix.lower() == ".zip" or self._is_compressed(project_path):  # type: ignore[arg-type, attr-defined]
+            project_dict = self._load_compressed(project_path)  # type: ignore[arg-type]
         else:
-            project_dict = self._load_json(project_path)
+            project_dict = self._load_json(project_path)  # type: ignore[arg-type]
 
         # 解析项目
         project = self._dict_to_project(project_dict)
         self.current_project = project
-        self._last_save_path = project_path
+        self._last_save_path = project_path  # type: ignore[assignment]
 
         return project
 

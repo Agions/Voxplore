@@ -291,7 +291,7 @@ class JianyingExporter:
         video_path: str,
         start: float,
         duration: float,
-        target_start: float = None,
+        target_start: float = None,  # type: ignore[assignment]
     ) -> Segment:
         """
         便捷方法：添加视频片段

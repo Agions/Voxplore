@@ -173,9 +173,9 @@ class MultiLanguageAdapter:
                 self.deepl_client = httpx.Client(timeout=60.0)
             except Exception as e:
                 logger.warning(f"DeepL 客户端初始化失败: {e}")
-                self.deepl_client = None
+                self.deepl_client = None  # type: ignore[assignment]
         else:
-            self.deepl_client = None
+            self.deepl_client = None  # type: ignore[assignment]
 
     def adapt(
         self,

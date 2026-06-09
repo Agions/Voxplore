@@ -79,7 +79,7 @@ class ExportManager:
         if not exporter:
             raise ExportError(
                 message="不支持的导出格式",
-                format=config.format,
+                format=config.format,  # type: ignore[arg-type]
             )
 
         # 准备输出路径

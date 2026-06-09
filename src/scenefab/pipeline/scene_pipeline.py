@@ -24,7 +24,7 @@ class SceneFabPipeline:
 
     def __init__(
         self,
-        config: PipelineConfig = None,
+        config: PipelineConfig = None,  # type: ignore[assignment]
         vision_provider=None,
         tts_service=None,
         llm_service=None,
@@ -43,7 +43,7 @@ class SceneFabPipeline:
         style: NarrationStyle = NarrationStyle.DOCUMENTARY,
         voice: str = "zh-CN-XiaoxiaoNeural",
         progress_callback: Callable | None = None,
-        output_dir: str = None,
+        output_dir: str = None,  # type: ignore[assignment]
     ) -> VideoProject:
         if output_dir is None:
             output_dir = os.path.join(os.path.dirname(video_path) or ".", "output")  # type: ignore[unreachable]

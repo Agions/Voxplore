@@ -43,7 +43,7 @@ class PluginLoader:
         except Exception:
             return "1.0.0"
 
-    def __init__(self, registry: PluginRegistry = None):
+    def __init__(self, registry: PluginRegistry = None):  # type: ignore[assignment]
         self._registry = registry if registry is not None else PluginRegistry()
         self._plugin_dirs: list[Path] = []
 
@@ -112,9 +112,9 @@ class PluginLoader:
                 plugin_eps = eps.select(group=self.ENTRY_POINT_GROUP)
             else:
                 # Python 3.10-3.11
-                plugin_eps = eps.get(self.ENTRY_POINT_GROUP, [])
+                plugin_eps = eps.get(self.ENTRY_POINT_GROUP, [])  # type: ignore[arg-type]
         except Exception:
-            plugin_eps = []
+            plugin_eps = []  # type: ignore[assignment]
 
         for ep in plugin_eps:
             manifest = self._load_manifest_from_entry_point(ep)

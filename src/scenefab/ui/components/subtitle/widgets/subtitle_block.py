@@ -106,7 +106,7 @@ class SubtitleBlockWidget(QWidget):
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.LeftButton:  # type: ignore[attr-defined]
             self._is_dragging = True
-            self._drag_start_x = event.position().x()
+            self._drag_start_x = event.position().x()  # type: ignore[assignment]
             self._original_start = self._block.start_time
             self._original_end = self._block.end_time
             self.block_selected.emit(self._block.id)

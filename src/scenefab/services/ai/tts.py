@@ -18,7 +18,7 @@ class TTSService:
         "zh-CN-XiaoyiNeural": "小艺",
     }
 
-    def __init__(self, config: dict[str, Any] = None) -> None:
+    def __init__(self, config: dict[str, Any] = None) -> None:  # type: ignore[assignment]
         self.config = config or {}
         self.provider = self.config.get("provider", "edge")
         self.voice = self.config.get("voice", "zh-CN-XiaoxiaoNeural")
@@ -29,8 +29,8 @@ class TTSService:
         self,
         text: str,
         output_path: str,
-        voice: str = None,
-        rate: float = None,
+        voice: str = None,  # type: ignore[assignment]
+        rate: float = None,  # type: ignore[assignment]
         **kwargs,
     ) -> str | None:
         voice = voice or self.voice
@@ -48,8 +48,8 @@ class TTSService:
         self,
         text: str,
         output_path: str,
-        voice: str = None,
-        rate: float = None,
+        voice: str = None,  # type: ignore[assignment]
+        rate: float = None,  # type: ignore[assignment]
         **kwargs,
     ) -> str | None:
         """

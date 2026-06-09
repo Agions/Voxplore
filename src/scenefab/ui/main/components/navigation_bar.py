@@ -14,8 +14,8 @@ class NavigationButton(QPushButton):
 
     def __init__(self, text: str, icon: str = ""):
         super().__init__()
-        self.text = text
-        self.icon = icon
+        self.text = text  # type: ignore[assignment]
+        self.icon = icon  # type: ignore[assignment]
         self.is_selected = False
 
         self._setup_ui()
@@ -258,7 +258,7 @@ def create_default_navigation_items() -> list[NavigationItem]:
     ]
 
 
-def create_navigation_bar(items: list[NavigationItem] = None) -> NavigationBar:
+def create_navigation_bar(items: list[NavigationItem] = None) -> NavigationBar:  # type: ignore[assignment]
     """创建导航栏"""
     nav_bar = NavigationBar()
 

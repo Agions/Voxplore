@@ -145,8 +145,8 @@ class HomePage(QFrame):
             ("import", "📁", "导入素材", "使用本地视频文件", Colors.INFO),
             ("ai", "✨", "AI 助手", "智能创作建议与优化", Colors.WARNING),
         ]
-        for _id, icon, title, desc, accent in actions:
-            card = QuickCard(_id, icon, title, desc, accent)
+        for _id, icon, title, desc, accent in actions:  # type: ignore[assignment]
+            card = QuickCard(_id, icon, title, desc, accent)  # type: ignore[arg-type]
             card.setFixedSize(180, 170)
             card.clicked.connect(self._on_quick_action)
             cards_layout.addWidget(card)

@@ -272,14 +272,14 @@ class QuickAIConfigWidget(QWidget):
             status_layout.setSpacing(4)
 
             # 模型名称标签
-            name_label = MacLabel(name, "text-sm text-bold")
+            name_label = MacLabel(name, "text-sm text-bold")  # type: ignore[arg-type]
             name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             status_layout.addWidget(name_label)
 
             # 状态徽章
             status_badge = MacBadge(
                 "已配置" if configured else "未配置",
-                "success" if configured else "warning",
+                "success" if configured else "warning",  # type: ignore[arg-type]
             )
             status_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
             status_layout.addWidget(status_badge)
@@ -326,17 +326,17 @@ class QuickAIConfigWidget(QWidget):
         info_layout = QVBoxLayout()
         info_layout.setSpacing(2)
 
-        name_label = MacLabel(model_name, "text-sm text-bold")
+        name_label = MacLabel(model_name, "text-sm text-bold")  # type: ignore[arg-type]
         info_layout.addWidget(name_label)
 
-        status_label = MacLabel("已配置", "text-xs text-muted")
+        status_label = MacLabel("已配置", "text-xs text-muted")  # type: ignore[arg-type]
         info_layout.addWidget(status_label)
 
         layout.addLayout(info_layout)
         layout.addStretch()
 
         # 使用时间
-        time_label = MacLabel(model_info.get("last_used", ""), "text-xs text-muted")
+        time_label = MacLabel(model_info.get("last_used", ""), "text-xs text-muted")  # type: ignore[arg-type]
         layout.addWidget(time_label)
 
         return item  # type: ignore[no-any-return]

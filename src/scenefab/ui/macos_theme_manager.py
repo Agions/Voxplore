@@ -173,8 +173,8 @@ def get_theme_manager(app: QApplication | None = None) -> MacOSThemeManager:
         with _theme_lock:
             if _theme_manager_instance is None:
                 if app is None:
-                    app = QApplication.instance()
-                _theme_manager_instance = MacOSThemeManager(app)
+                    app = QApplication.instance()  # type: ignore[assignment]
+                _theme_manager_instance = MacOSThemeManager(app)  # type: ignore[arg-type]
     return _theme_manager_instance
 
 

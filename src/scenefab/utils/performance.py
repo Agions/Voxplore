@@ -168,7 +168,7 @@ class PerformanceMonitor:
 
         return decorator
 
-    def get_stats(self, name: str = None) -> dict:
+    def get_stats(self, name: str = None) -> dict:  # type: ignore[assignment]
         """获取统计数据"""
         with self._lock:
             if name:
@@ -217,6 +217,6 @@ def cached_property(ttl: int = 300):
     return decorator
 
 
-def timed(name: str = None):
+def timed(name: str = None):  # type: ignore[assignment]
     """性能计时装饰器"""
     return perf_monitor.timing(name or "default")

@@ -25,7 +25,7 @@ class FirstPersonExtractor:
 
     def __init__(
         self,
-        config: PipelineConfig = None,
+        config: PipelineConfig = None,  # type: ignore[assignment]
         vision_provider=None,
     ):
         self.config = config or PipelineConfig()
@@ -125,7 +125,7 @@ class FirstPersonExtractor:
         frames_for_api = []
         for ts, frame in frames_data:
             _, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
-            image_b64 = base64.b64encode(buf).decode("utf-8")
+            image_b64 = base64.b64encode(buf).decode("utf-8")  # type: ignore[arg-type]
             frames_for_api.append({"timestamp": ts, "image_base64": image_b64})
 
         # 批量分析（每次 6 帧，减少 API 调用次数）

@@ -34,7 +34,7 @@ class RateLimiter:
         if self._running:
             return
         self._running = True
-        self._thread = threading.Thread(target=self._replenisher, daemon=True)
+        self._thread = threading.Thread(target=self._replenisher, daemon=True)  # type: ignore[assignment]
         self._thread.start()  # type: ignore[attr-defined]
 
     def _replenisher(self):

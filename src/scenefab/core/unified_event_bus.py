@@ -397,7 +397,7 @@ class UnifiedEventBus:
                     try:
                         loop = asyncio.new_event_loop()
                         try:
-                            loop.run_until_complete(coro)
+                            loop.run_until_complete(coro)  # type: ignore[arg-type]
                         finally:
                             loop.close()
                     except RuntimeError:
@@ -424,13 +424,13 @@ class UnifiedEventBus:
         try:
             coro = entry.handler(data)
             if self._async_loop and not self._async_loop.is_closed():
-                asyncio.run_coroutine_threadsafe(coro, self._async_loop).result(
+                asyncio.run_coroutine_threadsafe(coro, self._async_loop).result(  # type: ignore[arg-type]
                     timeout=30
                 )
             else:
                 loop = asyncio.new_event_loop()
                 try:
-                    loop.run_until_complete(coro)
+                    loop.run_until_complete(coro)  # type: ignore[arg-type]
                 finally:
                     loop.close()
         except Exception as e:

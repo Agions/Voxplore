@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class SecureSubtitleExtractor:
     """安全的字幕提取器 - 包装基础提取器并添加安全检查"""
 
-    def __init__(self, base_dir: str = None) -> None:
+    def __init__(self, base_dir: str = None) -> None:  # type: ignore[assignment]
         """
         初始化安全字幕提取器
 
@@ -164,6 +164,6 @@ class SecureSubtitleExtractor:
 
 
 # 便捷函数
-def create_secure_extractor(base_dir: str = None) -> SecureSubtitleExtractor:
+def create_secure_extractor(base_dir: str = None) -> SecureSubtitleExtractor:  # type: ignore[assignment]
     """创建安全的字幕提取器"""
     return SecureSubtitleExtractor(base_dir=base_dir)

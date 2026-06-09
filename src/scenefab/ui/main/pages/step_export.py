@@ -317,7 +317,7 @@ class StepExportPage(StepPage):
         fps_combo = QComboBox()
         fps_combo.addItems(["30 fps", "60 fps", "24 fps", "原始帧率"])
         fps_combo.setFixedWidth(200)
-        fps_combo.setStyleSheet(qual_layout.itemAt(0).spacerItem())  # type: ignore[union-attr]
+        fps_combo.setStyleSheet(qual_layout.itemAt(0).spacerItem())  # type: ignore[arg-type, union-attr]
         fps_row.addWidget(fps_combo)
         qual_layout.addLayout(fps_row)  # type: ignore[union-attr]
 

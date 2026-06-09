@@ -64,7 +64,7 @@ class StepGroup(QWidget):
     back_requested = Signal()
     next_requested = Signal(list)  # 分组后的路径列表
 
-    def __init__(self, video_paths: list = None, parent=None):
+    def __init__(self, video_paths: list = None, parent=None):  # type: ignore[assignment]
         super().__init__(parent)
         self._all_videos = list(video_paths) if video_paths else []
         self._groups = []  # type: ignore[var-annotated]  # list of (group_id, label, confidence, videos)

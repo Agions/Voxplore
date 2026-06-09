@@ -37,7 +37,7 @@ class SubtitleExporter:
     """
 
     @staticmethod
-    def to_srt(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:
+    def to_srt(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:  # type: ignore[assignment]
         """
         导出为 SRT 格式
 
@@ -83,7 +83,7 @@ class SubtitleExporter:
         return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
 
     @staticmethod
-    def to_vtt(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:
+    def to_vtt(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:  # type: ignore[assignment]
         """
         导出为 VTT 格式
 
@@ -126,7 +126,7 @@ class SubtitleExporter:
         return f"{hours:02d}:{minutes:02d}:{secs:02d}.{millis:03d}"
 
     @staticmethod
-    def to_ass(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:
+    def to_ass(editor: MultiTrackSubtitleEditor, track_id: str = None) -> str:  # type: ignore[assignment]
         """
         导出为 ASS 格式
 
@@ -205,7 +205,7 @@ class SubtitleExporter:
 
     @staticmethod
     def to_jianying(
-        editor: MultiTrackSubtitleEditor, track_id: str = None
+        editor: MultiTrackSubtitleEditor, track_id: str = None  # type: ignore[assignment]
     ) -> list[dict]:
         """
         导出为剪映字幕格式
@@ -238,7 +238,7 @@ class SubtitleExporter:
         editor: MultiTrackSubtitleEditor,
         output_path: str,
         format: str = "json",
-        track_id: str = None,
+        track_id: str = None,  # type: ignore[assignment]
     ) -> None:
         """
         导出到文件
@@ -475,8 +475,8 @@ class SubtitleImporter:
     def import_to_editor(
         cls,
         file_path: str,
-        editor: MultiTrackSubtitleEditor = None,
-        track_name: str = None,
+        editor: MultiTrackSubtitleEditor = None,  # type: ignore[assignment]
+        track_name: str = None,  # type: ignore[assignment]
     ) -> MultiTrackSubtitleEditor:
         """
         导入到编辑器

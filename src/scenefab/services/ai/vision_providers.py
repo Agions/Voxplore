@@ -45,7 +45,7 @@ class OpenAIVisionProvider(VisionProvider):
         if self.base_url:
             kwargs["base_url"] = self.base_url
 
-        client = OpenAI(**kwargs)
+        client = OpenAI(**kwargs)  # type: ignore[arg-type]
         response = client.chat.completions.create(
             model=self.model,
             messages=[
@@ -65,7 +65,7 @@ class OpenAIVisionProvider(VisionProvider):
             ],
             max_tokens=800,
         )
-        return self._parse_json_response(response.choices[0].message.content)
+        return self._parse_json_response(response.choices[0].message.content)  # type: ignore[arg-type]
 
 
 # ============================================================================
@@ -111,7 +111,7 @@ class QwenVLProvider(VisionProvider):
             ],
             max_tokens=800,
         )
-        return self._parse_json_response(response.choices[0].message.content)
+        return self._parse_json_response(response.choices[0].message.content)  # type: ignore[arg-type]
 
 
 # ============================================================================
@@ -166,7 +166,7 @@ class Qwen25VLProvider(VisionProvider):
             ],
             max_tokens=1024,
         )
-        return self._parse_json_response(response.choices[0].message.content)
+        return self._parse_json_response(response.choices[0].message.content)  # type: ignore[arg-type]
 
     def analyze_video_frames(
         self, frames: list[dict[str, Any]], narrative_prompt: str | None = None
@@ -217,7 +217,7 @@ class Qwen25VLProvider(VisionProvider):
 
         raw = response.choices[0].message.content
         # 尝试解析 JSON 数组
-        parsed = self._parse_json_response(raw)
+        parsed = self._parse_json_response(raw)  # type: ignore[arg-type]
         if isinstance(parsed, list):
             return parsed
         return [parsed]

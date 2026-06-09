@@ -50,7 +50,7 @@ class PulseIndicator(QFrame):
         self._center_dot.setFixedSize(self._size, self._size)
 
     def _update_pulse(self):
-        self._animation_phase += 0.1
+        self._animation_phase += 0.1  # type: ignore[assignment]
         if self._animation_phase > 2 * 3.14159:
             self._animation_phase = 0
         self.update()

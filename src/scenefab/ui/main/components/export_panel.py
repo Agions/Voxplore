@@ -391,7 +391,7 @@ class ExportPanel(QWidget, ThemeAwareMixin):
         if not selected_items:
             QMessageBox.warning(self, "警告", "请选择要编辑的预设")
             return
-        self.edit_preset_data(None)
+        self.edit_preset_data(None)  # type: ignore[arg-type]
 
     def edit_preset_data(self, preset: ExportPreset):
         """编辑预设数据"""

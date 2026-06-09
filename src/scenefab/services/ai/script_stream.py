@@ -409,7 +409,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                     )
                     yield response.content
             else:
-                response = await self._generate_async(topic, config)
+                response = await self._generate_async(topic, config)  # type: ignore[assignment]
                 yield response[0] if isinstance(response, tuple) else response
         except Exception as e:
             logger.error(f"SSE 流生成错误: {e}")

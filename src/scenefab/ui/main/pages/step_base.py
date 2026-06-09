@@ -86,8 +86,8 @@ class StepIndicator(QFrame):
             is_pending = i > current  # noqa: F841  # used in style branch below
             _ = is_pending  # suppress unused warning
 
-            circle: QLabel = self.findChild(QLabel, f"step_circle_{i}")
-            label: QLabel = self.findChild(QLabel, f"step_label_{i}")
+            circle: QLabel = self.findChild(QLabel, f"step_circle_{i}")  # type: ignore[assignment]
+            label: QLabel = self.findChild(QLabel, f"step_label_{i}")  # type: ignore[assignment]
 
             if is_done:
                 circle.setText("✓")
@@ -119,7 +119,7 @@ class StepIndicator(QFrame):
                 """)
                 label.setStyleSheet(f"color: {Colors.TEXT_DISABLED};")
 
-            line: QFrame = self.findChild(QFrame, f"step_line_{i}")
+            line: QFrame = self.findChild(QFrame, f"step_line_{i}")  # type: ignore[assignment]
             if line:
                 if is_done:
                     line.setStyleSheet(f"background: {Colors.SUCCESS}; border: none;")
@@ -347,7 +347,7 @@ class StepPage(QFrame):
         anim.setStartValue(0)
         anim.setEndValue(1)
         anim.setEasingCurve(QEasingCurve.Type.OutCubic)
-        anim.finished.connect(lambda: self.setGraphicsEffect(None))
+        anim.finished.connect(lambda: self.setGraphicsEffect(None))  # type: ignore[arg-type]
         anim.start()
         # 保持引用防止被 GC 回收
         self._fade_anim = anim

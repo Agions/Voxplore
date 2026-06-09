@@ -375,7 +375,7 @@ class MultiTrackSubtitleEditor:
     # 样式预设
     # ─────────────────────────────────────────────────────────────
 
-    def add_preset(self, preset: SubtitleStylePreset, preset_id: str = None) -> str:
+    def add_preset(self, preset: SubtitleStylePreset, preset_id: str = None) -> str:  # type: ignore[assignment]
         """添加样式预设"""
         if preset_id is None:
             preset_id = preset.id

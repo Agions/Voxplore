@@ -239,7 +239,7 @@ class FFmpegSession:
 
         return results
 
-    def extract_audio(self, video_path: str, output_path: str = None) -> str | None:
+    def extract_audio(self, video_path: str, output_path: str = None) -> str | None:  # type: ignore[assignment]
         """提取音频"""
         if output_path is None:
             output_path = video_path.rsplit(".", 1)[0] + ".wav"  # type: ignore[unreachable]

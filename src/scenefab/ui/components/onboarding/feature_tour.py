@@ -40,7 +40,7 @@ class FeatureTooltip(QWidget):
     dismissed = Signal()  # 关闭信号
     action_clicked = Signal()  # 操作按钮点击
 
-    def __init__(self, title: str, content: str, action_text: str = None, parent=None):
+    def __init__(self, title: str, content: str, action_text: str = None, parent=None):  # type: ignore[assignment]
         super().__init__(parent)
         self._title = title
         self._content = content
@@ -191,7 +191,7 @@ class FeatureTourDialog(QWidget):
     next_feature = Signal()  # 下一个功能
     prev_feature = Signal()  # 上一个功能
 
-    def __init__(self, features: list = None, parent=None):
+    def __init__(self, features: list = None, parent=None):  # type: ignore[assignment]
         super().__init__(parent)
         self._features = features or self._default_features()
         self._current_index = 0

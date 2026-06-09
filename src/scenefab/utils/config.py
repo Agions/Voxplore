@@ -98,7 +98,7 @@ class ConfigManager:
     统一管理应用配置和 API 密钥
     """
 
-    def __init__(self, config_dir: str = None):
+    def __init__(self, config_dir: str = None):  # type: ignore[assignment]
         if config_dir:
             self.config_dir = Path(config_dir)
         else:

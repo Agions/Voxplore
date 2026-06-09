@@ -26,7 +26,7 @@ from scenefab.services.export import ExportPreset
 class ExportSettingsDialog(QDialog):
     """导出设置对话框"""
 
-    def __init__(self, preset: ExportPreset = None, parent=None):
+    def __init__(self, preset: ExportPreset = None, parent=None):  # type: ignore[assignment]
         super().__init__(parent)
         self.preset = preset
         self.logger = Logger.get_logger(__name__)
@@ -143,8 +143,8 @@ class ExportSettingsDialog(QDialog):
         """加载预设数据"""
         self.name_input.setText(self.preset.name)
         self.description_input.setText(self.preset.description)
-        self.bitrate_spin.setValue(self.preset.bitrate)
-        self.audio_bitrate_spin.setValue(self.preset.audio_bitrate)
+        self.bitrate_spin.setValue(self.preset.bitrate)  # type: ignore[arg-type]
+        self.audio_bitrate_spin.setValue(self.preset.audio_bitrate)  # type: ignore[arg-type]
         self.fps_spin.setValue(int(self.preset.fps))
 
         # 设置分辨率

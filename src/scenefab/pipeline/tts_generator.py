@@ -72,7 +72,7 @@ class TTSGenerator:
 
         # 构建进度回调包装器
         def make_progress_wrapper(narr_idx: int):
-            def wrapper(done: bool, info: dict = None):
+            def wrapper(done: bool, info: dict = None):  # type: ignore[assignment]
                 if progress_callback and info:
                     # 转换句子级进度为整体进度
                     progress_callback(narr_idx + 1, len(narrations))

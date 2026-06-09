@@ -260,7 +260,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         from openai import AsyncOpenAI
 
         if self._client is None:
-            self._client = AsyncOpenAI(
+            self._client = AsyncOpenAI(  # type: ignore[assignment]
                 api_key=self._api_key,
                 base_url=self._base_url,
             )
@@ -279,7 +279,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         from openai import AsyncOpenAI
 
         if self._client is None:
-            self._client = AsyncOpenAI(
+            self._client = AsyncOpenAI(  # type: ignore[assignment]
                 api_key=self._api_key,
                 base_url=self._base_url,
             )

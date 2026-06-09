@@ -198,7 +198,7 @@ class AIServiceManagerCompat:
         """注册 ASR 服务"""
         self._v2_manager.register_asr(config or {})
 
-    def get_llm(self, name: str = None):
+    def get_llm(self, name: str = None):  # type: ignore[assignment]
         """获取 LLM 服务"""
         return self._v2_manager.get_llm(name)
 

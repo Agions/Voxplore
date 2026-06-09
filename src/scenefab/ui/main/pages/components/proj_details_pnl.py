@@ -260,7 +260,7 @@ class ProjectDetailsPanel(QWidget):
     def clear(self):
         """清空详情，显示空状态"""
         self._current_project_id = None
-        self._stack.setCurrentWidget(self._stack.widget(0))
+        self._stack.setCurrentWidget(self._stack.widget(0))  # type: ignore[arg-type]
         self._set_buttons_enabled(False)
 
     def get_current_project_id(self) -> str:
@@ -340,7 +340,7 @@ class ProjectDetailsPanel(QWidget):
         units = ["B", "KB", "MB", "GB", "TB"]
         i = 0
         while size_bytes >= 1024 and i < len(units) - 1:
-            size_bytes /= 1024.0
+            size_bytes /= 1024.0  # type: ignore[assignment]
             i += 1
         return f"{size_bytes:.1f} {units[i]}"
 

@@ -133,7 +133,7 @@ class SecureKeyManager:
         return key
 
     def store_api_key(
-        self, provider: str, api_key: str, metadata: dict[str, Any] = None
+        self, provider: str, api_key: str, metadata: dict[str, Any] = None  # type: ignore[assignment]
     ) -> bool:
         """安全存储API密钥"""
         try:
@@ -307,7 +307,7 @@ class SecureKeyManager:
             # 重新存储所有密钥（使用新的主密钥）
             for provider, key_data in stored_keys.items():
                 self.store_api_key(
-                    provider, key_data["api_key"], key_data.get("metadata")
+                    provider, key_data["api_key"], key_data.get("metadata")  # type: ignore[arg-type]
                 )
 
             self.logger.info("Master key rotated successfully")

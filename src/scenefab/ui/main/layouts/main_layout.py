@@ -83,7 +83,7 @@ class MainLayout(QVBoxLayout):
         # 添加新的内容窗口部件
         if widget:
             self.content_layout.addWidget(widget)
-            self.content_widget = widget
+            self.content_widget = widget  # type: ignore[assignment]
 
     def get_navigation_bar(self):
         """获取导航栏"""

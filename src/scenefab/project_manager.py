@@ -77,14 +77,14 @@ class Project:
         """添加媒体文件"""
         self.media_files[media_file.id] = media_file
         self.is_modified = True
-        self.metadata.modified_at = datetime.now()
+        self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
 
     def remove_media_file(self, media_id: str) -> bool:
         """移除媒体文件"""
         if media_id in self.media_files:
             del self.media_files[media_id]
             self.is_modified = True
-            self.metadata.modified_at = datetime.now()
+            self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
             return True
         return False
 
@@ -104,7 +104,7 @@ class Project:
             else:
                 self.settings.custom_settings[key] = value  # type: ignore[attr-defined]
         self.is_modified = True
-        self.metadata.modified_at = datetime.now()
+        self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
 
     def save(self) -> bool:
         """保存项目"""

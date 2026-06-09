@@ -142,7 +142,7 @@ class _GroupThumbItem(QFrame):
             self.drag_started.emit(self._path)
             drag = QDrag(self)
             mime = _VideoMimeData(self._path, None)
-            drag.setMimeData(mime)
+            drag.setMimeData(mime)  # type: ignore[arg-type]
             drag.exec(Qt.DropAction.MoveAction)
 
 

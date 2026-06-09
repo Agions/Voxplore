@@ -252,7 +252,7 @@ class CaptionGenerator:
             captions: 字幕列表
             output_path: 输出文件路径
         """
-        output_path = Path(output_path)
+        output_path = Path(output_path)  # type: ignore[assignment]
 
         # ASS 文件头
         ass_content = self._generate_ass_header()
@@ -277,7 +277,7 @@ class CaptionGenerator:
             captions: 字幕列表
             output_path: 输出文件路径
         """
-        output_path = Path(output_path)
+        output_path = Path(output_path)  # type: ignore[assignment]
 
         srt_content = []
 

@@ -84,7 +84,7 @@ class BaseLLMAdapter(ABC):
             capabilities=[],
             models=[self.config.model] if self.config.model else [],
             requires_api_key=bool(self.config.api_key),
-            is_local=self.config.base_url and "localhost" in self.config.base_url,
+            is_local=self.config.base_url and "localhost" in self.config.base_url,  # type: ignore[arg-type]
         )
 
     @abstractmethod

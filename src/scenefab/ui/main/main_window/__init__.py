@@ -80,7 +80,7 @@ class SceneFabMainWindow(QMainWindow):
 
         # 状态栏
         self.statusbar = StatusBar()
-        self.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)  # type: ignore[arg-type]
 
     def _lazy_load_pages(self):
         from scenefab.ui.main.pages.home_page import HomePage

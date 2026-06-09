@@ -231,7 +231,7 @@ class ConfigManager:
         """获取应用配置"""
         return self._config
 
-    def get_llm_config(self, provider: str = None) -> LLMConfig | None:
+    def get_llm_config(self, provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
         """获取指定 LLM 配置"""
         if provider is None:
             provider = self._config.default_llm  # type: ignore[unreachable]
@@ -245,7 +245,7 @@ class ConfigManager:
         """重新加载配置"""
         self._load_config()
 
-    def save(self, config_file: str = None):
+    def save(self, config_file: str = None):  # type: ignore[assignment]
         """保存配置到文件"""
         file_path = Path(config_file) if config_file else self._config_file
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -302,7 +302,7 @@ def get_config() -> AppConfig:
     return config_manager.config
 
 
-def get_llm_config(provider: str = None) -> LLMConfig | None:
+def get_llm_config(provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
     """获取 LLM 配置（快捷函数）"""
     return config_manager.get_llm_config(provider)
 

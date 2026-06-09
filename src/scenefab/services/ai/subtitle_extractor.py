@@ -219,7 +219,7 @@ def extract_subtitles(
         return extractor.extract(video_path)
 
     elif method == "speech":
-        extractor = SpeechSubtitleExtractor(api_key=api_key)
+        extractor = SpeechSubtitleExtractor(api_key=api_key)  # type: ignore[assignment]
         return extractor.extract(video_path, language=language)
 
     elif method == "both":

@@ -88,9 +88,9 @@ class VoiceGenerator:
             key = api_key or os.getenv("OPENAI_API_KEY")
             if not key:
                 raise ValueError("OpenAI TTS 需要 API Key")
-            self._provider = OpenAITTSProvider(key)
+            self._provider = OpenAITTSProvider(key)  # type: ignore[assignment]
         elif provider == "f5tts":
-            self._provider = F5TTSProvider()
+            self._provider = F5TTSProvider()  # type: ignore[assignment]
             if not getattr(self._provider, "_available", False):
                 raise RuntimeError(
                     "F5-TTS 不可用(未安装或初始化失败)。\n"

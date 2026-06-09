@@ -122,9 +122,9 @@ def build_monologue_tracks(
         for cap in segment.captions:
             text_material = TextMaterial(
                 content=cap["text"],
-                font_size=caption_cfg["font_size"],
-                font_color=caption_cfg["font_color"],
-                has_shadow=caption_cfg["shadow"],
+                font_size=caption_cfg["font_size"],  # type: ignore[arg-type]
+                font_color=caption_cfg["font_color"],  # type: ignore[arg-type]
+                has_shadow=caption_cfg["shadow"],  # type: ignore[arg-type]
             )
             draft.add_text(text_material)
 

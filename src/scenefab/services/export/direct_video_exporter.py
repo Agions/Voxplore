@@ -496,7 +496,7 @@ class DirectVideoExporter:
         project: Any,
         output_dir: str,
         project_name: str,
-        presets: list[Resolution] = None,
+        presets: list[Resolution] = None,  # type: ignore[assignment]
     ) -> dict[str, str]:
         """
         使用多个预设导出视频
@@ -513,7 +513,7 @@ class DirectVideoExporter:
         if presets is None:
             presets = [Resolution.FHD_1080P, Resolution.VERTICAL_1080P]
 
-        output_dir = Path(output_dir)
+        output_dir = Path(output_dir)  # type: ignore[assignment]
         output_dir.mkdir(parents=True, exist_ok=True)  # type: ignore[attr-defined]
 
         results = {}

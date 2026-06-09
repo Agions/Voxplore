@@ -230,7 +230,7 @@ class BMPSynchronizer:
                 beat_intervals = np.diff(beat_times)
                 average_beat_interval = float(np.mean(beat_intervals))
             else:
-                average_beat_interval = 60.0 / tempo if tempo > 0 else 0.5
+                average_beat_interval = 60.0 / tempo if tempo > 0 else 0.5  # type: ignore[assignment]
 
             # 提取节拍强度
             onset_env = librosa.onset.onset_strength(y=y, sr=sr)

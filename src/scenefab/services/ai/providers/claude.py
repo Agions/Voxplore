@@ -117,7 +117,7 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
 
-        image_path = Path(image_path)
+        image_path = Path(image_path)  # type: ignore[assignment]
         if not image_path.exists():  # type: ignore[attr-defined]
             raise ProviderError(f"图片不存在: {image_path}")
 

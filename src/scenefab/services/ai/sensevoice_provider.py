@@ -281,7 +281,7 @@ class SenseVoiceProvider:
                     float(tempo)
                     if np.isscalar(tempo)
                     else float(tempo[0])
-                    if len(tempo) > 0
+                    if len(tempo) > 0  # type: ignore[arg-type]
                     else 0
                 )
             except Exception as e:
@@ -512,7 +512,7 @@ class SenseVoiceProvider:
         events.extend(silence_regions)
 
         # 检测高能量爆发（掌声/笑声）
-        burst_regions = self._detect_energy_bursts(times, rms, sr, hop_length)
+        burst_regions = self._detect_energy_bursts(times, rms, sr, hop_length)  # type: ignore[arg-type]
         events.extend(burst_regions)
 
         # 按时间排序

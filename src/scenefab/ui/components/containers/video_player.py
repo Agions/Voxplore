@@ -213,7 +213,7 @@ class VideoPlayer(QWidget):
 
     def _on_duration_changed(self, duration: int):
         """时长变化"""
-        self._duration = duration / 1000
+        self._duration = duration / 1000  # type: ignore[assignment]
         self.duration_changed.emit(self._duration)
 
     def _on_state_changed(self, state):

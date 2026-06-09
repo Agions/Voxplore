@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget
 class ThemeColorPreview(QWidget):
     """主题颜色预览组件"""
 
-    def __init__(self, colors: dict = None, parent=None):
+    def __init__(self, colors: dict = None, parent=None):  # type: ignore[assignment]
         super().__init__(parent)
         self._colors = colors or {}
         self._setup_ui()

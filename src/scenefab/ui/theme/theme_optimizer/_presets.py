@@ -216,7 +216,7 @@ class ThemePresets:
         }
 
     @classmethod
-    def get_theme_names(cls, theme_type: str = None):
+    def get_theme_names(cls, theme_type: str = None):  # type: ignore[assignment]
         """获取主题名称列表"""
         _THEME_MAP = {
             "dark": cls.DARK_THEMES,

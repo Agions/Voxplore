@@ -64,7 +64,7 @@ class VideoPreview(QWidget, ThemeAwareMixin):
             self._player.playbackStateChanged.connect(self._on_state_changed)
             layout.addWidget(self._video_widget, 1)
         else:
-            self._player = None
+            self._player = None  # type: ignore[assignment]
             placeholder = QLabel("🎬 视频预览\n(需要 PyQt6-Multimedia)")
             placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
             placeholder.setStyleSheet(f"""

@@ -271,7 +271,7 @@ class ProjectTemplateManager(QObject):
         template_id: str,
         project_name: str,
         project_path: str,
-        variables: dict[str, Any] = None,
+        variables: dict[str, Any] = None,  # type: ignore[assignment]
     ) -> bool:
         """应用模板创建项目"""
         try:
@@ -480,7 +480,7 @@ class ProjectTemplateManager(QObject):
         return list(self.categories.values())
 
     def search_templates(
-        self, query: str, category: str = None, project_type: ProjectType = None
+        self, query: str, category: str = None, project_type: ProjectType = None  # type: ignore[assignment]
     ) -> list[TemplateInfo]:
         """搜索模板"""
         results = []

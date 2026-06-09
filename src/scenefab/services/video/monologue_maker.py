@@ -430,8 +430,8 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             project.voice_config = voice_config
         else:
             project.voice_config = VoiceConfig(
-                style=style_cfg["voice_style"],
-                rate=style_cfg["rate"],
+                style=style_cfg["voice_style"],  # type: ignore[arg-type]
+                rate=style_cfg["rate"],  # type: ignore[arg-type]
             )
 
         output_dir = Path(project.output_dir) / "audio"

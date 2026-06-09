@@ -310,7 +310,7 @@ class SubtitleTranslator:
         target_code = deepl_lang_map.get(target_lang, target_lang.upper())
 
         try:
-            translator = deepl.Translator(self._deepl_key)
+            translator = deepl.Translator(self._deepl_key)  # type: ignore[arg-type]
 
             # DeepL 有段落数限制，需要合并
             combined_text = "\n".join(f"[{i}] {t}" for i, t in enumerate(texts))

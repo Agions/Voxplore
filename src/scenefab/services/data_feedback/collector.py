@@ -64,7 +64,7 @@ class PlatformDataCollector:
             try:
                 import httpx
 
-                self._http_client = httpx.Client(timeout=30.0)
+                self._http_client = httpx.Client(timeout=30.0)  # type: ignore[assignment]
             except ImportError:
                 logger.warning("httpx 未安装，将使用模拟数据")
         return self._http_client

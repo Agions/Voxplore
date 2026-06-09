@@ -83,7 +83,7 @@ class ProjectsListPanel(QWidget):
         self._status_filter.currentTextChanged.connect(self._on_filter_changed)
         filter_layout.addWidget(self._status_filter)
 
-        card.layout().addWidget(filter_layout)  # type: ignore[union-attr]
+        card.layout().addWidget(filter_layout)  # type: ignore[arg-type, union-attr]
 
         # 项目网格
         self._scroll_area = MacScrollArea()
@@ -170,7 +170,7 @@ class ProjectsListPanel(QWidget):
             if item.widget():  # type: ignore[union-attr]
                 item.widget().deleteLater()  # type: ignore[union-attr]
             elif item.spacerItem():  # type: ignore[union-attr]
-                self._grid_layout.removeItem(item.spacerItem())  # type: ignore[union-attr]
+                self._grid_layout.removeItem(item.spacerItem())  # type: ignore[arg-type, union-attr]
 
     def _add_empty_spacer(self):
         """添加空白间隔"""

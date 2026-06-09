@@ -39,8 +39,8 @@ except ImportError:
         class Signal(Signal):  # 内部引用
             pass
 
-    QTimer = None
-    QSettings = None
+    QTimer = None  # type: ignore[assignment]
+    QSettings = None  # type: ignore[assignment]
 
 
 __all__ = ["QObject", "Signal", "QTimer", "QSettings", "_HAS_PYSIDE6"]

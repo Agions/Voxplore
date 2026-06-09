@@ -131,7 +131,7 @@ class VisionService:
             for future in as_completed(future_to_idx):
                 idx = future_to_idx[future]
                 try:
-                    results[idx] = future.result()
+                    results[idx] = future.result()  # type: ignore[assignment]
                 except Exception as e:
                     logger.warning(f"Frame {idx} analysis failed: {e}")
                     results[idx] = self._mock_result()

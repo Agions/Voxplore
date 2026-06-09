@@ -148,7 +148,7 @@ class RateLimiter:
             async with self._lock:
                 now = datetime.now()
                 elapsed = (now - self._last_update).total_seconds()
-                self._tokens = min(self.capacity, self._tokens + elapsed * self.rate)
+                self._tokens = min(self.capacity, self._tokens + elapsed * self.rate)  # type: ignore[assignment]
                 self._last_update = now
 
                 if self._tokens >= 1:
