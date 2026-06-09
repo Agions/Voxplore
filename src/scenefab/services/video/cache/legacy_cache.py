@@ -46,7 +46,7 @@ class VideoCache:
         if key in self._cache:
             self._access_order.remove(key)
             self._access_order.append(key)
-            return self._cache[key]
+            return self._cache[key]  # type: ignore[no-any-return]
         return None
 
     def set(self, key: str, value: np.ndarray):

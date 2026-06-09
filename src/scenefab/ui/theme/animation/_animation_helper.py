@@ -63,7 +63,7 @@ class AnimationHelper:
             app = QGuiApplication.instance()
             if app:
                 # QStyle.SH_ReducedAnimation = 44
-                return app.style().styleHint(44) == 1
+                return app.style().styleHint(44) == 1  # type: ignore[no-any-return, attr-defined]
         except (RuntimeError, AttributeError, TypeError) as e:
             logger.warning("macOS reduced motion detection failed: %s", e)
         return False
@@ -83,7 +83,7 @@ class AnimationHelper:
             value, _ = winreg.QueryValueEx(key, "ShowAnimation")
             reduced = value == 0
             winreg.CloseKey(key)
-            return reduced
+            return reduced  # type: ignore[no-any-return, attr-defined]
         except (OSError, FileNotFoundError) as e:
             logger.warning("Windows reduced motion detection failed: %s", e)
         return False

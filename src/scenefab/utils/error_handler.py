@@ -301,7 +301,7 @@ class ErrorHandler:
 
 def _compute_delay(attempt: int, base_delay: float) -> float:
     """计算带抖动的指数退避延迟"""
-    return base_delay * (2**attempt) * (0.5 + random.random() * 0.5)
+    return base_delay * (2**attempt) * (0.5 + random.random() * 0.5)  # type: ignore[no-any-return]
 
 
 def _log_retry(

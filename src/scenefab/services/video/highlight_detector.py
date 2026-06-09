@@ -209,7 +209,7 @@ class HighlightDetector:
         """执行 ffmpeg 命令"""
         try:
             result = _get_executor().run(cmd, timeout=timeout)
-            return result
+            return result  # type: ignore[no-any-return]
         except SecurityError:
             # 命令注入攻击被拦截，不要静默吞噬
             logger.warning(f"FFmpeg command blocked by security policy: {cmd[0]}")

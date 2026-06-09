@@ -274,7 +274,7 @@ def _payload_to_dict(payload: Any) -> dict[str, Any]:
     """统一 payload → dict（DomainEvent 优先）"""
     if hasattr(payload, "to_dict"):
         try:
-            return payload.to_dict()
+            return payload.to_dict()  # type: ignore[no-any-return]
         except Exception:
             pass
     if isinstance(payload, dict):

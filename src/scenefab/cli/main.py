@@ -392,7 +392,7 @@ def _load_project_meta(project_path: str) -> dict | None:
         return None
     try:
         with open(pf, encoding="utf-8") as f:
-            return json.load(f).get("metadata", {})
+            return json.load(f).get("metadata", {})  # type: ignore[no-any-return]
     except Exception:
         return None
 

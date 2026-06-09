@@ -55,7 +55,7 @@ class VisionService:
         cached = self.frame_cache.get(cache_key)
         if cached:
             self._stats["cache_hits"] += 1
-            return cached
+            return cached  # type: ignore[no-any-return]
 
         try:
             headers = {

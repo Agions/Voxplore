@@ -86,7 +86,7 @@ class RequestCache:
                 if time.monotonic() < expiry:
                     logger.debug(f"缓存命中: {key[:8]}...")
                     self._hits += 1
-                    return value
+                    return value  # type: ignore[no-any-return]
                 else:
                     del self._cache[key]
         self._misses += 1
@@ -251,7 +251,7 @@ class HTTPClientMixin:
         """
         try:
             response = await self.http_client.request(method, endpoint, **kwargs)
-            return response.json()
+            return response.json()  # type: ignore[no-any-return]
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
         except Exception as e:
@@ -337,12 +337,12 @@ class ModelManagerMixin:
     def supports_vision(self, model: str) -> bool:
         """检查模型是否支持视觉"""
         model_info = self.MODELS.get(model, {})
-        return model_info.get("vision", False)
+        return model_info.get("vision", False)  # type: ignore[no-any-return]
 
     def is_reasoning_model(self, model: str) -> bool:
         """检查是否是推理模型"""
         model_info = self.MODELS.get(model, {})
-        return model_info.get("reasoning", False)
+        return model_info.get("reasoning", False)  # type: ignore[no-any-return]
 
 
 # ============ 基类 ============

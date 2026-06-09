@@ -199,7 +199,7 @@ class SecureKeyManager:
                 key_data_str = keyring.get_password(service_name, "api_key")
                 if key_data_str:
                     key_data = json.loads(key_data_str)
-                    return key_data
+                    return key_data  # type: ignore[no-any-return]
             except Exception as e:
                 # keyring 访问失败，降级到加密文件
                 self.logger.warning(
@@ -232,7 +232,7 @@ class SecureKeyManager:
             decrypted_data = cipher.decrypt(encrypted_data)
             key_data = json.loads(decrypted_data.decode())
 
-            return key_data
+            return key_data  # type: ignore[no-any-return]
 
         except Exception as e:
             self.logger.error(f"Failed to get encrypted key for {provider}: {e}")

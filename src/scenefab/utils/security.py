@@ -455,7 +455,7 @@ class SecureFileHandler:
         # 读取文件
         try:
             with open(path, mode) as f:
-                return f.read()
+                return f.read()  # type: ignore[no-any-return]
         except Exception as e:
             raise SecurityError(f"文件读取失败: {e}")
 

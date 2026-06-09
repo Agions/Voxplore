@@ -155,7 +155,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             except RuntimeError:
                 result = asyncio.run(_run())
 
-            return result
+            return result  # type: ignore[no-any-return]
 
         except Exception as e:
             logger.warning(f"流式生成失败，回退到普通方式: {e}")
@@ -386,7 +386,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                     yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
             yield f"data: {json.dumps({'type': 'done', 'content': full_content})}\n\n"
 
-        return _sse_generator()
+        return _sse_generator()  # type: ignore[no-any-return]
 
     async def _stream_sse_content(
         self,
@@ -495,7 +495,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                             last_sentiment = sentiment
             yield {"type": "done", "content": full_content}
 
-        return _iter()
+        return _iter()  # type: ignore[no-any-return]
 
 
 # =========== 便捷函数 ===========

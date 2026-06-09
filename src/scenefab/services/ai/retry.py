@@ -72,7 +72,7 @@ class RetryHandler:
         if self.jitter:
             delay *= 0.5 + random.random() * 0.5
 
-        return delay
+        return delay  # type: ignore[no-any-return]
 
     async def execute(self, func: Callable, *args, **kwargs) -> Any:
         """

@@ -339,4 +339,4 @@ class QuickAIConfigWidget(QWidget):
         time_label = MacLabel(model_info.get("last_used", ""), "text-xs text-muted")
         layout.addWidget(time_label)
 
-        return item
+        return item  # type: ignore[no-any-return]

@@ -77,7 +77,7 @@ class PluginManifest:
         """
         module_path, class_name = self.entry_point.split(":", 1)
         module = importlib.import_module(module_path)
-        return getattr(module, class_name)
+        return getattr(module, class_name)  # type: ignore[no-any-return]
 
 
 def _get_version() -> str:

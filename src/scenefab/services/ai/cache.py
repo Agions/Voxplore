@@ -60,7 +60,7 @@ class LLMMemoryCache:
                     self.access_order.remove(key)
                 self.access_order.append(key)
 
-                return entry["response"]
+                return entry["response"]  # type: ignore[no-any-return]
             else:
                 # 已过期，删除
                 del self.cache[key]

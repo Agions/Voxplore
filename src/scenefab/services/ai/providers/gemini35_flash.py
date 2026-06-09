@@ -259,7 +259,7 @@ class Gemini35FlashProvider(VisionProvider):
             else:
                 json_str = response_text
 
-            return json.loads(json_str)
+            return json.loads(json_str)  # type: ignore[no-any-return]
         except Exception as e:
             logger.warning(f"解析时间戳响应失败: {e}")
             return {

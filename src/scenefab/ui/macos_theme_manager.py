@@ -80,7 +80,7 @@ class MacOSThemeManager(QObject):
             resource_path = f":/styles/macOS/macOS_{theme}.qss"
 
         if resource_path in self._cache:
-            return self._cache[resource_path]
+            return self._cache[resource_path]  # type: ignore[no-any-return]
 
         file = QFile(resource_path)
         if file.exists() and file.open(QFile.ReadOnly | QFile.Text):

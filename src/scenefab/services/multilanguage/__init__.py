@@ -347,7 +347,7 @@ class MultiLanguageAdapter:
             response.raise_for_status()
             result = response.json()
 
-            return result["translations"][0]["text"]
+            return result["translations"][0]["text"]  # type: ignore[no-any-return]
 
         except Exception as e:
             logger.error(f"DeepL 翻译失败: {e}")

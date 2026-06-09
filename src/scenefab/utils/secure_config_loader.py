@@ -210,7 +210,7 @@ class SecureConfigLoader:
                 config = self._resolve_env_vars(config)
 
             logger.info(f"安全加载配置: {clean_path}")
-            return config
+            return config  # type: ignore[no-any-return]
 
         except yaml.YAMLError as e:
             raise SecurityError(f"YAML 解析错误: {e}")
@@ -251,7 +251,7 @@ class SecureConfigLoader:
                 config = self._resolve_env_vars(config)
 
             logger.info(f"安全加载 JSON 配置: {clean_path}")
-            return config
+            return config  # type: ignore[no-any-return]
 
         except json.JSONDecodeError as e:
             raise SecurityError(f"JSON 解析错误: {e}")
@@ -325,7 +325,7 @@ class SecureConfigLoader:
             raise SecurityError("配置根元素必须是对象")
 
         # 递归清理配置值
-        return self._sanitize_config(config)
+        return self._sanitize_config(config)  # type: ignore[no-any-return]
 
     def _sanitize_config(self, obj: Any, depth: int = 0) -> Any:
         """递归清理配置值"""

@@ -223,7 +223,7 @@ class FFmpegTool:
             result = FFmpegTool._executor.run(cmd, timeout=timeout)
             if result.returncode != 0:
                 return None
-            return json.loads(result.stdout)
+            return json.loads(result.stdout)  # type: ignore[no-any-return]
         except (SecurityError, json.JSONDecodeError):
             return None
 

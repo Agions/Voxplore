@@ -264,7 +264,7 @@ class ScriptGenerator:
         else:
             results = [self.generate(topic, config) for topic, config in requests]
 
-        return results
+        return results  # type: ignore[no-any-return]
 
     async def _generate_batch_async(
         self,

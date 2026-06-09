@@ -242,7 +242,7 @@ class SQLiteTaskStore(TaskStore):
                 conn.execute("DELETE FROM tasks WHERE task_id = ?", (task_id,))
                 conn.commit()
                 return None
-            return json.loads(data)
+            return json.loads(data)  # type: ignore[no-any-return]
 
     def exists(self, task_id: str) -> bool:
         return self.get(task_id) is not None
@@ -329,7 +329,7 @@ class RedisTaskStore(TaskStore):
         data = self._client.get(self._key(task_id))
         if data is None:
             return None
-        return json.loads(data)
+        return json.loads(data)  # type: ignore[no-any-return]
 
     def exists(self, task_id: str) -> bool:
         return bool(self._client.exists(self._key(task_id)))

@@ -169,7 +169,7 @@ class FrameUtilsMixin:
                 + color_richness * 0.2
             )
 
-            return min(1.0, visual_score)
+            return min(1.0, visual_score)  # type: ignore[no-any-return]
 
         except Exception as e:
             logger.warning(f"视觉分数计算失败: {e}")

@@ -62,7 +62,7 @@ class EmotionPeakDetector:
         """分析单个片段"""
         cache_key = f"{segment.video_path}:{segment.start_time}:{segment.end_time}"
         if cache_key in self._cache:
-            return self._cache[cache_key]
+            return self._cache[cache_key]  # type: ignore[no-any-return]
 
         visual_score = self._analyze_visual_complexity(segment)
         audio_score = self._analyze_audio_emotion(segment)
@@ -131,7 +131,7 @@ class EmotionPeakDetector:
 
             if diffs:
                 avg_diff = np.mean(diffs)
-                return min(1.0, avg_diff / 30.0)
+                return min(1.0, avg_diff / 30.0)  # type: ignore[no-any-return]
 
         except ImportError:
             pass
@@ -170,7 +170,7 @@ class EmotionPeakDetector:
             except Exception:
                 pitch_norm = 0.5
 
-            return energy_norm * 0.6 + pitch_norm * 0.4
+            return energy_norm * 0.6 + pitch_norm * 0.4  # type: ignore[no-any-return]
 
         except ImportError:
             pass

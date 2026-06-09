@@ -229,7 +229,7 @@ class ProjectManager(QObject):
             os.makedirs(directory, exist_ok=True)
 
     def _load_recent_projects(self) -> list[str]:
-        return self.config_manager.get("editor.recent_files", [])
+        return self.config_manager.get("editor.recent_files", [])  # type: ignore[no-any-return, attr-defined]
 
     def _save_recent_projects(self) -> None:
         self.config_manager.set("editor.recent_files", self.recent_projects[:10])
@@ -262,7 +262,7 @@ class ProjectManager(QObject):
         try:
             import psutil
 
-            return psutil.pid_exists(int(pid_str))
+            return psutil.pid_exists(int(pid_str))  # type: ignore[no-any-return, attr-defined]
         except (ImportError, ValueError):
             return False
 
@@ -443,7 +443,7 @@ class ProjectManager(QObject):
         if project_id:
             self.project_imported.emit(project_id)
             self.logger.info(f"Imported project: {project_name} from {import_path}")
-        return project_id
+        return project_id  # type: ignore[no-any-return, attr-defined]
 
     @_handle_project_error("CREATE", "创建模板")
     def create_template(self, project_id: str, template_name: str) -> bool:

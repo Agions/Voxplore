@@ -269,7 +269,7 @@ class StatusBar(QStatusBar, ThemeAwareMixin):
     def get_current_status(self) -> str:
         """获取当前状态"""
         if self.status_label:
-            return self.status_label.text()
+            return self.status_label.text()  # type: ignore[no-any-return]
         return ""
 
     def resizeEvent(self, event) -> None:

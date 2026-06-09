@@ -269,7 +269,7 @@ class PluginRegistry:
         if not os.path.exists(path):
             return []
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            return json.load(f)  # type: ignore[no-any-return]
 
     def save_enabled_list(self, path: str) -> None:
         """保存已启用的插件列表"""

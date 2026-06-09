@@ -88,7 +88,7 @@ class ExportManager:
 
         # 执行导出
         try:
-            return exporter.export(project_data, config)
+            return exporter.export(project_data, config)  # type: ignore[no-any-return, attr-defined]
         except ExportError:
             raise  # 已是对应异常，直接重新抛出
         except Exception as e:

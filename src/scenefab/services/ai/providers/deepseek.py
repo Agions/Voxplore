@@ -104,7 +104,7 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     def _is_reasoning_model(self, model: str) -> bool:
         """检查是否是推理模型"""
         model_info = self.MODELS.get(model, {})
-        return model_info.get("reasoning", False)
+        return model_info.get("reasoning", False)  # type: ignore[no-any-return]
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
         """生成文本"""

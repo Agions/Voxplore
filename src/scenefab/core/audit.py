@@ -287,7 +287,7 @@ class AuditLogger:
             sql += " WHERE action = ?"
             args.append(action)
         with self._connect() as conn:
-            return conn.execute(sql, args).fetchone()[0]
+            return conn.execute(sql, args).fetchone()[0]  # type: ignore[no-any-return]
 
     def clear(self, before_timestamp: str | None = None) -> int:
         """清理旧记录（返回删除条数）"""

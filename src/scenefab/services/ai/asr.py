@@ -31,7 +31,7 @@ class ASRService:
         cache_key = f"{audio_path}:{language}:{word_timestamps}"
         cached = self.cache.get(cache_key)
         if cached:
-            return cached
+            return cached  # type: ignore[no-any-return]
 
         if self.provider == "faster-whisper":
             result = self._faster_whisper(audio_path, language, word_timestamps)

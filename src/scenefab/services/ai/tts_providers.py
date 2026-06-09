@@ -310,9 +310,9 @@ class EdgeTTSProvider(TTSProvider):
             asyncio.get_running_loop()
             # 已有 loop，在新线程中运行
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                return pool.submit(asyncio.run, _generate()).result()
+                return pool.submit(asyncio.run, _generate()).result()  # type: ignore[no-any-return]
         except RuntimeError:
-            return asyncio.run(_generate())
+            return asyncio.run(_generate())  # type: ignore[no-any-return]
 
     def _select_voice(self, config: VoiceConfig) -> str:
         """根据配置选择声音"""

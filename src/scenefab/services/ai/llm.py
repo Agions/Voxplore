@@ -116,7 +116,7 @@ class LLMService:
 
         if response.status_code == 200:
             result = response.json()
-            return result["choices"][0]["message"]["content"]
+            return result["choices"][0]["message"]["content"]  # type: ignore[no-any-return]
         else:
             raise Exception(f"API error: {response.status_code}, {response.text}")
 

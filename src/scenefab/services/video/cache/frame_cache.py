@@ -145,7 +145,7 @@ class VideoFrameCache:
                     self._disk_read_count += 1
                     # 重新加入内存缓存
                     self.set(key, frame)
-                    return frame
+                    return frame  # type: ignore[no-any-return]
                 except Exception as e:
                     logger.debug(f"磁盘读取失败: {e}")
 

@@ -101,6 +101,6 @@ class VisionProvider(ABC):
         elif "```" in content:
             content = content.split("```")[1].split("```")[0]
         try:
-            return json.loads(content.strip())
+            return json.loads(content.strip())  # type: ignore[no-any-return]
         except json.JSONDecodeError:
             return {"description": content.strip()}

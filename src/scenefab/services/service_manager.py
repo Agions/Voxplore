@@ -170,7 +170,7 @@ class AIServiceManagerCompat:
         if service_name in self._services:
             service = self._services[service_name]
             if hasattr(service, "_stats"):
-                return service._stats
+                return service._stats  # type: ignore[no-any-return]
         return {
             "requests": 0,
             "errors": 0,

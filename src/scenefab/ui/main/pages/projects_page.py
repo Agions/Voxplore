@@ -116,7 +116,7 @@ class ProjectsPage(BasePage):
         refresh_btn.clicked.connect(self._on_refresh)
         toolbar.add_action(refresh_btn)
 
-        return toolbar
+        return toolbar  # type: ignore[no-any-return]
 
     # ── 事件处理 ──────────────────────────────────────────────
 

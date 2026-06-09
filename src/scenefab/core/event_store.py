@@ -313,8 +313,8 @@ class SQLiteEventStore(EventStore):
     def count(self, event_name: str | None = None) -> int:
         with self._lock, self._conn() as conn:
             if event_name is None:
-                return conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
-            return conn.execute(
+                return conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]  # type: ignore[no-any-return]
+            return conn.execute(  # type: ignore[no-any-return]
                 "SELECT COUNT(*) FROM events WHERE event_name = ?", (event_name,)
             ).fetchone()[0]
 
