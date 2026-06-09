@@ -58,7 +58,7 @@ class VideoInterleaver:
         context: InterleaveContext | None = None,
     ) -> InterleaveTimeline:
         """
-        生成最终穿插时间线
+        生成最终穿插时间线 — 编排器, 委派到 SRP 方法.
 
         Args:
             narration_timeline: 解说时间轴
@@ -72,52 +72,57 @@ class VideoInterleaver:
             InterleaveTimeline: 包含所有片段的排列和转场
         """
         ctx = context or InterleaveContext()
-        decisions: list[InterleaveDecision] = []
+        decisions = [
+            self._decide_for_narration(narration, i, perspective_shots, emotion_curve, original_clips, ctx)
+            for i, narration in enumerate(narration_timeline)
+        ]
+        return self._build_timeline_result(decisions, original_clips, emotion_curve)
 
-        # 遍历解说片段
-        for i, narration in enumerate(narration_timeline):
-            # 获取对应的视角信息
-            shot = perspective_shots[i] if i < len(perspective_shots) else None
-            emotional_intensity = emotion_curve[i] if i < len(emotion_curve) else 0.5
+    def _decide_for_narration(
+        self,
+        narration: NarrationSegment,
+        index: int,
+        perspective_shots: list[PerspectiveShot],
+        emotion_curve: list[float],
+        original_clips: list[ClipSegment],
+        ctx: InterleaveContext,
+    ) -> InterleaveDecision:
+        """为单个解说片段决定穿插策略: 查找重叠原片 → 选择最佳 → 生成决策."""
+        shot = perspective_shots[index] if index < len(perspective_shots) else None
+        emotional_intensity = emotion_curve[index] if index < len(emotion_curve) else 0.5
+        overlapping_clips = self._find_overlapping_clips(
+            narration.start_time, narration.end_time, original_clips
+        )
+        selected_clip = self._select_best_clip(
+            overlapping_clips, narration, shot, emotional_intensity
+        )
+        return self._make_interleave_decision(
+            narration=narration,
+            clip=selected_clip,
+            shot=shot,
+            emotional_intensity=emotional_intensity,
+            ctx=ctx,
+        )
 
-            # 查找重叠的原片片段
-            overlapping_clips = self._find_overlapping_clips(
-                narration.start_time, narration.end_time, original_clips
-            )
-
-            # 选择最佳原片片段
-            selected_clip = self._select_best_clip(
-                overlapping_clips, narration, shot, emotional_intensity
-            )
-
-            # 决定穿插策略
-            decision = self._make_interleave_decision(
-                narration=narration,
-                clip=selected_clip,
-                shot=shot,
-                emotional_intensity=emotional_intensity,
-                ctx=ctx,
-            )
-            decisions.append(decision)
-
-        # 计算统计
+    def _build_timeline_result(
+        self,
+        decisions: list[InterleaveDecision],
+        original_clips: list[ClipSegment],
+        emotion_curve: list[float],
+    ) -> InterleaveTimeline:
+        """计算统计指标并组装 InterleaveTimeline 结果."""
         total_duration = sum(d.narration_segment.duration for d in decisions)
         original_duration = sum(
             d.original_end - d.original_start  # type: ignore[misc, operator]
             for d in decisions
             if d.show_original and d.original_start is not None
         )
-
         return InterleaveTimeline(
             decisions=decisions,
             total_duration=total_duration,
-            original_video_duration=original_clips[-1].end_time
-            if original_clips
-            else 0,
+            original_video_duration=original_clips[-1].end_time if original_clips else 0,
             narration_duration=total_duration,
-            original_coverage_percent=original_duration / total_duration
-            if total_duration > 0
-            else 0,
+            original_coverage_percent=original_duration / total_duration if total_duration > 0 else 0,
             narration_coverage_percent=100.0,
             interleave_mode=self._infer_interleave_mode(emotion_curve),
             emotion_curve=emotion_curve,
