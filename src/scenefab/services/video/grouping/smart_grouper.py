@@ -158,8 +158,31 @@ class SmartGrouper:
             ]
 
         # 1. 提取 embedding
-        vision_embeddings = {}
-        audio_embeddings = {}
+        vision_embeddings, audio_embeddings = self._extract_embeddings(video_paths)
+
+        # 2. 计算两两相似度矩阵
+        similarity_matrix = self._build_similarity_matrix(
+            video_paths, vision_embeddings, audio_embeddings
+        )
+
+        # 3. 层次聚类
+        clusters = self._hierarchical_clustering(similarity_matrix, video_paths)
+
+        # 4. 构建分组
+        return self._build_groups(
+            clusters, video_paths, similarity_matrix, vision_embeddings, audio_embeddings
+        )
+
+    def _extract_embeddings(
+        self, video_paths: list[str]
+    ) -> tuple[dict[str, list[float]], dict[str, list[float]]]:
+        """提取视觉与音频 embedding（失败时回退到随机向量）
+
+        Returns:
+            (vision_embeddings, audio_embeddings) 字典
+        """
+        vision_embeddings: dict[str, list[float]] = {}
+        audio_embeddings: dict[str, list[float]] = {}
         failed_vision = 0
         failed_audio = 0
 
@@ -183,7 +206,15 @@ class SmartGrouper:
                 f"Embedding extraction failed: vision={failed_vision}, audio={failed_audio}"
             )
 
-        # 2. 计算两两相似度矩阵
+        return vision_embeddings, audio_embeddings
+
+    def _build_similarity_matrix(
+        self,
+        video_paths: list[str],
+        vision_embeddings: dict[str, list[float]],
+        audio_embeddings: dict[str, list[float]],
+    ) -> np.ndarray:
+        """根据视觉/音频 embedding 构建 n×n 混合相似度矩阵"""
         n = len(video_paths)
         similarity_matrix = np.zeros((n, n))
 
@@ -198,40 +229,59 @@ class SmartGrouper:
                 similarity_matrix[i, j] = sim
                 similarity_matrix[j, i] = sim
 
-        # 3. 层次聚类
-        clusters = self._hierarchical_clustering(similarity_matrix, video_paths)
+        return similarity_matrix
 
-        # 4. 构建分组
-        groups = []
+    def _build_groups(
+        self,
+        clusters: list[list[str]],
+        video_paths: list[str],
+        similarity_matrix: np.ndarray,
+        vision_embeddings: dict[str, list[float]],
+        audio_embeddings: dict[str, list[float]],
+    ) -> list[VideoGroup]:
+        """从聚类结果构建最终的 VideoGroup 列表"""
+        groups: list[VideoGroup] = []
         for cluster in clusters:
             if len(cluster) == 0:
                 continue
-            if len(cluster) == 1:
-                # 单视频单独成一组，置信度较低
-                groups.append(
-                    self._make_group([cluster[0]], 0.5, GroupingReason.VISUAL_SIMILAR)
+            groups.append(
+                self._cluster_to_group(
+                    cluster, video_paths, similarity_matrix, vision_embeddings, audio_embeddings
                 )
-            else:
-                # 计算组内平均相似度作为置信度
-                total_sim = 0.0
-                count = 0
-                indices = [video_paths.index(vp) for vp in cluster]
-                for i in range(len(indices)):
-                    for j in range(i + 1, len(indices)):
-                        total_sim += similarity_matrix[indices[i], indices[j]]
-                        count += 1
-
-                avg_sim = total_sim / count if count > 0 else 0.5
-                confidence = min(1.0, avg_sim)
-
-                # 判断原因
-                reason = self._determine_reason(
-                    cluster, video_paths, vision_embeddings, audio_embeddings
-                )
-
-                groups.append(self._make_group(cluster, confidence, reason))
-
+            )
         return groups
+
+    def _cluster_to_group(
+        self,
+        cluster: list[str],
+        video_paths: list[str],
+        similarity_matrix: np.ndarray,
+        vision_embeddings: dict[str, list[float]],
+        audio_embeddings: dict[str, list[float]],
+    ) -> VideoGroup:
+        """将单个聚类转换为 VideoGroup（单视频置信度 0.5，多视频取组内均值）"""
+        if len(cluster) == 1:
+            # 单视频单独成一组，置信度较低
+            return self._make_group([cluster[0]], 0.5, GroupingReason.VISUAL_SIMILAR)
+
+        # 计算组内平均相似度作为置信度
+        total_sim = 0.0
+        count = 0
+        indices = [video_paths.index(vp) for vp in cluster]
+        for i in range(len(indices)):
+            for j in range(i + 1, len(indices)):
+                total_sim += similarity_matrix[indices[i], indices[j]]
+                count += 1
+
+        avg_sim = total_sim / count if count > 0 else 0.5
+        confidence = min(1.0, avg_sim)
+
+        # 判断原因
+        reason = self._determine_reason(
+            cluster, video_paths, vision_embeddings, audio_embeddings
+        )
+
+        return self._make_group(cluster, confidence, reason)
 
     def _compute_similarity(
         self,

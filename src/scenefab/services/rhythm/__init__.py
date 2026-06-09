@@ -202,94 +202,122 @@ class BMPSynchronizer:
         audio_path: str,
         template: RhythmTemplate,
     ) -> RhythmAnalysis:
-        """
-        分析音频节奏
-
-        Args:
-            audio_path: 音频文件路径
-            template: 节奏模板
-
-        Returns:
-            RhythmAnalysis: 节奏分析结果
-        """
+        """分析音频节奏，返回 RhythmAnalysis。失败时返回默认分析结果。"""
         try:
-            import librosa
-            import numpy as np
-
-            # 加载音频
-            y, sr = librosa.load(audio_path, sr=22050)
-
-            # 检测 BPM 和节拍
-            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-
-            # 转换为时间戳
-            beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-
-            # 计算节拍间隔
-            if len(beat_times) > 1:
-                beat_intervals = np.diff(beat_times)
-                average_beat_interval = float(np.mean(beat_intervals))
-            else:
-                average_beat_interval = 60.0 / tempo if tempo > 0 else 0.5  # type: ignore[assignment]
-
-            # 提取节拍强度
-            onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-            onset_times = librosa.times_like(onset_env, sr=sr)
-
-            # 创建节拍点
-            beat_points = []
-            for i, beat_time in enumerate(beat_times):
-                # 找到最近的 onset 强度
-                onset_idx = np.argmin(np.abs(onset_times - beat_time))
-                strength = (
-                    float(onset_env[onset_idx]) if onset_idx < len(onset_env) else 0.5
-                )
-
-                # 归一化强度
-                strength = (
-                    min(1.0, strength / np.max(onset_env))
-                    if np.max(onset_env) > 0
-                    else 0.5
-                )
-
-                # 判断是否为强拍（每 4 个节拍一个强拍）
-                is_downbeat = i % 4 == 0
-
-                beat_points.append(
-                    BeatPoint(
-                        timestamp=float(beat_time),
-                        strength=strength,
-                        beat_number=i,
-                        is_downbeat=is_downbeat,
-                    )
-                )
-
-            # 确定推荐节奏模板
-            recommended_template = self._recommend_template(float(tempo))
-
-            # 计算置信度
-            confidence = self._calculate_confidence(beat_points, float(tempo))
-
-            return RhythmAnalysis(
-                bpm=float(tempo),
-                beat_count=len(beat_points),
-                average_beat_interval=average_beat_interval,
-                rhythm_template=recommended_template,
-                beat_points=beat_points,
-                confidence=confidence,
+            y, sr, tempo, beat_times = self._detect_bpm_and_beats(audio_path)
+            average_beat_interval = self._compute_average_beat_interval(
+                beat_times, tempo
             )
-
+            onset_env, onset_times = self._compute_onset_envelope(y, sr)
+            beat_points = self._build_beat_points(
+                beat_times, onset_env, onset_times
+            )
+            return self._assemble_rhythm_analysis(
+                tempo, beat_points, average_beat_interval
+            )
         except Exception as e:
             logger.error(f"节奏分析失败: {e}")
-            # 返回默认值
-            return RhythmAnalysis(
-                bpm=100.0,
-                beat_count=0,
-                average_beat_interval=0.6,
-                rhythm_template=RhythmTemplate.MEDIUM,
-                beat_points=[],
-                confidence=0.0,
+            return self._default_rhythm_analysis()
+
+    def _assemble_rhythm_analysis(
+        self,
+        tempo,
+        beat_points: list[BeatPoint],
+        average_beat_interval: float,
+    ) -> RhythmAnalysis:
+        """汇总 tempo / beat_points / 平均间隔，构造 RhythmAnalysis。"""
+        recommended_template = self._recommend_template(float(tempo))
+        confidence = self._calculate_confidence(beat_points, float(tempo))
+        return RhythmAnalysis(
+            bpm=float(tempo),
+            beat_count=len(beat_points),
+            average_beat_interval=average_beat_interval,
+            rhythm_template=recommended_template,
+            beat_points=beat_points,
+            confidence=confidence,
+        )
+
+    def _default_rhythm_analysis(self) -> RhythmAnalysis:
+        """节奏分析失败时的默认 RhythmAnalysis。"""
+        return RhythmAnalysis(
+            bpm=100.0,
+            beat_count=0,
+            average_beat_interval=0.6,
+            rhythm_template=RhythmTemplate.MEDIUM,
+            beat_points=[],
+            confidence=0.0,
+        )
+
+    def _detect_bpm_and_beats(self, audio_path: str):
+        """加载音频并检测 BPM 与节拍时间戳，返回 (y, sr, tempo, beat_times)。"""
+        import librosa
+
+        y, sr = librosa.load(audio_path, sr=22050)
+        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+        beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+
+        return y, sr, tempo, beat_times
+
+    def _compute_average_beat_interval(
+        self,
+        beat_times,
+        tempo,
+    ) -> float:
+        """根据节拍时间戳与 BPM 计算平均节拍间隔（秒）。"""
+        import numpy as np
+
+        if len(beat_times) > 1:
+            beat_intervals = np.diff(beat_times)
+            return float(np.mean(beat_intervals))
+
+        return 60.0 / tempo if tempo > 0 else 0.5  # type: ignore[assignment]
+
+    def _compute_onset_envelope(self, y, sr):
+        """计算 onset 强度包络，返回 (onset_env, onset_times)。"""
+        import librosa
+
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+        onset_times = librosa.times_like(onset_env, sr=sr)
+
+        return onset_env, onset_times
+
+    def _build_beat_points(
+        self,
+        beat_times,
+        onset_env,
+        onset_times,
+    ) -> list[BeatPoint]:
+        """根据节拍时间戳与 onset 强度构造 BeatPoint 列表。"""
+        import numpy as np
+
+        beat_points: list[BeatPoint] = []
+        for i, beat_time in enumerate(beat_times):
+            # 找到最近的 onset 强度
+            onset_idx = np.argmin(np.abs(onset_times - beat_time))
+            strength = (
+                float(onset_env[onset_idx]) if onset_idx < len(onset_env) else 0.5
             )
+
+            # 归一化强度
+            strength = (
+                min(1.0, strength / np.max(onset_env))
+                if np.max(onset_env) > 0
+                else 0.5
+            )
+
+            # 判断是否为强拍（每 4 个节拍一个强拍）
+            is_downbeat = i % 4 == 0
+
+            beat_points.append(
+                BeatPoint(
+                    timestamp=float(beat_time),
+                    strength=strength,
+                    beat_number=i,
+                    is_downbeat=is_downbeat,
+                )
+            )
+
+        return beat_points
 
     def _recommend_template(self, bpm: float) -> RhythmTemplate:
         """

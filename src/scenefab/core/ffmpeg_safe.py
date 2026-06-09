@@ -334,18 +334,7 @@ class SafeFFmpegCommand:
         logger.info(f"FFmpeg execute: {' '.join(shlex.quote(c) for c in cmd[:6])}...")
 
         if audit:
-            AuditLogger().log_action(
-                action="ffmpeg_execute",
-                parameters={
-                    "input": str(self.input_file.absolute()),
-                    "output": str(self.output_file.absolute()),
-                    "codec": self.codec,
-                    "preset": self.preset,
-                    "crf": self.crf,
-                    "filters": self.filters,
-                    "hwaccel": self.hwaccel,
-                },
-            )
+            self._log_execute_start()
 
         try:
             result = subprocess.run(
@@ -356,62 +345,115 @@ class SafeFFmpegCommand:
                 check=False,
                 # 关键：不用 shell=True
             )
-            duration_ms = int(time.time() * 1000) - start_ms
-            success = result.returncode == 0
-
-            if audit:
-                AuditLogger().log_action(
-                    action="ffmpeg_execute_done",
-                    parameters={
-                        "input": str(self.input_file.absolute()),
-                        "output": str(self.output_file.absolute()),
-                    },
-                    result="success" if success else "failure",
-                    duration_ms=duration_ms,
-                    error_message=result.stderr[:500] if not success else "",
-                    error_type="FFmpegError" if not success else "",
-                )
-
-            if not success:
-                logger.error(
-                    f"FFmpeg failed (rc={result.returncode}): {result.stderr[:500]}"
-                )
-
-            return FFmpegResult(
-                success=success,
-                returncode=result.returncode,
-                stdout=result.stdout,
-                stderr=result.stderr,
-                duration_ms=duration_ms,
-                command=cmd,
-                output_path=self.output_file if success else None,
-            )
+            return self._build_result(result, cmd, start_ms, audit)
         except subprocess.TimeoutExpired:
-            duration_ms = int(time.time() * 1000) - start_ms
-            logger.error(f"FFmpeg timeout after {self.timeout_sec}s")
-            if audit:
-                AuditLogger().log_action(
-                    action="ffmpeg_execute_timeout",
-                    parameters={"input": str(self.input_file.absolute())},
-                    result="failure",
-                    duration_ms=duration_ms,
-                    error_message=f"Timeout after {self.timeout_sec}s",
-                    error_type="TimeoutExpired",
-                )
+            self._handle_timeout(start_ms, audit)
             raise
         except Exception as e:
-            duration_ms = int(time.time() * 1000) - start_ms
-            logger.error(f"FFmpeg execution failed: {e}")
-            if audit:
-                AuditLogger().log_action(
-                    action="ffmpeg_execute_error",
-                    parameters={"input": str(self.input_file.absolute())},
-                    result="failure",
-                    duration_ms=duration_ms,
-                    error_message=str(e),
-                    error_type=type(e).__name__,
-                )
+            self._handle_execution_error(e, start_ms, audit)
             raise
+
+    def _log_execute_start(self) -> None:
+        """Emit the pre-execution audit log entry."""
+        AuditLogger().log_action(
+            action="ffmpeg_execute",
+            parameters={
+                "input": str(self.input_file.absolute()),
+                "output": str(self.output_file.absolute()),
+                "codec": self.codec,
+                "preset": self.preset,
+                "crf": self.crf,
+                "filters": self.filters,
+                "hwaccel": self.hwaccel,
+            },
+        )
+
+    def _build_result(
+        self,
+        result: "subprocess.CompletedProcess[str]",
+        cmd: list[str],
+        start_ms: int,
+        audit: bool,
+    ) -> FFmpegResult:
+        """Compose FFmpegResult from a completed subprocess and audit the outcome."""
+        import time
+
+        duration_ms = int(time.time() * 1000) - start_ms
+        success = result.returncode == 0
+
+        if audit:
+            self._log_execute_done(result, duration_ms, success)
+
+        if not success:
+            logger.error(
+                f"FFmpeg failed (rc={result.returncode}): {result.stderr[:500]}"
+            )
+
+        return FFmpegResult(
+            success=success,
+            returncode=result.returncode,
+            stdout=result.stdout,
+            stderr=result.stderr,
+            duration_ms=duration_ms,
+            command=cmd,
+            output_path=self.output_file if success else None,
+        )
+
+    def _log_execute_done(
+        self,
+        result: "subprocess.CompletedProcess[str]",
+        duration_ms: int,
+        success: bool,
+    ) -> None:
+        """Emit the post-execution audit log entry."""
+        AuditLogger().log_action(
+            action="ffmpeg_execute_done",
+            parameters={
+                "input": str(self.input_file.absolute()),
+                "output": str(self.output_file.absolute()),
+            },
+            result="success" if success else "failure",
+            duration_ms=duration_ms,
+            error_message=result.stderr[:500] if not success else "",
+            error_type="FFmpegError" if not success else "",
+        )
+
+    def _handle_timeout(self, start_ms: int, audit: bool) -> None:
+        """Log and audit a subprocess timeout before re-raising."""
+        import time
+
+        duration_ms = int(time.time() * 1000) - start_ms
+        logger.error(f"FFmpeg timeout after {self.timeout_sec}s")
+        if audit:
+            AuditLogger().log_action(
+                action="ffmpeg_execute_timeout",
+                parameters={"input": str(self.input_file.absolute())},
+                result="failure",
+                duration_ms=duration_ms,
+                error_message=f"Timeout after {self.timeout_sec}s",
+                error_type="TimeoutExpired",
+            )
+
+    def _handle_execution_error(
+        self,
+        exc: Exception,
+        start_ms: int,
+        audit: bool,
+    ) -> None:
+        """Log and audit a generic execution error before re-raising."""
+        import time
+
+        duration_ms = int(time.time() * 1000) - start_ms
+        logger.error(f"FFmpeg execution failed: {exc}")
+        if audit:
+            AuditLogger().log_action(
+                action="ffmpeg_execute_error",
+                parameters={"input": str(self.input_file.absolute())},
+                result="failure",
+                duration_ms=duration_ms,
+                error_message=str(exc),
+                error_type=type(exc).__name__,
+            )
 
 
 # ============================================
