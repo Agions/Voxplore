@@ -5,6 +5,8 @@
 视频创作应用专用组件
 """
 
+from typing import Optional
+
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter
 from PySide6.QtWidgets import (
@@ -18,6 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 from .design_system import Colors
+from scenefab.ui.theme.ds_tokens import _C
 
 
 class GradientButton(QPushButton):
@@ -30,11 +33,11 @@ class GradientButton(QPushButton):
         self._setup_style()
 
     def _setup_style(self):
-        self.setStyleSheet("""
-            #gradientButton {
+        self.setStyleSheet(f"""
+            #gradientButton {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #7C3AED,
-                    stop:0.5 #8B5CF6,
+                    stop:0 {_C.PRIMARY_DARKER},
+                    stop:0.5 {_C.PRIMARY_DARK},
                     stop:1 #A855F7);
                 color: white;
                 border: none;
@@ -43,19 +46,19 @@ class GradientButton(QPushButton):
                 font-weight: 600;
                 font-size: 14px;
                 box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
-            }
-            #gradientButton:hover {
+            }}
+            #gradientButton:hover {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #8B5CF6,
-                    stop:0.5 #A78BFA,
+                    stop:0 {_C.PRIMARY_DARK},
+                    stop:0.5 {_C.PRIMARY},
                     stop:1 #C084FC);
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
-            }
-            #gradientButton:pressed {
+            }}
+            #gradientButton:pressed {{
                 transform: translateY(0);
                 box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-            }
+            }}
         """)
 
 
@@ -159,10 +162,10 @@ class ProgressRing(QWidget):
             gradient = QLinearGradient(
                 cx - radius, cy - radius, cx + radius, cy + radius
             )
-            gradient.setColorAt(0, QColor("#7C3AED"))
+            gradient.setColorAt(0, QColor(_C.PRIMARY_DARKER))
             gradient.setColorAt(1, QColor("#A855F7"))
 
-            painter.setPen(QColor("#7C3AED"))
+            painter.setPen(QColor(_C.PRIMARY_DARKER))
             painter.setBrush(gradient)
 
             # 绘制弧形
@@ -198,8 +201,8 @@ class LoadingOverlay(QFrame):
         # 加载动画
         self.spinner = QLabel("◌")
         self.spinner.setFont(QFont("", 36))
-        self.spinner.setStyleSheet("""
-            color: #7C3AED;
+        self.spinner.setStyleSheet(f"""
+            color: {_C.PRIMARY_DARKER};
             background: transparent;
         """)
         layout.addWidget(self.spinner)
@@ -249,12 +252,12 @@ class StepIndicator(QWidget):
             # 步骤节点
             node = QFrame()
             node.setFixedSize(32, 32)
-            node.setStyleSheet("""
-                QFrame {
-                    background: #7C3AED;
+            node.setStyleSheet(f"""
+                QFrame {{
+                    background: {_C.PRIMARY_DARKER};
                     border-radius: 16px;
                     color: white;
-                }
+                }}
             """)
             node_layout = QVBoxLayout(node)
             node_layout.setContentsMargins(0, 0, 0, 0)
@@ -295,25 +298,25 @@ class SearchBar(QLineEdit):
         super().__init__(parent)
         self.setPlaceholderText(placeholder)
         self.setObjectName("searchBar")
-        self.setStyleSheet("""
-            #searchBar {
+        self.setStyleSheet(f"""
+            #searchBar {{
                 background: rgba(20, 20, 30, 0.9);
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 12px;
                 padding: 12px 16px 12px 40px;
                 color: #FAFAFA;
                 font-size: 14px;
-            }
-            #searchBar:hover {
+            }}
+            #searchBar:hover {{
                 border-color: rgba(255, 255, 255, 0.15);
-            }
-            #searchBar:focus {
-                border-color: #7C3AED;
+            }}
+            #searchBar:focus {{
+                border-color: {_C.BORDER_FOCUS};
                 box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
-            }
-            #searchBar::placeholder {
+            }}
+            #searchBar::placeholder {{
                 color: #6B7280;
-            }
+            }}
         """)
         self.setMinimumHeight(44)
 
@@ -412,7 +415,9 @@ class TabBar(QWidget):
 class Badge(QFrame):
     """徽章/标签"""
 
-    def __init__(self, text: str, color: str = "#7C3AED", parent=None):
+    def __init__(self, text: str, color: Optional[str] = None, parent=None):
+        if color is None:
+            color = _C.PRIMARY_DARKER
         super().__init__(parent)
         self._setup_ui(text, color)
 

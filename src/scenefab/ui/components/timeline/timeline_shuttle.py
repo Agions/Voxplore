@@ -23,6 +23,7 @@ from scenefab.services.video.models.perspective import (
     NarrationSegment,
     TransitionType,
 )
+from scenefab.ui.theme.ds_tokens import _C
 
 
 class TimelineRuler(QWidget):
@@ -93,7 +94,7 @@ class TimelineRuler(QWidget):
             if sec % 10 == 0:
                 # 长刻度 + 标签
                 painter.drawLine(int(x), h - 15, int(x), h)
-                painter.setPen(QPen(QColor("#94A3B8"), 10, Qt.AlignCenter))  # type: ignore[attr-defined]
+                painter.setPen(QPen(QColor(_C.TEXT_SECONDARY), 10, Qt.AlignCenter))  # type: ignore[attr-defined]
                 painter.drawText(int(x) - 15, h - 18, 30, 14, Qt.AlignCenter, f"{sec}s")  # type: ignore[attr-defined]
                 painter.setPen(QPen(QColor("#334155"), 1))
             elif sec % 5 == 0:
@@ -104,7 +105,7 @@ class TimelineRuler(QWidget):
                 painter.drawLine(int(x), h - 6, int(x), h)
 
         # 绘制标记点
-        painter.setBrush(QBrush(QColor("#6366F1")))
+        painter.setBrush(QBrush(QColor(_C.INFO)))
         for marker_time, label in self.markers:
             x = marker_time * px_per_sec
             if 0 <= x <= w:
@@ -201,7 +202,7 @@ class TimelineTrack(QWidget):
         for seg in self.segments:
             start = seg.get("start", 0)
             end = seg.get("end", 0)
-            color = seg.get("color", "#6366F1")
+            color = seg.get("color", _C.INFO)
 
             x1 = int(start * px_per_sec)
             x2 = int(end * px_per_sec)
@@ -387,40 +388,40 @@ class TimelineShuttle(QFrame):
         layout.addWidget(track_frame)
 
     def _apply_theme(self):
-        self.setStyleSheet("""
-            QFrame#timelineShuttle {
+        self.setStyleSheet(f"""
+            QFrame#timelineShuttle {{
                 background-color: #090D14;
                 border: 1px solid #1E293B;
                 border-radius: 8px;
-            }
-            QFrame#trackFrame {
+            }}
+            QFrame#trackFrame {{
                 background-color: transparent;
-            }
-            QLabel#trackLabel {
-                color: #94A3B8;
+            }}
+            QLabel#trackLabel {{
+                color: {_C.TEXT_SECONDARY};
                 font-size: 12px;
                 font-weight: 600;
-            }
-            QPushButton#playBtn, QPushButton#stopBtn {
+            }}
+            QPushButton#playBtn, QPushButton#stopBtn {{
                 background-color: #1E293B;
                 border: 1px solid #334155;
                 border-radius: 4px;
-                color: #F1F5F9;
+                color: {_C.TEXT_PRIMARY};
                 font-size: 14px;
-            }
-            QPushButton#playBtn:hover, QPushButton#stopBtn:hover {
+            }}
+            QPushButton#playBtn:hover, QPushButton#stopBtn:hover {{
                 background-color: #334155;
-            }
-            QLabel#timeLabel {
-                color: #F1F5F9;
+            }}
+            QLabel#timeLabel {{
+                color: {_C.TEXT_PRIMARY};
                 font-family: monospace;
                 font-size: 13px;
-            }
-            QLabel#zoomLabel {
-                color: #94A3B8;
+            }}
+            QLabel#zoomLabel {{
+                color: {_C.TEXT_SECONDARY};
                 font-size: 12px;
                 min-width: 30px;
-            }
+            }}
         """)
 
     # ─────────────────────────────────────────────────────────────
@@ -444,7 +445,7 @@ class TimelineShuttle(QFrame):
                     "start": ns.start_time,
                     "end": ns.end_time,
                     "label": ns.text[:15],
-                    "color": "#6366F1",
+                    "color": _C.INFO,
                 }
             )
 
@@ -460,8 +461,8 @@ class TimelineShuttle(QFrame):
                 # 转场颜色
                 color = {
                     TransitionType.CUT: "#334155",
-                    TransitionType.FADE: "#6366F1",
-                    TransitionType.DISSOLVE: "#8B5CF6",
+                    TransitionType.FADE: _C.INFO,
+                    TransitionType.DISSOLVE: _C.PRIMARY_DARK,
                     TransitionType.ZOOM_HIGHLIGHT: "#22D3EE",
                 }.get(d.transition, "#334155")
 
@@ -497,7 +498,7 @@ class TimelineShuttle(QFrame):
                 "start": s.start_time,
                 "end": s.end_time,
                 "label": s.text[:15],
-                "color": "#6366F1",
+                "color": _C.INFO,
             }
             for s in segments
         ]
