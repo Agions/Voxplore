@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.logger import Logger
 from scenefab.services.export import ExportStatus, ExportTask
+from scenefab.ui.common.export_signal_mixin import ExportSignalMixin
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
 from ...components.design_system import Colors
@@ -397,7 +398,7 @@ class ExportMonitorWidget(QWidget, ThemeAwareMixin):
         """
 
 
-class ExportProgressDialog(QDialog):
+class ExportProgressDialog(QDialog, ExportSignalMixin):
     """导出进度对话框"""
 
     def __init__(self, export_system, parent=None):
@@ -436,11 +437,8 @@ class ExportProgressDialog(QDialog):
 
     def setup_signals(self):
         """设置信号连接"""
-        # 连接导出系统信号
-        self.export_system.export_started.connect(self.on_export_started)
-        self.export_system.export_progress.connect(self.on_export_progress)
-        self.export_system.export_completed.connect(self.on_export_completed)
-        self.export_system.export_failed.connect(self.on_export_failed)
+        # 连接导出系统信号 — 使用 ExportSignalMixin 统一连接
+        self.setup_export_signals()
 
     def on_export_started(self, task_id: str):
         """导出开始事件"""

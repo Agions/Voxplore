@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.logger import Logger
 from scenefab.services.export import ExportPreset
+from scenefab.ui.common.export_signal_mixin import ExportSignalMixin
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 from scenefab.ui.main.components._tab_builders import (
     build_batch_export_tab,
@@ -38,7 +39,7 @@ from scenefab.ui.main.components._tab_builders import (
 from .export_format_selector import ExportSettingsDialog
 
 
-class ExportPanel(QWidget, ThemeAwareMixin):
+class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     # TODO(v2.2): 真正继承 _tab_builders.ExportPanel (或合并), 消除双实例化
     # 当前实现嵌入 _tab_builders.build_* 构造的 widget, 但这些 widget 的信号
     # 是 _stub_connect 占位 — 切换 preset / 浏览输出路径 / 启动队列都静默失效
@@ -108,11 +109,8 @@ class ExportPanel(QWidget, ThemeAwareMixin):
 
     def connect_signals(self):
         """连接信号"""
-        # 导出系统信号
-        self.export_system.export_started.connect(self.on_export_started)
-        self.export_system.export_progress.connect(self.on_export_progress)
-        self.export_system.export_completed.connect(self.on_export_completed)
-        self.export_system.export_failed.connect(self.on_export_failed)
+        # 导出系统信号 — 使用 ExportSignalMixin 统一连接
+        self.setup_export_signals()
 
         # 队列信号
         self.queue_widget.task_action.connect(self.handle_queue_action)
