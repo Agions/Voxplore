@@ -14,20 +14,23 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# 色彩系统 - SceneFab 现代暗色主题
-COLORS = {
-    "primary": "#6366F1",
-    "primary_end": "#8B5CF6",
-    "primary_light": "#818CF8",
-    "accent": "#06B6D4",
-    "background": "#0A0A0F",
-    "surface": "#12121A",
-    "card": "#1A1A24",
-    "text": "#E6EDF3",
-    "text_secondary": "#C9D1D9",
-    "text_tertiary": "#8B949E",
-    "border": "#30363D",
-    "divider": "#21262D",
+from scenefab.ui.theme.ds_tokens import _C, QSSComponents
+
+# 图标渐变色定义 — 提取为常量，消除 paintEvent 中的 if/elif 链
+_ICON_GRADIENTS: dict[str, tuple[str, str]] = {
+    "projects": ("#388BFD", "#79C0FF"),
+    "media": ("#A371F7", "#D2A8FF"),
+    "files": ("#22C55E", "#79C0FF"),
+    "default": (_C.PRIMARY, _C.ACCENT),
+}
+
+_ICON_SYMBOLS: dict[str, str] = {
+    "projects": "📁",
+    "media": "🎬",
+    "files": "📄",
+    "search": "🔍",
+    "error": "⚠️",
+    "default": "📭",
 }
 
 
@@ -47,60 +50,35 @@ class EmptyStateIcon(QFrame):
         center = self.rect().center()
         radius = self._size // 2 - 10
 
-        # 绘制圆形背景
+        # 外圈渐变
         gradient = QLinearGradient(
-            center.x() - radius,
-            center.y() - radius,
-            center.x() + radius,
-            center.y() + radius,
+            center.x() - radius, center.y() - radius,
+            center.x() + radius, center.y() + radius,
         )
-
-        if self._icon_type == "projects":
-            gradient.setColorAt(0, QColor("#388BFD").withAlpha(40))  # type: ignore[attr-defined]
-            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))  # type: ignore[attr-defined]
-        elif self._icon_type == "media":
-            gradient.setColorAt(0, QColor("#A371F7").withAlpha(40))  # type: ignore[attr-defined]
-            gradient.setColorAt(1, QColor("#D2A8FF").withAlpha(30))  # type: ignore[attr-defined]
-        elif self._icon_type == "files":
-            gradient.setColorAt(0, QColor("#22C55E").withAlpha(40))  # type: ignore[attr-defined]
-            gradient.setColorAt(1, QColor("#79C0FF").withAlpha(30))  # type: ignore[attr-defined]
-        else:
-            gradient.setColorAt(0, QColor(COLORS["primary"]).withAlpha(40))  # type: ignore[attr-defined]
-            gradient.setColorAt(1, QColor(COLORS["accent"]).withAlpha(30))  # type: ignore[attr-defined]
+        c1, c2 = _ICON_GRADIENTS.get(self._icon_type, _ICON_GRADIENTS["default"])
+        gradient.setColorAt(0, QColor(c1).withAlpha(40))  # type: ignore[attr-defined]
+        gradient.setColorAt(1, QColor(c2).withAlpha(30))  # type: ignore[attr-defined]
 
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(gradient)
         painter.drawEllipse(center, radius, radius)
 
-        # 绘制内圈
-        inner_gradient = QLinearGradient(
-            center.x() - radius + 15,
-            center.y() - radius + 15,
-            center.x() + radius - 15,
-            center.y() + radius - 15,
+        # 内圈高光
+        inner = QLinearGradient(
+            center.x() - radius + 15, center.y() - radius + 15,
+            center.x() + radius - 15, center.y() + radius - 15,
         )
-        inner_gradient.setColorAt(0, QColor("#FFFFFF").withAlpha(20))  # type: ignore[attr-defined]
-        inner_gradient.setColorAt(1, QColor("#FFFFFF").withAlpha(5))  # type: ignore[attr-defined]
-
-        painter.setBrush(inner_gradient)
+        inner.setColorAt(0, QColor("#FFFFFF").withAlpha(20))  # type: ignore[attr-defined]
+        inner.setColorAt(1, QColor("#FFFFFF").withAlpha(5))  # type: ignore[attr-defined]
+        painter.setBrush(inner)
         painter.drawEllipse(center, radius - 12, radius - 12)
 
-        # 绘制图标符号
-        painter.setPen(QColor(COLORS["text_secondary"]))
+        # 图标符号
+        painter.setPen(QColor(_C.TEXT_SECONDARY))
         icon_font = QFont("Arial")
         icon_font.setPointSize(int(radius * 0.5))
         painter.setFont(icon_font)
-
-        icon_map = {
-            "projects": "📁",
-            "media": "🎬",
-            "files": "📄",
-            "search": "🔍",
-            "error": "⚠️",
-            "default": "📭",
-        }
-        icon = icon_map.get(self._icon_type, icon_map["default"])
-
+        icon = _ICON_SYMBOLS.get(self._icon_type, _ICON_SYMBOLS["default"])
         painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, icon)
 
 
@@ -114,45 +92,9 @@ class EmptyStateButton(QPushButton):
 
     def _setup_style(self):
         if self._primary:
-            self.setStyleSheet(f"""
-                QPushButton {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {COLORS["primary"]},
-                        stop:1 {COLORS["primary_end"]});
-                    color: {COLORS["text"]};
-                    border: none;
-                    border-radius: 8px;
-                    padding: 10px 24px;
-                    font-size: 14px;
-                    font-weight: 600;
-                }}
-                QPushButton:hover {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {COLORS["primary_light"]},
-                        stop:1 {COLORS["primary_end"]});
-                }}
-                QPushButton:pressed {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {COLORS["primary"]},
-                        stop:1 {COLORS["primary_end"]});
-                }}
-            """)
+            self.setStyleSheet(QSSComponents.btn_primary())
         else:
-            self.setStyleSheet(f"""
-                QPushButton {{
-                    background: transparent;
-                    color: {COLORS["text_secondary"]};
-                    border: 1px solid {COLORS["border"]};
-                    border-radius: 8px;
-                    padding: 10px 24px;
-                    font-size: 14px;
-                }}
-                QPushButton:hover {{
-                    background: {COLORS["surface"]};
-                    border-color: {COLORS["primary"]};
-                    color: {COLORS["text"]};
-                }}
-            """)
+            self.setStyleSheet(QSSComponents.btn_secondary())
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
 
@@ -195,7 +137,7 @@ class MacEmptyStateV2(QWidget):
         title_font.setPointSize(20)
         title_font.setWeight(QFont.Weight.Bold)
         self.title_label.setFont(title_font)
-        self.title_label.setStyleSheet(f"color: {COLORS['text']};")
+        self.title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
 
@@ -205,9 +147,7 @@ class MacEmptyStateV2(QWidget):
             desc_font = QFont()
             desc_font.setPointSize(14)
             self.desc_label.setFont(desc_font)
-            self.desc_label.setStyleSheet(
-                f"color: {COLORS['text_tertiary']}; line-height: 1.6;"
-            )
+            self.desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED}; line-height: 1.6;")
             self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.desc_label.setWordWrap(True)
             self.desc_label.setMaximumWidth(400)
@@ -220,21 +160,13 @@ class MacEmptyStateV2(QWidget):
             button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             if self._primary_action_text:
-                self.primary_btn = EmptyStateButton(
-                    self._primary_action_text, primary=True
-                )
-                self.primary_btn.clicked.connect(
-                    lambda: self.action_clicked.emit("primary")
-                )
+                self.primary_btn = EmptyStateButton(self._primary_action_text, primary=True)
+                self.primary_btn.clicked.connect(lambda: self.action_clicked.emit("primary"))
                 button_layout.addWidget(self.primary_btn)
 
             if self._secondary_action_text:
-                self.secondary_btn = EmptyStateButton(
-                    self._secondary_action_text, primary=False
-                )
-                self.secondary_btn.clicked.connect(
-                    lambda: self.action_clicked.emit("secondary")
-                )
+                self.secondary_btn = EmptyStateButton(self._secondary_action_text, primary=False)
+                self.secondary_btn.clicked.connect(lambda: self.action_clicked.emit("secondary"))
                 button_layout.addWidget(self.secondary_btn)
 
             layout.addLayout(button_layout)
@@ -252,7 +184,6 @@ class MacEmptyStateV2(QWidget):
     def set_icon_type(self, icon_type: str):
         """设置图标类型"""
         self._icon_type = icon_type
-        # 重新创建图标
         self.layout().itemAt(0).widget().deleteLater()  # type: ignore[union-attr]
         self.icon_widget = EmptyStateIcon(self._icon_type, 120)
         self.layout().insertWidget(0, self.icon_widget)  # type: ignore[union-attr]
@@ -281,7 +212,6 @@ class MediaLibraryEmptyState(MacEmptyStateV2):
             title="素材库为空",
             description="导入视频、图片和音频素材，开始您的创作",
             primary_action_text="导入素材",
-            secondary_action_text="",
             parent=parent,
         )
 
@@ -294,8 +224,6 @@ class SearchEmptyState(MacEmptyStateV2):
             icon_type="search",
             title="未找到结果",
             description=f"没有找到与「{keyword}」相关的内容，请尝试其他关键词",
-            primary_action_text="",
-            secondary_action_text="",
             parent=parent,
         )
 
@@ -309,6 +237,5 @@ class ErrorEmptyState(MacEmptyStateV2):
             title=error_message,
             description="请稍后重试，或联系技术支持",
             primary_action_text="重试",
-            secondary_action_text="",
             parent=parent,
         )

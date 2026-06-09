@@ -28,23 +28,7 @@ from PySide6.QtWidgets import (
 logger = logging.getLogger(__name__)
 
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
-_T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_input": "oklch(0.13 0.01 250)",
-    "bg_hover": "oklch(0.14 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "border_h": "oklch(0.30 0.02 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "primary_l": "oklch(0.70 0.24 250)",
-    "success": "oklch(0.65 0.22 145)",
-    "warning": "oklch(0.75 0.20 85)",
-    "error": "oklch(0.63 0.24 25)",
-}
+
 
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
@@ -52,6 +36,7 @@ VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 # ── 分组卡片（可接收拖拽）───────────────────────────────────
 
 from scenefab.ui.main.pages._group_card import GroupCard
+from scenefab.ui.theme.ds_tokens import _C
 
 
 class StepGroup(QWidget):
@@ -79,8 +64,15 @@ class StepGroup(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(32, 24, 32, 24)
         layout.setSpacing(16)
+        self._setup_header(layout)
+        self._setup_hint(layout)
+        self._setup_groups_scroll(layout)
+        self._setup_ungrouped_area(layout)
+        self._setup_progress_bar(layout)
+        self._setup_bottom_actions(layout)
 
-        # ── 标题栏 ──
+    def _setup_header(self, layout: QVBoxLayout):
+        """标题栏：返回按钮、标题、总览标签"""
         header = QHBoxLayout()
         back_btn = QPushButton("← 上传")
         back_btn.setObjectName("secondary_btn")
@@ -90,26 +82,27 @@ class StepGroup(QWidget):
 
         title = QLabel("智能分组")
         title.setFont(QFont("", 20, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {_T['text']};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         header.addWidget(title)
         header.addStretch()
 
-        # 总览标签
         self._overview_label = QLabel("0 个视频，0 个分组")
         self._overview_label.setStyleSheet(
-            f"color: {_T['text_muted']}; font-size: 12px;"
+            f"color: {_C.TEXT_MUTED}; font-size: 12px;"
         )
         header.addWidget(self._overview_label)
         layout.addLayout(header)
 
-        # 副标题
+    def _setup_hint(self, layout: QVBoxLayout):
+        """副标题提示"""
         hint = QLabel(
             "AI 已根据场景、内容和角色自动分组。您可以拖拽调整，或手动合并/拆分"
         )
-        hint.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        hint.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 12px;")
         layout.addWidget(hint)
 
-        # ── 分组卡片区域（可滚动）────────────────────────────
+    def _setup_groups_scroll(self, layout: QVBoxLayout):
+        """分组卡片区域（横向可滚动）"""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -120,48 +113,46 @@ class StepGroup(QWidget):
                 background: transparent;
             }}
             QScrollBar:horizontal {{
-                background: {_T["bg_input"]};
+                background: {_C.BG_INPUT};
                 border-radius: 4px;
                 height: 8px;
                 margin: 0 2px;
             }}
             QScrollBar::handle:horizontal {{
-                background: {_T["border_h"]};
+                background: {_C.BORDER_STRONG};
                 border-radius: 4px;
             }}
         """)
-
-        # 分组卡片容器（横向滚动）
         self._groups_container = QWidget()
         self._groups_layout = QHBoxLayout(self._groups_container)
         self._groups_layout.setSpacing(16)
         self._groups_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-
         scroll.setWidget(self._groups_container)
         layout.addWidget(scroll, stretch=1)
 
-        # ── 未分组视频区（若有）──────────────────────────────
+    def _setup_ungrouped_area(self, layout: QVBoxLayout):
+        """未分组视频区域"""
         self._ungrouped_area = QFrame()
         self._ungrouped_area.setVisible(False)
         self._ungrouped_area.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_card"]};
-                border: 2px dashed {_T["border"]};
+                background: {_C.BG_SURFACE};
+                border: 2px dashed {_C.BORDER_DEFAULT};
                 border-radius: 12px;
             }}
         """)
         un_layout = QVBoxLayout(self._ungrouped_area)
         un_layout.setContentsMargins(12, 12, 12, 12)
         un_label = QLabel("未分组视频（拖入上方分组）")
-        un_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 11px;")
+        un_label.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 11px;")
         un_layout.addWidget(un_label)
-
         self._un_layout = QGridLayout()
         self._un_layout.setSpacing(8)
         un_layout.addLayout(self._un_layout)
         layout.addWidget(self._ungrouped_area)
 
-        # ── 进度条（分析进度）───────────────────────────────
+    def _setup_progress_bar(self, layout: QVBoxLayout):
+        """分析进度条"""
         self._progress_bar = QProgressBar()
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setValue(0)
@@ -169,8 +160,8 @@ class StepGroup(QWidget):
         self._progress_bar.setVisible(False)
         self._progress_bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {_T["bg_input"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 6px;
                 height: 8px;
                 text-align: center;
@@ -178,24 +169,21 @@ class StepGroup(QWidget):
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_T["primary"]}, stop:1 {_T["primary_l"]});
+                    stop:0 {_C.PRIMARY}, stop:1 {_C.PRIMARY_DARKER});
                 border-radius: 6px;
             }}
         """)
         layout.addWidget(self._progress_bar)
 
-        # ── 底部操作 ────────────────────────────────────────
+    def _setup_bottom_actions(self, layout: QVBoxLayout):
+        """底部操作按钮"""
         btn_layout = QHBoxLayout()
-
-        # 新增分组按钮
         self._new_group_btn = QPushButton("+ 新建分组")
         self._new_group_btn.setObjectName("secondary_btn")
         self._new_group_btn.setFixedSize(110, 40)
         self._new_group_btn.clicked.connect(self._add_new_group)
         btn_layout.addWidget(self._new_group_btn)
-
         btn_layout.addStretch()
-
         self._next_btn = QPushButton("生成解说 →")
         self._next_btn.setObjectName("primary_btn")
         self._next_btn.setFixedSize(140, 44)
@@ -238,8 +226,8 @@ class StepGroup(QWidget):
         card.set_confidence(0.0)
         card.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_card"]};
-                border: 2px solid {_T["border"]};
+                background: {_C.BG_SURFACE};
+                border: 2px solid {_C.BORDER_DEFAULT};
                 border-radius: 16px;
             }}
         """)

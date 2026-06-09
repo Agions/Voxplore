@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 
-from ...components.design_system import _C
+from ...theme.ds_tokens import _C
 
 
 class PropertiesPanel(QWidget, ThemeAwareMixin):
@@ -39,29 +39,39 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
 
         self._setup_ui()
 
+    # ── UI construction (decomposed) ─────────────────────────────
+
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # 标题
+        layout.addWidget(self._create_header())
+
+        scroll = self._create_scroll_area()
+        layout.addWidget(scroll)
+
+        # 初始隐藏
+        self._show_empty()
+
+    def _create_header(self) -> QLabel:
         header = QLabel("⚙️ 属性")
         header.setStyleSheet(f"""
             QLabel {{
-                color: {_C.TextPrimary}; font-size: 13px; font-weight: bold;
+                color: {_C.TEXT_PRIMARY}; font-size: 13px; font-weight: bold;
                 padding: 10px 12px;
-                background-color: {_C.BgElevated};
-                border-bottom: 1px solid {_C.BorderDefault};
+                background-color: {_C.BG_ELEVATED};
+                border-bottom: 1px solid {_C.BORDER_DEFAULT};
             }}
         """)
-        layout.addWidget(header)
+        return header
 
-        # 滚动区域
+    def _create_scroll_area(self) -> QScrollArea:
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setStyleSheet(
-            f"QScrollArea {{ background: {_C.BgBase}; border: none; }}"
+            f"QScrollArea {{ background: {_C.BG_BASE}; border: none; }}"
         )
 
         content = QWidget()
@@ -69,7 +79,18 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._form_layout.setContentsMargins(12, 8, 12, 8)
         self._form_layout.setSpacing(12)
 
-        # ---- 基本信息 ----
+        self._build_info_section()
+        self._build_time_section()
+        self._build_transition_section()
+        self._build_subtitle_section()
+        self._build_audio_section()
+
+        self._form_layout.addStretch()
+        scroll.setWidget(content)
+        return scroll
+
+    def _build_info_section(self):
+        """📋 基本信息"""
         self._info_group = self._create_group("📋 基本信息")
         info_form = QFormLayout()
         info_form.setSpacing(6)
@@ -81,7 +102,8 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._info_group.layout().addLayout(info_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._info_group)
 
-        # ---- 时间 ----
+    def _build_time_section(self):
+        """⏱️ 时间"""
         self._time_group = self._create_group("⏱️ 时间")
         time_form = QFormLayout()
         time_form.setSpacing(6)
@@ -106,7 +128,8 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._time_group.layout().addLayout(time_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._time_group)
 
-        # ---- 转场 ----
+    def _build_transition_section(self):
+        """✨ 转场效果"""
         self._transition_group = self._create_group("✨ 转场效果")
         trans_form = QFormLayout()
 
@@ -128,7 +151,8 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._transition_group.layout().addLayout(trans_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._transition_group)
 
-        # ---- 字幕 ----
+    def _build_subtitle_section(self):
+        """💬 字幕"""
         self._subtitle_group = self._create_group("💬 字幕")
         sub_layout = QVBoxLayout()
 
@@ -136,7 +160,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._subtitle_text.setMaximumHeight(80)
         self._subtitle_text.setPlaceholderText("字幕内容...")
         self._subtitle_text.setStyleSheet(
-            f"QTextEdit {{ background: {_C.BgElevated}; color: {_C.TextPrimary}; border: 1px solid {_C.BorderDefault}; border-radius: 4px; padding: 4px; }}"
+            f"QTextEdit {{ background: {_C.BG_ELEVATED}; color: {_C.TEXT_PRIMARY}; border: 1px solid {_C.BORDER_DEFAULT}; border-radius: 4px; padding: 4px; }}"
         )
 
         sub_style_form = QFormLayout()
@@ -155,7 +179,8 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._subtitle_group.layout().addLayout(sub_layout)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._subtitle_group)
 
-        # ---- 音频 ----
+    def _build_audio_section(self):
+        """🔊 音频"""
         self._audio_group = self._create_group("🔊 音频")
         audio_form = QFormLayout()
 
@@ -170,29 +195,23 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._audio_group.layout().addLayout(audio_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._audio_group)
 
-        self._form_layout.addStretch()
-
-        scroll.setWidget(content)
-        layout.addWidget(scroll)
-
-        # 初始隐藏
-        self._show_empty()
+    # ── Shared helpers ───────────────────────────────────────────
 
     def _create_group(self, title: str) -> QGroupBox:
         group = QGroupBox(title)
         group.setStyleSheet(f"""
             QGroupBox {{
-                color: {_C.TextSecondary}; font-size: 12px; font-weight: bold;
-                border: 1px solid {_C.BorderDefault}; border-radius: 6px;
+                color: {_C.TEXT_SECONDARY}; font-size: 12px; font-weight: bold;
+                border: 1px solid {_C.BORDER_DEFAULT}; border-radius: 6px;
                 margin-top: 8px; padding-top: 16px;
             }}
             QGroupBox::title {{
                 subcontrol-origin: margin;
                 left: 8px; padding: 0 4px;
             }}
-            QLabel {{ color: {_C.TextMuted}; font-size: 11px; }}
+            QLabel {{ color: {_C.TEXT_MUTED}; font-size: 11px; }}
             QDoubleSpinBox, QComboBox, QLineEdit {{
-                background: {_C.BgElevated}; color: {_C.TextPrimary}; border: 1px solid {_C.BorderDefault};
+                background: {_C.BG_ELEVATED}; color: {_C.TEXT_PRIMARY}; border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 3px; padding: 2px 4px;
             }}
         """)

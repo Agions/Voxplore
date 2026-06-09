@@ -17,16 +17,7 @@ from PySide6.QtWidgets import (
 )
 
 # ── OKLCH Design Tokens ──────────────────────────────────────
-_T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_input": "oklch(0.13 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
-}
+from scenefab.ui.theme.ds_tokens import _C
 
 
 # ── 风格预设面板 ────────────────────────────────────────────
@@ -50,28 +41,41 @@ class StylePresetPanel(QFrame):
         super().__init__(parent)
         self._setup_ui()
 
+    # ── UI construction (decomposed) ─────────────────────────
     def _setup_ui(self):
-        self.setStyleSheet(f"""
-            QFrame {{
-                background: {_T["bg_card"]};
-                border: 1px solid {_T["border"]};
-                border-radius: 12px;
-            }}
-        """)
+        self._apply_frame_style()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(12)
 
-        # 标题
+        layout.addWidget(self._create_title())
+        layout.addLayout(self._create_style_selector())
+        layout.addWidget(self._create_style_description())
+        layout.addWidget(self._create_separator())
+        layout.addLayout(self._create_role_input())
+        layout.addLayout(self._create_param_input())
+        layout.addWidget(self._create_regen_button())
+        layout.addStretch()
+
+    def _apply_frame_style(self):
+        self.setStyleSheet(f"""
+            QFrame {{
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_DEFAULT};
+                border-radius: 12px;
+            }}
+        """)
+
+    def _create_title(self):
         title = QLabel("风格设置")
         title.setFont(QFont("", 12, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title.setStyleSheet(f"color: {_T['text_sub']};")
-        layout.addWidget(title)
+        title.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
+        return title
 
-        # 风格选择
+    def _create_style_selector(self):
         style_row = QHBoxLayout()
         style_lbl = QLabel("解说风格")
-        style_lbl.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        style_lbl.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 12px;")
         style_row.addWidget(style_lbl)
 
         self._style_combo = QComboBox()
@@ -79,92 +83,90 @@ class StylePresetPanel(QFrame):
         self._style_combo.currentTextChanged.connect(self._on_style_changed)
         self._style_combo.setStyleSheet(f"""
             QComboBox {{
-                background-color: {_T["bg_input"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
+                background-color: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
                 padding: 8px 12px;
                 font-size: 12px;
             }}
             QComboBox QAbstractItemView {{
-                background-color: {_T["bg_card"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
+                background-color: {_C.BG_SURFACE};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
-                selection-background-color: {_T["bg_active"]};
+                selection-background-color: {_C.BG_ELEVATED};
             }}
         """)
         style_row.addWidget(self._style_combo, stretch=1)
-        layout.addLayout(style_row)
+        return style_row
 
-        # 风格描述
+    def _create_style_description(self):
         self._style_desc = QLabel(self.PRESET_STYLES["治愈"])
-        self._style_desc.setStyleSheet(f"color: {_T['text_muted']}; font-size: 11px;")
+        self._style_desc.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 11px;")
         self._style_desc.setWordWrap(True)
-        layout.addWidget(self._style_desc)
+        return self._style_desc
 
-        # 分隔线
+    def _create_separator(self):
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet(f"background: {_T['border']}; max-height: 1px;")
-        layout.addWidget(sep)
+        sep.setStyleSheet(f"background: {_C.BORDER_DEFAULT}; max-height: 1px;")
+        return sep
 
-        # 角色名称
+    def _create_role_input(self):
         role_row = QHBoxLayout()
         role_lbl = QLabel("主角名称")
-        role_lbl.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        role_lbl.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 12px;")
         role_row.addWidget(role_lbl)
 
         self._role_input = QLineEdit()
         self._role_input.setPlaceholderText("默认为「我」")
         self._role_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {_T["bg_input"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
                 padding: 6px 10px;
                 font-size: 12px;
             }}
-            QLineEdit:focus {{ border-color: {_T["primary"]}; }}
-            QLineEdit::placeholder {{ color: {_T["text_muted"]}; }}
+            QLineEdit:focus {{ border-color: {_C.PRIMARY}; }}
+            QLineEdit::placeholder {{ color: {_C.TEXT_MUTED}; }}
         """)
         self._role_input.textChanged.connect(self._emit_change)
         role_row.addWidget(self._role_input, stretch=1)
-        layout.addLayout(role_row)
+        return role_row
 
-        # 自定义参数
+    def _create_param_input(self):
         param_row = QHBoxLayout()
         param_lbl = QLabel("角色参数")
-        param_lbl.setStyleSheet(f"color: {_T['text_muted']}; font-size: 12px;")
+        param_lbl.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 12px;")
         param_row.addWidget(param_lbl)
 
         self._param_input = QLineEdit()
         self._param_input.setPlaceholderText("如：年龄30、性格内向…")
         self._param_input.setStyleSheet(f"""
             QLineEdit {{
-                background: {_T["bg_input"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 8px;
                 padding: 6px 10px;
                 font-size: 12px;
             }}
-            QLineEdit:focus {{ border-color: {_T["primary"]}; }}
-            QLineEdit::placeholder {{ color: {_T["text_muted"]}; }}
+            QLineEdit:focus {{ border-color: {_C.PRIMARY}; }}
+            QLineEdit::placeholder {{ color: {_C.TEXT_MUTED}; }}
         """)
         self._param_input.textChanged.connect(self._emit_change)
         param_row.addWidget(self._param_input, stretch=1)
-        layout.addLayout(param_row)
+        return param_row
 
-        # 重新生成按钮
+    def _create_regen_button(self):
         self._regen_btn = QPushButton("⟳ 重新生成")
         self._regen_btn.setObjectName("secondary_btn")
         self._regen_btn.setFixedHeight(34)
         self._regen_btn.clicked.connect(self._on_regenerate)
-        layout.addWidget(self._regen_btn)
-
-        layout.addStretch()
+        return self._regen_btn
 
     def _on_style_changed(self, text: str):
         self._style_desc.setText(self.PRESET_STYLES.get(text, ""))

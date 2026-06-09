@@ -7,6 +7,7 @@
 import logging
 
 from PySide6.QtCore import Qt, QUrl
+from scenefab.ui.theme.ds_tokens import _C
 from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
@@ -70,107 +71,86 @@ class PreviewPanel(QWidget):
     def _create_controls(self) -> QWidget:
         """播放控制栏"""
         widget = QWidget()
-        widget.setStyleSheet("background: #1A1A24; border-radius: 8px;")
+        widget.setStyleSheet(f"background: {_C.BG_ELEVATED}; border-radius: 8px;")
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(12, 8, 12, 8)
         layout.setSpacing(8)
+        layout.addLayout(self._create_progress_bar())
+        layout.addLayout(self._create_buttons_bar())
+        return widget
 
-        # 进度条
-        progress_layout = QHBoxLayout()
-        progress_layout.setSpacing(8)
+    def _create_progress_bar(self) -> QHBoxLayout:
+        """进度条行"""
+        layout = QHBoxLayout()
+        layout.setSpacing(8)
 
         self._time_label = QLabel("00:00")
         self.time_label.setFont(QFont("", 11))
-        self._time_label.setStyleSheet("color: #A1A1AA;")
-        progress_layout.addWidget(self._time_label)
+        self._time_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
+        layout.addWidget(self._time_label)
 
         self._progress_slider = QSlider(Qt.Orientation.Horizontal)
-        self._progress_slider.setStyleSheet("""
-            QSlider::groove:horizontal {
+        self._progress_slider.setStyleSheet(f"""
+            QSlider::groove:horizontal {{
                 height: 4px;
-                background: #2A2A38;
+                background: {_C.BORDER_DEFAULT};
                 border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
+            }}
+            QSlider::handle:horizontal {{
                 width: 12px;
                 margin: -4px 0;
-                background: #6366F1;
+                background: {_C.INFO};
                 border-radius: 6px;
-            }
+            }}
         """)
-        progress_layout.addWidget(self._progress_slider)
+        layout.addWidget(self._progress_slider)
 
         self._duration_label = QLabel("00:00")
         self._duration_label.setFont(QFont("", 11))
-        self._duration_label.setStyleSheet("color: #A1A1AA;")
-        progress_layout.addWidget(self._duration_label)
+        self._duration_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
+        layout.addWidget(self._duration_label)
 
-        layout.addLayout(progress_layout)
+        return layout
 
-        # 播放按钮
-        buttons_layout = QHBoxLayout()
+    def _create_buttons_bar(self) -> QHBoxLayout:
+        """播放按钮行"""
+        layout = QHBoxLayout()
 
-        # 播放/暂停
         self._play_btn = QPushButton("▶")
         self._play_btn.setFixedSize(36, 36)
-        self._play_btn.setStyleSheet("""
-            QPushButton {
-                background: #6366F1;
-                border: none;
-                border-radius: 18px;
-                color: white;
-                font-size: 14px;
-            }
-            QPushButton:hover { background: #818CF8; }
-        """)
-        buttons_layout.addWidget(self._play_btn)
+        self._play_btn.setStyleSheet(
+            f"QPushButton {{ background: {_C.INFO}; border: none; border-radius: 18px; color: white; font-size: 14px; }}"
+            f" QPushButton:hover {{ background: {_C.PRIMARY}; }}"
+        )
+        layout.addWidget(self._play_btn)
 
-        # 音量
         self._volume_btn = QPushButton("🔊")
         self._volume_btn.setFixedSize(36, 36)
-        self._volume_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                font-size: 14px;
-            }
-        """)
-        buttons_layout.addWidget(self._volume_btn)
+        self._volume_btn.setStyleSheet("QPushButton { background: transparent; border: none; font-size: 14px; }")
+        layout.addWidget(self._volume_btn)
 
-        # 音量滑块
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
         self._volume_slider.setFixedWidth(80)
         self._volume_slider.setValue(80)
-        self._volume_slider.setStyleSheet("""
-            QSlider::groove:horizontal {
+        self._volume_slider.setStyleSheet(f"""
+            QSlider::groove:horizontal {{
                 height: 3px;
-                background: #2A2A38;
-            }
-            QSlider::handle:horizontal {
+                background: {_C.BORDER_DEFAULT};
+            }}
+            QSlider::handle:horizontal {{
                 width: 10px;
-                background: #A1A1AA;
+                background: {_C.TEXT_MUTED};
                 border-radius: 5px;
-            }
+            }}
         """)
-        buttons_layout.addWidget(self._volume_slider)
-
-        buttons_layout.addStretch()
-
-        # 全屏
+        layout.addWidget(self._volume_slider)
+        layout.addStretch()
         fullscreen_btn = QPushButton("⛶")
         fullscreen_btn.setFixedSize(36, 36)
-        fullscreen_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                font-size: 14px;
-            }
-        """)
-        buttons_layout.addWidget(fullscreen_btn)
+        fullscreen_btn.setStyleSheet("QPushButton { background: transparent; border: none; font-size: 14px; }")
+        layout.addWidget(fullscreen_btn)
 
-        layout.addLayout(buttons_layout)
-
-        return widget
+        return layout
 
     @property
     def time_label(self):

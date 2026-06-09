@@ -34,6 +34,8 @@ from PySide6.QtWidgets import (
 from .curve_wgt import EmotionCurveWidget
 from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
 
+from scenefab.ui.theme.ds_tokens import _C
+
 
 class EmotionController(QWidget):
     """
@@ -85,73 +87,72 @@ class EmotionController(QWidget):
         self._apply_preset("healing")
 
     def _setup_ui(self):
-        """设置 UI 布局"""
-        # 主布局
+        """设置 UI 布局 — 组装各子区域"""
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(16, 16, 16, 16)
         main_layout.setSpacing(12)
 
-        # 标题
+        self._build_header(main_layout)        # 标题 + 状态标签
+        main_layout.addWidget(self._build_preset_area())   # 预设按钮
+        self._build_curve_widget(main_layout)  # 情感曲线
+        main_layout.addWidget(self._build_intensity_area()) # 强度滑块
+        self._build_confirm_button(main_layout) # 确认按钮
+
+        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)  # type: ignore[attr-defined]
+
+    def _build_header(self, layout: QVBoxLayout):
+        """标题 + 当前状态标签"""
         self._title_label = QLabel("情感控制器")
         self._title_label.setObjectName("emotionControllerTitle")
         title_font = QFont()
         title_font.setPointSize(14)
         title_font.setBold(True)
         self._title_label.setFont(title_font)
-        main_layout.addWidget(self._title_label)
+        layout.addWidget(self._title_label)
 
-        # 当前状态标签
         self._state_label = QLabel("当前情感: 治愈 | 强度: 50%")
         self._state_label.setObjectName("emotionStateLabel")
-        main_layout.addWidget(self._state_label)
+        layout.addWidget(self._state_label)
 
-        # 预设按钮区域
-        preset_label = QLabel("情感预设")
-        preset_label.setObjectName("presetLabel")
-        main_layout.addWidget(preset_label)
+    def _build_preset_area(self) -> QFrame:
+        """预设按钮区域"""
+        label = QLabel("情感预设")
+        label.setObjectName("presetLabel")
 
-        preset_container = QFrame()
-        preset_container.setObjectName("presetContainer")
-        preset_layout = QHBoxLayout(preset_container)
+        container = QFrame()
+        container.setObjectName("presetContainer")
+        preset_layout = QHBoxLayout(container)
         preset_layout.setContentsMargins(0, 8, 0, 8)
         preset_layout.setSpacing(12)
 
-        # 创建预设按钮
-        preset_keys = [
-            "healing",
-            "mysterious",
-            "inspirational",
-            "nostalgic",
-            "romantic",
-        ]
-        for key in preset_keys:
+        for key in ("healing", "mysterious", "inspirational", "nostalgic", "romantic"):
             btn = EmotionPresetButton(key)
             btn.setCheckable(True)
             btn.setObjectName(f"presetButton_{key}")
             self._preset_buttons[key] = btn
             preset_layout.addWidget(btn)
 
-        # 添加弹性空间
         preset_layout.addStretch()
+        return container
 
-        main_layout.addWidget(preset_container)
-
-        # 情感曲线 widget
+    def _build_curve_widget(self, layout: QVBoxLayout):
+        """情感曲线 widget"""
         curve_label = QLabel("情感曲线")
         curve_label.setObjectName("curveLabel")
-        main_layout.addWidget(curve_label)
+        layout.addWidget(curve_label)
 
         self._curve_widget = EmotionCurveWidget(
             curve_color=EMOTION_PRESETS["healing"]["color_hex"]  # type: ignore[index]
         )
         self._curve_widget.setObjectName("emotionCurveWidget")
         self._curve_widget.set_curve(self._current_curve)  # type: ignore[attr-defined]
-        main_layout.addWidget(self._curve_widget)
+        layout.addWidget(self._curve_widget)
 
-        # 强度调节区域
-        intensity_container = QFrame()
-        intensity_container.setObjectName("intensityContainer")
-        intensity_layout = QHBoxLayout(intensity_container)
+    def _build_intensity_area(self) -> QFrame:
+        """强度调节区域: 标题 + 滑块 + 数值"""
+        container = QFrame()
+        container.setObjectName("intensityContainer")
+        intensity_layout = QHBoxLayout(container)
         intensity_layout.setContentsMargins(0, 8, 0, 8)
         intensity_layout.setSpacing(12)
 
@@ -159,7 +160,6 @@ class EmotionController(QWidget):
         intensity_title.setObjectName("intensityTitle")
         intensity_layout.addWidget(intensity_title)
 
-        # 强度滑块 (0-100)
         self._intensity_slider = QSlider(Qt.Horizontal)  # type: ignore[attr-defined]
         self._intensity_slider.setObjectName("intensitySlider")
         self._intensity_slider.setMinimum(0)
@@ -169,130 +169,155 @@ class EmotionController(QWidget):
         self._intensity_slider.setTickInterval(25)
         intensity_layout.addWidget(self._intensity_slider, 1)
 
-        # 强度值标签
         self._intensity_value_label = QLabel("50%")
         self._intensity_value_label.setObjectName("intensityValueLabel")
         self._intensity_value_label.setMinimumWidth(40)
         intensity_layout.addWidget(self._intensity_value_label)
 
-        main_layout.addWidget(intensity_container)
+        return container
 
-        # 确认按钮
+    def _build_confirm_button(self, layout: QVBoxLayout):
+        """确认按钮"""
         self._confirm_button = QPushButton("应用情感曲线")
         self._confirm_button.setObjectName("confirmButton")
         self._confirm_button.setCursor(Qt.PointingHandCursor)  # type: ignore[attr-defined]
-        main_layout.addWidget(self._confirm_button)
-
-        # 设置大小策略
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)  # type: ignore[attr-defined]
+        layout.addWidget(self._confirm_button)
 
     def _setup_styles(self):
         """设置样式"""
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            self._style_base()
+            + self._style_sections()
+            + self._style_intensity_labels()
+            + self._style_intensity_slider()
+            + self._style_confirm_button()
+        )
+
+    # ── 样式子方法 ────────────────────────────────────────────
+
+    def _style_base(self) -> str:
+        """基础容器、标题、状态标签样式"""
+        return f"""
             /* 主容器 */
-            QWidget {
-                background-color: #0D1117;
-            }
+            QWidget {{
+                background-color: {_C.BG_BASE};
+            }}
 
             /* 标题 */
-            QLabel#emotionControllerTitle {
-                color: #F1F5F9;
+            QLabel#emotionControllerTitle {{
+                color: {_C.TEXT_PRIMARY};
                 font-size: 16px;
                 font-weight: bold;
                 padding: 4px 0;
-            }
+            }}
 
             /* 状态标签 */
-            QLabel#emotionStateLabel {
-                color: #94A3B8;
+            QLabel#emotionStateLabel {{
+                color: {_C.TEXT_SECONDARY};
                 font-size: 12px;
                 padding: 4px 8px;
-                background-color: #1E293B;
+                background-color: {_C.BG_ELEVATED};
                 border-radius: 4px;
-            }
+            }}
+        """
 
+    def _style_sections(self) -> str:
+        """预设区域和曲线区域样式"""
+        return f"""
             /* 预设标签 */
             QLabel#presetLabel,
-            QLabel#curveLabel {
-                color: #94A3B8;
+            QLabel#curveLabel {{
+                color: {_C.TEXT_SECONDARY};
                 font-size: 12px;
                 font-weight: bold;
                 padding: 4px 0;
-            }
+            }}
 
             /* 预设容器 */
-            QFrame#presetContainer {
-                background-color: #1E293B;
+            QFrame#presetContainer {{
+                background-color: {_C.BG_ELEVATED};
                 border-radius: 8px;
                 padding: 4px;
-            }
+            }}
 
             /* 强度容器 */
-            QFrame#intensityContainer {
-                background-color: #1E293B;
+            QFrame#intensityContainer {{
+                background-color: {_C.BG_ELEVATED};
                 border-radius: 8px;
                 padding: 4px;
-            }
+            }}
+        """
 
+    def _style_intensity_labels(self) -> str:
+        """强度标题和数值标签样式"""
+        return f"""
             /* 强度标题 */
-            QLabel#intensityTitle {
-                color: #94A3B8;
+            QLabel#intensityTitle {{
+                color: {_C.TEXT_SECONDARY};
                 font-size: 12px;
                 font-weight: bold;
                 padding: 0 8px;
-            }
+            }}
 
             /* 强度值标签 */
-            QLabel#intensityValueLabel {
+            QLabel#intensityValueLabel {{
                 color: #22D3EE;
                 font-size: 12px;
                 font-weight: bold;
                 padding: 0 8px;
-            }
+            }}
+        """
 
+    def _style_intensity_slider(self) -> str:
+        """强度滑块样式"""
+        return f"""
             /* 强度滑块 */
-            QSlider#intensitySlider {
+            QSlider#intensitySlider {{
                 background: transparent;
-            }
-            QSlider#intensitySlider::groove:horizontal {
-                border: 1px solid #334155;
+            }}
+            QSlider#intensitySlider::groove:horizontal {{
+                border: 1px solid {_C.BORDER_DEFAULT};
                 height: 6px;
                 border-radius: 3px;
-                background: #0D1117;
-            }
-            QSlider#intensitySlider::handle:horizontal {
+                background: {_C.BG_BASE};
+            }}
+            QSlider#intensitySlider::handle:horizontal {{
                 background: #22D3EE;
                 border: none;
                 width: 16px;
                 height: 16px;
                 margin: -5px 0;
                 border-radius: 8px;
-            }
-            QSlider#intensitySlider::handle:horizontal:hover {
+            }}
+            QSlider#intensitySlider::handle:horizontal:hover {{
                 background: #67E8F9;
-            }
-            QSlider#intensitySlider::sub-page:horizontal {
+            }}
+            QSlider#intensitySlider::sub-page:horizontal {{
                 background: #22D3EE;
                 border-radius: 3px;
-            }
+            }}
+        """
 
+    def _style_confirm_button(self) -> str:
+        """确认按钮样式"""
+        return f"""
             /* 确认按钮 */
-            QPushButton#confirmButton {
-                background-color: #6366F1;
+            QPushButton#confirmButton {{
+                background-color: {_C.INFO};
                 color: #FFFFFF;
                 border: none;
                 border-radius: 8px;
                 padding: 12px 24px;
                 font-size: 14px;
                 font-weight: bold;
-            }
-            QPushButton#confirmButton:hover {
+            }}
+            QPushButton#confirmButton:hover {{
                 background-color: #818CF8;
-            }
-            QPushButton#confirmButton:pressed {
+            }}
+            QPushButton#confirmButton:pressed {{
                 background-color: #4F46E5;
-            }
-        """)
+            }}
+        """
 
     def _connect_signals(self):
         """连接信号和槽"""

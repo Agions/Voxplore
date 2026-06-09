@@ -28,6 +28,8 @@ from PySide6.QtWidgets import (
 # 导入拖拽辅助组件
 from .components.drag_helpers import MIME_TYPE, _GroupThumbItem, _VideoMimeData
 
+from scenefab.ui.theme.ds_tokens import _C
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,12 +78,20 @@ class GroupCard(QFrame):
         self.setAcceptDrops(True)
 
     def _setup_ui(self):
-        # 动态边框颜色（置信度 > 80% 绿色，60-80% 黄色，< 60% 红色）
         conf_color = self._get_confidence_color()
+        self._setup_frame_style()
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self._build_header(layout, conf_color)
+        self._build_scroll_area(layout)
+        self._build_footer(layout)
 
+    def _setup_frame_style(self):
+        conf_color = self._get_confidence_color()
         self.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_card"]};
+                background: {_C.BG_SURFACE};
                 border: 2px solid {conf_color};
                 border-radius: 16px;
                 padding: 0px;
@@ -90,49 +100,45 @@ class GroupCard(QFrame):
         self.setMinimumWidth(340)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        # ── 头部：分组标题 + 置信度 + 操作按钮 ──
+    def _build_header(self, layout: QVBoxLayout, conf_color: str):
         header = QFrame()
         header.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_input"]};
-                border-bottom: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                border-bottom: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 14px 14px 0 0;
             }}
         """)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(16, 12, 16, 12)
         header_layout.setSpacing(12)
+        self._build_header_controls(header_layout, conf_color)
+        layout.addWidget(header)
 
-        # 拖拽手柄
+    def _build_header_controls(self, header_layout: QHBoxLayout, conf_color: str):
         self._drag_handle = QLabel("⋮⋮")
         self._drag_handle.setFont(QFont("", 14))
-        self._drag_handle.setStyleSheet(f"color: {_T['text_muted']};")
+        self._drag_handle.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         self._drag_handle.setCursor(Qt.CursorShape.SizeAllCursor)
         header_layout.addWidget(self._drag_handle)
 
-        # 分组标签
         self._label_edit = QLineEdit(self._group_label)
         self._label_edit.setFont(QFont("", 13, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
         self._label_edit.setStyleSheet(f"""
             QLineEdit {{
                 background: transparent;
-                color: {_T["text"]};
+                color: {_C.TEXT_PRIMARY};
                 border: none;
                 padding: 2px 4px;
             }}
             QLineEdit:focus {{
-                border: 1px solid {_T["border_h"]};
+                border: 1px solid {_C.BORDER_STRONG};
                 border-radius: 4px;
             }}
         """)
         self._label_edit.textChanged.connect(self._on_label_changed)
         header_layout.addWidget(self._label_edit, stretch=1)
 
-        # 置信度标签
         self._conf_label = QLabel(f"{self._confidence:.0%}")
         self._conf_label.setFont(QFont("", 11, QFont.Weight.Bold))
         self._conf_label.setStyleSheet(f"""
@@ -144,14 +150,11 @@ class GroupCard(QFrame):
         self._conf_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(self._conf_label)
 
-        # 视频计数
         self._count_label = QLabel("0 个视频")
-        self._count_label.setStyleSheet(f"color: {_T['text_muted']}; font-size: 11px;")
+        self._count_label.setStyleSheet(f"color: {_C.TEXT_MUTED}; font-size: 11px;")
         header_layout.addWidget(self._count_label)
 
-        layout.addWidget(header)
-
-        # ── 缩略图网格 ──
+    def _build_scroll_area(self, layout: QVBoxLayout):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -162,13 +165,13 @@ class GroupCard(QFrame):
                 background: transparent;
             }}
             QScrollBar:vertical {{
-                background: {_T["bg_input"]};
+                background: {_C.BG_INPUT};
                 border-radius: 4px;
                 width: 6px;
                 margin: 2px 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {_T["border_h"]};
+                background: {_C.BORDER_STRONG};
                 border-radius: 3px;
             }}
         """)
@@ -182,12 +185,12 @@ class GroupCard(QFrame):
         scroll.setWidget(grid_widget)
         layout.addWidget(scroll, stretch=1)
 
-        # ── 底部操作栏 ──
+    def _build_footer(self, layout: QVBoxLayout):
         footer = QFrame()
         footer.setStyleSheet(f"""
             QFrame {{
-                background: {_T["bg_input"]};
-                border-top: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                border-top: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 0 0 14px 14px;
             }}
         """)
@@ -207,14 +210,14 @@ class GroupCard(QFrame):
         self._delete_btn.setStyleSheet(f"""
             QPushButton {{
                 background: transparent;
-                color: {_T["error"]};
-                border: 1px solid {_T["error"]}60;
+                color: {_C.ERROR};
+                border: 1px solid {_C.ERROR}60;
                 border-radius: 8px;
                 padding: 6px 12px;
                 font-size: 11px;
             }}
             QPushButton:hover {{
-                background: {_T["error"]}20;
+                background: {_C.ERROR}20;
             }}
         """)
         self._delete_btn.setFixedSize(80, 28)
