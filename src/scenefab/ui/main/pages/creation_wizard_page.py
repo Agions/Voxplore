@@ -265,13 +265,13 @@ class CreationWizardPage(BasePage):
             old_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
             old_anim.start()
 
-        new_widget.setGeometry(rect)  # type: ignore[union-attr]
-        new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))  # type: ignore[union-attr]
+        new_widget.setGeometry(rect)
+        new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))
         self.page_stack.setCurrentIndex(index)
-        new_anim = QPropertyAnimation(new_widget, b"pos")  # type: ignore[arg-type]
+        new_anim = QPropertyAnimation(new_widget, b"pos")
         new_anim.setDuration(_ANIM_DURATION)
-        new_anim.setStartValue(new_widget.pos())  # type: ignore[union-attr]
-        new_anim.setEndValue(new_widget.pos())  # type: ignore[union-attr]
+        new_anim.setStartValue(new_widget.pos())
+        new_anim.setEndValue(new_widget.pos())
         new_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
         new_anim.finished.connect(lambda: setattr(self, "_is_animating", False))
         new_anim.start()

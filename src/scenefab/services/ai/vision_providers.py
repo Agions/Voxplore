@@ -211,7 +211,7 @@ class Qwen25VLProvider(VisionProvider):
 
         response = client.chat.completions.create(
             model=self.model,
-            messages=[{"role": "user", "content": content_parts}],  # type: ignore[unused-ignore, misc, str]
+            messages=[{"role": "user", "content": content_parts}],  # type: ignore[misc, list-item]
             max_tokens=2048,
         )
 

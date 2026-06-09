@@ -237,7 +237,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         scene_context: str,
         emotion: str,
         style: str,
-    ) -> AsyncIterator[str]:
+    ) -> AsyncIterator[str]:  # type: ignore[override]
         """
         流式生成脚本（实时预览）
 
@@ -274,7 +274,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
         return response.choices[0].message.content or ""
 
-    async def _call_deepseek_api_stream(self, prompt: str) -> AsyncIterator[str]:
+    async def _call_deepseek_api_stream(self, prompt: str) -> AsyncIterator[str]:  # type: ignore[override]
         """调用 DeepSeek API（流式）"""
         from openai import AsyncOpenAI
 
