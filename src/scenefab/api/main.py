@@ -3,6 +3,8 @@ SceneFab FastAPI Application
 Web API 层入口
 """
 
+import os
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,29 +13,21 @@ from scenefab.api.routers import export, health, pipeline, plugins, projects
 from scenefab.exceptions import SceneFabError
 
 
-def create_app() -> FastAPI:
-    """创建并配置 FastAPI 应用"""
+def _get_version() -> str:
+    """获取 scenefab 包版本号；不可用时回退到默认版本。"""
+    try:
+        from scenefab import __version__
 
-    def _get_version() -> str:
-        try:
-            from scenefab import __version__
+        return __version__
+    except Exception:
+        return "1.0.0"
 
-            return __version__
-        except Exception:
-            return "1.0.0"
 
-    app = FastAPI(
-        title="SceneFab API",
-        description="AI 第一人称视频解说 API - 让视频讲述你的故事",
-        version=_get_version(),
-        docs_url="/docs",
-        redoc_url="/redoc",
-        openapi_url="/openapi.json",
-    )
+def _configure_cors(app: FastAPI) -> None:
+    """配置 CORS 中间件。
 
-    # CORS 配置（生产环境应通过 CORS_ORIGINS 环境变量限制）
-    import os
-
+    生产环境应通过 CORS_ORIGINS 环境变量限制允许来源。
+    """
     cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
@@ -43,7 +37,10 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # ── 全局异常处理器 ─────────────────────────────────────────────
+
+def _register_scenefab_error_handler(app: FastAPI) -> None:
+    """注册 SceneFabError 异常处理器，统一返回400 + 错误详情。"""
+
     @app.exception_handler(SceneFabError)
     async def scenefab_error_handler(request: Request, exc: SceneFabError):
         return JSONResponse(
@@ -55,6 +52,10 @@ def create_app() -> FastAPI:
             },
         )
 
+
+def _register_http_exception_handler(app: FastAPI) -> None:
+    """注册 FastAPI HTTPException 处理器，复用其 status_code。"""
+
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
         return JSONResponse(
@@ -62,11 +63,13 @@ def create_app() -> FastAPI:
             content={"error": "HTTPException", "message": exc.detail},
         )
 
+
+def _register_general_exception_handler(app: FastAPI) -> None:
+    """注册兜底异常处理器；DEBUG=1 时附带 traceback。"""
+    import traceback
+
     @app.exception_handler(Exception)
     async def general_exception_handler(request: Request, exc: Exception):
-        import os
-        import traceback
-
         return JSONResponse(
             status_code=500,
             content={
@@ -79,14 +82,26 @@ def create_app() -> FastAPI:
             },
         )
 
-    # ── 注册路由 ─────────────────────────────────────────────────
+
+def _register_exception_handlers(app: FastAPI) -> None:
+    """依次注册所有全局异常处理器。"""
+    _register_scenefab_error_handler(app)
+    _register_http_exception_handler(app)
+    _register_general_exception_handler(app)
+
+
+def _register_routers(app: FastAPI) -> None:
+    """注册全部业务路由，统一挂载在 /api/v1 前缀下。"""
     app.include_router(health.router, prefix="/api/v1", tags=["健康检查"])
     app.include_router(projects.router, prefix="/api/v1", tags=["项目管理"])
     app.include_router(pipeline.router, prefix="/api/v1", tags=["流水线"])
     app.include_router(export.router, prefix="/api/v1", tags=["导出"])
     app.include_router(plugins.router, prefix="/api/v1", tags=["插件管理"])
 
-    # 启动事件
+
+def _register_lifecycle_events(app: FastAPI) -> None:
+    """注册启动/关闭生命周期钩子（当前为占位实现）。"""
+
     @app.on_event("startup")
     async def startup_event():
         pass
@@ -94,6 +109,23 @@ def create_app() -> FastAPI:
     @app.on_event("shutdown")
     async def shutdown_event():
         pass
+
+
+def create_app() -> FastAPI:
+    """创建并配置 FastAPI 应用"""
+    app = FastAPI(
+        title="SceneFab API",
+        description="AI 第一人称视频解说 API - 让视频讲述你的故事",
+        version=_get_version(),
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+    )
+
+    _configure_cors(app)
+    _register_exception_handlers(app)
+    _register_routers(app)
+    _register_lifecycle_events(app)
 
     return app
 

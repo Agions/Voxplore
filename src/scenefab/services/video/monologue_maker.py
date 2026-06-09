@@ -502,74 +502,119 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         caption_cfg = CAPTION_STYLES.get(style, CAPTION_STYLES["cinematic"])
 
         current_time = 0.0
+        total_segments = len(project.segments)
 
         for i, segment in enumerate(project.segments):
-            segment.captions = []
-
-            # 优先使用 EdgeTTS 真实句子时间戳
-            if segment.sentence_timestamps:
-                for ts in segment.sentence_timestamps:
-                    segment.captions.append(
-                        {
-                            "text": ts["text"],
-                            "start": current_time + ts["start"],
-                            "duration": max(ts["end"] - ts["start"], 0.5),
-                            "style": caption_cfg,
-                            "emotion": segment.emotion.value,
-                        }
-                    )
-            else:
-                # 回退：按中文句末标点拆分并按字符数估算时长
-                parts = re.split(r"([。！？\u3001])", segment.script)
-                segment_words = max(len(segment.script.replace(" ", "")), 1)
-
-                current_start = current_time
-                current_text = ""
-
-                for part in parts:
-                    if not part:
-                        continue
-                    if part in ("，", "；"):
-                        current_text += part
-                        continue
-                    if part in ("。", "！", "？"):
-                        current_text += part
-                        if len(current_text.strip()) >= 2:
-                            word_count = len(current_text)
-                            duration = (
-                                word_count / segment_words
-                            ) * segment.audio_duration
-                            segment.captions.append(
-                                {
-                                    "text": current_text,
-                                    "start": current_start,
-                                    "duration": max(duration, 0.5),
-                                    "style": caption_cfg,
-                                    "emotion": segment.emotion.value,
-                                }
-                            )
-                            current_start += duration
-                            current_text = ""
-                    else:
-                        current_text += part
-
-                if current_text.strip() and len(current_text.strip()) >= 2:
-                    word_count = len(current_text)
-                    duration = (word_count / segment_words) * segment.audio_duration
-                    segment.captions.append(
-                        {
-                            "text": current_text,
-                            "start": current_start,
-                            "duration": max(duration, 0.5),
-                            "style": caption_cfg,
-                            "emotion": segment.emotion.value,
-                        }
-                    )
+            segment.captions = self._captions_for_segment(
+                segment, caption_cfg, current_time
+            )
 
             current_time += segment.audio_duration
-            self._report_progress("生成字幕", (i + 1) / len(project.segments))
+            self._report_progress("生成字幕", (i + 1) / total_segments)
 
         self._report_progress("生成字幕", 1.0)
+
+    def _captions_for_segment(
+        self,
+        segment: MonologueSegment,
+        caption_cfg: dict,
+        offset: float,
+    ) -> list[dict]:
+        """根据是否有 EdgeTTS 真实时间戳，分发到不同的字幕构建路径"""
+        if segment.sentence_timestamps:
+            return self._captions_from_timestamps(segment, caption_cfg, offset)
+        return self._captions_from_fallback(segment, caption_cfg, offset)
+
+    def _captions_from_timestamps(
+        self,
+        segment: MonologueSegment,
+        caption_cfg: dict,
+        offset: float,
+    ) -> list[dict]:
+        """使用 EdgeTTS 真实句子时间戳构建字幕"""
+        captions: list[dict] = []
+        for ts in segment.sentence_timestamps:
+            captions.append(
+                {
+                    "text": ts["text"],
+                    "start": offset + ts["start"],
+                    "duration": max(ts["end"] - ts["start"], 0.5),
+                    "style": caption_cfg,
+                    "emotion": segment.emotion.value,
+                }
+            )
+        return captions
+
+    def _captions_from_fallback(
+        self,
+        segment: MonologueSegment,
+        caption_cfg: dict,
+        offset: float,
+    ) -> list[dict]:
+        """回退：按中文句末标点拆分并按字符数估算时长"""
+        parts = re.split(r"([。！？\u3001])", segment.script)
+        segment_words = max(len(segment.script.replace(" ", "")), 1)
+
+        captions: list[dict] = []
+        current_start = offset
+        current_text = ""
+
+        for part in parts:
+            if not part:
+                continue
+            if part in ("，", "；"):
+                current_text += part
+                continue
+            if part in ("。", "！", "？"):
+                current_text += part
+                if len(current_text.strip()) >= 2:
+                    duration = (
+                        len(current_text) / segment_words
+                    ) * segment.audio_duration
+                    captions.append(
+                        self._build_fallback_caption(
+                            current_text,
+                            caption_cfg,
+                            current_start,
+                            duration,
+                            segment.emotion.value,
+                        )
+                    )
+                    current_start += duration
+                    current_text = ""
+            else:
+                current_text += part
+
+        if current_text.strip() and len(current_text.strip()) >= 2:
+            duration = (len(current_text) / segment_words) * segment.audio_duration
+            captions.append(
+                self._build_fallback_caption(
+                    current_text,
+                    caption_cfg,
+                    current_start,
+                    duration,
+                    segment.emotion.value,
+                )
+            )
+
+        return captions
+
+    def _build_fallback_caption(
+        self,
+        text: str,
+        caption_cfg: dict,
+        start: float,
+        duration: float,
+        emotion: str,
+    ) -> dict:
+        """构造单条字幕 dict（时长已计算好）"""
+        return {
+            "text": text,
+            "start": start,
+            "duration": max(duration, 0.5),
+            "style": caption_cfg,
+            "emotion": emotion,
+        }
 
     def _build_jianying_tracks(
         self, draft: JianyingDraft, project: MonologueProject
