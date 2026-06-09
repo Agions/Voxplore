@@ -40,18 +40,41 @@ class TimelinePreview(QFrame):
         """)
 
     def _setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 12, 16, 12)
-        layout.setSpacing(8)
+        self._layout = QVBoxLayout(self)
+        self._layout.setContentsMargins(16, 12, 16, 12)
+        self._layout.setSpacing(8)
 
-        # 时间标签
+        self._setup_time_row()
+        self._setup_track()
+        self._setup_controls()
+
+    def _setup_time_row(self):
         time_row = QHBoxLayout()
         time_row.addWidget(QLabel("00:00"))
         time_row.addStretch()
         time_row.addWidget(QLabel("05:32"))
-        layout.addLayout(time_row)
+        self._layout.addLayout(time_row)
 
-        # 时间线轨道
+    def _create_segment(self, color_start, color_end, label_text, width):
+        seg = QFrame()
+        seg.setStyleSheet(f"""  # type: ignore[attr-defined]
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:0,
+                stop:0 {color_start},
+                stop:1 {color_end}
+            );
+            border-radius: 3px;
+        """)
+        seg_layout = QHBoxLayout(seg)
+        seg_layout.setContentsMargins(4, 0, 4, 0)
+        label = QLabel(label_text)
+        label.setFont(QFont("", 9))
+        label.setStyleSheet("color: white;")
+        seg_layout.addWidget(label)
+        seg.setFixedWidth(width)
+        return seg
+
+    def _setup_track(self):
         track = QFrame()
         track.setFixedHeight(40)
         track.setStyleSheet(f"""
@@ -61,48 +84,15 @@ class TimelinePreview(QFrame):
         track_layout = QHBoxLayout(track)
         track_layout.setContentsMargins(4, 4, 4, 4)
 
-        # 片段1
-        seg1 = QFrame()
-        seg1.setStyleSheet(f"""  # type: ignore[attr-defined]
-            background: qlineargradient(
-                x1:0, y1:0, x2:1, y2:0,
-                stop:0 {_C.PRIMARY_600},
-                stop:1 {_C.PRIMARY_400}
-            );
-            border-radius: 3px;
-        """)
-        seg1_layout = QHBoxLayout(seg1)
-        seg1_layout.setContentsMargins(4, 0, 4, 0)
-        label1 = QLabel("🎙️ 语音1")
-        label1.setFont(QFont("", 9))
-        label1.setStyleSheet("color: white;")
-        seg1_layout.addWidget(label1)
-        seg1.setFixedWidth(180)
-        track_layout.addWidget(seg1)
-
-        # 片段2
-        seg2 = QFrame()
-        seg2.setStyleSheet(f"""  # type: ignore[attr-defined]
-            background: qlineargradient(
-                x1:0, y1:0, x2:1, y2:0,
-                stop:0 {_C.ACCENT_600},
-                stop:1 {_C.ACCENT_400}
-            );
-            border-radius: 3px;
-        """)
-        seg2_layout = QHBoxLayout(seg2)
-        seg2_layout.setContentsMargins(4, 0, 4, 0)
-        label2 = QLabel("🎬 精彩片段")
-        label2.setFont(QFont("", 9))
-        label2.setStyleSheet("color: white;")
-        seg2_layout.addWidget(label2)
-        seg2.setFixedWidth(120)
-        track_layout.addWidget(seg2)
+        track_layout.addWidget(self._create_segment(
+            _C.PRIMARY_600, _C.PRIMARY_400, "🎙️ 语音1", 180))
+        track_layout.addWidget(self._create_segment(
+            _C.ACCENT_600, _C.ACCENT_400, "🎬 精彩片段", 120))
 
         track_layout.addStretch()
-        layout.addWidget(track)
+        self._layout.addWidget(track)
 
-        # 播放控制
+    def _setup_controls(self):
         controls = QHBoxLayout()
         controls.addStretch()
 
@@ -123,7 +113,7 @@ class TimelinePreview(QFrame):
             controls.addWidget(btn)
 
         controls.addStretch()
-        layout.addLayout(controls)
+        self._layout.addLayout(controls)
 
 
 class ClipCard(QFrame):

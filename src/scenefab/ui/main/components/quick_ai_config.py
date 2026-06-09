@@ -62,47 +62,57 @@ class QuickAIConfigWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
 
-        # 1. 标题区域（带刷新按钮）
+        layout.addWidget(self._create_title_section())
+        layout.addWidget(self._create_status_section())
+        layout.addWidget(self._create_actions_section())
+        layout.addWidget(self._create_recent_section())
+
+        self._refresh_status_section()
+        self._refresh_recent_section()
+
+        layout.addStretch()
+
+    def _create_title_section(self) -> QWidget:
+        """创建标题区域（带刷新按钮）"""
         title_row = QWidget()
         title_row.setProperty("class", "icon-text-row")
         title_layout = QHBoxLayout(title_row)
         title_layout.setContentsMargins(0, 0, 0, 0)
         title_layout.setSpacing(8)
 
-        # 标题标签
         title_label = MacTitleLabel("⚡ AI 快捷配置", 5)
         title_layout.addWidget(title_label)
         title_layout.addStretch()
 
-        # 刷新按钮（使用图标按钮）
         refresh_btn = MacIconButton("🔄", 24)
         refresh_btn.setToolTip("刷新状态")
         refresh_btn.clicked.connect(self.refresh_status)
         title_layout.addWidget(refresh_btn)
 
-        layout.addWidget(title_row)
+        return title_row
 
-        # 2. 配置状态区域（卡片容器）
+    def _create_status_section(self) -> MacCard:
+        """创建配置状态区域（卡片容器）"""
         self.status_card = MacCard()
         self.status_card.setProperty("class", "card section-card")
 
         status_title = MacTitleLabel("当前配置状态", 6)
         self.status_card.layout().addWidget(status_title)
 
-        # 状态网格
         self.status_grid = QGridLayout()
         self.status_grid.setSpacing(8)
         self.status_card.layout().addLayout(self.status_grid)
-        layout.addWidget(self.status_card)
 
-        # 3. 快捷操作区域
+        return self.status_card
+
+    def _create_actions_section(self) -> MacCard:
+        """创建快捷操作区域"""
         actions_card = MacCard()
         actions_card.setProperty("class", "card section-card")
 
         actions_title = MacTitleLabel("快捷操作", 6)
         actions_card.layout().addWidget(actions_title)
 
-        # 操作按钮网格
         actions_grid = QGridLayout()
         actions_grid.setSpacing(8)
 
@@ -128,9 +138,10 @@ class QuickAIConfigWidget(QWidget):
             actions_grid.addWidget(btn, row, col)
 
         actions_card.layout().addLayout(actions_grid)
-        layout.addWidget(actions_card)
+        return actions_card
 
-        # 4. 最近使用区域
+    def _create_recent_section(self) -> MacCard:
+        """创建最近使用区域"""
         self.recent_card = MacCard()
         self.recent_card.setProperty("class", "card section-card")
 
@@ -142,13 +153,7 @@ class QuickAIConfigWidget(QWidget):
         self.recent_layout.setContentsMargins(0, 0, 0, 0)
         self.recent_card.layout().addLayout(self.recent_layout)
 
-        layout.addWidget(self.recent_card)
-
-        # 初始加载状态
-        self._refresh_status_section()
-        self._refresh_recent_section()
-
-        layout.addStretch()
+        return self.recent_card
 
     def _setup_connections(self):
         """设置信号连接"""

@@ -48,60 +48,60 @@ class ExportProgressWidget(QWidget):
         """设置UI"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
+        self._maybe_add_error_label(layout)
+        layout.addLayout(self._create_info_layout())
+        self._init_progress_bar()
+        layout.addWidget(self.progress_bar)
+        layout.addLayout(self._create_details_layout())
+        self._apply_widget_style()
 
-        # 任务信息
+    def _create_info_layout(self) -> QHBoxLayout:
+        """创建任务信息布局（名称 + 状态标签）"""
         info_layout = QHBoxLayout()
-
-        # 任务名称
         name_label = QLabel(self._get_task_name())
         name_font = QFont()
         name_font.setBold(True)
         name_label.setFont(name_font)
-
-        # 状态标签
         status_label = QLabel(self.task.status.value)
         status_label.setStyleSheet(
             f"background-color: {self._get_status_color()}; "
             f"color: white; padding: 2px 8px; border-radius: 4px;"
         )
-
         info_layout.addWidget(name_label)
         info_layout.addStretch()
         info_layout.addWidget(status_label)
+        return info_layout
 
-        # 进度条
+    def _init_progress_bar(self) -> None:
+        """初始化进度条"""
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(int(self.task.progress))
 
-        # 详细信息
+    def _create_details_layout(self) -> QHBoxLayout:
+        """创建详细信息布局（开始时间、剩余时间、输出路径）"""
         details_layout = QHBoxLayout()
-
-        # 开始时间
         start_time_text = (
             self._format_time(self.task.started_at)
             if self.task.started_at
             else "未开始"
         )
         start_label = QLabel(f"开始: {start_time_text}")
-
-        # 预计剩余时间
         eta_text = self._calculate_eta()
         eta_label = QLabel(f"剩余: {eta_text}")
-
-        # 输出路径
         output_path = self.task.output_path
         if len(output_path) > 30:
             output_path = "..." + output_path[-27:]
         output_label = QLabel(f"输出: {output_path}")
         output_label.setWordWrap(True)
-
         details_layout.addWidget(start_label)
         details_layout.addWidget(eta_label)
         details_layout.addWidget(output_label)
         details_layout.addStretch()
+        return details_layout
 
-        # 错误信息
+    def _maybe_add_error_label(self, layout: QVBoxLayout) -> None:
+        """任务失败时添加错误标签"""
         if self.task.status == ExportStatus.FAILED and self.task.error_message:  # type: ignore[attr-defined]
             error_label = QLabel(f"错误: {self.task.error_message}")  # type: ignore[attr-defined]
             error_label.setStyleSheet(
@@ -111,11 +111,8 @@ class ExportProgressWidget(QWidget):
             error_label.setWordWrap(True)
             layout.addWidget(error_label)
 
-        layout.addLayout(info_layout)
-        layout.addWidget(self.progress_bar)
-        layout.addLayout(details_layout)
-
-        # 设置样式
+    def _apply_widget_style(self) -> None:
+        """应用组件样式和鼠标跟踪"""
         self.setStyleSheet("""
             QWidget {
                 background-color: #f8f9fa;
@@ -127,8 +124,6 @@ class ExportProgressWidget(QWidget):
                 background-color: #e9ecef;
             }
         """)
-
-        # 启用鼠标悬停效果
         self.setMouseTracking(True)
 
     def update_display(self):
