@@ -205,6 +205,7 @@ class SettingsPage(QFrame):
         """)
 
     def _setup_ui(self):
+        """组装设置页面 (重构: 每个设置组独立方法)"""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
@@ -224,11 +225,22 @@ class SettingsPage(QFrame):
         title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         container_layout.addWidget(title)
 
-        # ── 通用设置 ──────────────────────────────
+        # 按职责拆分为独立方法, 每个返回一个 SettingsGroup
+        container_layout.addWidget(self._create_general_group())
+        container_layout.addWidget(self._create_ai_group())
+        container_layout.addWidget(self._create_export_group())
+        container_layout.addWidget(self._create_shortcuts_group())
+        container_layout.addWidget(self._create_plugins_group())
+        container_layout.addWidget(self._create_about_group())
+        container_layout.addStretch()
+
+        scroll.setWidget(container)
+        layout.addWidget(scroll)
+    def _create_general_group(self) -> SettingsGroup:
+        """通用设置组"""
         general = SettingsGroup("通用", "⚙")
         gen_layout = general.layout()
 
-        # 主题
         theme_row = SettingsRow("主题", QComboBox(), "选择界面外观")
         theme_combo = theme_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         theme_combo.addItems(["深色", "浅色", "跟随系统"])  # type: ignore[union-attr]
@@ -242,38 +254,29 @@ class SettingsPage(QFrame):
                 color: {_C.TEXT_PRIMARY};
             }}
         """)
+        self._combo_style = theme_combo.styleSheet()  # 缓存样式供其他 combo 复用
         gen_layout.insertWidget(0, theme_row)
 
-        # 自动保存
-        autosave_row = SettingsRow(
-            "自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目"
-        )
+        autosave_row = SettingsRow("自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目")
         gen_layout.insertWidget(1, autosave_row)
 
-        # 关闭时最小化到托盘（默认关闭：点击X直接退出）
         self._tray_toggle = ToggleSwitch(False)
-        tray_row = SettingsRow(
-            "关闭到系统托盘",
-            self._tray_toggle,
-            "开启后点击关闭按钮将缩放到系统托盘（默认关闭，直接退出）",
-        )
+        tray_row = SettingsRow("关闭到系统托盘", self._tray_toggle, "开启后点击关闭按钮将缩放到系统托盘（默认关闭，直接退出）")
         gen_layout.insertWidget(2, tray_row)
 
-        # 语言
         lang_row = SettingsRow("语言", QComboBox(), "界面显示语言")
         lang_combo = lang_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         lang_combo.addItems(["简体中文", "English"])  # type: ignore[union-attr]
         lang_combo.setFixedWidth(160)  # type: ignore[union-attr]
-        lang_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
+        lang_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
         gen_layout.insertWidget(3, lang_row)
 
-        container_layout.addWidget(general)
-
-        # ── AI 服务设置 ───────────────────────────
+        return general
+    def _create_ai_group(self) -> SettingsGroup:
+        """AI 服务设置组"""
         ai = SettingsGroup("AI 服务", "🤖")
         ai_layout = ai.layout()
 
-        # API 密钥
         api_row = SettingsRow("API 密钥", QLineEdit("••••••••••••"), "用于 AI 服务认证")
         api_input = api_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         api_input.setFixedWidth(280)  # type: ignore[union-attr]
@@ -288,45 +291,41 @@ class SettingsPage(QFrame):
         """)
         ai_layout.insertWidget(0, api_row)
 
-        # 模型选择
         model_row = SettingsRow("AI 模型", QComboBox(), "选择默认 AI 生成模型")
         model_combo = model_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         model_combo.addItems(["DeepSeek V3", "GPT-4o", "Gemini 2.0", "智谱 GLM-5"])  # type: ignore[union-attr]
         model_combo.setFixedWidth(180)  # type: ignore[union-attr]
-        model_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
+        model_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
         ai_layout.insertWidget(1, model_row)
 
-        # 使用量显示
         usage_label = QLabel("本月 API 调用: 1,234 次")
         usage_label.setFont(QFont("", FontSizes.sm))
         usage_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
         ai_layout.insertWidget(2, usage_label)
 
-        container_layout.addWidget(ai)
-
-        # ── 导出设置 ──────────────────────────────
+        return ai
+    def _create_export_group(self) -> SettingsGroup:
+        """导出设置组"""
         export = SettingsGroup("导出", "📤")
         exp_layout = export.layout()
 
-        # 默认格式
         fmt_row = SettingsRow("默认格式", QComboBox(), "导出视频的默认格式")
         fmt_combo = fmt_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         fmt_combo.addItems(["MP4", "MOV", "AVI", "MKV"])  # type: ignore[union-attr]
         fmt_combo.setFixedWidth(120)  # type: ignore[union-attr]
-        fmt_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
+        fmt_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
         exp_layout.insertWidget(0, fmt_row)
 
-        # 默认分辨率
         res_row = SettingsRow("默认分辨率", QComboBox(), "导出视频的默认分辨率")
         res_combo = res_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
         res_combo.addItems(["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)"])  # type: ignore[union-attr]
         res_combo.setFixedWidth(200)  # type: ignore[union-attr]
-        res_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
+        res_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
         exp_layout.insertWidget(1, res_row)
 
-        container_layout.addWidget(export)
-
-        # ── 快捷键设置 ────────────────────────────
+        return export
+    def _create_shortcuts_group(self) -> SettingsGroup:
+        """快捷键设置组"""
         shortcuts = SettingsGroup("快捷键", "⌨")
         short_layout = shortcuts.layout()
 
@@ -344,9 +343,9 @@ class SettingsPage(QFrame):
         shortcuts_info.setLineSpacing(6)  # type: ignore[attr-defined]
         short_layout.insertWidget(0, shortcuts_info)
 
-        container_layout.addWidget(shortcuts)
-
-        # ── 插件管理 ───────────────────────────────
+        return shortcuts
+    def _create_plugins_group(self) -> SettingsGroup:
+        """插件管理设置组"""
         plugins_grp = SettingsGroup("插件管理", "🧩")
         plugins_layout = plugins_grp.layout()
 
@@ -355,9 +354,7 @@ class SettingsPage(QFrame):
 
         loader = PluginLoader(PluginRegistry())
         try:
-            loader.add_plugin_directory(
-                str(Path(__file__).parent.parent.parent.parent / "plugins" / "examples")
-            )
+            loader.add_plugin_directory(str(Path(__file__).parent.parent.parent.parent / "plugins" / "examples"))
             manifests = loader.discover_plugins()
         except Exception:
             manifests = []
@@ -391,9 +388,9 @@ class SettingsPage(QFrame):
         """)
         plugins_layout.insertWidget(plugins_layout.count() - 1, install_btn)
 
-        container_layout.addWidget(plugins_grp)
-
-        # ── 关于 ─────────────────────────────
+        return plugins_grp
+    def _create_about_group(self) -> SettingsGroup:
+        """关于设置组"""
         about = SettingsGroup("关于", "ℹ")
         about_layout = about.layout()
 
@@ -424,9 +421,4 @@ class SettingsPage(QFrame):
         """)
         about_layout.insertWidget(1, check_btn)
 
-        container_layout.addWidget(about)
-
-        container_layout.addStretch()
-
-        scroll.setWidget(container)
-        layout.addWidget(scroll)
+        return about

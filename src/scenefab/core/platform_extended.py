@@ -110,9 +110,20 @@ class PlatformExtendedManager:
         logger.info("PlatformExtendedManager 初始化完成")
 
     def _load_default_configs(self):
-        """加载默认配置"""
-        # 抖音配置
-        self.PLATFORM_CONFIGS["douyin"] = PlatformExtendedConfig(
+        """加载默认配置 (重构: 每个平台独立方法, 单一职责)"""
+        for platform, config_fn in [
+            ("douyin", self._create_douyin_config),
+            ("bilibili", self._create_bilibili_config),
+            ("xiaohongshu", self._create_xiaohongshu_config),
+            ("youtube", self._create_youtube_config),
+            ("tiktok", self._create_tiktok_config),
+        ]:
+            self.PLATFORM_CONFIGS[platform] = config_fn()
+
+    @staticmethod
+    def _create_douyin_config() -> PlatformExtendedConfig:
+        """创建抖音平台配置"""
+        return PlatformExtendedConfig(
             platform="douyin",
             display_name="抖音",
             tag_suggestion=PlatformTagSuggestion(
@@ -172,8 +183,10 @@ class PlatformExtendedManager:
             seo_keywords=["电影解说", "影视推荐", "好剧推荐"],
         )
 
-        # B站配置
-        self.PLATFORM_CONFIGS["bilibili"] = PlatformExtendedConfig(
+    @staticmethod
+    def _create_bilibili_config() -> PlatformExtendedConfig:
+        """创建B站平台配置"""
+        return PlatformExtendedConfig(
             platform="bilibili",
             display_name="B站",
             tag_suggestion=PlatformTagSuggestion(
@@ -247,8 +260,10 @@ class PlatformExtendedManager:
             seo_keywords=["影视杂谈", "电影解说", "电视剧解说"],
         )
 
-        # 小红书配置
-        self.PLATFORM_CONFIGS["xiaohongshu"] = PlatformExtendedConfig(
+    @staticmethod
+    def _create_xiaohongshu_config() -> PlatformExtendedConfig:
+        """创建小红书平台配置"""
+        return PlatformExtendedConfig(
             platform="xiaohongshu",
             display_name="小红书",
             tag_suggestion=PlatformTagSuggestion(
@@ -303,8 +318,10 @@ class PlatformExtendedManager:
             seo_keywords=["电影推荐", "好剧推荐", "追剧日记"],
         )
 
-        # YouTube 配置
-        self.PLATFORM_CONFIGS["youtube"] = PlatformExtendedConfig(
+    @staticmethod
+    def _create_youtube_config() -> PlatformExtendedConfig:
+        """创建YouTube平台配置"""
+        return PlatformExtendedConfig(
             platform="youtube",
             display_name="YouTube",
             tag_suggestion=PlatformTagSuggestion(
@@ -364,8 +381,10 @@ class PlatformExtendedManager:
             seo_keywords=["movie review", "film analysis", "cinema"],
         )
 
-        # TikTok 配置
-        self.PLATFORM_CONFIGS["tiktok"] = PlatformExtendedConfig(
+    @staticmethod
+    def _create_tiktok_config() -> PlatformExtendedConfig:
+        """创建TikTok平台配置"""
+        return PlatformExtendedConfig(
             platform="tiktok",
             display_name="TikTok",
             tag_suggestion=PlatformTagSuggestion(
@@ -412,6 +431,7 @@ class PlatformExtendedManager:
             ],
             seo_keywords=["moviereview", "film", "movie"],
         )
+
 
     def get_config(self, platform: str) -> PlatformExtendedConfig | None:
         """
