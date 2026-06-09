@@ -373,6 +373,15 @@ class SenseVoiceProvider:
         """
         return self._diarize_librosa(audio_path, num_speakers)
 
+    # 说话人分离常量
+    _DIARIZE_WINDOW_SEC: float = 1.5
+    _DIARIZE_HOP_SEC: float = 0.75  # 50% overlap
+    _DIARIZE_MIN_DURATION: float = 2.0
+    _DIARIZE_N_MFCC: int = 13
+    _DIARIZE_DEFAULT_SPEAKERS: int = 2
+    _DIARIZE_RANDOM_STATE: int = 42
+    _DIARIZE_KMEANS_N_INIT: int = 10
+
     def _diarize_librosa(
         self, audio_path: str, num_speakers: int | None = None
     ) -> list[SpeakerSegment]:
@@ -385,33 +394,62 @@ class SenseVoiceProvider:
         - 相似度突变点作为说话人切换点
         - 简化版本：不做聚类，只标注切换点
         """
-        import librosa
-        from sklearn.cluster import KMeans  # type: ignore[import-untyped]
-        from sklearn.preprocessing import StandardScaler  # type: ignore[import-untyped]
+        loaded = self._load_audio_for_diarization(audio_path)
+        if loaded is None:
+            return []
+        y, sr = loaded
+        duration = len(y) / sr
+
+        if duration < self._DIARIZE_MIN_DURATION:
+            # 音频太短，不做分离
+            return self._single_speaker_segment(duration)
+
+        mfccs, timestamps = self._extract_mfcc_windows(
+            y, sr, duration, self._DIARIZE_WINDOW_SEC, self._DIARIZE_HOP_SEC
+        )
+        if len(mfccs) < 2:
+            return self._single_speaker_segment(duration)
+
+        X = np.array(mfccs)
+        labels = self._cluster_speakers(X, num_speakers)
+        return self._build_speaker_segments(labels, timestamps, duration)
+
+    @staticmethod
+    def _load_audio_for_diarization(
+        audio_path: str,
+    ) -> tuple[np.ndarray, int] | None:
+        """加载音频用于说话人分离；失败返回 None。"""
+        import librosa  # type: ignore[import-untyped]
 
         try:
             y, sr = librosa.load(audio_path, sr=16000, mono=True)
         except Exception as e:
             logger.error(f"加载音频失败: {e}")
-            return []
+            return None
+        return y, sr
 
-        # 分段：每 1.5 秒一段
-        window_sec = 1.5
-        hop_sec = 0.75  # 50% overlap
-        duration = len(y) / sr
-        results: list[SpeakerSegment] = []
+    @staticmethod
+    def _single_speaker_segment(duration: float) -> list[SpeakerSegment]:
+        """生成单一说话人占满整段音频的片段（短音频/少窗口回退）。"""
+        return [
+            SpeakerSegment(
+                start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5
+            )
+        ]
 
-        if duration < 2.0:
-            # 音频太短，不做分离
-            return [
-                SpeakerSegment(
-                    start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5
-                )
-            ]
+    @staticmethod
+    def _extract_mfcc_windows(
+        y: np.ndarray,
+        sr: int,
+        duration: float,
+        window_sec: float,
+        hop_sec: float,
+    ) -> tuple[list[np.ndarray], list[float]]:
+        """按滑窗提取每段 MFCC 均值与对应起始时间戳。"""
+        import librosa  # type: ignore[import-untyped]
 
-        # 提取 MFCC 特征
-        mfccs = []
-        timestamps = []
+        mfccs: list[np.ndarray] = []
+        timestamps: list[float] = []
         for start in np.arange(0, duration - window_sec, hop_sec):
             start_sample = int(start * sr)
             end_sample = start_sample + int(window_sec * sr)
@@ -420,27 +458,42 @@ class SenseVoiceProvider:
             mfcc = librosa.feature.mfcc(y=segment, sr=sr, n_mfcc=13)
             mfccs.append(mfcc.mean(axis=1))  # 时间均值
             timestamps.append(start)
+        return mfccs, timestamps
 
-        if len(mfccs) < 2:
-            return [
-                SpeakerSegment(
-                    start=0.0, end=duration, speaker_id="SPEAKER_1", confidence=0.5
-                )
-            ]
+    @staticmethod
+    def _cluster_speakers(
+        X: np.ndarray, num_speakers: int | None
+    ) -> np.ndarray:
+        """对 MFCC 特征做标准化与 KMeans 聚类，返回每个窗口的标签。"""
+        from sklearn.cluster import KMeans  # type: ignore[import-untyped]
+        from sklearn.preprocessing import StandardScaler  # type: ignore[import-untyped]
 
-        X = np.array(mfccs)
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # 聚类说话人
-        n_clusters = num_speakers if num_speakers and num_speakers > 0 else 2
+        n_clusters = (
+            num_speakers
+            if num_speakers and num_speakers > 0
+            else SenseVoiceProvider._DIARIZE_DEFAULT_SPEAKERS
+        )
         n_clusters = min(n_clusters, len(X_scaled))
 
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-        labels = kmeans.fit_predict(X_scaled)
+        kmeans = KMeans(
+            n_clusters=n_clusters,
+            random_state=SenseVoiceProvider._DIARIZE_RANDOM_STATE,
+            n_init=SenseVoiceProvider._DIARIZE_KMEANS_N_INIT,
+        )
+        return kmeans.fit_predict(X_scaled)
 
-        # 构建连续片段
-        current_speaker = f"SPEAKER_{labels[0] + 1}"
+    @staticmethod
+    def _build_speaker_segments(
+        labels: np.ndarray,
+        timestamps: list[float],
+        duration: float,
+    ) -> list[SpeakerSegment]:
+        """根据聚类标签序列构建连续的说话人片段列表。"""
+        results: list[SpeakerSegment] = []
+        current_speaker = f"SPEAKER_{int(labels[0]) + 1}"
         seg_start = timestamps[0]
 
         for i in range(1, len(labels)):
@@ -452,10 +505,10 @@ class SenseVoiceProvider:
                         start=seg_start,
                         end=seg_end,
                         speaker_id=current_speaker,
-                        confidence=max(0.5, 1 - abs(labels[i] - labels[i - 1]) * 0.1),
+                        confidence=max(0.5, 1 - abs(int(labels[i]) - int(labels[i - 1])) * 0.1),
                     )
                 )
-                current_speaker = f"SPEAKER_{labels[i] + 1}"
+                current_speaker = f"SPEAKER_{int(labels[i]) + 1}"
                 seg_start = timestamps[i]
 
         # 最后一个片段
@@ -467,7 +520,6 @@ class SenseVoiceProvider:
                 confidence=0.7,
             )
         )
-
         return results
 
     # ── Audio Event Detection ────────────────────────────────────────────────

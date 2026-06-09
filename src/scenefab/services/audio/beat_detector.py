@@ -152,6 +152,34 @@ class BeatDetector:
         )
 
         # 1. BPM + 节拍检测
+        self._detect_bpm_and_beats(y, sr, result)
+
+        # 2. Onset detection（音频能量突变点）
+        self._detect_onsets(y, sr, result)
+
+        # 3. RMS 能量曲线
+        rms = self._compute_energy_curve(y, sr, duration, result)
+
+        # 4. 频谱质心（音色亮度）
+        self._compute_spectral_centroid(y, sr, np, result)
+
+        # 5. 段落分析
+        if extract_sections:
+            result.sections = self._detect_sections(y, sr, duration, rms)
+
+        # 6. 计算节拍间隔
+        if result.bpm > 0:
+            result.beat_interval = 60.0 / result.bpm
+
+        # 7. 生成 Beat-sync 剪辑点
+        result.beat_sync_cutpoints = self.get_beat_sync_cutpoints(result)
+
+        return result
+
+    def _detect_bpm_and_beats(self, y, sr, result: AudioAnalysisResult) -> None:
+        """检测 BPM 并标记节拍强/弱拍（假设 4/4 拍）"""
+        import librosa
+
         tempo, beat_frames = librosa.beat.beat_track(
             y=y, sr=sr, hop_length=self._hop_length
         )
@@ -165,7 +193,6 @@ class BeatDetector:
             beat_frames, sr=sr, hop_length=self._hop_length
         )
 
-        # 标记强拍/弱拍（假设 4/4 拍）
         for i, t in enumerate(beat_times):
             bar_pos = (i % 4) + 1
             if bar_pos == 1:
@@ -183,7 +210,10 @@ class BeatDetector:
                 )
             )
 
-        # 2. Onset detection（音频能量突变点）
+    def _detect_onsets(self, y, sr, result: AudioAnalysisResult) -> None:
+        """检测音频能量突变点（onset）"""
+        import librosa
+
         onset_frames = librosa.onset.onset_detect(
             y=y, sr=sr, hop_length=self._hop_length
         )
@@ -194,35 +224,28 @@ class BeatDetector:
             )
         ]
 
-        # 3. RMS 能量曲线
+    def _compute_energy_curve(self, y, sr, duration, result: AudioAnalysisResult):
+        """计算 RMS 能量曲线（降采样到约每秒 4 个点）"""
+        import librosa
+
         rms = librosa.feature.rms(y=y, hop_length=self._hop_length)[0]
         rms_times = librosa.frames_to_time(
             range(len(rms)), sr=sr, hop_length=self._hop_length
         )
-        # 降采样到约每秒 4 个点
         step = max(1, len(rms) // int(duration * 4))
         result.energy_curve = [
             (float(rms_times[i]), float(rms[i])) for i in range(0, len(rms), step)
         ]
+        return rms
 
-        # 4. 频谱质心（音色亮度）
+    def _compute_spectral_centroid(self, y, sr, np, result: AudioAnalysisResult) -> None:
+        """计算频谱质心均值（音色亮度）"""
+        import librosa
+
         centroid = librosa.feature.spectral_centroid(
             y=y, sr=sr, hop_length=self._hop_length
         )[0]
         result.spectral_centroid_mean = float(np.mean(centroid))
-
-        # 5. 段落分析
-        if extract_sections:
-            result.sections = self._detect_sections(y, sr, duration, rms)
-
-        # 6. 计算节拍间隔
-        if result.bpm > 0:
-            result.beat_interval = 60.0 / result.bpm
-
-        # 7. 生成 Beat-sync 剪辑点
-        result.beat_sync_cutpoints = self.get_beat_sync_cutpoints(result)
-
-        return result
 
     def _detect_sections(self, y, sr, duration, rms) -> list[SectionInfo]:
         """基于能量和频谱变化检测音乐段落"""

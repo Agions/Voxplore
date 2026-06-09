@@ -115,75 +115,29 @@ class ContentScorersMixin:
         """
         score = 50.0  # 基础分
         curve_type = "wave"
-        peak_timestamps = []
-        suggestions = []
+        peak_timestamps: list[float] = []
+        suggestions: list[str] = []
 
+        # 如果没有情绪数据，使用基础评估
         if not emotion_data:
-            # 如果没有情绪数据，使用基础评估
-            suggestions.append("建议提供情绪数据以获得更准确的评分")
-            return EmotionCurveScore(
-                score=score,
-                emotion_points=[],
-                curve_type="unknown",
-                peak_timestamps=[],
-                suggestions=suggestions,
-            )
+            return self._build_emotion_curve_empty_result(suggestions)
 
-        # 分析情绪曲线
         intensities = [e.get("intensity", 0.5) for e in emotion_data]
         timestamps = [e.get("timestamp", 0) for e in emotion_data]
 
-        # 计算情绪波动
-        if len(intensities) > 1:
-            variance = sum(
-                (i - sum(intensities) / len(intensities)) ** 2 for i in intensities
-            ) / len(intensities)
-            volatility = variance**0.5
+        score += self._compute_emotion_volatility_score(intensities)
+        peak_timestamps, peak_score_delta = self._detect_emotion_peaks(
+            intensities, timestamps
+        )
+        score += peak_score_delta
 
-            # 波动越大，分数越高
-            if volatility > 0.3:
-                score += 20
-            elif volatility > 0.2:
-                score += 10
+        curve_type, curve_score_delta = self._classify_emotion_curve(intensities)
+        score += curve_score_delta
 
-        # 检测情绪峰值
-        for i in range(1, len(intensities) - 1):
-            if (
-                intensities[i] > intensities[i - 1]
-                and intensities[i] > intensities[i + 1]
-            ):
-                if intensities[i] > 0.7:
-                    peak_timestamps.append(timestamps[i])
-                    score += 5
-
-        # 检测曲线类型
-        if len(intensities) >= 3:
-            first_half = sum(intensities[: len(intensities) // 2]) / (
-                len(intensities) // 2
-            )
-            second_half = sum(intensities[len(intensities) // 2 :]) / (
-                len(intensities) - len(intensities) // 2
-            )
-
-            if second_half > first_half * 1.2:
-                curve_type = "rising"
-                score += 10  # 上升曲线加分
-            elif first_half > second_half * 1.2:
-                curve_type = "falling"
-            else:
-                curve_type = "wave"
-
-        # 检测高潮位置
-        if peak_timestamps:
-            max_peak_time = max(peak_timestamps)
-            if video_duration > 0:
-                peak_ratio = max_peak_time / video_duration
-                if 0.6 < peak_ratio < 0.9:  # 高潮在 60%-90% 位置
-                    curve_type = "climax_late"
-                    score += 15
-                elif 0.2 < peak_ratio < 0.4:  # 高潮在 20%-40% 位置
-                    curve_type = "climax_early"
-                    score += 10
+        curve_type, climax_score_delta = self._apply_climax_position_bonus(
+            peak_timestamps, video_duration, curve_type
+        )
+        score += climax_score_delta
 
         # 限制最高分
         score = min(100, score)
@@ -200,6 +154,96 @@ class ContentScorersMixin:
             peak_timestamps=peak_timestamps,
             suggestions=suggestions,
         )
+
+    @staticmethod
+    def _build_emotion_curve_empty_result(
+        suggestions: list[str],
+    ) -> EmotionCurveScore:
+        """构建无情绪数据时的基础评分结果"""
+        suggestions.append("建议提供情绪数据以获得更准确的评分")
+        return EmotionCurveScore(
+            score=50.0,
+            emotion_points=[],
+            curve_type="unknown",
+            peak_timestamps=[],
+            suggestions=suggestions,
+        )
+
+    @staticmethod
+    def _compute_emotion_volatility_score(intensities: list[float]) -> float:
+        """根据情绪波动（标准差）返回分数增量"""
+        if len(intensities) <= 1:
+            return 0.0
+
+        variance = sum(
+            (i - sum(intensities) / len(intensities)) ** 2 for i in intensities
+        ) / len(intensities)
+        volatility = variance**0.5
+
+        # 波动越大，分数越高
+        if volatility > 0.3:
+            return 20.0
+        if volatility > 0.2:
+            return 10.0
+        return 0.0
+
+    @staticmethod
+    def _detect_emotion_peaks(
+        intensities: list[float],
+        timestamps: list[float],
+    ) -> tuple[list[float], float]:
+        """检测局部峰值，返回峰值时间戳列表及对应分数增量"""
+        peak_timestamps: list[float] = []
+        score_delta = 0.0
+
+        for i in range(1, len(intensities) - 1):
+            if (
+                intensities[i] > intensities[i - 1]
+                and intensities[i] > intensities[i + 1]
+            ):
+                if intensities[i] > 0.7:
+                    peak_timestamps.append(timestamps[i])
+                    score_delta += 5
+
+        return peak_timestamps, score_delta
+
+    @staticmethod
+    def _classify_emotion_curve(intensities: list[float]) -> tuple[str, float]:
+        """根据前后半段平均强度检测曲线类型（rising/falling/wave）"""
+        if len(intensities) < 3:
+            return "wave", 0.0
+
+        first_half = sum(intensities[: len(intensities) // 2]) / (
+            len(intensities) // 2
+        )
+        second_half = sum(intensities[len(intensities) // 2 :]) / (
+            len(intensities) - len(intensities) // 2
+        )
+
+        if second_half > first_half * 1.2:
+            return "rising", 10.0  # 上升曲线加分
+        if first_half > second_half * 1.2:
+            return "falling", 0.0
+        return "wave", 0.0
+
+    @staticmethod
+    def _apply_climax_position_bonus(
+        peak_timestamps: list[float],
+        video_duration: float,
+        curve_type: str,
+    ) -> tuple[str, float]:
+        """根据峰值时间占比调整曲线类型与分数"""
+        if not peak_timestamps or video_duration <= 0:
+            return curve_type, 0.0
+
+        max_peak_time = max(peak_timestamps)
+        peak_ratio = max_peak_time / video_duration
+
+        if 0.6 < peak_ratio < 0.9:  # 高潮在 60%-90% 位置
+            return "climax_late", 15.0
+        if 0.2 < peak_ratio < 0.4:  # 高潮在 20%-40% 位置
+            return "climax_early", 10.0
+        return curve_type, 0.0
 
     def _calculate_information_density_score(
         self,
