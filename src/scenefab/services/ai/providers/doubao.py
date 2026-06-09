@@ -85,7 +85,7 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         messages = self._build_messages(request)
 
         try:
-            response = await self.http_client.post(
+            response = await self.http_client.post(  # type: ignore[union-attr]
                 "/chat/completions",
                 json={
                     "model": model,
@@ -128,7 +128,7 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         messages = self._build_messages(request)
 
         try:
-            async with self.http_client.stream(
+            async with self.http_client.stream(  # type: ignore[union-attr]
                 "POST",
                 "/chat/completions",
                 json={

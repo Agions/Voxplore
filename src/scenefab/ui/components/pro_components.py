@@ -377,8 +377,8 @@ class TabBar(QWidget):
         self._active_index = index
         self.tabChanged.emit(index)
         # 更新样式
-        for i in range(self.layout().count() - 1):  # 不包括 stretch
-            btn = self.layout().itemAt(i).widget()
+        for i in range(self.layout().count() - 1):  # 不包括 stretch  # type: ignore[union-attr]
+            btn = self.layout().itemAt(i).widget()  # type: ignore[union-attr]
             if isinstance(btn, QPushButton):
                 if i == index:
                     btn.setStyleSheet("""

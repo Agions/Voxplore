@@ -102,7 +102,7 @@ class SlideWidget(QWidget):
         anim.setDuration(self._duration)
         anim.setEasingCurve(out_cubic())
 
-        parent_rect = self.parent().rect() if self.parent() else self.rect()
+        parent_rect = self.parent().rect() if self.parent() else self.rect()  # type: ignore[union-attr]
         my_rect = self.rect()
 
         if self._direction == "left":
@@ -147,7 +147,7 @@ class SlideWidget(QWidget):
         anim.setDuration(self._duration)
         anim.setEasingCurve(out_cubic())
 
-        parent_rect = self.parent().rect() if self.parent() else self.rect()
+        parent_rect = self.parent().rect() if self.parent() else self.rect()  # type: ignore[union-attr]
         my_rect = self.rect()
 
         if self._direction == "left":

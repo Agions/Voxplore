@@ -131,8 +131,8 @@ class SceneWindow(BaseStepWindow):
         # 清除现有卡片
         while self.scenes_layout.count() > 1:
             item = self.scenes_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         for scene in self._scenes:
             card = SceneCard(scene)

@@ -201,7 +201,7 @@ class StepUploadPage(StepPage):
         formats.setFont(QFont("", FontSizes.sm))
         formats.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
         formats.setWordWrap(True)
-        info_layout.addWidget(formats)
+        info_layout.addWidget(formats)  # type: ignore[union-attr]
         layout.addWidget(info_card)
 
         # 拖放区
@@ -227,19 +227,19 @@ class StepUploadPage(StepPage):
 
     def _refresh_file_list(self):
         layout = self.file_list.layout()
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+        while layout.count():  # type: ignore[union-attr]
+            child = layout.takeAt(0)  # type: ignore[union-attr]
+            if child.widget():  # type: ignore[union-attr]
+                child.widget().deleteLater()  # type: ignore[union-attr]
 
         count_label = QLabel(f"已选择 {len(self._files)} 个文件")
         count_label.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
         count_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
-        layout.addWidget(count_label)
+        layout.addWidget(count_label)  # type: ignore[union-attr]
 
         for f in self._files:
             item = FileListItem(f)
             item.removed.connect(lambda p=f: self._remove_file(p))  # type: ignore[attr-defined]
-            layout.addWidget(item)
+            layout.addWidget(item)  # type: ignore[union-attr]
 
-        layout.addStretch()
+        layout.addStretch()  # type: ignore[union-attr]

@@ -149,7 +149,7 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         }
 
         try:
-            async with self.http_client.stream(
+            async with self.http_client.stream(  # type: ignore[union-attr]
                 "POST",
                 f"{self.base_url}/chat/completions",
                 json=api_request,

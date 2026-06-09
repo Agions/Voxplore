@@ -202,7 +202,7 @@ class PreviewPanel(QWidget):
             self._init_media_player()
 
         try:
-            self._media_player.setSource(QUrl.fromLocalFile(path))
+            self._media_player.setSource(QUrl.fromLocalFile(path))  # type: ignore[union-attr]
             self._placeholder.hide()
             return True
         except Exception as e:

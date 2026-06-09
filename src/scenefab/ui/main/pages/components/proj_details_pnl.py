@@ -59,11 +59,11 @@ class ProjectDetailsPanel(QWidget):
 
         # 详情卡片
         card = MacElevatedCard()
-        card.layout().setSpacing(16)
+        card.layout().setSpacing(16)  # type: ignore[union-attr]
 
         # 标题
         title_row = create_icon_text_row("📋", "项目详情")
-        card.layout().addWidget(title_row)
+        card.layout().addWidget(title_row)  # type: ignore[union-attr]
 
         # 堆叠窗口：空状态 / 详情内容
         self._stack = QStackedWidget()
@@ -80,11 +80,11 @@ class ProjectDetailsPanel(QWidget):
         self._details_scroll.setWidget(self._details_content)
         self._stack.addWidget(self._details_scroll)
 
-        card.layout().addWidget(self._stack, 1)
+        card.layout().addWidget(self._stack, 1)  # type: ignore[union-attr]
 
         # 操作按钮
         self._buttons = self._create_buttons()
-        card.layout().addWidget(self._buttons)
+        card.layout().addWidget(self._buttons)  # type: ignore[union-attr]
 
         layout.addWidget(card)
 

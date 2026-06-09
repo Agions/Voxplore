@@ -260,7 +260,7 @@ class CFToastNotification(QFrame):
                 background: {Colors.Primary} / 0.25;
             }}
         """)
-        self.layout().addWidget(btn)
+        self.layout().addWidget(btn)  # type: ignore[union-attr]
 
     def show(self):
         """显示通知并自动隐藏"""

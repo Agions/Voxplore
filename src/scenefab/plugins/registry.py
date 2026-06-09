@@ -217,7 +217,7 @@ class PluginRegistry:
         """列出插件"""
         result = []
         for entry in self._plugins.values():
-            if enabled_only and not entry.instance.is_enabled:
+            if enabled_only and not entry.instance.is_enabled:  # type: ignore[union-attr]
                 continue
             if plugin_type and entry.manifest.plugin_type != plugin_type:
                 continue

@@ -196,7 +196,7 @@ class StepAnalysisPage(StepPage):
 
         for icon, title, desc, default in self.options:
             opt = AIOptionCard(icon, title, desc, default)
-            opts_layout.addWidget(opt)
+            opts_layout.addWidget(opt)  # type: ignore[union-attr]
 
         layout.addWidget(options_card)
 
@@ -213,7 +213,7 @@ class StepAnalysisPage(StepPage):
         thread_spin.setValue(4)
         thread_spin.setFixedWidth(80)
         adv_row.addWidget(thread_spin)
-        adv_layout.addLayout(adv_row)
+        adv_layout.addLayout(adv_row)  # type: ignore[union-attr]
 
         layout.addWidget(advanced_card)
 

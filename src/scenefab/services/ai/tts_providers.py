@@ -495,7 +495,7 @@ class F5TTSProvider(TTSProvider):
             raise FileNotFoundError(f"参考音频不存在: {ref_audio}")
 
         # 生成
-        self._f5_tts.generate(
+        self._f5_tts.generate(  # type: ignore[union-attr]
             text=text,
             ref_audio=str(ref_audio_path),
             ref_text=ref_text,

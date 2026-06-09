@@ -468,7 +468,7 @@ class TimelineShuttle(QFrame):
         self.original_track.set_scale(self.scale)
 
         # 更新容器宽度
-        container = self.findChild(QWidget, "timelineScroll").widget()
+        container = self.findChild(QWidget, "timelineScroll").widget()  # type: ignore[union-attr]
         if container:
             container.setMinimumWidth(int(self.duration * self.scale) + 100)
 

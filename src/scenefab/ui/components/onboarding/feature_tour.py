@@ -498,12 +498,12 @@ class FeatureTourDialog(QWidget):
     def show_at_center(self):
         """在父窗口中央显示"""
         if self.parent():
-            parent_rect = self.parent().rect()
+            parent_rect = self.parent().rect()  # type: ignore[union-attr]
             x = (parent_rect.width() - self.width()) // 2
             y = (parent_rect.height() - self.height()) // 2
             self.move(
-                self.parent().mapToGlobal(self.parent().rect().topLeft()).x() + x,
-                self.parent().mapToGlobal(self.parent().rect().topLeft()).y() + y,
+                self.parent().mapToGlobal(self.parent().rect().topLeft()).x() + x,  # type: ignore[union-attr]
+                self.parent().mapToGlobal(self.parent().rect().topLeft()).y() + y,  # type: ignore[union-attr]
             )
         self.show()
         self._animate_in()

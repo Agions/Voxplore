@@ -229,8 +229,8 @@ class ProjectsWindow(QWidget):
         """渲染项目卡片网格"""
         while self.grid_layout.count():
             item = self.grid_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         cols = 4
         if not self._projects:

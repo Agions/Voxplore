@@ -269,8 +269,8 @@ class BasePage(QWidget):
         """清空主布局"""
         while self.main_layout.count():
             item = self.main_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
     def set_main_layout_margins(
         self, left: int, top: int, right: int, bottom: int

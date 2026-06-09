@@ -253,9 +253,9 @@ class MacEmptyStateV2(QWidget):
         """设置图标类型"""
         self._icon_type = icon_type
         # 重新创建图标
-        self.layout().itemAt(0).widget().deleteLater()
+        self.layout().itemAt(0).widget().deleteLater()  # type: ignore[union-attr]
         self.icon_widget = EmptyStateIcon(self._icon_type, 120)
-        self.layout().insertWidget(0, self.icon_widget)
+        self.layout().insertWidget(0, self.icon_widget)  # type: ignore[union-attr]
 
 
 class ProjectsEmptyState(MacEmptyStateV2):

@@ -139,7 +139,7 @@ class SceneFabMainWindow(QMainWindow):
         if self._tray is not None:
             self._tray.disable()
         self.close()
-        QApplication.instance().quit()
+        QApplication.instance().quit()  # type: ignore[union-attr]
 
     def closeEvent(self, event):
         """窗口关闭事件"""

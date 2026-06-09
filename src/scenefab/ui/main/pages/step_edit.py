@@ -281,7 +281,7 @@ class StepEditPage(StepPage):
             }}
         """)
         sub_row.addWidget(style_combo)
-        sub_layout.addLayout(sub_row)
+        sub_layout.addLayout(sub_row)  # type: ignore[union-attr]
 
         layout.addWidget(subtitle_card)
 

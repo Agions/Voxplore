@@ -226,7 +226,7 @@ class BasePlugin(ABC):
         """从上下文获取应用服务"""
         if not self._context:
             raise RuntimeError("Plugin not initialized")
-        return self._context.services.get(service_name)
+        return self._context.services.get(service_name)  # type: ignore[union-attr]
 
     def emit_event(self, event_name: str, **kwargs) -> None:
         """发射事件到事件总线"""

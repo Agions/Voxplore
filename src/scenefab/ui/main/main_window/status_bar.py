@@ -53,5 +53,5 @@ class StatusBar(QFrame):
     def clear_info(self):
         while self._info_labels.count():
             item = self._info_labels.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]

@@ -78,7 +78,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         self._clip_type_label = QLabel("—")
         info_form.addRow("ID:", self._clip_id_label)
         info_form.addRow("类型:", self._clip_type_label)
-        self._info_group.layout().addLayout(info_form)
+        self._info_group.layout().addLayout(info_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._info_group)
 
         # ---- 时间 ----
@@ -103,7 +103,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
         time_form.addRow("开始:", self._start_spin)
         time_form.addRow("结束:", self._end_spin)
         time_form.addRow("时长:", self._duration_label)
-        self._time_group.layout().addLayout(time_form)
+        self._time_group.layout().addLayout(time_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._time_group)
 
         # ---- 转场 ----
@@ -125,7 +125,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
 
         trans_form.addRow("效果:", self._transition_combo)
         trans_form.addRow("时长:", self._trans_duration_spin)
-        self._transition_group.layout().addLayout(trans_form)
+        self._transition_group.layout().addLayout(trans_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._transition_group)
 
         # ---- 字幕 ----
@@ -152,7 +152,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
 
         sub_layout.addWidget(self._subtitle_text)
         sub_layout.addLayout(sub_style_form)
-        self._subtitle_group.layout().addLayout(sub_layout)
+        self._subtitle_group.layout().addLayout(sub_layout)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._subtitle_group)
 
         # ---- 音频 ----
@@ -167,7 +167,7 @@ class PropertiesPanel(QWidget, ThemeAwareMixin):
 
         audio_form.addRow("音量:", self._volume_slider)
         audio_form.addRow("", self._mute_check)
-        self._audio_group.layout().addLayout(audio_form)
+        self._audio_group.layout().addLayout(audio_form)  # type: ignore[union-attr]
         self._form_layout.addWidget(self._audio_group)
 
         self._form_layout.addStretch()

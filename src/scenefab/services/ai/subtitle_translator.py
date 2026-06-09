@@ -232,7 +232,7 @@ class SubtitleTranslator:
                     max_tokens=2000,
                 )
 
-                result_text = response.choices[0].message.content.strip()
+                result_text = response.choices[0].message.content.strip()  # type: ignore[union-attr]
                 lines = result_text.split("\n")
                 translated_lines = []
                 for line in lines:
@@ -326,7 +326,7 @@ class SubtitleTranslator:
                 )
 
             # 解析结果
-            result_text = result.text
+            result_text = result.text  # type: ignore[union-attr]
             translated = []
             for i in range(len(texts)):
                 marker = f"[{i}]"

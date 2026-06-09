@@ -205,8 +205,8 @@ class SubtitleTimelineWidget(QFrame):
         # 清除现有轨道
         while self._tracks_layout.count():
             item = self._tracks_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 添加轨道
         for track in self._editor.tracks:
@@ -265,7 +265,7 @@ class SubtitleTimelineWidget(QFrame):
 
         # 更新所有轨道
         for i in range(self._tracks_layout.count()):
-            track_widget = self._tracks_layout.itemAt(i).widget()
+            track_widget = self._tracks_layout.itemAt(i).widget()  # type: ignore[union-attr]
             if isinstance(track_widget, SubtitleTrackWidget):
                 track_widget.set_scale(self._scale)
 

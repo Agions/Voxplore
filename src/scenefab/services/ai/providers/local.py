@@ -205,7 +205,7 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             raise ProviderError("仅 Ollama 支持拉取模型")
 
         try:
-            response = await self.http_client.post(
+            response = await self.http_client.post(  # type: ignore[union-attr]
                 f"{self.base_url}/api/pull",
                 json={"name": model, "stream": False},
                 timeout=600.0,

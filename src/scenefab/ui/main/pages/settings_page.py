@@ -230,10 +230,10 @@ class SettingsPage(QFrame):
 
         # 主题
         theme_row = SettingsRow("主题", QComboBox(), "选择界面外观")
-        theme_combo = theme_row.layout().itemAt(1).widget()
-        theme_combo.addItems(["深色", "浅色", "跟随系统"])
-        theme_combo.setFixedWidth(160)
-        theme_combo.setStyleSheet(f"""
+        theme_combo = theme_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        theme_combo.addItems(["深色", "浅色", "跟随系统"])  # type: ignore[union-attr]
+        theme_combo.setFixedWidth(160)  # type: ignore[union-attr]
+        theme_combo.setStyleSheet(f"""  # type: ignore[union-attr]
             QComboBox {{
                 background: {Colors.BG_ELEVATED};
                 border: 1px solid {Colors.BORDER_DEFAULT};
@@ -261,10 +261,10 @@ class SettingsPage(QFrame):
 
         # 语言
         lang_row = SettingsRow("语言", QComboBox(), "界面显示语言")
-        lang_combo = lang_row.layout().itemAt(1).widget()
-        lang_combo.addItems(["简体中文", "English"])
-        lang_combo.setFixedWidth(160)
-        lang_combo.setStyleSheet(theme_combo.styleSheet())
+        lang_combo = lang_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        lang_combo.addItems(["简体中文", "English"])  # type: ignore[union-attr]
+        lang_combo.setFixedWidth(160)  # type: ignore[union-attr]
+        lang_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
         gen_layout.insertWidget(3, lang_row)
 
         container_layout.addWidget(general)
@@ -275,9 +275,9 @@ class SettingsPage(QFrame):
 
         # API 密钥
         api_row = SettingsRow("API 密钥", QLineEdit("••••••••••••"), "用于 AI 服务认证")
-        api_input = api_row.layout().itemAt(1).widget()
-        api_input.setFixedWidth(280)
-        api_input.setStyleSheet(f"""
+        api_input = api_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        api_input.setFixedWidth(280)  # type: ignore[union-attr]
+        api_input.setStyleSheet(f"""  # type: ignore[union-attr]
             QLineEdit {{
                 background: {Colors.BG_ELEVATED};
                 border: 1px solid {Colors.BORDER_DEFAULT};
@@ -290,10 +290,10 @@ class SettingsPage(QFrame):
 
         # 模型选择
         model_row = SettingsRow("AI 模型", QComboBox(), "选择默认 AI 生成模型")
-        model_combo = model_row.layout().itemAt(1).widget()
-        model_combo.addItems(["DeepSeek V3", "GPT-4o", "Gemini 2.0", "智谱 GLM-5"])
-        model_combo.setFixedWidth(180)
-        model_combo.setStyleSheet(theme_combo.styleSheet())
+        model_combo = model_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        model_combo.addItems(["DeepSeek V3", "GPT-4o", "Gemini 2.0", "智谱 GLM-5"])  # type: ignore[union-attr]
+        model_combo.setFixedWidth(180)  # type: ignore[union-attr]
+        model_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
         ai_layout.insertWidget(1, model_row)
 
         # 使用量显示
@@ -310,18 +310,18 @@ class SettingsPage(QFrame):
 
         # 默认格式
         fmt_row = SettingsRow("默认格式", QComboBox(), "导出视频的默认格式")
-        fmt_combo = fmt_row.layout().itemAt(1).widget()
-        fmt_combo.addItems(["MP4", "MOV", "AVI", "MKV"])
-        fmt_combo.setFixedWidth(120)
-        fmt_combo.setStyleSheet(theme_combo.styleSheet())
+        fmt_combo = fmt_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        fmt_combo.addItems(["MP4", "MOV", "AVI", "MKV"])  # type: ignore[union-attr]
+        fmt_combo.setFixedWidth(120)  # type: ignore[union-attr]
+        fmt_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
         exp_layout.insertWidget(0, fmt_row)
 
         # 默认分辨率
         res_row = SettingsRow("默认分辨率", QComboBox(), "导出视频的默认分辨率")
-        res_combo = res_row.layout().itemAt(1).widget()
-        res_combo.addItems(["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)"])
-        res_combo.setFixedWidth(200)
-        res_combo.setStyleSheet(theme_combo.styleSheet())
+        res_combo = res_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
+        res_combo.addItems(["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)"])  # type: ignore[union-attr]
+        res_combo.setFixedWidth(200)  # type: ignore[union-attr]
+        res_combo.setStyleSheet(theme_combo.styleSheet())  # type: ignore[union-attr]
         exp_layout.insertWidget(1, res_row)
 
         container_layout.addWidget(export)

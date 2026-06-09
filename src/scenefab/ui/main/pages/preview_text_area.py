@@ -171,8 +171,8 @@ class PreviewTextArea(QFrame):
         # 清空现有分段
         while self._segments_layout.count():
             item = self._segments_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 添加分段卡片
         for i, (t_range, text, emotion) in enumerate(segments):
@@ -187,7 +187,7 @@ class PreviewTextArea(QFrame):
         """获取所有分段的 (time_range, text, emotion)"""
         result = []
         for i in range(self._segments_layout.count()):
-            card = self._segments_layout.itemAt(i).widget()
+            card = self._segments_layout.itemAt(i).widget()  # type: ignore[union-attr]
             if isinstance(card, NarrationSegmentCard):
                 result.append((card._time_range, card.get_text(), card._emotion))
         return result

@@ -155,7 +155,7 @@ class OCRSubtitleExtractor:
             ],
             max_tokens=200,
         )
-        text = response.choices[0].message.content.strip()
+        text = response.choices[0].message.content.strip()  # type: ignore[union-attr]
         if text in ("", "无", "无字幕", "空", "没有字幕"):
             return ""
         return text

@@ -308,7 +308,7 @@ class StepExportPage(StepPage):
             }}
         """)
         qual_row.addWidget(res_combo)
-        qual_layout.addLayout(qual_row)
+        qual_layout.addLayout(qual_row)  # type: ignore[union-attr]
 
         fps_row = QHBoxLayout()
         fps_row.addWidget(QLabel("帧率"))
@@ -317,9 +317,9 @@ class StepExportPage(StepPage):
         fps_combo = QComboBox()
         fps_combo.addItems(["30 fps", "60 fps", "24 fps", "原始帧率"])
         fps_combo.setFixedWidth(200)
-        fps_combo.setStyleSheet(qual_layout.itemAt(0).spacerItem())
+        fps_combo.setStyleSheet(qual_layout.itemAt(0).spacerItem())  # type: ignore[union-attr]
         fps_row.addWidget(fps_combo)
-        qual_layout.addLayout(fps_row)
+        qual_layout.addLayout(fps_row)  # type: ignore[union-attr]
 
         layout.addWidget(quality_card)
 

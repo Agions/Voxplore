@@ -236,8 +236,8 @@ class AIMonitorPanel(QWidget):
             # 清除现有部件
             while self.services_status_layout.count():
                 item = self.services_status_layout.takeAt(0)
-                if item.widget():
-                    item.widget().deleteLater()
+                if item.widget():  # type: ignore[union-attr]
+                    item.widget().deleteLater()  # type: ignore[union-attr]
 
             # 添加新的服务状态部件
             if self.ai_service_manager:
@@ -574,8 +574,8 @@ class AIMonitorPanel(QWidget):
             # 清除现有部件
             while self.alerts_layout.count():
                 item = self.alerts_layout.takeAt(0)
-                if item.widget():
-                    item.widget().deleteLater()
+                if item.widget():  # type: ignore[union-attr]
+                    item.widget().deleteLater()  # type: ignore[union-attr]
 
             # 获取过滤器
             filter_text = self.alert_filter_combo.currentText()

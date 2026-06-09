@@ -259,10 +259,10 @@ class GroupCard(QFrame):
             self._video_items.remove(path)
         # 找到并移除缩略图组件
         for i in range(self._thumb_grid.count()):
-            w = self._thumb_grid.itemAt(i).widget()
-            if hasattr(w, "video_path") and w.video_path == path:
-                w.setParent(None)
-                w.deleteLater()
+            w = self._thumb_grid.itemAt(i).widget()  # type: ignore[union-attr]
+            if hasattr(w, "video_path") and w.video_path == path:  # type: ignore[union-attr]
+                w.setParent(None)  # type: ignore[union-attr]
+                w.deleteLater()  # type: ignore[union-attr]
                 break
         self._rearrange_grid()
         self._update_count()
@@ -271,7 +271,7 @@ class GroupCard(QFrame):
         """重新排列网格中的组件"""
         items = []
         for i in range(self._thumb_grid.count()):
-            items.append(self._thumb_grid.itemAt(i).widget())
+            items.append(self._thumb_grid.itemAt(i).widget())  # type: ignore[union-attr]
         # 重新按列排
         for i, w in enumerate(items):
             self._thumb_grid.removeWidget(w)

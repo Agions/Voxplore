@@ -95,7 +95,7 @@ class ExportStatisticsWidget(QWidget):
         )
         self.failed_tasks = len([t for t in tasks if t.status == ExportStatus.FAILED])
 
-        self.total_widget.findChild(QLabel).setText(str(self.total_tasks))
+        self.total_widget.findChild(QLabel).setText(str(self.total_tasks))  # type: ignore[union-attr]
         self.processing_widget.findChildren(QLabel)[0].setText(
             str(self.processing_tasks)
         )

@@ -64,8 +64,8 @@ class MainLayout(QVBoxLayout):
         # 清除现有的导航栏
         while self.navigation_bar_layout.count():
             item = self.navigation_bar_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 添加新的导航栏
         if navigation_bar:
@@ -77,8 +77,8 @@ class MainLayout(QVBoxLayout):
         # 清除现有的内容窗口部件
         while self.content_layout.count():
             item = self.content_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 添加新的内容窗口部件
         if widget:

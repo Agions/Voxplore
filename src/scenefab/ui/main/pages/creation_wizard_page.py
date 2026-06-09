@@ -189,7 +189,7 @@ class StepIndicator(QFrame):
         self._current = step
         for i, dot in enumerate(self._dots):
             self._update_dot(dot, i)
-            w = self.layout().itemAt(i * 2 + 1).widget()
+            w = self.layout().itemAt(i * 2 + 1).widget()  # type: ignore[union-attr]
             if w and isinstance(w, QLabel):
                 self._update_lbl(w, i)
 
@@ -265,13 +265,13 @@ class CreationWizardPage(BasePage):
             old_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
             old_anim.start()
 
-        new_widget.setGeometry(rect)
-        new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))
+        new_widget.setGeometry(rect)  # type: ignore[union-attr]
+        new_widget.move(new_widget.pos() + QPoint(rect.width() // 3, 0))  # type: ignore[union-attr]
         self.page_stack.setCurrentIndex(index)
         new_anim = QPropertyAnimation(new_widget, b"pos")
         new_anim.setDuration(_ANIM_DURATION)
-        new_anim.setStartValue(new_widget.pos())
-        new_anim.setEndValue(new_widget.pos())
+        new_anim.setStartValue(new_widget.pos())  # type: ignore[union-attr]
+        new_anim.setEndValue(new_widget.pos())  # type: ignore[union-attr]
         new_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
         new_anim.finished.connect(lambda: setattr(self, "_is_animating", False))
         new_anim.start()
@@ -293,7 +293,7 @@ class CreationWizardPage(BasePage):
             self._show_step(2)
             project = self._controller.current_project()
             self._step_export.set_project(project)
-            self._step_export.set_source_video(project.source_video)
+            self._step_export.set_source_video(project.source_video)  # type: ignore[union-attr]
         elif direction == "back":
             self._show_step(0)
 

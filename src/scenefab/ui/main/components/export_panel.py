@@ -279,12 +279,12 @@ class ExportPanel(QWidget, ThemeAwareMixin):
             if checkbox and checkbox.isChecked():  # type: ignore[attr-defined]
                 selected_projects.append(
                     {
-                        "id": self.batch_projects_table.item(i, 1).data(
+                        "id": self.batch_projects_table.item(i, 1).data(  # type: ignore[union-attr]
                             Qt.ItemDataRole.UserRole
                         ),
-                        "name": self.batch_projects_table.item(i, 1).text(),
-                        "duration": self.batch_projects_table.item(i, 2).text(),
-                        "resolution": self.batch_projects_table.item(i, 3).text(),
+                        "name": self.batch_projects_table.item(i, 1).text(),  # type: ignore[union-attr]
+                        "duration": self.batch_projects_table.item(i, 2).text(),  # type: ignore[union-attr]
+                        "resolution": self.batch_projects_table.item(i, 3).text(),  # type: ignore[union-attr]
                     }
                 )
         return selected_projects

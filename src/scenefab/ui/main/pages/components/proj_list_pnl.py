@@ -55,7 +55,7 @@ class ProjectsListPanel(QWidget):
 
         # 卡片容器
         card = MacElevatedCard()
-        card.layout().setSpacing(12)
+        card.layout().setSpacing(12)  # type: ignore[union-attr]
 
         # 过滤区域
         filter_layout = QHBoxLayout()
@@ -83,7 +83,7 @@ class ProjectsListPanel(QWidget):
         self._status_filter.currentTextChanged.connect(self._on_filter_changed)
         filter_layout.addWidget(self._status_filter)
 
-        card.layout().addWidget(filter_layout)
+        card.layout().addWidget(filter_layout)  # type: ignore[union-attr]
 
         # 项目网格
         self._scroll_area = MacScrollArea()
@@ -93,7 +93,7 @@ class ProjectsListPanel(QWidget):
         self._grid_layout.setSpacing(12)
         self._grid_layout.setContentsMargins(0, 0, 0, 0)
         self._scroll_area.setWidget(self._grid_widget)
-        card.layout().addWidget(self._scroll_area, 1)
+        card.layout().addWidget(self._scroll_area, 1)  # type: ignore[union-attr]
 
         layout.addWidget(card)
 
@@ -167,10 +167,10 @@ class ProjectsListPanel(QWidget):
         """清空网格"""
         while self._grid_layout.count():
             item = self._grid_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
-            elif item.spacerItem():
-                self._grid_layout.removeItem(item.spacerItem())
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
+            elif item.spacerItem():  # type: ignore[union-attr]
+                self._grid_layout.removeItem(item.spacerItem())  # type: ignore[union-attr]
 
     def _add_empty_spacer(self):
         """添加空白间隔"""

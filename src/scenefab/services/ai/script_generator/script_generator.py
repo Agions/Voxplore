@@ -160,7 +160,7 @@ class ScriptGenerator:
             # 避免在已有 event loop 的线程中调用 run_until_complete
             async def _run():
                 result = await self._generate_async(topic, config)
-                await self.llm_manager.close_all()
+                await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
             try:
@@ -223,7 +223,7 @@ class ScriptGenerator:
         )
 
         # 调用 LLMManager
-        response = await self.llm_manager.generate(request, provider=provider_type)
+        response = await self.llm_manager.generate(request, provider=provider_type)  # type: ignore[union-attr]
         provider_name = (
             response.model.split("-")[0] if "-" in response.model else response.model
         )
@@ -250,7 +250,7 @@ class ScriptGenerator:
 
             async def _run():
                 results = await self._generate_batch_async(requests)
-                await self.llm_manager.close_all()
+                await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return results
 
             try:
@@ -375,7 +375,7 @@ class ScriptGenerator:
         )
 
         try:
-            response = await self.llm_manager.generate(request)
+            response = await self.llm_manager.generate(request)  # type: ignore[union-attr]
             return parse_batch_response(response.content, batch)
         except Exception as e:
             logger.warning(f"批量生成失败，回退到逐段调用: {e}")
@@ -395,7 +395,7 @@ class ScriptGenerator:
 
             async def _run():
                 result = await self._generate_async(topic, config)
-                await self.llm_manager.close_all()
+                await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
             try:

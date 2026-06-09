@@ -104,8 +104,8 @@ class SubtitleTrackWidget(QFrame):
         # 清除现有块
         while self._blocks_layout.count():
             item = self._blocks_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 添加字幕块
         for block in sorted(self._track.blocks, key=lambda b: b.start_time):

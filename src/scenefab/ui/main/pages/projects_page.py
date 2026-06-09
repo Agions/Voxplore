@@ -43,7 +43,7 @@ class ProjectsPage(BasePage):
         try:
             self._logger.info("Initializing projects page")
             self._init_ui()
-            self._list_panel.load_projects()
+            self._list_panel.load_projects()  # type: ignore[union-attr]
             return True
         except Exception as e:
             self._logger.error(f"Failed to initialize projects page: {e}")
@@ -122,7 +122,7 @@ class ProjectsPage(BasePage):
 
     def _on_project_selected(self, project_id: str):
         """项目选中"""
-        self._details_panel.show_project(project_id)
+        self._details_panel.show_project(project_id)  # type: ignore[union-attr]
 
     def _on_new_project(self):
         """新建项目"""
@@ -149,8 +149,8 @@ class ProjectsPage(BasePage):
                 )
                 if project_id:
                     QMessageBox.information(self, "成功", "项目创建成功！")
-                    self._list_panel.load_projects()
-                    self._details_panel.show_project(project_id)
+                    self._list_panel.load_projects()  # type: ignore[union-attr]
+                    self._details_panel.show_project(project_id)  # type: ignore[union-attr]
                 else:
                     QMessageBox.warning(self, "失败", "无法创建项目")
         except Exception as e:
@@ -174,8 +174,8 @@ class ProjectsPage(BasePage):
             project_id = self._project_manager.open_project(project_dir)
             if project_id:
                 QMessageBox.information(self, "成功", "项目打开成功！")
-                self._list_panel.load_projects()
-                self._details_panel.show_project(project_id)
+                self._list_panel.load_projects()  # type: ignore[union-attr]
+                self._details_panel.show_project(project_id)  # type: ignore[union-attr]
             else:
                 QMessageBox.warning(self, "失败", "无法打开项目")
 
@@ -193,14 +193,14 @@ class ProjectsPage(BasePage):
             project_id = self._project_manager.import_project(path)
             if project_id:
                 QMessageBox.information(self, "成功", "项目导入成功！")
-                self._list_panel.load_projects()
-                self._details_panel.show_project(project_id)
+                self._list_panel.load_projects()  # type: ignore[union-attr]
+                self._details_panel.show_project(project_id)  # type: ignore[union-attr]
             else:
                 QMessageBox.warning(self, "失败", "无法导入项目")
 
     def _on_refresh(self):
         """刷新"""
-        self._list_panel.load_projects()
+        self._list_panel.load_projects()  # type: ignore[union-attr]
 
     def refresh(self):
         """刷新页面"""

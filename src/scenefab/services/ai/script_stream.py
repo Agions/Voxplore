@@ -198,12 +198,12 @@ class StreamingScriptGenerator(ScriptGenerator):
                             sentiment_callback(chunk, sentiment)
                             last_sentiment = sentiment
 
-            await self.llm_manager.close_all()
+            await self.llm_manager.close_all()  # type: ignore[union-attr]
             return self._parse_response(full_content, config)
         else:
             logger.info("Provider 不支持流式或流式已禁用，使用普通生成方式")
-            response = await self.llm_manager.generate(request, provider=provider_type)
-            await self.llm_manager.close_all()
+            response = await self.llm_manager.generate(request, provider=provider_type)  # type: ignore[union-attr]
+            await self.llm_manager.close_all()  # type: ignore[union-attr]
             full_content = response.content
             if callback:
                 callback(full_content)
@@ -226,12 +226,12 @@ class StreamingScriptGenerator(ScriptGenerator):
         """
         try:
             if hasattr(self.llm_manager, "generate_streaming"):
-                async for chunk in self.llm_manager.generate_streaming(
+                async for chunk in self.llm_manager.generate_streaming(  # type: ignore[union-attr]
                     request, provider=provider_type
                 ):
                     yield chunk
             else:
-                response = await self.llm_manager.generate(
+                response = await self.llm_manager.generate(  # type: ignore[union-attr]
                     request, provider=provider_type
                 )
                 yield response.content
@@ -299,7 +299,7 @@ class StreamingScriptGenerator(ScriptGenerator):
 
             async def _run():
                 result = await self._generate_async(topic, config)
-                await self.llm_manager.close_all()
+                await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
             try:

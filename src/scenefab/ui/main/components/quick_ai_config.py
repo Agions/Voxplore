@@ -242,7 +242,7 @@ class QuickAIConfigWidget(QWidget):
         """刷新状态区域"""
         # 清空现有状态项
         for i in reversed(range(self.status_grid.count())):
-            widget = self.status_grid.itemAt(i).widget()
+            widget = self.status_grid.itemAt(i).widget()  # type: ignore[union-attr]
             if widget:
                 widget.deleteLater()
 
@@ -291,8 +291,8 @@ class QuickAIConfigWidget(QWidget):
         # 清空现有内容
         while self.recent_layout.count():
             item = self.recent_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget():  # type: ignore[union-attr]
+                item.widget().deleteLater()  # type: ignore[union-attr]
 
         # 获取最近使用的模型
         recent_models = self._get_recent_models()

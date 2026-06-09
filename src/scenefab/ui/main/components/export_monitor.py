@@ -136,23 +136,23 @@ class ExportProgressWidget(QWidget):
         self.progress_bar.setValue(int(self.task.progress))
 
         # 更新状态标签
-        for i in range(self.layout().count()):
-            item = self.layout().itemAt(i)
-            if item.layout():
-                for j in range(item.layout().count()):
-                    sub_item = item.layout().itemAt(j)
-                    if isinstance(sub_item.widget(), QLabel):
-                        label = sub_item.widget()
-                        if "开始:" in label.text():
+        for i in range(self.layout().count()):  # type: ignore[union-attr]
+            item = self.layout().itemAt(i)  # type: ignore[union-attr]
+            if item.layout():  # type: ignore[union-attr]
+                for j in range(item.layout().count()):  # type: ignore[union-attr]
+                    sub_item = item.layout().itemAt(j)  # type: ignore[union-attr]
+                    if isinstance(sub_item.widget(), QLabel):  # type: ignore[union-attr]
+                        label = sub_item.widget()  # type: ignore[union-attr]
+                        if "开始:" in label.text():  # type: ignore[union-attr]
                             start_time_text = (
                                 self._format_time(self.task.started_at)
                                 if self.task.started_at
                                 else "未开始"
                             )
-                            label.setText(f"开始: {start_time_text}")
-                        elif "剩余:" in label.text():
+                            label.setText(f"开始: {start_time_text}")  # type: ignore[union-attr]
+                        elif "剩余:" in label.text():  # type: ignore[union-attr]
                             eta_text = self._calculate_eta()
-                            label.setText(f"剩余: {eta_text}")
+                            label.setText(f"剩余: {eta_text}")  # type: ignore[union-attr]
 
     def mousePressEvent(self, event):
         """鼠标点击事件"""

@@ -250,7 +250,7 @@ class HTTPClientMixin:
             data = await self._call_api("POST", endpoint, json=payload)
         """
         try:
-            response = await self.http_client.request(method, endpoint, **kwargs)
+            response = await self.http_client.request(method, endpoint, **kwargs)  # type: ignore[union-attr]
             return response.json()  # type: ignore[no-any-return]
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)

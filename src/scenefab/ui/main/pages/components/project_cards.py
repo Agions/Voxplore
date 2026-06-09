@@ -44,12 +44,12 @@ class ProjectCard(MacCard):
         # 项目名称 (大标题)
         self.name_label = MacLabel("", "card-title")
         self.name_label.setWordWrap(True)
-        layout.addWidget(self.name_label)
+        layout.addWidget(self.name_label)  # type: ignore[union-attr]
 
         # 项目描述 (副标题)
         self.desc_label = MacLabel("", "card-subtitle")
         self.desc_label.setWordWrap(True)
-        layout.addWidget(self.desc_label)
+        layout.addWidget(self.desc_label)  # type: ignore[union-attr]
 
         # 项目信息行
         info_row = QWidget()
@@ -68,7 +68,7 @@ class ProjectCard(MacCard):
         self.date_label = MacLabel("", "text-sm text-muted")
         info_layout.addWidget(self.date_label)
 
-        layout.addWidget(info_row)
+        layout.addWidget(info_row)  # type: ignore[union-attr]
 
         # 操作按钮行
         button_row = QWidget()
@@ -101,7 +101,7 @@ class ProjectCard(MacCard):
         button_layout.addWidget(self.delete_btn)
 
         button_layout.addStretch()
-        layout.addWidget(button_row)
+        layout.addWidget(button_row)  # type: ignore[union-attr]
 
     def _update_display(self):
         """更新显示"""
@@ -138,14 +138,14 @@ class TemplateCard(MacCard):
 
     def _setup_ui(self):
         """设置UI - 使用 QSS 类名，无内联样式"""
-        self.layout().setSpacing(8)
-        self.layout().setContentsMargins(12, 12, 12, 12)
+        self.layout().setSpacing(8)  # type: ignore[union-attr]
+        self.layout().setContentsMargins(12, 12, 12, 12)  # type: ignore[union-attr]
 
         # 模板名称
         self.name_label = MacLabel("", "text-lg text-bold")
         self.name_label.setWordWrap(True)
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout().addWidget(self.name_label)
+        self.layout().addWidget(self.name_label)  # type: ignore[union-attr]
 
         # 模板预览图容器
         preview_container = QWidget()
@@ -161,12 +161,12 @@ class TemplateCard(MacCard):
             self.preview_label, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
-        self.layout().addWidget(preview_container)
+        self.layout().addWidget(preview_container)  # type: ignore[union-attr]
 
         # 模板类别徽章
         self.category_badge = MacBadge("", "primary")
         self.category_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout().addWidget(
+        self.layout().addWidget(  # type: ignore[union-attr]
             self.category_badge, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
