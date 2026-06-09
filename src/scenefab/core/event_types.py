@@ -24,7 +24,7 @@ except ImportError:  # 兼容未装 pydantic
     _HAS_PYDANTIC = False
     BaseModel = object  # type: ignore[assignment,misc]
 
-    def Field(*args, **kwargs):  # type: ignore[misc]
+    def Field(*args, **kwargs):
         return None
 
 

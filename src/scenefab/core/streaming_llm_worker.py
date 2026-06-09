@@ -47,8 +47,8 @@ class StreamingLLMWorker(BaseWorker):
         sentence_completed = _Signal(str)  # 一句话完成
     except ImportError:
         # Headless 模式
-        token_received = BaseWorker.progress  # type: ignore[assignment]
-        sentence_completed = BaseWorker.status  # type: ignore[assignment]
+        token_received = BaseWorker.progress
+        sentence_completed = BaseWorker.status
 
     def __init__(
         self,
@@ -76,7 +76,7 @@ class StreamingLLMWorker(BaseWorker):
         self._accumulated = ""
         self._audit = AuditLogger()
 
-    def run(self) -> None:  # type: ignore[override]
+    def run(self) -> None:
         """
         子类实现：调用实际 LLM 流式接口
 

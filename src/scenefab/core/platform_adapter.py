@@ -235,7 +235,7 @@ class SmartCropper:
         # 简化实现：基于视频尺寸的等比缩放
         # 实际项目会调用 Vision API 检测主体位置
         try:
-            import cv2 as _cv2  # type: ignore[import-not-found]
+            import cv2 as _cv2
 
             cap = _cv2.VideoCapture(str(source))
             width = int(cap.get(_cv2.CAP_PROP_FRAME_WIDTH))

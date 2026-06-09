@@ -205,7 +205,7 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
     # 子类重写
     # ==============================================================
 
-    def run(self) -> None:  # type: ignore[override]
+    def run(self) -> None:
         """
         子类应重写此方法实现具体逻辑
 
@@ -263,7 +263,7 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
                 for h in self.error._handlers:
                     h(str(e))
 
-    def start(self, *args, **kwargs) -> None:  # type: ignore[override]
+    def start(self, *args, **kwargs) -> None:
         """启动 Worker"""
         if _QT_AVAILABLE:
             QThread.start(self)

@@ -209,7 +209,7 @@ class WSHub:
                         and conn.websocket.client_state == WebSocketState.CONNECTED
                     ):
                         # 同步客户端测试时可注入 mock
-                        conn.websocket.send_json_sync(msg)  # type: ignore[attr-defined]
+                        conn.websocket.send_json_sync(msg)
                         conn.send_count += 1
                 except Exception as e:
                     conn.last_error = str(e)

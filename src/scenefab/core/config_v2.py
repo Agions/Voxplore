@@ -40,18 +40,15 @@ try:
 except ImportError:
     _HAS_PYDANTIC_SETTINGS = False
 
-    # type: ignore[assignment]
-    def Field(*args, **kwargs):  # type: ignore[misc]
+    def Field(*args, **kwargs):
         return None
 
-    # type: ignore[assignment]
     BaseSettings = object
 
-    # type: ignore[assignment]
-    def SettingsConfigDict(**kwargs):  # type: ignore[misc]
+    def SettingsConfigDict(**kwargs):
         return {}
 
-    def field_validator(*args, **kwargs):  # type: ignore[no-redef]
+    def field_validator(*args, **kwargs):
         def decorator(fn):
             return fn
 

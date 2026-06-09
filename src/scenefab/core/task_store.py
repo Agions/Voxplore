@@ -305,7 +305,7 @@ class RedisTaskStore(TaskStore):
         prefix: str = "scenefab:task:",
     ):
         try:
-            import redis as _redis  # type: ignore[import-untyped]
+            import redis as _redis
         except ImportError as e:
             raise ImportError("RedisTaskStore requires `pip install redis`") from e
         self._client = _redis.from_url(url, decode_responses=True)
