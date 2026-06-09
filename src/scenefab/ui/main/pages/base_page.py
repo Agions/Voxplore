@@ -3,8 +3,11 @@
 提供统一的页面生命周期管理
 """
 
-from typing import Any
+from typing import Any, TypeVar
 from typing import Any as TypingAny
+
+# 泛型类型变量: get_service(T) 返回 T | None, 与 Application.get_service 一致
+T = TypeVar("T")
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
@@ -227,8 +230,8 @@ class BasePage(QWidget):
         if self.event_bus and hasattr(self.event_bus, "unsubscribe"):
             self.event_bus.unsubscribe(event_type, handler)
 
-    def get_service(self, service_type: type):
-        """获取服务"""
+    def get_service(self, service_type: type[T]) -> T | None:
+        """获取服务 — 透传 Application.get_service, TypeVar 化保持类型"""
         return self.application.get_service(service_type)
 
     def get_config_value(self, key: str, default=None):

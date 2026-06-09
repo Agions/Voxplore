@@ -9,9 +9,12 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
 from scenefab.signals_bridge import QObject, Signal
+
+# 泛型类型变量: get_service(T) 返回 T | None, 替代 object | None 的类型擦除
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -246,10 +249,10 @@ class Application(QObject):
             self.error_occurred.emit("RUN_ERROR", f"Run failed: {str(e)}")
             return 1
 
-    def get_service(self, service_type: type) -> object | None:
-        """获取指定类型的服务"""
+    def get_service(self, service_type: type[T]) -> T | None:
+        """获取指定类型的服务 (TypeVar 化 — 替代原 object | None 的类型擦除)"""
         try:
-            return self._service_container.get(service_type)
+            return self._service_container.get(service_type)  # type: ignore[return-value]
         except ValueError:
             return None
 
