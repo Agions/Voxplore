@@ -21,7 +21,7 @@ class ContentScorersMixin:
 
     def _calculate_hook_score(self, script_text: str, platform: str) -> HookScore:
         """
-        计算开篇钩子评分
+        计算开篇钩子评分 — 编排器, 委派到 SRP 检测方法.
 
         Args:
             script_text: 解说文案
@@ -31,65 +31,23 @@ class ContentScorersMixin:
             HookScore: 钩子评分
         """
         score = 50.0  # 基础分
-        hook_type = "unknown"
-        detected_elements = []
-        suggestions = []
+        detected_elements: list[str] = []
+        first_3_seconds = self._extract_first_3s(script_text)
 
-        # 提取前 3 秒的文案（约 15-20 个字）
-        lines = script_text.split("\n")
-        first_line = lines[0] if lines else ""
-        first_3_seconds = first_line[:30] if len(first_line) > 30 else first_line
+        # 钩子类型检测 (conflict/suspense/result_first/question/shock)
+        hook_type = self._detect_hook_type(first_3_seconds, detected_elements)
+        score += len(detected_elements) * 10  # 每次匹配 +10
 
-        # 检测钩子类型
-        hook_patterns = {
-            "conflict": [
-                "没想到",
-                "竟然",
-                "居然",
-                "突然",
-                "意外",
-                "但是",
-                "然而",
-                "可是",
-            ],
-            "suspense": ["秘密", "真相", "背后", "隐藏", "谜团", "悬念", "最后"],
-            "result_first": ["结局", "最后", "最终", "结果", "后来"],
-            "question": ["为什么", "怎么", "如何", "是什么", "哪里", "谁"],
-            "shock": ["震惊", "可怕", "恐怖", "惊人", "难以置信", "不敢相信"],
-        }
+        # 结果前置模式额外加分
+        result_bonus = self._match_result_patterns(first_3_seconds, detected_elements)
+        score += result_bonus
 
-        for hook_type_name, keywords in hook_patterns.items():
-            for keyword in keywords:
-                if keyword in first_3_seconds:
-                    hook_type = hook_type_name
-                    detected_elements.append(keyword)
-                    score += 10
-                    break
+        # 冲突模式额外加分
+        conflict_bonus = self._match_conflict_patterns(first_3_seconds, detected_elements)
+        score += conflict_bonus
 
-        # 检测结果前置模式
-        result_patterns = ["最后一刻", "结局", "最终", "直到最后"]
-        for pattern in result_patterns:
-            if pattern in first_3_seconds:
-                score += 15
-                detected_elements.append(f"结果前置: {pattern}")
-
-        # 检测冲突模式
-        conflict_patterns = ["没想到", "竟然", "居然", "突然"]
-        for pattern in conflict_patterns:
-            if pattern in first_3_seconds:
-                score += 12
-                detected_elements.append(f"冲突: {pattern}")
-
-        # 限制最高分
         score = min(100, score)
-
-        # 生成建议
-        if score < 70:
-            suggestions.append("建议将开头改为结果前置或冲突模式")
-            suggestions.append("例如：'最后一刻，他才发现...' 或 '没想到，竟然...'")
-
-        if not detected_elements:
-            suggestions.append("未检测到明显钩子元素，建议添加悬念或冲突")
+        suggestions = self._build_hook_suggestions(score, detected_elements)
 
         return HookScore(
             score=score,
@@ -97,6 +55,71 @@ class ContentScorersMixin:
             detected_elements=detected_elements,
             suggestions=suggestions,
         )
+
+    @staticmethod
+    def _extract_first_3s(script_text: str) -> str:
+        """提取前 3 秒文案 (约 15-20 字), 取首行前 30 字符."""
+        first_line = script_text.split("\n", 1)[0] if script_text else ""
+        return first_line[:30] if len(first_line) > 30 else first_line
+
+    _HOOK_PATTERNS: dict[str, list[str]] = {
+        "conflict": ["没想到", "竟然", "居然", "突然", "意外", "但是", "然而", "可是"],
+        "suspense": ["秘密", "真相", "背后", "隐藏", "谜团", "悬念", "最后"],
+        "result_first": ["结局", "最后", "最终", "结果", "后来"],
+        "question": ["为什么", "怎么", "如何", "是什么", "哪里", "谁"],
+        "shock": ["震惊", "可怕", "恐怖", "惊人", "难以置信", "不敢相信"],
+    }
+
+    @classmethod
+    def _detect_hook_type(
+        cls, first_3_seconds: str, detected_elements: list[str]
+    ) -> str:
+        """检测首段所属钩子类型, 首次匹配的类型胜出."""
+        for hook_type_name, keywords in cls._HOOK_PATTERNS.items():
+            for keyword in keywords:
+                if keyword in first_3_seconds:
+                    detected_elements.append(keyword)
+                    return hook_type_name
+        return "unknown"
+
+    @staticmethod
+    def _match_result_patterns(
+        first_3_seconds: str, detected_elements: list[str]
+    ) -> float:
+        """结果前置模式匹配加分 (每匹配 +15)."""
+        result_patterns = ["最后一刻", "结局", "最终", "直到最后"]
+        bonus = 0.0
+        for pattern in result_patterns:
+            if pattern in first_3_seconds:
+                bonus += 15
+                detected_elements.append(f"结果前置: {pattern}")
+        return bonus
+
+    @staticmethod
+    def _match_conflict_patterns(
+        first_3_seconds: str, detected_elements: list[str]
+    ) -> float:
+        """冲突模式匹配加分 (每匹配 +12)."""
+        conflict_patterns = ["没想到", "竟然", "居然", "突然"]
+        bonus = 0.0
+        for pattern in conflict_patterns:
+            if pattern in first_3_seconds:
+                bonus += 12
+                detected_elements.append(f"冲突: {pattern}")
+        return bonus
+
+    @staticmethod
+    def _build_hook_suggestions(score: float, detected_elements: list[str]) -> list[str]:
+        """基于当前分数生成优化建议."""
+        if score >= 70:
+            return []
+        suggestions = [
+            "建议将开头改为结果前置或冲突模式",
+            "例如: '最后一刻，他才发现...' 或 '没想到，竟然...'",
+        ]
+        if not detected_elements:
+            suggestions.append("未检测到明显钩子元素，建议添加悬念或冲突")
+        return suggestions
 
     def _calculate_emotion_curve_score(
         self,
