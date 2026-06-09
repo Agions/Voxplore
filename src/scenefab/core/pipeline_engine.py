@@ -452,7 +452,21 @@ class PipelineEngine:
         return [groups[k] for k in order]
 
     def _execute_step(self, step: PipelineStep, context: dict) -> None:
-        """执行单个步骤"""
+        """执行单个步骤 — orchestrator: preprocess / execute / postprocess."""
+        start_time = self._preprocess_step(step, context)
+
+        try:
+            output = self._run_step_function(step, context)
+        except Exception as e:
+            duration_ms = int((time.time() - start_time) * 1000)
+            self._postprocess_step_failure(step, e, duration_ms)
+            return
+
+        duration_ms = int((time.time() - start_time) * 1000)
+        self._postprocess_step_success(step, output, duration_ms, start_time, context)
+
+    def _preprocess_step(self, step: PipelineStep, context: dict) -> float:
+        """Mark step as RUNNING, log + audit start. Returns start_time."""
         with self._lock:
             self.states[step.id] = StepStatus.RUNNING
         start_time = time.time()
@@ -467,93 +481,103 @@ class PipelineEngine:
             task_id=context.get("input", {}).get("task_id", ""),
             step_id=step.id,
         )
+        return start_time
 
-        try:
-            output = step.func(context)
-            duration_ms = int((time.time() - start_time) * 1000)
+    def _run_step_function(self, step: PipelineStep, context: dict) -> Any:
+        """Invoke the step's user function. Exceptions propagate."""
+        return step.func(context)
 
-            with self._lock:
-                self.states[step.id] = StepStatus.COMPLETED
-                self.results[step.id] = StepResult(
-                    step_id=step.id,
-                    status=StepStatus.COMPLETED,
-                    output=output,
-                    duration_ms=duration_ms,
-                    start_time=start_time,
-                )
-                context["steps"][step.id] = output
-
-            self._audit.log_action(
-                action="pipeline_step_done",
-                parameters={"step_id": step.id},
-                result="success",
-                duration_ms=duration_ms,
+    def _postprocess_step_success(
+        self,
+        step: PipelineStep,
+        output: Any,
+        duration_ms: int,
+        start_time: float,
+        context: dict,
+    ) -> None:
+        """On success: update state/result, write to context, audit, publish event."""
+        with self._lock:
+            self.states[step.id] = StepStatus.COMPLETED
+            self.results[step.id] = StepResult(
                 step_id=step.id,
-            )
-            logger.info(f"Step '{step.id}' completed in {duration_ms}ms")
-
-            # v2.1: 发布 PipelineStepCompleted
-            if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
-                try:
-                    self._event_bus.publish_event(
-                        PipelineStepCompleted(
-                            pipeline_id=self._pipeline_id,
-                            step_id=step.id,
-                            status="success",
-                            duration_ms=duration_ms,
-                            result=output,
-                        )
-                    )
-                except Exception:
-                    logger.debug(
-                        "PipelineStepCompleted event publish failed", exc_info=True
-                    )
-
-        except Exception as e:
-            import traceback
-
-            duration_ms = int((time.time() - start_time) * 1000)
-            tb = traceback.format_exc()
-            err_type = type(e).__name__
-
-            with self._lock:
-                self.states[step.id] = StepStatus.FAILED
-                self.results[step.id] = StepResult(
-                    step_id=step.id,
-                    status=StepStatus.FAILED,
-                    error=str(e),
-                    error_type=err_type,
-                    duration_ms=duration_ms,
-                )
-
-            self._audit.log_action(
-                action="pipeline_step_failed",
-                parameters={"step_id": step.id},
-                result="failure",
+                status=StepStatus.COMPLETED,
+                output=output,
                 duration_ms=duration_ms,
-                error_message=str(e)[:500],
+                start_time=start_time,
+            )
+            context["steps"][step.id] = output
+
+        self._audit.log_action(
+            action="pipeline_step_done",
+            parameters={"step_id": step.id},
+            result="success",
+            duration_ms=duration_ms,
+            step_id=step.id,
+        )
+        logger.info(f"Step '{step.id}' completed in {duration_ms}ms")
+        self._publish_step_completed(step, "success", duration_ms, result=output)
+
+    def _postprocess_step_failure(
+        self, step: PipelineStep, error: Exception, duration_ms: int
+    ) -> None:
+        """On failure: update state/result, audit, log, publish event."""
+        import traceback
+
+        tb = traceback.format_exc()
+        err_type = type(error).__name__
+
+        with self._lock:
+            self.states[step.id] = StepStatus.FAILED
+            self.results[step.id] = StepResult(
+                step_id=step.id,
+                status=StepStatus.FAILED,
+                error=str(error),
                 error_type=err_type,
-                step_id=step.id,
+                duration_ms=duration_ms,
             )
-            logger.error(f"Step '{step.id}' failed: {err_type}: {e}\n{tb}")
 
-            # v2.1: 发布 PipelineStepCompleted (failed)
-            if _HAS_V21_PIPELINE_EVENTS and self._event_bus is not None:
-                try:
-                    self._event_bus.publish_event(
-                        PipelineStepCompleted(
-                            pipeline_id=self._pipeline_id,
-                            step_id=step.id,
-                            status="failed",
-                            duration_ms=duration_ms,
-                            error=str(e)[:500],
-                        )
-                    )
-                except Exception:
-                    logger.debug(
-                        "PipelineStepCompleted(failed) event publish failed",
-                        exc_info=True,
-                    )
+        self._audit.log_action(
+            action="pipeline_step_failed",
+            parameters={"step_id": step.id},
+            result="failure",
+            duration_ms=duration_ms,
+            error_message=str(error)[:500],
+            error_type=err_type,
+            step_id=step.id,
+        )
+        logger.error(f"Step '{step.id}' failed: {err_type}: {error}\n{tb}")
+        self._publish_step_completed(
+            step, "failed", duration_ms, error=str(error)[:500]
+        )
+
+    def _publish_step_completed(
+        self,
+        step: PipelineStep,
+        status: str,
+        duration_ms: int,
+        *,
+        result: Any = None,
+        error: str | None = None,
+    ) -> None:
+        """Publish v2.1 PipelineStepCompleted event when event bus is available."""
+        if not (_HAS_V21_PIPELINE_EVENTS and self._event_bus is not None):
+            return
+        try:
+            kwargs: dict[str, Any] = {
+                "pipeline_id": self._pipeline_id,
+                "step_id": step.id,
+                "status": status,
+                "duration_ms": duration_ms,
+            }
+            if result is not None:
+                kwargs["result"] = result
+            if error is not None:
+                kwargs["error"] = error
+            self._event_bus.publish_event(PipelineStepCompleted(**kwargs))
+        except Exception:
+            logger.debug(
+                "PipelineStepCompleted event publish failed", exc_info=True
+            )
 
     def _mark_skipped(self) -> None:
         """将所有 PENDING 步骤标记为 SKIPPED（保留 always_run 步骤以便执行）"""

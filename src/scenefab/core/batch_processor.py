@@ -352,7 +352,13 @@ class BatchProcessor:
             self._task_queue.task_done()
 
     def _process_task(self, task: BatchTask) -> None:
-        """处理单个任务（含重试）"""
+        """处理单个任务（含重试）
+
+        编排重试循环；具体逻辑委托给以下辅助方法：
+        - _prepare_attempt: 标记 RUNNING、写审计、触发 on_task_started
+        - _execute_attempt: 调用 pipeline 并标记 COMPLETED
+        - _handle_attempt_failure: 记录错误、退避或标记 FAILED
+        """
         max_attempts = self.config.max_retries + 1 if self.config.auto_retry else 1
 
         for attempt in range(1, max_attempts + 1):
@@ -361,97 +367,113 @@ class BatchProcessor:
                 self._save_checkpoint(task)
                 return
 
-            task.attempts = attempt
-            task.status = TaskStatus.RUNNING
-            task.started_at = time.time()
-
-            self._audit.log_action(
-                action="batch_task_start",
-                parameters={
-                    "task_id": task.id,
-                    "video": str(task.video_path),
-                    "attempt": attempt,
-                },
-                task_id=task.id,
-            )
-            logger.info(f"Task {task.id} attempt {attempt}/{max_attempts}")
-
-            if self.config.on_task_started:
-                try:
-                    self.config.on_task_started(task)
-                except Exception as e:
-                    logger.debug(f"on_task_started callback error: {e}")
+            self._prepare_attempt(task, attempt, max_attempts)
 
             try:
-                pipeline = self.pipeline_factory(task)
-                result_path = pipeline.run(
-                    video_path=str(task.video_path),
-                    output_dir=str(task.output_dir),
-                    episode=task.episode_number,
-                    preset=task.preset,
-                    metadata=task.metadata,
-                )
-                task.result_path = Path(result_path) if result_path else None
-                task.progress = 1.0
-                task.status = TaskStatus.COMPLETED
-                task.finished_at = time.time()
-                task.error = ""
-
-                self._audit.log_action(
-                    action="batch_task_done",
-                    parameters={"task_id": task.id, "result": str(task.result_path)},
-                    result="success",
-                    duration_ms=task.duration_ms(),
-                    task_id=task.id,
-                )
-                self._save_checkpoint(task)
-
-                if self.config.on_task_completed:
-                    try:
-                        self.config.on_task_completed(task)
-                    except Exception as e:
-                        logger.debug(f"on_task_completed callback error: {e}")
-
-                logger.info(
-                    f"Task {task.id} completed in {task.duration_ms()}ms "
-                    f"(attempt {attempt})"
-                )
+                self._execute_attempt(task, attempt)
                 return
-
             except Exception as e:
-                import traceback
+                self._handle_attempt_failure(task, attempt, max_attempts, e)
 
-                err_type = type(e).__name__
-                err_msg = str(e)[:500]
-                logger.error(f"Task {task.id} failed (attempt {attempt}): {e}")
-                logger.debug(traceback.format_exc())
+    def _prepare_attempt(
+        self, task: BatchTask, attempt: int, max_attempts: int
+    ) -> None:
+        """标记任务进入 RUNNING、记录审计日志、触发 on_task_started 回调"""
+        task.attempts = attempt
+        task.status = TaskStatus.RUNNING
+        task.started_at = time.time()
 
-                task.error = f"{err_type}: {err_msg}"
-                task.finished_at = time.time()
+        self._audit.log_action(
+            action="batch_task_start",
+            parameters={
+                "task_id": task.id,
+                "video": str(task.video_path),
+                "attempt": attempt,
+            },
+            task_id=task.id,
+        )
+        logger.info(f"Task {task.id} attempt {attempt}/{max_attempts}")
 
-                if attempt < max_attempts:
-                    # 退避重试
-                    backoff_sec = min(2**attempt, 30)
-                    logger.info(f"Retrying task {task.id} in {backoff_sec}s...")
-                    time.sleep(backoff_sec)
-                else:
-                    task.status = TaskStatus.FAILED
-                    self._audit.log_action(
-                        action="batch_task_failed",
-                        parameters={"task_id": task.id, "attempts": attempt},
-                        result="failure",
-                        duration_ms=task.duration_ms(),
-                        error_message=err_msg,
-                        error_type=err_type,
-                        task_id=task.id,
-                    )
-                    self._save_checkpoint(task)
+        if self.config.on_task_started:
+            try:
+                self.config.on_task_started(task)
+            except Exception as e:
+                logger.debug(f"on_task_started callback error: {e}")
 
-                    if self.config.on_task_failed:
-                        try:
-                            self.config.on_task_failed(task)
-                        except Exception as cb_e:
-                            logger.debug(f"on_task_failed callback error: {cb_e}")
+    def _execute_attempt(self, task: BatchTask, attempt: int) -> None:
+        """构造 pipeline、执行一次、成功则标记 COMPLETED 并写审计/回调"""
+        pipeline = self.pipeline_factory(task)
+        result_path = pipeline.run(
+            video_path=str(task.video_path),
+            output_dir=str(task.output_dir),
+            episode=task.episode_number,
+            preset=task.preset,
+            metadata=task.metadata,
+        )
+        task.result_path = Path(result_path) if result_path else None
+        task.progress = 1.0
+        task.status = TaskStatus.COMPLETED
+        task.finished_at = time.time()
+        task.error = ""
+
+        self._audit.log_action(
+            action="batch_task_done",
+            parameters={"task_id": task.id, "result": str(task.result_path)},
+            result="success",
+            duration_ms=task.duration_ms(),
+            task_id=task.id,
+        )
+        self._save_checkpoint(task)
+
+        if self.config.on_task_completed:
+            try:
+                self.config.on_task_completed(task)
+            except Exception as e:
+                logger.debug(f"on_task_completed callback error: {e}")
+
+        logger.info(
+            f"Task {task.id} completed in {task.duration_ms()}ms "
+            f"(attempt {attempt})"
+        )
+
+    def _handle_attempt_failure(
+        self, task: BatchTask, attempt: int, max_attempts: int, exc: Exception
+    ) -> None:
+        """单次尝试失败后的处理：记日志、按指数退避重试或标记 FAILED + 写审计"""
+        import traceback
+
+        err_type = type(exc).__name__
+        err_msg = str(exc)[:500]
+        logger.error(f"Task {task.id} failed (attempt {attempt}): {exc}")
+        logger.debug(traceback.format_exc())
+
+        task.error = f"{err_type}: {err_msg}"
+        task.finished_at = time.time()
+
+        if attempt < max_attempts:
+            # 退避重试
+            backoff_sec = min(2**attempt, 30)
+            logger.info(f"Retrying task {task.id} in {backoff_sec}s...")
+            time.sleep(backoff_sec)
+            return
+
+        task.status = TaskStatus.FAILED
+        self._audit.log_action(
+            action="batch_task_failed",
+            parameters={"task_id": task.id, "attempts": attempt},
+            result="failure",
+            duration_ms=task.duration_ms(),
+            error_message=err_msg,
+            error_type=err_type,
+            task_id=task.id,
+        )
+        self._save_checkpoint(task)
+
+        if self.config.on_task_failed:
+            try:
+                self.config.on_task_failed(task)
+            except Exception as cb_e:
+                logger.debug(f"on_task_failed callback error: {cb_e}")
 
     def _save_checkpoint(self, task: BatchTask) -> None:
         """保存断点"""

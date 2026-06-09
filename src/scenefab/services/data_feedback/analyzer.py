@@ -176,123 +176,172 @@ class FeedbackAnalyzer:
         """
         生成效果洞察
         """
-        insights = []
+        insights: list[PerformanceInsight] = []
         stats = self.store.get_aggregated_stats(days=days)
 
         # 1. 最佳钩子类型分析
-        hook_stats = stats.get("hook_stats", [])
-        if hook_stats:
-            best_hook = max(hook_stats, key=lambda h: h["avg_views"])
-            worst_hook = min(hook_stats, key=lambda h: h["avg_views"])
-
-            if best_hook["hook_type"] != worst_hook["hook_type"]:
-                improvement = (
-                    (
-                        (best_hook["avg_views"] - worst_hook["avg_views"])
-                        / worst_hook["avg_views"]
-                        * 100
-                    )
-                    if worst_hook["avg_views"] > 0
-                    else 0
-                )
-
-                insights.append(
-                    PerformanceInsight(
-                        insight_type="hook_best",
-                        title="最佳钩子类型",
-                        description=(
-                            f"「{best_hook['hook_type']}」类型的平均播放量 "
-                            f"({best_hook['avg_views']:.0f}) 显著高于 "
-                            f"「{worst_hook['hook_type']}」({worst_hook['avg_views']:.0f})，"
-                            f"提升 {improvement:.1f}%"
-                        ),
-                        confidence=min(0.9, best_hook["count"] / 30),
-                        data_points=best_hook["count"],
-                        recommendation=f"建议优先使用「{best_hook['hook_type']}」类型的开头钩子",
-                        related_metrics={
-                            "avg_views": best_hook["avg_views"],
-                            "avg_completion_rate": best_hook["avg_completion_rate"],
-                        },
-                    )
-                )
+        insights.extend(self._hook_insight(stats.get("hook_stats", [])))
 
         # 2. 完播率分析
-        avg_completion = stats.get("avg_completion_rate", 0)
-        if avg_completion > 0:
-            if avg_completion < 0.25:
-                insights.append(
-                    PerformanceInsight(
-                        insight_type="completion_low",
-                        title="完播率偏低",
-                        description=f"近 {days} 天平均完播率仅 {avg_completion * 100:.1f}%，低于行业基准",
-                        confidence=0.8,
-                        data_points=stats["total_videos"],
-                        recommendation="建议优化开头吸引力，缩短无效内容，增加转折点密度",
-                    )
-                )
-            elif avg_completion > 0.45:
-                insights.append(
-                    PerformanceInsight(
-                        insight_type="completion_high",
-                        title="完播率优秀",
-                        description=f"近 {days} 天平均完播率 {avg_completion * 100:.1f}%，表现优秀",
-                        confidence=0.8,
-                        data_points=stats["total_videos"],
-                        recommendation="当前内容节奏良好，可尝试增加视频时长以提升总播放时长",
-                    )
-                )
+        insights.extend(
+            self._completion_insight(
+                avg_completion=stats.get("avg_completion_rate", 0),
+                total_videos=stats.get("total_videos", 0),
+                days=days,
+            )
+        )
 
         # 3. 平台差异分析
-        platform_stats = stats.get("platform_stats", [])
-        if len(platform_stats) >= 2:
-            best_platform = max(platform_stats, key=lambda p: p["avg_completion_rate"])
+        insights.extend(self._platform_insight(stats.get("platform_stats", [])))
+
+        # 4. 互动率分析
+        insights.extend(
+            self._engagement_insight(
+                total_views=stats.get("total_views", 0),
+                total_likes=stats.get("total_likes", 0),
+                total_comments=stats.get("total_comments", 0),
+                total_videos=stats.get("total_videos", 0),
+            )
+        )
+
+        return insights
+
+    @staticmethod
+    def _hook_insight(hook_stats: list[dict]) -> list[PerformanceInsight]:
+        """分析最佳与最差钩子类型，生成提升建议。"""
+        if not hook_stats:
+            return []
+
+        best_hook = max(hook_stats, key=lambda h: h["avg_views"])
+        worst_hook = min(hook_stats, key=lambda h: h["avg_views"])
+
+        if best_hook["hook_type"] == worst_hook["hook_type"]:
+            return []
+
+        improvement = (
+            (
+                (best_hook["avg_views"] - worst_hook["avg_views"])
+                / worst_hook["avg_views"]
+                * 100
+            )
+            if worst_hook["avg_views"] > 0
+            else 0
+        )
+
+        return [
+            PerformanceInsight(
+                insight_type="hook_best",
+                title="最佳钩子类型",
+                description=(
+                    f"「{best_hook['hook_type']}」类型的平均播放量 "
+                    f"({best_hook['avg_views']:.0f}) 显著高于 "
+                    f"「{worst_hook['hook_type']}」({worst_hook['avg_views']:.0f})，"
+                    f"提升 {improvement:.1f}%"
+                ),
+                confidence=min(0.9, best_hook["count"] / 30),
+                data_points=best_hook["count"],
+                recommendation=f"建议优先使用「{best_hook['hook_type']}」类型的开头钩子",
+                related_metrics={
+                    "avg_views": best_hook["avg_views"],
+                    "avg_completion_rate": best_hook["avg_completion_rate"],
+                },
+            )
+        ]
+
+    @staticmethod
+    def _completion_insight(
+        avg_completion: float,
+        total_videos: int,
+        days: int,
+    ) -> list[PerformanceInsight]:
+        """按完播率高低阈值生成对应洞察。"""
+        if avg_completion <= 0:
+            return []
+
+        if avg_completion < 0.25:
+            return [
+                PerformanceInsight(
+                    insight_type="completion_low",
+                    title="完播率偏低",
+                    description=f"近 {days} 天平均完播率仅 {avg_completion * 100:.1f}%，低于行业基准",
+                    confidence=0.8,
+                    data_points=total_videos,
+                    recommendation="建议优化开头吸引力，缩短无效内容，增加转折点密度",
+                )
+            ]
+        if avg_completion > 0.45:
+            return [
+                PerformanceInsight(
+                    insight_type="completion_high",
+                    title="完播率优秀",
+                    description=f"近 {days} 天平均完播率 {avg_completion * 100:.1f}%，表现优秀",
+                    confidence=0.8,
+                    data_points=total_videos,
+                    recommendation="当前内容节奏良好，可尝试增加视频时长以提升总播放时长",
+                )
+            ]
+        return []
+
+    @staticmethod
+    def _platform_insight(platform_stats: list[dict]) -> list[PerformanceInsight]:
+        """生成表现最佳平台洞察（至少需要两个平台才能比较）。"""
+        if len(platform_stats) < 2:
+            return []
+
+        best_platform = max(platform_stats, key=lambda p: p["avg_completion_rate"])
+        return [
+            PerformanceInsight(
+                insight_type="platform_best",
+                title="最佳表现平台",
+                description=(
+                    f"「{best_platform['platform']}」平台的完播率最高 "
+                    f"({best_platform['avg_completion_rate'] * 100:.1f}%)，"
+                    f"共 {best_platform['count']} 个视频"
+                ),
+                confidence=0.7,
+                data_points=best_platform["count"],
+                recommendation=f"建议在「{best_platform['platform']}」平台加大投放力度",
+            )
+        ]
+
+    @staticmethod
+    def _engagement_insight(
+        total_views: int,
+        total_likes: int,
+        total_comments: int,
+        total_videos: int,
+    ) -> list[PerformanceInsight]:
+        """按点赞率与评论率阈值生成互动洞察（可能同时命中两条）。"""
+        if total_views <= 0:
+            return []
+
+        insights: list[PerformanceInsight] = []
+        like_rate = total_likes / total_views
+        comment_rate = total_comments / total_views
+
+        if like_rate < 0.02:
             insights.append(
                 PerformanceInsight(
-                    insight_type="platform_best",
-                    title="最佳表现平台",
-                    description=(
-                        f"「{best_platform['platform']}」平台的完播率最高 "
-                        f"({best_platform['avg_completion_rate'] * 100:.1f}%)，"
-                        f"共 {best_platform['count']} 个视频"
-                    ),
+                    insight_type="engagement_low",
+                    title="互动率偏低",
+                    description=f"点赞率仅 {like_rate * 100:.2f}%，低于 2% 基准线",
                     confidence=0.7,
-                    data_points=best_platform["count"],
-                    recommendation=f"建议在「{best_platform['platform']}」平台加大投放力度",
+                    data_points=total_videos,
+                    recommendation="建议在视频中增加情感共鸣点和互动引导",
                 )
             )
 
-        # 4. 互动率分析
-        total_views = stats.get("total_views", 0)
-        total_likes = stats.get("total_likes", 0)
-        total_comments = stats.get("total_comments", 0)
-
-        if total_views > 0:
-            like_rate = total_likes / total_views
-            comment_rate = total_comments / total_views
-
-            if like_rate < 0.02:
-                insights.append(
-                    PerformanceInsight(
-                        insight_type="engagement_low",
-                        title="互动率偏低",
-                        description=f"点赞率仅 {like_rate * 100:.2f}%，低于 2% 基准线",
-                        confidence=0.7,
-                        data_points=stats["total_videos"],
-                        recommendation="建议在视频中增加情感共鸣点和互动引导",
-                    )
+        if comment_rate > 0.01:
+            insights.append(
+                PerformanceInsight(
+                    insight_type="comments_high",
+                    title="评论互动活跃",
+                    description=f"评论率 {comment_rate * 100:.2f}%，用户参与度高",
+                    confidence=0.7,
+                    data_points=total_videos,
+                    recommendation="建议在评论区置顶引导性评论，增加二次传播",
                 )
-
-            if comment_rate > 0.01:
-                insights.append(
-                    PerformanceInsight(
-                        insight_type="comments_high",
-                        title="评论互动活跃",
-                        description=f"评论率 {comment_rate * 100:.2f}%，用户参与度高",
-                        confidence=0.7,
-                        data_points=stats["total_videos"],
-                        recommendation="建议在评论区置顶引导性评论，增加二次传播",
-                    )
-                )
+            )
 
         return insights
 
