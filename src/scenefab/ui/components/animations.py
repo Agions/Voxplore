@@ -54,28 +54,30 @@ class FadeInWidget(QWidget):
         super().__init__(parent)
         self._duration = duration
         self.setWindowOpacity(0)
-        self._animation = None
+        self._animation: QPropertyAnimation | None = None
 
     def fade_in(self):
         """淡入"""
         self.show()
-        self._animation = QPropertyAnimation(self, b"windowOpacity")
-        self._animation.setDuration(self._duration)
-        self._animation.setStartValue(0)
-        self._animation.setEndValue(1)
-        self._animation.setEasingCurve(out_cubic())
-        self._animation.start()
+        anim = QPropertyAnimation(self, b"windowOpacity")
+        self._animation = anim
+        anim.setDuration(self._duration)
+        anim.setStartValue(0)
+        anim.setEndValue(1)
+        anim.setEasingCurve(out_cubic())
+        anim.start()
 
     def fade_out(self, callback=None):
         """淡出"""
-        self._animation = QPropertyAnimation(self, b"windowOpacity")
-        self._animation.setDuration(self._duration)
-        self._animation.setStartValue(1)
-        self._animation.setEndValue(0)
-        self._animation.setEasingCurve(out_cubic())
+        anim = QPropertyAnimation(self, b"windowOpacity")
+        self._animation = anim
+        anim.setDuration(self._duration)
+        anim.setStartValue(1)
+        anim.setEndValue(0)
+        anim.setEasingCurve(out_cubic())
         if callback:
-            self._animation.finished.connect(callback)
-        self._animation.start()
+            anim.finished.connect(callback)
+        anim.start()
 
 
 class SlideWidget(QWidget):
@@ -91,13 +93,14 @@ class SlideWidget(QWidget):
         super().__init__(parent)
         self._direction = direction
         self._duration = duration
-        self._animation = None
+        self._animation: QPropertyAnimation | None = None
 
     def slide_in(self):
         """滑入"""
-        self._animation = QPropertyAnimation(self, b"geometry")
-        self._animation.setDuration(self._duration)
-        self._animation.setEasingCurve(out_cubic())
+        anim = QPropertyAnimation(self, b"geometry")
+        self._animation = anim
+        anim.setDuration(self._duration)
+        anim.setEasingCurve(out_cubic())
 
         parent_rect = self.parent().rect() if self.parent() else self.rect()
         my_rect = self.rect()
@@ -133,15 +136,16 @@ class SlideWidget(QWidget):
                 my_rect.height(),
             )
 
-        self._animation.setStartValue(start)
-        self._animation.setEndValue(end)
-        self._animation.start()
+        anim.setStartValue(start)
+        anim.setEndValue(end)
+        anim.start()
 
     def slide_out(self, callback=None):
         """滑出"""
-        self._animation = QPropertyAnimation(self, b"geometry")
-        self._animation.setDuration(self._duration)
-        self._animation.setEasingCurve(out_cubic())
+        anim = QPropertyAnimation(self, b"geometry")
+        self._animation = anim
+        anim.setDuration(self._duration)
+        anim.setEasingCurve(out_cubic())
 
         parent_rect = self.parent().rect() if self.parent() else self.rect()
         my_rect = self.rect()
@@ -163,11 +167,11 @@ class SlideWidget(QWidget):
                 my_rect.x(), parent_rect.height(), my_rect.width(), my_rect.height()
             )
 
-        self._animation.setStartValue(self.geometry())
-        self._animation.setEndValue(end)
+        anim.setStartValue(self.geometry())
+        anim.setEndValue(end)
         if callback:
-            self._animation.finished.connect(callback)
-        self._animation.start()
+            anim.finished.connect(callback)
+        anim.start()
 
 
 class PulseWidget(QWidget):
