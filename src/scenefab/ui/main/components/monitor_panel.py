@@ -11,6 +11,7 @@ from datetime import datetime
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -33,7 +34,17 @@ from .monitor_widgets import AlertWidget, ServiceStatusWidget
 
 
 class AIMonitorPanel(QWidget):
-    """AI状态监控面板"""
+    """AI状态监控面板 (Phase C-3 兜底)
+
+    4 个子 widget 在 _init_ui() / _update_alerts_list() 创建并 setattr 到 self.
+    logger / ai_service_manager 通过 application.get_service() 获取, 真实
+    类型是 Logger / AIServiceManager 但接口签名是 object | None, 已在调用
+    行用 type: ignore[attr-defined] 标记.
+    """
+
+    services_status_layout: QVBoxLayout
+    alerts_layout: QVBoxLayout
+    alert_filter_combo: QComboBox
 
     # 信号定义
     service_selected = Signal(str)
@@ -70,9 +81,9 @@ class AIMonitorPanel(QWidget):
                 "ai_service_manager"
             )
             if not self.ai_service_manager:
-                self.logger.warning("AI服务管理器未注册")
+                self.logger.warning("AI服务管理器未注册")  # type: ignore[attr-defined]
         except Exception as e:
-            self.logger.error(f"获取AI服务管理器失败: {e}")
+            self.logger.error(f"获取AI服务管理器失败: {e}")  # type: ignore[attr-defined]
 
     def _init_ui(self):
         """初始化UI"""
@@ -202,7 +213,7 @@ class AIMonitorPanel(QWidget):
             self._update_alerts()
 
         except Exception as e:
-            self.logger.error(f"更新监控数据失败: {e}")
+            self.logger.error(f"更新监控数据失败: {e}")  # type: ignore[attr-defined]
 
     def _update_services_status(self):
         """更新服务状态"""
@@ -217,7 +228,7 @@ class AIMonitorPanel(QWidget):
             self._update_services_table()
 
         except Exception as e:
-            self.logger.error(f"更新服务状态失败: {e}")
+            self.logger.error(f"更新服务状态失败: {e}")  # type: ignore[attr-defined]
 
     def _update_services_status_list(self):
         """更新服务状态列表"""
@@ -240,7 +251,7 @@ class AIMonitorPanel(QWidget):
                     self.services_status_layout.addWidget(status_widget)
 
         except Exception as e:
-            self.logger.error(f"更新服务状态列表失败: {e}")
+            self.logger.error(f"更新服务状态列表失败: {e}")  # type: ignore[attr-defined]
 
     def _update_services_table(self):
         """更新服务表格"""
@@ -315,7 +326,7 @@ class AIMonitorPanel(QWidget):
                 self.services_table.setCellWidget(row, 5, actions_widget)
 
         except Exception as e:
-            self.logger.error(f"更新服务表格失败: {e}")
+            self.logger.error(f"更新服务表格失败: {e}")  # type: ignore[attr-defined]
 
     def _update_stats(self):
         """更新统计数据"""
@@ -355,7 +366,7 @@ class AIMonitorPanel(QWidget):
             self._update_usage_table()
 
         except Exception as e:
-            self.logger.error(f"更新统计数据失败: {e}")
+            self.logger.error(f"更新统计数据失败: {e}")  # type: ignore[attr-defined]
 
     def _calculate_avg_response_time(self) -> float:
         """计算平均响应时间"""
@@ -374,7 +385,7 @@ class AIMonitorPanel(QWidget):
             return total_time / count if count > 0 else 0.0
 
         except Exception as e:
-            self.logger.error(f"计算平均响应时间失败: {e}")
+            self.logger.error(f"计算平均响应时间失败: {e}")  # type: ignore[attr-defined]
             return 0.0
 
     def _update_usage_table(self):
@@ -402,7 +413,7 @@ class AIMonitorPanel(QWidget):
                 )
 
         except Exception as e:
-            self.logger.error(f"更新使用量表格失败: {e}")
+            self.logger.error(f"更新使用量表格失败: {e}")  # type: ignore[attr-defined]
 
     def _update_performance_data(self):
         """更新性能数据"""
@@ -431,7 +442,7 @@ class AIMonitorPanel(QWidget):
             self.cpu_usage_chart.add_data_point(cpu_usage)
 
         except Exception as e:
-            self.logger.error(f"更新性能数据失败: {e}")
+            self.logger.error(f"更新性能数据失败: {e}")  # type: ignore[attr-defined]
 
     def _calculate_error_rate(self) -> float:
         """计算错误率"""
@@ -449,7 +460,7 @@ class AIMonitorPanel(QWidget):
             return total_errors / total_requests if total_requests > 0 else 0.0
 
         except Exception as e:
-            self.logger.error(f"计算错误率失败: {e}")
+            self.logger.error(f"计算错误率失败: {e}")  # type: ignore[attr-defined]
             return 0.0
 
     def _calculate_throughput(self) -> float:
@@ -466,7 +477,7 @@ class AIMonitorPanel(QWidget):
             return total_requests / 3600  # 假设统计的是1小时的数据
 
         except Exception as e:
-            self.logger.error(f"计算吞吐量失败: {e}")
+            self.logger.error(f"计算吞吐量失败: {e}")  # type: ignore[attr-defined]
             return 0.0
 
     # -------------------------------------------------------------------------
@@ -486,7 +497,7 @@ class AIMonitorPanel(QWidget):
             self._update_alerts_list()
 
         except Exception as e:
-            self.logger.error(f"更新告警失败: {e}")
+            self.logger.error(f"更新告警失败: {e}")  # type: ignore[attr-defined]
 
     def _generate_alerts(self):
         """生成告警"""
@@ -535,7 +546,7 @@ class AIMonitorPanel(QWidget):
                     self._add_alert(alert)
 
         except Exception as e:
-            self.logger.error(f"生成告警失败: {e}")
+            self.logger.error(f"生成告警失败: {e}")  # type: ignore[attr-defined]
 
     def _add_alert(self, alert: AlertData):
         """添加告警"""
@@ -596,7 +607,7 @@ class AIMonitorPanel(QWidget):
                 self.alerts_layout.addWidget(no_alerts_label)
 
         except Exception as e:
-            self.logger.error(f"更新告警列表失败: {e}")
+            self.logger.error(f"更新告警列表失败: {e}")  # type: ignore[attr-defined]
 
     def _filter_alerts(self, filter_text: str):
         """过滤告警"""
