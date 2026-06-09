@@ -124,25 +124,47 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     ) -> LLMResponse:
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
-
         image_path = Path(image_path)  # type: ignore[assignment]
         if not image_path.exists():  # type: ignore[attr-defined]
             raise ProviderError(f"图片不存在: {image_path}")
 
+        image_data = self._read_image_as_base64(image_path)
+        mime_type = self._detect_image_mime(image_path)
+        contents = self._build_multimodal_contents(request, image_data, mime_type)
+
+        data = await self._call_api(
+            "POST",
+            f"{self.base_url}/v1beta/models/{model}:generateContent",
+            params={"key": self.api_key},
+            json=self._build_gemini_payload(request, contents),
+        )
+
+        return self._parse_gemini_response(data, model)
+
+    @staticmethod
+    def _read_image_as_base64(image_path) -> str:
+        """读取图片并 base64 编码"""
         with open(image_path, "rb") as f:
-            image_data = base64.b64encode(f.read()).decode("utf-8")
+            return base64.b64encode(f.read()).decode("utf-8")
 
-        mime_type = "image/jpeg"
+    @staticmethod
+    def _detect_image_mime(image_path) -> str:
+        """根据文件后缀检测 MIME 类型"""
         suffix = image_path.suffix.lower()  # type: ignore[attr-defined]
-        if suffix == ".png":
-            mime_type = "image/png"
-        elif suffix in [".jpg", ".jpeg"]:
-            mime_type = "image/jpeg"
-        elif suffix == ".webp":
-            mime_type = "image/webp"
-        elif suffix == ".gif":
-            mime_type = "image/gif"
+        mime_map = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+            ".gif": "image/gif",
+        }
+        return mime_map.get(suffix, "image/jpeg")
 
+    @staticmethod
+    def _build_multimodal_contents(
+        request: LLMRequest, image_data: str, mime_type: str
+    ) -> list[dict]:
+        """构建多模态 contents 列表 — 系统提示 + 图片 + 文本"""
         contents = []
         if request.system_prompt:
             contents.append(
@@ -162,8 +184,12 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 ],
             }
         )
+        return contents
 
-        payload = {
+    @staticmethod
+    def _build_gemini_payload(request: LLMRequest, contents: list[dict]) -> dict:
+        """构建 Gemini API payload"""
+        return {
             "contents": contents,
             "generationConfig": {
                 "maxOutputTokens": request.max_tokens,
@@ -171,13 +197,9 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             },
         }
 
-        data = await self._call_api(
-            "POST",
-            f"{self.base_url}/v1beta/models/{model}:generateContent",
-            params={"key": self.api_key},
-            json=payload,
-        )
-
+    @staticmethod
+    def _parse_gemini_response(data: dict, model: str) -> "LLMResponse":
+        """解析 Gemini API 响应"""
         if "error" in data:
             raise ProviderError(data["error"]["message"])
 
