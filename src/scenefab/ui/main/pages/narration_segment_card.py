@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from scenefab.ui.common.stylesheet_templates import ST
+
 # ── OKLCH Design Tokens ──────────────────────────────────────
 _T = {
     "bg_card": "oklch(0.16 0.01 250)",
@@ -58,13 +60,7 @@ class NarrationSegmentCard(QFrame):
 
         单一职责: 本方法只负责组件组合顺序, 各区域构建下沉到 SRP 方法.
         """
-        self.setStyleSheet(f"""
-            QFrame {{
-                background: {_T["bg_card"]};
-                border: 1px solid {_T["border"]};
-                border-radius: 12px;
-            }}
-        """)
+        self.setStyleSheet(ST.card(_T["bg_card"], _T["border"]))
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(8)
@@ -82,12 +78,7 @@ class NarrationSegmentCard(QFrame):
         # 时间段标签 — 圆形徽章样式
         self._time_label = QLabel(self._time_range)
         self._time_label.setFont(QFont("", 11, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        self._time_label.setStyleSheet(f"""
-            color: {_T["primary"]};
-            background: {_T["primary"]}20;
-            padding: 3px 8px;
-            border-radius: 6px;
-        """)
+        self._time_label.setStyleSheet(ST.pill_badge(_T["primary"], f"{_T['primary']}20"))
         header.addWidget(self._time_label)
 
         # 情感标签
@@ -122,19 +113,7 @@ class NarrationSegmentCard(QFrame):
         """构建文案编辑框 — 编辑态显示, 圆角+聚焦高亮."""
         self._text_edit = QTextEdit()
         self._text_edit.setFont(QFont("", 13))
-        self._text_edit.setStyleSheet(f"""
-            QTextEdit {{
-                background: {_T["bg_input"]};
-                color: {_T["text"]};
-                border: 1px solid {_T["border"]};
-                border-radius: 8px;
-                padding: 10px;
-                line-height: 1.6;
-            }}
-            QTextEdit:focus {{
-                border-color: {_T["primary"]};
-            }}
-        """)
+        self._text_edit.setStyleSheet(ST.input_field(_T["bg_input"], _T["border"], _T["primary"], _T["text"]))
         self._text_edit.setVisible(False)
         self._text_edit.textChanged.connect(self._on_edit_changed)
         return self._text_edit
