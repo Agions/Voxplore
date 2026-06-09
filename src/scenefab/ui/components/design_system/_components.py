@@ -9,9 +9,9 @@ SceneFab 组件封装
 """
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QGraphicsOpacityEffect
 from PySide6.QtWidgets import (
     QFrame,
+    QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
     QLineEdit,

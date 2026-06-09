@@ -9,11 +9,10 @@ PageTransition — 页面切换动画管理器
 
 from PySide6.QtCore import (
     QEasingCurve,
-    QGraphicsOpacityEffect,
     QPropertyAnimation,
     QTimer,
 )
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QGraphicsOpacityEffect, QWidget
 
 from ._animation_helper import AnimationHelper
 
