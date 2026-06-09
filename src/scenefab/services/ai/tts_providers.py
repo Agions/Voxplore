@@ -200,26 +200,32 @@ class EdgeTTSProvider(TTSProvider):
         config: VoiceConfig,
         progress_callback=None,
     ) -> GeneratedVoice:
+        """流式异步生成配音，边生成边写入文件
+
+        progress_callback 签名: callback(completed: bool, timestamp: dict)
         """
-        流式异步生成配音，边生成边写入文件
+        voice, rate_str, pitch_str = self._build_streaming_params(config)
+        communicate = self._build_communicate(text, voice, rate_str, pitch_str)
 
-        Args:
-            text: 要生成的文本
-            output_path: 输出文件路径
-            config: 语音配置
-            progress_callback: 进度回调函数，签名: callback(completed: bool, timestamp: dict)
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-        Returns:
-            GeneratedVoice: 包含时间戳的生成结果
-        """
-        from pathlib import Path
+        sentence_timestamps: list[dict[str, Any]] = []
+        await self._stream_chunks_to_file(
+            communicate, output_path, sentence_timestamps, progress_callback
+        )
 
-        import edge_tts
+        if progress_callback:
+            progress_callback(True, None)
 
-        # 选择声音
+        duration = self._get_audio_duration(output_path)
+        return self._build_voice_result(
+            text, output_path, config, voice, duration, sentence_timestamps,
+        )
+
+    def _build_streaming_params(self, config: VoiceConfig) -> tuple[str, str, str]:
+        """选择声音并构造语速/音调参数字符串"""
         voice = config.voice_id or self._select_voice(config)
 
-        # 构建语速/音调参数
         rate_str = (
             f"+{int((config.rate - 1) * 100)}%"
             if config.rate >= 1
@@ -230,22 +236,26 @@ class EdgeTTSProvider(TTSProvider):
             if config.pitch >= 1
             else f"{int((config.pitch - 1) * 50)}Hz"
         )
+        return voice, rate_str, pitch_str
 
-        sentence_timestamps: list[dict[str, Any]] = []
+    def _build_communicate(
+        self, text: str, voice: str, rate_str: str, pitch_str: str,
+    ) -> Any:
+        """构造 edge-tts Communicate 对象（集中惰性导入）"""
+        import edge_tts  # type: ignore[import-untyped]
 
-        # 确保输出目录存在
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        return edge_tts.Communicate(text, voice, rate=rate_str, pitch=pitch_str)
 
-        communicate = edge_tts.Communicate(
-            text,
-            voice,
-            rate=rate_str,
-            pitch=pitch_str,
-        )
+    async def _stream_chunks_to_file(
+        self,
+        communicate: Any,
+        output_path: str,
+        sentence_timestamps: list[dict[str, Any]],
+        progress_callback=None,
+    ) -> None:
+        """遍历 edge-tts 流，写入音频并收集时间戳，回调每句进度"""
+        submaker = self.edge_tts.SubMaker()  # type: ignore[attr-defined]
 
-        submaker = edge_tts.SubMaker()
-
-        # 直接流式写入文件
         with open(output_path, "wb") as f:
             async for chunk in communicate.stream():
                 if chunk["type"] == "SentenceBoundary":
@@ -259,20 +269,22 @@ class EdgeTTSProvider(TTSProvider):
                     }
                     sentence_timestamps.append(ts_entry)
 
-                    # 触发进度回调（每句完成时）
                     if progress_callback:
                         progress_callback(False, ts_entry)
 
                 elif chunk["type"] == "audio":
                     f.write(chunk["data"])
 
-        # 所有句子完成，触发最终回调
-        if progress_callback:
-            progress_callback(True, None)
-
-        # 获取音频时长
-        duration = self._get_audio_duration(output_path)
-
+    def _build_voice_result(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+        voice: str,
+        duration: float,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> GeneratedVoice:
+        """构造 GeneratedVoice 返回对象"""
         return GeneratedVoice(
             audio_path=output_path,
             duration=duration,

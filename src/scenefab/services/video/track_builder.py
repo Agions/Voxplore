@@ -45,24 +45,13 @@ CAPTION_STYLES = {
 }
 
 
-def build_monologue_tracks(
+def _build_video_track(
     draft: JianyingDraft,
     source_video: str,
     video_duration: float,
     segments: list,
-    caption_style: str = "cinematic",
 ) -> None:
-    """
-    构建独白视频的剪映轨道
-
-    Args:
-        draft: 剪映草稿对象
-        source_video: 源视频路径
-        video_duration: 视频时长（秒）
-        segments: 独白片段列表
-        caption_style: 字幕样式名称
-    """
-    # 1. 视频轨道
+    """构建视频轨道并按片段切片。"""
     video_track = Track(type=TrackType.VIDEO, attribute=1)
     draft.add_track(video_track)
 
@@ -87,7 +76,12 @@ def build_monologue_tracks(
         video_track.add_segment(video_segment)
         current_time += segment.audio_duration
 
-    # 2. 音频轨道（独白）
+
+def _build_audio_track(
+    draft: JianyingDraft,
+    segments: list,
+) -> None:
+    """构建独白音频轨道。"""
     audio_track = Track(type=TrackType.AUDIO)
     draft.add_track(audio_track)
 
@@ -112,7 +106,13 @@ def build_monologue_tracks(
 
         current_time += segment.audio_duration
 
-    # 3. 字幕轨道
+
+def _build_text_track(
+    draft: JianyingDraft,
+    segments: list,
+    caption_style: str,
+) -> None:
+    """构建字幕轨道并写入各片段的字幕。"""
     text_track = Track(type=TrackType.TEXT)
     draft.add_track(text_track)
 
@@ -134,6 +134,28 @@ def build_monologue_tracks(
                 target_timerange=TimeRange.from_seconds(cap["start"], cap["duration"]),
             )
             text_track.add_segment(text_segment)
+
+
+def build_monologue_tracks(
+    draft: JianyingDraft,
+    source_video: str,
+    video_duration: float,
+    segments: list,
+    caption_style: str = "cinematic",
+) -> None:
+    """
+    构建独白视频的剪映轨道
+
+    Args:
+        draft: 剪映草稿对象
+        source_video: 源视频路径
+        video_duration: 视频时长（秒）
+        segments: 独白片段列表
+        caption_style: 字幕样式名称
+    """
+    _build_video_track(draft, source_video, video_duration, segments)
+    _build_audio_track(draft, segments)
+    _build_text_track(draft, segments, caption_style)
 
 
 __all__ = [
