@@ -43,11 +43,21 @@ class ExportWindow(BaseStepWindow):
         layout = QVBoxLayout()
         layout.setSpacing(24)
 
-        # ── 格式选择 ──
-        format_group = QGroupBox("输出格式")
-        format_group.setObjectName("option_group")
-        format_layout = QHBoxLayout(format_group)
-        format_layout.setSpacing(12)
+        layout.addWidget(self._build_format_group())
+        layout.addWidget(self._build_quality_group())
+        layout.addWidget(self._build_preview_area(), stretch=1)
+        layout.addWidget(self._build_progress_section())
+        layout.addLayout(self._build_export_button_layout())
+
+        self._content_wrapper = QWidget()
+        self._content_wrapper.setLayout(layout)
+        self._main_layout.insertWidget(1, self._content_wrapper)
+
+    def _build_format_group(self) -> QGroupBox:
+        group = QGroupBox("输出格式")
+        group.setObjectName("option_group")
+        group_layout = QHBoxLayout(group)
+        group_layout.setSpacing(12)
 
         self.format_group = QButtonGroup(self)
         formats = [("MP4", "mp4"), ("剪映草稿", "jianian")]
@@ -59,16 +69,16 @@ class ExportWindow(BaseStepWindow):
                 lambda checked, v=value: self._on_format_change(v) if checked else None
             )
             self.format_group.addButton(btn)
-            format_layout.addWidget(btn)
+            group_layout.addWidget(btn)
 
-        format_layout.addStretch()
-        layout.addWidget(format_group)
+        group_layout.addStretch()
+        return group
 
-        # ── 质量选择 ──
-        quality_group = QGroupBox("输出质量")
-        quality_group.setObjectName("option_group")
-        quality_layout = QHBoxLayout(quality_group)
-        quality_layout.setSpacing(12)
+    def _build_quality_group(self) -> QGroupBox:
+        group = QGroupBox("输出质量")
+        group.setObjectName("option_group")
+        group_layout = QHBoxLayout(group)
+        group_layout.setSpacing(12)
 
         self.quality_group = QButtonGroup(self)
         qualities = [("720p", "720p"), ("1080p", "1080p"), ("4K", "4k")]
@@ -80,19 +90,19 @@ class ExportWindow(BaseStepWindow):
                 lambda checked, v=value: self._on_quality_change(v) if checked else None
             )
             self.quality_group.addButton(btn)
-            quality_layout.addWidget(btn)
+            group_layout.addWidget(btn)
 
-        quality_layout.addStretch()
-        layout.addWidget(quality_group)
+        group_layout.addStretch()
+        return group
 
-        # ── 预览区 ──
-        preview_group = QFrame()
-        preview_group.setObjectName("preview_area")
-        preview_layout = QVBoxLayout(preview_group)
+    def _build_preview_area(self) -> QFrame:
+        frame = QFrame()
+        frame.setObjectName("preview_area")
+        frame_layout = QVBoxLayout(frame)
 
         preview_title = QLabel("合成预览")
         preview_title.setObjectName("section_title")
-        preview_layout.addWidget(preview_title)
+        frame_layout.addWidget(preview_title)
 
         self.preview_placeholder = QLabel(
             "🎬 视频预览区域\n\n点击「开始导出」生成最终视频"
@@ -100,11 +110,10 @@ class ExportWindow(BaseStepWindow):
         self.preview_placeholder.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
         self.preview_placeholder.setObjectName("preview_placeholder")
         self.preview_placeholder.setMinimumHeight(200)
-        preview_layout.addWidget(self.preview_placeholder)
+        frame_layout.addWidget(self.preview_placeholder)
+        return frame
 
-        layout.addWidget(preview_group, stretch=1)
-
-        # ── 导出进度 ──
+    def _build_progress_section(self) -> QFrame:
         self.progress_group = QFrame()
         self.progress_group.setObjectName("export_progress")
         self.progress_group.hide()
@@ -122,21 +131,16 @@ class ExportWindow(BaseStepWindow):
 
         progress_layout.addWidget(self.export_progress)
         progress_layout.addWidget(self.export_label)
-        layout.addWidget(self.progress_group)
+        return self.progress_group
 
-        # ── 导出按钮 ──
+    def _build_export_button_layout(self) -> QHBoxLayout:
         btn_layout = QHBoxLayout()
         btn_export = QPushButton("📤 开始导出")
         btn_export.setObjectName("primary")
         btn_export.clicked.connect(self._start_export)
         btn_layout.addWidget(btn_export)
         btn_layout.addStretch()
-
-        layout.addLayout(btn_layout)
-
-        self._content_wrapper = QWidget()
-        self._content_wrapper.setLayout(layout)
-        self._main_layout.insertWidget(1, self._content_wrapper)
+        return btn_layout
 
     def _on_format_change(self, fmt: str):
         self._format = fmt

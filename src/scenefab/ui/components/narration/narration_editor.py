@@ -191,7 +191,17 @@ class NarrationEditor(QFrame):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # 顶部工具栏
+        main_layout.addWidget(self._create_toolbar())
+
+        sep = QFrame()
+        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
+        sep.setObjectName("toolbarSep")
+        main_layout.addWidget(sep)
+
+        self._setup_segment_list(main_layout)
+        main_layout.addWidget(self._create_editor_panel())
+
+    def _create_toolbar(self) -> QFrame:
         toolbar = QFrame()
         toolbar.setObjectName("editorToolbar")
         toolbar_layout = QHBoxLayout(toolbar)
@@ -203,7 +213,6 @@ class NarrationEditor(QFrame):
 
         toolbar_layout.addStretch()
 
-        # 情感过滤器
         self.emotion_filter = QComboBox()
         self.emotion_filter.addItems(["全部", "治愈", "悬疑", "励志", "怀旧", "浪漫"])
         self.emotion_filter.setFixedWidth(100)
@@ -211,28 +220,21 @@ class NarrationEditor(QFrame):
         toolbar_layout.addWidget(QLabel("筛选:"))
         toolbar_layout.addWidget(self.emotion_filter)
 
-        # 总时长显示
         self.total_duration = QLabel("00:00")
         self.total_duration.setObjectName("totalDuration")
         toolbar_layout.addWidget(QLabel("总时长:"))
         toolbar_layout.addWidget(self.total_duration)
 
-        main_layout.addWidget(toolbar)
+        return toolbar
 
-        # 分隔线
-        sep = QFrame()
-        sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
-        sep.setObjectName("toolbarSep")
-        main_layout.addWidget(sep)
-
-        # 片段列表
+    def _setup_segment_list(self, parent_layout: QVBoxLayout) -> None:
         self.segment_list = QListWidget()
         self.segment_list.setObjectName("segmentList")
         self.segment_list.itemClicked.connect(self._on_item_clicked)
         self.segment_list.itemDoubleClicked.connect(self._on_item_double_clicked)
-        main_layout.addWidget(self.segment_list, 1)
+        parent_layout.addWidget(self.segment_list, 1)
 
-        # 底部编辑区
+    def _create_editor_panel(self) -> QFrame:
         self.editor_panel = QFrame()
         self.editor_panel.setObjectName("editorPanel")
         self.editor_panel.setVisible(False)
@@ -240,7 +242,13 @@ class NarrationEditor(QFrame):
         editor_layout.setContentsMargins(12, 12, 12, 12)
         editor_layout.setSpacing(8)
 
-        # 文本编辑
+        self._setup_editor_header(editor_layout)
+        self._setup_text_edit(editor_layout)
+        self._setup_emotion_controls(editor_layout)
+
+        return self.editor_panel
+
+    def _setup_editor_header(self, editor_layout: QVBoxLayout) -> None:
         editor_header = QHBoxLayout()
         editor_header.addWidget(QLabel("编辑解说"))
         editor_header.addStretch()
@@ -257,13 +265,14 @@ class NarrationEditor(QFrame):
 
         editor_layout.addLayout(editor_header)
 
+    def _setup_text_edit(self, editor_layout: QVBoxLayout) -> None:
         self.text_edit = QTextEdit()
         self.text_edit.setObjectName("narrationTextEdit")
         self.text_edit.setPlaceholderText("在此输入解说文本...")
         self.text_edit.setMinimumHeight(100)
         editor_layout.addWidget(self.text_edit)
 
-        # 情感调节
+    def _setup_emotion_controls(self, editor_layout: QVBoxLayout) -> None:
         emotion_row = QHBoxLayout()
         emotion_row.addWidget(QLabel("情感风格:"))
 
@@ -284,8 +293,6 @@ class NarrationEditor(QFrame):
         emotion_row.addWidget(self.emotion_intensity)
 
         editor_layout.addLayout(emotion_row)
-
-        main_layout.addWidget(self.editor_panel)
 
     # ─────────────────────────────────────────────────────────────
     # Public API
