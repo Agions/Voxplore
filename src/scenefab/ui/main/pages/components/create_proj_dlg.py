@@ -46,12 +46,16 @@ class CreateProjectDialog(QDialog):
         self.setModal(True)
         self.setFixedSize(640, 560)
 
-        # 主布局
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # 模态头部
+        main_layout.addWidget(self._create_header())
+        main_layout.addWidget(self._create_content(), 1)
+        main_layout.addWidget(self._create_footer())
+
+    def _create_header(self) -> QWidget:
+        """创建模态头部"""
         header = QWidget()
         header.setProperty("class", "modal-header")
         header_layout = QHBoxLayout(header)
@@ -66,22 +70,41 @@ class CreateProjectDialog(QDialog):
         close_btn.clicked.connect(self.reject)
         header_layout.addWidget(close_btn)
 
-        main_layout.addWidget(header)
+        return header
 
-        # 内容区域
+    def _create_content(self) -> QWidget:
+        """创建内容区域"""
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(20, 16, 20, 16)
         content_layout.setSpacing(12)
 
-        # 名称输入
+        content_layout.addWidget(self._create_name_row())
+        content_layout.addWidget(self._create_type_row())
+
+        content_layout.addWidget(MacLabel("📋 模板:", css_class="text-bold"))
+
+        self.template_search = MacSearchBox()
+        self.template_search.setPlaceholderText("搜索模板...")
+        self.template_search.textChanged.connect(self._on_template_search)
+        content_layout.addWidget(self.template_search)
+
+        self.template_list = MacScrollArea()
+        self.template_grid = TemplateCard.create_grid_widget()  # type: ignore[attr-defined]
+        self.template_list.setWidget(self.template_grid)
+        self.template_list.setWidgetResizable(True)
+        content_layout.addWidget(self.template_list, 1)
+
+        return content
+
+    def _create_name_row(self) -> QWidget:
+        """创建名称输入行"""
         name_row = QWidget()
         name_layout = QHBoxLayout(name_row)
         name_layout.setContentsMargins(0, 0, 0, 0)
         name_layout.setSpacing(8)
 
-        name_label = MacLabel("📝 名称:", css_class="text-bold")
-        name_layout.addWidget(name_label)
+        name_layout.addWidget(MacLabel("📝 名称:", css_class="text-bold"))
 
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("输入项目名称")
@@ -89,16 +112,16 @@ class CreateProjectDialog(QDialog):
         self.name_input.textChanged.connect(self._on_name_changed)
         name_layout.addWidget(self.name_input, 1)
 
-        content_layout.addWidget(name_row)
+        return name_row
 
-        # 类型选择
+    def _create_type_row(self) -> QWidget:
+        """创建类型选择行"""
         type_row = QWidget()
         type_layout = QHBoxLayout(type_row)
         type_layout.setContentsMargins(0, 0, 0, 0)
         type_layout.setSpacing(8)
 
-        type_label = MacLabel("🎬 类型:", css_class="text-bold")
-        type_layout.addWidget(type_label)
+        type_layout.addWidget(MacLabel("🎬 类型:", css_class="text-bold"))
 
         self.type_combo = QComboBox()
         self.type_combo.addItems(
@@ -106,26 +129,10 @@ class CreateProjectDialog(QDialog):
         )
         type_layout.addWidget(self.type_combo, 1)
 
-        content_layout.addWidget(type_row)
+        return type_row
 
-        # 模板选择标签
-        template_label = MacLabel("📋 模板:", css_class="text-bold")
-        content_layout.addWidget(template_label)
-
-        # 模板搜索
-        self.template_search = MacSearchBox()
-        self.template_search.setPlaceholderText("搜索模板...")
-        self.template_search.textChanged.connect(self._on_template_search)
-        content_layout.addWidget(self.template_search)
-
-        # 模板列表
-        self.template_list = MacScrollArea()
-        self.template_grid = TemplateCard.create_grid_widget()  # type: ignore[attr-defined]
-        self.template_list.setWidget(self.template_grid)
-        self.template_list.setWidgetResizable(True)
-        content_layout.addWidget(self.template_list, 1)
-
-        # 按钮区域
+    def _create_footer(self) -> QWidget:
+        """创建按钮区域"""
         footer = QWidget()
         footer.setProperty("class", "modal-footer")
         footer_layout = QHBoxLayout(footer)
@@ -142,7 +149,7 @@ class CreateProjectDialog(QDialog):
         self.create_btn.setEnabled(False)
         footer_layout.addWidget(self.create_btn)
 
-        main_layout.addWidget(footer)
+        return footer
 
     def _load_templates(self):
         """加载模板列表"""

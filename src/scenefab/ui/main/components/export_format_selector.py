@@ -40,7 +40,18 @@ class ExportSettingsDialog(QDialog):
 
         layout = QVBoxLayout(self)
 
-        # 基本信息
+        layout.addWidget(self._create_basic_info_group())
+        layout.addWidget(self._create_format_settings_group())
+        layout.addWidget(self._create_quality_settings_group())
+        layout.addWidget(self._create_advanced_settings_group())
+
+        self._add_dialog_buttons(layout)
+
+        if self.preset:
+            self.load_preset_data()
+
+    def _create_basic_info_group(self) -> QGroupBox:
+        """创建基本信息分组"""
         basic_group = QGroupBox("基本信息")
         basic_layout = QFormLayout(basic_group)
 
@@ -51,8 +62,10 @@ class ExportSettingsDialog(QDialog):
 
         basic_layout.addRow("预设名称:", self.name_input)
         basic_layout.addRow("描述:", self.description_input)
+        return basic_group
 
-        # 格式设置
+    def _create_format_settings_group(self) -> QGroupBox:
+        """创建格式设置分组"""
         format_group = QGroupBox("格式设置")
         format_layout = QFormLayout(format_group)
 
@@ -91,8 +104,10 @@ class ExportSettingsDialog(QDialog):
         format_layout.addRow("输出格式:", self.format_combo)
         format_layout.addRow("分辨率:", self.resolution_combo)
         format_layout.addRow("帧率 (FPS):", self.fps_spin)
+        return format_group
 
-        # 质量设置
+    def _create_quality_settings_group(self) -> QGroupBox:
+        """创建质量设置分组"""
         quality_group = QGroupBox("质量设置")
         quality_layout = QFormLayout(quality_group)
 
@@ -108,8 +123,10 @@ class ExportSettingsDialog(QDialog):
 
         quality_layout.addRow("视频比特率:", self.bitrate_spin)
         quality_layout.addRow("音频比特率:", self.audio_bitrate_spin)
+        return quality_group
 
-        # 高级设置
+    def _create_advanced_settings_group(self) -> QGroupBox:
+        """创建高级设置分组"""
         advanced_group = QGroupBox("高级设置")
         advanced_layout = QFormLayout(advanced_group)
 
@@ -120,24 +137,16 @@ class ExportSettingsDialog(QDialog):
         )
 
         advanced_layout.addRow("编码参数:", self.codec_params_edit)
+        return advanced_group
 
-        # 添加到主布局
-        layout.addWidget(basic_group)
-        layout.addWidget(format_group)
-        layout.addWidget(quality_group)
-        layout.addWidget(advanced_group)
-
-        # 对话框按钮
+    def _add_dialog_buttons(self, layout: QVBoxLayout) -> None:
+        """添加对话框按钮"""
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
-
-        # 如果有预设，加载预设数据
-        if self.preset:
-            self.load_preset_data()
 
     def load_preset_data(self):
         """加载预设数据"""

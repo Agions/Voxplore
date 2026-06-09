@@ -266,7 +266,12 @@ class TimelineShuttle(QFrame):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # 顶部工具栏
+        layout.addWidget(self._create_toolbar())
+        layout.addWidget(self._create_separator())
+        layout.addWidget(self._create_tracks_scroll_area(), 1)
+
+    def _create_toolbar(self) -> QFrame:
+        """顶部工具栏：播放控制、时间显示、缩放控制"""
         toolbar = QFrame()
         toolbar.setObjectName("timelineToolbar")
         toolbar_layout = QHBoxLayout(toolbar)
@@ -307,22 +312,23 @@ class TimelineShuttle(QFrame):
         self.zoom_label.setObjectName("zoomLabel")
         toolbar_layout.addWidget(self.zoom_label)
 
-        layout.addWidget(toolbar)
+        return toolbar
 
-        # 分隔线
+    def _create_separator(self) -> QFrame:
+        """工具栏与时间线之间的分隔线"""
         sep = QFrame()
         sep.setFrameShape(QFrame.HLine)  # type: ignore[attr-defined]
         sep.setObjectName("toolbarSep")
-        layout.addWidget(sep)
+        return sep
 
-        # 滚动区域
+    def _create_tracks_scroll_area(self) -> QScrollArea:
+        """包含标尺和双轨时间线的滚动区域"""
         scroll = QScrollArea()
         scroll.setObjectName("timelineScroll")
         scroll.setWidgetResizable(False)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)  # type: ignore[attr-defined]
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # type: ignore[attr-defined]
 
-        # 时间线容器
         container = QWidget()
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
@@ -339,41 +345,46 @@ class TimelineShuttle(QFrame):
         tracks_layout.setContentsMargins(0, 8, 0, 8)
         tracks_layout.setSpacing(8)
 
-        # 解说轨
-        narration_track_frame = QFrame()
-        narration_track_frame.setObjectName("trackFrame")
-        narration_layout = QHBoxLayout(narration_track_frame)
-        narration_layout.setContentsMargins(12, 0, 12, 0)
-
-        narration_label = QLabel("解说")
-        narration_label.setFixedWidth(60)
-        narration_label.setObjectName("trackLabel")
-        narration_layout.addWidget(narration_label)
-
-        self.narration_track = TimelineTrack("解说", "narration")
-        narration_layout.addWidget(self.narration_track, 1)
-
-        tracks_layout.addWidget(narration_track_frame)
-
-        # 原片轨
-        original_track_frame = QFrame()
-        original_track_frame.setObjectName("trackFrame")
-        original_layout = QHBoxLayout(original_track_frame)
-        original_layout.setContentsMargins(12, 0, 12, 0)
-
-        original_label = QLabel("原片")
-        original_label.setFixedWidth(60)
-        original_label.setObjectName("trackLabel")
-        original_layout.addWidget(original_label)
-
-        self.original_track = TimelineTrack("原片", "original")
-        original_layout.addWidget(self.original_track, 1)
-
-        tracks_layout.addWidget(original_track_frame)
+        self._add_narration_track(tracks_layout)
+        self._add_original_track(tracks_layout)
 
         container_layout.addWidget(tracks_container)
         scroll.setWidget(container)
-        layout.addWidget(scroll, 1)
+        return scroll
+
+    def _add_narration_track(self, layout: QVBoxLayout) -> None:
+        """解说轨"""
+        track_frame = QFrame()
+        track_frame.setObjectName("trackFrame")
+        track_layout = QHBoxLayout(track_frame)
+        track_layout.setContentsMargins(12, 0, 12, 0)
+
+        track_label = QLabel("解说")
+        track_label.setFixedWidth(60)
+        track_label.setObjectName("trackLabel")
+        track_layout.addWidget(track_label)
+
+        self.narration_track = TimelineTrack("解说", "narration")
+        track_layout.addWidget(self.narration_track, 1)
+
+        layout.addWidget(track_frame)
+
+    def _add_original_track(self, layout: QVBoxLayout) -> None:
+        """原片轨"""
+        track_frame = QFrame()
+        track_frame.setObjectName("trackFrame")
+        track_layout = QHBoxLayout(track_frame)
+        track_layout.setContentsMargins(12, 0, 12, 0)
+
+        track_label = QLabel("原片")
+        track_label.setFixedWidth(60)
+        track_label.setObjectName("trackLabel")
+        track_layout.addWidget(track_label)
+
+        self.original_track = TimelineTrack("原片", "original")
+        track_layout.addWidget(self.original_track, 1)
+
+        layout.addWidget(track_frame)
 
     def _apply_theme(self):
         self.setStyleSheet("""
