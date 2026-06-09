@@ -31,18 +31,7 @@ from PySide6.QtWidgets import (
 
 from .preview_text_area import PreviewTextArea
 from .style_preset_panel import StylePresetPanel
-
-# ── OKLCH Design Tokens ──────────────────────────────────────
-_T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_input": "oklch(0.13 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "primary_l": "oklch(0.70 0.24 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
-}
+from scenefab.ui.theme.ds_tokens import _C
 
 
 # ── StepPreview 主组件 ─────────────────────────────────────
@@ -77,96 +66,90 @@ class StepPreview(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(32, 24, 32, 24)
         layout.setSpacing(16)
+        layout.addLayout(self._make_header())
+        layout.addWidget(self._make_main_splitter())
+        layout.addWidget(self._make_progress_bar())
+        layout.addLayout(self._make_action_buttons())
 
-        # ── 标题栏 ──
+    def _make_header(self) -> QHBoxLayout:
+        """标题栏：返回按钮 + 页面标题"""
         header = QHBoxLayout()
         back_btn = QPushButton("← 分组")
         back_btn.setObjectName("secondary_btn")
         back_btn.setFixedSize(90, 36)
         back_btn.clicked.connect(self.back_requested.emit)
         header.addWidget(back_btn)
-
         title = QLabel("解说预览")
         title.setFont(QFont("", 20, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {_T['text']};")
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         header.addWidget(title)
         header.addStretch()
-        layout.addLayout(header)
+        return header
 
-        # ── 主内容区：左侧预览 + 右侧设置 ──────────────────
+    def _make_main_splitter(self) -> QSplitter:
+        """主内容区：左侧预览 + 右侧风格设置"""
         main_split = QSplitter(Qt.Orientation.Horizontal)
         main_split.setHandleWidth(16)
-        main_split.setStyleSheet("""
-            QSplitter::handle {
-                background: transparent;
-            }
-        """)
-
-        # 左侧：文案预览
+        main_split.setStyleSheet(
+            "QSplitter::handle { background: transparent; }"
+        )
         self._preview_area = PreviewTextArea()
         self._preview_area.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
         main_split.addWidget(self._preview_area)
-
-        # 右侧：风格设置
         self._style_panel = StylePresetPanel()
         self._style_panel.setFixedWidth(240)
         self._style_panel.style_changed.connect(self._on_style_changed)
         main_split.addWidget(self._style_panel)
-
         main_split.setStretchFactor(0, 1)
         main_split.setStretchFactor(1, 0)
-        layout.addWidget(main_split)
+        return main_split
 
-        # ── 进度条（生成进度）──────────────────────────────
-        self._progress_bar = QProgressBar()
-        self._progress_bar.setRange(0, 100)
-        self._progress_bar.setValue(0)
-        self._progress_bar.setTextVisible(True)
-        self._progress_bar.setVisible(False)
-        self._progress_bar.setStyleSheet(f"""
+    def _make_progress_bar(self) -> QProgressBar:
+        """生成进度条（默认隐藏）"""
+        bar = QProgressBar()
+        bar.setRange(0, 100)
+        bar.setValue(0)
+        bar.setTextVisible(True)
+        bar.setVisible(False)
+        bar.setStyleSheet(f"""
             QProgressBar {{
-                background: {_T["bg_input"]};
-                border: 1px solid {_T["border"]};
+                background: {_C.BG_INPUT};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: 6px;
                 height: 8px;
                 text-align: center;
             }}
             QProgressBar::chunk {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 {_T["primary"]}, stop:1 {_T["primary_l"]});
+                    stop:0 {_C.PRIMARY}, stop:1 {_C.PRIMARY_LIGHT});
                 border-radius: 6px;
             }}
         """)
-        layout.addWidget(self._progress_bar)
+        self._progress_bar = bar
+        return bar
 
-        # ── 底部操作 ────────────────────────────────────────
+    def _make_action_buttons(self) -> QHBoxLayout:
+        """底部操作按钮栏"""
         btn_layout = QHBoxLayout()
-
-        # 保存草稿
         self._save_btn = QPushButton("💾 保存草稿")
         self._save_btn.setObjectName("secondary_btn")
         self._save_btn.setFixedSize(110, 40)
         self._save_btn.clicked.connect(self._on_save_draft)
         btn_layout.addWidget(self._save_btn)
-
         btn_layout.addStretch()
-
-        # 导出文案
         self._export_btn = QPushButton("📤 导出文案")
         self._export_btn.setObjectName("secondary_btn")
         self._export_btn.setFixedSize(110, 40)
         self._export_btn.clicked.connect(self._on_export)
         btn_layout.addWidget(self._export_btn)
-
-        # 生成配音
         self._generate_btn = QPushButton("🎙 生成配音 →")
         self._generate_btn.setObjectName("primary_btn")
         self._generate_btn.setFixedSize(140, 44)
         self._generate_btn.clicked.connect(self._on_generate)
         btn_layout.addWidget(self._generate_btn)
-        layout.addLayout(btn_layout)
+        return btn_layout
 
     def _load_demo_segments(self, text: str):
         """加载示例分段（演示用）"""

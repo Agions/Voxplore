@@ -50,7 +50,10 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
+        self._setup_video_display(layout)
+        self._setup_controls(layout)
 
+    def _setup_video_display(self, layout: QVBoxLayout):
         # 视频显示区
         if HAS_MULTIMEDIA:
             self._player = QMediaPlayer()
@@ -79,6 +82,7 @@ class VideoPreview(QWidget, ThemeAwareMixin):
             placeholder.setMinimumHeight(200)
             layout.addWidget(placeholder, 1)
 
+    def _setup_controls(self, layout: QVBoxLayout):
         # 控制栏
         controls = QFrame()
         controls.setStyleSheet(
@@ -87,7 +91,11 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         ctrl_layout = QVBoxLayout(controls)
         ctrl_layout.setContentsMargins(8, 4, 8, 4)
         ctrl_layout.setSpacing(4)
+        self._setup_progress_slider(ctrl_layout)
+        self._setup_button_row(ctrl_layout)
+        layout.addWidget(controls)
 
+    def _setup_progress_slider(self, ctrl_layout: QVBoxLayout):
         # 进度条
         self._progress = QSlider(Qt.Orientation.Horizontal)
         self._progress.setRange(0, 1000)
@@ -99,29 +107,26 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         self._progress.sliderMoved.connect(self._on_seek)
         ctrl_layout.addWidget(self._progress)
 
+    def _setup_button_row(self, ctrl_layout: QVBoxLayout):
         # 按钮行
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-
         self._play_btn = QPushButton("▶")
         self._play_btn.setFixedSize(32, 28)
         self._play_btn.setStyleSheet(
             f"QPushButton {{ background: {_C.Primary}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
         )
         self._play_btn.clicked.connect(self.toggle_play)
-
         self._stop_btn = QPushButton("⏹")
         self._stop_btn.setFixedSize(32, 28)
         self._stop_btn.setStyleSheet(
             f"QPushButton {{ background: {_C.BorderStrong}; color: white; border: none; border-radius: 4px; font-size: 12px; }}"
         )
         self._stop_btn.clicked.connect(self.stop)
-
         self._time_label = QLabel("00:00 / 00:00")
         self._time_label.setStyleSheet(
             f"color: {_C.TextSecondary}; font-size: 11px;"
         )
-
         self._volume_slider = QSlider(Qt.Orientation.Horizontal)
         self._volume_slider.setRange(0, 100)
         self._volume_slider.setValue(80)
@@ -133,16 +138,13 @@ class VideoPreview(QWidget, ThemeAwareMixin):
         self._volume_slider.valueChanged.connect(self._on_volume)
         vol_label = QLabel("🔊")
         vol_label.setStyleSheet(f"color: {_C.TextSecondary}; font-size: 11px;")
-
         btn_row.addWidget(self._play_btn)
         btn_row.addWidget(self._stop_btn)
         btn_row.addWidget(self._time_label)
         btn_row.addStretch()
         btn_row.addWidget(vol_label)
         btn_row.addWidget(self._volume_slider)
-
         ctrl_layout.addLayout(btn_row)
-        layout.addWidget(controls)
 
     def load_video(self, video_path: str):
         """加载视频"""

@@ -35,6 +35,7 @@ from ....components import (  # type: ignore[attr-defined]
 )
 from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
+from ...theme.ds_tokens import _C
 
 logger = logging.getLogger(__name__)
 
@@ -99,94 +100,97 @@ class ProjectDetailsPanel(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(16)
 
-        # 1. 预览卡片
-        preview_card = MacCard()
-        preview_card.setProperty("class", "card")
-        preview_layout = QVBoxLayout(preview_card)
-        preview_layout.setSpacing(12)
+        layout.addWidget(self._create_preview_card())
+        layout.addWidget(self._create_stats_card())
+        layout.addWidget(self._create_info_card())
+        layout.addWidget(self._create_description_card())
+
+        layout.addStretch()
+        return content
+
+    def _create_preview_card(self) -> QWidget:
+        """创建预览卡片"""
+        card = MacCard()
+        card.setProperty("class", "card")
+        layout = QVBoxLayout(card)
+        layout.setSpacing(12)
 
         self._icon_label = QLabel()
         self._icon_label.setFixedSize(80, 80)
         self._icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._icon_label.setStyleSheet("font-size: 48px;")
-        preview_layout.addWidget(
+        layout.addWidget(
             self._icon_label, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
         self._name_label = MacTitleLabel("")
         self._name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._name_label.setStyleSheet("font-size: 18px; font-weight: bold;")
-        preview_layout.addWidget(
+        layout.addWidget(
             self._name_label, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
         self._type_badge = MacBadge("")
         self._type_badge.setProperty("class", "badge badge-primary")
         self._type_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        preview_layout.addWidget(
+        layout.addWidget(
             self._type_badge, alignment=Qt.AlignmentFlag.AlignCenter
         )
+        return card
 
-        layout.addWidget(preview_card)
-
-        # 2. 统计卡片
-        stats_card = MacCard()
-        stats_card.setProperty("class", "card")
-        stats_layout = QGridLayout(stats_card)
-        stats_layout.setSpacing(12)
+    def _create_stats_card(self) -> QWidget:
+        """创建统计卡片"""
+        card = MacCard()
+        card.setProperty("class", "card")
+        layout = QGridLayout(card)
+        layout.setSpacing(12)
 
         self._stat_media = create_stat_item("🎬", "媒体文件", "0")
-        stats_layout.addWidget(self._stat_media, 0, 0)
+        layout.addWidget(self._stat_media, 0, 0)
 
         self._stat_duration = create_stat_item("⏱️", "总时长", "0:00")
-        stats_layout.addWidget(self._stat_duration, 0, 1)
+        layout.addWidget(self._stat_duration, 0, 1)
 
         self._stat_size = create_stat_item("💾", "项目大小", "0 MB")
-        stats_layout.addWidget(self._stat_size, 1, 0)
+        layout.addWidget(self._stat_size, 1, 0)
 
         self._stat_status = create_stat_item("📊", "状态", "未设置")
-        stats_layout.addWidget(self._stat_status, 1, 1)
+        layout.addWidget(self._stat_status, 1, 1)
+        return card
 
-        layout.addWidget(stats_card)
+    def _create_info_card(self) -> QWidget:
+        """创建基本信息卡片"""
+        card = MacCard()
+        card.setProperty("class", "card")
+        layout = QVBoxLayout(card)
+        layout.setSpacing(8)
 
-        # 3. 基本信息卡片
-        info_card = MacCard()
-        info_card.setProperty("class", "card")
-        info_layout = QVBoxLayout(info_card)
-        info_layout.setSpacing(8)
-
-        info_title = MacTitleLabel("时间信息")
-        info_layout.addWidget(info_title)
+        layout.addWidget(MacTitleLabel("时间信息"))
 
         self._created_label = MacLabel("", css_class="text-base")
-        info_layout.addWidget(
+        layout.addWidget(
             self._create_detail_row("🗓️ 创建时间:", self._created_label)
         )
 
         self._modified_label = MacLabel("", css_class="text-base")
-        info_layout.addWidget(
+        layout.addWidget(
             self._create_detail_row("🔄 修改时间:", self._modified_label)
         )
+        return card
 
-        layout.addWidget(info_card)
+    def _create_description_card(self) -> QWidget:
+        """创建描述卡片"""
+        card = MacCard()
+        card.setProperty("class", "card")
+        layout = QVBoxLayout(card)
+        layout.setSpacing(8)
 
-        # 4. 描述卡片
-        desc_card = MacCard()
-        desc_card.setProperty("class", "card")
-        desc_layout = QVBoxLayout(desc_card)
-        desc_layout.setSpacing(8)
-
-        desc_title = MacTitleLabel("项目描述")
-        desc_layout.addWidget(desc_title)
+        layout.addWidget(MacTitleLabel("项目描述"))
 
         self._description_label = MacLabel("暂无描述", css_class="text-secondary")
         self._description_label.setWordWrap(True)
-        desc_layout.addWidget(self._description_label)
-
-        layout.addWidget(desc_card)
-
-        layout.addStretch()
-        return content
+        layout.addWidget(self._description_label)
+        return card
 
     def _create_detail_row(self, label_text: str, value_label: QLabel) -> QWidget:
         """创建详情行"""
@@ -196,7 +200,7 @@ class ProjectDetailsPanel(QWidget):
         row_layout.setSpacing(8)
 
         label = QLabel(label_text)
-        label.setStyleSheet("color: oklch(0.75 0.01 250);")
+        label.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         row_layout.addWidget(label)
         row_layout.addWidget(value_label, 1)
         row_layout.addStretch()
