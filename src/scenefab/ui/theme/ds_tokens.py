@@ -177,13 +177,58 @@ class Easings:
 # ═══════════════════════════════════════════════════════════════════
 
 
+
+# ── 颜色常量本地引用 (mypy f-string bug workaround) ──────
+class _C:
+    ACCENT = "#0EA5E9"
+    ACCENT_DARK = "#0284C7"
+    ACCENT_LIGHT = "#E0F2FE"
+    ACCENT_NORMAL = "#38BDF8"
+    BG_BASE = "#0A0C12"
+    BG_ELEVATED = "#1A1E2C"
+    BG_INPUT = "#0E1018"
+    BG_OVERLAY = "#212638"
+    BG_SURFACE = "#12151F"
+    BORDER_DEFAULT = "#2A3048"
+    BORDER_FOCUS = "#7C3AED"
+    BORDER_STRONG = "#3D4566"
+    BORDER_SUBTLE = "#1E2436"
+    ERROR = "#EF4444"
+    ERROR_10 = "#EF44441A"
+    ERROR_LIGHT = "#FEE2E2"
+    INFO = "#6366F1"
+    PRIMARY = "#A78BFA"
+    PRIMARY_10 = "#A78BFA1A"
+    PRIMARY_DARK = "#8B5CF6"
+    PRIMARY_DARKER = "#7C3AED"
+    PRIMARY_DARKEST = "#6D28D9"
+    PRIMARY_LIGHT = "#DDD6FE"
+    PRIMARY_LIGHTER = "#EDE9FE"
+    PRIMARY_LIGHTEST = "#F5F3FF"
+    PRIMARY_NORMAL = "#C4B5FD"
+    SIDEBAR_BOTTOM = "#080710"
+    SIDEBAR_GLOW = "#7C3AED"
+    SIDEBAR_MID = "#0D0B16"
+    SIDEBAR_TOP = "#13111E"
+    SUCCESS = "#10B981"
+    SUCCESS_10 = "#10B9811A"
+    SUCCESS_LIGHT = "#D1FAE5"
+    TEXT_DISABLED = "#475569"
+    TEXT_INVERSE = "#0A0C12"
+    TEXT_MUTED = "#64748B"
+    TEXT_PRIMARY = "#F1F5F9"
+    TEXT_SECONDARY = "#94A3B8"
+    WARNING = "#F59E0B"
+    WARNING_LIGHT = "#FEF3C7"
+C = _C()
+
 class QSSComponents:
     """可复用的 QSS 片段"""
 
     @staticmethod
     def card(bg: str = None, border: str = None, radius: str = None) -> str:  # type: ignore[assignment]
-        bg = bg or Colors.BG_SURFACE
-        border = border or Colors.BORDER_SUBTLE
+        bg = bg or _C.BG_SURFACE
+        border = border or _C.BORDER_SUBTLE
         radius = radius or Radii.lg  # type: ignore[assignment]
         return f"""
             background: {bg};
@@ -195,8 +240,8 @@ class QSSComponents:
     def btn_primary() -> str:
         return f"""
             QPushButton {{
-                background: {Colors.PRIMARY_DARK};
-                color: {Colors.TEXT_PRIMARY};
+                background: {_C.PRIMARY_DARK};
+                color: {_C.TEXT_PRIMARY};
                 border: none;
                 border-radius: {Radii.base};
                 font-size: {FontSizes.base}px;
@@ -204,14 +249,14 @@ class QSSComponents:
                 padding: 8px 16px;
             }}
             QPushButton:hover {{
-                background: {Colors.PRIMARY};
+                background: {_C.PRIMARY};
             }}
             QPushButton:pressed {{
-                background: {Colors.PRIMARY_DARKER};
+                background: {_C.PRIMARY_DARKER};
             }}
             QPushButton:disabled {{
-                background: {Colors.BG_ELEVATED};
-                color: {Colors.TEXT_DISABLED};
+                background: {_C.BG_ELEVATED};
+                color: {_C.TEXT_DISABLED};
             }}
         """
 
@@ -220,20 +265,20 @@ class QSSComponents:
         return f"""
             QPushButton {{
                 background: transparent;
-                color: {Colors.TEXT_SECONDARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                color: {_C.TEXT_SECONDARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.base};
                 font-size: {FontSizes.base}px;
                 font-weight: {FontWeights.Medium};
                 padding: 8px 16px;
             }}
             QPushButton:hover {{
-                background: {Colors.BG_ELEVATED};
-                color: {Colors.TEXT_PRIMARY};
-                border-color: {Colors.BORDER_STRONG};
+                background: {_C.BG_ELEVATED};
+                color: {_C.TEXT_PRIMARY};
+                border-color: {_C.BORDER_STRONG};
             }}
             QPushButton:pressed {{
-                background: {Colors.BG_OVERLAY};
+                background: {_C.BG_OVERLAY};
             }}
         """
 
@@ -242,14 +287,14 @@ class QSSComponents:
         return f"""
             QPushButton {{
                 background: transparent;
-                color: {Colors.TEXT_MUTED};
+                color: {_C.TEXT_MUTED};
                 border: none;
                 border-radius: {Radii.sm};
                 font-size: {FontSizes.base}px;
             }}
             QPushButton:hover {{
-                background: {Colors.BG_ELEVATED};
-                color: {Colors.TEXT_SECONDARY};
+                background: {_C.BG_ELEVATED};
+                color: {_C.TEXT_SECONDARY};
             }}
         """
 
@@ -257,20 +302,20 @@ class QSSComponents:
     def input() -> str:
         return f"""
             QLineEdit, QTextEdit {{
-                background: {Colors.BG_INPUT};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.base};
                 padding: 8px 12px;
                 font-size: {FontSizes.base}px;
-                selection-background-color: {Colors.PRIMARY_DARK};
+                selection-background-color: {_C.PRIMARY_DARK};
             }}
             QLineEdit:focus, QTextEdit:focus {{
-                border-color: {Colors.PRIMARY_DARK};
-                background: {Colors.BG_SURFACE};
+                border-color: {_C.PRIMARY_DARK};
+                background: {_C.BG_SURFACE};
             }}
             QLineEdit::placeholder, QTextEdit::placeholder {{
-                color: {Colors.TEXT_DISABLED};
+                color: {_C.TEXT_DISABLED};
             }}
         """
 
@@ -278,18 +323,18 @@ class QSSComponents:
     def combobox() -> str:
         return f"""
             QComboBox {{
-                background: {Colors.BG_INPUT};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_INPUT};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.base};
                 padding: 6px 12px;
                 font-size: {FontSizes.base}px;
             }}
             QComboBox:hover {{
-                border-color: {Colors.BORDER_STRONG};
+                border-color: {_C.BORDER_STRONG};
             }}
             QComboBox:focus {{
-                border-color: {Colors.PRIMARY_DARK};
+                border-color: {_C.PRIMARY_DARK};
             }}
             QComboBox::dropDown {{
                 border: none;
@@ -299,14 +344,14 @@ class QSSComponents:
                 image: none;
                 border-left: 4px solid transparent;
                 border-right: 4px solid transparent;
-                border-top: 5px solid {Colors.TEXT_MUTED};
+                border-top: 5px solid {_C.TEXT_MUTED};
             }}
             QComboBox QAbstractItemView {{
-                background: {Colors.BG_OVERLAY};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {_C.BG_OVERLAY};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.base};
-                selection-background-color: {Colors.BG_ELEVATED};
+                selection-background-color: {_C.BG_ELEVATED};
             }}
         """
 
@@ -315,22 +360,22 @@ class QSSComponents:
         return f"""
             QCheckBox {{
                 spacing: 10px;
-                color: {Colors.TEXT_SECONDARY};
+                color: {_C.TEXT_SECONDARY};
                 font-size: {FontSizes.base}px;
             }}
             QCheckBox::indicator {{
                 width: 18px;
                 height: 18px;
                 border-radius: {Radii.sm};
-                border: 2px solid {Colors.BORDER_STRONG};
+                border: 2px solid {_C.BORDER_STRONG};
                 background: transparent;
             }}
             QCheckBox::indicator:hover {{
-                border-color: {Colors.PRIMARY};
+                border-color: {_C.PRIMARY};
             }}
             QCheckBox::indicator:checked {{
-                background: {Colors.PRIMARY_DARK};
-                border-color: {Colors.PRIMARY_DARK};
+                background: {_C.PRIMARY_DARK};
+                border-color: {_C.PRIMARY_DARK};
                 image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOSIgdmlld0JveD0iMCAwIDEyIDkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDQuNUw0LjUgOCAxMSAxIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K);
             }}
         """
@@ -339,7 +384,7 @@ class QSSComponents:
     def progress_bar() -> str:
         return f"""
             QProgressBar {{
-                background: {Colors.BG_ELEVATED};
+                background: {_C.BG_ELEVATED};
                 border: none;
                 border-radius: {Radii.full};
                 height: 6px;
@@ -348,8 +393,8 @@ class QSSComponents:
             QProgressBar::chunk {{
                 background: qlineargradient(
                     x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {Colors.PRIMARY_DARKER},
-                    stop:1 {Colors.PRIMARY}
+                    stop:0 {_C.PRIMARY_DARKER},
+                    stop:1 {_C.PRIMARY}
                 );
                 border-radius: {Radii.full};
             }}
@@ -364,12 +409,12 @@ class QSSComponents:
                 margin: 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {Colors.BORDER_DEFAULT};
+                background: {_C.BORDER_DEFAULT};
                 border-radius: 3px;
                 min-height: 40px;
             }}
             QScrollBar::handle:vertical:hover {{
-                background: {Colors.BORDER_STRONG};
+                background: {_C.BORDER_STRONG};
             }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
                 height: 0;
@@ -380,7 +425,7 @@ class QSSComponents:
                 margin: 0;
             }}
             QScrollBar::handle:horizontal {{
-                background: {Colors.BORDER_DEFAULT};
+                background: {_C.BORDER_DEFAULT};
                 border-radius: 3px;
                 min-width: 40px;
             }}
