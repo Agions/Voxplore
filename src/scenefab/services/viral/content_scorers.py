@@ -274,7 +274,7 @@ class ContentScorersMixin:
         video_duration: float,
     ) -> InformationDensityScore:
         """
-        计算信息密度评分
+        计算信息密度评分 — 编排器, 委派到 SRP 检测方法.
 
         Args:
             script_text: 解说文案
@@ -284,58 +284,75 @@ class ContentScorersMixin:
             InformationDensityScore: 信息密度评分
         """
         score = 50.0  # 基础分
-        density_map = []  # type: ignore[var-annotated]
-        average_density = 0.0
-        high_density_segments = []
-        suggestions = []
+        suggestions: list[str] = []
 
-        # 分析文案长度
-        char_count = len(script_text)
+        # 1. 估算信息密度 (字/秒)
+        average_density = self._compute_chars_per_second(script_text, video_duration)
+        score += self._compute_density_bonus(average_density, suggestions)
 
-        # 估算信息密度
-        if video_duration > 0:
-            chars_per_second = char_count / video_duration
-            average_density = chars_per_second
+        # 2. 分析句式多样性
+        score += self._compute_sentence_diversity_bonus(script_text, suggestions)
 
-            # 理想密度：3-5 字/秒
-            if 3 <= chars_per_second <= 5:
-                score += 20
-            elif 2 <= chars_per_second <= 6:
-                score += 10
-            else:
-                suggestions.append("信息密度过高或过低，建议调整")
+        # 3. 检测信息密度高的段落
+        high_density_segments = self._detect_high_density_segments(script_text)
 
-        # 分析句式多样性
-        sentences = script_text.split("。")
-        sentence_lengths = [len(s) for s in sentences if s.strip()]
-
-        if sentence_lengths:
-            avg_sentence_length = sum(sentence_lengths) / len(sentence_lengths)
-            if 10 <= avg_sentence_length <= 30:
-                score += 10
-            else:
-                suggestions.append("建议调整句式长度，保持 10-30 字为佳")
-
-        # 检测信息密度高的段落
-        for i in range(0, char_count, 100):
-            segment = script_text[i : i + 100]
-            segment_density = len(segment) / 100
-            if segment_density > 0.8:
-                high_density_segments.append(
-                    {
-                        "start": i,
-                        "end": i + 100,
-                        "density": segment_density,
-                    }
-                )
-
-        # 限制最高分
         score = min(100, score)
 
         return InformationDensityScore(
             score=score,
-            density_map=density_map,
+            density_map=[],  # type: ignore[var-annotated]
             average_density=average_density,
             high_density_segments=high_density_segments,
             suggestions=suggestions,
         )
+
+    @staticmethod
+    def _compute_chars_per_second(script_text: str, video_duration: float) -> float:
+        """计算每秒字数 (字/秒), video_duration <= 0 时返回 0."""
+        if video_duration <= 0:
+            return 0.0
+        return len(script_text) / video_duration
+
+    @staticmethod
+    def _compute_density_bonus(
+        chars_per_second: float, suggestions: list[str]
+    ) -> float:
+        """根据字/秒密度评分: 理想 3-5 +20, 可接受 2-6 +10, 否则建议."""
+        if chars_per_second == 0:
+            return 0.0
+        if 3 <= chars_per_second <= 5:
+            return 20.0
+        if 2 <= chars_per_second <= 6:
+            return 10.0
+        suggestions.append("信息密度过高或过低，建议调整")
+        return 0.0
+
+    @staticmethod
+    def _compute_sentence_diversity_bonus(
+        script_text: str, suggestions: list[str]
+    ) -> float:
+        """分析句式多样性: 平均句长 10-30 字 +10, 否则建议."""
+        sentences = [s for s in script_text.split("。") if s.strip()]
+        if not sentences:
+            return 0.0
+        avg_sentence_length = sum(len(s) for s in sentences) / len(sentences)
+        if 10 <= avg_sentence_length <= 30:
+            return 10.0
+        suggestions.append("建议调整句式长度，保持 10-30 字为佳")
+        return 0.0
+
+    @staticmethod
+    def _detect_high_density_segments(
+        script_text: str, window: int = 100, threshold: float = 0.8
+    ) -> list[dict[str, Any]]:
+        """按固定窗口扫描, 检测填充率 > threshold 的高密度段落."""
+        high_density: list[dict[str, Any]] = []
+        char_count = len(script_text)
+        for i in range(0, char_count, window):
+            segment = script_text[i : i + window]
+            density = len(segment) / window
+            if density > threshold:
+                high_density.append({
+                    "start": i, "end": i + window, "density": density,
+                })
+        return high_density
