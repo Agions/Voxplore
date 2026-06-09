@@ -403,23 +403,23 @@ class PipelineIntegrator(MonologueMaker):
         custom_script: str | None = None,
     ) -> MonologueProject:
         """
-        一步到位运行完整流水线（创建项目 → 全流程 → 返回项目）
+        一步到位运行完整流水线 — 编排器 (创建项目 → 全流程 → 返回项目).
 
         依次执行:
         1. 创建项目并分析视频
         2. 生成独白脚本
         3. 生成配音
         4. 生成字幕
-        5. 视角映射（可选）
-        6. 视频穿插（可选）
+        5. 视角映射(可选)
+        6. 视频穿插(可选)
 
         Args:
             source_video: 源视频路径或 URL
             context: 视频主题/背景描述
-            emotion: 情感风格（healing/suspense/motivational/nostalgic/romantic）
-            name: 项目名称（默认从视频文件名推断）
+            emotion: 情感风格(healing/suspense/motivational/nostalgic/romantic)
+            name: 项目名称(默认从视频文件名推断)
             include_interleave: 是否包含视角映射和视频穿插
-            custom_script: 自定义解说脚本（可选）
+            custom_script: 自定义解说脚本(可选)
 
         Returns:
             MonologueProject: 包含完整解说数据的项目对象
@@ -428,50 +428,69 @@ class PipelineIntegrator(MonologueMaker):
             FileNotFoundError: 源视频文件不存在
             ValueError: 参数校验失败
         """
+        self._validate_source_video(source_video)
+        project = self._create_and_report_project(source_video, context, emotion, name)
+        self._generate_narration_content(project, custom_script)
+        if include_interleave:
+            self._run_interleave_pipeline(project)
+        self._report_progress("完整流水线", 1.0)
+        return project
+
+    @staticmethod
+    def _validate_source_video(source_video: str) -> None:
+        """校验源视频: 本地文件须存在, URL 须以 http(s):// 开头."""
         import os
 
-        # 校验源视频
-        if not os.path.exists(source_video) and not source_video.startswith(
-            ("http://", "https://")
+        if not source_video.startswith(("http://", "https://")) and not os.path.exists(
+            source_video
         ):
             raise FileNotFoundError(f"源视频不存在: {source_video}")
 
-        # 1. 创建项目
+    def _create_and_report_project(
+        self,
+        source_video: str,
+        context: str,
+        emotion: str,
+        name: str | None,
+    ) -> MonologueProject:
+        """阶段 1: 报告进度并创建项目."""
         self._report_progress("完整流水线", 0.0)
-        project = self.create_project(
+        return self.create_project(
             source_video=source_video,
             context=context,
             emotion=emotion,
             name=name,
         )
 
-        # 2. 生成脚本
+    def _generate_narration_content(
+        self, project: MonologueProject, custom_script: str | None
+    ) -> None:
+        """阶段 2-4: 生成脚本 → 配音 → 字幕, 含进度报告."""
+        # 2. 脚本
         self._report_progress("完整流水线", 0.15)
         if custom_script:
             self.generate_script(project, custom_script=custom_script)
         else:
             self.generate_script(project)
 
-        # 3. 生成配音
+        # 3. 配音
         self._report_progress("完整流水线", 0.35)
         self.generate_voice(project)
 
-        # 4. 生成字幕
+        # 4. 字幕
         self._report_progress("完整流水线", 0.50)
         self.generate_captions(project)
 
-        if include_interleave:
-            # 5. 视角映射
-            self._report_progress("完整流水线", 0.65)
-            perspective_shots = self.run_perspective_mapping(project)
+    def _run_interleave_pipeline(self, project: MonologueProject) -> None:
+        """阶段 5-6: 视角映射 + 视频穿插 + 应用决策."""
+        # 5. 视角映射
+        self._report_progress("完整流水线", 0.65)
+        perspective_shots = self.run_perspective_mapping(project)
 
-            # 6. 视频穿插
-            self._report_progress("完整流水线", 0.80)
-            timeline = self.run_video_interleave(project, perspective_shots)
-            self.apply_interleave_to_project(project, timeline)
-
-        self._report_progress("完整流水线", 1.0)
-        return project
+        # 6. 视频穿插
+        self._report_progress("完整流水线", 0.80)
+        timeline = self.run_video_interleave(project, perspective_shots)
+        self.apply_interleave_to_project(project, timeline)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
