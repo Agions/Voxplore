@@ -5,7 +5,6 @@
 提供实时导出进度监控和状态显示
 """
 
-
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -72,9 +71,9 @@ class ExportProgressDialog(QDialog):
     def on_export_progress(self, task_id: str, progress: float):
         """导出进度事件"""
         # 更新进度条
-        if hasattr(self, 'progress_bar'):
+        if hasattr(self, "progress_bar"):
             self.progress_bar.setValue(int(progress * 100))
-        if hasattr(self, 'progress_label'):
+        if hasattr(self, "progress_label"):
             self.progress_label.setText(f"{int(progress * 100)}%")
 
     def on_export_completed(self, task_id: str, output_path: str):
@@ -82,7 +81,11 @@ class ExportProgressDialog(QDialog):
         # 检查是否所有任务都已完成
         try:
             tasks = self.export_system.get_task_history()
-            active_tasks = [t for t in tasks if t.status.value in ["processing", "queued", "pending"]]
+            active_tasks = [
+                t
+                for t in tasks
+                if t.status.value in ["processing", "queued", "pending"]
+            ]
 
             if not active_tasks:
                 # 所有任务完成，显示完成通知
@@ -94,22 +97,23 @@ class ExportProgressDialog(QDialog):
         """导出失败事件"""
         # 显示错误通知
         from PySide6.QtWidgets import QMessageBox
+
         QMessageBox.critical(
-            self,
-            "导出失败",
-            f"任务 {task_id} 导出失败：\n{error_message}"
+            self, "导出失败", f"任务 {task_id} 导出失败：\n{error_message}"
         )
         # 更新状态显示
-        if hasattr(self, 'status_label'):
+        if hasattr(self, "status_label"):
             self.status_label.setText("导出失败")
-        if hasattr(self, 'progress_bar'):
+        if hasattr(self, "progress_bar"):
             self.progress_bar.setValue(0)
 
     def cancel_all_tasks(self):
         """取消所有任务"""
-        reply = self.logger.question(
-            "确认取消", "确定要取消所有导出任务吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        reply = QMessageBox.question(
+            self,
+            "确认取消",
+            "确定要取消所有导出任务吗？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if reply == QMessageBox.StandardButton.Yes:
@@ -122,7 +126,9 @@ class ExportProgressDialog(QDialog):
                         if self.export_system.cancel_export(task.id):
                             cancelled_count += 1
 
-                QMessageBox.information(self, "成功", f"已取消 {cancelled_count} 个任务")
+                QMessageBox.information(
+                    self, "成功", f"已取消 {cancelled_count} 个任务"
+                )
 
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"取消任务失败: {str(e)}")
