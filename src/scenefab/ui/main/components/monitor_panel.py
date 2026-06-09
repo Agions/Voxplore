@@ -264,7 +264,7 @@ class AIMonitorPanel(QWidget):
             (self.logger or _fallback_logger).error(f"更新服务状态列表失败: {e}")
 
     def _update_services_table(self):
-        """更新服务表格"""
+        """更新服务表格 — 编排器, 委派到 _populate_service_row."""
         try:
             if not self.ai_service_manager:
                 return
@@ -273,70 +273,71 @@ class AIMonitorPanel(QWidget):
             self.services_table.setRowCount(len(services))
 
             for row, (service_name, _service) in enumerate(services.items()):
-                health = self.ai_service_manager.get_service_health(service_name)
-                stats = self.ai_service_manager.get_usage_stats(service_name)
-
-                # 服务名称
-                self.services_table.setItem(row, 0, QTableWidgetItem(service_name))
-
-                # 状态
-                status_item = QTableWidgetItem(
-                    health.status.value if health else "未知"
-                )
-                status_color = {
-                    ServiceStatus.ACTIVE: "#52c41a",
-                    ServiceStatus.INACTIVE: "#888888",
-                    ServiceStatus.ERROR: "#ff4d4f",
-                    ServiceStatus.MAINTENANCE: "#faad14",
-                }.get(health.status, "#888888")
-                status_item.setBackground(QColor(status_color))
-                self.services_table.setItem(row, 1, status_item)
-
-                # 响应时间
-                response_time = health.response_time if health else 0
-                self.services_table.setItem(
-                    row, 2, QTableWidgetItem(f"{response_time:.1f}ms")
-                )
-
-                # 错误率
-                error_rate = health.error_rate if health else 0
-                self.services_table.setItem(
-                    row, 3, QTableWidgetItem(f"{error_rate:.1%}")
-                )
-
-                # 成功率
-                success_rate = (
-                    (stats.successful_requests / stats.total_requests * 100)
-                    if stats and stats.total_requests > 0
-                    else 100
-                )
-                self.services_table.setItem(
-                    row, 4, QTableWidgetItem(f"{success_rate:.1f}%")
-                )
-
-                # 操作按钮
-                actions_widget = QWidget()
-                actions_layout = QHBoxLayout(actions_widget)
-                actions_layout.setContentsMargins(0, 0, 0, 0)
-
-                test_btn = QPushButton("测试")
-                test_btn.setFixedSize(60, 24)
-                test_btn.clicked.connect(
-                    lambda checked, sn=service_name: self._test_service(sn)
-                )
-                actions_layout.addWidget(test_btn)
-
-                details_btn = QPushButton("详情")
-                details_btn.setFixedSize(60, 24)
-                details_btn.clicked.connect(
-                    lambda checked, sn=service_name: self._show_service_details(sn)
-                )
-                actions_layout.addWidget(details_btn)
-
-                self.services_table.setCellWidget(row, 5, actions_widget)
+                self._populate_service_row(row, service_name)
 
         except Exception as e:
             (self.logger or _fallback_logger).error(f"更新服务表格失败: {e}")
+
+    def _populate_service_row(self, row: int, service_name: str) -> None:
+        """填充单行: 名称/状态/响应时间/错误率/成功率/操作按钮."""
+        health = self.ai_service_manager.get_service_health(service_name)
+        stats = self.ai_service_manager.get_usage_stats(service_name)
+
+        self.services_table.setItem(row, 0, QTableWidgetItem(service_name))
+        self.services_table.setItem(row, 1, self._build_status_item(health))
+
+        response_time = health.response_time if health else 0
+        self.services_table.setItem(row, 2, QTableWidgetItem(f"{response_time:.1f}ms"))
+
+        error_rate = health.error_rate if health else 0
+        self.services_table.setItem(row, 3, QTableWidgetItem(f"{error_rate:.1%}"))
+
+        success_rate = (
+            (stats.successful_requests / stats.total_requests * 100)
+            if stats and stats.total_requests > 0
+            else 100
+        )
+        self.services_table.setItem(row, 4, QTableWidgetItem(f"{success_rate:.1f}%"))
+
+        self.services_table.setCellWidget(row, 5, self._build_action_buttons(service_name))
+
+    _STATUS_COLORS = {
+        ServiceStatus.ACTIVE: "#52c41a",
+        ServiceStatus.INACTIVE: "#888888",
+        ServiceStatus.ERROR: "#ff4d4f",
+        ServiceStatus.MAINTENANCE: "#faad14",
+    }
+
+    def _build_status_item(self, health) -> QTableWidgetItem:
+        """构建状态列 item: 状态文本 + 背景色."""
+        status_text = health.status.value if health else "未知"
+        status_item = QTableWidgetItem(status_text)
+        if health:
+            color = self._STATUS_COLORS.get(health.status, "#888888")
+            status_item.setBackground(QColor(color))
+        return status_item
+
+    def _build_action_buttons(self, service_name: str) -> QWidget:
+        """构建操作列: 测试/详情按钮."""
+        actions_widget = QWidget()
+        actions_layout = QHBoxLayout(actions_widget)
+        actions_layout.setContentsMargins(0, 0, 0, 0)
+
+        test_btn = QPushButton("测试")
+        test_btn.setFixedSize(60, 24)
+        test_btn.clicked.connect(
+            lambda checked, sn=service_name: self._test_service(sn)
+        )
+        actions_layout.addWidget(test_btn)
+
+        details_btn = QPushButton("详情")
+        details_btn.setFixedSize(60, 24)
+        details_btn.clicked.connect(
+            lambda checked, sn=service_name: self._show_service_details(sn)
+        )
+        actions_layout.addWidget(details_btn)
+
+        return actions_widget
 
     def _update_stats(self):
         """更新统计数据"""
