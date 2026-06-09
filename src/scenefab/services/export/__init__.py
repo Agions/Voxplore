@@ -49,6 +49,7 @@ from .jianying_adapter import (
     VideoMaterial,
 )
 from .jianying_exporter import JianyingExporter
+from .presets import ExportPreset
 from .video_exporter import ExportConfig, ExportFormat, VideoExporter
 
 __all__ = [
@@ -91,6 +92,7 @@ __all__ = [
     "BatchExportManager",
     "ExportTask",
     "ExportStatus",
+    "ExportPreset",
     "BatchExportResult",
     "get_batch_export_manager",
     # 导出管理
