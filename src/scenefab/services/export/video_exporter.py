@@ -127,58 +127,9 @@ class VideoExporter:
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
 
-        cmd = ["ffmpeg", "-y"]
-
-        # 输入
-        cmd.extend(["-i", video_path])
-
-        if audio_path:
-            cmd.extend(["-i", audio_path])
-
-        # 滤镜
-        filters = []
-
-        # 缩放
-        filters.append(f"scale={self.config.width}:{self.config.height}")
-
-        # 字幕（如果有）
-        if subtitles_path and Path(subtitles_path).exists():
-            # 使用 ass 滤镜烧录字幕
-            filters.append(f"ass={subtitles_path}")
-
-        if filters:
-            cmd.extend(["-vf", ",".join(filters)])
-
-        # 视频编码
-        if self.config.use_hw_accel:
-            cmd.extend(self._get_hw_accel_params())
-        else:
-            cmd.extend(["-c:v", self.config.video_codec.value])
-            cmd.extend(["-preset", self.config.preset])
-            cmd.extend(["-crf", str(self.config.crf)])
-
-        cmd.extend(["-b:v", self.config.video_bitrate])
-        cmd.extend(["-r", str(self.config.fps)])
-
-        # 音频编码
-        cmd.extend(["-c:a", self.config.audio_codec.value])
-        cmd.extend(["-b:a", self.config.audio_bitrate])
-
-        # 映射
-        cmd.extend(["-map", "0:v:0"])
-        if audio_path:
-            cmd.extend(["-map", "1:a:0"])
-        else:
-            cmd.extend(["-map", "0:a:0?"])
-
-        # 其他
-        cmd.extend(["-shortest"])
-        cmd.extend(["-movflags", "+faststart"])
-
-        # 输出
+        cmd = self._build_ffmpeg_command(video_path, audio_path, subtitles_path)
         cmd.append(str(output))
 
-        # 执行
         result = self._executor.run(cmd, timeout=300)
 
         if result.returncode != 0:
@@ -188,6 +139,77 @@ class VideoExporter:
             )
 
         return str(output)
+
+    def _build_ffmpeg_command(
+        self,
+        video_path: str,
+        audio_path: str | None,
+        subtitles_path: str | None,
+    ) -> list[str]:
+        """构建 ffmpeg 命令行参数（不含输出路径与执行）"""
+        cmd = ["ffmpeg", "-y"]
+
+        self._add_input_args(cmd, video_path, audio_path)
+        self._add_filter_args(cmd, subtitles_path)
+        self._add_video_codec_args(cmd)
+        self._add_video_quality_args(cmd)
+        self._add_audio_codec_args(cmd)
+        self._add_stream_mapping_args(cmd, audio_path)
+        self._add_misc_args(cmd)
+
+        return cmd
+
+    @staticmethod
+    def _add_input_args(cmd: list[str], video_path: str, audio_path: str | None) -> None:
+        """添加输入参数"""
+        cmd.extend(["-i", video_path])
+        if audio_path:
+            cmd.extend(["-i", audio_path])
+
+    def _add_filter_args(self, cmd: list[str], subtitles_path: str | None) -> None:
+        """添加视频滤镜参数（缩放、字幕烧录）"""
+        filters = [f"scale={self.config.width}:{self.config.height}"]
+
+        if subtitles_path and Path(subtitles_path).exists():
+            # 使用 ass 滤镜烧录字幕
+            filters.append(f"ass={subtitles_path}")
+
+        if filters:
+            cmd.extend(["-vf", ",".join(filters)])
+
+    def _add_video_codec_args(self, cmd: list[str]) -> None:
+        """添加视频编码器参数（硬件加速或软件编码）"""
+        if self.config.use_hw_accel:
+            cmd.extend(self._get_hw_accel_params())
+        else:
+            cmd.extend(["-c:v", self.config.video_codec.value])
+            cmd.extend(["-preset", self.config.preset])
+            cmd.extend(["-crf", str(self.config.crf)])
+
+    def _add_video_quality_args(self, cmd: list[str]) -> None:
+        """添加视频质量参数（码率、帧率）"""
+        cmd.extend(["-b:v", self.config.video_bitrate])
+        cmd.extend(["-r", str(self.config.fps)])
+
+    def _add_audio_codec_args(self, cmd: list[str]) -> None:
+        """添加音频编码器参数"""
+        cmd.extend(["-c:a", self.config.audio_codec.value])
+        cmd.extend(["-b:a", self.config.audio_bitrate])
+
+    @staticmethod
+    def _add_stream_mapping_args(cmd: list[str], audio_path: str | None) -> None:
+        """添加流映射参数"""
+        cmd.extend(["-map", "0:v:0"])
+        if audio_path:
+            cmd.extend(["-map", "1:a:0"])
+        else:
+            cmd.extend(["-map", "0:a:0?"])
+
+    @staticmethod
+    def _add_misc_args(cmd: list[str]) -> None:
+        """添加其他杂项参数（-shortest、-movflags）"""
+        cmd.extend(["-shortest"])
+        cmd.extend(["-movflags", "+faststart"])
 
     # hw_accel_type → (codec_arg, extra_params)
     _HW_ACCEL_PARAMS: dict = {

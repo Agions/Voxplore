@@ -219,94 +219,102 @@ def _handle_commentary_create(args) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        from scenefab.models.narration import NarrationStyle
-        from scenefab.pipeline import PipelineConfig, SceneFabPipeline
-
-        config = PipelineConfig(
-            min_segment_duration=9.0,
-            max_segment_duration=60.0,
-        )
-        pipeline = SceneFabPipeline(config)
-
-        # 将字符串 style 映射为 NarrationStyle 枚举（fallback 到 DOCUMENTARY）
-        narration_style = getattr(
-            NarrationStyle, args.style.upper(), NarrationStyle.DOCUMENTARY
-        )
-
-        project = pipeline.process(
-            video_path=str(video_path),
-            style=narration_style,
-            voice=args.voice,
-            output_dir=str(output_dir),
-        )
-
-        result = {
-            "name": project.name,
-            "segments": len(project.segments),
-            "narrations": len(project.narration_blocks),
-            "emotion_peaks": len(project.emotion_peaks),
-        }
-
-        if args.format == "json":
-            print(
-                json.dumps(
-                    {
-                        "status": "success",
-                        "video": str(video_path),
-                        "style": args.style,
-                        "voice": args.voice,
-                        "output_dir": str(output_dir),
-                        "result": result,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-            )
-        else:
-            logger.info(f"Commentary creation complete: {video_path.name}")
-            logger.info(f"  Style: {args.style} | Voice: {args.voice}")
-            logger.info(f"  Output: {output_dir}")
-            logger.info(
-                f"  Segments: {result['segments']} | Narrations: {result['narrations']}"
-            )
-
+        result = _run_commentary_pipeline(video_path, output_dir, args)
+        _print_success_output(args, video_path, output_dir, result)
         return 0
-
     except ImportError as e:
         logger.error(f"Pipeline import failed: {e}")
         logger.info(
             "Hint: SceneFab requires full AI API configuration for commentary creation"
         )
-        if args.format == "json":
-            print(
-                json.dumps(
-                    {
-                        "status": "error",
-                        "message": f"Pipeline import failed: {e}",
-                        "video": str(video_path),
-                        "style": args.style,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-            )
+        _print_error_json(args, video_path, f"Pipeline import failed: {e}")
         return 1
     except Exception as e:
         logger.error(f"Commentary creation failed: {e}")
-        if args.format == "json":
-            print(
-                json.dumps(
-                    {
-                        "status": "error",
-                        "message": str(e),
-                        "video": str(video_path),
-                        "style": args.style,
-                    },
-                    ensure_ascii=False,
-                    indent=2,
-                )
-            )
+        _print_error_json(args, video_path, str(e))
         return 1
+
+
+def _run_commentary_pipeline(
+    video_path: Path, output_dir: Path, args
+) -> dict:
+    """Build pipeline, run commentary creation, return result dict.
+
+    Raises ImportError if pipeline modules are missing, or whatever
+    exception the pipeline itself raises.
+    """
+    from scenefab.models.narration import NarrationStyle
+    from scenefab.pipeline import PipelineConfig, SceneFabPipeline
+
+    config = PipelineConfig(
+        min_segment_duration=9.0,
+        max_segment_duration=60.0,
+    )
+    pipeline = SceneFabPipeline(config)
+
+    # 将字符串 style 映射为 NarrationStyle 枚举（fallback 到 DOCUMENTARY）
+    narration_style = getattr(
+        NarrationStyle, args.style.upper(), NarrationStyle.DOCUMENTARY
+    )
+
+    project = pipeline.process(
+        video_path=str(video_path),
+        style=narration_style,
+        voice=args.voice,
+        output_dir=str(output_dir),
+    )
+
+    return {
+        "name": project.name,
+        "segments": len(project.segments),
+        "narrations": len(project.narration_blocks),
+        "emotion_peaks": len(project.emotion_peaks),
+    }
+
+
+def _print_success_output(
+    args, video_path: Path, output_dir: Path, result: dict
+) -> None:
+    """Emit success output as JSON (--format json) or as log lines."""
+    if args.format == "json":
+        print(
+            json.dumps(
+                {
+                    "status": "success",
+                    "video": str(video_path),
+                    "style": args.style,
+                    "voice": args.voice,
+                    "output_dir": str(output_dir),
+                    "result": result,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    else:
+        logger.info(f"Commentary creation complete: {video_path.name}")
+        logger.info(f"  Style: {args.style} | Voice: {args.voice}")
+        logger.info(f"  Output: {output_dir}")
+        logger.info(
+            f"  Segments: {result['segments']} | Narrations: {result['narrations']}"
+        )
+
+
+def _print_error_json(args, video_path: Path, message: str) -> None:
+    """Emit a JSON error envelope when --format json, else no-op."""
+    if args.format == "json":
+        print(
+            json.dumps(
+                {
+                    "status": "error",
+                    "message": message,
+                    "video": str(video_path),
+                    "style": args.style,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
 
 
 def _handle_batch_command(args) -> int:

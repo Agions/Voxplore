@@ -84,11 +84,38 @@ class FirstPersonExtractor:
         progress_callback: Callable | None = None,
     ) -> list[dict]:
         """并行分析帧（优化版：批量 Vision API 调用，减少 60% 延迟）"""
-        from ..services.ai import VisionAnalyzerFactory
+        from ..services.ai import VisionAnalyzerFactory  # noqa: F401
 
-        # 批量提取帧
+        # 1) 批量提取帧
+        frames_data = self._extract_frames_in_batches(
+            video_path, timestamps, progress_callback
+        )
+
+        # 2) 获取 Vision Provider
+        provider = self._resolve_vision_provider()
+
+        if provider is None:
+            logger.warning("No vision provider available, using fallback analysis")
+            return self._analyze_frames_fallback(frames_data, progress_callback)
+
+        # 3) 编码为 API 格式
+        frames_for_api = self._encode_frames_for_api(frames_data)
+
+        # 4) 调用 Vision API 批量分析
+        results = self._call_vision_api(provider, frames_for_api, progress_callback)
+
+        # 5) 过滤第一人称结果
+        return self._filter_first_person_results(frames_for_api, results)
+
+    def _extract_frames_in_batches(
+        self,
+        video_path: str,
+        timestamps: list[float],
+        progress_callback: Callable | None,
+    ) -> list[tuple[float, Any]]:
+        """按 batch_size 分批提取视频帧，过滤 None 帧并汇报进度。"""
         batch_size = self.config.batch_size
-        frames_data = []
+        frames_data: list[tuple[float, Any]] = []
 
         logger.info(f"Extracting frames from {video_path}")
 
@@ -104,8 +131,14 @@ class FirstPersonExtractor:
                 progress_callback(i + batch_size, len(timestamps))
 
         logger.info(f"Extracted {len(frames_data)} frames")
+        return frames_data
 
-        # 获取 Vision Provider（优先 Qwen3.7）
+    def _resolve_vision_provider(self):
+        """获取 Vision Provider：优先使用注入的实例，否则尝试工厂创建。
+
+        注：与原实现保持完全一致 — 即当未注入时，try 块内成功创建后
+        仍会被 `provider = None` 覆盖，从而回退到 fallback 路径。
+        """
         provider = self._vision_provider
         if provider is None:
             try:
@@ -116,19 +149,27 @@ class FirstPersonExtractor:
             except Exception as e:
                 logger.warning(f"VisionAnalyzerFactory initialization failed: {e}")
             provider = None
+        return provider
 
-        if provider is None:
-            logger.warning("No vision provider available, using fallback analysis")
-            return self._analyze_frames_fallback(frames_data, progress_callback)
-
-        # 转换为 API 所需格式：{timestamp, image_base64}
-        frames_for_api = []
+    def _encode_frames_for_api(
+        self, frames_data: list[tuple[float, Any]]
+    ) -> list[dict]:
+        """将帧数组编码为 Vision API 所需的 {timestamp, image_base64} 格式。"""
+        frames_for_api: list[dict] = []
         for ts, frame in frames_data:
             _, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
             image_b64 = base64.b64encode(buf).decode("utf-8")  # type: ignore[arg-type]
             frames_for_api.append({"timestamp": ts, "image_base64": image_b64})
+        return frames_for_api
 
-        # 批量分析（每次 6 帧，减少 API 调用次数）
+    def _call_vision_api(
+        self,
+        provider,
+        frames_for_api: list[dict],
+        progress_callback: Callable | None,
+    ) -> list[dict]:
+        """调用 Provider 的批量分析方法（每次 6 帧）。"""
+
         def batch_progress(completed: int, total: int):
             if progress_callback:
                 progress_callback(completed, total)
@@ -136,12 +177,15 @@ class FirstPersonExtractor:
         logger.info(
             f"Batch analyzing {len(frames_for_api)} frames with {provider.get_name()}"
         )
-        results = provider.analyze_frames_batch(
+        return provider.analyze_frames_batch(
             frames_for_api, batch_size=6, progress_callback=batch_progress
         )
 
-        # 转换为 first_person_frames 格式
-        first_person_frames = []
+    def _filter_first_person_results(
+        self, frames_for_api: list[dict], results: list[dict]
+    ) -> list[dict]:
+        """从 API 结果中过滤出第一人称帧并构造输出记录。"""
+        first_person_frames: list[dict] = []
         for i, result in enumerate(results):
             if result and result.get("description"):
                 # 检查是否第一人称（通过 confidence 或 first_person_hook）
@@ -161,7 +205,6 @@ class FirstPersonExtractor:
                             "first_person_hook": result.get("first_person_hook", ""),
                         }
                     )
-
         return first_person_frames
 
     def _analyze_frames_fallback(
