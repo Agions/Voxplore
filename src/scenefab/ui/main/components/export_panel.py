@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 
 from scenefab.logger import Logger
 from scenefab.services.export import ExportPreset
+from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 from scenefab.ui.main.components._tab_builders import (
     build_batch_export_tab,
     build_presets_tab,
@@ -30,11 +31,15 @@ from scenefab.ui.main.components._tab_builders import (
     build_quick_export_tab,
 )
 
-from ..common.theme_mixin import ThemeAwareMixin, ThemeColors
 from .export_format_selector import ExportSettingsDialog
 
 
 class ExportPanel(QWidget, ThemeAwareMixin):
+    # TODO(v2.2): 真正继承 _tab_builders.ExportPanel (或合并), 消除双实例化
+    # 当前实现嵌入 _tab_builders.build_* 构造的 widget, 但这些 widget 的信号
+    # 是 _stub_connect 占位 — 切换 preset / 浏览输出路径 / 启动队列都静默失效
+    # 临时绕过: commit 75017f2 之前 (35aebe4) 仍可工作
+    # 详见 _tab_builders.py 顶部 WARNING 块
     """导出面板主类"""
 
     # 信号定义
