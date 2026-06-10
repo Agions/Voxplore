@@ -5,7 +5,6 @@
 视频创作应用专用组件
 """
 
-from typing import Optional
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter
@@ -416,7 +415,7 @@ class TabBar(QWidget):
 class Badge(QFrame):
     """徽章/标签"""
 
-    def __init__(self, text: str, color: Optional[str] = None, parent=None):
+    def __init__(self, text: str, color: str | None = None, parent=None):
         if color is None:
             color = _C.PRIMARY_DARKER
         super().__init__(parent)

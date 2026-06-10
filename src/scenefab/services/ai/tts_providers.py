@@ -7,8 +7,9 @@ TTS 提供者实现
 import asyncio
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Coroutine
 from pathlib import Path
-from typing import Any, Callable, Coroutine
+from typing import Any
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
 from .voice_models import (

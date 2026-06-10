@@ -462,8 +462,8 @@ class SenseVoiceProvider:
 
     @staticmethod
     def _cluster_speakers(
-        X: np.ndarray, num_speakers: int | None
-    ) -> np.ndarray:
+ X: np.ndarray, num_speakers: int | None # noqa: N803 (sklearn convention: X=feature matrix)
+ ) -> np.ndarray:
         """对 MFCC 特征做标准化与 KMeans 聚类，返回每个窗口的标签。"""
         from sklearn.cluster import KMeans  # type: ignore[import-untyped]
         from sklearn.preprocessing import StandardScaler  # type: ignore[import-untyped]

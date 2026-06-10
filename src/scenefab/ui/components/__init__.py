@@ -16,20 +16,25 @@ from .narration import NarrationEditor, NarrationSegmentItem
 from .timeline import TimelineRuler, TimelineShuttle, TimelineTrack
 
 __all__ = [
-    # containers
-    "MacCard",
-    "MacElevatedCard",
-    "MacSection",
-    # buttons
-    "MacButton",
-    "MacPrimaryButton",
-    "MacSecondaryButton",
-    "MacDangerButton",
-    # narration
-    "NarrationEditor",
-    "NarrationSegmentItem",
-    # timeline
-    "TimelineShuttle",
-    "TimelineRuler",
-    "TimelineTrack",
-]
+ # containers
+ "MacCard",
+ "MacElevatedCard",
+ "MacSection",
+ # buttons
+ "MacIconButton",
+ "MacButton",
+ "MacPrimaryButton",
+ "MacSecondaryButton",
+ "MacDangerButton",
+ # labels
+ "MacBadge",
+ "MacLabel",
+ "MacTitleLabel",
+ # narration
+ "NarrationEditor",
+ "NarrationSegmentItem",
+ # timeline
+ "TimelineShuttle",
+ "TimelineRuler",
+ "TimelineTrack",
+]  # noqa: F401 (re-exported for public API: from scenefab.ui.components import MacIconButton)

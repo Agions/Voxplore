@@ -6,7 +6,7 @@
 """
 
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QColor, QLinearGradient, QPainter
+from PySide6.QtGui import QColor, QLinearGradient
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
 
 from scenefab.ui.common.widgets import PaintableWidget

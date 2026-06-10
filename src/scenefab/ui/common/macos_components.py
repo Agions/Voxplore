@@ -9,10 +9,7 @@ macOS 设计系统 - 通用组件库
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
-from scenefab.ui.components.buttons import MacSecondaryButton
-from scenefab.ui.components.containers import MacCard
-from scenefab.ui.components.labels import MacBadge, MacLabel, MacTitleLabel
-from scenefab.ui.components.layout import MacEmptyState
+from scenefab.ui.components.labels import MacBadge, MacLabel
 
 
 class MacIconButton(QPushButton):
