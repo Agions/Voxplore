@@ -31,10 +31,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from scenefab.ui.theme.ds_tokens import _C
+
 from .curve_wgt import EmotionCurveWidget
 from .emotion_presets import EMOTION_PRESETS, EmotionPresetButton
-
-from scenefab.ui.theme.ds_tokens import _C
 
 
 class EmotionController(QWidget):

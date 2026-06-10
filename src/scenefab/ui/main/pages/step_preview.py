@@ -29,9 +29,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from scenefab.ui.theme.ds_tokens import _C
+
 from .preview_text_area import PreviewTextArea
 from .style_preset_panel import StylePresetPanel
-from scenefab.ui.theme.ds_tokens import _C
 
 
 # ── StepPreview 主组件 ─────────────────────────────────────

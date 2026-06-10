@@ -19,8 +19,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .design_system import Colors
 from scenefab.ui.theme.ds_tokens import _C
+
+from .design_system import Colors
 
 
 class GradientButton(QPushButton):

@@ -20,7 +20,6 @@ from .onboard_steps import (
     WelcomeStep,
 )
 
-
 # 渐变按钮 QSS — 复用 feature_tour._gradient_btn 模式
 _GRADIENT_BTN_QSS = (
     "QPushButton {{"

@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
 
 from scenefab.ui.theme.ds_tokens import _C
 
-
 # ── 通用 QSS 模板 — 消除 5 处 ComboBox / QLineEdit / CheckBox 重复 ──────
 
 _COMBO_QSS = (

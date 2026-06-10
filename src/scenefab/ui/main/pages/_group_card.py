@@ -25,10 +25,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from scenefab.ui.theme.ds_tokens import _C
+
 # 导入拖拽辅助组件
 from .components.drag_helpers import MIME_TYPE, _GroupThumbItem, _VideoMimeData
-
-from scenefab.ui.theme.ds_tokens import _C
 
 logger = logging.getLogger(__name__)
 

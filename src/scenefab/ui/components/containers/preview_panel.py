@@ -7,7 +7,6 @@
 import logging
 
 from PySide6.QtCore import Qt, QUrl
-from scenefab.ui.theme.ds_tokens import _C
 from PySide6.QtGui import QFont
 from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtWidgets import (
@@ -19,6 +18,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from scenefab.ui.theme.ds_tokens import _C
 
 logger = logging.getLogger(__name__)
 

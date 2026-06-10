@@ -33,9 +33,9 @@ from ....components import (  # type: ignore[attr-defined]
     MacSecondaryButton,
     MacTitleLabel,
 )
+from ...theme.ds_tokens import _C
 from .settings_dialog import ProjectSettingsDialog
 from .stats import create_stat_item
-from ...theme.ds_tokens import _C
 
 logger = logging.getLogger(__name__)
 
