@@ -26,7 +26,6 @@ from .base_maker import BaseVideoMaker
 
 # Phase 3 新增：视频处理模块
 from .cache import VideoFrameCache
-from .cache.legacy_cache import VideoCache
 from .extraction.emotion_peak import (
     EmotionPeak,
     EmotionPeakDetector,
@@ -129,7 +128,6 @@ __all__ = [
     "PipelineIntegrator",
     # Phase 3 视频处理
     "VideoFrameCache",
-    "VideoCache",
     "FFmpegSession",
     "VideoAnalyzer",
     "VideoProcessor",

@@ -1,24 +1,42 @@
 """
-SceneFab 核心处理流水线 V2
-性能优化版本：
-- 帧分析并行处理
-- 批量 API 调用
-- 流式处理
-- 进度实时反馈
+SceneFab v2.2 解说生成流水线
+
+v2.2 重构后, 旧 scene_pipeline.py + 各 Step 模块已删除 (commit 287b050 + R2).
+本包仅导出 v2.2 解说生成状态机 (NarrationStateMachine) 及其上下文/步骤.
+
+详细架构: docs/adr/007-narration-state-machine.md
 """
 
-from .config import PipelineConfig
-from .emotion_detector import EmotionPeakDetector
-from .first_person_extractor import FirstPersonExtractor
-from .scene_pipeline import SceneFabPipeline
-from .script_generator import ScriptGenerator
-from .tts_generator import TTSGenerator
+from .narration import (
+    PLATFORM_SPECS,
+    NarrationConfig,
+    NarrationContext,
+    NarrationState,
+    NarrationStateMachine,
+    NarrationStyle,
+    Persona,
+    Platform,
+    StepResult,
+    TransitionReason,
+    register_default_steps,
+    register_phase2_steps,
+    register_phase3_steps,
+    register_phase4_steps,
+)
 
 __all__ = [
-    "PipelineConfig",
-    "EmotionPeakDetector",
-    "FirstPersonExtractor",
-    "ScriptGenerator",
-    "TTSGenerator",
-    "SceneFabPipeline",
+    "PLATFORM_SPECS",
+    "NarrationConfig",
+    "NarrationContext",
+    "NarrationState",
+    "NarrationStateMachine",
+    "NarrationStyle",
+    "Persona",
+    "Platform",
+    "StepResult",
+    "TransitionReason",
+    "register_default_steps",
+    "register_phase2_steps",
+    "register_phase3_steps",
+    "register_phase4_steps",
 ]

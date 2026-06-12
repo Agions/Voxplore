@@ -4,14 +4,13 @@ SceneFab 服务模块
 提供以下核心服务:
 - ai: AI大模型、视觉、语音服务
 - video: 视频制作（解说、混剪、独白）
-- audio: 音频处理（节拍检测、音画同步）
 - export: 导出服务（剪映、PR、FCP、DaVinci）
 - video_tools: 视频处理工具（字幕、节奏分析）
 - orchestration: 编排服务（工作流、撤销管理、批量处理）
 """
 
 # 子模块
-from . import ai, audio, export, orchestration, video, video_tools
+from . import ai, export, orchestration, video, video_tools
 from .service_manager import (
     AIServiceManagerCompat as AIServiceManager,  # 向后兼容
 )
@@ -28,7 +27,6 @@ __all__ = [
     # 子模块
     "ai",
     "video",
-    "audio",
     "export",
     "video_tools",
     "orchestration",

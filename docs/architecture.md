@@ -194,7 +194,6 @@ src/scenefab/
 │   │   ├── analyzer.py       # VideoAnalyzer 场景检测
 │   │   └── processor.py     # VideoProcessor 剪切/合并
 │   │
-│   ├── audio/                  # 音频处理
 │   ├── export/                 # 导出器（MP4 / 剪映 / 字幕）
 │   └── orchestration/         # 工作流编排
 │
