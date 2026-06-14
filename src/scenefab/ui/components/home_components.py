@@ -37,15 +37,15 @@ class QuickActionCard(QFrame):
     def _setup_ui(self, icon: str, title: str, description: str):
         self.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(145deg, {_C.BG_SURFACE} 0%, {_C.BG_BASE} 100%);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 {_C.BG_SURFACE},
+                    stop:1 {_C.BG_BASE});
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 18px;
                 padding: 20px;
             }}
             QFrame:hover {{
-                border-color: {_C.ACCENT} / 0.4;
-                transform: translateY(-4px);
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+                border-color: {_C.ACCENT};
             }}
         """)
 
@@ -109,14 +109,15 @@ class ProjectPreviewCard(QFrame):
     def _setup_ui(self):
         self.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(180deg, {_C.BG_SURFACE} 0%, {_C.BG_BASE} 100%);
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {_C.BG_SURFACE},
+                    stop:1 {_C.BG_BASE});
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 20px;
                 overflow: hidden;
             }}
             QFrame:hover {{
-                border-color: {_C.ACCENT} / 0.3;
-                transform: translateY(-4px) scale(1.02);
+                border-color: {_C.ACCENT};
             }}
         """)
 
@@ -200,14 +201,12 @@ class FeatureShowcase(QFrame):
         self.setStyleSheet("""
             QFrame {
                 background: rgba(26, 26, 40, 0.6);
-                backdrop-filter: blur(20px);
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 24px;
                 padding: 24px;
             }
             QFrame:hover {
-                border-color: rgba(124, 58, 237, 0.2);
-                box-shadow: 0 0 40px rgba(124, 58, 237, 0.1);
+                border-color: #f43f5e;
             }
         """)
 
@@ -401,14 +400,15 @@ class StatsRow(QWidget):
         card.setFixedSize(180, 100)
         card.setStyleSheet(f"""
             QFrame {{
-                background: linear-gradient(145deg, {_C.BG_SURFACE} 0%, {_C.BG_BASE} 100%);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 {_C.BG_SURFACE},
+                    stop:1 {_C.BG_BASE});
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 16px;
                 padding: 16px;
             }}
             QFrame:hover {{
-                border-color: {_C.ACCENT} / 0.3;
-                transform: translateY(-2px);
+                border-color: {_C.ACCENT};
             }}
         """)
 

@@ -26,7 +26,12 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
-from scenefab.services.export import ExportPreset
+from scenefab.services.export import (
+    DEFAULT_VERTICAL_RESOLUTION,
+    ExportPreset,
+    bitrate_label,
+    normalize_resolution,
+)
 from scenefab.ui.common.export_signal_mixin import ExportSignalMixin
 from scenefab.ui.common.theme_mixin import ThemeAwareMixin, ThemeColors
 from scenefab.ui.main.components._tab_builders import (
@@ -91,10 +96,10 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     def __init__(self, application, parent=None):
         super().__init__(parent)
         self.application = application
-        self.export_system = application.export_system
+        self.export_system = getattr(application, "export_system", None)
         self.logger = Logger.get_logger(__name__)
         self.current_project_id = None
-        self.presets: list[Any] = []
+        self.presets: list[ExportPreset] = []
         self.setup_ui()
         self.connect_signals()
 
@@ -135,7 +140,8 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     def connect_signals(self):
         """连接信号 — 真实连接到 self.method (修复 P0 双实例化)"""
         # 导出系统信号
-        self.setup_export_signals()
+        if self._has_export_signals():
+            self.setup_export_signals()
 
         # 队列信号
         self.queue_widget.task_action.connect(self.handle_queue_action)
@@ -179,26 +185,38 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
 
     def refresh_presets(self):
         """刷新预设列表"""
-        presets = self.export_system.get_presets()
+        presets = self._get_presets()
         self.preset_combo.clear()
         self.batch_preset_combo.clear()
 
         for preset in presets:
-            self.preset_combo.addItem(preset.name, preset.id)
-            self.batch_preset_combo.addItem(preset.name, preset.id)
+            preset_id = self._preset_id(preset)
+            preset_name = getattr(preset, "name", preset_id)
+            self.preset_combo.addItem(preset_name, preset_id)
+            self.batch_preset_combo.addItem(preset_name, preset_id)
 
     def refresh_presets_table(self):
         """刷新预设表格"""
-        presets = self.export_system.get_presets()
+        presets = self._get_presets()
         self.presets_table.setRowCount(len(presets))
 
         for i, preset in enumerate(presets):
-            self.presets_table.setItem(i, 0, QTableWidgetItem(preset.name))
-            self.presets_table.setItem(i, 1, QTableWidgetItem(preset.format.value))
             self.presets_table.setItem(
-                i, 2, QTableWidgetItem(f"{preset.resolution[0]}x{preset.resolution[1]}")
+                i, 0, QTableWidgetItem(getattr(preset, "name", self._preset_id(preset)))
             )
-            self.presets_table.setItem(i, 3, QTableWidgetItem(f"{preset.bitrate} kbps"))
+            self.presets_table.setItem(
+                i,
+                1,
+                QTableWidgetItem(self._value_label(getattr(preset, "format", "mp4"))),
+            )
+            self.presets_table.setItem(
+                i,
+                2,
+                QTableWidgetItem(normalize_resolution(getattr(preset, "resolution", None))),
+            )
+            self.presets_table.setItem(
+                i, 3, QTableWidgetItem(bitrate_label(getattr(preset, "bitrate", 0)))
+            )
 
             # 操作按钮
             actions_widget = QWidget()
@@ -267,6 +285,10 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
 
     def start_export_with_preset(self, preset_id: str, output_path: str):
         """使用指定预设开始导出"""
+        if self.export_system is None:
+            QMessageBox.warning(self, "警告", "导出系统尚未初始化")
+            return
+
         try:
             task_id = self.export_system.export_project(
                 project_id=self.current_project_id,
@@ -286,6 +308,10 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
 
     def start_batch_export(self):
         """开始批量导出"""
+        if self.export_system is None:
+            QMessageBox.warning(self, "警告", "导出系统尚未初始化")
+            return
+
         selected_projects = self.get_selected_projects()
         if not selected_projects:
             QMessageBox.warning(self, "警告", "请选择要导出的项目")
@@ -356,6 +382,10 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
 
     def handle_queue_action(self, action: str, task_id: str):
         """处理队列操作"""
+        if self.export_system is None:
+            QMessageBox.warning(self, "警告", "导出系统尚未初始化")
+            return
+
         try:
             if action == "start":
                 success = self.export_system.resume_export(task_id)
@@ -391,6 +421,8 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     def _refresh_queue_list(self):
         """刷新队列列表"""
         try:
+            if self.export_system is None:
+                return
             tasks = self.export_system.get_task_history()
             self.queue_widget.update_tasks(tasks)
         except Exception as e:
@@ -426,11 +458,13 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
                 name=preset_data.get("name", "新预设"),
                 format=preset_data.get("format", "mp4"),
                 codec=preset_data.get("codec", "h264"),
-                resolution=preset_data.get("resolution", "1920x1080"),
+                resolution=preset_data.get("resolution", DEFAULT_VERTICAL_RESOLUTION),
                 fps=preset_data.get("fps", 30),
-                bitrate=preset_data.get("bitrate", "8M"),
+                bitrate=preset_data.get("bitrate", "8000k"),
                 audio_codec=preset_data.get("audio_codec", "aac"),
                 audio_bitrate=preset_data.get("audio_bitrate", "192k"),
+                description=preset_data.get("description", ""),
+                codec_params=preset_data.get("codec_params", ""),
             )
             self.presets.append(new_preset)
             self.refresh_presets_table()
@@ -442,19 +476,46 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
         if not selected_items:
             QMessageBox.warning(self, "警告", "请选择要编辑的预设")
             return
-        self.edit_preset_data(None)  # type: ignore[arg-type]
+        row = self.presets_table.currentRow()
+        presets = self._get_presets()
+        if row < 0 or row >= len(presets):
+            QMessageBox.warning(self, "警告", "无法定位选中的预设")
+            return
+        self.edit_preset_data(presets[row])
 
     def edit_preset_data(self, preset: ExportPreset):
         """编辑预设数据"""
         dialog = ExportSettingsDialog(preset, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             preset_data = dialog.get_preset_data()
-            self._save_preset(preset.id, preset_data)  # type: ignore[attr-defined]
-            QMessageBox.information(self, "成功", "预设已更新")
+            if self._save_preset(preset, preset_data):
+                self.refresh_presets_table()
+                QMessageBox.information(self, "成功", "预设已更新")
+            else:
+                QMessageBox.warning(self, "警告", "预设更新失败")
 
-    def _save_preset(self, preset_id: str, data: dict):
+    def _save_preset(self, preset: ExportPreset, data: dict) -> bool:
         """保存预设数据 — 由预设存储接管"""
-        raise NotImplementedError("Preset persistence pending")
+        preset_id = self._preset_id(preset)
+        if self.export_system is not None and hasattr(self.export_system, "save_preset"):
+            return bool(self.export_system.save_preset(preset_id, data))
+
+        updated = ExportPreset.from_dict(
+            {
+                **self._preset_to_dict(preset),
+                **data,
+                "id": preset_id,
+            }
+        )
+        for index, item in enumerate(self.presets):
+            if self._preset_id(item) == preset_id:
+                self.presets[index] = updated
+                return True
+
+        for key, value in updated.to_dict().items():
+            if hasattr(preset, key):
+                setattr(preset, key, value)
+        return True
 
     def delete_preset(self):
         """删除预设"""
@@ -463,27 +524,34 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
             QMessageBox.warning(self, "警告", "请选择要删除的预设")
             return
 
-        reply = QMessageBox.question(
-            self,
-            "确认删除",
-            "确定要删除选中的预设吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-        )
-
-        if reply == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(self, "成功", "预设已删除")
+        row = self.presets_table.currentRow()
+        presets = self._get_presets()
+        if 0 <= row < len(presets):
+            self.delete_preset_data(presets[row])
+        else:
+            QMessageBox.warning(self, "警告", "无法定位选中的预设")
 
     def delete_preset_data(self, preset: ExportPreset):
         """删除预设数据"""
         reply = QMessageBox.question(
             self,
             "确认删除",
-            f"确定要删除预设 '{preset.name}' 吗？",
+            f"确定要删除预设 '{getattr(preset, 'name', self._preset_id(preset))}' 吗？",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            success = self.export_system.remove_preset(preset.id)  # type: ignore[attr-defined]
+            preset_id = self._preset_id(preset)
+            if self.export_system is not None and hasattr(
+                self.export_system, "remove_preset"
+            ):
+                success = self.export_system.remove_preset(preset_id)
+            else:
+                original_len = len(self.presets)
+                self.presets = [
+                    item for item in self.presets if self._preset_id(item) != preset_id
+                ]
+                success = len(self.presets) != original_len
             if success:
                 self.refresh_presets_table()
                 QMessageBox.information(self, "成功", "预设已删除")
@@ -493,6 +561,8 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
     def update_queue_display(self):
         """更新队列显示"""
         try:
+            if self.export_system is None:
+                return
             tasks = self.export_system.get_task_history()
             self.queue_widget.update_tasks(tasks)
         except Exception as e:
@@ -519,6 +589,53 @@ class ExportPanel(QWidget, ThemeAwareMixin, ExportSignalMixin):
         self.logger.error(f"Export failed: {task_id} - {error_message}")
         self.export_failed.emit(task_id, error_message)
         QMessageBox.critical(self, "错误", f"导出失败: {error_message}")
+
+    def _get_presets(self) -> list[Any]:
+        """Return persisted presets when available, otherwise local UI presets."""
+        if self.export_system is None or not hasattr(self.export_system, "get_presets"):
+            return self.presets
+        try:
+            return list(self.export_system.get_presets())
+        except Exception as e:
+            self.logger.error(f"Failed to load export presets: {e}")
+            return self.presets
+
+    def _has_export_signals(self) -> bool:
+        if self.export_system is None:
+            return False
+        signal_names = (
+            "export_started",
+            "export_progress",
+            "export_completed",
+            "export_failed",
+        )
+        return all(hasattr(self.export_system, name) for name in signal_names)
+
+    @staticmethod
+    def _preset_id(preset: Any) -> str:
+        return str(getattr(preset, "id", getattr(preset, "name", "")))
+
+    @staticmethod
+    def _value_label(value: Any) -> str:
+        return str(getattr(value, "value", value))
+
+    @staticmethod
+    def _preset_to_dict(preset: Any) -> dict[str, Any]:
+        if hasattr(preset, "to_dict"):
+            return dict(preset.to_dict())
+        return {
+            "id": ExportPanel._preset_id(preset),
+            "name": getattr(preset, "name", "新预设"),
+            "format": ExportPanel._value_label(getattr(preset, "format", "mp4")),
+            "codec": getattr(preset, "codec", "h264"),
+            "resolution": normalize_resolution(getattr(preset, "resolution", None)),
+            "fps": getattr(preset, "fps", 30),
+            "bitrate": getattr(preset, "bitrate", "8000k"),
+            "audio_codec": getattr(preset, "audio_codec", "aac"),
+            "audio_bitrate": getattr(preset, "audio_bitrate", "192k"),
+            "description": getattr(preset, "description", ""),
+            "codec_params": getattr(preset, "codec_params", ""),
+        }
 
     def cleanup(self):
         """清理资源"""

@@ -15,15 +15,7 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
-
-
-def _get_version() -> str:
-    try:
-        from scenefab import __version__
-
-        return __version__
-    except Exception:
-        return "1.0.0"
+from scenefab.utils.version import get_version_string
 
 
 @dataclass
@@ -32,7 +24,7 @@ class AppConfig:
 
     # 应用信息
     name: str = "SceneFab"
-    version: str = field(default_factory=_get_version)
+    version: str = field(default_factory=get_version_string)
     debug: bool = False
 
     # 路径配置

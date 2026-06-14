@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from scenefab.utils.version import get_version_string
+
 
 class PluginType(Enum):
     """插件类型枚举"""
@@ -80,21 +82,12 @@ class PluginManifest:
         return getattr(module, class_name)  # type: ignore[no-any-return]
 
 
-def _get_version() -> str:
-    try:
-        from scenefab import __version__
-
-        return __version__
-    except Exception:
-        return "1.0.0"
-
-
 @dataclass
 class AppContext:
     """应用上下文，插件通过此获取应用服务"""
 
     app_name: str = "SceneFab"
-    app_version: str = field(default_factory=_get_version)
+    app_version: str = field(default_factory=get_version_string)
     data_dir: str = ""  # 用户数据目录
     config_dir: str = ""  # 配置目录
     cache_dir: str = ""  # 缓存目录

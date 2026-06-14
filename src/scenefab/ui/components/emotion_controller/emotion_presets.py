@@ -260,7 +260,7 @@ class EmotionPresetButton(QPushButton):
         # 使用内联样式
         self.setStyleSheet(f"""
             QPushButton {{
-                background-color: {color}22;
+                background-color: #1f2c43;
                 color: {color};
                 border: 1px solid {color};
                 border-radius: 6px;
@@ -270,10 +270,10 @@ class EmotionPresetButton(QPushButton):
                 min-width: 70px;
             }}
             QPushButton:hover {{
-                background-color: {color}44;
+                background-color: #253247;
             }}
             QPushButton:pressed {{
-                background-color: {color}66;
+                background-color: #0f172a;
             }}
             QPushButton:checked {{
                 background-color: {color};

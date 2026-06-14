@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Step 2: Pipeline 执行 — OKLCH Design Tokens"""
+"""Step 2: pipeline execution."""
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QCursor, QFont
@@ -18,29 +18,29 @@ from scenefab.orchestration.pipeline_controller import PipelineStage
 
 from ...components import MacCard
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
     # Surface
-    "bg_card": "oklch(0.16 0.01 250)",  # 卡片背景
-    "bg_input": "oklch(0.13 0.01 250)",  # 输入/日志背景
-    "bg_active": "oklch(0.17 0.01 250)",  # 运行中背景
-    "bg_base": "oklch(0.13 0.01 250)",  # 页面背景
+    "bg_card": "#111827",  # 卡片背景
+    "bg_input": "#0f172a",  # 输入/日志背景
+    "bg_active": "#1f2c43",  # 运行中背景
+    "bg_base": "#0f172a",  # 页面背景
     # Border
-    "border": "oklch(0.24 0.01 250)",  # 默认边框
+    "border": "#334155",  # 默认边框
     # Text
-    "text": "oklch(0.93 0.01 250)",  # 主要文字
-    "text_sub": "oklch(0.75 0.01 250)",  # 次要文字
-    "text_muted": "oklch(0.55 0.01 250)",  # 辅助文字
+    "text": "#e5edf6",  # 主要文字
+    "text_sub": "#cbd5e1",  # 次要文字
+    "text_muted": "#91a4ba",  # 辅助文字
     # Stage state colors
-    "idle": "oklch(0.24 0.01 250)",  # #2e2e2e 闲置
-    "running": "oklch(0.65 0.20 250)",  # #388BFD 运行中
-    "running_l": "oklch(0.70 0.24 250)",  # 运行中亮色（脉冲用）
-    "done": "oklch(0.65 0.22 145)",  # #2EA043 完成
-    "error": "oklch(0.75 0.20 85)",  # #D29922 错误
-    "skip_c": "oklch(0.40 0.01 250)",  # 跳过/灰显
+    "idle": "#334155",  # #2e2e2e 闲置
+    "running": "#0891b2",  # #388BFD 运行中
+    "running_l": "#06b6d4",  # 运行中亮色（脉冲用）
+    "done": "#22c55e",  # #2EA043 完成
+    "error": "#f59e0b",  # #D29922 错误
+    "skip_c": "#64748b",  # 跳过/灰显
     # Gradient
-    "primary_g1": "oklch(0.65 0.20 250)",
-    "primary_g2": "oklch(0.72 0.22 200)",
+    "primary_g1": "#0891b2",
+    "primary_g2": "#22d3ee",
 }
 
 _STAGE_COLORS = {
@@ -54,7 +54,7 @@ _STAGE_ICONS = {"idle": "⏸", "running": "⚡", "done": "✓", "error": "✗", 
 
 
 class StageCard(QFrame):
-    """Pipeline 阶段卡片 — OKLCH: 圆角12px · 脉冲动画"""
+    """Pipeline 阶段卡片."""
 
     stage_clicked = Signal(PipelineStage)
 
@@ -148,7 +148,7 @@ class StageCard(QFrame):
 
 
 class ScriptEditor(QWidget):
-    """解说词编辑器 — OKLCH"""
+    """解说词编辑器."""
 
     script_changed = Signal(str)
     retry_requested = Signal()
@@ -228,7 +228,7 @@ class ScriptEditor(QWidget):
 
 
 class StepPipeline(QWidget):
-    """Step 2 — OKLCH Design Tokens"""
+    """Step 2."""
 
     finished = Signal(str)
 

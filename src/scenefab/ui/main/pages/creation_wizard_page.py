@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 """
-CreationWizardPage — OKLCH Design Tokens
-frontend-design-pro: OKLCH色彩 · OutCubic动效 · 脉冲指示器
+CreationWizardPage — resource theme tokens
 
 架构：
     Step1 (上传配置) → Step2 (Pipeline 执行) → Step3 (预览导出)
@@ -20,21 +19,21 @@ from .step_export import StepExport  # type: ignore[attr-defined]
 from .step_pipeline import StepPipeline
 from .step_upload import StepUpload  # type: ignore[attr-defined]
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
     # Surface
-    "bg_indicator": "oklch(0.14 0.01 250)",  # 指示器背景
+    "bg_indicator": "#182235",  # 指示器背景
     # Border
-    "border": "oklch(0.20 0.01 250)",  # 指示器底部边框
-    "border_pending": "oklch(0.24 0.01 250)",  # 待完成态
+    "border": "#253247",  # 指示器底部边框
+    "border_pending": "#334155",  # 待完成态
     # Text
-    "text": "oklch(0.93 0.01 250)",  # 主要文字
-    "text_muted": "oklch(0.55 0.01 250)",  # 辅助文字
+    "text": "#e5edf6",  # 主要文字
+    "text_muted": "#91a4ba",  # 辅助文字
     # Primary
-    "primary": "oklch(0.65 0.20 250)",  # 主色蓝
-    "primary_l": "oklch(0.70 0.24 250)",  # 脉冲亮色
+    "primary": "#0891b2",  # 主色蓝
+    "primary_l": "#06b6d4",  # 脉冲亮色
     # Stage states
-    "done": "oklch(0.65 0.20 250)",  # 完成态（主色）
+    "done": "#0891b2",  # 完成态（主色）
     # Easing (for reference)
     "ease_out": "cubic-bezier(0.16, 1, 0.3, 1)",  # OutCubic
 }
@@ -46,7 +45,7 @@ _PULSE_INTERVAL = 800  # ms — active dot pulse
 
 class AnimatedDot(QFrame):
     """
-    脉冲动画圆点 — OKLCH
+    脉冲动画圆点
     当前步骤：脉冲发光效果（primary ↔ primary_l 交替）
     已完成：静态主色
     待完成：透明边框
@@ -107,7 +106,7 @@ class AnimatedDot(QFrame):
 
 class StepIndicator(QFrame):
     """
-    横向步骤指示器 — OKLCH
+    横向步骤指示器
     [脉冲点 Step1] —— [○ Step2] —— [○ Step3]
     主动画效: OutCubic 缓动（由 QPropertyAnimation 驱动）
     """
@@ -154,15 +153,12 @@ class StepIndicator(QFrame):
             layout.addWidget(lbl)
 
             if i < len(self._STEPS) - 1:
-                # 分隔线 — OKLCH 渐变
+                # 分隔线
                 line = QFrame()
                 line.setFrameShape(QFrame.Shape.HLine)
                 line.setStyleSheet(f"""
                     border: none;
-                    border-top: 2px solid qlineargradient(
-                        x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {_T["primary"]},
-                        stop:1 {_T["border_pending"]});
+                    border-top: 2px solid {_T["primary"]};
                     margin: 0 8px;
                 """)
                 layout.addWidget(line, 1)
@@ -196,7 +192,7 @@ class StepIndicator(QFrame):
 
 class CreationWizardPage(BasePage):
     """
-    创作向导主页面 — OKLCH Design Tokens
+    创作向导主页面
     页面切换: QPropertyAnimation + OutCubic 缓动（{_ANIM_DURATION}ms）
     """
 

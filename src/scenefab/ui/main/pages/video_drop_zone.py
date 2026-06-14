@@ -18,14 +18,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "bg_input": "oklch(0.13 0.01 250)",
-    "bg_hover": "oklch(0.14 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
+    "bg_input": "#0f172a",
+    "bg_hover": "#182235",
+    "bg_active": "#1f2c43",
+    "border": "#334155",
+    "primary": "#0891b2",
+    "text_muted": "#91a4ba",
 }
 
 # 视频扩展名

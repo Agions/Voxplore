@@ -127,9 +127,7 @@ class MainWindow(QMainWindow):
         indices_to_remove = []
         for i in range(self.pages.count()):
             w = self.pages.widget(i)
-            if isinstance(
-                w, (UploadWindow, SceneWindow, NarrationWindow, ExportWindow)
-            ):
+            if isinstance(w, UploadWindow | SceneWindow | NarrationWindow | ExportWindow):
                 indices_to_remove.append(i)
         # 逆序删除
         for i in sorted(indices_to_remove, reverse=True):

@@ -6,17 +6,9 @@ Health Router
 from fastapi import APIRouter
 
 from scenefab.api.schemas.models import HealthResponse
+from scenefab.utils.version import get_version_string
 
 router = APIRouter()
-
-
-def _get_version() -> str:
-    try:
-        from scenefab import __version__
-
-        return __version__
-    except Exception:
-        return "1.0.0"
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -25,7 +17,7 @@ async def health_check():
     # 实际应检测各服务状态
     return HealthResponse(
         status="healthy",
-        version=_get_version(),
+        version=get_version_string(),
         services={
             "api": "up",
             "video_processor": "up",

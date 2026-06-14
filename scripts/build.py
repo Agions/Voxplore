@@ -15,7 +15,7 @@ def check_dependencies():
     """检查依赖"""
     print("检查依赖...")
     
-    required = ["PyQt6", "httpx", "openai"]
+    required = ["PySide6", "httpx", "openai"]
     optional = ["pyinstaller", "pytest"]
     
     for pkg in required:
@@ -79,6 +79,9 @@ def build_exe(platform="auto"):
         print("安装 PyInstaller...")
         subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"])
     
+    data_sep = ";" if platform == "windows" else ":"
+    icon_path = "resources/icon.icns" if platform == "macos" else "resources/icon.ico"
+
     # 构建命令
     cmd = [
         "pyinstaller",
@@ -86,16 +89,12 @@ def build_exe(platform="auto"):
         "--name=SceneFab",
         "--onedir",
         "--windowed",
-        "--icon=resources/icon.ico",
+        f"--icon={icon_path}",
+        f"--add-data=resources{data_sep}resources",
         f"--distpath=dist/{platform}",
         "--clean",
     ]
-    
-    if platform == "windows":
-        cmd.append("--icon=resources/icon.ico")
-    elif platform == "macos":
-        cmd.append("--icon=resources/icon.icns")
-        
+
     subprocess.run(cmd)
     print(f"✓ 构建完成: dist/{platform}/SceneFab")
 

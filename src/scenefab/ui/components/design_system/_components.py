@@ -248,7 +248,7 @@ class CFToastNotification(QFrame):
         btn.clicked.connect(self.hide)
         btn.setStyleSheet(f"""
             QPushButton {{
-                background: {_C.Primary} / 0.15;
+                background: {_C.PrimarySubtle};
                 border: none;
                 border-radius: 4px;
                 color: {_C.Primary};
@@ -257,7 +257,7 @@ class CFToastNotification(QFrame):
                 font-weight: 600;
             }}
             QPushButton:hover {{
-                background: {_C.Primary} / 0.25;
+                background: {_C.BgOverlay};
             }}
         """)
         self.layout().addWidget(btn)  # type: ignore[union-attr]

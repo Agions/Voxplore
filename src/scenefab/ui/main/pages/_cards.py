@@ -105,8 +105,8 @@ class QuickCard(GlassCard):
         icon_frame.setStyleSheet(f"""
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:1,
-                stop:0 {self._accent}33,
-                stop:1 {self._accent}11
+                stop:0 #1f2c43,
+                stop:1 #111827
             );
             border-radius: {Radii.lg};
         """)

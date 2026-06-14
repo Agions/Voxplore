@@ -1,6 +1,6 @@
 """
 首次使用引导 - 欢迎页面
-介绍 SceneFab 的核心功能
+介绍第一人称解说工作流的核心功能
 """
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt, Signal
@@ -8,12 +8,11 @@ from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from scenefab.ui.components.design_system import _C
+from scenefab.utils.version import get_version_string
 
-# OKLCH色彩系统 - 使用design_system的Colors类
-# QColor不支持oklch()，paintEvent中直接使用hex fallback
-_PRIMARY_HEX = "#388BFD"
-_PRIMARY_END_HEX = "#A371F7"
-_ACCENT_HEX = "#A371F7"
+_PRIMARY_HEX = _C.Primary
+_PRIMARY_END_HEX = _C.PrimaryHover
+_ACCENT_HEX = _C.Accent
 
 
 class GradientLogoWidget(QWidget):
@@ -50,7 +49,7 @@ class GradientLogoWidget(QWidget):
         painter.setPen(QColor("#FFFFFF"))
         font = QFont("Arial", int(radius * 0.45), QFont.Weight.Bold)
         painter.setFont(font)
-        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "CF")
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "1P")
 
 
 class FeatureCard(QWidget):
@@ -140,20 +139,12 @@ class WelcomeScreen(QWidget):
     skip = Signal()  # 跳过信号
 
     def __init__(
-        self, app_name: str = "SceneFab", version: str | None = None, parent=None
+        self, app_name: str = "第一人称解说工坊", version: str | None = None, parent=None
     ):
         super().__init__(parent)
         self._app_name = app_name
-        self._version = version or self._get_version()
+        self._version = version or f"v{get_version_string()}"
         self._setup_ui()
-
-    def _get_version(self) -> str:
-        try:
-            from scenefab import __version__
-
-            return f"v{__version__}"
-        except Exception:
-            return "v1.0.0"
 
     def _setup_ui(self):
         """设置 UI"""
@@ -227,7 +218,7 @@ class WelcomeScreen(QWidget):
         header_layout.addWidget(name_label)
 
         # 副标题
-        subtitle = QLabel("智能视频创作平台")
+        subtitle = QLabel("影视短剧第一人称解说生产工作台")
         subtitle_font = QFont()
         subtitle_font.setPointSize(14)
         subtitle.setFont(subtitle_font)
@@ -243,10 +234,10 @@ class WelcomeScreen(QWidget):
         features_layout.setSpacing(12)
 
         self.features = [
-            ("🎬", "智能剪辑", "AI 自动识别精彩片段，智能剪辑"),
-            ("📝", "脚本生成", "根据视频内容自动生成解说脚本"),
-            ("🎤", "语音合成", "多风格 AI 配音，支持多种音色"),
-            ("📤", "多格式导出", "支持 Premiere、剪映、DaVinci 等主流软件"),
+            ("🎬", "素材拆解", "自动整理剧情片段、人物关系与关键转折"),
+            ("📝", "第一人称脚本", "围绕主角视角生成口语化解说稿"),
+            ("🎤", "配音制作", "统一音色、节奏与情绪强度"),
+            ("📤", "发布交付", "输出剪辑、字幕、配音与发布素材"),
         ]
 
         for icon, title, desc in self.features:

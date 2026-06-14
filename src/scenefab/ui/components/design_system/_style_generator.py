@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-SceneFab 样式生成器
+Qt style generator.
 
 将 design tokens 转换为 PySide6 样式表（QSS）。
 与 dark_theme.qss 保持同步。
@@ -34,11 +34,15 @@ class StyleSheet:
         "primary:disabled": f"background: {_C.BorderDefault};\ncolor: {_C.TextDisabled};\nopacity: 0.6;",
         "secondary": f"background: transparent;\nborder: 1px solid {_C.BorderDefault};\ncolor: {_C.TextSecondary};",
         "secondary:hover": f"background: {_C.BgElevated};\nborder-color: {_C.BorderStrong};\ncolor: {_C.TextPrimary};",
+        "secondary:pressed": f"background: {_C.BgOverlay};",
         "secondary:disabled": f"background: transparent;\ncolor: {_C.TextDisabled};\nborder-color: {_C.BorderSubtle};\nopacity: 0.6;",
         "danger": f"background: {_C.Error};\nborder: none;\ncolor: #ffffff;",
         "danger:hover": f"background: {_C.ErrorSubtle};",
+        "danger:pressed": f"background: {_C.AccentSubtle};",
         "ghost": f"background: transparent;\nborder: none;\ncolor: {_C.TextMuted};",
-        "ghost:hover": f"background: {_C.TextMuted} / 0.08;\ncolor: {_C.TextPrimary};",
+        "ghost:hover": f"background: {_C.BgElevated};\ncolor: {_C.TextPrimary};",
+        "ghost:pressed": f"background: {_C.BgOverlay};",
+        "ghost:disabled": f"background: transparent;\ncolor: {_C.TextDisabled};",
     }
 
     @staticmethod
@@ -48,7 +52,7 @@ class StyleSheet:
         return f"""
         QPushButton {{
             {StyleSheet._BUTTON_BASE}
-            {v.get("primary", "")}
+            {v.get(variant, v["primary"])}
         }}
         QPushButton:hover {{
             {v.get(f"{variant}:hover", v["primary:hover"])}
@@ -144,7 +148,7 @@ class StyleSheet:
     def nav_button(selected: bool = False) -> str:
         """导航按钮样式"""
         if selected:
-            bg = f"{_C.Primary} / 0.15"
+            bg = _C.PrimarySubtle
             color = _C.Primary
         else:
             bg = "transparent"
@@ -161,7 +165,7 @@ class StyleSheet:
             font-weight: 500;
         }}
         QPushButton:hover {{
-            background-color: {_C.TextMuted} / 0.08;
+            background-color: {_C.BgElevated};
             color: {_C.TextPrimary};
         }}
         """

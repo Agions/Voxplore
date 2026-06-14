@@ -234,7 +234,7 @@ class HomePage(QFrame):
         pro_frame.setStyleSheet(f"""
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
-                stop:0 {_C.PRIMARY}15,
+                stop:0 #164e63,
                 stop:1 transparent
             );
             border-radius: {Radii.lg};

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-SceneFab Design System v6
-语义化色彩体系 + 组件级变量
+Design system tokens.
+
+These values are aligned with resources/styles and keep the public token names
+used by existing UI modules.
 """
 
 
 # ═══════════════════════════════════════════════════════════════════
-# OKLCH 语义化色彩（午夜极光主题）
+# 语义化色彩
 # ═══════════════════════════════════════════════════════════════════
 
 
@@ -14,60 +16,61 @@ class Colors:
     """语义化色彩"""
 
     # ── 背景层 ──────────────────────────────────────────────────
-    BG_BASE = "#0A0C12"  # 最深层背景
-    BG_SURFACE = "#12151F"  # 卡片/面板
-    BG_ELEVATED = "#1A1E2C"  # 悬浮/高亮层
-    BG_OVERLAY = "#212638"  # 模态/下拉
-    BG_INPUT = "#0E1018"  # 输入框背景
+    BG_BASE = "#0b1120"
+    BG_SURFACE = "#111827"
+    BG_ELEVATED = "#182235"
+    BG_OVERLAY = "#1f2c43"
+    BG_INPUT = "#0f172a"
 
     # ── 边框层 ──────────────────────────────────────────────────
-    BORDER_SUBTLE = "#1E2436"  # 微弱分割
-    BORDER_DEFAULT = "#2A3048"  # 默认边框
-    BORDER_STRONG = "#3D4566"  # 强调边框
-    BORDER_FOCUS = "#7C3AED"  # 聚焦边框（紫色）
+    BORDER_SUBTLE = "#253247"
+    BORDER_DEFAULT = "#334155"
+    BORDER_STRONG = "#38bdf8"
+    BORDER_FOCUS = "#0891b2"
 
-    # ── 主色：极光紫 ───────────────────────────────────────────
-    PRIMARY_LIGHTEST = "#F5F3FF"
-    PRIMARY_LIGHTER = "#EDE9FE"
-    PRIMARY_LIGHT = "#DDD6FE"
-    PRIMARY_NORMAL = "#C4B5FD"
-    PRIMARY = "#A78BFA"  # 主色值
-    PRIMARY_DARK = "#8B5CF6"
-    PRIMARY_DARKER = "#7C3AED"
-    PRIMARY_DARKEST = "#6D28D9"
+    # ── 主色：叙事青 ───────────────────────────────────────────
+    PRIMARY_LIGHTEST = "#e0f7fb"
+    PRIMARY_LIGHTER = "#a5f3fc"
+    PRIMARY_LIGHT = "#67e8f9"
+    PRIMARY_NORMAL = "#22d3ee"
+    PRIMARY = "#0891b2"
+    PRIMARY_DARK = "#0e7490"
+    PRIMARY_DARKER = "#155e75"
+    PRIMARY_DARKEST = "#164e63"
 
-    # ── 辅助色：冰蓝 ───────────────────────────────────────────
-    ACCENT_LIGHT = "#E0F2FE"
-    ACCENT_NORMAL = "#38BDF8"
-    ACCENT = "#0EA5E9"
-    ACCENT_DARK = "#0284C7"
+    # ── 辅助色：重点标记 ───────────────────────────────────────
+    ACCENT_LIGHT = "#ffe4e6"
+    ACCENT_NORMAL = "#fb7185"
+    ACCENT = "#f43f5e"
+    ACCENT_DARK = "#be123c"
+    ACCENT_SUBTLE = "#4c1d2f"
 
     # ── 功能色 ─────────────────────────────────────────────────
-    SUCCESS = "#10B981"
-    SUCCESS_LIGHT = "#D1FAE5"
-    WARNING = "#F59E0B"
-    WARNING_LIGHT = "#FEF3C7"
-    ERROR = "#EF4444"
-    ERROR_LIGHT = "#FEE2E2"
-    INFO = "#6366F1"
+    SUCCESS = "#22c55e"
+    SUCCESS_LIGHT = "#dcfce7"
+    WARNING = "#f59e0b"
+    WARNING_LIGHT = "#fef3c7"
+    ERROR = "#e11d48"
+    ERROR_LIGHT = "#ffe4e6"
+    INFO = "#22d3ee"
 
     # ── 文字层 ─────────────────────────────────────────────────
-    TEXT_PRIMARY = "#F1F5F9"  # 主要文字
-    TEXT_SECONDARY = "#94A3B8"  # 次要文字
-    TEXT_MUTED = "#64748B"  # 弱化文字
-    TEXT_DISABLED = "#475569"  # 禁用文字
-    TEXT_INVERSE = "#0A0C12"  # 反色文字
+    TEXT_PRIMARY = "#e5edf6"
+    TEXT_SECONDARY = "#cbd5e1"
+    TEXT_MUTED = "#91a4ba"
+    TEXT_DISABLED = "#64748b"
+    TEXT_INVERSE = "#0b1120"
 
     # ── 侧边栏渐变 ─────────────────────────────────────────────
-    SIDEBAR_TOP = "#13111E"
-    SIDEBAR_MID = "#0D0B16"
-    SIDEBAR_BOTTOM = "#080710"
-    SIDEBAR_GLOW = "#7C3AED"
+    SIDEBAR_TOP = "#111827"
+    SIDEBAR_MID = "#0f172a"
+    SIDEBAR_BOTTOM = "#0b1120"
+    SIDEBAR_GLOW = "#22d3ee"
 
     # ── 状态色（透明度修饰，RRGGBBAA格式）─────────────────────
-    PRIMARY_10 = "#A78BFA1A"  # 10% 透明度
-    SUCCESS_10 = "#10B9811A"
-    ERROR_10 = "#EF44441A"
+    PRIMARY_10 = "#0891b21A"
+    SUCCESS_10 = "#22c55e1A"
+    ERROR_10 = "#e11d481A"
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -143,12 +146,12 @@ class Shadows:
     XL = "0 25px 50px rgba(0,0,0,0.6)"
 
     GLOW_PURPLE = (
-        "0 0 0 1px rgba(167,139,250,0.3), "
-        "0 0 20px rgba(139,92,246,0.2), "
-        "0 0 40px rgba(139,92,246,0.1)"
+        "0 0 0 1px rgba(34,211,238,0.28), "
+        "0 0 20px rgba(8,145,178,0.22), "
+        "0 0 40px rgba(8,145,178,0.12)"
     )
-    GLOW_ACCENT = "0 0 0 1px rgba(56,189,248,0.3), 0 0 20px rgba(14,165,233,0.2)"
-    GLOW_SUCCESS = "0 0 0 1px rgba(16,185,129,0.3), 0 0 16px rgba(16,185,129,0.15)"
+    GLOW_ACCENT = "0 0 0 1px rgba(244,63,94,0.28), 0 0 20px rgba(244,63,94,0.18)"
+    GLOW_SUCCESS = "0 0 0 1px rgba(34,197,94,0.28), 0 0 16px rgba(34,197,94,0.16)"
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -180,49 +183,50 @@ class Easings:
 
 # ── 颜色常量本地引用 (mypy f-string bug workaround) ──────
 class _C:
-    ACCENT = "#0EA5E9"
-    ACCENT_DARK = "#0284C7"
-    ACCENT_LIGHT = "#E0F2FE"
-    ACCENT_NORMAL = "#38BDF8"
-    BG_BASE = "#0A0C12"
-    BG_ELEVATED = "#1A1E2C"
-    BG_INPUT = "#0E1018"
-    BG_OVERLAY = "#212638"
-    BG_SURFACE = "#12151F"
-    BORDER_DEFAULT = "#2A3048"
-    BORDER_FOCUS = "#7C3AED"
-    BORDER_STRONG = "#3D4566"
-    BORDER_SUBTLE = "#1E2436"
-    ERROR = "#EF4444"
-    ERROR_10 = "#EF44441A"
-    ERROR_LIGHT = "#FEE2E2"
-    INFO = "#6366F1"
-    PRIMARY = "#A78BFA"
-    PRIMARY_10 = "#A78BFA1A"
-    PRIMARY_DARK = "#8B5CF6"
-    PRIMARY_DARKER = "#7C3AED"
-    PRIMARY_DARKEST = "#6D28D9"
-    PRIMARY_LIGHT = "#DDD6FE"
-    PRIMARY_LIGHTER = "#EDE9FE"
-    PRIMARY_LIGHTEST = "#F5F3FF"
-    PRIMARY_NORMAL = "#C4B5FD"
-    PRIMARY_400 = "#C4B5FD"  # Tailwind色阶别名
-    PRIMARY_500 = "#A78BFA"
-    PRIMARY_600 = "#8B5CF6"
-    SIDEBAR_BOTTOM = "#080710"
-    SIDEBAR_GLOW = "#7C3AED"
-    SIDEBAR_MID = "#0D0B16"
-    SIDEBAR_TOP = "#13111E"
-    SUCCESS = "#10B981"
-    SUCCESS_10 = "#10B9811A"
-    SUCCESS_LIGHT = "#D1FAE5"
-    TEXT_DISABLED = "#475569"
-    TEXT_INVERSE = "#0A0C12"
-    TEXT_MUTED = "#64748B"
-    TEXT_PRIMARY = "#F1F5F9"
-    TEXT_SECONDARY = "#94A3B8"
-    WARNING = "#F59E0B"
-    WARNING_LIGHT = "#FEF3C7"
+    ACCENT = Colors.ACCENT
+    ACCENT_DARK = Colors.ACCENT_DARK
+    ACCENT_LIGHT = Colors.ACCENT_LIGHT
+    ACCENT_NORMAL = Colors.ACCENT_NORMAL
+    ACCENT_SUBTLE = Colors.ACCENT_SUBTLE
+    BG_BASE = Colors.BG_BASE
+    BG_ELEVATED = Colors.BG_ELEVATED
+    BG_INPUT = Colors.BG_INPUT
+    BG_OVERLAY = Colors.BG_OVERLAY
+    BG_SURFACE = Colors.BG_SURFACE
+    BORDER_DEFAULT = Colors.BORDER_DEFAULT
+    BORDER_FOCUS = Colors.BORDER_FOCUS
+    BORDER_STRONG = Colors.BORDER_STRONG
+    BORDER_SUBTLE = Colors.BORDER_SUBTLE
+    ERROR = Colors.ERROR
+    ERROR_10 = Colors.ERROR_10
+    ERROR_LIGHT = Colors.ERROR_LIGHT
+    INFO = Colors.INFO
+    PRIMARY = Colors.PRIMARY
+    PRIMARY_10 = Colors.PRIMARY_10
+    PRIMARY_DARK = Colors.PRIMARY_DARK
+    PRIMARY_DARKER = Colors.PRIMARY_DARKER
+    PRIMARY_DARKEST = Colors.PRIMARY_DARKEST
+    PRIMARY_LIGHT = Colors.PRIMARY_LIGHT
+    PRIMARY_LIGHTER = Colors.PRIMARY_LIGHTER
+    PRIMARY_LIGHTEST = Colors.PRIMARY_LIGHTEST
+    PRIMARY_NORMAL = Colors.PRIMARY_NORMAL
+    PRIMARY_400 = Colors.PRIMARY_LIGHT
+    PRIMARY_500 = Colors.PRIMARY
+    PRIMARY_600 = Colors.PRIMARY_DARK
+    SIDEBAR_BOTTOM = Colors.SIDEBAR_BOTTOM
+    SIDEBAR_GLOW = Colors.SIDEBAR_GLOW
+    SIDEBAR_MID = Colors.SIDEBAR_MID
+    SIDEBAR_TOP = Colors.SIDEBAR_TOP
+    SUCCESS = Colors.SUCCESS
+    SUCCESS_10 = Colors.SUCCESS_10
+    SUCCESS_LIGHT = Colors.SUCCESS_LIGHT
+    TEXT_DISABLED = Colors.TEXT_DISABLED
+    TEXT_INVERSE = Colors.TEXT_INVERSE
+    TEXT_MUTED = Colors.TEXT_MUTED
+    TEXT_PRIMARY = Colors.TEXT_PRIMARY
+    TEXT_SECONDARY = Colors.TEXT_SECONDARY
+    WARNING = Colors.WARNING
+    WARNING_LIGHT = Colors.WARNING_LIGHT
 C = _C()
 
 class QSSComponents:

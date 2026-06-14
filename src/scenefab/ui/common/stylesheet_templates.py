@@ -7,7 +7,7 @@ StylesheetTemplates - 消除 UI 组件中 182 处重复的 setStyleSheet 样式�
 
     from scenefab.ui.common.stylesheet_templates import ST
 
-    label.setStyleSheet(ST.badge(color=\"#10B981\", bg=\"#10B98120\"))
+    label.setStyleSheet(ST.badge(color=\"#10B981\", bg=\"#163923\"))
     frame.setStyleSheet(ST.card(bg=\"#1a1a1a\", border=\"#333\"))
     text_edit.setStyleSheet(ST.input_field(bg=\"#111\", border=\"#333\", focus=\"#4a9eff\"))
 """
@@ -20,8 +20,8 @@ class _StylesheetTemplates:
 
     @staticmethod
     def card(
-        bg: str = "oklch(0.16 0.01 250)",
-        border: str = "oklch(0.24 0.01 250)",
+        bg: str = "#111827",
+        border: str = "#334155",
         radius: int = 12,
         border_width: int = 1,
     ) -> str:
@@ -36,8 +36,8 @@ class _StylesheetTemplates:
 
     @staticmethod
     def badge(
-        color: str = "oklch(0.65 0.20 250)",
-        bg: str = "oklch(0.65 0.20 250)20",
+        color: str = "#0891b2",
+        bg: str = "#164e63",
         radius: int = 4,
         font_size: int = 11,
     ) -> str:
@@ -45,7 +45,7 @@ class _StylesheetTemplates:
         return f"""
             color: {color};
             background: {bg};
-            border: 1px solid {color}40;
+            border: 1px solid {color};
             border-radius: {radius}px;
             font-size: {font_size}px;
             font-weight: 600;
@@ -54,8 +54,8 @@ class _StylesheetTemplates:
 
     @staticmethod
     def pill_badge(
-        color: str = "oklch(0.65 0.20 250)",
-        bg: str = "oklch(0.65 0.20 250)20",
+        color: str = "#0891b2",
+        bg: str = "#164e63",
         radius: int = 6,
         padding_h: int = 8,
         padding_v: int = 3,
@@ -70,10 +70,10 @@ class _StylesheetTemplates:
 
     @staticmethod
     def input_field(
-        bg: str = "oklch(0.13 0.01 250)",
-        border: str = "oklch(0.24 0.01 250)",
-        focus: str = "oklch(0.65 0.20 250)",
-        text: str = "oklch(0.93 0.01 250)",
+        bg: str = "#0f172a",
+        border: str = "#334155",
+        focus: str = "#0891b2",
+        text: str = "#e5edf6",
         radius: int = 8,
     ) -> str:
         """输入框: QTextEdit/QLineEdit 圆角边框 + 聚焦高亮."""
@@ -92,7 +92,7 @@ class _StylesheetTemplates:
 
     @staticmethod
     def button_primary(
-        bg: str = "oklch(0.65 0.20 250)",
+        bg: str = "#0891b2",
         text: str = "white",
         radius: int = 8,
         padding_h: int = 16,
@@ -113,8 +113,8 @@ class _StylesheetTemplates:
     @staticmethod
     def button_secondary(
         bg: str = "transparent",
-        border: str = "oklch(0.24 0.01 250)",
-        text: str = "oklch(0.75 0.01 250)",
+        border: str = "#334155",
+        text: str = "#cbd5e1",
         radius: int = 8,
     ) -> str:
         """次按钮: 透明背景 + 边框."""
@@ -134,8 +134,8 @@ class _StylesheetTemplates:
 
     @staticmethod
     def progress_bar(
-        bg: str = "oklch(0.20 0.01 250)",
-        chunk: str = "oklch(0.65 0.20 250)",
+        bg: str = "#253247",
+        chunk: str = "#0891b2",
         radius: int = 4,
     ) -> str:
         """进度条: 圆角背景 + 色块."""
@@ -154,12 +154,12 @@ class _StylesheetTemplates:
         """
 
     @staticmethod
-    def text_color(color: str = "oklch(0.93 0.01 250)", font_size: int = 12) -> str:
+    def text_color(color: str = "#e5edf6", font_size: int = 12) -> str:
         """文字颜色: QLabel 常用."""
         return f"color: {color}; font-size: {font_size}px;"
 
     @staticmethod
-    def text_muted(color: str = "oklch(0.55 0.01 250)", font_size: int = 10) -> str:
+    def text_muted(color: str = "#91a4ba", font_size: int = 10) -> str:
         """弱化文字: 次要信息."""
         return f"color: {color}; font-size: {font_size}px;"
 

@@ -295,10 +295,16 @@ class StepExportPage(StepPage):
 
         res_combo = QComboBox()
         res_combo.addItems(
-            ["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)", "原始分辨率"]
+            [
+                "竖屏 1080P (1080×1920)",
+                "竖屏 720P (720×1280)",
+                "横屏 1080P (1920×1080)",
+                "横屏 720P (1280×720)",
+                "原始分辨率",
+            ]
         )
         res_combo.setFixedWidth(200)
-        res_combo.setStyleSheet(f"""
+        combo_style = f"""
             QComboBox {{
                 background: {_C.BG_ELEVATED};
                 border: 1px solid {_C.BORDER_DEFAULT};
@@ -306,7 +312,8 @@ class StepExportPage(StepPage):
                 padding: 6px 12px;
                 color: {_C.TEXT_PRIMARY};
             }}
-        """)
+        """
+        res_combo.setStyleSheet(combo_style)
         qual_row.addWidget(res_combo)
         qual_layout.addLayout(qual_row)  # type: ignore[union-attr]
 
@@ -317,7 +324,7 @@ class StepExportPage(StepPage):
         fps_combo = QComboBox()
         fps_combo.addItems(["30 fps", "60 fps", "24 fps", "原始帧率"])
         fps_combo.setFixedWidth(200)
-        fps_combo.setStyleSheet(qual_layout.itemAt(0).spacerItem())  # type: ignore[arg-type, union-attr]
+        fps_combo.setStyleSheet(combo_style)
         fps_row.addWidget(fps_combo)
         qual_layout.addLayout(fps_row)  # type: ignore[union-attr]
 

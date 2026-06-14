@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 
-"""
-SceneFab 版本管理
-从 pyproject.toml 读取版本信息
-"""
-
 import re
+from importlib import metadata as importlib_metadata
 from pathlib import Path
 from typing import NamedTuple
 
+DEFAULT_VERSION = "2.1.1"
+PACKAGE_NAME = "scenefab"
 
-def _safe_import():
-    """安全导入 tomli"""
+
+def _load_toml():
     try:
-        import tomli  # type: ignore[import-not-found]
+        import tomllib  # type: ignore[import-not-found]
 
-        return tomli
+        return tomllib
     except ImportError:
         try:
-            import tomllib  # type: ignore[import-not-found]
+            import tomli  # type: ignore[import-not-found]
 
-            return tomllib
+            return tomli
         except ImportError:
             return None
 
@@ -75,46 +73,43 @@ class Version(NamedTuple):
         )
 
 
-def get_version() -> Version:
-    """
-    从 pyproject.toml 读取版本
+def _read_pyproject_version() -> str | None:
+    toml = _load_toml()
+    if toml is None:
+        return None
 
-    Returns:
-        版本信息
-    """
+    for parent in Path(__file__).resolve().parents:
+        pyproject_path = parent / "pyproject.toml"
+        if not pyproject_path.exists():
+            continue
+        try:
+            with open(pyproject_path, "rb") as f:
+                return str(toml.load(f)["project"]["version"])
+        except (OSError, KeyError, TypeError, ValueError):
+            return None
+    return None
+
+
+def _read_installed_version() -> str | None:
     try:
-        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
-
-        if pyproject_path.exists():
-            tomli = _safe_import()
-
-            if tomli:
-                with open(pyproject_path, "rb") as f:
-                    data = tomli.load(f)
-
-                version_str = data["project"]["version"]
-                return Version.parse(version_str)
-
-    except Exception as e:
-        print(f"Warning: Failed to read version from pyproject.toml: {e}")
-
-    # 后备方案: 返回默认版本
-    return Version(3, 0, 0)
+        return importlib_metadata.version(PACKAGE_NAME)
+    except importlib_metadata.PackageNotFoundError:
+        return None
 
 
 def get_version_string() -> str:
-    """
-    获取版本字符串
+    """获取版本字符串。"""
+    return _read_pyproject_version() or _read_installed_version() or DEFAULT_VERSION
 
-    Returns:
-        版本字符串
-    """
-    return str(get_version())
+
+def get_version() -> Version:
+    """获取版本对象。"""
+    return Version.parse(get_version_string())
 
 
 # 便捷导出
 VERSION = get_version()
-__version__ = VERSION
+__version__ = str(VERSION)
 
 
 if __name__ == "__main__":

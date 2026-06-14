@@ -11,16 +11,7 @@ from fastapi.responses import JSONResponse
 
 from scenefab.api.routers import export, health, pipeline, plugins, projects
 from scenefab.exceptions import SceneFabError
-
-
-def _get_version() -> str:
-    """获取 scenefab 包版本号；不可用时回退到默认版本。"""
-    try:
-        from scenefab import __version__
-
-        return __version__
-    except Exception:
-        return "1.0.0"
+from scenefab.utils.version import get_version_string
 
 
 def _configure_cors(app: FastAPI) -> None:
@@ -116,7 +107,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="SceneFab API",
         description="AI 第一人称视频解说 API - 让视频讲述你的故事",
-        version=_get_version(),
+        version=get_version_string(),
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",

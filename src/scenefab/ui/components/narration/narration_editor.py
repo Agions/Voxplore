@@ -129,9 +129,9 @@ class NarrationSegmentItem(QFrame):
         """应用情感颜色到 emotion_badge."""
         color = self.EMOTION_COLORS.get(self.segment.emotion, "#6366F1")
         self.emotion_badge.setStyleSheet(f"""
-            background-color: {color}20;
+            background-color: #1f2c43;
             color: {color};
-            border: 1px solid {color}40;
+            border: 1px solid {color};
             border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
@@ -164,9 +164,9 @@ class NarrationSegmentItem(QFrame):
         color = self.EMOTION_COLORS.get(segment.emotion, "#6366F1")
         self.emotion_badge.setText(segment.emotion)
         self.emotion_badge.setStyleSheet(f"""
-            background-color: {color}20;
+            background-color: #1f2c43;
             color: {color};
-            border: 1px solid {color}40;
+            border: 1px solid {color};
             border-radius: 4px;
             font-size: 11px;
             font-weight: 600;

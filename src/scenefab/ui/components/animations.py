@@ -231,12 +231,10 @@ class ShimmerEffect:
     骨架屏 shimmer 效果
 
     QSS:
-        background: qlineargradient(90deg,
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
             stop:0 #0E1520,
             stop:0.5 #1A2332,
             stop:1 #0E1520);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s ease-in-out infinite;
 
     @keyframes shimmer:
         0%   { background-position: 200% 0; }
@@ -247,11 +245,10 @@ class ShimmerEffect:
     def get_stylesheet(color: str = "#1A2332") -> str:
         return f"""
             QFrame {{
-                background: qlineargradient(90deg,
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 {color},
                     stop:0.5 #1E2A3A,
                     stop:1 {color});
-                background-size: 200% 100%;
                 border-radius: 8px;
             }}
         """

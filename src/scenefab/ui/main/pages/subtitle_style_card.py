@@ -8,22 +8,22 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "border_h": "oklch(0.30 0.02 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
+    "bg_card": "#111827",
+    "bg_active": "#1f2c43",
+    "border": "#334155",
+    "border_h": "#38bdf8",
+    "primary": "#0891b2",
+    "text": "#e5edf6",
+    "text_sub": "#cbd5e1",
 }
 
 
 # ── 字幕样式卡片 ────────────────────────────────────────────
 class SubtitleStyleCard(QFrame):
     """
-    字幕样式选择卡片 — OKLCH
+    字幕样式选择卡片
     选中态: 主色边框发光 + 背景加深
     Hover: 边框微微亮起
     """
@@ -85,17 +85,14 @@ class SubtitleStyleCard(QFrame):
 
     def _apply_style(self):
         if self._is_selected:
-            # OKLCH: 主色发光边框 + 背景加深
             self.setStyleSheet(f"""
                 QFrame {{
                     background: {_T["bg_active"]};
                     border: 2px solid {_T["primary"]};
                     border-radius: 14px;
-                    box-shadow: 0 0 16px oklch(0.65 0.20 250 / 0.20);
                 }}
             """)
         else:
-            # OKLCH: 默认边框
             self.setStyleSheet(f"""
                 QFrame {{
                     background: {_T["bg_card"]};
@@ -103,7 +100,7 @@ class SubtitleStyleCard(QFrame):
                     border-radius: 14px;
                 }}
                 QFrame:hover {{
-                    border-color: {_T["primary"]}99;
+                    border-color: {_T["primary"]};
                 }}
             """)
 

@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 from scenefab.ui.theme.ds_tokens import _C
 
 

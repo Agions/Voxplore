@@ -6,10 +6,7 @@
 from __future__ import annotations
 
 import logging
-import os
-import pickle
 import shutil
-import stat
 import threading
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
@@ -17,19 +14,9 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 import numpy as np
+from scenefab.utils.pickle_io import safe_pickle_dump, safe_pickle_load
 
 logger = logging.getLogger(__name__)
-
-
-def _safe_pickle_load(file_path: Path) -> Any:
-    """安全加载 pickle 文件 - 检查文件权限防止篡改"""
-    file_stat = file_path.stat()
-    if file_stat.st_mode & (stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH):
-        raise PermissionError(f"Cache file {file_path} has insecure permissions")
-    if os.getuid() != file_stat.st_uid:
-        raise PermissionError(f"Cache file {file_path} not owned by current user")
-    with open(file_path, 'rb') as f:
-        return pickle.load(f)
 
 
 class VideoFrameCache:
@@ -141,7 +128,7 @@ class VideoFrameCache:
             disk_path = self._get_disk_path(key)
             if disk_path.exists():
                 try:
-                    frame = _safe_pickle_load(disk_path)
+                    frame = safe_pickle_load(disk_path)
                     self._disk_read_count += 1
                     # 重新加入内存缓存
                     self.set(key, frame)
@@ -178,8 +165,7 @@ class VideoFrameCache:
                 if self._disk_fallback:
                     try:
                         disk_path = self._get_disk_path(oldest_key)
-                        with open(disk_path, 'wb') as f:
-                            pickle.dump(oldest_frame, f)
+                        safe_pickle_dump(oldest_frame, disk_path)
                         self._disk_write_count += 1
                     except Exception as e:
                         logger.debug(f"磁盘回退写入失败: {e}")

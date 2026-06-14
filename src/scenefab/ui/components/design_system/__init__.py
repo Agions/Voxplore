@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-SceneFab Design System — OKLCH 感知均匀色彩系统
+Design system compatibility exports.
 
 .. deprecated::
     兼容层：保留 ``scenefab.ui.components.design_system`` 作为 package 入口，

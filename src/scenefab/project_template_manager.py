@@ -19,6 +19,7 @@ from scenefab.signals_bridge import QObject, Signal
 from .project_manager import Project, ProjectType
 from .settings import ConfigManager
 from .template_models import TemplateCategory, TemplateInfo, TemplateMetadata
+from .utils.version import get_version_string
 
 
 class ProjectTemplateManager(QObject):
@@ -27,15 +28,6 @@ class ProjectTemplateManager(QObject):
     # 信号定义
     template_created = Signal(str)  # 模板创建信号
     template_updated = Signal(str)  # 模板更新信号
-
-    @staticmethod
-    def _get_version() -> str:
-        try:
-            from scenefab import __version__
-
-            return __version__
-        except Exception:
-            return "1.0.0"
 
     template_deleted = Signal(str)  # 模板删除信号
     template_imported = Signal(str)  # 模板导入信号
@@ -195,7 +187,7 @@ class ProjectTemplateManager(QObject):
                 name=template_name,
                 description=description,
                 author=project.metadata.author,
-                version=self._get_version(),
+                version=get_version_string(),
                 category=category,
                 tags=tags or [],
             )
@@ -212,7 +204,7 @@ class ProjectTemplateManager(QObject):
                 description=description,
                 category=category,
                 author=project.metadata.author,
-                version=self._get_version(),
+                version=get_version_string(),
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 file_size=self._calculate_directory_size(template_dir),

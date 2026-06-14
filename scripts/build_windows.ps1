@@ -47,6 +47,7 @@ pyinstaller `
     --clean `
     --onedir `
     --name "SceneFab-${Version}-${Platform}" `
+    --icon "resources\icon.ico" `
     --add-data "resources;resources" `
     --hidden-import=PySide6 `
     --hidden-import=PySide6.QtCore `
@@ -69,7 +70,7 @@ pyinstaller `
     --hidden-import=yaml `
     --collect-all=PySide6 `
     --noconfirm `
-    app/main.py
+    main.py
 
 # 打包 zip
 Write-Host "[5/5] 打包 zip..." -ForegroundColor Yellow

@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -273,6 +274,124 @@ if _HAS_PYDANTIC_SETTINGS:
             global _settings
             _settings = type(self)()
             return _settings
+else:
+
+    @dataclass
+    class LLMProviderConfig:
+        enabled: bool = False
+        api_key: str = ""
+        base_url: str = ""
+        model: str = ""
+        max_tokens: int = 8000
+        temperature: float = 0.7
+        requests_per_second: float = 10.0
+        burst_size: int = 20
+
+    @dataclass
+    class TTSProviderConfig:
+        enabled: bool = False
+        voice: str = "zh-CN-YunxiNeural"
+        speed: float = 1.0
+        pitch: float = 0.0
+        local_model_path: str = ""
+
+    @dataclass
+    class PipelineSettings:
+        max_workers: int = 4
+        enable_parallel: bool = True
+        fail_fast: bool = True
+        step_timeout_sec: int = 600
+        llm_streaming: bool = True
+        ffmpeg_hardware_accel: bool = False
+
+    @dataclass
+    class StorageSettings:
+        task_store_backend: TaskStoreBackend = TaskStoreBackend.MEMORY
+        task_store_db_path: str = "~/.cache/scenefab/task_store.db"
+        task_store_redis_url: str = "redis://localhost:6379/0"
+        task_store_ttl_sec: int = 86400
+        cache_dir: str = "~/.cache/scenefab"
+
+    @dataclass
+    class SecuritySettings:
+        ffmpeg_whitelist_only: bool = True
+        ffmpeg_allow_unsafe: bool = False
+        audit_log_enabled: bool = True
+        audit_log_path: str = "~/.cache/scenefab/audit.db"
+        api_key_use_keyring: bool = True
+
+    @dataclass
+    class APISettings:
+        host: str = "127.0.0.1"
+        port: int = 8000
+        workers: int = 1
+        cors_origins: str = "*"
+        enable_websocket: bool = True
+
+    @dataclass
+    class LLMSettings:
+        provider: LLMProviderName = LLMProviderName.DEEPSEEK
+        fallback_providers: list[str] = field(default_factory=list)
+        deepseek: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        qwen: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        kimi: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        glm5: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        openai: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        claude: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+        gemini: LLMProviderConfig = field(default_factory=LLMProviderConfig)
+
+    @dataclass
+    class TTSSettings:
+        provider: TTSProviderName = TTSProviderName.EDGE_TTS
+        edge_tts: TTSProviderConfig = field(default_factory=TTSProviderConfig)
+        f5_tts: TTSProviderConfig = field(default_factory=TTSProviderConfig)
+        azure: TTSProviderConfig = field(default_factory=TTSProviderConfig)
+
+    @dataclass
+    class SettingsV2:
+        profile: AppProfile = AppProfile.DEVELOPMENT
+        app_name: str = "scenefab"
+        app_version: str = "2.1.0"
+        debug: bool = False
+        log_level: str = "INFO"
+        llm: LLMSettings = field(default_factory=LLMSettings)
+        tts: TTSSettings = field(default_factory=TTSSettings)
+        pipeline: PipelineSettings = field(default_factory=PipelineSettings)
+        storage: StorageSettings = field(default_factory=StorageSettings)
+        security: SecuritySettings = field(default_factory=SecuritySettings)
+        api: APISettings = field(default_factory=APISettings)
+
+        def to_dict(self) -> dict[str, Any]:
+            return asdict(self)
+
+        def to_json(self, indent: int = 2) -> str:
+            return json.dumps(
+                self.to_dict(), ensure_ascii=False, indent=indent, default=str
+            )
+
+        def to_json_schema(self) -> dict[str, Any]:
+            return {
+                "title": "SettingsV2",
+                "type": "object",
+                "properties": {
+                    "profile": {"type": "string"},
+                    "app_name": {"type": "string"},
+                    "app_version": {"type": "string"},
+                    "debug": {"type": "boolean"},
+                    "log_level": {"type": "string"},
+                    "llm": {"type": "object"},
+                    "tts": {"type": "object"},
+                    "pipeline": {"type": "object"},
+                    "storage": {"type": "object"},
+                    "security": {"type": "object"},
+                    "api": {"type": "object"},
+                },
+            }
+
+        def reload(self) -> SettingsV2:
+            global _settings
+            _settings = type(self)()
+            return _settings
 
 
 # ──────────────────────────────────────────────────────────
@@ -287,11 +406,6 @@ _settings_lock = None  # 懒加载
 def get_settings() -> Any:
     """获取全局配置（v2.1）"""
     global _settings, _settings_lock
-    if not _HAS_PYDANTIC_SETTINGS:
-        raise ImportError(
-            "SettingsV2 requires pydantic-settings. "
-            "Install with: pip install pydantic-settings"
-        )
     if _settings is None:
         import threading
 
@@ -310,8 +424,8 @@ def set_settings(settings: Any) -> None:
 
 
 def is_settings_v2_available() -> bool:
-    """检查 pydantic-settings 是否可用"""
-    return _HAS_PYDANTIC_SETTINGS
+    """检查 SettingsV2 是否可用。"""
+    return True
 
 
 __all__ = [

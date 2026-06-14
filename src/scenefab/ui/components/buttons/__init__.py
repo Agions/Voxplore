@@ -82,6 +82,6 @@ class MacDangerButton(MacButton):
                 font-size: 13px;
             }}
             QPushButton:hover {{
-                background: {CP.ERROR}20;
+                background: #4c1d2f;
             }}
         """)

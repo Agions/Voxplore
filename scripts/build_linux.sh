@@ -45,7 +45,7 @@ nuitka \
     --linux-icon="resources/icons/app_icon.png" \
     --enable-console=no \
     --follow-imports \
-    app/main.py
+    main.py
 
 info "  Nuitka 编译完成: dist-nuitka/${PY_NAME}"
 
@@ -58,34 +58,35 @@ cp "dist-nuitka/${PY_NAME}" "${APP_DIR}/"
 
 # 复制资源
 cp -r resources "${APP_DIR}/" 2>/dev/null || true
+cp resources/icons/app_icon.png "${APP_DIR}/SceneFab.png"
 
 # AppRun（启动脚本）
-cat > "${APP_DIR}/AppRun" << 'APPRUN'
+cat > "${APP_DIR}/AppRun" << APPRUN
 #!/bin/bash
-SELF=$(readlink -f "$0")
-DIR=$(dirname "$SELF")
-exec "${DIR}/SceneFab-${VERSION}-${PLATFORM}" "$@"
+SELF=\$(readlink -f "\$0")
+DIR=\$(dirname "\$SELF")
+exec "\${DIR}/${PY_NAME}" "\$@"
 APPRUN
 chmod +x "${APP_DIR}/AppRun"
 
 # SceneFab.desktop（桌面快捷方式）
-cat > "${APP_DIR}/SceneFab.desktop" << 'DESKTOP'
+cat > "${APP_DIR}/SceneFab.desktop" << DESKTOP
 [Desktop Entry]
 Name=SceneFab
 Comment=AI First-Person Video Narrator
-Exec=SceneFab-${VERSION}-${PLATFORM}
+Exec=${PY_NAME}
 Icon=SceneFab
 Type=Application
 Categories=AudioVideo;Video;Audio;Graphics;
 DESKTOP
 
 # AppImage.yml
-cat > "${APP_DIR}/AppImage.yml" << 'YML'
+cat > "${APP_DIR}/AppImage.yml" << YML
 appid: com.scenefab.app
 version: "${VERSION}"
 name: SceneFab
-exec: SceneFab-${VERSION}-${PLATFORM}
-DESKTOP
+exec: ${PY_NAME}
+YML
 
 # ── 打包 AppImage ───────────────────────────────────────────────
 step "[6/6] 打包 AppImage..."

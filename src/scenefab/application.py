@@ -173,10 +173,8 @@ class Application(QObject):
             self._set_state(ApplicationState.STARTING)
 
             # 启动所有服务
-            for (
-                service_name,
-                service,
-            ) in self._service_container._services_by_name.items():
+            for service_name in self._service_container.all_names():
+                service = self._service_container.get_by_name(service_name)
                 if hasattr(service, "start"):
                     if not service.start():
                         self.error_occurred.emit(
@@ -208,8 +206,9 @@ class Application(QObject):
 
             # 停止所有服务
             # 使用列表副本进行反向迭代
-            services_list = list(self._service_container._services_by_name.items())
-            for service_name, service in reversed(services_list):
+            services_list = self._service_container.all_names()
+            for service_name in reversed(services_list):
+                service = self._service_container.get_by_name(service_name)
                 if hasattr(service, "stop"):
                     try:
                         service.stop()

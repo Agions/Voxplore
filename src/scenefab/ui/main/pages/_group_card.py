@@ -33,22 +33,24 @@ from .components.drag_helpers import MIME_TYPE, _GroupThumbItem, _VideoMimeData
 logger = logging.getLogger(__name__)
 
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "bg_input": "oklch(0.13 0.01 250)",
-    "bg_hover": "oklch(0.14 0.01 250)",
-    "bg_active": "oklch(0.17 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "border_h": "oklch(0.30 0.02 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_sub": "oklch(0.75 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "primary_l": "oklch(0.70 0.24 250)",
-    "success": "oklch(0.65 0.22 145)",
-    "warning": "oklch(0.75 0.20 85)",
-    "error": "oklch(0.63 0.24 25)",
+    "bg_card": "#111827",
+    "bg_input": "#0f172a",
+    "bg_hover": "#182235",
+    "bg_active": "#1f2c43",
+    "border": "#334155",
+    "border_h": "#38bdf8",
+    "text": "#e5edf6",
+    "text_sub": "#cbd5e1",
+    "text_muted": "#91a4ba",
+    "primary": "#0891b2",
+    "primary_l": "#06b6d4",
+    "success": "#22c55e",
+    "warning": "#f59e0b",
+    "error": "#e11d48",
+    "badge_bg": "#1f2c43",
+    "danger_bg": "#4c1d2f",
 }
 
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
@@ -143,7 +145,7 @@ class GroupCard(QFrame):
         self._conf_label.setFont(QFont("", 11, QFont.Weight.Bold))
         self._conf_label.setStyleSheet(f"""
             color: {conf_color};
-            background: {conf_color}20;
+            background: {_T["badge_bg"]};
             padding: 3px 8px;
             border-radius: 8px;
         """)
@@ -211,13 +213,13 @@ class GroupCard(QFrame):
             QPushButton {{
                 background: transparent;
                 color: {_C.ERROR};
-                border: 1px solid {_C.ERROR}60;
+                border: 1px solid {_C.ERROR};
                 border-radius: 8px;
                 padding: 6px 12px;
                 font-size: 11px;
             }}
             QPushButton:hover {{
-                background: {_C.ERROR}20;
+                background: {_T["danger_bg"]};
             }}
         """)
         self._delete_btn.setFixedSize(80, 28)
@@ -313,7 +315,7 @@ class GroupCard(QFrame):
         self._conf_label.setText(f"{self._confidence:.0%}")
         self._conf_label.setStyleSheet(f"""
             color: {color};
-            background: {color}20;
+            background: {_T["badge_bg"]};
             padding: 3px 8px;
             border-radius: 8px;
         """)

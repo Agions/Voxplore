@@ -14,12 +14,12 @@ from scenefab.utils.security import get_ffmpeg_executor
 _video_executor = get_ffmpeg_executor()
 
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "text": "oklch(0.93 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
+    "bg_card": "#111827",
+    "border": "#334155",
+    "text": "#e5edf6",
+    "text_muted": "#91a4ba",
 }
 
 

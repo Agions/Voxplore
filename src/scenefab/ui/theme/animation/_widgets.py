@@ -36,13 +36,8 @@ class AnimatedButton:
     @staticmethod
     def _pulse_click(button):
         """点击脉冲动画"""
-        original_style = button.styleSheet()
-
-        # 临时改变样式模拟按下效果
-        button.setStyleSheet(button.styleSheet() + "transform: scale(0.95);")
-
-        # 恢复
-        QTimer.singleShot(100, lambda: button.setStyleSheet(original_style))
+        button.setDown(True)
+        QTimer.singleShot(100, lambda: button.setDown(False))
 
 
 class LoadingAnimation:

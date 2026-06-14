@@ -1,67 +1,34 @@
-"""
-SceneFab 核心模块 v2.0
+"""SceneFab 核心模块兼容导出层。"""
 
-基础组件：
-- application: 应用程序生命周期
-- base_worker: 统一 Worker 基类 (v2.0)
-- audit: 操作审计日志 (v2.0)
-- pipeline_engine: DAG 并行流水线引擎 (v2.0)
-- ffmpeg_safe: FFmpeg 安全封装 (v2.0)
-- batch_processor: 批量任务处理器 (v2.0)
-- short_drama: 短剧解说特化 (v2.0)
-- platform_adapter: 多平台智能适配 (v2.0)
-- streaming_llm_worker: LLM 流式输出 Worker (v2.0)
-"""
+from __future__ import annotations
 
-import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
+from importlib import import_module
 from typing import Any
-
-logger = logging.getLogger(__name__)
-
-
-# ============================================
-# v1.x 公开 API（保留以确保向后兼容）
-# ============================================
-
-# ApplicationState 已统一到 scenefab.application（Phase 5 重构）
-# 旧定义保留导入以保持向后兼容
-from scenefab.application import ApplicationState
 
 
 @dataclass
 class ErrorInfo:
-    """错误信息"""
+    """错误信息。"""
 
     error_type: str
-    severity: str  # LOW, MEDIUM, HIGH, CRITICAL
+    severity: str
     message: str
     details: str | None = None
     exception: Exception | None = None
     timestamp: float = field(default_factory=lambda: datetime.now().timestamp())
 
 
-# EventBus v1.x 兼容类（v2.1 委托到 UnifiedEventBus）
-# 单源真相：scenefab.core.unified_event_bus.UnifiedEventBus
-from scenefab.core.unified_event_bus import (
-    UnifiedEventBus as _UnifiedEventBus,
-)
-
-
-# v1.x 兼容类 - 薄包装，委托到 UnifiedEventBus 单例
 class EventBus:
-    """
-    事件总线（v1.x 兼容 - v2.1 委托实现）
+    """v1.x 事件总线兼容类。"""
 
-    ⚠️ v2.1 内部实现统一到 scenefab.core.unified_event_bus.UnifiedEventBus。
-    所有 v1.x 公开 API 完全保持兼容，但所有 EventBus 实例共享同一份事件状态。
-    新能力（type-safe events / replay / stats）通过 publish_event() 暴露。
-    """
+    @property
+    def _backend(self):
+        from scenefab.core.unified_event_bus import UnifiedEventBus
 
-    def __init__(self):
-        self._backend: _UnifiedEventBus = _UnifiedEventBus.get_default()
+        return UnifiedEventBus.get_default()
 
     def subscribe(self, event_name: str, handler: Callable) -> None:
         self._backend.subscribe(event_name, handler)
@@ -75,7 +42,6 @@ class EventBus:
     def clear(self, event_name: str | None = None) -> None:
         self._backend.clear_handlers(event_name)
 
-    # v2.1 新增
     def publish_event(self, event: Any) -> None:
         self._backend.publish_event(event)
 
@@ -87,261 +53,142 @@ class EventBus:
 
 
 class EventEmitter:
-    """
-    事件发射器基类
-    支持 PySide6 信号（如果可用）或其他事件系统
-    """
+    """事件发射器基类。"""
 
     def __init__(self):
         self._events = EventBus()
 
-    def on(self, event: str, handler: Callable) -> "EventEmitter":
-        """订阅事件（链式调用）"""
+    def on(self, event: str, handler: Callable) -> EventEmitter:
         self._events.subscribe(event, handler)
         return self
 
-    def off(self, event: str, handler: Callable) -> "EventEmitter":
-        """取消订阅（链式调用）"""
+    def off(self, event: str, handler: Callable) -> EventEmitter:
         self._events.unsubscribe(event, handler)
         return self
 
     def emit(self, event: str, data: Any = None) -> None:
-        """发射事件"""
         self._events.publish(event, data)
 
 
-# 全局事件总线实例
 event_bus = EventBus()
 
+_EXPORTS = {
+    "ApplicationState": ("scenefab.application", "ApplicationState"),
+    "BaseWorker": ("scenefab.core.base_worker", "BaseWorker"),
+    "WorkerResult": ("scenefab.core.base_worker", "WorkerResult"),
+    "AuditLogger": ("scenefab.core.audit", "AuditLogger"),
+    "AuditEntry": ("scenefab.core.audit", "AuditEntry"),
+    "PipelineEngine": ("scenefab.core.pipeline_engine", "PipelineEngine"),
+    "PipelineStep": ("scenefab.core.pipeline_engine", "PipelineStep"),
+    "PipelineConfig": ("scenefab.core.pipeline_engine", "PipelineConfig"),
+    "StepStatus": ("scenefab.core.pipeline_engine", "StepStatus"),
+    "StepResult": ("scenefab.core.pipeline_engine", "StepResult"),
+    "SafeFFmpegCommand": ("scenefab.core.ffmpeg_safe", "SafeFFmpegCommand"),
+    "FFmpegResult": ("scenefab.core.ffmpeg_safe", "FFmpegResult"),
+    "FFmpegSecurityError": ("scenefab.core.ffmpeg_safe", "FFmpegSecurityError"),
+    "is_safe_path": ("scenefab.core.ffmpeg_safe", "is_safe_path"),
+    "BatchProcessor": ("scenefab.core.batch_processor", "BatchProcessor"),
+    "BatchConfig": ("scenefab.core.batch_processor", "BatchConfig"),
+    "BatchTask": ("scenefab.core.batch_processor", "BatchTask"),
+    "BatchCheckpoint": ("scenefab.core.batch_processor", "BatchCheckpoint"),
+    "BatchTaskStatus": ("scenefab.core.batch_processor", "TaskStatus"),
+    "ShortDramaStyle": ("scenefab.core.short_drama", "ShortDramaStyle"),
+    "ShortDramaPreset": ("scenefab.core.short_drama", "ShortDramaPreset"),
+    "ShortDramaNarrator": ("scenefab.core.short_drama", "ShortDramaNarrator"),
+    "TropeType": ("scenefab.core.short_drama", "TropeType"),
+    "EpisodeInfo": ("scenefab.core.short_drama", "EpisodeInfo"),
+    "SeriesContext": ("scenefab.core.short_drama", "SeriesContext"),
+    "Platform": ("scenefab.core.platform_adapter", "Platform"),
+    "PlatformConfig": ("scenefab.core.platform_adapter", "PlatformConfig"),
+    "PLATFORM_CONFIGS": ("scenefab.core.platform_adapter", "PLATFORM_CONFIGS"),
+    "CropRegion": ("scenefab.core.platform_adapter", "CropRegion"),
+    "SmartCropper": ("scenefab.core.platform_adapter", "SmartCropper"),
+    "CoverStyle": ("scenefab.core.platform_adapter", "CoverStyle"),
+    "CoverGenerator": ("scenefab.core.platform_adapter", "CoverGenerator"),
+    "MultiPlatformExporter": ("scenefab.core.platform_adapter", "MultiPlatformExporter"),
+    "StreamingLLMWorker": ("scenefab.core.streaming_llm_worker", "StreamingLLMWorker"),
+    "UnifiedEventBus": ("scenefab.core.unified_event_bus", "UnifiedEventBus"),
+    "EventLog": ("scenefab.core.unified_event_bus", "EventLog"),
+    "EventRecord": ("scenefab.core.unified_event_bus", "EventRecord"),
+    "EventStats": ("scenefab.core.unified_event_bus", "EventStats"),
+    "EventHandler": ("scenefab.core.unified_event_bus", "EventHandler"),
+    "AsyncEventHandler": ("scenefab.core.unified_event_bus", "AsyncEventHandler"),
+    "get_event_bus": ("scenefab.core.unified_event_bus", "get_event_bus"),
+    "set_event_bus": ("scenefab.core.unified_event_bus", "set_event_bus"),
+    "DomainEvent": ("scenefab.core.event_types", "DomainEvent"),
+    "PipelineStarted": ("scenefab.core.event_types", "PipelineStarted"),
+    "PipelineStepStarted": ("scenefab.core.event_types", "PipelineStepStarted"),
+    "PipelineStepCompleted": ("scenefab.core.event_types", "PipelineStepCompleted"),
+    "PipelineCompleted": ("scenefab.core.event_types", "PipelineCompleted"),
+    "TaskCreated": ("scenefab.core.event_types", "TaskCreated"),
+    "TaskProgressUpdated": ("scenefab.core.event_types", "TaskProgressUpdated"),
+    "TaskStatusChanged": ("scenefab.core.event_types", "TaskStatusChanged"),
+    "LLMTokenGenerated": ("scenefab.core.event_types", "LLMTokenGenerated"),
+    "FFmpegExecuted": ("scenefab.core.event_types", "FFmpegExecuted"),
+    "UnifiedTask": ("scenefab.core.task_model", "UnifiedTask"),
+    "TaskStep": ("scenefab.core.task_model", "TaskStep"),
+    "TaskStatus": ("scenefab.core.task_model", "TaskStatus"),
+    "TaskSource": ("scenefab.core.task_model", "TaskSource"),
+    "CancelToken": ("scenefab.core.task_model", "CancelToken"),
+    "IllegalTransitionError": ("scenefab.core.task_model", "IllegalTransitionError"),
+    "can_transition": ("scenefab.core.task_model", "can_transition"),
+    "DIContainer": ("scenefab.core.di_container", "DIContainer"),
+    "get_app_container": ("scenefab.core.di_container", "get_app_container"),
+    "set_app_container": ("scenefab.core.di_container", "set_app_container"),
+    "TaskStore": ("scenefab.core.task_store", "TaskStore"),
+    "InMemoryTaskStore": ("scenefab.core.task_store", "InMemoryTaskStore"),
+    "SQLiteTaskStore": ("scenefab.core.task_store", "SQLiteTaskStore"),
+    "create_task_store": ("scenefab.core.task_store", "create_task_store"),
+    "get_task_store": ("scenefab.core.task_store", "get_task_store"),
+    "set_task_store": ("scenefab.core.task_store", "set_task_store"),
+    "EventStore": ("scenefab.core.event_store", "EventStore"),
+    "InMemoryEventStore": ("scenefab.core.event_store", "InMemoryEventStore"),
+    "SQLiteEventStore": ("scenefab.core.event_store", "SQLiteEventStore"),
+    "create_event_store": ("scenefab.core.event_store", "create_event_store"),
+    "get_event_store": ("scenefab.core.event_store", "get_event_store"),
+    "set_event_store": ("scenefab.core.event_store", "set_event_store"),
+    "install_event_store_into_bus": (
+        "scenefab.core.event_store",
+        "install_event_store_into_bus",
+    ),
+    "SettingsV2": ("scenefab.core.config_v2", "SettingsV2"),
+    "LLMSettings": ("scenefab.core.config_v2", "LLMSettings"),
+    "LLMProviderConfig": ("scenefab.core.config_v2", "LLMProviderConfig"),
+    "LLMProviderName": ("scenefab.core.config_v2", "LLMProviderName"),
+    "TTSSettings": ("scenefab.core.config_v2", "TTSSettings"),
+    "TTSProviderConfig": ("scenefab.core.config_v2", "TTSProviderConfig"),
+    "TTSProviderName": ("scenefab.core.config_v2", "TTSProviderName"),
+    "PipelineSettings": ("scenefab.core.config_v2", "PipelineSettings"),
+    "StorageSettings": ("scenefab.core.config_v2", "StorageSettings"),
+    "SecuritySettings": ("scenefab.core.config_v2", "SecuritySettings"),
+    "APISettings": ("scenefab.core.config_v2", "APISettings"),
+    "AppProfile": ("scenefab.core.config_v2", "AppProfile"),
+    "TaskStoreBackend": ("scenefab.core.config_v2", "TaskStoreBackend"),
+    "get_settings": ("scenefab.core.config_v2", "get_settings"),
+    "set_settings": ("scenefab.core.config_v2", "set_settings"),
+    "is_settings_v2_available": ("scenefab.core.config_v2", "is_settings_v2_available"),
+    "WSHub": ("scenefab.core.ws_hub", "WSHub"),
+    "WSConnection": ("scenefab.core.ws_hub", "WSConnection"),
+    "get_ws_hub": ("scenefab.core.ws_hub", "get_ws_hub"),
+    "set_ws_hub": ("scenefab.core.ws_hub", "set_ws_hub"),
+}
 
-# ============================================
-# v2.0 新增模块（保持平铺 re-export）
-# ============================================
 
-from scenefab.core.audit import AuditEntry, AuditLogger
-from scenefab.core.base_worker import BaseWorker, WorkerResult
-from scenefab.core.batch_processor import (
-    BatchCheckpoint,
-    BatchConfig,
-    BatchProcessor,
-    BatchTask,
-)
-from scenefab.core.batch_processor import (
-    TaskStatus as BatchTaskStatus,
-)
-from scenefab.core.config_v2 import (
-    APISettings,
-    AppProfile,
-    LLMProviderConfig,
-    LLMProviderName,
-    LLMSettings,
-    PipelineSettings,
-    SecuritySettings,
-    SettingsV2,
-    StorageSettings,
-    TaskStoreBackend,
-    TTSProviderConfig,
-    TTSProviderName,
-    TTSSettings,
-    get_settings,
-    is_settings_v2_available,
-    set_settings,
-)
-from scenefab.core.di_container import DIContainer, get_app_container, set_app_container
-from scenefab.core.event_store import (
-    EventStore,
-    InMemoryEventStore,
-    SQLiteEventStore,
-    create_event_store,
-    get_event_store,
-    install_event_store_into_bus,
-    set_event_store,
-)
+def __getattr__(name: str) -> Any:
+    target = _EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module_name, attr_name = target
+    value = getattr(import_module(module_name), attr_name)
+    globals()[name] = value
+    return value
 
-# ============================================
-# v2.1 架构升级
-# ============================================
-from scenefab.core.event_types import (
-    DomainEvent,
-    FFmpegExecuted,
-    LLMTokenGenerated,
-    PipelineCompleted,
-    PipelineStarted,
-    PipelineStepCompleted,
-    PipelineStepStarted,
-    TaskCreated,
-    TaskProgressUpdated,
-    TaskStatusChanged,
-)
-from scenefab.core.ffmpeg_safe import (
-    FFmpegResult,
-    FFmpegSecurityError,
-    SafeFFmpegCommand,
-    is_safe_path,
-)
-from scenefab.core.pipeline_engine import (
-    PipelineConfig,
-    PipelineEngine,
-    PipelineStep,
-    StepResult,
-    StepStatus,
-)
-from scenefab.core.platform_adapter import (
-    PLATFORM_CONFIGS,
-    CoverGenerator,
-    CoverStyle,
-    CropRegion,
-    MultiPlatformExporter,
-    Platform,
-    PlatformConfig,
-    SmartCropper,
-)
-from scenefab.core.short_drama import (
-    EpisodeInfo,
-    SeriesContext,
-    ShortDramaNarrator,
-    ShortDramaPreset,
-    ShortDramaStyle,
-    TropeType,
-)
-from scenefab.core.streaming_llm_worker import StreamingLLMWorker
-from scenefab.core.task_model import (
-    CancelToken,
-    IllegalTransitionError,
-    TaskSource,
-    TaskStatus,
-    TaskStep,
-    UnifiedTask,
-    can_transition,
-)
-from scenefab.core.task_store import (
-    InMemoryTaskStore,
-    SQLiteTaskStore,
-    TaskStore,
-    create_task_store,
-    get_task_store,
-    set_task_store,
-)
-from scenefab.core.unified_event_bus import (
-    AsyncEventHandler,
-    EventHandler,
-    EventLog,
-    EventRecord,
-    EventStats,
-    UnifiedEventBus,
-    get_event_bus,
-    set_event_bus,
-)
-from scenefab.core.ws_hub import WSConnection, WSHub, get_ws_hub, set_ws_hub
 
 __all__ = [
-    # v1.x 公开 API
     "ApplicationState",
     "ErrorInfo",
     "EventBus",
     "EventEmitter",
     "event_bus",
-    # v2.0 新增
-    "BaseWorker",
-    "WorkerResult",
-    "AuditLogger",
-    "AuditEntry",
-    "PipelineEngine",
-    "PipelineStep",
-    "PipelineConfig",
-    "StepStatus",
-    "StepResult",
-    "SafeFFmpegCommand",
-    "FFmpegResult",
-    "FFmpegSecurityError",
-    "is_safe_path",
-    "BatchProcessor",
-    "BatchConfig",
-    "BatchTask",
-    "BatchCheckpoint",
-    "BatchTaskStatus",
-    "ShortDramaStyle",
-    "ShortDramaPreset",
-    "ShortDramaNarrator",
-    "TropeType",
-    "EpisodeInfo",
-    "SeriesContext",
-    "Platform",
-    "PlatformConfig",
-    "PLATFORM_CONFIGS",
-    "CropRegion",
-    "SmartCropper",
-    "CoverStyle",
-    "CoverGenerator",
-    "MultiPlatformExporter",
-    "StreamingLLMWorker",
-    # v2.1 新增 - 事件总线单源真相
-    "UnifiedEventBus",
-    "EventLog",
-    "EventRecord",
-    "EventStats",
-    "EventHandler",
-    "AsyncEventHandler",
-    "get_event_bus",
-    "set_event_bus",
-    # v2.1 新增 - 类型化领域事件
-    "DomainEvent",
-    "PipelineStarted",
-    "PipelineStepStarted",
-    "PipelineStepCompleted",
-    "PipelineCompleted",
-    "TaskCreated",
-    "TaskProgressUpdated",
-    "TaskStatusChanged",
-    "LLMTokenGenerated",
-    "FFmpegExecuted",
-    # v2.1 新增 - 任务系统统一
-    "UnifiedTask",
-    "TaskStep",
-    "TaskStatus",
-    "TaskSource",
-    "CancelToken",
-    "IllegalTransitionError",
-    "can_transition",
-    # v2.1 新增 - DI 容器
-    "DIContainer",
-    "get_app_container",
-    "set_app_container",
-    # v2.1 新增 - TaskStore 3 后端
-    "TaskStore",
-    "InMemoryTaskStore",
-    "SQLiteTaskStore",
-    "create_task_store",
-    "get_task_store",
-    "set_task_store",
-    # v2.1 新增 - EventStore 持久化
-    "EventStore",
-    "InMemoryEventStore",
-    "SQLiteEventStore",
-    "create_event_store",
-    "get_event_store",
-    "set_event_store",
-    "install_event_store_into_bus",
-    # v2.1 新增 - 配置层
-    "SettingsV2",
-    "LLMSettings",
-    "LLMProviderConfig",
-    "LLMProviderName",
-    "TTSSettings",
-    "TTSProviderConfig",
-    "TTSProviderName",
-    "PipelineSettings",
-    "StorageSettings",
-    "SecuritySettings",
-    "APISettings",
-    "AppProfile",
-    "TaskStoreBackend",
-    "get_settings",
-    "set_settings",
-    "is_settings_v2_available",
-    # v2.1 新增 - WebSocket Hub
-    "WSHub",
-    "WSConnection",
-    "get_ws_hub",
-    "set_ws_hub",
+    *_EXPORTS.keys(),
 ]

@@ -20,7 +20,36 @@ from PySide6.QtWidgets import (
 )
 
 from scenefab.logger import Logger
-from scenefab.services.export import ExportPreset
+from scenefab.services.export import (
+    DEFAULT_AUDIO_BITRATE_KBPS,
+    DEFAULT_VIDEO_BITRATE_KBPS,
+    ExportPreset,
+    normalize_bitrate,
+    normalize_resolution,
+    parse_bitrate_kbps,
+)
+
+FORMAT_OPTIONS = [
+    ("MP4 (H.264)", "mp4", "h264"),
+    ("MP4 (H.265)", "mp4", "h265"),
+    ("MOV (ProRes)", "mov", "prores"),
+    ("AVI (无压缩)", "avi", "rawvideo"),
+    ("MKV (H.264)", "mkv", "h264"),
+    ("WebM (VP9)", "webm", "vp9"),
+    ("GIF 动画", "gif", "gif"),
+    ("MP3 音频", "mp3", "mp3"),
+    ("WAV 音频", "wav", "pcm_s16le"),
+    ("剪映草稿", "jianying", "jianying"),
+]
+
+RESOLUTION_OPTIONS = [
+    ("1080x1920 (竖屏 9:16)", "1080x1920"),
+    ("720x1280 (竖屏 9:16)", "720x1280"),
+    ("2160x3840 (竖屏 4K)", "2160x3840"),
+    ("1920x1080 (横屏 1080p)", "1920x1080"),
+    ("1280x720 (横屏 720p)", "1280x720"),
+    ("1080x1080 (方形 1:1)", "1080x1080"),
+]
 
 
 class ExportSettingsDialog(QDialog):
@@ -55,10 +84,11 @@ class ExportSettingsDialog(QDialog):
         basic_group = QGroupBox("基本信息")
         basic_layout = QFormLayout(basic_group)
 
-        self.name_input = QLineEdit(self.preset.name if self.preset else "新建预设")
+        preset_name = getattr(self.preset, "name", "新建预设")
+        self.name_input = QLineEdit(preset_name)
         self.description_input = QTextEdit()
         self.description_input.setMaximumHeight(80)
-        self.description_input.setText(self.preset.description if self.preset else "")
+        self.description_input.setText(getattr(self.preset, "description", ""))
 
         basic_layout.addRow("预设名称:", self.name_input)
         basic_layout.addRow("描述:", self.description_input)
@@ -70,32 +100,14 @@ class ExportSettingsDialog(QDialog):
         format_layout = QFormLayout(format_group)
 
         self.format_combo = QComboBox()
-        self.format_combo.addItems(
-            [
-                "MP4 (H.264)",
-                "MP4 (H.265)",
-                "MOV (ProRes)",
-                "AVI (无压缩)",
-                "MKV (H.264)",
-                "WebM (VP9)",
-                "GIF动画",
-                "MP3音频",
-                "WAV音频",
-                "剪映草稿",
-            ]
-        )
+        for label, file_format, codec in FORMAT_OPTIONS:
+            self.format_combo.addItem(label, (file_format, codec))
 
         self.resolution_combo = QComboBox()
-        self.resolution_combo.addItems(
-            [
-                "3840x2160 (4K)",
-                "2560x1440 (2K)",
-                "1920x1080 (1080p)",
-                "1280x720 (720p)",
-                "854x480 (480p)",
-                "自定义",
-            ]
-        )
+        self.resolution_combo.setEditable(True)
+        for label, resolution in RESOLUTION_OPTIONS:
+            self.resolution_combo.addItem(label, resolution)
+        self.resolution_combo.addItem("自定义", "custom")
 
         self.fps_spin = QSpinBox()
         self.fps_spin.setRange(1, 120)
@@ -150,29 +162,73 @@ class ExportSettingsDialog(QDialog):
 
     def load_preset_data(self):
         """加载预设数据"""
-        self.name_input.setText(self.preset.name)
-        self.description_input.setText(self.preset.description)
-        self.bitrate_spin.setValue(self.preset.bitrate)  # type: ignore[arg-type]
-        self.audio_bitrate_spin.setValue(self.preset.audio_bitrate)  # type: ignore[arg-type]
-        self.fps_spin.setValue(int(self.preset.fps))
+        preset_name = getattr(self.preset, "name", "新建预设")
+        preset_format = self._preset_value(getattr(self.preset, "format", "mp4"))
+        preset_codec = self._preset_value(getattr(self.preset, "codec", "h264"))
+        preset_resolution = getattr(self.preset, "resolution", None)
+        preset_bitrate = getattr(self.preset, "bitrate", DEFAULT_VIDEO_BITRATE_KBPS)
+        preset_audio_bitrate = getattr(
+            self.preset, "audio_bitrate", DEFAULT_AUDIO_BITRATE_KBPS
+        )
+
+        self.name_input.setText(preset_name)
+        self.description_input.setText(getattr(self.preset, "description", ""))
+        self.bitrate_spin.setValue(
+            parse_bitrate_kbps(preset_bitrate, DEFAULT_VIDEO_BITRATE_KBPS)
+        )
+        self.audio_bitrate_spin.setValue(
+            parse_bitrate_kbps(
+                preset_audio_bitrate, DEFAULT_AUDIO_BITRATE_KBPS
+            )
+        )
+        self.fps_spin.setValue(int(getattr(self.preset, "fps", 30)))
+        self.codec_params_edit.setText(getattr(self.preset, "codec_params", ""))
+
+        format_index = self.format_combo.findData((preset_format, preset_codec))
+        if format_index < 0:
+            format_index = self._find_format_index(preset_format)
+        if format_index >= 0:
+            self.format_combo.setCurrentIndex(format_index)
 
         # 设置分辨率
-        resolution_text = f"{self.preset.resolution[0]}x{self.preset.resolution[1]}"
-        index = self.resolution_combo.findText(resolution_text)
+        resolution_text = normalize_resolution(preset_resolution)
+        index = self.resolution_combo.findData(resolution_text)
         if index >= 0:
             self.resolution_combo.setCurrentIndex(index)
         else:
-            self.resolution_combo.setCurrentText("自定义")
+            self.resolution_combo.addItem(f"{resolution_text} (自定义)", resolution_text)
+            self.resolution_combo.setCurrentIndex(self.resolution_combo.count() - 1)
 
     def get_preset_data(self) -> dict[str, Any]:
         """获取预设数据"""
+        file_format, codec = self.format_combo.currentData()
+        resolution = self.resolution_combo.currentData()
+        if resolution == "custom":
+            resolution = self.resolution_combo.currentText()
         return {
             "name": self.name_input.text(),
             "description": self.description_input.toPlainText(),
-            "format": self.format_combo.currentText(),
-            "resolution": self.resolution_combo.currentText(),
-            "bitrate": self.bitrate_spin.value(),
-            "audio_bitrate": self.audio_bitrate_spin.value(),
+            "format": file_format,
+            "codec": codec,
+            "resolution": normalize_resolution(resolution),
+            "bitrate": normalize_bitrate(
+                self.bitrate_spin.value(), DEFAULT_VIDEO_BITRATE_KBPS
+            ),
+            "audio_bitrate": normalize_bitrate(
+                self.audio_bitrate_spin.value(), DEFAULT_AUDIO_BITRATE_KBPS
+            ),
             "fps": self.fps_spin.value(),
             "codec_params": self.codec_params_edit.toPlainText(),
         }
+
+    def _find_format_index(self, file_format: str) -> int:
+        """Find the first combo item for a file format."""
+        for index in range(self.format_combo.count()):
+            item_format, _codec = self.format_combo.itemData(index)
+            if item_format == file_format:
+                return index
+        return -1
+
+    @staticmethod
+    def _preset_value(value: Any) -> str:
+        return str(getattr(value, "value", value))

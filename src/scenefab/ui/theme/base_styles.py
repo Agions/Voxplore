@@ -3,107 +3,132 @@ SceneFab 基础样式系统
 所有样式基于 tokens.py，不硬编码颜色值
 """
 
+from string import Template
+
+from .tokens import COLORS, FONT, RADIUS
+
 
 def get_base_qss() -> str:
     """返回全局基础 QSS"""
-    return """
+    values = {
+        "bg_base": COLORS["bg-base"],
+        "bg_elevated": COLORS["bg-elevated"],
+        "bg_overlay": COLORS["bg-overlay"],
+        "bg_surface": COLORS["bg-surface"],
+        "border": COLORS["border"],
+        "border_strong": COLORS["border-strong"],
+        "border_subtle": COLORS["border-subtle"],
+        "font_family": FONT["family"],
+        "font_md": FONT["size"]["md"],
+        "font_sm": FONT["size"]["sm"],
+        "primary": COLORS["primary"],
+        "primary_hover": COLORS["primary-hover"],
+        "primary_pressed": COLORS["primary-pressed"],
+        "radius_full": RADIUS["full"],
+        "radius_lg": RADIUS["lg"],
+        "radius_md": RADIUS["md"],
+        "text_disabled": COLORS["text-disabled"],
+        "text_muted": COLORS["text-muted"],
+        "text_primary": COLORS["text-primary"],
+        "text_secondary": COLORS["text-secondary"],
+    }
+    return Template("""
     /* === 全局 === */
     QWidget {
-        background-color: var(--color-bg-base);
-        color: var(--color-text-primary);
-        font-family: var(--font-family);
-        font-size: var(--font-size-md);
+        background-color: $bg_base;
+        color: $text_primary;
+        font-family: $font_family;
+        font-size: $font_md;
     }
 
     /* === 按钮 === */
     QPushButton {
-        background-color: var(--color-bg-elevated);
-        color: var(--color-text-primary);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
+        background-color: $bg_elevated;
+        color: $text_primary;
+        border: 1px solid $border;
+        border-radius: $radius_md;
         padding: 8px 16px;
-        font-size: var(--font-size-md);
-        transition: all var(--transition-fast);
+        font-size: $font_md;
     }
     QPushButton:hover {
-        background-color: var(--color-bg-overlay);
-        border-color: var(--color-border-strong);
+        background-color: $bg_overlay;
+        border-color: $border_strong;
     }
     QPushButton:pressed {
-        background-color: var(--color-bg-surface);
+        background-color: $bg_surface;
     }
     QPushButton:disabled {
-        color: var(--color-text-disabled);
-        border-color: var(--color-border-subtle);
+        color: $text_disabled;
+        border-color: $border_subtle;
     }
 
     /* 主按钮 */
     QPushButton.primary {
-        background-color: var(--color-primary);
+        background-color: $primary;
         color: white;
         border: none;
     }
     QPushButton.primary:hover {
-        background-color: var(--color-primary-hover);
+        background-color: $primary_hover;
     }
     QPushButton.primary:pressed {
-        background-color: var(--color-primary-pressed);
+        background-color: $primary_pressed;
     }
 
     /* 次要按钮 */
     QPushButton.secondary {
         background-color: transparent;
-        color: var(--color-text-secondary);
-        border: 1px solid var(--color-border);
+        color: $text_secondary;
+        border: 1px solid $border;
     }
     QPushButton.secondary:hover {
-        color: var(--color-text-primary);
-        border-color: var(--color-border-strong);
+        color: $text_primary;
+        border-color: $border_strong;
     }
 
     /* === 卡片 === */
     QFrame.card {
-        background-color: var(--color-bg-surface);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-lg);
+        background-color: $bg_surface;
+        border: 1px solid $border;
+        border-radius: $radius_lg;
     }
 
     /* === 输入框 === */
     QLineEdit {
-        background-color: var(--color-bg-surface);
-        color: var(--color-text-primary);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
+        background-color: $bg_surface;
+        color: $text_primary;
+        border: 1px solid $border;
+        border-radius: $radius_md;
         padding: 8px 12px;
-        font-size: var(--font-size-md);
+        font-size: $font_md;
     }
     QLineEdit:focus {
-        border-color: var(--color-primary);
+        border-color: $primary;
     }
     QLineEdit::placeholder {
-        color: var(--color-text-muted);
+        color: $text_muted;
     }
 
     /* === 标签 === */
     QLabel {
         background: transparent;
-        color: var(--color-text-primary);
+        color: $text_primary;
     }
     QLabel.subtitle {
-        color: var(--color-text-secondary);
-        font-size: var(--font-size-sm);
+        color: $text_secondary;
+        font-size: $font_sm;
     }
 
     /* === 进度条 === */
     QProgressBar {
-        background-color: var(--color-bg-surface);
+        background-color: $bg_surface;
         border: none;
-        border-radius: var(--radius-full);
+        border-radius: $radius_full;
         height: 4px;
     }
     QProgressBar::chunk {
-        background-color: var(--color-primary);
-        border-radius: var(--radius-full);
+        background-color: $primary;
+        border-radius: $radius_full;
     }
 
     /* === 滚动条 === */
@@ -112,11 +137,11 @@ def get_base_qss() -> str:
         width: 6px;
     }
     QScrollBar::handle:vertical {
-        background: var(--color-border-strong);
+        background: $border_strong;
         border-radius: 3px;
         min-height: 40px;
     }
     QScrollBar::handle:vertical:hover {
-        background: var(--color-text-muted);
+        background: $text_muted;
     }
-    """
+    """).substitute(values)

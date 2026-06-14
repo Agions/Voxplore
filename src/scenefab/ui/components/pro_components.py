@@ -45,19 +45,15 @@ class GradientButton(QPushButton):
                 padding: 14px 28px;
                 font-weight: 600;
                 font-size: 14px;
-                box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
             }}
             #gradientButton:hover {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 {_C.PRIMARY_DARK},
                     stop:0.5 {_C.PRIMARY},
                     stop:1 #C084FC);
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
             }}
             #gradientButton:pressed {{
-                transform: translateY(0);
-                box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+                background: {_C.PRIMARY_DARKER};
             }}
         """)
 
@@ -71,14 +67,12 @@ class GlassCard(QFrame):
         self.setStyleSheet("""
             #glassCard {
                 background: rgba(28, 28, 40, 0.7);
-                backdrop-filter: blur(20px);
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: 20px;
                 padding: 20px;
             }
             #glassCard:hover {
                 border-color: rgba(124, 58, 237, 0.3);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             }
         """)
 
@@ -94,14 +88,15 @@ class StatCard(QFrame):
         self.setFixedSize(160, 100)
         self.setStyleSheet("""
             QFrame {
-                background: linear-gradient(145deg, #1A1A24 0%, #16161F 100%);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #1A1A24,
+                    stop:1 #16161F);
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 16px;
                 padding: 16px;
             }
             QFrame:hover {
                 border-color: rgba(124, 58, 237, 0.3);
-                transform: translateY(-2px);
             }
         """)
 
@@ -312,7 +307,6 @@ class SearchBar(QLineEdit):
             }}
             #searchBar:focus {{
                 border-color: {_C.BORDER_FOCUS};
-                box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
             }}
             #searchBar::placeholder {{
                 color: #6B7280;
@@ -424,8 +418,8 @@ class Badge(QFrame):
     def _setup_ui(self, text: str, color: str):
         self.setStyleSheet(f"""
             QFrame {{
-                background: {color}22;
-                border: 1px solid {color}44;
+                background: #1f2c43;
+                border: 1px solid {color};
                 border-radius: 6px;
                 padding: 4px 8px;
             }}

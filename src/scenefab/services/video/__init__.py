@@ -1,134 +1,62 @@
-"""
-视频制作服务
+"""视频制作服务。"""
 
-保留的活跃模块：
-- monologue_maker.py  第一人称解说视频制作（核心）
-- base_maker.py        视频 Maker 基类
+from __future__ import annotations
 
-新增模块（架构升级）：
-- perspective_mapper.py  第一人称视角映射器
-- video_interleaver.py   视频穿插逻辑处理器
+from importlib import import_module
+from typing import Any
 
-Phase 3 模块化拆分：
-- cache/          视频帧缓存（LRU + 磁盘回退）
-- session.py     FFmpeg 会话管理
-- analyzer.py    视频分析器
-- processor.py   视频处理器
+_EXPORTS = {
+    "BaseVideoMaker": ".base_maker",
+    "MonologueMaker": ".monologue_maker",
+    "MonologueProject": ".monologue_maker",
+    "MonologueSegment": ".monologue_maker",
+    "MonologueStyle": ".monologue_maker",
+    "EmotionType": ".models.monologue",
+    "PerspectiveMapper": ".perspective_mapper",
+    "VideoInterleaver": ".video_interleaver",
+    "SceneSegment": ".models.perspective",
+    "KeyFrame": ".models.perspective",
+    "PerspectiveShot": ".models.perspective",
+    "NarrationSegment": ".models.perspective",
+    "ClipSegment": ".models.perspective",
+    "InterleaveTimeline": ".models.perspective",
+    "InterleaveDecision": ".models.perspective",
+    "InterleaveMode": ".models.perspective",
+    "TransitionType": ".models.perspective",
+    "FirstPersonExtractor": ".extraction.first_person",
+    "VideoSegment": ".extraction.first_person",
+    "EmotionPeakDetector": ".extraction.emotion_peak",
+    "EmotionPeak": ".extraction.emotion_peak",
+    "SegmentSelector": ".selection.seg_selector",
+    "SelectionStrategy": ".selection.seg_selector",
+    "SmartGrouper": ".grouping.smart_grouper",
+    "VideoGroup": ".grouping.smart_grouper",
+    "VisionEmbedder": ".grouping.smart_grouper",
+    "AudioEmbedder": ".grouping.smart_grouper",
+    "GroupingReason": ".grouping.smart_grouper",
+    "HighlightDetector": ".highlight_detector",
+    "HighlightSegment": ".highlight_detector",
+    "HighlightReason": ".highlight_detector",
+    "HighlightDetectorConfig": ".highlight_detector",
+    "SceneConverter": ".scene_converter",
+    "EmotionCurveGenerator": ".scene_converter",
+    "PipelineIntegrator": ".pipeline_integrator",
+    "VideoFrameCache": ".cache",
+    "VideoCache": ".cache.legacy_cache",
+    "FFmpegSession": ".session",
+    "VideoAnalyzer": ".analyzer",
+    "VideoProcessor": ".processor",
+}
 
-Phase 4 模块化拆分：
-- extraction/   第一人称提取、情感峰值检测
-- selection/    片段选择策略
-- grouping/     智能视频分组
-"""
 
-from .analyzer import VideoAnalyzer
-from .base_maker import BaseVideoMaker
+def __getattr__(name: str) -> Any:
+    module_name = _EXPORTS.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module = import_module(module_name, __name__)
+    value = getattr(module, name)
+    globals()[name] = value
+    return value
 
-# Phase 3 新增：视频处理模块
-from .cache import VideoFrameCache
-from .extraction.emotion_peak import (
-    EmotionPeak,
-    EmotionPeakDetector,
-)
 
-# Phase 3 新增（Phase 4 重构至 extraction/）
-from .extraction.first_person import (
-    FirstPersonExtractor,
-    VideoSegment,
-)
-
-# Phase 3 新增（Phase 4 重构至 grouping/）
-from .grouping.smart_grouper import (
-    AudioEmbedder,
-    GroupingReason,
-    SmartGrouper,
-    VideoGroup,
-    VisionEmbedder,
-)
-from .highlight_detector import (
-    HighlightDetector,
-    HighlightDetectorConfig,
-    HighlightReason,
-    HighlightSegment,
-)
-from .models.monologue import EmotionType
-from .models.perspective import (
-    ClipSegment,
-    InterleaveDecision,
-    InterleaveMode,
-    InterleaveTimeline,
-    KeyFrame,
-    NarrationSegment,
-    PerspectiveShot,
-    SceneSegment,
-    TransitionType,
-)
-from .monologue_maker import (
-    MonologueMaker,
-    MonologueProject,
-    MonologueSegment,
-    MonologueStyle,
-)
-from .perspective_mapper import PerspectiveMapper
-from .pipeline_integrator import PipelineIntegrator
-from .processor import VideoProcessor
-from .scene_converter import EmotionCurveGenerator, SceneConverter
-
-# Phase 3 新增（Phase 4 重构至 selection/）
-from .selection.seg_selector import (
-    SegmentSelector,
-    SelectionStrategy,
-)
-from .session import FFmpegSession
-from .video_interleaver import VideoInterleaver
-
-__all__ = [
-    # 原有
-    "BaseVideoMaker",
-    "MonologueMaker",
-    "MonologueProject",
-    "MonologueSegment",
-    "MonologueStyle",
-    "EmotionType",
-    # 原有新增
-    "PerspectiveMapper",
-    "VideoInterleaver",
-    "SceneSegment",
-    "KeyFrame",
-    "PerspectiveShot",
-    "NarrationSegment",
-    "ClipSegment",
-    "InterleaveTimeline",
-    "InterleaveDecision",
-    "InterleaveMode",
-    "TransitionType",
-    # Phase 3 新增（extraction/）
-    "FirstPersonExtractor",
-    "VideoSegment",
-    "EmotionPeakDetector",
-    "EmotionPeak",
-    # Phase 3 新增（selection/）
-    "SegmentSelector",
-    "SelectionStrategy",
-    # Phase 3 新增（grouping/）
-    "SmartGrouper",
-    "VideoGroup",
-    "VisionEmbedder",
-    "AudioEmbedder",
-    "GroupingReason",
-    # 高光检测
-    "HighlightDetector",
-    "HighlightSegment",
-    "HighlightReason",
-    "HighlightDetectorConfig",
-    # 场景转换
-    "SceneConverter",
-    "EmotionCurveGenerator",
-    # 流水线集成
-    "PipelineIntegrator",
-    # Phase 3 视频处理
-    "VideoFrameCache",
-    "FFmpegSession",
-    "VideoAnalyzer",
-    "VideoProcessor",
-]
+__all__ = list(_EXPORTS)

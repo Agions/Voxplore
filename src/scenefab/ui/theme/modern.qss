@@ -516,7 +516,6 @@ QHeaderView::section {
     padding: 10px;
     font-weight: 600;
     font-size: 12px;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 

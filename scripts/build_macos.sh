@@ -47,6 +47,7 @@ pyinstaller \
     --onedir \
     --name "${PY_NAME}" \
     --windowed \
+    --icon="resources/icon.icns" \
     --add-data="resources:resources" \
     --hidden-import=PySide6 \
     --hidden-import=PySide6.QtCore \
@@ -69,7 +70,7 @@ pyinstaller \
     --hidden-import=yaml \
     --collect-all=PySide6 \
     --noconfirm \
-    app/main.py
+    main.py
 
 # ── 创建 .app bundle ───────────────────────────────────────────
 step "[5/6] 创建 .app 捆绑包..."
@@ -77,21 +78,23 @@ mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mkdir -p "${APP_BUNDLE}/Contents/Resources"
 cp -r "dist/${PY_NAME}/"* "${APP_BUNDLE}/Contents/MacOS/"
 cp -r resources "${APP_BUNDLE}/Contents/"
+cp resources/icon.icns "${APP_BUNDLE}/Contents/Resources/icon.icns"
 
 # Info.plist
-cat > "${APP_BUNDLE}/Contents/Info.plist" << 'EOF'
+cat > "${APP_BUNDLE}/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key><string>zh_CN</string>
-    <key>CFBundleExecutable</key><string>SceneFab</string>
+    <key>CFBundleExecutable</key><string>${PY_NAME}</string>
     <key>CFBundleIdentifier</key><string>com.scenefab.app</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleName</key><string>SceneFab</string>
     <key>CFBundleDisplayName</key><string>SceneFab</string>
+    <key>CFBundleIconFile</key><string>icon.icns</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>$VERSION</string>
+    <key>CFBundleShortVersionString</key><string>${VERSION}</string>
     <key>CFBundleVersion</key><string>1</string>
     <key>LSMinimumSystemVersion</key><string>10.15</string>
     <key>NSHumanReadableCopyright</key><string>Copyright © 2025-2026 Agions. All rights reserved.</string>

@@ -8,21 +8,27 @@ SceneFab PyInstaller 构建配置
 
 import sys
 import os
+import re
+from pathlib import Path
 
 block_cipher = None
 
 # 版本（从 pyproject.toml 动态读取，避免手动维护）
 # 本地构建时直接用 make build:win/mac/linux，版本号自动从 pyproject.toml 获取
+ROOT = Path(__file__).resolve().parent
+init_text = (ROOT / 'src' / 'scenefab' / '__init__.py').read_text(encoding='utf-8')
+version_match = re.search(r"__version__\s*=\s*['\"]([^'\"]+)['\"]", init_text)
+VERSION = version_match.group(1) if version_match else '0.0.0'
 
 # 分析入口点
-app_main = 'src/scenefab/main.py'
+app_main = str(ROOT / 'main.py')
 
 a = Analysis(
     [app_main],
-    pathex=[],
+    pathex=[str(ROOT), str(ROOT / 'src')],
     binaries=[],
     datas=[
-        ('resources', 'resources'),
+        (str(ROOT / 'resources'), 'resources'),
     ],
     hiddenimports=[
         'PySide6',

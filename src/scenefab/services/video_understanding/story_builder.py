@@ -7,6 +7,7 @@ SceneFab 剧情图谱构建混入
 import logging
 from typing import Any
 
+from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
 from scenefab.services.video_understanding.models import (
     Character,
     PlotEvent,
@@ -21,33 +22,8 @@ class StoryBuilderMixin:
     """剧情图谱构建混入类"""
 
     def _get_video_duration(self, video_path: str) -> float:
-        """
-        获取视频时长
-
-        Args:
-            video_path: 视频文件路径
-
-        Returns:
-            float: 视频时长（秒）
-        """
-        try:
-            import subprocess
-
-            cmd = [
-                "ffprobe",
-                "-v",
-                "quiet",
-                "-show_entries",
-                "format=duration",
-                "-of",
-                "csv=p=0",
-                video_path,
-            ]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-            return float(result.stdout.strip())
-        except Exception as e:
-            logger.warning(f"获取视频时长失败: {e}")
-            return 0.0
+        """获取视频时长（秒）。"""
+        return FFmpegTool.get_duration(video_path)
 
     def _segment_video(
         self,

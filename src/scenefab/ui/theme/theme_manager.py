@@ -7,27 +7,26 @@ from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
-# OKLCH Design Token source — all ThemeColors must reference these.
 from .tokens import COLORS, DARK_TOKENS, LIGHT_TOKENS
 
 
-def _oklch(key: str, mode: str = "dark") -> str:
-    """Resolve an OKLCH token by key, mode-sensitively."""
-    tokens = DARK_TOKENS if mode == "dark" else LIGHT_TOKENS
-    return tokens.get(key, COLORS.get(key, "oklch(0.50 0.00 0)"))
+def _theme_token(key: str, mode: str = "dark") -> str:
+    """Resolve a theme token by key and mode."""
+    tokens = LIGHT_TOKENS if mode == "light" else DARK_TOKENS
+    return tokens.get(key, COLORS.get(key, "#64748b"))
 
 
 @dataclass
 class ThemeConfig:
     """主题配置（简化版）"""
 
-    name: str = "scenefab"
+    name: str = "production"
     mode: str = "dark"
 
 
 @dataclass
 class ThemeColors:
-    """主题颜色 — OKLCH Design Tokens (SceneFab)"""
+    """主题颜色"""
 
     # Primary
     primary: str = ""
@@ -55,25 +54,25 @@ class ThemeColors:
 
     @classmethod
     def from_mode(cls, mode: str = "dark") -> "ThemeColors":
-        """Build a ThemeColors instance from OKLCH tokens."""
+        """Build a ThemeColors instance from resource-aligned tokens."""
         return cls(
-            primary=_oklch("primary", mode),
-            secondary=_oklch("primary-hover", mode),
-            background=_oklch("bg-base", mode),
-            surface=_oklch("bg-surface", mode),
-            card=_oklch("bg-surface", mode),
-            text=_oklch("text-primary", mode),
-            text_secondary=_oklch("text-secondary", mode),
-            border=_oklch("border-default", mode),
-            divider=_oklch("border-subtle", mode),
-            error=_oklch("error", mode),
-            warning=_oklch("warning", mode),
-            success=_oklch("success", mode),
-            info=_oklch("info", mode),
-            accent=_oklch("accent", mode),
-            tertiary=_oklch("accent-subtle", mode),
-            light=_oklch("primary-subtle", mode),
-            dark=_oklch("primary-pressed", mode),
+            primary=_theme_token("primary", mode),
+            secondary=_theme_token("primary-hover", mode),
+            background=_theme_token("bg-base", mode),
+            surface=_theme_token("bg-surface", mode),
+            card=_theme_token("bg-surface", mode),
+            text=_theme_token("text-primary", mode),
+            text_secondary=_theme_token("text-secondary", mode),
+            border=_theme_token("border-default", mode),
+            divider=_theme_token("border-subtle", mode),
+            error=_theme_token("error", mode),
+            warning=_theme_token("warning", mode),
+            success=_theme_token("success", mode),
+            info=_theme_token("info", mode),
+            accent=_theme_token("accent", mode),
+            tertiary=_theme_token("accent-subtle", mode),
+            light=_theme_token("primary-subtle", mode),
+            dark=_theme_token("primary-pressed", mode),
         )
 
 
@@ -111,8 +110,7 @@ class ThemeManager(QObject):
         self._update_colors()
 
     def _initialize_theme_presets(self) -> None:
-        """初始化主题预设 — 深色/浅色使用 OKLCH tokens，彩色变体保留 hex"""
-        # OKLCH 深色/浅色主题
+        """初始化主题预设"""
         dark_colors = ThemeColors.from_mode("dark")
         light_colors = ThemeColors.from_mode("light")
 
@@ -208,8 +206,6 @@ class ThemeManager(QObject):
             ThemePreset("森林绿色", "dark", forest_colors),
             ThemePreset("紫色主题", "dark", purple_colors),
             ThemePreset("橙色主题", "dark", orange_colors),
-            # SceneFab 架构升级 - 新增主题
-            ThemePreset("SceneFab 声视界", "scenefab", dark_colors),
         ]
 
     def get_available_themes(self) -> list[str]:
@@ -235,7 +231,7 @@ class ThemeManager(QObject):
             self.theme_applied.emit()
 
     def _update_colors(self) -> None:
-        """更新颜色配置 — 从 OKLCH tokens 驱动"""
+        """更新颜色配置"""
         self.colors = ThemeColors.from_mode(self.current_mode)
         # Allow theme_config overrides if explicitly set (non-empty)
         if self.theme_config.primary_color:  # type: ignore[attr-defined]
@@ -274,10 +270,19 @@ class ThemeManager(QObject):
 
         stylesheet_path = ""
 
-        if self.current_mode == "scenefab":
-            # SceneFab 专用主题
-            stylesheet_path = os.path.join(os.path.dirname(__file__), "theme.qss")
-        elif self.current_mode == "dark":
+        if self.current_mode == "light":
+            # 使用外部浅色主题样式表
+            stylesheet_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "..",
+                "..",
+                "..",
+                "resources",
+                "styles",
+                "light_theme.qss",
+            )
+        else:
             # 使用外部深色主题样式表
             stylesheet_path = os.path.join(
                 os.path.dirname(__file__),
@@ -288,18 +293,6 @@ class ThemeManager(QObject):
                 "resources",
                 "styles",
                 "dark_theme.qss",
-            )
-        else:
-            # 使用外部浅色主题样式表（如果存在）
-            stylesheet_path = os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "..",
-                "resources",
-                "styles",
-                "light_theme.qss",
             )
 
         try:
@@ -423,7 +416,7 @@ class ThemeManager(QObject):
 
     # ─── 新设计系统集成 ────────────────────────────────────
     def apply_design_system(self, widget=None) -> None:
-        """应用全新设计系统（简约科技风 + OKLCH tokens）"""
+        """应用全新设计系统"""
         from .base_styles import get_base_qss
         from .qss_variables import register_qss_variables
 

@@ -11,12 +11,12 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QPixmap
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "bg_card": "oklch(0.16 0.01 250)",
-    "border": "oklch(0.24 0.01 250)",
-    "primary": "oklch(0.65 0.20 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
+    "bg_card": "#111827",
+    "border": "#334155",
+    "primary": "#0891b2",
+    "text_muted": "#91a4ba",
 }
 
 

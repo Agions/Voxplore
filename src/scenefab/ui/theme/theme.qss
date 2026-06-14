@@ -668,7 +668,6 @@ QFrame#loadingSpinner {
 
 #glow {
     border: 1px solid #6366F1;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
 }
 
 #elevated {

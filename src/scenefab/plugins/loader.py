@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 from scenefab.plugins.interfaces.base import AppContext, PluginManifest, PluginType
 from scenefab.plugins.registry import PluginRegistry
+from scenefab.utils.version import get_version_string
 
 
 class PluginLoader:
@@ -33,15 +34,6 @@ class PluginLoader:
 
     # entry_points 中的组名
     ENTRY_POINT_GROUP = "scenefab.plugins"
-
-    @staticmethod
-    def _get_version() -> str:
-        try:
-            from scenefab import __version__
-
-            return __version__
-        except Exception:
-            return "1.0.0"
 
     def __init__(self, registry: PluginRegistry = None):  # type: ignore[assignment]
         self._registry = registry if registry is not None else PluginRegistry()
@@ -187,7 +179,7 @@ class PluginLoader:
         return PluginManifest(
             id=plugin_id,
             name=plugin_class.__name__.replace("_", " ").replace("-", " ").title(),
-            version=PluginLoader._get_version(),
+            version=get_version_string(),
             author="Unknown",
             description=f"Discovered via entry_points: {ep.module}:{ep.attr}",
             plugin_type=plugin_type,

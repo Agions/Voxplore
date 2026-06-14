@@ -106,7 +106,7 @@ QToolTip {{
         stop:1 {background});
 }}"""
         _primary_pressed = """QPushButton[class="primary"]:pressed {{
-    transform: scale(0.98);
+    background-color: {primary};
 }}"""
         _sec_hover_bg = "{card}"
         _list_selected_bg = """    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,

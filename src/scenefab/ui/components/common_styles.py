@@ -1,21 +1,10 @@
 #!/usr/bin/env python3
 
-"""
-SceneFab UI 公共样式 — REDESIGNED
-OKLCH 色彩系统 · frontend-design-pro compliant
-
-所有组件共享的 design token（颜色/间距/圆角/按钮/卡片/输入框）
-"""
+"""Shared Qt-compatible UI styles."""
 
 
 class ColorPalette:
-    """
-    色彩系统 — OKLCH 近似值（QSS 使用 HEX 转换）
-
-    REDESIGN: 从紫色系 → 蓝色系
-    - 主色: #0A84FF (oklch 0.65 0.22 255)
-    - 所有灰色带冷色调（265°），无纯灰
-    """
+    """Qt-compatible color tokens."""
 
     # --- Primary ---
     PRIMARY = "#0A84FF"  # 主强调色
@@ -23,28 +12,28 @@ class ColorPalette:
     PRIMARY_DARK = "#0070E0"  # 主色按下
 
     # --- Status ---
-    SUCCESS = "#10B981"  # oklch 0.70 0.18 160
-    WARNING = "#F59E0B"  # oklch 0.75 0.18 85
-    ERROR = "#EF4444"  # oklch 0.65 0.20 25
-    INFO = "#3B82F6"  # oklch 0.65 0.20 255
+    SUCCESS = "#10B981"
+    WARNING = "#F59E0B"
+    ERROR = "#EF4444"
+    INFO = "#3B82F6"
 
     # --- Neutral — all tinted, no pure gray ---
     # Background
-    BG_BASE = "#0C1018"  # oklch(0.12 0.015 265)
-    BG_RAISED = "#0E1520"  # oklch(0.15 0.015 265)
-    BG_SUNKEN = "#0A0E16"  # oklch(0.10 0.015 265)
+    BG_BASE = "#0C1018"
+    BG_RAISED = "#0E1520"
+    BG_SUNKEN = "#0A0E16"
     BG_OVERLAY = "#111827"  # hover state
 
     # Border
-    BORDER_SUBTLE = "#141E2E"  # oklch(0.17 0.012 265)
-    BORDER_DEFAULT = "#1A2332"  # oklch(0.18 0.015 265)
-    BORDER_STRONG = "#2A3A50"  # oklch(0.28 0.02 265)
+    BORDER_SUBTLE = "#141E2E"
+    BORDER_DEFAULT = "#1A2332"
+    BORDER_STRONG = "#2A3A50"
 
     # Text
-    TEXT_PRIMARY = "#E2E8F0"  # oklch(0.93 0.01 265) — 主文字
-    TEXT_SECONDARY = "#8098B0"  # oklch(0.65 0.03 265) — 次级文字
-    TEXT_MUTED = "#4A5A70"  # oklch(0.45 0.03 265) — 占位/禁用
-    TEXT_DISABLED = "#3A4A60"  # oklch(0.35 0.02 265) — 最暗文字
+    TEXT_PRIMARY = "#E2E8F0"
+    TEXT_SECONDARY = "#8098B0"
+    TEXT_MUTED = "#4A5A70"
+    TEXT_DISABLED = "#3A4A60"
 
     # Accent tints
     TINT_IDLE = "#1E2D42"  # idle state
@@ -138,28 +127,28 @@ class CardStyles:
 
     REDESIGN:
     - DEFAULT: subtle gradient + soft border
-    - HOVER: translateY(-2px) + shadow
-    - GLASS: backdrop blur (where supported)
+    - HOVER: stronger border
+    - GLASS: translucent panel
     """
 
     DEFAULT = f"""
-        background: qlineargradient(145deg, {ColorPalette.BG_RAISED} 0%, #111827 100%);
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+            stop:0 {ColorPalette.BG_RAISED},
+            stop:1 #111827);
         border: 1px solid {ColorPalette.BORDER_SUBTLE};
         border-radius: {Radius.LG};
         padding: 20px;
     """
 
     HOVER = f"""
-        border-color: {ColorPalette.PRIMARY}40;
-        background: qlineargradient(145deg, {ColorPalette.BG_RAISED} 0%, #131C2C 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(10, 132, 255, 0.12);
+        border-color: {ColorPalette.PRIMARY};
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+            stop:0 {ColorPalette.BG_RAISED},
+            stop:1 #131C2C);
     """
 
     GLASS = f"""
         background: rgba(14, 21, 32, 0.80);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: {Radius.LG};
         padding: 24px;
@@ -182,7 +171,7 @@ class InputStyles:
         border-radius: {Radius.MD};
         padding: 10px 14px;
         font-size: 13px;
-        selection-background-color: {ColorPalette.PRIMARY}40;
+        selection-background-color: {ColorPalette.PRIMARY};
     """
 
     FOCUS = f"""

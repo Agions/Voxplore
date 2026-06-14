@@ -13,10 +13,10 @@ from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
 from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
-# ── OKLCH Design Tokens ──────────────────────────────────────
+# ── Resource theme tokens ────────────────────────────────────
 _T = {
-    "border": "oklch(0.24 0.01 250)",
-    "text_muted": "oklch(0.55 0.01 250)",
+    "border": "#334155",
+    "text_muted": "#91a4ba",
 }
 
 

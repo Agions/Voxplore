@@ -20,14 +20,7 @@ from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
-
-def _get_version() -> str:
-    try:
-        from scenefab import __version__
-
-        return __version__
-    except Exception:
-        return "1.0.0"
+from scenefab.utils.version import get_version_string
 
 
 class ProjectStatus(Enum):
@@ -81,7 +74,7 @@ class ProjectMetadata:
     name: str = ""
     description: str = ""
     author: str = ""
-    version: str = field(default_factory=_get_version)
+    version: str = field(default_factory=get_version_string)
     created_at: str = ""
     modified_at: str = ""
     tags: list[str] = field(default_factory=list)

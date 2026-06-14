@@ -49,7 +49,16 @@ from .jianying_adapter import (
     VideoMaterial,
 )
 from .jianying_exporter import JianyingExporter
-from .presets import ExportPreset
+from .presets import (
+    DEFAULT_AUDIO_BITRATE_KBPS,
+    DEFAULT_VERTICAL_RESOLUTION,
+    DEFAULT_VIDEO_BITRATE_KBPS,
+    ExportPreset,
+    bitrate_label,
+    normalize_bitrate,
+    normalize_resolution,
+    parse_bitrate_kbps,
+)
 from .video_exporter import ExportConfig, ExportFormat, VideoExporter
 
 __all__ = [
@@ -92,7 +101,14 @@ __all__ = [
     "BatchExportManager",
     "ExportTask",
     "ExportStatus",
+    "DEFAULT_AUDIO_BITRATE_KBPS",
+    "DEFAULT_VERTICAL_RESOLUTION",
+    "DEFAULT_VIDEO_BITRATE_KBPS",
     "ExportPreset",
+    "bitrate_label",
+    "normalize_bitrate",
+    "normalize_resolution",
+    "parse_bitrate_kbps",
     "BatchExportResult",
     "get_batch_export_manager",
     # 导出管理

@@ -158,7 +158,7 @@ class QuickThemeSwitcher(QWidget):
         # 标题
         title = QLabel("主题")
         title.setStyleSheet(
-            "color: #8B949E; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;"
+            "color: #8B949E; font-size: 11px; font-weight: 600; letter-spacing: 0.05em;"
         )
         layout.addWidget(title)
 
@@ -216,7 +216,7 @@ class QuickThemeSwitcher(QWidget):
                 border-radius: 16px;
             }}
             QPushButton:hover {{
-                transform: scale(1.1);
+                border-width: 3px;
             }}
         """)
 

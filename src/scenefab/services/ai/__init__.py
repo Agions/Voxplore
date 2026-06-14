@@ -1,101 +1,52 @@
-"""
-SceneFab AI 服务模块
+"""SceneFab AI 服务模块。"""
 
-提供 AI 能力:
-- LLM: 大语言模型支持（DeepSeek-V4 主力）
-- Vision: 视觉理解（Qwen3.7 Max/Plus / Gemini 3.5 Flash）
-- Voice: 语音合成（Edge-TTS / F5-TTS / PilotTTS / OmniVoice / IndexTTS2）
-- Subtitle: 字幕提取与生成
-- ASR: 语音识别（SenseVoice）
+from __future__ import annotations
 
-核心入口:
-- MonologueMaker (services/video/monologue_maker.py) — 第一人称解说编排
-"""
+from importlib import import_module
+from typing import Any
 
-# LLM 相关
-from .base_llm_provider import (
-    BaseLLMProvider,
-    LLMRequest,
-    LLMResponse,
-    ProviderError,
-    ProviderType,
-)
+_EXPORTS = {
+    "BaseAIService": ".base",
+    "ServiceHealth": ".base",
+    "ServiceStatus": ".base",
+    "BaseLLMProvider": ".base_llm_provider",
+    "LLMRequest": ".base_llm_provider",
+    "LLMResponse": ".base_llm_provider",
+    "ProviderType": ".base_llm_provider",
+    "ProviderError": ".base_llm_provider",
+    "LLMMemoryCache": ".cache",
+    "LLMManager": ".llm_manager",
+    "SceneAnalyzer": ".scene_analyzer",
+    "SceneAnalyzerV2": ".scene_analyzer_v2",
+    "ScriptGenerator": ".script_generator",
+    "StreamingScriptGenerator": ".script_stream",
+    "SenseVoiceProvider": ".sensevoice_provider",
+    "OCRSubtitleExtractor": ".subtitle_extractor",
+    "SpeechSubtitleExtractor": ".subtitle_extractor",
+    "SubtitleExtractionResult": ".subtitle_extractor",
+    "SubtitleMerger": ".subtitle_extractor",
+    "SubtitleSegment": ".subtitle_extractor",
+    "SubtitleTranslator": ".subtitle_extractor",
+    "FIRST_PERSON_ANALYSIS_PROMPT": ".vision_providers",
+    "VisionAnalyzerFactory": ".vision_providers",
+    "VisionProvider": ".vision_providers",
+    "VoiceConfig": ".voice_generator",
+    "VoiceGenerator": ".voice_generator",
+    "VoiceStyle": ".voice_models",
+    "TranscriptionResult": ".whisper_asr_provider",
+    "TranscriptSegment": ".whisper_asr_provider",
+    "WhisperASRProvider": ".whisper_asr_provider",
+}
 
-# 缓存
-from .cache import LLMMemoryCache
-from .llm_manager import LLMManager
 
-# 场景分析
-from .scene_analyzer import SceneAnalyzer
-from .scene_analyzer_v2 import SceneAnalyzerV2
+def __getattr__(name: str) -> Any:
+    module_name = _EXPORTS.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module = import_module(module_name, __name__)
+    value = getattr(module, name)
+    globals()[name] = value
+    return value
 
-# 解说文案生成
-from .script_generator import ScriptGenerator
-from .script_stream import StreamingScriptGenerator
 
-# ASR
-from .sensevoice_provider import SenseVoiceProvider
-
-# 字幕提取
-from .subtitle_extractor import (
-    OCRSubtitleExtractor,
-    SpeechSubtitleExtractor,
-    SubtitleExtractionResult,
-    SubtitleMerger,
-    SubtitleSegment,
-    SubtitleTranslator,
-)
-
-# 视觉相关
-from .vision_providers import (
-    FIRST_PERSON_ANALYSIS_PROMPT,
-    VisionAnalyzerFactory,
-    VisionProvider,
-)
-
-# 语音相关
-from .voice_generator import VoiceConfig, VoiceGenerator
-from .voice_models import VoiceStyle
-from .whisper_asr_provider import (
-    TranscriptionResult,
-    TranscriptSegment,
-    WhisperASRProvider,
-)
-
-__all__ = [
-    # LLM
-    "BaseLLMProvider",
-    "LLMRequest",
-    "LLMResponse",
-    "ProviderType",
-    "ProviderError",
-    "LLMManager",
-    # Vision
-    "VisionProvider",
-    "VisionAnalyzerFactory",
-    "FIRST_PERSON_ANALYSIS_PROMPT",
-    # Voice
-    "VoiceGenerator",
-    "VoiceConfig",
-    "VoiceStyle",
-    # Script
-    "ScriptGenerator",
-    "StreamingScriptGenerator",
-    # Subtitle
-    "SubtitleSegment",
-    "SubtitleExtractionResult",
-    "OCRSubtitleExtractor",
-    "SpeechSubtitleExtractor",
-    "SubtitleMerger",
-    "SubtitleTranslator",
-    # ASR
-    "SenseVoiceProvider",
-    "WhisperASRProvider",
-    "TranscriptionResult",
-    "TranscriptSegment",
-    # Cache
-    "LLMMemoryCache",
-    # Scene Analyzer
-    "SceneAnalyzer",
-    "SceneAnalyzerV2",
-]
+__all__ = list(_EXPORTS)
