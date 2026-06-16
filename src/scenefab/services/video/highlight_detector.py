@@ -52,7 +52,7 @@ try:
     from PIL import Image  # noqa: F401
 
     _OPTIONAL_DEPS_OK = True
-except ImportError:
+except Exception:
     _OPTIONAL_DEPS_OK = False
     np = None  # type: ignore[assignment]
     Image = None  # type: ignore[assignment]
@@ -288,7 +288,7 @@ class HighlightDetector:
 
                 prev_hist = hist
 
-        except ImportError:
+        except Exception:
             # 无 PIL 时使用简化的帧文件大小变化
             prev_size = None
             for i, frame_path in enumerate(frame_files):
@@ -352,7 +352,7 @@ class HighlightDetector:
                 timestamp = idx * self.config.block_size
                 peaks.append((timestamp, min(energies[idx] * 2, 1.0)))
 
-        except ImportError:
+        except Exception:
             # 无 numpy/pydub 时跳过音频分析
             logger.debug("numpy 或 pydub 未安装，跳过音频峰值检测")
 

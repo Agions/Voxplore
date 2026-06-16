@@ -116,7 +116,6 @@ class Application(QObject):
             ("config_manager", self._init_config_manager),
             ("event_bus", self._init_event_bus),
             ("error_handler", self._init_error_handler),
-            ("icon_manager", self._init_icon_manager),
             ("services", self._init_services),
         ]
 
@@ -428,23 +427,6 @@ class Application(QObject):
         except Exception as e:
             if hasattr(self, "logger"):
                 self.logger.error(f"错误处理器初始化失败: {e}")
-            return False
-
-    def _init_icon_manager(self) -> bool:
-        """初始化图标管理器"""
-        try:
-            from scenefab.ui.icon_manager import init_icon_manager
-
-            # 初始化图标管理器 - 现在它可以处理QApplication不存在的情况
-            icon_manager = init_icon_manager("resources/icons")
-            self.register_service("icon_manager", icon_manager)
-
-            self.logger.info("图标管理器初始化完成")
-            return True
-
-        except Exception as e:
-            if hasattr(self, "logger"):
-                self.logger.error(f"图标管理器初始化失败: {e}")
             return False
 
     def _init_services(self) -> bool:

@@ -3,6 +3,7 @@
 
 import pytest
 
+from scenefab.services.video import monologue_maker as maker_module
 from scenefab.services.video.monologue_maker import (
     EmotionType,
     MonologueMaker,
@@ -10,6 +11,34 @@ from scenefab.services.video.monologue_maker import (
     MonologueSegment,
     MonologueStyle,
 )
+
+
+class DummyVoiceGenerator:
+    """Offline voice generator for constructor tests."""
+
+    def __init__(self, provider: str = "edge"):
+        self.provider = provider
+
+
+class DummyScriptGenerator:
+    """Offline script generator for constructor tests."""
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+
+class DummyCaptionGenerator:
+    """Offline caption generator for constructor tests."""
+
+    pass
+
+
+@pytest.fixture
+def offline_dependencies(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(maker_module, "VoiceGenerator", DummyVoiceGenerator)
+    monkeypatch.setattr(maker_module, "ScriptGenerator", DummyScriptGenerator)
+    monkeypatch.setattr(maker_module, "CaptionGenerator", DummyCaptionGenerator)
 
 
 class TestMonologueStyle:
@@ -83,12 +112,18 @@ class TestMonologueProject:
 class TestMonologueMaker:
     """测试独白制作器"""
 
-    def test_init(self):
+    def test_init(self, offline_dependencies):
         """测试初始化"""
         maker = MonologueMaker()
 
         assert maker.scene_analyzer is not None
+        assert isinstance(maker.voice_generator, DummyVoiceGenerator)
+        assert isinstance(maker.script_generator, DummyScriptGenerator)
+        assert isinstance(maker.caption_generator, DummyCaptionGenerator)
 
-    def test_init_custom_style(self):
-        """测试自定义语音提供者（需要 API Key，跳过）"""
-        pytest.skip("MonologueMaker.__init__ 需要 TTS API Key，需 mock")
+    def test_init_custom_voice_provider(self, offline_dependencies):
+        """测试自定义语音提供者"""
+        maker = MonologueMaker(voice_provider="openai")
+
+        assert maker.voice_provider == "openai"
+        assert maker.voice_generator.provider == "openai"

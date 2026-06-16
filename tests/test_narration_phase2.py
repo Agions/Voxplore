@@ -194,6 +194,28 @@ class TestBuildNarrationPrompt:
         assert "打脸" in config.keywords
         assert "反转" in config.keywords
 
+    def test_short_drama_production_fields_add_to_topic(
+        self, ctx_with_story_graph: NarrationContext
+    ) -> None:
+        """短剧生产字段: 标签/关系/集数上下文进入 topic 与 keywords"""
+        ctx_with_story_graph.content_tags = ["女性成长", "打脸虐渣", "马甲"]
+        ctx_with_story_graph.relationship_notes = [
+            "我是真千金，苏婉是假千金",
+            "宴矜表面冷漠，实际知道我的过去",
+        ]
+        ctx_with_story_graph.episode_index = 7
+        ctx_with_story_graph.previous_episode_summary = "我被家人赶出宴会"
+        ctx_with_story_graph.next_hook_hint = "沉默的男人叫出了我的真名"
+
+        topic, config = _build_narration_prompt(ctx_with_story_graph)
+
+        assert "【短剧标签】女性成长, 打脸虐渣, 马甲" in topic
+        assert "【人物关系】我是真千金" in topic
+        assert "第 7 集" in topic
+        assert "上一集: 我被家人赶出宴会" in topic
+        assert "下一集钩子: 沉默的男人叫出了我的真名" in topic
+        assert config.keywords[:3] == ["女性成长", "打脸虐渣", "马甲"]
+
     def test_target_words_calculated(
         self, ctx_with_story_graph: NarrationContext
     ) -> None:

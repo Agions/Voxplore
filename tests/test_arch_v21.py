@@ -32,6 +32,7 @@ from scenefab.core.unified_event_bus import (
     get_event_bus,
     set_event_bus,
 )
+from scenefab.core.ws_hub import WebSocketState, WSHub
 
 # ══════════════════════════════════════════════════════════
 # Phase 1: UnifiedEventBus
@@ -498,10 +499,6 @@ class TestWSHub:
     """WebSocket Hub"""
 
     def test_connect_disconnect(self):
-        from starlette.websockets import WebSocketState
-
-        from scenefab.core.ws_hub import WSHub
-
         class MockWS:
             client_state = WebSocketState.CONNECTED
 
@@ -523,12 +520,6 @@ class TestWSHub:
         asyncio.run(main())
 
     def test_event_filtering(self):
-        from starlette.websockets import WebSocketState
-
-        from scenefab.core.event_types import PipelineStarted, TaskCreated
-        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
-        from scenefab.core.ws_hub import WSHub
-
         class MockWS:
             client_state = WebSocketState.CONNECTED
 
@@ -560,12 +551,6 @@ class TestWSHub:
         asyncio.run(main())
 
     def test_wildcard_subscription(self):
-        from starlette.websockets import WebSocketState
-
-        from scenefab.core.event_types import PipelineStarted, TaskCreated
-        from scenefab.core.unified_event_bus import UnifiedEventBus, set_event_bus
-        from scenefab.core.ws_hub import WSHub
-
         class MockWS:
             client_state = WebSocketState.CONNECTED
 

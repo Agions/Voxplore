@@ -15,11 +15,11 @@ SmartGrouper - 智能视频分组服务
 """
 
 import logging
+import math
+import random
 from dataclasses import dataclass
 from enum import Enum
 from typing import Protocol, runtime_checkable
-
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -85,25 +85,26 @@ class MockVisionEmbedder:
     """模拟视觉 embedding 提取器（用于测试和开发）"""
 
     def __init__(self, seed: int = 42):
-        self._rng = np.random.RandomState(seed)
+        self._seed = seed
 
     def extract(self, video_path: str, _num_frames: int = 8) -> list[float]:
-        # 使用路径哈希生成确定性但唯一的 embedding
-        hash_val = hash(video_path) % (2**31)
-        rng = np.random.RandomState(hash_val)
-        return list(rng.randn(128))
+        return _deterministic_embedding(video_path, 128, self._seed)
 
 
 class MockAudioEmbedder:
     """模拟音频 embedding 提取器（用于测试和开发）"""
 
     def __init__(self, seed: int = 42):
-        self._rng = np.random.RandomState(seed)
+        self._seed = seed
 
     def extract(self, video_path: str) -> list[float]:
-        hash_val = hash(video_path) % (2**31)
-        rng = np.random.RandomState(hash_val)
-        return list(rng.randn(64))
+        return _deterministic_embedding(video_path, 64, self._seed)
+
+
+def _deterministic_embedding(value: str, size: int, seed: int = 42) -> list[float]:
+    """Generate a stable pseudo embedding without a numpy runtime dependency."""
+    rng = random.Random(f"{seed}:{value}")
+    return [rng.gauss(0.0, 1.0) for _ in range(size)]
 
 
 class SmartGrouper:
@@ -192,14 +193,14 @@ class SmartGrouper:
             except Exception as e:
                 failed_vision += 1
                 logger.warning(f"Vision embedding extraction failed for {vp}: {e}")
-                vision_embeddings[vp] = list(np.random.randn(128))
+                vision_embeddings[vp] = _deterministic_embedding(vp, 128, 97)
 
             try:
                 audio_embeddings[vp] = self._audio_embedder.extract(vp)
             except Exception as e:
                 failed_audio += 1
                 logger.warning(f"Audio embedding extraction failed for {vp}: {e}")
-                audio_embeddings[vp] = list(np.random.randn(64))
+                audio_embeddings[vp] = _deterministic_embedding(vp, 64, 193)
 
         if failed_vision > 0 or failed_audio > 0:
             logger.warning(
@@ -213,10 +214,10 @@ class SmartGrouper:
         video_paths: list[str],
         vision_embeddings: dict[str, list[float]],
         audio_embeddings: dict[str, list[float]],
-    ) -> np.ndarray:
+    ) -> list[list[float]]:
         """根据视觉/音频 embedding 构建 n×n 混合相似度矩阵"""
         n = len(video_paths)
-        similarity_matrix = np.zeros((n, n))
+        similarity_matrix = [[0.0 for _ in range(n)] for _ in range(n)]
 
         for i in range(n):
             for j in range(i + 1, n):
@@ -226,8 +227,8 @@ class SmartGrouper:
                     audio_embeddings[video_paths[i]],
                     audio_embeddings[video_paths[j]],
                 )
-                similarity_matrix[i, j] = sim
-                similarity_matrix[j, i] = sim
+                similarity_matrix[i][j] = sim
+                similarity_matrix[j][i] = sim
 
         return similarity_matrix
 
@@ -235,7 +236,7 @@ class SmartGrouper:
         self,
         clusters: list[list[str]],
         video_paths: list[str],
-        similarity_matrix: np.ndarray,
+        similarity_matrix: list[list[float]],
         vision_embeddings: dict[str, list[float]],
         audio_embeddings: dict[str, list[float]],
     ) -> list[VideoGroup]:
@@ -255,7 +256,7 @@ class SmartGrouper:
         self,
         cluster: list[str],
         video_paths: list[str],
-        similarity_matrix: np.ndarray,
+        similarity_matrix: list[list[float]],
         vision_embeddings: dict[str, list[float]],
         audio_embeddings: dict[str, list[float]],
     ) -> VideoGroup:
@@ -270,7 +271,7 @@ class SmartGrouper:
         indices = [video_paths.index(vp) for vp in cluster]
         for i in range(len(indices)):
             for j in range(i + 1, len(indices)):
-                total_sim += similarity_matrix[indices[i], indices[j]]
+                total_sim += similarity_matrix[indices[i]][indices[j]]
                 count += 1
 
         avg_sim = total_sim / count if count > 0 else 0.5
@@ -303,17 +304,16 @@ class SmartGrouper:
 
     def _cosine_similarity(self, a: list[float], b: list[float]) -> float:
         """计算余弦相似度"""
-        a = np.array(a)  # type: ignore[unused-ignore, float]
-        b = np.array(b)  # type: ignore[unused-ignore, float]
-        norm_a = np.linalg.norm(a)
-        norm_b = np.linalg.norm(b)
+        dot = sum(x * y for x, y in zip(a, b, strict=False))
+        norm_a = math.sqrt(sum(x * x for x in a))
+        norm_b = math.sqrt(sum(y * y for y in b))
         if norm_a == 0 or norm_b == 0:
             return 0.0
-        return float(np.dot(a, b) / (norm_a * norm_b))
+        return dot / (norm_a * norm_b)
 
     def _hierarchical_clustering(
         self,
-        similarity_matrix: np.ndarray,
+        similarity_matrix: list[list[float]],
         video_paths: list[str],
     ) -> list[list[str]]:
         """层次聚类
@@ -345,9 +345,9 @@ class SmartGrouper:
                         for vp2 in clusters[j]:
                             idx1 = video_paths.index(vp1)
                             idx2 = video_paths.index(vp2)
-                            sims.append(similarity_matrix[idx1, idx2])
+                            sims.append(similarity_matrix[idx1][idx2])
 
-                    avg_sim = np.mean(sims) if sims else 0.0
+                    avg_sim = sum(sims) / len(sims) if sims else 0.0
 
                     if avg_sim > max_sim:
                         max_sim = avg_sim
@@ -379,18 +379,19 @@ class SmartGrouper:
         a_sims = []
         for i in range(len(indices)):
             for j in range(i + 1, len(indices)):
-                v1 = np.array(vision_embeddings[video_paths[indices[i]]])
-                v2 = np.array(vision_embeddings[video_paths[indices[j]]])
-                a1 = np.array(audio_embeddings[video_paths[indices[i]]])
-                a2 = np.array(audio_embeddings[video_paths[indices[j]]])
-
-                v_sim = self._cosine_similarity(list(v1), list(v2))
-                a_sim = self._cosine_similarity(list(a1), list(a2))
+                v_sim = self._cosine_similarity(
+                    vision_embeddings[video_paths[indices[i]]],
+                    vision_embeddings[video_paths[indices[j]]],
+                )
+                a_sim = self._cosine_similarity(
+                    audio_embeddings[video_paths[indices[i]]],
+                    audio_embeddings[video_paths[indices[j]]],
+                )
                 v_sims.append(v_sim)
                 a_sims.append(a_sim)
 
-        avg_v = np.mean(v_sims) if v_sims else 0.0
-        avg_a = np.mean(a_sims) if a_sims else 0.0
+        avg_v = sum(v_sims) / len(v_sims) if v_sims else 0.0
+        avg_a = sum(a_sims) / len(a_sims) if a_sims else 0.0
 
         # 判断主要原因
         if avg_v > 0.8 and avg_a > 0.8:

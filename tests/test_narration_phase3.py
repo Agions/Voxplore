@@ -5,7 +5,7 @@ v2.2 Narration State Machine — Phase 3 真实实现测试
 覆盖 Phase 3 新增能力:
 - NarrationEvaluator 5 维加权评估 (Hook + 桥段 + 一致性 + 平台 + 风格)
 - 评估器对短/长/超长/空 draft 的鲁棒性
-- 评估器复用 v2.1 ContentScorersMixin (零重写)
+- 评估器 Hook 规则评分
 - 评估循环 REJECT → DRAFT → ACCEPT 全链路
 - evaluate_step + hook_rewrite_step 真实实现
 - 端到端 Phase 1+2+3 跑通
@@ -274,6 +274,56 @@ class TestEvaluatorFiveDimensions:
         style_dim = next(d for d in result.dimension_scores if d.name == "style")
         assert style_dim.score == 8.0
 
+    def test_short_drama_context_gates_penalize_missing_fields(
+        self, evaluator: NarrationEvaluator, ctx_with_assets: NarrationContext
+    ) -> None:
+        """连续短剧生产模式必须具备标签、关系和下一集钩子。"""
+        ctx_with_assets.episode_index = 3
+        ctx_with_assets.current_draft = (
+            "没想到! 林墨重生后决定打脸苏婉。"
+            "真相揭开后, 苏婉终于跪地求饶。" * 6
+        )
+
+        result = evaluator.evaluate(ctx_with_assets)
+        bridge_dim = next(d for d in result.dimension_scores if d.name == "bridge")
+        consistency_dim = next(
+            d for d in result.dimension_scores if d.name == "consistency"
+        )
+        style_dim = next(d for d in result.dimension_scores if d.name == "style")
+
+        assert bridge_dim.score <= 6.5
+        assert consistency_dim.score <= 6.5
+        assert style_dim.score <= 6.5
+        assert any("题材/爽点标签" in issue for issue in bridge_dim.issues)
+        assert any("人物关系" in issue for issue in consistency_dim.issues)
+        assert any("下一集钩子" in issue for issue in style_dim.issues)
+
+    def test_short_drama_context_gates_accept_complete_context(
+        self, evaluator: NarrationEvaluator, ctx_with_assets: NarrationContext
+    ) -> None:
+        """短剧上下文完整且落入文案时不触发生产门禁扣分。"""
+        ctx_with_assets.episode_index = 3
+        ctx_with_assets.content_tags = ["重生复仇", "打脸"]
+        ctx_with_assets.relationship_notes = ["林墨和苏婉是宿敌"]
+        ctx_with_assets.next_hook_hint = "苏婉背后的真凶现身"
+        ctx_with_assets.current_draft = (
+            "没想到! 林墨重生复仇, 第一件事就是当众打脸苏婉。"
+            "林墨和苏婉是宿敌, 上一世的背叛让她再也不会心软。"
+            "真相揭开后, 苏婉跪地求饶, 反转才刚刚开始。"
+            "但更可怕的是, 苏婉背后的真凶现身。" * 3
+        )
+
+        result = evaluator.evaluate(ctx_with_assets)
+        bridge_dim = next(d for d in result.dimension_scores if d.name == "bridge")
+        consistency_dim = next(
+            d for d in result.dimension_scores if d.name == "consistency"
+        )
+        style_dim = next(d for d in result.dimension_scores if d.name == "style")
+
+        assert not any("题材/爽点标签" in issue for issue in bridge_dim.issues)
+        assert not any("人物关系" in issue for issue in consistency_dim.issues)
+        assert not any("下一集钩子" in issue for issue in style_dim.issues)
+
 
 # ============================================
 # 3. 加权总分计算
@@ -323,18 +373,17 @@ class TestWeightedScoring:
 
 
 # ============================================
-# 4. 评估器复用 v2.1 ContentScorersMixin
+# 4. Hook 规则评分
 # ============================================
 
 
-class TestV21HookScorerReuse:
-    """Phase 3 复用 v2.1 ContentScorersMixin (零重写 hook 评分)"""
+class TestHookKeywordScorer:
+    """Phase 3 内置 Hook 关键词评分"""
 
-    def test_v21_hook_score_used_when_available(
+    def test_strong_hook_scores_above_weak_hook(
         self, evaluator: NarrationEvaluator, ctx: NarrationContext
     ) -> None:
-        """v2.1 mixin 可用时, Hook 维度使用 v2.1 评分"""
-        # 强 Hook: 含"没想到"+"真相"
+        """强 Hook 应高于弱 Hook。"""
         strong_hook = "没想到! 真相竟然是这样。林墨决定复仇。"
         weak_hook = "这是一个故事。讲的是一个人物。"
 
@@ -349,16 +398,14 @@ class TestV21HookScorerReuse:
         # 强 Hook 应更高分 (无论 v2.1 还是降级)
         assert strong_hook_dim.score >= weak_hook_dim.score
 
-    def test_fallback_hook_evaluator_works(
+    def test_hook_keyword_score_range(
         self, evaluator: NarrationEvaluator, ctx: NarrationContext
     ) -> None:
-        """v2.1 mixin 不可用时, 降级规则评分仍工作"""
-        with patch.object(evaluator, "_get_scorers_mixin", return_value=None):
-            ctx.current_draft = "没想到! 这是真相。" * 10
-            result = evaluator.evaluate(ctx)
-            hook_dim = next(d for d in result.dimension_scores if d.name == "hook")
-            # 降级规则也能评分
-            assert 0 <= hook_dim.score <= 10
+        """Hook 规则评分保持在 0-10 范围。"""
+        ctx.current_draft = "没想到! 这是真相。" * 10
+        result = evaluator.evaluate(ctx)
+        hook_dim = next(d for d in result.dimension_scores if d.name == "hook")
+        assert 0 <= hook_dim.score <= 10
 
 
 # ============================================

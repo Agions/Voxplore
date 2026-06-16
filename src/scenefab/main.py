@@ -297,32 +297,5 @@ def run_export():
 
     print(f"\n✅ 完成! 草稿路径: {draft_path}")
 
-
-def launch_new_ui():
-    """启动全新设计的 UI"""
-    import sys
-
-    from PySide6.QtWidgets import QApplication
-
-    from scenefab.ui.theme.theme_manager import ThemeManager
-    from scenefab.ui.windows.main_window import MainWindow
-
-    app = QApplication(sys.argv)
-    theme = ThemeManager()
-    theme.apply_design_system(app)
-
-    window = MainWindow()
-    window.show()
-
-    # 启动后 3 秒异步检测更新
-    from PySide6.QtCore import QTimer
-
-    QTimer.singleShot(3000, lambda: _check_update_async(window))
-
-    sys.exit(app.exec())
-
-
 if __name__ == "__main__":
-    # 新 UI 入口（渐进替换）
-
-    pass
+    main()

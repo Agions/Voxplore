@@ -5,6 +5,7 @@
 """
 
 import importlib.util
+import os
 import shutil
 import subprocess
 import sys
@@ -14,43 +15,48 @@ from pathlib import Path
 def check_dependencies():
     """检查依赖"""
     print("检查依赖...")
-    
-    required = ["PySide6", "httpx", "openai"]
-    optional = ["pyinstaller", "pytest"]
-    
-    for pkg in required:
-        try:
-            __import__(pkg.lower().replace("-", "_"))
-            print(f"  ✓ {pkg}")
-        except ImportError:
-            print(f"  ✗ {pkg} (required)")
+
+    required = {
+        "PySide6": "PySide6",
+        "httpx": "httpx",
+        "openai": "openai",
+    }
+    optional = {
+        "PyInstaller": "PyInstaller",
+        "pytest": "pytest",
+    }
+
+    for label, module in required.items():
+        if importlib.util.find_spec(module) is not None:
+            print(f"  ✓ {label}")
+        else:
+            print(f"  ✗ {label} (required)")
             return False
-            
-    for pkg in optional:
-        try:
-            __import__(pkg.lower().replace("-", "_"))
-            print(f"  ✓ {pkg}")
-        except ImportError:
-            print(f"  - {pkg} (optional)")
-            
+
+    for label, module in optional.items():
+        if importlib.util.find_spec(module) is not None:
+            print(f"  ✓ {label}")
+        else:
+            print(f"  - {label} (optional)")
+
     return True
 
 
 def clean_build():
     """清理构建目录"""
     print("清理构建目录...")
-    
+
     dirs_to_clean = ["build", "dist", "__pycache__"]
-    
+
     for d in dirs_to_clean:
         if Path(d).exists():
             shutil.rmtree(d)
             print(f"  删除 {d}/")
-    
+
     # 清理 .pyc 文件
     for pyc in Path(".").rglob("*.pyc"):
         pyc.unlink()
-        
+
     for pycache in Path(".").rglob("__pycache__"):
         shutil.rmtree(pycache)
 
@@ -58,14 +64,15 @@ def clean_build():
 def build_exe(platform="auto"):
     """
     构建可执行文件
-    
+
     Args:
         platform: auto/windows/macos/linux
     """
     print(f"构建 {platform} 可执行文件...")
-    
+
     if platform == "auto":
         import platform as plat
+
         system = plat.system().lower()
         if "darwin" in system:
             platform = "macos"
@@ -73,12 +80,12 @@ def build_exe(platform="auto"):
             platform = "windows"
         else:
             platform = "linux"
-    
+
     # 检查 pyinstaller
-    if importlib.util.find_spec("pyinstaller") is None:
+    if importlib.util.find_spec("PyInstaller") is None:
         print("安装 PyInstaller...")
         subprocess.run([sys.executable, "-m", "pip", "install", "pyinstaller"])
-    
+
     data_sep = ";" if platform == "windows" else ":"
     icon_path = "resources/icon.icns" if platform == "macos" else "resources/icon.ico"
 
@@ -116,57 +123,59 @@ def create_portable():
 
     version = _get_version()
     archive_name = f"SceneFab-{version}-portable.zip"
-    
-    with zipfile.ZipFile(archive_name, 'w', zipfile.ZIP_DEFLATED) as zf:
+
+    with zipfile.ZipFile(archive_name, "w", zipfile.ZIP_DEFLATED) as zf:
         # 添加可执行文件
         dist_path = Path("dist/windows/SceneFab")
         if dist_path.exists():
             for f in dist_path.rglob("*"):
                 if f.is_file():
                     zf.write(f, f.relative_to(dist_path.parent))
-    
+
     print(f"✓ 便携版创建: {archive_name}")
 
 
 def run_tests():
     """运行测试"""
     print("运行测试...")
-    
-    result = subprocess.run([
-        sys.executable, "-m", "pytest",
-        "tests/",
-        "-v",
-        "--ignore=tests/test_ui_components.py",
-        "--ignore=tests/test_integration.py",
-    ], capture_output=True, text=True)
-    
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = "src"
+    env["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests/",
+            "-v",
+            "--ignore=tests/test_integration.py",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
     print(result.stdout)
-    
+
     if result.returncode != 0:
         print("⚠ 测试有失败")
         return False
-        
+
     return True
 
 
 def publish_pypi():
     """发布到 PyPI"""
     print("发布到 PyPI...")
-    
+
     # 构建源码包
-    subprocess.run([
-        sys.executable, "-m", "pip", "install", "build"
-    ])
-    
-    subprocess.run([
-        sys.executable, "-m", "build"
-    ])
-    
+    subprocess.run([sys.executable, "-m", "pip", "install", "build"])
+
+    subprocess.run([sys.executable, "-m", "build"])
+
     # 上传
-    subprocess.run([
-        sys.executable, "-m", "pip", "upload",
-        "--skip-existing",
-    ])
+    subprocess.run([sys.executable, "-m", "pip", "upload", "--skip-existing"])
     
     print("✓ 已发布到 PyPI")
 
@@ -174,13 +183,16 @@ def publish_pypi():
 def main():
     """主函数"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="SceneFab 构建工具")
-    parser.add_argument("action", choices=["check", "clean", "build", "test", "publish", "all"])
+    parser.add_argument(
+        "action",
+        choices=["check", "clean", "build", "test", "publish", "all"],
+    )
     parser.add_argument("--platform", default="auto")
-    
+
     args = parser.parse_args()
-    
+
     if args.action == "check":
         check_dependencies()
     elif args.action == "clean":

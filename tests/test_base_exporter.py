@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """测试导出器基类"""
 
-import pytest
-
 from scenefab.services.export.export_utils import (
     BaseExporter,
     BaseSegment,
@@ -135,8 +133,3 @@ class TestBaseExporter:
         exporter = MockExporter(config=config)
 
         assert exporter.config.output_dir == "/output"
-
-    def test_set_progress_callback(self):
-        """测试设置进度回调（基类无此方法，跳过）"""
-        # BaseExporter 没有 set_progress_callback，跳过
-        pytest.skip("BaseExporter 没有 set_progress_callback 方法")

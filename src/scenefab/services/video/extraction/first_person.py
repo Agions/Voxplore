@@ -12,11 +12,12 @@ FirstPersonExtractor - 第一人称视角提取服务
 - 视觉模型: VisionModel 协议（未来替换为真实 Qwen3.7）
 """
 
+import hashlib
 import logging
+import math
+import random
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
-
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -60,26 +61,27 @@ class MockVisionModel:
     """模拟视觉模型（用于测试和开发）"""
 
     def __init__(self, seed: int = 42):
-        self._rng = np.random.RandomState(seed)
+        self._seed = seed
 
     def analyze_frame(self, video_path: str, timestamp: float) -> dict:
         # 模拟：基于时间戳生成一些第一人称区域
         # 实际使用时会被真实模型替换
-        hash_val = hash(video_path + f"_{timestamp:.1f}") % (2**31)
-        rng = np.random.RandomState(hash_val)
+        key = f"{video_path}_{timestamp:.1f}_{self._seed}".encode()
+        seed = int.from_bytes(hashlib.sha256(key).digest()[:8], "big")
+        rng = random.Random(seed)
 
         # 模拟判断（实际应接入真实视觉模型）
         # 这里简单模拟：30% 概率是第一人称，低置信度
-        if rng.rand() < 0.3:
+        if rng.random() < 0.3:
             return {
                 "is_first_person": True,
-                "confidence": 0.5 + rng.rand() * 0.4,
+                "confidence": 0.5 + rng.random() * 0.4,
                 "description": f"第一人称视角 @{timestamp:.1f}s",
             }
         else:
             return {
                 "is_first_person": False,
-                "confidence": rng.rand() * 0.4,
+                "confidence": rng.random() * 0.4,
                 "description": "",
             }
 
@@ -206,7 +208,9 @@ class FirstPersonExtractor:
                 if current_start is not None:
                     # 完成当前片段
                     avg_conf = (
-                        np.mean(current_confidences) if current_confidences else 0.0
+                        sum(current_confidences) / len(current_confidences)
+                        if current_confidences
+                        else 0.0
                     )
                     desc = (
                         "; ".join(current_descriptions[:3])
@@ -230,7 +234,11 @@ class FirstPersonExtractor:
 
         # 处理最后一个片段
         if current_start is not None:
-            avg_conf = np.mean(current_confidences) if current_confidences else 0.0
+            avg_conf = (
+                sum(current_confidences) / len(current_confidences)
+                if current_confidences
+                else 0.0
+            )
             desc = "; ".join(current_descriptions[:3]) if current_descriptions else ""
             segments.append(
                 VideoSegment(
@@ -270,7 +278,7 @@ class FirstPersonExtractor:
     def _split_long_segment(self, seg: VideoSegment) -> list[VideoSegment]:
         """将过长片段拆分"""
         duration = seg.end_time - seg.start_time
-        num_splits = int(np.ceil(duration / self.MAX_SEGMENT_DURATION))
+        num_splits = math.ceil(duration / self.MAX_SEGMENT_DURATION)
 
         sub_segs = []
         sub_duration = duration / num_splits

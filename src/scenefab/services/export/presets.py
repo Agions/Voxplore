@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""
-ExportPreset 数据模型 - 导出预设 (UI 兼容层)
-
-历史背景:
-- phase-2 重构 (commit 2bbdbf1) 删除了 scenefab.export.export_system 模块
-- 多个 UI 组件 (export_panel / export_format_selector / export_progress)
-  仍 import ExportPreset, 留下死引用导致 GUI 启动失败
-- 本文件作为 shim 保留 API, 字段与原 dataclass 一致
-
-正式数据流应使用 VideoExportConfig (direct_video_exporter) 或
-JianyingConfig (jianying_adapter), 后续 v2.2 计划统一.
-"""
+"""Export preset model and normalization helpers."""
 
 import re
 from dataclasses import dataclass
@@ -84,15 +73,7 @@ def bitrate_label(value: Any, default_kbps: int = 0) -> str:
 
 @dataclass
 class ExportPreset:
-    """导出预设配置 (UI 兼容层)
-
-    字段定义依据 (audit 2026-06-09):
-    - export_panel.py:346 实例化: name/format/codec/resolution/fps/bitrate/
-      audio_codec/audio_bitrate
-    - bitrate/audio_bitrate 用字符串 ('8M' / '192k') 与 UI 控件 spinbox.value()
-      转字符串保持一致
-    - description / codec_params 预留, 供 export_format_selector 高级选项用
-    """
+    """Export preset configuration."""
 
     name: str = "新预设"
     format: str = "mp4"
@@ -101,7 +82,7 @@ class ExportPreset:
     fps: int = 30
     bitrate: str = "8000k"
     audio_codec: str = "aac"
-    audio_bitrate: str = "192k"  # UI 传 '192k' 字符串
+    audio_bitrate: str = "192k"
     description: str = ""
     codec_params: str = ""
     id: str = ""
@@ -118,7 +99,7 @@ class ExportPreset:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExportPreset":
-        """从 dict 创建 (供 UI 对话框回填用)"""
+        """Create a preset from serialized data."""
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
 
     def to_dict(self) -> dict[str, Any]:

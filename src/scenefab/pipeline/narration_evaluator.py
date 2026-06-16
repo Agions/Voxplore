@@ -4,14 +4,12 @@ v2.2 Phase 3 — NarrationEvaluator 5 维加权评估器
 
 按 ADR-007 设计的 5 维评估 (Hook 25% + 桥段 20% + 一致性 20% + 适配 20% + 风格 15%):
 - 总分 0-10, ≥ 7.5 接受 (ACCEPT), 否则拒绝 (REJECT)
-- Hook 维度**复用 v2.1 ContentScorersMixin._calculate_hook_score** (零重写)
-- 其他维度为新加 (轻量规则, 0 网络依赖)
+- 所有维度均为轻量规则评分, 0 网络依赖
 - 降级: LLM judge 失败 → 用硬规则评估
 
 设计原则:
-- 复用 v2.1 资产: ContentScorersMixin / HookScore / EmotionCurveScore
 - 0 LLM 调用 (5 维都是规则评分), 评估本身不消耗 token
-- 异步接口预留 (Phase 3.2 接入 Qwen3.7-flash LLM judge 加分项)
+- 短剧连续生产时强制检查题材标签、人物关系和下一集钩子
 
 v2.2 决策: docs/adr/007-narration-state-machine.md
 """
@@ -21,15 +19,11 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
 from .narration_context import (
     BridgeType,
     NarrationContext,
 )
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -105,39 +99,6 @@ class NarrationEvaluator:
             # REJECT → 回到 DRAFT, 注入 result.suggestion
     """
 
-    def __init__(self, use_llm_judge: bool = False) -> None:
-        """初始化评估器
-
-        Args:
-            use_llm_judge: 是否启用 LLM judge (Phase 3.2, 当前默认关闭避免 token 消耗)
-        """
-        self.use_llm_judge = use_llm_judge
-        # 延迟注入: ContentScorersMixin 需要 mixin 实例, 用 _SENTINEL 兜底
-        self._scorers_mixin: object = None
-        self._SENTINEL_FAILED: object = object()  # 标记加载失败, 避免重试
-
-    def _get_scorers_mixin(self):
-        """懒加载 ContentScorersMixin (复用 v2.1 hook 评分)
-
-        返回 None 表示未加载/失败, 否则返回 mixin 实例
-        """
-        if self._scorers_mixin is not None:
-            return None if self._scorers_mixin is self._SENTINEL_FAILED else self._scorers_mixin
-
-        try:
-            from scenefab.services.viral.content_scorers import ContentScorersMixin
-
-            # 创建一个空实例 (mixin 不依赖 __init__)
-            class _HookScorerHelper(ContentScorersMixin):
-                pass
-
-            self._scorers_mixin = _HookScorerHelper()
-        except Exception as e:  # noqa: BLE001
-            logger.warning(f"ContentScorersMixin 加载失败, Hook 维度降级: {e}")
-            self._scorers_mixin = self._SENTINEL_FAILED
-            return None
-        return self._scorers_mixin
-
     def evaluate(self, ctx: NarrationContext) -> EvalResult:
         """5 维加权评估当前 ctx.current_draft
 
@@ -203,41 +164,11 @@ class NarrationEvaluator:
     # ============================================================
 
     def _eval_hook(self, draft: str, ctx: NarrationContext) -> DimensionScore:
-        """Hook 强度: 复用 v2.1 ContentScorersMixin._calculate_hook_score
-
-        v2.1 返回 0-100, 归一化到 0-10
-        """
+        """Hook 强度: 前 30 字符是否包含冲突、悬念、结果前置等信号。"""
         issues: list[str] = []
         suggestions: list[str] = []
 
-        mixin = self._get_scorers_mixin()
-        if mixin is not None:
-            try:
-                platform_str = ctx.platform.value
-                hook_result = mixin._calculate_hook_score(draft, platform_str)
-                # 0-100 → 0-10 归一化
-                score = hook_result.score / 10.0
-
-                if score < 7.0:
-                    issues.append(
-                        f"Hook 强度不足 ({score:.1f}/10, 钩子类型={hook_result.hook_type})"
-                    )
-                # v2.1 自带 suggestions
-                for sug in hook_result.suggestions[:2]:
-                    suggestions.append(f"Hook 改进: {sug}")
-
-                return DimensionScore(
-                    name="hook",
-                    score=score,
-                    weight=DIMENSION_WEIGHTS["hook"],
-                    issues=issues,
-                    suggestions=suggestions,
-                )
-            except Exception as e:  # noqa: BLE001
-                logger.warning(f"v2.1 Hook 评分失败, 降级规则: {e}")
-
-        # 降级: 简单规则 (关键词命中)
-        score = self._eval_hook_fallback(draft)
+        score = self._score_hook_keywords(draft)
         if score < 6.0:
             issues.append("Hook 缺少冲突/悬念/结果前置关键词")
             suggestions.append("前 2 句加入'没想到'/'真相是'/'最后一刻'等钩子词")
@@ -250,8 +181,8 @@ class NarrationEvaluator:
             suggestions=suggestions,
         )
 
-    def _eval_hook_fallback(self, draft: str) -> float:
-        """Hook 降级评分: 前 30 字符含钩子关键词数"""
+    def _score_hook_keywords(self, draft: str) -> float:
+        """Hook 评分: 前 30 字符含钩子关键词数。"""
         if not draft:
             return 0.0
         first_30 = draft.split("\n", 1)[0][:30]
@@ -338,6 +269,7 @@ class NarrationEvaluator:
         # 触发率 → 0-10 分
         trigger_rate = triggered / len(bridges) if bridges else 1.0
         score = trigger_rate * 10.0
+        score = self._apply_content_tag_gate(score, draft, ctx, issues, suggestions)
 
         return DimensionScore(
             name="bridge",
@@ -411,6 +343,7 @@ class NarrationEvaluator:
         score = 10.0 * (0.7 * mention_rate + 0.3)
         if not issues:
             score = min(10.0, score + 0.5)  # 无问题小奖励
+        score = self._apply_relationship_gate(score, draft, ctx, issues, suggestions)
 
         return DimensionScore(
             name="consistency",
@@ -511,10 +444,13 @@ class NarrationEvaluator:
 
         if not ctx.few_shots:
             # 无 few_shots → 默认 8 分
+            score = self._apply_next_hook_gate(8.0, draft, ctx, issues, suggestions)
             return DimensionScore(
                 name="style",
-                score=8.0,
+                score=score,
                 weight=DIMENSION_WEIGHTS["style"],
+                issues=issues,
+                suggestions=suggestions,
             )
 
         # 提取 few_shots 风格关键词
@@ -545,6 +481,7 @@ class NarrationEvaluator:
             suggestions.append(
                 f"建议融入风格关键词: {'/'.join(list(style_words)[:5])}"
             )
+        score = self._apply_next_hook_gate(score, draft, ctx, issues, suggestions)
 
         return DimensionScore(
             name="style",
@@ -557,6 +494,89 @@ class NarrationEvaluator:
     # ============================================================
     # 工具
     # ============================================================
+
+    def _is_short_drama_production(self, ctx: NarrationContext) -> bool:
+        """是否进入连续短剧生产语境。"""
+        return (
+            ctx.short_drama_style is not None
+            or ctx.episode_index is not None
+            or bool(ctx.content_tags)
+            or bool(ctx.relationship_notes)
+            or bool(ctx.previous_episode_summary)
+            or bool(ctx.next_hook_hint)
+        )
+
+    def _apply_content_tag_gate(
+        self,
+        score: float,
+        draft: str,
+        ctx: NarrationContext,
+        issues: list[str],
+        suggestions: list[str],
+    ) -> float:
+        if not self._is_short_drama_production(ctx):
+            return score
+        if not ctx.content_tags:
+            issues.append("短剧生产缺少题材/爽点标签")
+            suggestions.append("补充重生/复仇/甜宠/逆袭等题材标签并写入桥段表达")
+            return min(score, 6.5)
+        if not self._contains_context_terms(draft, ctx.content_tags):
+            issues.append("文案未体现短剧题材/爽点标签")
+            suggestions.append(f"建议显式承接爽点标签: {'/'.join(ctx.content_tags[:3])}")
+            return max(0.0, score - 1.5)
+        return score
+
+    def _apply_relationship_gate(
+        self,
+        score: float,
+        draft: str,
+        ctx: NarrationContext,
+        issues: list[str],
+        suggestions: list[str],
+    ) -> float:
+        if not self._is_short_drama_production(ctx):
+            return score
+        if not ctx.relationship_notes:
+            issues.append("短剧生产缺少人物关系说明")
+            suggestions.append("补充主角、反派、盟友和情感/利益冲突关系")
+            return min(score, 6.5)
+        if not self._contains_context_terms(draft, ctx.relationship_notes):
+            issues.append("文案未承接人物关系说明")
+            suggestions.append("在文案中明确角色关系和冲突立场")
+            return max(0.0, score - 1.5)
+        return score
+
+    def _apply_next_hook_gate(
+        self,
+        score: float,
+        draft: str,
+        ctx: NarrationContext,
+        issues: list[str],
+        suggestions: list[str],
+    ) -> float:
+        if not self._is_short_drama_production(ctx):
+            return score
+        if not ctx.next_hook_hint:
+            issues.append("短剧生产缺少下一集钩子提示")
+            suggestions.append("补充下一集反转、真凶、误会或后果提示")
+            return min(score, 6.5)
+
+        tail = draft[-100:]
+        if not self._contains_context_terms(tail, [ctx.next_hook_hint]):
+            issues.append("结尾未承接下一集钩子")
+            suggestions.append("在最后 1-2 句植入下一集悬念")
+            return max(0.0, score - 1.5)
+        return score
+
+    def _contains_context_terms(self, text: str, values: list[str]) -> bool:
+        terms: set[str] = set()
+        for value in values:
+            normalized = value.strip()
+            if not normalized:
+                continue
+            terms.add(normalized)
+            terms.update(re.findall(r"[\u4e00-\u9fa5A-Za-z0-9]{2,8}", normalized))
+        return any(term in text for term in terms)
 
     def _build_suggestion(
         self,

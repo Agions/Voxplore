@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """测试智能视频分组服务"""
 
-import numpy as np
+import math
+import random
 
 from scenefab.services.video.grouping.smart_grouper import (
     SmartGrouper,
     VideoGroup,
 )
+
+
+def random_values(size: int) -> list[float]:
+    """Return deterministic pseudo-random test values."""
+    return [random.Random(size + i).gauss(0.0, 1.0) for i in range(size)]
 
 
 class TestVideoGroup:
@@ -43,8 +49,7 @@ class MockVisionEmbedder:
 
     def extract(self, video_path: str, num_frames: int = 8) -> list[float]:  # noqa: ARG001
         if video_path not in self._embeddings:
-            # 返回随机 embedding 用于不相似视频
-            return list(np.random.randn(128))
+            return random_values(128)
         return self._embeddings[video_path]
 
 
@@ -56,15 +61,16 @@ class MockAudioEmbedder:
 
     def extract(self, video_path: str) -> list[float]:
         if video_path not in self._embeddings:
-            return list(np.random.randn(64))
+            return random_values(64)
         return self._embeddings[video_path]
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
     """计算余弦相似度"""
-    a = np.array(a)
-    b = np.array(b)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8))
+    dot = sum(x * y for x, y in zip(a, b, strict=False))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(y * y for y in b))
+    return dot / (norm_a * norm_b + 1e-8)
 
 
 class TestSmartGrouper:
@@ -101,8 +107,14 @@ class TestSmartGrouper:
         video_paths = ["/test/scene1.mp4", "/test/scene2.mp4"]
 
         # 不同场景的视觉 embedding（随机，不相似）
-        vision_embeddings = {vp: list(np.random.randn(128)) for vp in video_paths}
-        audio_embeddings = {vp: [np.random.rand()] * 64 for vp in video_paths}
+        vision_embeddings = {
+            "/test/scene1.mp4": [1.0] * 128,
+            "/test/scene2.mp4": [-1.0] * 128,
+        }
+        audio_embeddings = {
+            "/test/scene1.mp4": [1.0] * 64,
+            "/test/scene2.mp4": [-1.0] * 64,
+        }
 
         grouper = SmartGrouper()
         grouper._vision_embedder = MockVisionEmbedder(vision_embeddings)

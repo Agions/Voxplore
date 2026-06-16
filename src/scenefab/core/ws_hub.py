@@ -42,7 +42,12 @@ try:
 except ImportError:
     _HAS_FASTAPI_WS = False
     WebSocket = None  # type: ignore[assignment,misc]
-    WebSocketState = None  # type: ignore[assignment,misc]
+
+    class WebSocketState:  # type: ignore[no-redef]
+        """Small fallback used by unit tests and headless installs."""
+
+        CONNECTED = "connected"
+        DISCONNECTED = "disconnected"
 
 
 logger = logging.getLogger(__name__)
@@ -82,10 +87,13 @@ class WSConnection:
 
     async def send_json(self, message: dict[str, Any]) -> bool:
         """发送 JSON 消息（v2.1 异常安全）"""
-        if not _HAS_FASTAPI_WS or WebSocketState is None:
-            return False
         try:
-            if self.websocket.client_state != WebSocketState.CONNECTED:
+            client_state = getattr(
+                self.websocket,
+                "client_state",
+                WebSocketState.CONNECTED,
+            )
+            if client_state != WebSocketState.CONNECTED:
                 return False
             await self.websocket.send_json(message)
             self.send_count += 1
@@ -204,13 +212,22 @@ class WSHub:
                 }
                 try:
                     if (
-                        _HAS_FASTAPI_WS
-                        and WebSocketState is not None
-                        and conn.websocket.client_state == WebSocketState.CONNECTED
+                        getattr(
+                            conn.websocket,
+                            "client_state",
+                            WebSocketState.CONNECTED,
+                        )
+                        == WebSocketState.CONNECTED
                     ):
                         # 同步客户端测试时可注入 mock
-                        conn.websocket.send_json_sync(msg)
-                        conn.send_count += 1
+                        send_json_sync = getattr(
+                            conn.websocket,
+                            "send_json_sync",
+                            None,
+                        )
+                        if send_json_sync:
+                            send_json_sync(msg)
+                            conn.send_count += 1
                 except Exception as e:
                     conn.last_error = str(e)
 
@@ -307,6 +324,7 @@ def set_ws_hub(hub: WSHub) -> None:
 __all__ = [
     "WSHub",
     "WSConnection",
+    "WebSocketState",
     "get_ws_hub",
     "set_ws_hub",
 ]

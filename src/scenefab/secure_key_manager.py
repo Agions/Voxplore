@@ -13,10 +13,29 @@ import threading
 from pathlib import Path
 from typing import Any
 
-import keyring
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+try:
+    import keyring
+except ImportError:
+    class _UnavailableKeyring:
+        """Small keyring-compatible fallback used when keyring is not installed."""
+
+        def set_keyring(self, backend: object) -> None:
+            raise RuntimeError("keyring package is not installed")
+
+        def set_password(self, service_name: str, username: str, password: str) -> None:
+            raise RuntimeError("keyring package is not installed")
+
+        def get_password(self, service_name: str, username: str) -> str | None:
+            raise RuntimeError("keyring package is not installed")
+
+        def delete_password(self, service_name: str, username: str) -> None:
+            raise RuntimeError("keyring package is not installed")
+
+    keyring = _UnavailableKeyring()  # type: ignore[assignment]
 
 
 class SecureKeyManager:

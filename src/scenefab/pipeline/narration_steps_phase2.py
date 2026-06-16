@@ -317,6 +317,23 @@ def _build_narration_prompt(
     # —— ② 数据上下文 → topic 主体 ——
     topic_parts: list[str] = []
 
+    # 短剧生产字段: 题材、爽点、关系和集数上下文
+    if ctx.content_tags:
+        topic_parts.append(f"【短剧标签】{', '.join(ctx.content_tags[:8])}")
+
+    if ctx.relationship_notes:
+        topic_parts.append(f"【人物关系】{'; '.join(ctx.relationship_notes[:5])}")
+
+    episode_parts: list[str] = []
+    if ctx.episode_index is not None:
+        episode_parts.append(f"第 {ctx.episode_index} 集")
+    if ctx.previous_episode_summary:
+        episode_parts.append(f"上一集: {ctx.previous_episode_summary[:80]}")
+    if ctx.next_hook_hint:
+        episode_parts.append(f"下一集钩子: {ctx.next_hook_hint[:80]}")
+    if episode_parts:
+        topic_parts.append("【集数上下文】" + "；".join(episode_parts))
+
     # 剧情梗概
     if ctx.story_graph and ctx.story_graph.synopsis:
         topic_parts.append(f"【剧情】{ctx.story_graph.synopsis}")
@@ -354,6 +371,10 @@ def _build_narration_prompt(
 
     # —— ④ 工具上下文 → keywords ——
     keywords: list[str] = []
+    for tag in ctx.content_tags[:5]:
+        if tag and tag not in keywords:
+            keywords.append(tag)
+
     # 桥段模板里高频词注入
     for bt, template in ctx.bridge_templates.items():
         if isinstance(bt, BridgeType) and template:

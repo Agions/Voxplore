@@ -105,7 +105,7 @@ def evaluate_step(ctx: NarrationContext) -> StepResult:
 # ============================================
 
 
-# 5 种 Hook 改写风格 (与 v2.1 ContentScorersMixin._HOOK_PATTERNS 对齐)
+# 5 种 Hook 改写风格，与评估器 Hook 关键词维度保持一致。
 HOOK_REWRITE_STYLES: list[str] = ["conflict", "suspense", "result_first", "question", "shock"]
 
 

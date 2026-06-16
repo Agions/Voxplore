@@ -202,6 +202,11 @@ class NarrationContext:
     style: NarrationStyle = NarrationStyle.NEUTRAL
     platform: Platform = Platform.BILIBILI
     short_drama_style: ShortDramaStyle | None = None  # 短剧联动 (v2.2 新增)
+    content_tags: list[str] = field(default_factory=list)  # 题材/爽点标签
+    relationship_notes: list[str] = field(default_factory=list)  # 人物关系
+    episode_index: int | None = None  # 连续短剧集数
+    previous_episode_summary: str = ""  # 上一集/前情摘要
+    next_hook_hint: str = ""  # 下一集钩子提示
 
     # —— ② 数据上下文 (由 UNDERSTAND/STORYGRAPH 状态填充) ——
     story_graph: StoryGraph = field(default_factory=StoryGraph)
@@ -249,7 +254,7 @@ class NarrationContext:
         """DRAFT 是否达到默认最大重试次数 (2 次)
 
         注: 实际限制值由 NarrationStateMachine.config.max_draft_attempts 控制。
-        主循环使用 config.max_draft_attempts 比较, 此属性仅用于向后兼容。
+        需要自定义阈值时使用 is_max_attempts_reached(max_attempts)。
         """
         return self.draft_attempts >= 2
 
