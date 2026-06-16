@@ -97,6 +97,26 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
   - 内部符号 `_NarrafiilmVersion` → `_NarrafilmVersion`（内部 API，无外部消费方）。
   - **待移除**：旧 `.narrafiilm` 扩展名/配置目录的兼容读取，建议 **v2.3.0** 移除。
 
+## 8. 回归与交付门禁 (P6，2026-06-16)
+
+整个 P0–P5 重构收尾的统一验收门禁，全部通过：
+
+| 门禁 | 命令 | 结果 |
+|---|---|---|
+| ruff | `ruff check src/ tests/` | All checks passed |
+| compileall | `python -m compileall src/scenefab tests` | OK |
+| 核心全量 pytest（headless，零环境变量） | `python -m pytest` | 593 passed, 11 skipped |
+| UI smoke test（venv + PySide6, offscreen） | `pytest tests/test_ui_main_window.py` | passed |
+| 全量（venv，含 PySide6 + pytest-asyncio） | `pytest`（QT offscreen） | 629 passed, 10 skipped |
+
+**11 处 headless skip 均可解释**：10 = 需真实 API key 的集成测试（QWEN/KIMI/GLM5），1 = UI 测试无 PySide6（CI/桌面镜像会跑）。venv 下 PySide6 就位后该 UI skip 消失、async 测试启用，故 +36 通过、skip 降至 10。
+
+**P6 发现并修复的真实 bug**（UI smoke test 首次实例化主窗口暴露，见 commit `9409df6`）：
+1. `QFont.Weight.SemiBold` 在 PySide6 不存在 → `DemiBold`（主窗口启动即崩）。
+2. 自绘 `StatusBar(QFrame)` 传给 `QMainWindow.setStatusBar()`（要求 `QStatusBar`）→ 改入中央垂直布局底部。
+
+**验收基线**：默认 `pytest` 无需 `PYTHONPATH=src`、无需 Qt binding、无需任何环境变量即可得到 593 passed 的可解释结果（P0 契约成立）。
+
 ---
 
 ## 移除流程约定
