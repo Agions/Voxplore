@@ -372,6 +372,49 @@ class TestSafeFFmpegCommand:
         finally:
             input_path.unlink()
 
+    def test_execute_routes_through_secure_executor(self):
+        """execute() 委托统一安全执行器（不再自带 subprocess.run）。"""
+        import subprocess
+
+        from scenefab.core.ffmpeg_safe import FFmpegResult, SafeFFmpegCommand
+
+        with tempfile.TemporaryDirectory() as d:
+            inp = Path(d) / "in.mp4"
+            inp.write_bytes(b"x")
+            out = Path(d) / "out.mp4"
+
+            def mk():
+                return SafeFFmpegCommand(
+                    input_file=inp, output_file=out, timeout_sec=600
+                )
+
+            # 成功：经 SecureExecutor.run 返回 CompletedProcess → FFmpegResult
+            cp = subprocess.CompletedProcess(["ffmpeg"], 0, "ok", "")
+            with patch(
+                "scenefab.utils.security.SecureExecutor.run", return_value=cp
+            ) as m:
+                r = mk().execute(audit=False)
+                assert isinstance(r, FFmpegResult) and r.success
+                assert m.called and isinstance(m.call_args[0][0], list)
+
+            # 非零返回码 → FFmpegResult(success=False)，不抛
+            cp_fail = subprocess.CompletedProcess(["ffmpeg"], 1, "", "boom")
+            with patch(
+                "scenefab.utils.security.SecureExecutor.run", return_value=cp_fail
+            ):
+                r2 = mk().execute(audit=False)
+                assert not r2.success and r2.returncode == 1
+
+            # 超时（SecureExecutor 抛 SecurityError"超时"）→ 按原契约重抛 TimeoutExpired
+            from scenefab.utils.security import SecurityError
+
+            with patch(
+                "scenefab.utils.security.SecureExecutor.run",
+                side_effect=SecurityError("命令执行超时: 600秒"),
+            ):
+                with pytest.raises(subprocess.TimeoutExpired):
+                    mk().execute(audit=False)
+
     def test_is_safe_path(self):
         from scenefab.core.ffmpeg_safe import is_safe_path
 

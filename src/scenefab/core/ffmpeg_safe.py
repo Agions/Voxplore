@@ -8,7 +8,8 @@ FFmpeg 安全封装 — v2.0 重构
 - 参数白名单（codec / preset / crf / 滤镜）
 - 路径安全检查（禁止写入系统目录）
 - 危险字符检测（; & | ` $ ( ) 等）
-- 使用 subprocess list 模式（非 shell）
+- 执行统一委托给 `utils.security.SecureExecutor`（单一安全执行底座，
+  list 模式非 shell），本模块只负责声明式命令构建 + 结果/审计封装
 - 审计日志自动集成
 
 使用示例:
@@ -336,20 +337,18 @@ class SafeFFmpegCommand:
         if audit:
             self._log_execute_start()
 
+        # 统一执行入口：复用全局安全执行器底座（不再各自 subprocess.run）
+        from scenefab.utils.security import SecurityError, get_ffmpeg_executor
+
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=self.timeout_sec,
-                check=False,
-                # 关键：不用 shell=True
-            )
+            result = get_ffmpeg_executor().run(cmd, timeout=self.timeout_sec)
             return self._build_result(result, cmd, start_ms, audit)
-        except subprocess.TimeoutExpired:
-            self._handle_timeout(start_ms, audit)
-            raise
-        except Exception as e:
+        except SecurityError as e:
+            # SecureExecutor 将超时/执行失败统一包装为 SecurityError。
+            # 超时单独审计后按原契约重新抛出 TimeoutExpired，其余按执行错误处理。
+            if "超时" in str(e):
+                self._handle_timeout(start_ms, audit)
+                raise subprocess.TimeoutExpired(cmd, self.timeout_sec) from e
             self._handle_execution_error(e, start_ms, audit)
             raise
 

@@ -72,7 +72,9 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 
 **仍保留的裸 subprocess（合法）**：`core/ffmpeg_safe.py`(执行器自身) · `utils/security.py`(`SecureExecutor`) · `ffmpeg_tool.py` 的 `nvidia-smi`/`wmic`（非 ffmpeg 能力探测，不在白名单内）。
 
-**未做（本轮范围外）**：`core/ffmpeg_safe.SafeFFmpegCommand`（仅 3 处用）与 `SecureExecutor` 的双执行器并存未合并；硬件检测/ffprobe 元数据/命令构建未从 `FFmpegTool` 拆为独立模块。留待后续。
+**双执行器合并（2026-06-16 后续完成）**：`core/ffmpeg_safe.SafeFFmpegCommand.execute()` 原有独立 `subprocess.run`，现委托 `utils.security.SecureExecutor`（统一底座）。`SafeFFmpegCommand` 保留声明式命令构建 + 校验 + `FFmpegResult`/审计封装，但不再持有第二条执行路径。`SecureExecutor` 将超时/失败包装为 `SecurityError`；`execute()` 按原契约还原（超时 → `TimeoutExpired`，非零 rc → `FFmpegResult(success=False)`）。
+
+**仍未做**：硬件检测/ffprobe 元数据/命令构建未从 `FFmpegTool` 拆为独立模块。留待后续。
 
 ## 6. 并发与生命周期 (P4，2026-06-16)
 
