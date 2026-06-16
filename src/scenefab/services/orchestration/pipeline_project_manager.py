@@ -3,7 +3,7 @@
 """
 SceneFab 项目文件管理
 
-支持 .narrafilm 项目文件的保存、加载和管理。
+支持 .scenefab 项目文件的保存、加载和管理（兼容旧 .narrafilm/.narrafiilm）。
 
 项目文件格式：
 - JSON 格式，易于阅读和调试
@@ -16,10 +16,10 @@ SceneFab 项目文件管理
     manager = ProjectManager()
 
     # 保存项目
-    manager.save(project, "my_video.narrafilm")
+    manager.save(project, "my_video.scenefab")
 
     # 加载项目
-    project = manager.load("my_video.narrafilm")
+    project = manager.load("my_video.scenefab")
 """
 
 import json
@@ -35,7 +35,7 @@ from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
 )
 from scenefab.models.project_file_metadata import (
-    _NarrafilmVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
+    _ProjectFileVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
 from scenefab.models.project_models import ProjectType
 
@@ -123,9 +123,10 @@ class ProjectManager:
     负责项目的创建、保存、加载和版本兼容
     """
 
-    # 支持的文件扩展名（.narrafiilm 为旧拼写，保留以兼容已有项目文件）
-    PROJECT_EXTENSION = ".narrafilm"
-    PROJECT_EXTENSIONS = [".narrafilm", ".narrafiilm", ".vfproj"]
+    # 项目文件扩展名（与产品名一致）。.narrafilm/.narrafiilm 为旧拼写，
+    # 保留在加载列表中以兼容已有项目文件。
+    PROJECT_EXTENSION = ".scenefab"
+    PROJECT_EXTENSIONS = [".scenefab", ".narrafilm", ".narrafiilm", ".vfproj"]
 
     def __init__(self):
         self.current_project: SceneFabProject | None = None

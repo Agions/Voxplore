@@ -94,14 +94,20 @@ class ConfigManager:
         if config_dir:
             self.config_dir = Path(config_dir)
         else:
-            # 默认 ~/.narrafilm；若仅存在旧拼写目录 ~/.narrafiilm 则沿用，
+            # 默认 ~/.scenefab（与产品名一致）；若新目录不存在但旧拼写目录
+            # （~/.narrafilm / ~/.narrafiilm）存在，则沿用最先命中的旧目录，
             # 避免孤立既有用户配置/密钥。
-            new_dir = Path.home() / ".narrafilm"
-            legacy_dir = Path.home() / ".narrafiilm"
-            if not new_dir.exists() and legacy_dir.exists():
-                self.config_dir = legacy_dir
-            else:
+            new_dir = Path.home() / ".scenefab"
+            if new_dir.exists():
                 self.config_dir = new_dir
+            else:
+                legacy_dirs = [
+                    Path.home() / ".narrafilm",
+                    Path.home() / ".narrafiilm",
+                ]
+                self.config_dir = next(
+                    (d for d in legacy_dirs if d.exists()), new_dir
+                )
 
         self.config_dir.mkdir(parents=True, exist_ok=True)
 

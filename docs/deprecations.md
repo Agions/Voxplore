@@ -92,12 +92,19 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 
 - **phase 文件/函数重命名**（见 §3）。
 - **文档版本修正**：`docs/guide/quick-start.md` / `installation.md` 的 `scenefab --version` 示例输出 `2.2.0` → `2.1.1`。ADR-007/006 中的 "v2.2" 指 narration 里程碑的设计记录，属历史文档，未改。
-- **`.narrafiilm` 拼写修正（带向后兼容）**：默认拼写改为 `.narrafilm`（narration+film，原双 i 为拼写遗留）。
-  - 项目文件扩展名：`ProjectManager.PROJECT_EXTENSION = ".narrafilm"`；`PROJECT_EXTENSIONS` 保留 `[".narrafilm", ".narrafiilm", ".vfproj"]`，旧文件仍可加载。
-  - 配置目录：默认 `~/.narrafilm`；若仅存在旧 `~/.narrafiilm` 则沿用，不孤立既有配置。
-  - 安全允许目录：同时收录新旧路径（`~/.narrafilm` + `~/.narrafiilm`，`/etc/narrafilm` + `/etc/narrafiilm`）。
-  - 内部符号 `_NarrafiilmVersion` → `_NarrafilmVersion`（内部 API，无外部消费方）。
-  - **待移除**：旧 `.narrafiilm` 扩展名/配置目录的兼容读取，建议 **v2.3.0** 移除。
+- **`.narrafiilm` 拼写修正（带向后兼容）**：P5 先将默认拼写从 `.narrafiilm` 改为 `.narrafilm`。**后续（见 §9）进一步统一为 `.scenefab`，与产品名一致。**
+  - 内部符号 `_NarrafiilmVersion` → `_NarrafilmVersion`（后续再 → `_ProjectFileVersion`）。
+
+## 9. 项目格式与配置目录统一为 .scenefab (2026-06-16)
+
+将项目文件扩展名 / 配置目录从 `.narrafilm` 统一为 `.scenefab`，与产品名一致。**全程带向后兼容，不孤立既有用户文件/配置。**
+
+- **项目文件扩展名**：`ProjectManager.PROJECT_EXTENSION = ".scenefab"`；`PROJECT_EXTENSIONS = [".scenefab", ".narrafilm", ".narrafiilm", ".vfproj"]`（新文件存 `.scenefab`，旧 `.narrafilm`/`.narrafiilm` 仍可加载）。`monologue_maker.save` 默认后缀同步为 `.scenefab`。
+- **配置目录**：默认 `~/.scenefab`；新目录不存在但旧 `~/.narrafilm` / `~/.narrafiilm` 存在时，沿用最先命中的旧目录。
+- **安全允许目录**：补 `~/.scenefab` + `/etc/scenefab`，保留旧路径。
+- **内部符号**：`_NarrafilmVersion` → `_ProjectFileVersion`（产品中立命名，避免再次改名）；temp 前缀 `narrafilm_*` → `scenefab_*`。
+- 测试：新增 `tests/test_pipeline_project_manager.py` 覆盖默认扩展名 + 旧扩展名保留可加载。
+- **待移除**：旧 `.narrafilm` / `.narrafiilm` 扩展名与配置目录的兼容读取，建议 **v2.3.0** 一并移除。
 
 ## 8. 回归与交付门禁 (P6，2026-06-16)
 

@@ -47,11 +47,13 @@ class SecureConfigLoader:
         self._load_environment(env_file)
 
         self.allowed_dirs = allowed_dirs or [
-            os.path.expanduser("~/.narrafilm"),
-            os.path.expanduser("~/.narrafiilm"),  # 旧拼写，向后兼容
+            os.path.expanduser("~/.scenefab"),
+            os.path.expanduser("~/.narrafilm"),  # 旧拼写，向后兼容
+            os.path.expanduser("~/.narrafiilm"),  # 更旧拼写，向后兼容
             os.path.expanduser("~/SceneFab"),
-            "/etc/narrafilm",
-            "/etc/narrafiilm",  # 旧拼写，向后兼容
+            "/etc/scenefab",
+            "/etc/narrafilm",  # 旧拼写，向后兼容
+            "/etc/narrafiilm",  # 更旧拼写，向后兼容
             os.path.join(os.path.dirname(__file__), "..", "..", "config"),
         ]
         self.allowed_dirs = [os.path.abspath(d) for d in self.allowed_dirs]
