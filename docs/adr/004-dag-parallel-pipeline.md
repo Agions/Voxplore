@@ -106,4 +106,4 @@ steps:
 ## 评审
 
 - v1.x 串行模式保留为回退（`enable_parallel=False`）
-- 详细实施见 [v2.0 改造计划 § 步骤 2](../../scene-fab-refactoring-plan.md)
+- 当前落地形态见[架构概览 § 解说状态机与数据流](../architecture)
