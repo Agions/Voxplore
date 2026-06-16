@@ -1,266 +1,126 @@
 ---
 title: 架构概览
-description: SceneFab 整体架构与模块设计（v3.0.0 重构版）。
+description: SceneFab 面向第一人称影视/短剧解说生产的系统架构与模块职责。
 ---
 
 # 架构概览
 
-## 产品定位
+SceneFab 的架构目标是让短剧/影视解说生产流程可重复、可验证、可扩展。核心不是手动剪辑时间线，而是围绕“素材理解 → 剧情上下文 → 第一人称脚本 → 配音字幕 → 导出发布”建立稳定的数据流。
 
-**SceneFab ≠ 传统剪辑软件！** 核心能力是 AI 全自动理解与生成，而非手动轨道剪辑。
+## 分层结构
 
-SceneFab 的使命：**让影视解说创作从「几天一条」变成「一天十条」**。
-
----
-
-## 核心工作流（5 步流水线）
-
-```
-Step 1 · 语义拆条          Step 2 · 情感峰值选段
-Qwen2.5-VL                 视觉 0.6 + 音频 0.4
-场景边界检测 + 语义聚类       叙事完整优先 + 情感排序
-        ↓                            ↓
-        ┌──────────────────────────────┐
-        │   Step 3 · 解说稿生成         │
-        │   DeepSeek-V4                │
-        │   7 种情感风格                │
-        │   多版本备选                  │
-        └──────────────────────────────┘
-                      ↓
-        ┌──────────────────────────────┐
-        │   Step 4 · 配音合成           │
-        │   Edge-TTS / F5-TTS          │
-        │   50ms 精度字幕对齐           │
-        └──────────────────────────────┘
-                      ↓
-        ┌──────────────────────────────┐
-        │   Step 5 · 视频合成导出        │
-        │   FFmpeg H.264/H.265         │
-        │   MP4 直出 / 剪映草稿 JSON   │
-        └──────────────────────────────┘
+```text
+PySide6 桌面工作台
+  Home / Production / Assets / Settings
+        |
+        v
+应用编排层
+  pipeline_controller / project manager / task progress
+        |
+        v
+第一人称解说流水线
+  NarrationContext / NarrationStateMachine / NarrationEvaluator
+        |
+        v
+业务服务层
+  AI services / video services / video_understanding / export services
+        |
+        v
+基础设施层
+  EventBus / DIContainer / SafeFFmpeg / Audit / Settings / Resources
 ```
 
----
+## 核心模块职责
 
-## 系统架构
+| 模块 | 职责 |
+| --- | --- |
+| `ui/main` | 桌面工作台页面，承载生产流程、资产、设置和状态反馈 |
+| `pipeline` | 第一人称解说状态机，管理理解、剧情图谱、脚本、评估、TTS 和装配 |
+| `core` | 事件、任务、审计、安全 FFmpeg、短剧桥段等基础能力 |
+| `services/ai` | LLM、视觉理解、ASR、TTS 等 AI 服务适配 |
+| `services/video` | 帧提取、片段选择、分组、情绪峰值和视频处理 |
+| `services/video_understanding` | 长视频/多场景剧情理解和 StoryGraph 构建 |
+| `services/export` | MP4、字幕、剪映草稿和平台预设导出 |
+| `resources` | 应用图标、主题 QSS 和运行时视觉资源 |
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      SceneFab App (PySide6)                  │
-├────────────────────────────┬─────────────────────────────────┤
-│  UI Layer                  │  CLI Layer (Agent-ready)         │
-│  · MainWindow / Step Pages │  · Command-first interface      │
-│  · 步骤式引导（4 步）        │  · SKILL.md for Agent workflows│
-├────────────────────────────┴─────────────────────────────────┤
-│                  Business Logic Layer                         │
-│  Pipeline · Orchestration · VideoMgr · ExportEngine         │
-├─────────────────────────────────────────────────────────────┤
-│                    AI Service Layer                          │
-│  LLMService · VisionService · TTSService · ASRService      │
-├─────────────────────────────────────────────────────────────┤
-│                  Platform Layer (FFmpeg / OS)               │
-└─────────────────────────────────────────────────────────────┘
-```
+## 解说状态机
 
----
-
-## 五大核心模块
-
-### 1. 语义拆条引擎（Semantic Slicer）
-
-**输入**：原始视频文件（mp4/mov/avi/webm）
-**输出**：按语义切分的场景片段列表
-
-| 组件 | 技术 | 职责 |
-|------|------|------|
-| 帧提取器 | OpenCV + FFmpeg | 定时抽帧，构造帧序列 |
-| 视觉理解器 | **Qwen2.5-VL** | 逐帧理解画面内容与语义 |
-| 场景边界检测 | 帧间差异 + 语义相似度 | 自动发现场景切换点 |
-| 语义聚类器 | 向量化 + 聚类算法 | 将同类场景归组 |
-
-### 2. 情感峰值选段引擎（Emotion Peak Selector）
-
-**输入**：所有场景片段
-**输出**：按情感强度排序的高光片段
-
-评分公式：
-```
-情感得分 = 视觉信息密度 × 0.6 + 音频语调变化 × 0.4
+```text
+INIT
+  -> UNDERSTAND
+  -> STORYGRAPH
+  -> DRAFT
+  -> EVALUATE
+  -> HOOK_REWRITE
+  -> TTS_LENGTH_ADJUST
+  -> TTS
+  -> ASSEMBLE
+  -> DONE
 ```
 
-优先保留：叙事核心片段（起承转合完整）> 情感峰值片段
+状态机统一管理四类上下文：
 
-### 3. 解说生成引擎（Narration Generator）
+| 上下文 | 内容 |
+| --- | --- |
+| 指令上下文 | 人设、风格、平台、目标时长、短剧风格 |
+| 数据上下文 | StoryGraph、场景摘要、桥段识别结果 |
+| 历史上下文 | 已讲过的人物、剧情点和桥段 |
+| 工具上下文 | Few-shot、桥段模板、质量反馈 |
 
-**输入**：选定的片段 + 情感风格
-**输出**：结构化解说稿（多版本备选）
+## 短剧生产字段
 
-| 组件 | 技术 | 职责 |
-|------|------|------|
-| Prompt 工程 | DeepSeek-V4 | 构建解说 prompt |
-| 多版本生成 | Temperature 调优 | 每段生成 2-3 个版本供选择 |
-| 风格注入 | 角色设定 + 情感标签 | 精确控制解说语气 |
+短剧模式在通用解说上下文上增加结构化字段：
 
-### 4. 配音合成引擎（TTS Synthesizer）
+| 字段 | 用途 |
+| --- | --- |
+| `content_tags` | 题材和爽点标签，用于 Hook、标题和脚本关键词 |
+| `relationship_notes` | 人物关系备注，用于一致性控制 |
+| `episode_index` | 连载集数，用于开头承接 |
+| `previous_episode_summary` | 前情摘要，减少重复解释 |
+| `next_hook_hint` | 下一集钩子，强化结尾悬念 |
 
-**输入**：解说稿文字
-**输出**：配音 WAV/MP3 + 词级时间戳
+## 数据流
 
-| 组件 | 技术 | 职责 |
-|------|------|------|
-| 主流配音 | Edge-TTS | 免费低延迟，50+ 音色 |
-| 音色克隆 | F5-TTS | 15-30 秒参考音频克隆任意音色 |
-| 时间戳对齐 | Edge-TTS word-level | 逐字时间戳 → ASS 字幕 |
-
-### 5. 视频合成引擎（Video Composer）
-
-**输入**：原片片段 + 配音 + 字幕
-**输出**：最终 MP4 / 剪映草稿 JSON
-
-| 组件 | 技术 | 职责 |
-|------|------|------|
-| 音画合成 | FFmpeg | 配音+字幕+原片精确对齐 |
-| 编码器 | H.264 / H.265 | 自适应码率，质量优先 |
-| 草稿导出 | 剪映 JSON 格式 | 保留时间轴+字幕+配音轨道 |
-
----
-
-## LLM 多 Provider 架构
-
-SceneFab 内置统一 LLM 管理器，支持自动切换：
-
-```
-AIServiceManager
-├── DeepSeek Provider（主力，解说生成）
-├── Qwen Provider（通义千问，视觉理解）
-├── Kimi Provider（月之暗面）
-├── GLM-5 Provider（智谱）
-├── Claude Provider（Anthropic）
-├── Gemini Provider（Google）
-├── Doubao Provider（字节豆包）
-└── Hunyuan Provider（腾讯混元）
+```text
+视频素材
+  -> 场景分析
+  -> 桥段检测
+  -> StoryGraph
+  -> NarrationContext
+  -> ScriptConfig
+  -> 解说稿
+  -> 质量评估
+  -> 配音与字幕
+  -> 导出产物
 ```
 
-自动故障转移：某 Provider 超时/限流时自动切换下一个。
+## 设计原则
 
----
+1. 生产字段优先结构化，避免依赖文件名和自由文本。
+2. 脚本生成和质量评估使用同一套上下文。
+3. AI 服务失败时可降级，不阻断基础流程。
+4. 导出预设和文档标准保持一致。
+5. UI 只承载生产决策，不复制业务规则。
 
-## 配置管理
+## 目录结构
 
-使用 `pydantic-settings` 进行配置校验：
-
-- 环境变量优先
-- `.env` 文件支持
-- API Key 存入 OS Keychain，永不写入代码
-
-:::tip
-详细模块说明请参考 [AI 工作流详解](/guide/ai-video-guide)。
-:::
-
----
-
-## 目录结构（v3.0.0 重构版）
-
-```
+```text
 src/scenefab/
-├── core/                       # 核心基础设施（非业务）
-│   ├── state.py                # ApplicationState 状态机
-│   ├── context.py              # ApplicationContext 应用上下文
-│   ├── events/                 # 事件系统（EventBus）
-│   ├── container/              # ServiceContainer 依赖注入容器
-│   ├── exceptions.py           # 统一异常体系
-│   ├── patterns.py             # 单例/装饰器等设计模式
-│   └── callbacks.py            # 公共回调定义
-│
-├── models/                      # 数据模型（按域拆分）
-│   ├── narration.py            # NarrationStyle, EmotionType, NarrationBlock
-│   ├── video.py                # TimeRange, VideoSegment, EmotionPeak
-│   ├── media.py                # SubtitleItem, AudioTrack
-│   └── project.py              # VideoProject, VideoGroup, TaskProgress
-│
-├── services/                     # 业务服务
-│   ├── ai/                     # AI 服务（已拆分）
-│   │   ├── infra/              # RateLimiter, CircuitBreaker, LRUCache, PersistentCache
-│   │   ├── base.py            # BaseAIService 基类
-│   │   ├── llm.py             # LLMService（DeepSeek/Claude/GPT 等）
-│   │   ├── vision.py         # VisionService（Qwen2.5-VL）
-│   │   ├── tts.py             # TTSService（Edge-TTS / F5-TTS）
-│   │   ├── asr.py            # ASRService（SenseVoice / Whisper）
-│   │   └── manager.py        # AIServiceManager 单例
-│   │
-│   ├── video/                  # 视频服务（已拆分）
-│   │   ├── cache/             # VideoFrameCache, VideoCache（适配器）
-│   │   ├── session.py        # FFmpegSession 单例
-│   │   ├── analyzer.py       # VideoAnalyzer 场景检测
-│   │   └── processor.py     # VideoProcessor 剪切/合并
-│   │
-│   ├── export/                 # 导出器（MP4 / 剪映 / 字幕）
-│   └── orchestration/         # 工作流编排
-│
-├── config/                      # 配置层（合并后单一入口）
-│   ├── defs.py                 # dataclass 配置定义
-│   ├── loader.py               # YAML / ENV 加载器
-│   └── validator.py            # 配置校验器
-│
-├── utils/                       # 工具函数
-│   ├── time.py                 # 时间格式化
-│   ├── file.py                 # 文件操作
-│   └── path.py                 # 路径处理
-│
-├── ui/                          # PySide6 桌面 UI
-│   ├── main/                   # MainWindow + 组件
-│   └── settings/               # 设置页
-│
-├── cli/                         # 命令行入口
-│   └── commands.py             # CLI 命令定义
-│
-├── pipeline.py                 # 核心 5 步流水线
-├── application.py             # Application 生命周期管理
-├── settings.py               # ConfigManager 单一配置入口
-├── service_container.py      # ServiceContainer（代理至 core/container/）
-├── engine.py                 # engine 兼容层（→ core/events/）
-├── event_bus.py              # EventBus 事件总线
-└── exceptions.py             # 顶层异常导出
+├── core/                  # 事件、任务、安全、短剧桥段、审计
+├── pipeline/              # 第一人称解说状态机和上下文
+├── services/
+│   ├── ai/                # LLM / Vision / ASR / TTS
+│   ├── video/             # 视频分析、提取、选择、分组
+│   ├── video_understanding/
+│   └── export/            # 成片、字幕和剪映草稿导出
+├── ui/
+│   ├── main/              # Home / Production / Assets / Settings
+│   └── theme/             # 设计令牌和主题加载
+└── models/                # 稳定数据模型
 ```
 
-### 模块职责速查
+## 相关文档
 
-| 模块 | 职责 | 关键类 |
-|------|------|--------|
-| `core/state` | 应用状态机 | `ApplicationState` |
-| `core/events` | 事件驱动 | `EventBus`, `EventEmitter` |
-| `core/container` | 依赖注入 | `ServiceContainer` |
-| `models/narration` | 解说风格/情感 | `NarrationStyle`, `NarrationBlock` |
-| `models/video` | 视频片段 | `VideoSegment`, `TimeRange` |
-| `services/ai/llm` | LLM 调用 | `LLMService` |
-| `services/ai/vision` | 视频视觉理解 | `VisionService` |
-| `services/ai/tts` | 配音合成 | `TTSService` |
-| `services/video/analyzer` | 场景检测 | `VideoAnalyzer` |
-| `services/video/processor` | 视频处理 | `VideoProcessor` |
-
----
-
-## 关键设计决策
-
-### 1. 依赖注入容器
-
-`ServiceContainer` 统一管理所有服务生命周期，支持：
-- 按需延迟初始化
-- 单例模式（AI Services）
-- 线程安全
-
-### 2. 事件驱动架构
-
-`EventBus` 解耦各模块，通过事件通知状态变化：
-- `VideoAnalyzed`, `NarrationGenerated`, `TTSCompleted` 等
-- 各服务无需直接引用 Pipeline
-
-### 3. 配置单一入口
-
-`settings.py` 的 `ConfigManager` 是唯一配置出口：
-- 所有配置文件统一由 `ConfigManager` 读取
-- 其他模块禁止直接读 YAML/ENV
-
-:::tip
-详细使用说明请参考 [配置参考](/config)。
-:::
+- [第一人称生产规范](./guide/first-person-narration-production)
+- [AI 工作流](./guide/ai-video-guide)
+- [导出发布](./guide/exporting)

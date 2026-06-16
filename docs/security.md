@@ -85,24 +85,11 @@ SceneFab 采用多层级密钥存储策略，按优先级依次尝试：
 - 定期轮换 API Key（建议每 90 天）
 :::
 
-```bash
-# 安全检查：确认 .env 不会被提交
-git diff .env          # 应为空
-git log --all -- .env  # 应为空
-
-# 检查是否有敏感信息泄露
-git secrets --scan
-```
+不要把 API Key 写入截图、分享文档、公开仓库或多人可见的项目备注。
 
 ### 环境隔离
 
-```bash
-# 开发环境使用独立的 API Key
-export DEEPSEEK_API_KEY=sk-dev-xxx
-
-# 生产环境使用不同的 Key
-export DEEPSEEK_API_KEY=sk-prod-xxx
-```
+不同账号、不同团队和不同用途建议使用独立 API Key，便于随时吊销和追踪异常调用。
 
 ### 网络安全
 
@@ -110,7 +97,7 @@ export DEEPSEEK_API_KEY=sk-prod-xxx
 |------|------|
 | 公共网络 | 使用 VPN 或代理 |
 | 企业网络 | 配置 HTTP_PROXY/HTTPS_PROXY |
-| 本地开发 | 无需代理，直连即可 |
+| 个人网络 | 无需代理时直连即可 |
 
 ---
 
@@ -148,7 +135,7 @@ cat ~/.scenefab/logs/security.log | grep "ALERT"
 |--------|------|------|
 | API Key 轮换 | 每 90 天 | 在服务商控制台重新生成 |
 | 日志审查 | 每周 | 检查异常调用模式 |
-| 依赖更新 | 每月 | `pip install --upgrade` |
+| 应用更新 | 每月 | 使用最新稳定版本 |
 | 安全补丁 | 及时 | 关注 GitHub Security Advisories |
 
 ---

@@ -38,7 +38,7 @@ AI 影视解说工具的核心计算任务（视频分析、LLM 推理、TTS 合
 
 | 组件 | 本地/云端 | 说明 |
 |------|:---:|------|
-| 视频帧分析 | 云端 API | Qwen2.5-VL / Gemini Vision / Claude Vision |
+| 视频帧分析 | 云端 API | Qwen3.7 / Gemini Vision / Claude Vision |
 | 解说稿生成 | 云端 API | DeepSeek / Qwen / Kimi / GLM-5 等 |
 | 配音合成 | **双模式** | Edge-TTS（云端免费）/ F5-TTS（本地零样本） |
 | 帧提取 | **本地** | FFmpeg + OpenCV |
@@ -61,4 +61,4 @@ AI 影视解说工具的核心计算任务（视频分析、LLM 推理、TTS 合
 ## 评审
 
 - 决策已写入 README.md 产品定位
-- 与 v1.0 SPEC.md "本地优先" 原则一致
+- 与当前 README.md 产品定位中的"本地优先"原则一致

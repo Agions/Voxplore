@@ -29,20 +29,6 @@ pip install scenefab
 scenefab
 ```
 
-### 方式三：WSL + 源码
-
-```bash
-# WSL2 Ubuntu
-sudo apt update && sudo apt upgrade -y
-sudo apt install python3.10-venv ffmpeg libsm6 libxext6 libgl1
-git clone https://github.com/Agions/scene-fab.git
-cd scene-fab
-python3 -m venv venv
-source venv/bin/activate
-pip install -e .
-scenefab
-```
-
 ## macOS
 
 ### 方式一：Homebrew（推荐）
@@ -66,12 +52,7 @@ scenefab
 ```bash
 sudo apt update
 sudo apt install -y python3.10 python3-pip python3.10-venv ffmpeg libsm6 libxext6 libgl1
-
-git clone https://github.com/Agions/scene-fab.git
-cd scene-fab
-python3 -m venv venv
-source venv/bin/activate
-pip install -e .
+pip install scenefab
 scenefab
 ```
 
@@ -88,7 +69,7 @@ scenefab
 
 ```bash
 scenefab --version
-# 输出: scenefab 3.0.0
+# 输出: scenefab 2.2.0
 ```
 
 ## 卸载

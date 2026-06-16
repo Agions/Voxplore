@@ -15,7 +15,7 @@ GitHub Releases 国内访问较慢，可使用代理或镜像：
 
 ```bash
 # 使用 ghproxy 代理
-wget https://ghproxy.com/https://github.com/Agions/scene-fab/releases/download/v3.0.0/SceneFab-x.x.x.AppImage
+wget https://ghproxy.com/https://github.com/Agions/scene-fab/releases/download/v2.2.0/SceneFab-x.x.x.AppImage
 
 # 或使用 gitee 镜像（如有）
 ```
@@ -242,10 +242,6 @@ ffmpeg -i input.mp4 -vf scale=1280:720 output.mp4
 ---
 
 ## 其他
-
-### 如何贡献代码？
-
-见 [贡献指南](./contributing)。
 
 ### 商业使用需要授权吗？
 

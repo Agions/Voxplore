@@ -11,7 +11,7 @@ description: 最快 5 分钟上手 SceneFab，开始你的 AI 影视解说创作
 |------|------|
 | 操作系统 | Windows 10+ / macOS 12+ / Ubuntu 20.04+ |
 | 内存 | ≥ 8 GB（推荐 16 GB） |
-| 显存 | ≥ 4 GB（用于 Qwen2.5-VL，无则自动用 CPU） |
+| 显存 | ≥ 4 GB（用于视觉理解加速，无则自动用 CPU） |
 | 磁盘 | ≥ 5 GB 可用空间 |
 
 ## 安装
@@ -25,13 +25,6 @@ scenefab
 
 ```bash [pip]
 pip install scenefab
-scenefab
-```
-
-```bash [源码]
-git clone https://github.com/Agions/scene-fab.git
-cd scene-fab
-pip install -e .
 scenefab
 ```
 
@@ -59,9 +52,7 @@ SceneFab 需要以下 API Key：
 1. 访问 [bailian.console.aliyun.com](https://bailian.console.aliyun.com) → API Keys → 创建
 2. 选择 `qwen-vl-max` 模型
 
-### 一键配置
-
-在项目根目录创建 `.env`：
+### 环境变量配置
 
 ```bash
 DEEPSEEK_API_KEY=sk-xxx...xxxx
@@ -74,7 +65,7 @@ DEFAULT_EMOTION=heal
 
 ```bash
 scenefab --version
-# 输出: scenefab 3.0.0
+# 输出: scenefab 2.2.0
 ```
 
 ## 下一步
