@@ -106,4 +106,4 @@ steps:
 ## 评审
 
 - v1.x 串行模式保留为回退（`enable_parallel=False`）
-- 当前落地形态见[架构概览 § 解说状态机与数据流](../architecture)
+- 当前落地形态见[架构概览 § 解说状态机与数据流](../architecture.md)

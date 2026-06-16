@@ -70,6 +70,6 @@ scenefab --version
 
 ## 下一步
 
-- [完整安装指南](./installation) — 各平台详细步骤
-- [配置 API Key](./ai-configuration) — DeepSeek / Qwen VL 详细配置
-- [AI 工作流详解](./ai-video-guide) — 深入理解 AI 处理流程
+- [完整安装指南](./installation.md) — 各平台详细步骤
+- [配置 API Key](./ai-configuration.md) — DeepSeek / Qwen VL 详细配置
+- [AI 工作流详解](./ai-video-guide.md) — 深入理解 AI 处理流程

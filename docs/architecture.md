@@ -121,6 +121,6 @@ src/scenefab/
 
 ## 相关文档
 
-- [第一人称生产规范](./guide/first-person-narration-production)
-- [AI 工作流](./guide/ai-video-guide)
-- [导出发布](./guide/exporting)
+- [第一人称生产规范](./guide/first-person-narration-production.md)
+- [AI 工作流](./guide/ai-video-guide.md)
+- [导出发布](./guide/exporting.md)

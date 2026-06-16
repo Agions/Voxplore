@@ -8,7 +8,7 @@ description: SceneFab 环境变量、配置文件与高级设置详解。
 所有配置通过 `.env` 文件管理（项目根目录，已加入 `.gitignore`）。
 
 ::: tip
-API Key 安全存储优先使用 OS Keychain，降级为加密文件。详见 [安全设计](./security)。
+API Key 安全存储优先使用 OS Keychain，降级为加密文件。详见 [安全设计](./security.md)。
 :::
 
 ---
