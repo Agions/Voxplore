@@ -26,11 +26,14 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 
 | 模块                                                     | 状态    | 说明                                | 替代品                                  | 移除版本   |
 | -------------------------------------------------------- | ------- | ----------------------------------- | --------------------------------------- | ---------- |
-| `services/ai_service_manager.py`                         | 🟧 shim | 纯转发，模块级 `DeprecationWarning` | `services.ai.manager.AIServiceManager`  | **v2.3.0** |
-| `services/service_manager.py` (`get_ai_service_manager`) | 🟧 shim | `application.py` 经此获取 AI 管理器 | `services.ai.manager` 直接暴露（见 P2） | **v2.3.0** |
+| `services/ai_service_manager.py`                         | 🟧 shim | 纯转发，模块级 `DeprecationWarning`                 | `services.ai.manager.AIServiceManager` | **v2.3.0** |
+| `services/service_manager.py` (`get_ai_service_manager`) | 🟧 shim | P2 已瘦身为转发；调用即 `DeprecationWarning`        | `services.ai.manager.get_ai_service`   | **v2.3.0** |
 
-**迁移指引**（衔接 P2）：统一从 `scenefab.services.ai.manager` 暴露 AI 服务，移除 `ServiceManager` 里的二次注册。
-`application.py:436` 当前 `from scenefab.services.service_manager import get_ai_service_manager` → 改为直接用 `services.ai.manager`。
+**P2 已完成**（2026-06-16）：
+- `application.py._init_services` 改为 `from scenefab.services.ai.manager import get_ai_service`，直接注册 V2 全局单例。
+- `services/service_manager.py` 删除无人使用的 `ServiceManager` 注册表类、`AIServiceManagerCompat` 二次注册层、`ServiceInfo`、模块级 `ServiceManager.initialize()` 副作用、`get_service()`；瘦身为 `get_ai_service_manager()` 转发 + `DeprecationWarning`。
+- `services/__init__.py` 同步移除 `ServiceManager` / `AIServiceManagerCompat` 的再导出映射。
+- **BREAKING（内部）**：`services.service_manager.ServiceManager` / `ServiceInfo` / `get_service` 已移除（审计确认全项目零引用）。
 
 ## 3. 解说流水线 Phase 文件 (pipeline)
 

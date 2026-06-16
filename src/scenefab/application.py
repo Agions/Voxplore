@@ -432,11 +432,11 @@ class Application(QObject):
     def _init_services(self) -> bool:
         """初始化其他服务"""
         try:
-            # 使用已存在的服务代替
-            from scenefab.services.service_manager import get_ai_service_manager
+            # AI 服务统一从权威 manager 暴露（P2: 移除 ServiceManager 二次注册）
+            from scenefab.services.ai.manager import get_ai_service
 
-            # 创建并注册AI服务管理器
-            ai_service_manager = get_ai_service_manager()
+            # 注册全局单例 AI 服务管理器
+            ai_service_manager = get_ai_service()
             self.register_service("ai_service_manager", ai_service_manager)
 
             # 初始化项目管理相关服务

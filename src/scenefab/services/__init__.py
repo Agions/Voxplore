@@ -17,12 +17,12 @@ _SUBMODULES = {
     "video_tools",
 }
 
+# AI 管理器权威实现在 services.ai.manager；这里仅为旧导入路径保留命名。
 _SERVICE_MANAGER_ATTRS = {
-    "AIServiceManager": "AIServiceManagerCompat",
+    "AIServiceManager": "AIServiceManager",
     "ServiceStatus": "ServiceStatus",
     "ServiceHealth": "ServiceHealth",
     "get_ai_service_manager": "get_ai_service_manager",
-    "ServiceManager": "ServiceManager",
 }
 
 
@@ -52,5 +52,4 @@ __all__ = [
     "ServiceStatus",
     "ServiceHealth",
     "get_ai_service_manager",
-    "ServiceManager",
 ]
