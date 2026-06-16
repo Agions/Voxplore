@@ -473,32 +473,10 @@ def _trope_to_bridge(trope) -> BridgeType | None:
 
 
 def _probe_duration(video_path: str) -> float:
-    """探测视频时长 (ffprobe), 失败返回 0"""
-    try:
-        import json
-        import subprocess
+    """探测视频时长 (经 FFmpegTool 安全执行器), 失败返回 0"""
+    from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
 
-        out = subprocess.run(
-            [
-                "ffprobe",
-                "-v",
-                "error",
-                "-show_entries",
-                "format=duration",
-                "-of",
-                "json",
-                video_path,
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        if out.returncode == 0:
-            data = json.loads(out.stdout)
-            return float(data.get("format", {}).get("duration", 0))
-    except Exception:  # noqa: BLE001
-        pass
-    return 0.0
+    return FFmpegTool.get_duration(video_path)
 
 
 def _build_minimal_story_graph(ctx: NarrationContext):

@@ -60,28 +60,14 @@ def probe_audio_duration(audio_path: Path) -> float:
     except (wave.Error, EOFError, FileNotFoundError):
         pass  # 不是 WAV, 试 ffprobe
 
-    # 2. ffprobe
+    # 2. ffprobe (经 FFmpegTool 安全执行器)
     try:
-        import subprocess
+        from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
 
-        out = subprocess.run(
-            [
-                "ffprobe",
-                "-v",
-                "error",
-                "-show_entries",
-                "format=duration",
-                "-of",
-                "default=noprint_wrappers=1:nokey=1",
-                str(audio_path),
-            ],
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-        if out.returncode == 0 and out.stdout.strip():
-            return float(out.stdout.strip())
-    except (FileNotFoundError, ValueError, subprocess.TimeoutExpired):
+        dur = FFmpegTool.get_duration(str(audio_path))
+        if dur > 0:
+            return dur
+    except Exception:  # noqa: BLE001
         pass
 
     # 3. 文件大小估算 (16kbps 兜底)

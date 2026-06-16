@@ -8,9 +8,13 @@ from __future__ import annotations
 
 import logging
 import os
-import subprocess
+
+from ...utils.security import SecurityError, get_ffmpeg_executor
 
 logger = logging.getLogger(__name__)
+
+# 统一安全执行器底座（复用全局单例）
+_executor = get_ffmpeg_executor()
 
 
 class VideoProcessor:
@@ -28,43 +32,37 @@ class VideoProcessor:
         quality: int = 23,
     ) -> bool:
         """剪切视频片段"""
+        duration = end_time - start_time
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(start_time),
+            "-i",
+            input_path,
+            "-t",
+            str(duration),
+            "-c:v",
+            "libx264",
+            "-crf",
+            str(quality),
+            "-preset",
+            "fast",
+            "-c:a",
+            "aac",
+            "-strict",
+            "experimental",
+            "-avoid_negative_ts",
+            "make_zero",
+            output_path,
+        ]
         try:
-            duration = end_time - start_time
-
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-ss",
-                    str(start_time),
-                    "-i",
-                    input_path,
-                    "-t",
-                    str(duration),
-                    "-c:v",
-                    "libx264",
-                    "-crf",
-                    str(quality),
-                    "-preset",
-                    "fast",
-                    "-c:a",
-                    "aac",
-                    "-strict",
-                    "experimental",
-                    "-avoid_negative_ts",
-                    "make_zero",
-                    output_path,
-                ],
-                capture_output=True,
-                timeout=max(60, int(duration * 2)),
-                check=True,
-            )
+            result = _executor.run(cmd, timeout=max(60, int(duration * 2)))
+            if result.returncode != 0:
+                logger.error("Video cutting failed: %s", result.stderr)
+                return False
             return True
-
-        except subprocess.TimeoutExpired:
-            logger.error("Video cutting timed out")
-            return False
-        except subprocess.CalledProcessError as e:
+        except SecurityError as e:
             logger.error(f"Video cutting failed: {e}")
             return False
 
@@ -96,31 +94,26 @@ class VideoProcessor:
                 for path in input_paths:
                     f.write(f"file '{path}'\n")
 
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-f",
-                    "concat",
-                    "-safe",
-                    "0",
-                    "-i",
-                    list_file,
-                    "-c",
-                    "copy",
-                    output_path,
-                ],
-                capture_output=True,
-                timeout=300,
-                check=True,
-            )
-
+            cmd = [
+                "ffmpeg",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                list_file,
+                "-c",
+                "copy",
+                output_path,
+            ]
+            result = _executor.run(cmd, timeout=300)
+            if result.returncode != 0:
+                logger.error("Video concatenation failed: %s", result.stderr)
+                return False
             return True
 
-        except subprocess.TimeoutExpired:
-            logger.error("Video concatenation timed out")
-            return False
-        except subprocess.CalledProcessError as e:
+        except SecurityError as e:
             logger.error(f"Video concatenation failed: {e}")
             return False
         finally:
@@ -136,40 +129,35 @@ class VideoProcessor:
         video_volume: float = 0.0,
     ) -> bool:
         """添加音频到视频（优化版 - 单次编码）"""
+        # 使用 filter_complex 一次性完成，避免多次编码
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            video_path,
+            "-i",
+            audio_path,
+            "-filter_complex",
+            f"[0:a]volume={video_volume}[a0];[1:a]volume={audio_volume}[a1];[a0][a1]amix=inputs=2:duration=longest[aout]",
+            "-map",
+            "0:v",
+            "-map",
+            "[aout]",
+            "-c:v",
+            "copy",  # 视频流直接复制，不重新编码
+            "-c:a",
+            "aac",
+            "-ar",
+            "44100",
+            output_path,
+        ]
         try:
-            # 使用 filter_complex 一次性完成，避免多次编码
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-i",
-                    video_path,
-                    "-i",
-                    audio_path,
-                    "-filter_complex",
-                    f"[0:a]volume={video_volume}[a0];[1:a]volume={audio_volume}[a1];[a0][a1]amix=inputs=2:duration=longest[aout]",
-                    "-map",
-                    "0:v",
-                    "-map",
-                    "[aout]",
-                    "-c:v",
-                    "copy",  # 视频流直接复制，不重新编码
-                    "-c:a",
-                    "aac",
-                    "-ar",
-                    "44100",
-                    output_path,
-                ],
-                capture_output=True,
-                timeout=300,
-                check=True,
-            )
+            result = _executor.run(cmd, timeout=300)
+            if result.returncode != 0:
+                logger.error("Audio mixing failed: %s", result.stderr)
+                return False
             return True
-
-        except subprocess.TimeoutExpired:
-            logger.error("Audio mixing timed out")
-            return False
-        except subprocess.CalledProcessError as e:
+        except SecurityError as e:
             logger.error(f"Audio mixing failed: {e}")
             return False
 
@@ -185,44 +173,37 @@ class VideoProcessor:
         高质量提取子片段
         使用双次编码确保帧精确
         """
+        duration = end_time - start_time
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-ss",
+            str(start_time),
+            "-i",
+            input_path,
+            "-t",
+            str(duration),
+            "-c:v",
+            "libx264",
+            "-crf",
+            str(quality),
+            "-preset",
+            "medium",
+            "-c:a",
+            "aac",
+            "-strict",
+            "experimental",
+            "-avoid_negative_ts",
+            "make_zero",
+            output_path,
+        ]
         try:
-            duration = end_time - start_time
-
-            # 第一步：精确裁剪
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-ss",
-                    str(start_time),
-                    "-i",
-                    input_path,
-                    "-t",
-                    str(duration),
-                    "-c:v",
-                    "libx264",
-                    "-crf",
-                    str(quality),
-                    "-preset",
-                    "medium",
-                    "-c:a",
-                    "aac",
-                    "-strict",
-                    "experimental",
-                    "-avoid_negative_ts",
-                    "make_zero",
-                    output_path,
-                ],
-                capture_output=True,
-                timeout=max(60, int(duration * 3)),
-                check=True,
-            )
+            result = _executor.run(cmd, timeout=max(60, int(duration * 3)))
+            if result.returncode != 0:
+                logger.error("Subclip extraction failed: %s", result.stderr)
+                return False
             return True
-
-        except subprocess.TimeoutExpired:
-            logger.error("Subclip extraction timed out")
-            return False
-        except subprocess.CalledProcessError as e:
+        except SecurityError as e:
             logger.error(f"Subclip extraction failed: {e}")
             return False
 

@@ -134,8 +134,24 @@ class FFmpegTool:
         return HWAccelType.NONE
 
     @staticmethod
+    def _ffmpeg_supports_encoder(encoder: str) -> bool:
+        """检查 FFmpeg 是否支持指定编码器（经安全执行器）。"""
+        try:
+            result = FFmpegTool._executor.run(
+                ["ffmpeg", "-hide_banner", "-encoders"],
+                timeout=10,
+            )
+            return result.returncode == 0 and encoder in (result.stdout or "")
+        except (SecurityError, FileNotFoundError):
+            return False
+
+    @staticmethod
     def _check_nvidia_smi() -> bool:
-        """检测 NVIDIA GPU 和 NVENC 支持"""
+        """检测 NVIDIA GPU 和 NVENC 支持。
+
+        nvidia-smi 不在 ffmpeg 安全执行器白名单内，作为只读能力探测保留
+        裸 subprocess；FFmpeg 编码器支持检查走统一执行器。
+        """
         try:
             result = subprocess.run(
                 ["nvidia-smi"],
@@ -143,14 +159,7 @@ class FFmpegTool:
                 timeout=5,
             )
             if result.returncode == 0:
-                # 进一步检查 FFmpeg 是否支持 h264_nvenc
-                enc_result = subprocess.run(
-                    ["ffmpeg", "-hide_banner", "-encoders"],
-                    capture_output=True,
-                    timeout=10,
-                )
-                if "h264_nvenc" in enc_result.stdout.decode("utf-8", errors="ignore"):
-                    return True
+                return FFmpegTool._ffmpeg_supports_encoder("h264_nvenc")
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
         return False
@@ -158,19 +167,9 @@ class FFmpegTool:
     @staticmethod
     def _check_vaapi() -> bool:
         """检测 VAAPI 支持"""
-        try:
-            # 检查 /dev/dri/ 是否存在 (Linux 硬件设备)
-            if Path("/dev/dri/").exists():
-                # 检查 FFmpeg 是否支持 vaapi
-                result = subprocess.run(
-                    ["ffmpeg", "-hide_banner", "-encoders"],
-                    capture_output=True,
-                    timeout=10,
-                )
-                if "vaapi" in result.stdout.decode("utf-8", errors="ignore"):
-                    return True
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        # 检查 /dev/dri/ 是否存在 (Linux 硬件设备)
+        if Path("/dev/dri/").exists():
+            return FFmpegTool._ffmpeg_supports_encoder("vaapi")
         return False
 
     @staticmethod
@@ -512,6 +511,8 @@ class FFmpegTool:
         input_path: str,
         output_path: str,
         format: str = "mp3",
+        sample_rate: int | None = None,
+        channels: int | None = None,
     ) -> bool:
         """
         提取音频
@@ -519,7 +520,9 @@ class FFmpegTool:
         Args:
             input_path: 输入视频路径
             output_path: 输出音频路径
-            format: 音频格式 (mp3/aac/wav)
+            format: 音频编码器 (mp3/aac/pcm_s16le/copy 等)
+            sample_rate: 采样率 (Hz), 如 16000 (ASR 常用)
+            channels: 声道数, 如 1 (单声道)
 
         Returns:
             是否成功
@@ -532,8 +535,12 @@ class FFmpegTool:
             "-vn",
             "-acodec",
             "copy" if format == "copy" else format,
-            output_path,
         ]
+        if sample_rate is not None:
+            cmd += ["-ar", str(sample_rate)]
+        if channels is not None:
+            cmd += ["-ac", str(channels)]
+        cmd.append(output_path)
 
         try:
             result = FFmpegTool._executor.run(cmd, timeout=300)

@@ -57,6 +57,24 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 - UI 旧组件树（`ui/components/**`、`ui/common/**` 等共 152 个文件，已 `git rm`）— 经全量 import 扫描确认无活动引用。
 - 磁盘 `__pycache__` / `*.pyc` 生成物（已被 `.gitignore` 覆盖）。
 
+## 5. FFmpeg 执行层 (P3，2026-06-16)
+
+底座为 `utils/security.py` 的 `SecureExecutor`（`get_ffmpeg_executor()` 全局单例，命令白名单 `[ffmpeg, ffprobe]`）；`video_tools/ffmpeg_tool.FFmpegTool` 为业务便捷层。
+
+本轮收编了所有**绕过安全层直接 `subprocess.run`** 的业务代码：
+
+| 文件 | 原始直调 | 现在 |
+|---|---|---|
+| `pipeline/narration_steps_phase2.py` | `_probe_duration` 裸 ffprobe | `FFmpegTool.get_duration` |
+| `pipeline/narration_steps_phase4.py` | 裸 ffprobe 时长 | `FFmpegTool.get_duration` |
+| `services/video/session.py` | 裸 ffprobe info + ffmpeg 抽音 | `FFmpegTool.get_video_info` / `extract_audio`（新增 `sample_rate`/`channels`） |
+| `services/video/processor.py` | 4 处裸 ffmpeg（cut/concat/add_audio/subclip） | `get_ffmpeg_executor().run`（专用命令保留，仅换执行入口） |
+| `video_tools/ffmpeg_tool.py` | 硬件检测里裸 `ffmpeg -encoders` | `_ffmpeg_supports_encoder` 经执行器 |
+
+**仍保留的裸 subprocess（合法）**：`core/ffmpeg_safe.py`(执行器自身) · `utils/security.py`(`SecureExecutor`) · `ffmpeg_tool.py` 的 `nvidia-smi`/`wmic`（非 ffmpeg 能力探测，不在白名单内）。
+
+**未做（本轮范围外）**：`core/ffmpeg_safe.SafeFFmpegCommand`（仅 3 处用）与 `SecureExecutor` 的双执行器并存未合并；硬件检测/ffprobe 元数据/命令构建未从 `FFmpegTool` 拆为独立模块。留待后续。
+
 ---
 
 ## 移除流程约定

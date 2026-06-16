@@ -6,9 +6,7 @@ FFmpeg 会话管理模块
 
 from __future__ import annotations
 
-import json
 import logging
-import subprocess
 import threading
 
 import numpy as np
@@ -54,25 +52,11 @@ class FFmpegSession:
             return self._info_cache[cache_key]
 
         try:
-            result = subprocess.run(
-                [
-                    "ffprobe",
-                    "-v",
-                    "quiet",
-                    "-print_format",
-                    "json",
-                    "-show_format",
-                    "-show_streams",
-                    video_path,
-                ],
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
+            from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
 
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
+            data = FFmpegTool.get_video_info(video_path)
 
+            if data:
                 video_stream = next(  # type: ignore[var-annotated]
                     (
                         s
@@ -244,34 +228,19 @@ class FFmpegSession:
         if output_path is None:
             output_path = video_path.rsplit(".", 1)[0] + ".wav"  # type: ignore[unreachable]
 
-        try:
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-i",
-                    video_path,
-                    "-vn",
-                    "-acodec",
-                    "pcm_s16le",
-                    "-ar",
-                    "16000",
-                    "-ac",
-                    "1",
-                    output_path,
-                ],
-                capture_output=True,
-                timeout=300,
-                check=True,
-            )
-            return output_path
+        from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
 
-        except subprocess.TimeoutExpired:
-            logger.error("Audio extraction timed out")
+        ok = FFmpegTool.extract_audio(
+            video_path,
+            output_path,
+            format="pcm_s16le",
+            sample_rate=16000,
+            channels=1,
+        )
+        if not ok:
+            logger.error("Audio extraction failed")
             return None
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Audio extraction failed: {e}")
-            return None
+        return output_path
 
 
 __all__ = ["FFmpegSession"]
