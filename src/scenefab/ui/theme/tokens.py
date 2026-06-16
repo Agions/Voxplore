@@ -65,7 +65,7 @@ LIGHT_TOKENS = {
     "accent-subtle": "#ffe4e6",
 }
 
-COLORS = DARK_TOKENS
+COLORS = LIGHT_TOKENS
 
 SPACING = {
     "xs": "4px",

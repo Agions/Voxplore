@@ -10,7 +10,7 @@ from PySide6.QtCore import QObject, QTimer, Signal
 from .tokens import COLORS, DARK_TOKENS, LIGHT_TOKENS
 
 
-def _theme_token(key: str, mode: str = "dark") -> str:
+def _theme_token(key: str, mode: str = "light") -> str:
     """Resolve a theme token by key and mode."""
     tokens = LIGHT_TOKENS if mode == "light" else DARK_TOKENS
     return tokens.get(key, COLORS.get(key, "#64748b"))
@@ -21,7 +21,7 @@ class ThemeConfig:
     """主题配置（简化版）"""
 
     name: str = "production"
-    mode: str = "dark"
+    mode: str = "light"
 
 
 @dataclass
@@ -53,7 +53,7 @@ class ThemeColors:
     dark: str = ""
 
     @classmethod
-    def from_mode(cls, mode: str = "dark") -> "ThemeColors":
+    def from_mode(cls, mode: str = "light") -> "ThemeColors":
         """Build a ThemeColors instance from resource-aligned tokens."""
         return cls(
             primary=_theme_token("primary", mode),
@@ -114,98 +114,9 @@ class ThemeManager(QObject):
         dark_colors = ThemeColors.from_mode("dark")
         light_colors = ThemeColors.from_mode("light")
 
-        # 蓝调深色 — GitHub 风格（保留定制 hex）
-        blue_dark_colors = ThemeColors(
-            primary="#388BFD",
-            secondary="#1F6FEB",
-            background="#0D1117",
-            surface="#161B22",
-            card="#161B22",
-            text="#E6EDF3",
-            text_secondary="#C9D1D9",
-            border="#30363D",
-            divider="#21262D",
-            error="#DA3633",
-            warning="#D29922",
-            success="#238636",
-            info="#388BFD",
-            accent="#A371F7",
-            tertiary="#8B5CF6",
-            light="#DBEAFE",
-            dark="#1E40AF",
-        )
-
-        # 森林绿色（保留定制 hex）
-        forest_colors = ThemeColors(
-            primary="#22C55E",
-            secondary="#16A34A",
-            background="#064E3B",
-            surface="#14532D",
-            card="#14532D",
-            text="#ECFDF5",
-            text_secondary="#99F6E4",
-            border="#16A34A",
-            divider="#15803D",
-            error="#EF4444",
-            warning="#F59E0B",
-            success="#22C55E",
-            info="#3B82F6",
-            accent="#8B5CF6",
-            tertiary="#EC4899",
-            light="#BBF7D0",
-            dark="#052E16",
-        )
-
-        # 紫色主题（保留定制 hex）
-        purple_colors = ThemeColors(
-            primary="#9C27B0",
-            secondary="#7B1FA2",
-            background="#121212",
-            surface="#1E1B1E",
-            card="#1E1B1E",
-            text="#FFFFFF",
-            text_secondary="#E0E0E0",
-            border="#4A148C",
-            divider="#311B92",
-            error="#F44336",
-            warning="#FFB300",
-            success="#66BB6A",
-            info="#2196F3",
-            accent="#EC407A",
-            tertiary="#5C6BC0",
-            light="#E1BEE7",
-            dark="#4A148C",
-        )
-
-        # 橙色主题（保留定制 hex）
-        orange_colors = ThemeColors(
-            primary="#FF5722",
-            secondary="#E64A19",
-            background="#263238",
-            surface="#37474F",
-            card="#37474F",
-            text="#FFFFFF",
-            text_secondary="#CFD8DC",
-            border="#546E7A",
-            divider="#455A64",
-            error="#F44336",
-            warning="#FFB74D",
-            success="#81C784",
-            info="#4FC3F7",
-            accent="#9575CD",
-            tertiary="#FF8A65",
-            light="#FFCCBC",
-            dark="#BF360C",
-        )
-
-        # 添加主题预设
         self.theme_presets = [
-            ThemePreset("深色主题", "dark", dark_colors),
             ThemePreset("浅色主题", "light", light_colors),
-            ThemePreset("蓝调深色", "dark", blue_dark_colors),
-            ThemePreset("森林绿色", "dark", forest_colors),
-            ThemePreset("紫色主题", "dark", purple_colors),
-            ThemePreset("橙色主题", "dark", orange_colors),
+            ThemePreset("深色主题", "dark", dark_colors),
         ]
 
     def get_available_themes(self) -> list[str]:
@@ -233,17 +144,6 @@ class ThemeManager(QObject):
     def _update_colors(self) -> None:
         """更新颜色配置"""
         self.colors = ThemeColors.from_mode(self.current_mode)
-        # Allow theme_config overrides if explicitly set (non-empty)
-        if self.theme_config.primary_color:  # type: ignore[attr-defined]
-            self.colors.primary = self.theme_config.primary_color  # type: ignore[attr-defined]
-        if self.theme_config.secondary_color:  # type: ignore[attr-defined]
-            self.colors.secondary = self.theme_config.secondary_color  # type: ignore[attr-defined]
-        if self.theme_config.background_color:  # type: ignore[attr-defined]
-            self.colors.background = self.theme_config.background_color  # type: ignore[attr-defined]
-        if self.theme_config.surface_color:  # type: ignore[attr-defined]
-            self.colors.surface = self.theme_config.surface_color  # type: ignore[attr-defined]
-        if self.theme_config.text_color:  # type: ignore[attr-defined]
-            self.colors.text = self.theme_config.text_color  # type: ignore[attr-defined]
 
     def set_theme_mode(self, mode: str) -> None:
         """设置主题模式"""
@@ -306,28 +206,29 @@ class ThemeManager(QObject):
         """获取默认样式表"""
         return """/* 默认样式 */
         QMainWindow {
-            background-color: #1E1E1E;
-            color: white;
+            background-color: #f6f8fb;
+            color: #182235;
         }
         QPushButton {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            background-color: #ffffff;
+            color: #182235;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
             padding: 8px 16px;
         }
         QPushButton:hover {
-            background-color: #1976D2;
+            background-color: #f1f5f9;
+            border-color: #0891b2;
         }
         QLineEdit, QTextEdit {
-            background-color: #2D2D2D;
-            color: white;
-            border: 1px solid #404040;
-            border-radius: 4px;
+            background-color: #ffffff;
+            color: #182235;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
             padding: 8px;
         }
         QLabel {
-            color: white;
+            color: #182235;
         }
         """
 
@@ -418,11 +319,8 @@ class ThemeManager(QObject):
     def apply_design_system(self, widget=None) -> None:
         """应用全新设计系统"""
         from .base_styles import get_base_qss
-        from .qss_variables import register_qss_variables
 
-        vars_css = register_qss_variables()
-        base_css = get_base_qss()
-        full_css = f"""{vars_css}\n{base_css}"""
+        full_css = get_base_qss()
 
         from PySide6.QtWidgets import QApplication
 

@@ -16,16 +16,16 @@ class Colors:
     """语义化色彩"""
 
     # ── 背景层 ──────────────────────────────────────────────────
-    BG_BASE = "#0b1120"
-    BG_SURFACE = "#111827"
-    BG_ELEVATED = "#182235"
-    BG_OVERLAY = "#1f2c43"
-    BG_INPUT = "#0f172a"
+    BG_BASE = "#f6f8fb"
+    BG_SURFACE = "#ffffff"
+    BG_ELEVATED = "#f1f5f9"
+    BG_OVERLAY = "#e2e8f0"
+    BG_INPUT = "#ffffff"
 
     # ── 边框层 ──────────────────────────────────────────────────
-    BORDER_SUBTLE = "#253247"
-    BORDER_DEFAULT = "#334155"
-    BORDER_STRONG = "#38bdf8"
+    BORDER_SUBTLE = "#dbe3ee"
+    BORDER_DEFAULT = "#cbd5e1"
+    BORDER_STRONG = "#0891b2"
     BORDER_FOCUS = "#0891b2"
 
     # ── 主色：叙事青 ───────────────────────────────────────────
@@ -43,7 +43,7 @@ class Colors:
     ACCENT_NORMAL = "#fb7185"
     ACCENT = "#f43f5e"
     ACCENT_DARK = "#be123c"
-    ACCENT_SUBTLE = "#4c1d2f"
+    ACCENT_SUBTLE = "#ffe4e6"
 
     # ── 功能色 ─────────────────────────────────────────────────
     SUCCESS = "#22c55e"
@@ -55,17 +55,17 @@ class Colors:
     INFO = "#22d3ee"
 
     # ── 文字层 ─────────────────────────────────────────────────
-    TEXT_PRIMARY = "#e5edf6"
-    TEXT_SECONDARY = "#cbd5e1"
-    TEXT_MUTED = "#91a4ba"
-    TEXT_DISABLED = "#64748b"
-    TEXT_INVERSE = "#0b1120"
+    TEXT_PRIMARY = "#182235"
+    TEXT_SECONDARY = "#334155"
+    TEXT_MUTED = "#64748b"
+    TEXT_DISABLED = "#94a3b8"
+    TEXT_INVERSE = "#ffffff"
 
     # ── 侧边栏渐变 ─────────────────────────────────────────────
-    SIDEBAR_TOP = "#111827"
-    SIDEBAR_MID = "#0f172a"
-    SIDEBAR_BOTTOM = "#0b1120"
-    SIDEBAR_GLOW = "#22d3ee"
+    SIDEBAR_TOP = "#ffffff"
+    SIDEBAR_MID = "#f8fafc"
+    SIDEBAR_BOTTOM = "#f1f5f9"
+    SIDEBAR_GLOW = "#0891b2"
 
     # ── 状态色（透明度修饰，RRGGBBAA格式）─────────────────────
     PRIMARY_10 = "#0891b21A"

@@ -17,8 +17,7 @@ class TopBar(QFrame):
     def __init__(self, title: str = "", parent=None):
         super().__init__(parent)
         self._title = title
-        self._breadcrumb = []  # type: ignore[var-annotated]
-        self.setFixedHeight(52)
+        self.setFixedHeight(56)
         self.setObjectName("topbar")
         self._setup_style()
         self._setup_ui()
@@ -57,19 +56,16 @@ class TopBar(QFrame):
         actions_layout = QHBoxLayout()
         actions_layout.setSpacing(4)
 
-        for _id, icon, tip in [
-            ("undo", "↩", "撤销 (Ctrl+Z)"),
-            ("redo", "↪", "重做 (Ctrl+Y)"),
-            ("export", "↑", "导出 (Ctrl+E)"),
-            ("search", "🔍", "搜索 (Ctrl+F)"),
-        ]:
+        for action_id, icon, tip in [("export", "导出", "导出成片")]:
             btn = QToolButton()
             btn.setObjectName("topbar_action_btn")
             btn.setText(icon)
             btn.setToolTip(tip)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setFixedSize(32, 32)
-            btn.clicked.connect(lambda checked, i=_id: self.action_triggered.emit(i))
+            btn.setFixedSize(52, 32)
+            btn.clicked.connect(
+                lambda checked, i=action_id: self.action_triggered.emit(i)
+            )
             actions_layout.addWidget(btn)
 
         layout.addLayout(actions_layout)

@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-SceneFab 设置页 — 分类清晰的信息架构
-"""
-
-from pathlib import Path
+"""Application settings page."""
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
@@ -14,411 +10,240 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
 
 from ...theme.ds_tokens import _C, FontSizes, Radii
-
-# ═══════════════════════════════════════════════════════════════
-# 设置分组卡片
-# ═══════════════════════════════════════════════════════════════
-
-
-class SettingsGroup(QFrame):
-    """设置分组"""
-
-    def __init__(self, title: str, icon: str = "", parent=None):
-        super().__init__(parent)
-        self._title = title
-        self.setObjectName("settings_group")
-        self._setup_style()
-        self._setup_ui(icon)
-
-    def _setup_style(self):
-        self.setStyleSheet(f"""
-            #settings_group {{
-                background: {_C.BG_SURFACE};
-                border: 1px solid {_C.BORDER_SUBTLE};
-                border-radius: {Radii.lg};
-            }}
-        """)
-
-    def _setup_ui(self, icon: str):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        # 分组标题
-        header = QFrame()
-        header.setStyleSheet(f"border-bottom: 1px solid {_C.BORDER_SUBTLE};")
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(20, 16, 20, 16)
-        header_layout.setSpacing(12)
-
-        if icon:
-            icon_label = QLabel(icon)
-            icon_label.setFont(QFont("", 18))
-            header_layout.addWidget(icon_label)
-
-        title_label = QLabel(self._title)
-        title_label.setFont(QFont("", FontSizes.md, QFont.Weight.Semibold))  # type: ignore[attr-defined]
-        title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
-        header_layout.addWidget(title_label)
-        header_layout.addStretch()
-
-        layout.addWidget(header)
-
-        # 内容区
-        self._content = QFrame()
-        self._content_layout = QVBoxLayout(self._content)
-        self._content_layout.setContentsMargins(20, 16, 20, 16)
-        self._content_layout.setSpacing(16)
-        self._content_layout.addWidget(QWidget())  # spacer
-        layout.addWidget(self._content)
-
-    def layout(self):
-        return self._content_layout
-
-
-# ═══════════════════════════════════════════════════════════════
-# 设置项行
-# ═══════════════════════════════════════════════════════════════
-
-
-class SettingsRow(QFrame):
-    """设置项行"""
-
-    def __init__(self, label: str, widget: QWidget, desc: str = "", parent=None):
-        super().__init__(parent)
-        self.setFixedHeight(52 if desc else 40)
-        self.setObjectName("settings_row")
-        self._setup_style()
-        self._setup_ui(label, widget, desc)
-
-    def _setup_style(self):
-        self.setStyleSheet(f"""
-            #settings_row:hover {{
-                background: {_C.BG_ELEVATED};
-            }}
-        """)
-
-    def _setup_ui(self, label: str, widget: QWidget, desc: str):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 4, 0, 4)
-        layout.setSpacing(16)
-
-        text_layout = QVBoxLayout()
-        text_layout.setSpacing(1)
-
-        label_widget = QLabel(label)
-        label_widget.setFont(QFont("", FontSizes.sm))
-        label_widget.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
-        text_layout.addWidget(label_widget)
-
-        if desc:
-            desc_label = QLabel(desc)
-            desc_label.setFont(QFont("", FontSizes.xs))
-            desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
-            text_layout.addWidget(desc_label)
-
-        layout.addLayout(text_layout, 1)
-        layout.addWidget(widget)
+from .page_widgets import (
+    action_button_style,
+    header_panel,
+    page_background_style,
+    page_container,
+    panel,
+    scroll_area,
+    section_title,
+)
 
 
 class ToggleSwitch(QFrame):
-    """开关控件"""
+    """Small binary setting control."""
 
     toggled = Signal(bool)
 
     def __init__(self, checked: bool = False, parent=None):
         super().__init__(parent)
         self._checked = checked
-        self.setFixedSize(44, 24)
+        self.setFixedSize(42, 22)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setProperty("checked", checked)
         self._setup_style()
 
     def _setup_style(self):
-        self.setStyleSheet(f"""  # type: ignore[attr-defined]
+        self.setStyleSheet(f"""
             QFrame {{
                 background: {_C.BG_ELEVATED};
-                border-radius: 12px;
-                border: none;
+                border: 1px solid {_C.BORDER_DEFAULT};
+                border-radius: 11px;
             }}
             QFrame[checked="true"] {{
-                background: {_C.PRIMARY_500};
+                background: {_C.PRIMARY};
+                border-color: {_C.PRIMARY};
             }}
         """)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self._checked = not self._checked
-            self.setProperty("checked", self._checked)
-            self.style().unpolish(self)
-            self.style().polish(self)
+            self.setChecked(not self._checked)
             self.toggled.emit(self._checked)
+        super().mousePressEvent(event)
 
     def isChecked(self) -> bool:
         return self._checked
 
     def setChecked(self, checked: bool):
-        if self._checked != checked:
-            self._checked = checked
-            self.setProperty("checked", checked)
-            self.style().unpolish(self)
-            self.style().polish(self)
-
-
-# ═══════════════════════════════════════════════════════════════
-# 设置页面
-# ═══════════════════════════════════════════════════════════════
+        self._checked = checked
+        self.setProperty("checked", checked)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
 
 class SettingsPage(QFrame):
-    """设置页面"""
+    """Professional settings surface."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("settings_page")
+        self._tray_toggle: ToggleSwitch | None = None
         self._setup_style()
         self._setup_ui()
         self._connect_tray_signal()
 
+    def _setup_style(self):
+        self.setStyleSheet(page_background_style("settings_page"))
+
+    def _setup_ui(self):
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+
+        scroll = scroll_area()
+        container = page_container()
+        layout = container.layout()
+
+        layout.addWidget(self._build_header())
+        layout.addWidget(self._workspace_group())
+        layout.addWidget(self._ai_group())
+        layout.addWidget(self._export_group())
+        layout.addWidget(self._behavior_group())
+        layout.addStretch()
+
+        scroll.setWidget(container)
+        root.addWidget(scroll)
+
     def _connect_tray_signal(self):
-        """连接托盘开关信号到主窗口"""
         if self._tray_toggle is not None:
             self._tray_toggle.toggled.connect(self._on_tray_toggled)
 
     def _on_tray_toggled(self, checked: bool):
-        """托盘开关状态变化 - 通知主窗口"""
-        # 找到顶层主窗口（设置页的祖先）
         window = self.window()
         if window is not None and hasattr(window, "set_minimize_to_tray"):
             window.set_minimize_to_tray(checked)
 
-    def _setup_style(self):
-        self.setStyleSheet(f"""
-            #settings_page {{
-                background: {_C.BG_BASE};
-            }}
-        """)
+    def _build_header(self) -> QFrame:
+        return header_panel("settings_header", "系统设置", "配置默认工作区、AI 服务和导出参数")
 
-    def _setup_ui(self):
-        """组装设置页面 (重构: 每个设置组独立方法)"""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+    def _workspace_group(self) -> QFrame:
+        group = self._group("工作区")
+        layout = group.layout()
+        layout.addWidget(
+            self._row("项目目录", self._path_input("~/SceneFab/projects"), "默认项目保存位置")
+        )
+        layout.addWidget(
+            self._row("输出目录", self._path_input("~/SceneFab/exports"), "成片和草稿导出位置")
+        )
+        layout.addWidget(self._row("界面语言", self._combo(["简体中文", "English"])))
+        return group
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("border: none;")
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    def _ai_group(self) -> QFrame:
+        group = self._group("AI 服务")
+        layout = group.layout()
+        api_input = QLineEdit()
+        api_input.setEchoMode(QLineEdit.EchoMode.Password)
+        api_input.setPlaceholderText("输入 API Key")
+        api_input.setFixedWidth(280)
+        api_input.setStyleSheet(self._input_style())
+        layout.addWidget(self._row("API Key", api_input, "用于脚本生成和画面理解"))
+        layout.addWidget(
+            self._row(
+                "默认模型",
+                self._combo(["DeepSeek V3", "GPT-4o", "Gemini 2.0"]),
+                "影响脚本质量和响应速度",
+            )
+        )
+        return group
 
-        container = QWidget()
-        container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(32, 24, 32, 32)
-        container_layout.setSpacing(24)
+    def _export_group(self) -> QFrame:
+        group = self._group("导出默认值")
+        layout = group.layout()
+        layout.addWidget(
+            self._row(
+                "画布",
+                self._combo(["1080x1920", "720x1280", "1920x1080"]),
+                "短视频默认使用竖屏 9:16",
+            )
+        )
+        layout.addWidget(self._row("帧率", self._combo(["30 fps", "60 fps", "24 fps"])))
+        layout.addWidget(
+            self._row(
+                "编码",
+                self._combo(["MP4 / H.264", "MP4 / H.265", "MOV / ProRes"]),
+            )
+        )
+        return group
 
-        # 标题
-        title = QLabel("设置")
-        title.setFont(QFont("", FontSizes.xxl, QFont.Weight.Bold))
-        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
-        container_layout.addWidget(title)
-
-        # 按职责拆分为独立方法, 每个返回一个 SettingsGroup
-        container_layout.addWidget(self._create_general_group())
-        container_layout.addWidget(self._create_ai_group())
-        container_layout.addWidget(self._create_export_group())
-        container_layout.addWidget(self._create_shortcuts_group())
-        container_layout.addWidget(self._create_plugins_group())
-        container_layout.addWidget(self._create_about_group())
-        container_layout.addStretch()
-
-        scroll.setWidget(container)
-        layout.addWidget(scroll)
-    def _create_general_group(self) -> SettingsGroup:
-        """通用设置组"""
-        general = SettingsGroup("通用", "⚙")
-        gen_layout = general.layout()
-
-        theme_row = SettingsRow("主题", QComboBox(), "选择界面外观")
-        theme_combo = theme_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        theme_combo.addItems(["深色", "浅色", "跟随系统"])  # type: ignore[union-attr]
-        theme_combo.setFixedWidth(160)  # type: ignore[union-attr]
-        theme_combo.setStyleSheet(f"""  # type: ignore[union-attr]
-            QComboBox {{
-                background: {_C.BG_ELEVATED};
-                border: 1px solid {_C.BORDER_DEFAULT};
-                border-radius: {Radii.sm};
-                padding: 6px 12px;
-                color: {_C.TEXT_PRIMARY};
-            }}
-        """)
-        self._combo_style = theme_combo.styleSheet()  # 缓存样式供其他 combo 复用
-        gen_layout.insertWidget(0, theme_row)
-
-        autosave_row = SettingsRow("自动保存", ToggleSwitch(True), "每隔 5 分钟自动保存项目")
-        gen_layout.insertWidget(1, autosave_row)
-
+    def _behavior_group(self) -> QFrame:
+        group = self._group("应用行为")
+        layout = group.layout()
+        layout.addWidget(self._row("自动保存", ToggleSwitch(True), "每 5 分钟保存项目状态"))
         self._tray_toggle = ToggleSwitch(False)
-        tray_row = SettingsRow("关闭到系统托盘", self._tray_toggle, "开启后点击关闭按钮将缩放到系统托盘（默认关闭，直接退出）")
-        gen_layout.insertWidget(2, tray_row)
+        layout.addWidget(
+            self._row("关闭到系统托盘", self._tray_toggle, "关闭窗口时保持后台运行")
+        )
+        return group
 
-        lang_row = SettingsRow("语言", QComboBox(), "界面显示语言")
-        lang_combo = lang_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        lang_combo.addItems(["简体中文", "English"])  # type: ignore[union-attr]
-        lang_combo.setFixedWidth(160)  # type: ignore[union-attr]
-        lang_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
-        gen_layout.insertWidget(3, lang_row)
+    def _group(self, title: str) -> QFrame:
+        group = panel(f"settings_{title}")
+        layout = QVBoxLayout(group)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(14)
+        layout.addWidget(section_title(title))
+        return group
 
-        return general
-    def _create_ai_group(self) -> SettingsGroup:
-        """AI 服务设置组"""
-        ai = SettingsGroup("AI 服务", "🤖")
-        ai_layout = ai.layout()
+    def _row(self, label: str, widget: QWidget, desc: str = "") -> QFrame:
+        row = QFrame()
+        row.setObjectName("settings_row")
+        row.setStyleSheet(f"""
+            QFrame#settings_row {{
+                background: {_C.BG_BASE};
+                border: 1px solid {_C.BORDER_SUBTLE};
+                border-radius: {Radii.sm};
+            }}
+        """)
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(14, 10, 14, 10)
+        layout.setSpacing(16)
 
-        api_row = SettingsRow("API 密钥", QLineEdit("••••••••••••"), "用于 AI 服务认证")
-        api_input = api_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        api_input.setFixedWidth(280)  # type: ignore[union-attr]
-        api_input.setStyleSheet(f"""  # type: ignore[union-attr]
-            QLineEdit {{
+        text = QVBoxLayout()
+        text.setSpacing(2)
+        title = QLabel(label)
+        title.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
+        title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
+        text.addWidget(title)
+        if desc:
+            desc_label = QLabel(desc)
+            desc_label.setFont(QFont("", FontSizes.xs))
+            desc_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
+            text.addWidget(desc_label)
+        layout.addLayout(text, 1)
+        layout.addWidget(widget)
+        return row
+
+    def _combo(self, items: list[str]) -> QComboBox:
+        combo = QComboBox()
+        combo.addItems(items)
+        combo.setFixedWidth(180)
+        combo.setStyleSheet(self._input_style())
+        return combo
+
+    def _path_input(self, value: str) -> QWidget:
+        wrapper = QFrame()
+        layout = QHBoxLayout(wrapper)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        edit = QLineEdit(value)
+        edit.setFixedWidth(280)
+        edit.setStyleSheet(self._input_style())
+        layout.addWidget(edit)
+
+        button = QPushButton("选择")
+        button.setFixedHeight(32)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setStyleSheet(action_button_style(padding=12))
+        layout.addWidget(button)
+        return wrapper
+
+    def _input_style(self) -> str:
+        return f"""
+            QComboBox, QLineEdit {{
                 background: {_C.BG_ELEVATED};
                 border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
-                padding: 6px 12px;
+                padding: 6px 10px;
                 color: {_C.TEXT_PRIMARY};
+                font-size: {FontSizes.xs}px;
             }}
-        """)
-        ai_layout.insertWidget(0, api_row)
-
-        model_row = SettingsRow("AI 模型", QComboBox(), "选择默认 AI 生成模型")
-        model_combo = model_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        model_combo.addItems(["DeepSeek V3", "GPT-4o", "Gemini 2.0", "智谱 GLM-5"])  # type: ignore[union-attr]
-        model_combo.setFixedWidth(180)  # type: ignore[union-attr]
-        model_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
-        ai_layout.insertWidget(1, model_row)
-
-        usage_label = QLabel("本月 API 调用: 1,234 次")
-        usage_label.setFont(QFont("", FontSizes.sm))
-        usage_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
-        ai_layout.insertWidget(2, usage_label)
-
-        return ai
-    def _create_export_group(self) -> SettingsGroup:
-        """导出设置组"""
-        export = SettingsGroup("导出", "📤")
-        exp_layout = export.layout()
-
-        fmt_row = SettingsRow("默认格式", QComboBox(), "导出视频的默认格式")
-        fmt_combo = fmt_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        fmt_combo.addItems(["MP4", "MOV", "AVI", "MKV"])  # type: ignore[union-attr]
-        fmt_combo.setFixedWidth(120)  # type: ignore[union-attr]
-        fmt_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
-        exp_layout.insertWidget(0, fmt_row)
-
-        res_row = SettingsRow("默认分辨率", QComboBox(), "导出视频的默认分辨率")
-        res_combo = res_row.layout().itemAt(1).widget()  # type: ignore[union-attr]
-        res_combo.addItems(["1080P (1920×1080)", "720P (1280×720)", "4K (3840×2160)"])  # type: ignore[union-attr]
-        res_combo.setFixedWidth(200)  # type: ignore[union-attr]
-        res_combo.setStyleSheet(self._combo_style)  # type: ignore[union-attr]
-        exp_layout.insertWidget(1, res_row)
-
-        return export
-    def _create_shortcuts_group(self) -> SettingsGroup:
-        """快捷键设置组"""
-        shortcuts = SettingsGroup("快捷键", "⌨")
-        short_layout = shortcuts.layout()
-
-        shortcuts_info = QLabel(
-            "新建项目: Ctrl+N\n"
-            "打开项目: Ctrl+O\n"
-            "保存: Ctrl+S\n"
-            "导出: Ctrl+E\n"
-            "撤销: Ctrl+Z\n"
-            "重做: Ctrl+Y\n"
-            "全屏预览: F11"
-        )
-        shortcuts_info.setFont(QFont("", FontSizes.sm))
-        shortcuts_info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
-        shortcuts_info.setLineSpacing(6)  # type: ignore[attr-defined]
-        short_layout.insertWidget(0, shortcuts_info)
-
-        return shortcuts
-    def _create_plugins_group(self) -> SettingsGroup:
-        """插件管理设置组"""
-        plugins_grp = SettingsGroup("插件管理", "🧩")
-        plugins_layout = plugins_grp.layout()
-
-        from scenefab.plugins.loader import PluginLoader
-        from scenefab.plugins.registry import PluginRegistry
-
-        loader = PluginLoader(PluginRegistry())
-        try:
-            loader.add_plugin_directory(str(Path(__file__).parent.parent.parent.parent / "plugins" / "examples"))
-            manifests = loader.discover_plugins()
-        except Exception:
-            manifests = []
-
-        if manifests:
-            for m in manifests:
-                info = QLabel(f"<b>{m.name}</b> v{m.version} — {m.description}")
-                info.setFont(QFont("", FontSizes.sm))
-                info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
-                plugins_layout.insertWidget(plugins_layout.count() - 1, info)
-        else:
-            empty_info = QLabel("暂无已安装插件")
-            empty_info.setFont(QFont("", FontSizes.sm))
-            empty_info.setStyleSheet(f"color: {_C.TEXT_MUTED};")
-            plugins_layout.insertWidget(0, empty_info)
-
-        install_btn = QPushButton("浏览插件商店")
-        install_btn.setObjectName("btn_secondary")
-        install_btn.setFixedSize(120, 32)
-        install_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
-            QPushButton#btn_secondary {{
-                background: transparent;
-                color: {_C.PRIMARY_400};
-                border: 1px solid {_C.PRIMARY_500};
-                border-radius: {Radii.base};
-                font-size: {FontSizes.sm};
+            QComboBox:focus, QLineEdit:focus {{
+                border-color: {_C.PRIMARY};
             }}
-            QPushButton#btn_secondary:hover {{
-                background: rgba(139, 92, 246, 0.1);
-            }}
-        """)
-        plugins_layout.insertWidget(plugins_layout.count() - 1, install_btn)
-
-        return plugins_grp
-    def _create_about_group(self) -> SettingsGroup:
-        """关于设置组"""
-        about = SettingsGroup("关于", "ℹ")
-        about_layout = about.layout()
-
-        about_info = QLabel(
-            "<b>SceneFab</b> v1.0.0<br>"
-            "智能视频创作平台<br><br>"
-            "© 2025 Agions. MIT License."
-        )
-        about_info.setFont(QFont("", FontSizes.sm))
-        about_info.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
-        about_info.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        about_layout.insertWidget(0, about_info)
-
-        check_btn = QPushButton("检查更新")
-        check_btn.setObjectName("btn_secondary")
-        check_btn.setFixedSize(100, 32)
-        check_btn.setStyleSheet(f"""  # type: ignore[attr-defined]
-            QPushButton#btn_secondary {{
-                background: transparent;
-                color: {_C.PRIMARY_400};
-                border: 1px solid {_C.PRIMARY_500};
-                border-radius: {Radii.base};
-                font-size: {FontSizes.sm};
-            }}
-            QPushButton#btn_secondary:hover {{
-                background: rgba(139, 92, 246, 0.1);
-            }}
-        """)
-        about_layout.insertWidget(1, check_btn)
-
-        return about
+        """

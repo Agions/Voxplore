@@ -1,15 +1,13 @@
-"""
-页面模块
-"""
+"""Production workspace pages."""
 
-from .base_page import BasePage
-from .creation_wizard_page import CreationWizardPage
+from .assets_page import AssetsPage
 from .home_page import HomePage
+from .production_page import ProductionPage
 from .settings_page import SettingsPage
 
 __all__ = [
-    "BasePage",
+    "AssetsPage",
     "HomePage",
+    "ProductionPage",
     "SettingsPage",
-    "CreationWizardPage",
 ]

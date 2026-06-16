@@ -1,18 +1,15 @@
 """
 SceneFab 主窗口包
 
-极简布局 v6:
-- 极窄侧边栏(56px)+图标+悬浮提示
-- 顶部工具栏与页面标题融为一体
-- 内容区无边框，更沉浸
-- 属性面板滑入/滑出动画
-- 底部状态栏更轻量
-- 全局快捷键支持
+专业生产工作台布局:
+- 左侧文本导航
+- 顶部操作栏
+- 中央生产页面
+- 底部状态栏
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -22,9 +19,8 @@ from PySide6.QtWidgets import (
 
 from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii
 
-from .content_area import ContentArea, PlaceholderPage
+from .content_area import ContentArea
 from .nav_components import Sidebar
-from .properties_panel import PropertiesPanel
 from .status_bar import StatusBar
 from .top_bar import TopBar
 
@@ -32,20 +28,17 @@ from .top_bar import TopBar
 class SceneFabMainWindow(QMainWindow):
     """SceneFab 主窗口"""
 
-    # 公共信号
-    navigate = Signal(str)
-
     PAGE_TITLES = {
-        "home": ("主界面", ""),
-        "create": ("创作台", ""),
-        "projects": ("项目管理", ""),
+        "home": ("工作台", ""),
+        "create": ("创作流程", ""),
+        "assets": ("项目资产", ""),
         "settings": ("设置", ""),
     }
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("SceneFab")
-        self.setMinimumSize(1100, 680)
+        self.setMinimumSize(1200, 720)
         self._tray = None
         self._minimize_to_tray_enabled = False
         self._quitting = False
@@ -70,12 +63,8 @@ class SceneFabMainWindow(QMainWindow):
         self._lazy_load_pages()
         root.addWidget(self.content, 1)
 
-        # 属性面板（初始隐藏）
-        self.props = PropertiesPanel()
-        root.addWidget(self.props)
-
         # 顶部栏
-        self.topbar = TopBar("主界面")
+        self.topbar = TopBar("工作台")
         self.setMenuWidget(self.topbar)
 
         # 状态栏
@@ -83,12 +72,24 @@ class SceneFabMainWindow(QMainWindow):
         self.setStatusBar(self.statusbar)  # type: ignore[arg-type]
 
     def _lazy_load_pages(self):
+        from scenefab.ui.main.pages.assets_page import AssetsPage
         from scenefab.ui.main.pages.home_page import HomePage
+        from scenefab.ui.main.pages.production_page import ProductionPage
         from scenefab.ui.main.pages.settings_page import SettingsPage
 
-        self.content.add_page("home", HomePage())
-        self.content.add_page("create", PlaceholderPage("创作台", "＋"))
-        self.content.add_page("projects", PlaceholderPage("项目管理", "☰"))
+        home = HomePage()
+        home.create_project.connect(lambda: self._on_navigate("create"))
+        home.navigate.connect(self._on_navigate)
+
+        production = ProductionPage()
+        production.start_requested.connect(lambda: self.statusbar.set_status("创作流程已就绪"))
+
+        assets = AssetsPage()
+        assets.import_requested.connect(lambda: self.statusbar.set_status("请选择需要导入的素材"))
+
+        self.content.add_page("home", home)
+        self.content.add_page("create", production)
+        self.content.add_page("assets", assets)
         self.content.add_page("settings", SettingsPage())
 
     def _connect_signals(self):
@@ -196,49 +197,33 @@ class SceneFabMainWindow(QMainWindow):
         self.statusbar.set_status("加载中..." if show else "就绪")
 
     def _on_action(self, action_id: str):
-        handlers = {
-            "undo": self._handle_undo,
-            "redo": self._handle_redo,
-            "export": self._handle_export,
-            "search": self._handle_search,
-        }
-        handler = handlers.get(action_id)
-        if handler:
-            handler()
-
-    def _handle_undo(self):
-        pass
-
-    def _handle_redo(self):
-        pass
-
-    def _handle_export(self):
-        pass
-
-    def _handle_search(self):
-        pass
+        if action_id == "export":
+            self._on_navigate("create")
+            self.statusbar.set_status("请在创作流程完成后导出成片")
 
     def _apply_global_style(self):
         self.setStyleSheet(f"""  # type: ignore[attr-defined]
             QMainWindow {{
-                background: {_C.BgBase};
+                background: {_C.BG_BASE};
                 outline: none;
             }}
             QToolButton#topbar_action_btn {{
-                background: transparent;
-                border: none;
+                background: {_C.BG_SURFACE};
+                border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.sm};
-                color: {_C.TextMuted};
-                font-size: 14px;
+                color: {_C.TEXT_MUTED};
+                font-size: {FontSizes.xs}px;
+                font-weight: 600;
             }}
             QToolButton#topbar_action_btn:hover {{
-                background: {_C.BgElevated};
-                color: {_C.TextSecondary};
+                background: {_C.BG_ELEVATED};
+                color: {_C.TEXT_SECONDARY};
+                border-color: {_C.BORDER_DEFAULT};
             }}
             QToolTip {{
-                background: {_C.BgOverlay};
-                color: {_C.TextPrimary};
-                border: 1px solid {_C.BorderDefault};
+                background: {_C.BG_OVERLAY};
+                color: {_C.TEXT_PRIMARY};
+                border: 1px solid {_C.BORDER_DEFAULT};
                 border-radius: {Radii.sm};
                 padding: 6px 10px;
                 font-size: {FontSizes.xs}px;
@@ -249,12 +234,12 @@ class SceneFabMainWindow(QMainWindow):
                 margin: 0;
             }}
             QScrollBar::handle:vertical {{
-                background: {_C.BorderDefault};
+                background: {_C.BORDER_DEFAULT};
                 border-radius: 3px;
                 min-height: 40px;
             }}
             QScrollBar::handle:vertical:hover {{
-                background: {_C.BorderStrong};
+                background: {_C.BORDER_STRONG};
             }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
                 height: 0;
@@ -265,13 +250,13 @@ class SceneFabMainWindow(QMainWindow):
                 margin: 0;
             }}
             QScrollBar::handle:horizontal {{
-                background: {_C.BorderDefault};
+                background: {_C.BORDER_DEFAULT};
                 border-radius: 3px;
                 min-width: 40px;
             }}
             * {{
-                selection-background-color: {_C.Primary};
-                selection-color: {_C.TextPrimary};
+                selection-background-color: {_C.PRIMARY};
+                selection-color: {_C.TEXT_INVERSE};
             }}
         """)
 

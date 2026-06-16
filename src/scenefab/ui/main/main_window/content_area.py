@@ -1,18 +1,16 @@
-"""Main content area with stacked page views and placeholder pages."""
+"""Main content area with stacked page views."""
 
 from __future__ import annotations
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, Qt
-from PySide6.QtGui import QFont
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation
 from PySide6.QtWidgets import (
     QFrame,
     QGraphicsOpacityEffect,
-    QLabel,
     QStackedWidget,
     QVBoxLayout,
 )
 
-from scenefab.ui.theme.ds_tokens import _C, FontSizes
+from scenefab.ui.theme.ds_tokens import _C
 
 
 class ContentArea(QFrame):
@@ -45,7 +43,6 @@ class ContentArea(QFrame):
             return
         w = self._page_map[page_id]
         if animated and self._stack.currentWidget() != w:
-            # 淡入淡出切换
             w.setWindowOpacity(0)
             self._stack.setCurrentWidget(w)
             self._fade_in(w)
@@ -63,34 +60,4 @@ class ContentArea(QFrame):
         anim.setEasingCurve(QEasingCurve.Type.OutCubic)
         anim.finished.connect(lambda: widget.setGraphicsEffect(None))
         anim.start()
-        # 保持引用防止被 GC 回收
         widget._fade_anim = anim
-
-
-class PlaceholderPage(QFrame):
-    """占位页面"""
-
-    def __init__(self, title: str, icon: str = "◎", parent=None):
-        super().__init__(parent)
-        self.setObjectName(f"page_{title.lower()}")
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        icon_lbl = QLabel(icon)
-        icon_lbl.setFont(QFont("", 52))
-        icon_lbl.setStyleSheet(f"color: {_C.BORDER_STRONG};")
-        icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(icon_lbl)
-
-        title_lbl = QLabel(title)
-        title_lbl.setFont(QFont("", FontSizes.xxl, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
-        title_lbl.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
-        title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title_lbl)
-
-        desc_lbl = QLabel("功能开发中...")
-        desc_lbl.setFont(QFont("", FontSizes.sm))
-        desc_lbl.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
-        desc_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(desc_lbl)

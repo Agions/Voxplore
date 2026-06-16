@@ -116,8 +116,8 @@ class TrayManager(QObject):
         if self._tray_icon is not None:
             try:
                 self._tray_icon.hide()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to hide system tray icon: {e}")
             self._tray_icon = None
         if self._menu is not None:
             self._menu.deleteLater()
