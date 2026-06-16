@@ -160,14 +160,20 @@ profile = "black"
 line_length = 88
 
 [tool.pytest.ini_options]
+# src 布局：让 `pytest` 无需 PYTHONPATH=src 或 editable install 即可导入 scenefab
+pythonpath = ["src"]
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 asyncio_mode = "auto"
-addopts = "-v --tb=short"
+# 默认关闭 pytest-qt 插件：无 Qt binding 时它会 abort 整个 session。
+# UI 测试通过根 conftest 在 PySide6 缺失时自动跳过；需要跑 UI 测试时用
+# `pytest -p pytest-qt ...` 重新启用。
+addopts = "-v --tb=short -p no:pytest-qt"
 norecursedirs = ["tests/_legacy", ".venv", ".git", "dist", "build", "*.egg-info", "*_ascm_temp"]
 markers = [
+    "asyncio: 异步测试",
     "integration: 需要真实 API 密钥的集成测试",
     "slow: 运行较慢的测试",
     "unit: 单元测试",
