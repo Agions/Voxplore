@@ -519,6 +519,47 @@ class TestBatchProcessor:
             BatchProcessor(config2, pipeline_factory=MockPipeline)
             assert tasks2[0].status.value == "completed"  # 已恢复
 
+    def test_batch_task_timeout(self):
+        """task_timeout_sec 触发超时 → 任务标记 FAILED（不挂死 worker）。"""
+        import time as _t
+
+        from scenefab.core.batch_processor import (
+            BatchConfig,
+            BatchProcessor,
+            BatchTask,
+            TaskStatus,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            vp = tmpdir / "ep.mp4"
+            vp.write_bytes(b"fake")
+            tasks = [BatchTask(id="slow", video_path=vp, output_dir=tmpdir / "out")]
+
+            class SlowPipeline:
+                def __init__(self, task):
+                    self.task = task
+
+                def run(self, **kwargs):
+                    _t.sleep(5)  # 远超 timeout
+                    return None
+
+            # 1s 超时, 不重试
+            config = BatchConfig(
+                tasks=tasks,
+                parallel_count=1,
+                auto_retry=False,
+                task_timeout_sec=1,
+            )
+            processor = BatchProcessor(config, pipeline_factory=SlowPipeline)
+            start = _t.time()
+            processor.start()
+            processor.wait_until_done(timeout=10)
+            elapsed = _t.time() - start
+
+            assert tasks[0].status == TaskStatus.FAILED
+            assert elapsed < 5, f"timeout not enforced, took {elapsed}s"
+
 
 # === ShortDrama ===
 

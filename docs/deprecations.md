@@ -75,6 +75,18 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 
 **未做（本轮范围外）**：`core/ffmpeg_safe.SafeFFmpegCommand`（仅 3 处用）与 `SecureExecutor` 的双执行器并存未合并；硬件检测/ffprobe 元数据/命令构建未从 `FFmpegTool` 拆为独立模块。留待后续。
 
+## 6. 并发与生命周期 (P4，2026-06-16)
+
+- **事件总线生命周期**：`event_bus.EventBus` 新增 `close()`/`closed`（转发 `UnifiedEventBus.close()`）；`Application.shutdown()` 新增 `_shutdown_event_bus()`，在 `_cleanup()` 前统一释放投递线程池。投递路径本就非阻塞（单 handler 内联、多 handler `executor.submit + add_done_callback`），未改。
+- **BatchProcessor 重写为 executor/future**：
+  - 手写 `threading.Thread` + `queue.Queue` 生产者-消费者 → `ThreadPoolExecutor` + 每任务一个 `Future`。
+  - `wait_until_done` 由 0.5s busy-poll → `concurrent.futures.wait(timeout)` 阻塞等待。
+  - 新增**真超时**：`_execute_attempt` 用嵌套单发线程 + `result(timeout=task_timeout_sec)`（此前 `task_timeout_sec` 配置存在但从不生效）。底层 `pipeline.run` 不可中断，超时后后台守护线程自然结束。
+  - **可取消退避**：重试 `time.sleep(backoff)` → `self._shutdown.wait(backoff)`，关闭时立即返回。
+  - `shutdown()` 用 `executor.shutdown(cancel_futures=True)` 取消未开始任务。
+  - 公开 API（`start`/`wait_until_done`/`shutdown`/`summary`/`pipeline_factory`/回调/checkpoint）保持不变。
+- **未做（本轮范围外）**：PipelineEngine 改不可变输入上下文 + step 返回结果集中归并——会改变 `ctx["steps"]` 公开契约，风险最大且 PipelineEngine 暂无生产调用方，留待后续。
+
 ---
 
 ## 移除流程约定

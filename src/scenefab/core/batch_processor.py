@@ -27,12 +27,12 @@
 
 import json
 import logging
-import queue
 import sqlite3
 import threading
 import time
 import uuid
 from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -213,7 +213,11 @@ class BatchProcessor:
     """
     批量任务处理器
 
-    内部使用 ThreadPoolExecutor + queue.Queue 实现生产者-消费者
+    内部使用 ThreadPoolExecutor + Future 实现并发调度：
+    - 每个 PENDING 任务提交为一个 future
+    - 单次尝试通过嵌套 future + result(timeout) 实施真超时
+    - 退避重试用 shutdown.wait(backoff) 实现可取消等待
+    - wait_until_done 阻塞在 futures 上，不再 busy-poll
     """
 
     def __init__(
@@ -229,8 +233,8 @@ class BatchProcessor:
         """
         self.config = config
         self.pipeline_factory = pipeline_factory
-        self._task_queue: queue.Queue[BatchTask] = queue.Queue()
-        self._workers: list[threading.Thread] = []
+        self._executor: ThreadPoolExecutor | None = None
+        self._futures: list[Future] = []
         self._shutdown = threading.Event()
         self._started = False
         self._finished = False
@@ -259,28 +263,23 @@ class BatchProcessor:
     # ==============================================================
 
     def start(self) -> None:
-        """启动批量处理"""
+        """启动批量处理（提交所有 PENDING 任务到线程池）"""
         if self._started:
             logger.warning("BatchProcessor already started")
             return
         self._started = True
         self._finished = False
 
-        # 入队所有 PENDING 任务
-        for task in self.config.tasks:
-            if task.status == TaskStatus.PENDING:
-                self._task_queue.put(task)
+        pending = [t for t in self.config.tasks if t.status == TaskStatus.PENDING]
+        actual_workers = max(1, min(self.config.parallel_count, len(pending) or 1))
 
-        # 启动 worker
-        actual_workers = min(self.config.parallel_count, self._task_queue.qsize() or 1)
-        for i in range(actual_workers):
-            worker = threading.Thread(
-                target=self._worker_loop,
-                name=f"BatchWorker-{i}",
-                daemon=True,
-            )
-            worker.start()
-            self._workers.append(worker)
+        self._executor = ThreadPoolExecutor(
+            max_workers=actual_workers,
+            thread_name_prefix="BatchWorker",
+        )
+        self._futures = [
+            self._executor.submit(self._process_task, task) for task in pending
+        ]
 
         self._audit.log_action(
             action="batch_start",
@@ -295,61 +294,60 @@ class BatchProcessor:
         )
 
     def wait_until_done(self, timeout: float | None = None) -> None:
-        """等待所有任务完成"""
+        """阻塞等待所有任务完成（不再 busy-poll）。
+
+        超时则强制关闭。
+        """
         if not self._started:
             return
-        start = time.time()
-        while not self._finished:
-            if timeout and (time.time() - start) > timeout:
-                logger.warning("BatchProcessor wait timeout, forcing shutdown")
-                self.shutdown()
-                return
-            time.sleep(0.5)
+        if not self._futures:
+            self._mark_batch_finished()
+            return
+
+        done, not_done = wait(self._futures, timeout=timeout)
+        if not_done:
+            logger.warning("BatchProcessor wait timeout, forcing shutdown")
+            self.shutdown()
+            return
+        self._mark_batch_finished()
 
     def shutdown(self) -> None:
-        """优雅关闭"""
+        """优雅关闭：置取消标志、取消未开始的 future、释放线程池"""
         self._shutdown.set()
-        for w in self._workers:
-            w.join(timeout=5)
+        if self._executor is not None:
+            # 取消尚未开始的 future；已运行的由 _shutdown 标志协作退出
+            self._executor.shutdown(wait=True, cancel_futures=True)
+            self._executor = None
         self._finished = True
         logger.info("BatchProcessor shutdown complete")
+
+    def _mark_batch_finished(self) -> None:
+        """标记批次完成、释放线程池、触发 on_batch_finished（幂等）。"""
+        with self._lock:
+            if self._finished:
+                return
+            self._finished = True
+        if self._executor is not None:
+            self._executor.shutdown(wait=False)
+            self._executor = None
+        self._on_batch_finished()
 
     def summary(self) -> dict:
         """获取任务执行摘要"""
         statuses = dict.fromkeys(TaskStatus, 0)
         for task in self.config.tasks:
             statuses[task.status] += 1
+        active = sum(1 for f in self._futures if f.running())
         return {
             "total": len(self.config.tasks),
             "by_status": {s.value: n for s, n in statuses.items()},
             "is_finished": self._finished,
-            "active_workers": sum(1 for w in self._workers if w.is_alive()),
+            "active_workers": active,
         }
 
     # ==============================================================
     # 内部
     # ==============================================================
-
-    def _worker_loop(self) -> None:
-        """Worker 主循环"""
-        while not self._shutdown.is_set():
-            try:
-                task = self._task_queue.get(timeout=0.5)
-            except queue.Empty:
-                # 队列空 + 所有 worker 都闲着 = 完成
-                if not any(
-                    w.is_alive() and w != threading.current_thread()
-                    for w in self._workers
-                ):
-                    with self._lock:
-                        if self._task_queue.empty():
-                            self._finished = True
-                            self._on_batch_finished()
-                            return
-                continue
-
-            self._process_task(task)
-            self._task_queue.task_done()
 
     def _process_task(self, task: BatchTask) -> None:
         """处理单个任务（含重试）
@@ -401,15 +399,36 @@ class BatchProcessor:
                 logger.debug(f"on_task_started callback error: {e}")
 
     def _execute_attempt(self, task: BatchTask, attempt: int) -> None:
-        """构造 pipeline、执行一次、成功则标记 COMPLETED 并写审计/回调"""
+        """构造 pipeline、执行一次（带超时）、成功则标记 COMPLETED 并写审计/回调。
+
+        超时通过嵌套单发线程 + result(timeout) 实施：超时抛 TimeoutError 由
+        上层重试逻辑捕获。注意底层 pipeline.run 不可强制中断，超时后仍会在后台
+        运行至自然结束（守护线程），但任务本身已按超时失败处理。
+        """
         pipeline = self.pipeline_factory(task)
-        result_path = pipeline.run(
-            video_path=str(task.video_path),
-            output_dir=str(task.output_dir),
-            episode=task.episode_number,
-            preset=task.preset,
-            metadata=task.metadata,
-        )
+
+        def _run() -> Any:
+            return pipeline.run(
+                video_path=str(task.video_path),
+                output_dir=str(task.output_dir),
+                episode=task.episode_number,
+                preset=task.preset,
+                metadata=task.metadata,
+            )
+
+        timeout = self.config.task_timeout_sec
+        if timeout and timeout > 0:
+            runner = ThreadPoolExecutor(
+                max_workers=1, thread_name_prefix=f"BatchTask-{task.id}"
+            )
+            try:
+                result_path = runner.submit(_run).result(timeout=timeout)
+            finally:
+                # 不等待后台线程（pipeline.run 不可中断），避免阻塞 worker
+                runner.shutdown(wait=False)
+        else:
+            result_path = _run()
+
         task.result_path = Path(result_path) if result_path else None
         task.progress = 1.0
         task.status = TaskStatus.COMPLETED
@@ -451,10 +470,10 @@ class BatchProcessor:
         task.finished_at = time.time()
 
         if attempt < max_attempts:
-            # 退避重试
+            # 指数退避重试；用 shutdown.wait 实现可取消等待（关闭时立即返回）
             backoff_sec = min(2**attempt, 30)
             logger.info(f"Retrying task {task.id} in {backoff_sec}s...")
-            time.sleep(backoff_sec)
+            self._shutdown.wait(backoff_sec)
             return
 
         task.status = TaskStatus.FAILED

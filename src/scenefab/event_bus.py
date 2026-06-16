@@ -120,6 +120,18 @@ class EventBus:
     def stats(self) -> dict[str, Any]:
         return self._backend.stats()
 
+    # ── 生命周期 ──
+    def close(self) -> None:
+        """关闭底层 UnifiedEventBus（释放投递线程池）。
+
+        由 Application.shutdown() 统一调用，幂等。
+        """
+        self._backend.close()
+
+    @property
+    def closed(self) -> bool:
+        return self._backend.closed
+
 
 # 全局事件总线实例（v1.x 兼容名）
 event_bus = EventBus()

@@ -220,6 +220,9 @@ class Application(QObject):
             # 保存配置
             self._save_configuration()
 
+            # 统一关闭事件总线（释放投递线程池）
+            self._shutdown_event_bus()
+
             # 清理资源
             self._cleanup()
 
@@ -227,6 +230,18 @@ class Application(QObject):
 
         except Exception as e:
             self.error_occurred.emit("SHUTDOWN_ERROR", f"Shutdown failed: {str(e)}")
+
+    def _shutdown_event_bus(self) -> None:
+        """关闭已注册的事件总线，释放其后台投递线程池（幂等）。"""
+        bus = self._service_container.get_by_name("event_bus")
+        close = getattr(bus, "close", None)
+        if callable(close):
+            try:
+                close()
+            except Exception as e:  # noqa: BLE001
+                self.error_occurred.emit(
+                    "SHUTDOWN_ERROR", f"Error closing event bus: {str(e)}"
+                )
 
     def run(self) -> int:
         """运行应用程序主循环"""
