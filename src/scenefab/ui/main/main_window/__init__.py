@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QMainWindow,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -50,7 +51,13 @@ class SceneFabMainWindow(QMainWindow):
     def _setup_ui(self):
         central = QWidget()
         self.setCentralWidget(central)
-        root = QHBoxLayout(central)
+        # 垂直布局：上半为 [侧边栏 | 主内容]，底部为状态栏
+        outer = QVBoxLayout(central)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        body = QWidget()
+        root = QHBoxLayout(body)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
@@ -63,13 +70,15 @@ class SceneFabMainWindow(QMainWindow):
         self._lazy_load_pages()
         root.addWidget(self.content, 1)
 
+        outer.addWidget(body, 1)
+
         # 顶部栏
         self.topbar = TopBar("工作台")
         self.setMenuWidget(self.topbar)
 
-        # 状态栏
+        # 状态栏（自绘 QFrame，置于底部，而非 QMainWindow.setStatusBar）
         self.statusbar = StatusBar()
-        self.setStatusBar(self.statusbar)  # type: ignore[arg-type]
+        outer.addWidget(self.statusbar)
 
     def _lazy_load_pages(self):
         from scenefab.ui.main.pages.assets_page import AssetsPage

@@ -79,7 +79,7 @@ def header_panel(name: str, title: str, subtitle: str, *actions: QWidget) -> QFr
 
 def section_title(text: str) -> QLabel:
     label = QLabel(text)
-    label.setFont(QFont("", FontSizes.md, QFont.Weight.SemiBold))  # type: ignore[attr-defined]
+    label.setFont(QFont("", FontSizes.md, QFont.Weight.DemiBold))
     label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
     return label
 
