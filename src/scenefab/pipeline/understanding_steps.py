@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-v2.2 Phase 2 — UNDERSTAND / STORYGRAPH / DRAFT 真实实现
+理解阶段 Step — UNDERSTAND / STORYGRAPH / DRAFT 真实实现
+(原 narration_steps_phase2，P5 重命名)
 
-把 Phase 1 的 stub step 替换为真实调用:
+把骨架 stub step 替换为真实调用:
 - understand_step   → SceneAnalyzer.analyze() + ShortDramaNarrator 桥段检测
 - storygraph_step   → LongVideoUnderstanding.understand() (API key 可选)
 - draft_step        → ScriptGenerator.generate() (4 类上下文注入)
@@ -576,12 +577,12 @@ def _stub_segments(ctx: NarrationContext, draft: str) -> list[dict]:
 # ============================================
 
 
-def register_phase2_steps(sm) -> None:
+def register_understanding_steps(sm) -> None:
     """注册 Phase 2 真实实现 (替换 Phase 1 stub)
 
     使用示例:
         sm = NarrationStateMachine()
-        register_phase2_steps(sm)  # 替换 stub
+        register_understanding_steps(sm)  # 替换 stub
     """
     from .narration_state_machine import NarrationStateMachine
 

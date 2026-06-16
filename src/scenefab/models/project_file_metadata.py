@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 """
-项目文件元数据（narrafiilm 文件格式）
+项目文件元数据（narrafilm 文件格式）
 
 .. note::
-    本模块定义 .narrafiilm 项目文件持久化时的元数据格式，与
+    本模块定义 .narrafilm 项目文件持久化时的元数据格式，与
     ``scenefab.models.project_models.ProjectMetadata``（项目运行时元数据）
     是两个不同概念：
 
     - ``ProjectMetadata``：项目运行时元数据（用于项目管理器）
-    - ``ProjectFileMetadata``：项目文件元数据（用于 .narrafiilm 文件格式）
+    - ``ProjectFileMetadata``：项目文件元数据（用于 .narrafilm 文件格式）
 
 历史：原位于 ``scenefab.services.orchestration.pipeline_project_manager``，
 因与 ``models.project_models.ProjectMetadata`` 命名冲突，于 Phase 1 重构中
@@ -21,8 +21,8 @@ from enum import Enum
 from typing import Any
 
 
-class _NarrafiilmVersion(Enum):
-    """narrafiilm 项目文件版本（内部使用）"""
+class _NarrafilmVersion(Enum):
+    """narrafilm 项目文件版本（内部使用）"""
 
     V1 = "1.0"
     V2 = "2.0"  # 当前版本，支持更多元数据
@@ -30,9 +30,9 @@ class _NarrafiilmVersion(Enum):
 
 @dataclass
 class ProjectFileMetadata:
-    """narrafiilm 项目文件元数据
+    """narrafilm 项目文件元数据
 
-    用于 .narrafiilm 项目文件的持久化与交换。
+    用于 .narrafilm 项目文件的持久化与交换。
     """
 
     id: str = ""  # 项目唯一ID
@@ -64,4 +64,4 @@ class ProjectFileMetadata:
         return cls(**{k: v for k, v in data.items() if k in valid_fields})
 
 
-__all__ = ["ProjectFileMetadata", "_NarrafiilmVersion"]
+__all__ = ["ProjectFileMetadata", "_NarrafilmVersion"]

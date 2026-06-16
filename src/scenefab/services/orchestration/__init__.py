@@ -28,7 +28,7 @@ from .pipeline_project_manager import (
     ProjectMetadata,
     ProjectSource,
     SceneFabProject,
-    _NarrafiilmVersion,  # 仅内部使用，不对外公开
+    _NarrafilmVersion,  # 仅内部使用，不对外公开
     load_project,
     save_project,
 )
@@ -55,5 +55,5 @@ __all__ = [
     "SceneFabProject",
     "save_project",
     "load_project",
-    "_NarrafiilmVersion",
+    "_NarrafilmVersion",
 ]

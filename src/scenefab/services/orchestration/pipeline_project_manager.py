@@ -3,7 +3,7 @@
 """
 SceneFab 项目文件管理
 
-支持 .narrafiilm 项目文件的保存、加载和管理。
+支持 .narrafilm 项目文件的保存、加载和管理。
 
 项目文件格式：
 - JSON 格式，易于阅读和调试
@@ -16,10 +16,10 @@ SceneFab 项目文件管理
     manager = ProjectManager()
 
     # 保存项目
-    manager.save(project, "my_video.narrafiilm")
+    manager.save(project, "my_video.narrafilm")
 
     # 加载项目
-    project = manager.load("my_video.narrafiilm")
+    project = manager.load("my_video.narrafilm")
 """
 
 import json
@@ -35,7 +35,7 @@ from scenefab.models.project_file_metadata import (
     ProjectFileMetadata as ProjectMetadata,
 )
 from scenefab.models.project_file_metadata import (
-    _NarrafiilmVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
+    _NarrafilmVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
 from scenefab.models.project_models import ProjectType
 
@@ -123,8 +123,9 @@ class ProjectManager:
     负责项目的创建、保存、加载和版本兼容
     """
 
-    # 支持的文件扩展名
-    PROJECT_EXTENSIONS = [".narrafiilm", ".vfproj"]
+    # 支持的文件扩展名（.narrafiilm 为旧拼写，保留以兼容已有项目文件）
+    PROJECT_EXTENSION = ".narrafilm"
+    PROJECT_EXTENSIONS = [".narrafilm", ".narrafiilm", ".vfproj"]
 
     def __init__(self):
         self.current_project: SceneFabProject | None = None
@@ -177,7 +178,7 @@ class ProjectManager:
 
         # 确保扩展名正确
         if output_path.suffix.lower() not in self.PROJECT_EXTENSIONS:  # type: ignore[attr-defined]
-            output_path = output_path.with_suffix(".narrafiilm")  # type: ignore[attr-defined]
+            output_path = output_path.with_suffix(self.PROJECT_EXTENSION)  # type: ignore[attr-defined]
 
         # 更新修改时间
         project.metadata.modified_at = datetime.now().isoformat()

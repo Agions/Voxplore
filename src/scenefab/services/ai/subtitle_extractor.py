@@ -164,7 +164,7 @@ class OCRSubtitleExtractor:
         self, video_path: str, duration: float, interval: float, max_frames: int
     ) -> list[tuple[float, str]]:
         """提取关键帧"""
-        tmpdir = tempfile.mkdtemp(prefix="narrafiilm_ocr_")
+        tmpdir = tempfile.mkdtemp(prefix="narrafilm_ocr_")
         frames = []
         num = min(int(duration / interval) + 1, max_frames)
 

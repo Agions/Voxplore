@@ -18,10 +18,10 @@ from .narration import (
     Platform,
     StepResult,
     TransitionReason,
+    register_assembly_steps,
     register_default_steps,
-    register_phase2_steps,
-    register_phase3_steps,
-    register_phase4_steps,
+    register_evaluation_steps,
+    register_understanding_steps,
 )
 
 __all__ = [
@@ -36,7 +36,7 @@ __all__ = [
     "StepResult",
     "TransitionReason",
     "register_default_steps",
-    "register_phase2_steps",
-    "register_phase3_steps",
-    "register_phase4_steps",
+    "register_understanding_steps",
+    "register_evaluation_steps",
+    "register_assembly_steps",
 ]

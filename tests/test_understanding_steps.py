@@ -33,7 +33,7 @@ from scenefab.pipeline.narration import (
     Platform,
     _build_narration_prompt,
     register_default_steps,
-    register_phase2_steps,
+    register_understanding_steps,
 )
 from scenefab.services.ai.scene_models import SceneInfo, SceneType
 from scenefab.services.video_understanding.models import (
@@ -95,7 +95,7 @@ def sm_phase2() -> NarrationStateMachine:
     """注册 Phase 1 stub + Phase 2 真实实现"""
     sm = NarrationStateMachine()
     register_default_steps(sm)
-    register_phase2_steps(sm)
+    register_understanding_steps(sm)
     return sm
 
 
@@ -237,7 +237,7 @@ class TestUnderstandStepFallback:
         self, ctx: NarrationContext
     ) -> None:
         """SceneAnalyzer 抛异常时, 仍能完成 step (降级)"""
-        from scenefab.pipeline.narration_steps_phase2 import understand_step
+        from scenefab.pipeline.understanding_steps import understand_step
 
         with patch(
             "scenefab.services.ai.scene_analyzer.SceneAnalyzer"
@@ -256,7 +256,7 @@ class TestUnderstandStepFallback:
         """短剧模式桥段检测失败时, 跳过而非报错"""
         # 启用短剧模式
         from scenefab.core.short_drama import ShortDramaStyle
-        from scenefab.pipeline.narration_steps_phase2 import understand_step
+        from scenefab.pipeline.understanding_steps import understand_step
 
         ctx.short_drama_style = ShortDramaStyle.REVENGE
         # mock 一个空的 scenes (避免 SceneAnalyzer 失败影响)
@@ -284,7 +284,7 @@ class TestUnderstandStepFallback:
         self, ctx: NarrationContext
     ) -> None:
         """非短剧模式, 不调桥段检测"""
-        from scenefab.pipeline.narration_steps_phase2 import understand_step
+        from scenefab.pipeline.understanding_steps import understand_step
 
         ctx.short_drama_style = None
         # 预填 scenes 避免 SceneAnalyzer 调用
@@ -321,7 +321,7 @@ class TestStorygraphStepFallback:
         self, ctx: NarrationContext
     ) -> None:
         """< 10min 视频不调 LongVideoUnderstanding"""
-        from scenefab.pipeline.narration_steps_phase2 import storygraph_step
+        from scenefab.pipeline.understanding_steps import storygraph_step
 
         # 假视频 ffprobe 失败 → video_duration=0 < 600 → 走短视频路径
         with patch(
@@ -340,10 +340,10 @@ class TestStorygraphStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """>= 10min 视频 + LongVideoUnderstanding 失败 → 降级"""
-        from scenefab.pipeline.narration_steps_phase2 import storygraph_step
+        from scenefab.pipeline.understanding_steps import storygraph_step
 
         with patch(
-            "scenefab.pipeline.narration_steps_phase2._probe_duration",
+            "scenefab.pipeline.understanding_steps._probe_duration",
             return_value=1200.0,  # 20 min
         ):
             with patch(
@@ -361,10 +361,10 @@ class TestStorygraphStepFallback:
         self, ctx: NarrationContext
     ) -> None:
         """result.message 反映视频时长判断"""
-        from scenefab.pipeline.narration_steps_phase2 import storygraph_step
+        from scenefab.pipeline.understanding_steps import storygraph_step
 
         with patch(
-            "scenefab.pipeline.narration_steps_phase2._probe_duration",
+            "scenefab.pipeline.understanding_steps._probe_duration",
             return_value=0.0,
         ):
             result = storygraph_step(ctx)
@@ -383,7 +383,7 @@ class TestDraftStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """ScriptGenerator 抛异常 → 模板降级"""
-        from scenefab.pipeline.narration_steps_phase2 import draft_step
+        from scenefab.pipeline.understanding_steps import draft_step
 
         with patch(
             "scenefab.services.ai.script_generator.ScriptGenerator"
@@ -400,7 +400,7 @@ class TestDraftStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """Stub 文案反映 story_graph"""
-        from scenefab.pipeline.narration_steps_phase2 import draft_step
+        from scenefab.pipeline.understanding_steps import draft_step
 
         with patch(
             "scenefab.services.ai.script_generator.ScriptGenerator"
@@ -416,7 +416,7 @@ class TestDraftStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """draft_step 内部调用 reset_draft (attempts++)"""
-        from scenefab.pipeline.narration_steps_phase2 import draft_step
+        from scenefab.pipeline.understanding_steps import draft_step
 
         ctx_with_story_graph.draft_attempts = 0
         with patch(
@@ -431,7 +431,7 @@ class TestDraftStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """Stub segments 按句号切分"""
-        from scenefab.pipeline.narration_steps_phase2 import draft_step
+        from scenefab.pipeline.understanding_steps import draft_step
 
         with patch(
             "scenefab.services.ai.script_generator.ScriptGenerator"
@@ -452,7 +452,7 @@ class TestDraftStepFallback:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """Stub 文案不超过平台 max_total_chars"""
-        from scenefab.pipeline.narration_steps_phase2 import draft_step
+        from scenefab.pipeline.understanding_steps import draft_step
 
         with patch(
             "scenefab.services.ai.script_generator.ScriptGenerator"
@@ -542,7 +542,7 @@ class TestTropeBridgeMapping:
     ) -> None:
         """TropeType 7 个非 GENERAL 类型全部映射到 BridgeType"""
         from scenefab.core.short_drama import TropeType
-        from scenefab.pipeline.narration_steps_phase2 import _trope_to_bridge
+        from scenefab.pipeline.understanding_steps import _trope_to_bridge
 
         for trope in [
             TropeType.IDENTITY_REVEAL,
@@ -559,7 +559,7 @@ class TestTropeBridgeMapping:
     def test_general_trope_returns_none(self, ctx: NarrationContext) -> None:
         """TropeType.GENERAL → None (不算桥段)"""
         from scenefab.core.short_drama import TropeType
-        from scenefab.pipeline.narration_steps_phase2 import _trope_to_bridge
+        from scenefab.pipeline.understanding_steps import _trope_to_bridge
 
         assert _trope_to_bridge(TropeType.GENERAL) is None
 
@@ -575,11 +575,11 @@ class TestPhase2BackwardCompat:
     def test_register_phase2_replaces_three_steps(
         self, sm_phase2: NarrationStateMachine
     ) -> None:
-        """register_phase2_steps 替换 UNDERSTAND/STORYGRAPH/DRAFT"""
+        """register_understanding_steps 替换 UNDERSTAND/STORYGRAPH/DRAFT"""
         from scenefab.pipeline.narration_steps import (
             understand_step as stub_understand,
         )
-        from scenefab.pipeline.narration_steps_phase2 import (
+        from scenefab.pipeline.understanding_steps import (
             understand_step as phase2_understand,
         )
 
@@ -593,7 +593,7 @@ class TestPhase2BackwardCompat:
     def test_phase1_stub_still_works(
         self, fake_video: Path, tmp_path: Path
     ) -> None:
-        """不调 register_phase2_steps, 仍用 stub 跑通"""
+        """不调 register_understanding_steps, 仍用 stub 跑通"""
         sm = NarrationStateMachine()
         register_default_steps(sm)  # 只注册 stub
         ctx = NarrationContext(

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-v2.2 Phase 3 — 真实 EVALUATE / HOOK_REWRITE Step
+评估阶段 Step — 真实 EVALUATE / HOOK_REWRITE Step
+(原 narration_steps_phase3，P5 重命名)
 
-把 Phase 1 stub + Phase 2 的简单 evaluate_step 替换为完整 5 维评估 + Hook 改写:
+把骨架 stub + 理解阶段的简单 evaluate_step 替换为完整 5 维评估 + Hook 改写:
 
 - evaluate_step   → 调 NarrationEvaluator.evaluate() 填充 ctx.eval_*
 - hook_rewrite_step → 当 EVALUATE ACCEPT 后, 调用 LLM 改写开场 Hook
@@ -364,14 +365,14 @@ def _replace_hook_in_draft(original_draft: str, new_hook: str) -> str:
 # ============================================
 
 
-def register_phase3_steps(sm) -> None:
+def register_evaluation_steps(sm) -> None:
     """注册 Phase 3 真实实现 (替换 Phase 1+2 的 evaluate_step + hook_rewrite_step)
 
     使用示例:
         sm = NarrationStateMachine()
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)  # 替换 EVALUATE/HOOK_REWRITE
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)  # 替换 EVALUATE/HOOK_REWRITE
     """
     from .narration_state_machine import NarrationStateMachine
 

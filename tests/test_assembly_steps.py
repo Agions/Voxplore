@@ -21,6 +21,12 @@ from unittest.mock import patch
 
 import pytest
 
+from scenefab.pipeline.assembly_steps import (
+    assemble_step,
+    probe_audio_duration,
+    tts_length_adjust_step,
+    tts_step,
+)
 from scenefab.pipeline.narration import (
     PLATFORM_SPECS,
     NarrationContext,
@@ -30,16 +36,10 @@ from scenefab.pipeline.narration import (
     Persona,
     Platform,
     StepResult,
+    register_assembly_steps,
     register_default_steps,
-    register_phase2_steps,
-    register_phase3_steps,
-    register_phase4_steps,
-)
-from scenefab.pipeline.narration_steps_phase4 import (
-    assemble_step,
-    probe_audio_duration,
-    tts_length_adjust_step,
-    tts_step,
+    register_evaluation_steps,
+    register_understanding_steps,
 )
 from scenefab.services.video_understanding.models import (
     Character,
@@ -93,9 +93,9 @@ def ctx_with_draft(ctx: NarrationContext) -> NarrationContext:
 def sm_full() -> NarrationStateMachine:
     sm = NarrationStateMachine()
     register_default_steps(sm)
-    register_phase2_steps(sm)
-    register_phase3_steps(sm)
-    register_phase4_steps(sm)
+    register_understanding_steps(sm)
+    register_evaluation_steps(sm)
+    register_assembly_steps(sm)
     # Force ACCEPT to skip Phase 3 真实评估
     def high_eval(c):
         c.eval_score = 9.0
@@ -511,7 +511,16 @@ class TestPhase4BackwardCompat:
     def test_phase4_register_replaces_three_steps(
         self, sm_full: NarrationStateMachine
     ) -> None:
-        """register_phase4_steps 替换 3 个状态"""
+        """register_assembly_steps 替换 3 个状态"""
+        from scenefab.pipeline.assembly_steps import (
+            assemble_step as phase4_assemble,
+        )
+        from scenefab.pipeline.assembly_steps import (
+            tts_length_adjust_step as phase4_tts_la,
+        )
+        from scenefab.pipeline.assembly_steps import (
+            tts_step as phase4_tts,
+        )
         from scenefab.pipeline.narration_steps import (
             assemble_step as stub_assemble,
         )
@@ -520,15 +529,6 @@ class TestPhase4BackwardCompat:
         )
         from scenefab.pipeline.narration_steps import (
             tts_step as stub_tts,
-        )
-        from scenefab.pipeline.narration_steps_phase4 import (
-            assemble_step as phase4_assemble,
-        )
-        from scenefab.pipeline.narration_steps_phase4 import (
-            tts_length_adjust_step as phase4_tts_la,
-        )
-        from scenefab.pipeline.narration_steps_phase4 import (
-            tts_step as phase4_tts,
         )
 
         # Phase 4 版本应该不同

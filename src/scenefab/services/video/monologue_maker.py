@@ -72,15 +72,15 @@ class MonologueProject(BaseProject):
         return sum(seg.audio_duration for seg in self.segments)
 
     # ------------------------------------------------------------------ #
-    #  持久化 (.narrafiilm JSON)                                        #
+    #  持久化 (.narrafilm JSON)                                         #
     # ------------------------------------------------------------------ #
 
     def save(self, path: str | None = None) -> str:
         """
-        将项目保存为 .narrafiilm 文件（JSON）。
+        将项目保存为 .narrafilm 文件（JSON）。
 
         Args:
-            path: 保存路径，默认 <output_dir>/<name>.narrafiilm
+            path: 保存路径，默认 <output_dir>/<name>.narrafilm
 
         Returns:
             实际保存的文件路径
@@ -88,7 +88,7 @@ class MonologueProject(BaseProject):
         import json
 
         save_path = (
-            Path(path) if path else Path(self.output_dir) / f"{self.name}.narrafiilm"
+            Path(path) if path else Path(self.output_dir) / f"{self.name}.narrafilm"
         )
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -129,10 +129,10 @@ class MonologueProject(BaseProject):
     @classmethod
     def load(cls, path: str) -> "MonologueProject":
         """
-        从 .narrafiilm 文件加载项目。
+        从 .narrafilm 文件加载项目（兼容旧 .narrafiilm）。
 
         Args:
-            path: .narrafiilm 文件路径
+            path: 项目文件路径（.narrafilm / 旧 .narrafiilm）
 
         Returns:
             MonologueProject 实例

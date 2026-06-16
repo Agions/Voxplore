@@ -44,13 +44,12 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 | `pipeline/narration_steps_phase3.py` | 🟩 活跃 | EVALUATE/HOOK_REWRITE 真实实现                                                       |
 | `pipeline/narration_steps_phase4.py` | 🟩 活跃 | TTS_LENGTH_ADJUST/TTS/ASSEMBLE 真实实现                                              |
 
-**结论**：这些**不是死代码**，不可删除。属于 **P5 命名规范化**范畴：
+**结论**：这些**不是死代码**，不可删除。文件内的 `stub` 字样多指"运行时降级桩"（无 API key / 无 edge-tts 时的 fallback），并非待删占位符。
 
-- `narration_steps_phase2.py` → `understanding_steps.py`
-- `narration_steps_phase3.py` → `evaluation_steps.py`
-- `narration_steps_phase4.py` → `assembly_steps.py`
-
-文件内的 `stub` 字样多指"运行时降级桩"（无 API key / 无 edge-tts 时的 fallback），并非待删占位符。
+**P5 已完成**（2026-06-16）：
+- 模块重命名：`narration_steps_phase2/3/4.py` → `understanding_steps.py` / `evaluation_steps.py` / `assembly_steps.py`（`git mv`，含对应测试文件）。`narration_steps.py`（Phase-1 骨架注册器）保留原名。
+- 函数重命名：`register_phase2/3/4_steps` → `register_understanding/evaluation/assembly_steps`。
+- 旧模块/函数名为内部 API，无外部消费方，未保留兼容别名。
 
 ## 4. 已在本轮删除 (v2.1.1)
 
@@ -86,6 +85,17 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
   - `shutdown()` 用 `executor.shutdown(cancel_futures=True)` 取消未开始任务。
   - 公开 API（`start`/`wait_until_done`/`shutdown`/`summary`/`pipeline_factory`/回调/checkpoint）保持不变。
 - **未做（本轮范围外）**：PipelineEngine 改不可变输入上下文 + step 返回结果集中归并——会改变 `ctx["steps"]` 公开契约，风险最大且 PipelineEngine 暂无生产调用方，留待后续。
+
+## 7. 命名规范化 (P5，2026-06-16)
+
+- **phase 文件/函数重命名**（见 §3）。
+- **文档版本修正**：`docs/guide/quick-start.md` / `installation.md` 的 `scenefab --version` 示例输出 `2.2.0` → `2.1.1`。ADR-007/006 中的 "v2.2" 指 narration 里程碑的设计记录，属历史文档，未改。
+- **`.narrafiilm` 拼写修正（带向后兼容）**：默认拼写改为 `.narrafilm`（narration+film，原双 i 为拼写遗留）。
+  - 项目文件扩展名：`ProjectManager.PROJECT_EXTENSION = ".narrafilm"`；`PROJECT_EXTENSIONS` 保留 `[".narrafilm", ".narrafiilm", ".vfproj"]`，旧文件仍可加载。
+  - 配置目录：默认 `~/.narrafilm`；若仅存在旧 `~/.narrafiilm` 则沿用，不孤立既有配置。
+  - 安全允许目录：同时收录新旧路径（`~/.narrafilm` + `~/.narrafiilm`，`/etc/narrafilm` + `/etc/narrafiilm`）。
+  - 内部符号 `_NarrafiilmVersion` → `_NarrafilmVersion`（内部 API，无外部消费方）。
+  - **待移除**：旧 `.narrafiilm` 扩展名/配置目录的兼容读取，建议 **v2.3.0** 移除。
 
 ---
 

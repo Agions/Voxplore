@@ -65,7 +65,7 @@ DEFAULT_EMOTION=heal
 
 ```bash
 scenefab --version
-# 输出: scenefab 2.2.0
+# 输出: scenefab 2.1.1
 ```
 
 ## 下一步

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-v2.2 Phase 4 — 真实 TTS_LENGTH_ADJUST + TTS + ASSEMBLE Step
+装配阶段 Step — 真实 TTS_LENGTH_ADJUST + TTS + ASSEMBLE Step
+(原 narration_steps_phase4，P5 重命名)
 
-按 ADR-007 Phase 4 实施:
+按 ADR-007 实施:
 - tts_length_adjust_step 真实 Edge-TTS 长度反馈压缩/扩展 (消除 80% 音画不同步)
 - tts_step 真实 Edge-TTS 配音 + 词级时间戳
 - assemble_step 真实字幕生成 + 剪映草稿导出
@@ -520,15 +521,15 @@ def _write_placeholder_video(video_path: Path, ctx: NarrationContext) -> None:
 # ============================================
 
 
-def register_phase4_steps(sm) -> None:
+def register_assembly_steps(sm) -> None:
     """注册 Phase 4 真实实现 (替换 Phase 1 stub)
 
     使用示例:
         sm = NarrationStateMachine()
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)
-        register_phase4_steps(sm)  # 替换 TTS_LENGTH_ADJUST/TTS/ASSEMBLE
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
+        register_assembly_steps(sm)  # 替换 TTS_LENGTH_ADJUST/TTS/ASSEMBLE
     """
     from .narration_state_machine import NarrationStateMachine
 

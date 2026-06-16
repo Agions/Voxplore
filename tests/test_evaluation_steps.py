@@ -35,8 +35,8 @@ from scenefab.pipeline.narration import (
     Persona,
     Platform,
     register_default_steps,
-    register_phase2_steps,
-    register_phase3_steps,
+    register_evaluation_steps,
+    register_understanding_steps,
 )
 from scenefab.services.video_understanding.models import (
     Character,
@@ -420,7 +420,7 @@ class TestEvaluateStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """evaluate_step 正常调用, 填充 ctx.eval_*"""
-        from scenefab.pipeline.narration_steps_phase3 import evaluate_step
+        from scenefab.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = "林墨重生打脸!" * 20
         result = evaluate_step(ctx_with_assets)
@@ -434,7 +434,7 @@ class TestEvaluateStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """空 draft 也返回 success=True (评估器自己处理空)"""
-        from scenefab.pipeline.narration_steps_phase3 import evaluate_step
+        from scenefab.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = ""
         result = evaluate_step(ctx_with_assets)
@@ -446,7 +446,7 @@ class TestEvaluateStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """评估器异常时, 仍 succeed (用 5.0 兜底)"""
-        from scenefab.pipeline.narration_steps_phase3 import evaluate_step
+        from scenefab.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = "test" * 30
 
@@ -473,7 +473,7 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """空 draft → fail"""
-        from scenefab.pipeline.narration_steps_phase3 import hook_rewrite_step
+        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
 
         ctx_with_assets.current_draft = ""
         result = hook_rewrite_step(ctx_with_assets)
@@ -485,7 +485,7 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """LLM 不可用 → 降级规则生成 5 候选"""
-        from scenefab.pipeline.narration_steps_phase3 import hook_rewrite_step
+        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
 
         ctx_with_assets.current_draft = "这是一个普通的故事, 讲一个女主。" * 10
 
@@ -504,7 +504,7 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """改写后, draft 前 2 句被替换"""
-        from scenefab.pipeline.narration_steps_phase3 import hook_rewrite_step
+        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
 
         original = "原 Hook 第一句。原 Hook 第二句。后面是主体内容。" * 10
         ctx_with_assets.current_draft = original
@@ -530,7 +530,7 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """候选为空时, 保留原 draft"""
-        from scenefab.pipeline.narration_steps_phase3 import (
+        from scenefab.pipeline.evaluation_steps import (
             hook_rewrite_step,
         )
 
@@ -538,11 +538,11 @@ class TestHookRewriteStepReal:
         original_draft = ctx_with_assets.current_draft
 
         with patch(
-            "scenefab.pipeline.narration_steps_phase3._generate_hook_candidates_via_llm",
+            "scenefab.pipeline.evaluation_steps._generate_hook_candidates_via_llm",
             return_value=[],
         ):
             with patch(
-                "scenefab.pipeline.narration_steps_phase3._generate_hook_candidates_fallback",
+                "scenefab.pipeline.evaluation_steps._generate_hook_candidates_fallback",
                 return_value=[],
             ):
                 result = hook_rewrite_step(ctx_with_assets)
@@ -564,8 +564,8 @@ class TestEvaluationLoopReal:
     def sm_full(self) -> NarrationStateMachine:
         sm = NarrationStateMachine()
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
         return sm
 
     def test_reject_then_retry_until_accept(
@@ -582,8 +582,8 @@ class TestEvaluationLoopReal:
         # 重建 sm 用 max_draft_attempts=3 允许 retry
         sm = NarrationStateMachine(config=NarrationConfig(max_draft_attempts=3))
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
 
         scores = [5.0, 8.0]  # 第 1 次 REJECT, 第 2 次 ACCEPT
 
@@ -633,8 +633,8 @@ class TestEvaluationLoopReal:
 
         sm = NarrationStateMachine(config=NarrationConfig(max_draft_attempts=1))
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
 
         def always_reject(ctx: NarrationContext):
             ctx.eval_score = 3.0
@@ -670,8 +670,8 @@ class TestPhase3EndToEnd:
     def sm_full(self) -> NarrationStateMachine:
         sm = NarrationStateMachine()
         register_default_steps(sm)
-        register_phase2_steps(sm)
-        register_phase3_steps(sm)
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
         return sm
 
     def test_phase3_e2e_low_score_rejects(
