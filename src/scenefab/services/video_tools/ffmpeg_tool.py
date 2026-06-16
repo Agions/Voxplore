@@ -1,77 +1,22 @@
 """
-FFmpeg 工具模块
+FFmpeg 工具模块（业务便捷门面）
 
-提供 FFmpeg/FFprobe 调用的公共工具函数
+提供 FFmpeg 视频/音频处理的便捷方法（裁剪 / 拼接 / 抽音 / 缩略图 / 转码等）。
+硬件加速检测拆至 `hardware` 模块，ffprobe 元数据探测拆至 `probe` 模块；
+本类对这两类方法保留薄委托以维持向后兼容的 `FFmpegTool.*` 调用面。
 """
 
-import json
 import logging
-import platform
-import subprocess
 import tempfile
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
 from ...utils.security import SecurityError, get_ffmpeg_executor
+from . import hardware as _hw
+from . import probe as _probe
+from .hardware import HWAccelType  # 兼容再导出
 
 logger = logging.getLogger(__name__)
-
-
-class HWAccelType(Enum):
-    """硬件加速类型"""
-
-    NONE = "none"
-    NVIDIA = "nvenc"  # NVIDIA NVENC
-    INTEL = "qsv"  # Intel Quick Sync
-    AMD = "amf"  # AMD AMF
-    APPLE = "videotoolbox"  # Apple VideoToolbox (macOS)
-    VAAPI = "vaapi"  # Linux VAAPI
-
-    @property
-    def ffmpeg_hwaccel(self) -> str | None:
-        """获取 ffmpeg -hwaccel 参数值"""
-        mapping = {
-            HWAccelType.NVIDIA: "cuda",
-            HWAccelType.APPLE: "videotoolbox",
-            HWAccelType.INTEL: "qsv",
-            HWAccelType.AMD: "amf",
-            HWAccelType.VAAPI: "vaapi",
-        }
-        return mapping.get(self)
-
-    def get_encoder(self, codec: str) -> str | None:
-        """获取硬件加速的编码器名称
-
-        Args:
-            codec: 原始编码器 (libx264, libx265 等)
-
-        Returns:
-            硬件加速编码器名称或 None
-        """
-        encoder_map = {
-            HWAccelType.NVIDIA: {
-                "libx264": "h264_nvenc",
-                "libx265": "hevc_nvenc",
-            },
-            HWAccelType.APPLE: {
-                "libx264": "h264_videotoolbox",
-                "libx265": "hevc_videotoolbox",
-            },
-            HWAccelType.INTEL: {
-                "libx264": "h264_qsv",
-                "libx265": "hevc_qsv",
-            },
-            HWAccelType.AMD: {
-                "libx264": "h264_amf",
-                "libx265": "hevc_amf",
-            },
-            HWAccelType.VAAPI: {
-                "libx264": "h264_vaapi",
-                "libx265": "hevc_vaapi",
-            },
-        }
-        return encoder_map.get(self, {}).get(codec)
 
 
 class FFmpegTool:
@@ -95,234 +40,69 @@ class FFmpegTool:
         except FileNotFoundError:
             raise RuntimeError("FFmpeg 未安装，请安装后重试")
 
-    # ========== 硬件加速检测 ==========
+    # ========== 硬件加速检测（委托 hardware 模块，保留兼容调用面）==========
 
     @staticmethod
     def detect_hw_accel() -> HWAccelType:
-        """自动检测可用的硬件加速
-
-        优先级: NVENC > VAAPI > VideoToolbox > QSV > CPU
-
-        Returns:
-            HWAccelType: 检测到的硬件加速类型
-        """
-        system = platform.system()
-
-        # macOS - 优先 VideoToolbox
-        if system == "Darwin":
-            return HWAccelType.APPLE
-
-        # Linux - 检测 VAAPI 和 NVENC
-        if system == "Linux":
-            # 优先检测 NVIDIA
-            if FFmpegTool._check_nvidia_smi():
-                return HWAccelType.NVIDIA
-
-            # 检测 VAAPI
-            if FFmpegTool._check_vaapi():
-                return HWAccelType.VAAPI
-
-        # Windows - 优先 NVENC
-        if system == "Windows":
-            if FFmpegTool._check_nvidia_smi():
-                return HWAccelType.NVIDIA
-
-            # 检测 Intel QSV (通过 CPU 检测)
-            if FFmpegTool._check_intel_cpu():
-                return HWAccelType.INTEL
-
-        return HWAccelType.NONE
+        """自动检测可用的硬件加速。委托 `hardware.detect_hw_accel`。"""
+        return _hw.detect_hw_accel()
 
     @staticmethod
     def _ffmpeg_supports_encoder(encoder: str) -> bool:
-        """检查 FFmpeg 是否支持指定编码器（经安全执行器）。"""
-        try:
-            result = FFmpegTool._executor.run(
-                ["ffmpeg", "-hide_banner", "-encoders"],
-                timeout=10,
-            )
-            return result.returncode == 0 and encoder in (result.stdout or "")
-        except (SecurityError, FileNotFoundError):
-            return False
+        """检查 FFmpeg 是否支持指定编码器。委托 `hardware`。"""
+        return _hw.ffmpeg_supports_encoder(encoder)
 
     @staticmethod
     def _check_nvidia_smi() -> bool:
-        """检测 NVIDIA GPU 和 NVENC 支持。
-
-        nvidia-smi 不在 ffmpeg 安全执行器白名单内，作为只读能力探测保留
-        裸 subprocess；FFmpeg 编码器支持检查走统一执行器。
-        """
-        try:
-            result = subprocess.run(
-                ["nvidia-smi"],
-                capture_output=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                return FFmpegTool._ffmpeg_supports_encoder("h264_nvenc")
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
-        return False
+        """检测 NVIDIA GPU 和 NVENC 支持。委托 `hardware`。"""
+        return _hw.check_nvidia_smi()
 
     @staticmethod
     def _check_vaapi() -> bool:
-        """检测 VAAPI 支持"""
-        # 检查 /dev/dri/ 是否存在 (Linux 硬件设备)
-        if Path("/dev/dri/").exists():
-            return FFmpegTool._ffmpeg_supports_encoder("vaapi")
-        return False
+        """检测 VAAPI 支持。委托 `hardware`。"""
+        return _hw.check_vaapi()
 
     @staticmethod
     def _check_intel_cpu() -> bool:
-        """检测 Intel CPU (用于 QSV)"""
-        try:
-            if platform.system() == "Windows":
-                result = subprocess.run(
-                    ["wmic", "cpu", "get", "name"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                return "Intel" in result.stdout.decode("utf-8", errors="ignore")
-            else:
-                # Linux/macOS 下检测 /proc/cpuinfo
-                with open("/proc/cpuinfo") as f:
-                    return "genuineintel" in f.read().lower()
-        except Exception:
-            pass
-        return False
+        """检测 Intel CPU (用于 QSV)。委托 `hardware`。"""
+        return _hw.check_intel_cpu()
 
     @staticmethod
     def get_hw_accel_encoder(codec: str = "libx264") -> tuple[str, str | None]:
-        """获取最佳可用的视频编码器
+        """获取最佳可用的视频编码器。委托 `hardware.get_hw_accel_encoder`。"""
+        return _hw.get_hw_accel_encoder(codec)
 
-        Args:
-            codec: 原始编码器 (libx264, libx265)
-
-        Returns:
-            (encoder_name, hwaccel_arg) 元组，如果无硬件加速则返回 (codec, None)
-        """
-        hw_type = FFmpegTool.detect_hw_accel()
-
-        if hw_type == HWAccelType.NONE:
-            return codec, None
-
-        # 获取对应的硬件编码器
-        hw_encoder = hw_type.get_encoder(codec)
-        if hw_encoder:
-            return hw_encoder, hw_type.ffmpeg_hwaccel
-
-        return codec, None
-
-    # ========== 视频信息获取 ==========
+    # ========== 视频信息获取（委托 probe 模块，保留兼容调用面）==========
 
     @staticmethod
     def _run_ffprobe_json(cmd: list[str], timeout: int = 30) -> dict | None:
-        """Run ffprobe command and return parsed JSON, or None on failure."""
-        try:
-            result = FFmpegTool._executor.run(cmd, timeout=timeout)
-            if result.returncode != 0:
-                return None
-            return json.loads(result.stdout)  # type: ignore[no-any-return]
-        except (SecurityError, json.JSONDecodeError):
-            return None
+        """Run ffprobe command and return parsed JSON. 委托 `probe`。"""
+        return _probe.run_ffprobe_json(cmd, timeout)
 
     @staticmethod
     def get_duration(video_path: str) -> float:
-        """获取视频时长（秒）"""
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-show_entries",
-            "format=duration",
-            "-of",
-            "json",
-            video_path,
-        ]
-        data = FFmpegTool._run_ffprobe_json(cmd)
-        if data is None:
-            return 0.0
-        return float(data.get("format", {}).get("duration", 0))
+        """获取视频时长（秒）。委托 `probe`。"""
+        return _probe.get_duration(video_path)
 
     @staticmethod
     def get_resolution(video_path: str) -> tuple[int, int]:
-        """获取视频分辨率 (width, height)"""
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-print_format",
-            "json",
-            "-show_streams",
-            video_path,
-        ]
-        data = FFmpegTool._run_ffprobe_json(cmd)
-        if data is None:
-            return (1920, 1080)
-        for stream in data.get("streams", []):
-            if stream.get("codec_type") == "video":
-                return (stream.get("width", 1920), stream.get("height", 1080))
-        return (1920, 1080)
+        """获取视频分辨率 (width, height)。委托 `probe`。"""
+        return _probe.get_resolution(video_path)
 
     @staticmethod
     def get_framerate(video_path: str) -> float:
-        """获取视频帧率"""
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-select_streams",
-            "v:0",
-            "-show_entries",
-            "stream=r_frame_rate",
-            "-of",
-            "json",
-            video_path,
-        ]
-        data = FFmpegTool._run_ffprobe_json(cmd)
-        if data is None:
-            return 30.0
-        streams = data.get("streams", [])
-        if streams:
-            fps_str = streams[0].get("r_frame_rate", "30/1")
-            if "/" in fps_str:
-                num, den = fps_str.split("/")
-                return float(num) / float(den) if den != "0" else 30.0
-            return float(fps_str)
-        return 30.0
+        """获取视频帧率。委托 `probe`。"""
+        return _probe.get_framerate(video_path)
 
     @staticmethod
     def get_bitrate(video_path: str) -> int:
-        """获取视频码率 (bps)"""
-        cmd = [
-            "ffprobe",
-            "-v",
-            "error",
-            "-show_entries",
-            "format=bit_rate",
-            "-of",
-            "json",
-            video_path,
-        ]
-        data = FFmpegTool._run_ffprobe_json(cmd)
-        if data is None:
-            return 0
-        return int(data.get("format", {}).get("bit_rate", 0))
+        """获取视频码率 (bps)。委托 `probe`。"""
+        return _probe.get_bitrate(video_path)
 
     @staticmethod
     def get_video_info(video_path: str) -> dict[str, Any]:
-        """获取完整视频信息"""
-        cmd = [
-            "ffprobe",
-            "-v",
-            "quiet",
-            "-print_format",
-            "json",
-            "-show_format",
-            "-show_streams",
-            video_path,
-        ]
-        return FFmpegTool._run_ffprobe_json(cmd) or {}
+        """获取完整视频信息。委托 `probe`。"""
+        return _probe.get_video_info(video_path)
 
     # ========== 视频处理 ==========
 
