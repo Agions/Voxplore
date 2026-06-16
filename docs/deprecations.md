@@ -86,7 +86,7 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
   - **可取消退避**：重试 `time.sleep(backoff)` → `self._shutdown.wait(backoff)`，关闭时立即返回。
   - `shutdown()` 用 `executor.shutdown(cancel_futures=True)` 取消未开始任务。
   - 公开 API（`start`/`wait_until_done`/`shutdown`/`summary`/`pipeline_factory`/回调/checkpoint）保持不变。
-- **未做（本轮范围外）**：PipelineEngine 改不可变输入上下文 + step 返回结果集中归并——会改变 `ctx["steps"]` 公开契约，风险最大且 PipelineEngine 暂无生产调用方，留待后续。
+- **PipelineEngine 不可变上下文（2026-06-16 后续完成，见 §9）**。
 
 ## 7. 命名规范化 (P5，2026-06-16)
 
@@ -118,6 +118,18 @@ v2.2 周期内将 `video_exporter.py` 的真实实现抽空、仅保留转发到
 2. 自绘 `StatusBar(QFrame)` 传给 `QMainWindow.setStatusBar()`（要求 `QStatusBar`）→ 改入中央垂直布局底部。
 
 **验收基线**：默认 `pytest` 无需 `PYTHONPATH=src`、无需 Qt binding、无需任何环境变量即可得到 593 passed 的可解释结果（P0 契约成立）。
+
+## 9. PipelineEngine 不可变输入上下文 (2026-06-16)
+
+`core/pipeline_engine.py` 原模型：调度器把共享可变 `context`（含被并发写的 `context["steps"]`）整体传给每个 `step.func`，step 内对 `steps` 的读不加锁，与其他并行 step 的写形成 race。
+
+改为**不可变输入 + 中央归并**：
+- 新增权威结果存储 `PipelineEngine._completed_outputs`（加锁写）。
+- `_run_step_function` 给每个 step 传入一份输入视图，其中 `steps` 是当时已完成结果的只读快照（`MappingProxyType`）。step 依赖全部 COMPLETED 才 ready，故快照必含其依赖结果，语义不变。
+- step 返回值由 `_postprocess_step_success` 集中归并到 `_completed_outputs`，不再写进 step 收到的 context。
+- `run()` 末尾把 `_completed_outputs` 汇总进返回 `context["steps"]`，公开输出契约不变；`run()` 入口重置该存储以支持复用。
+
+**BREAKING（内部）**：`step.func` 不能再写 `ctx["steps"]` 影响全局结果（写只读快照抛 `TypeError`）；下游只能读已完成依赖的结果快照。PipelineEngine 无生产调用方（仅 `test_core_v2.py`；`narration_state_machine.py` 中为 docstring 示例），故仅文档化。
 
 ---
 

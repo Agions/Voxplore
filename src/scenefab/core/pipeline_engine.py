@@ -48,6 +48,7 @@ from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
+from types import MappingProxyType
 from typing import Any
 
 # v2.1: 领域事件发布（可选，未注入则跳过）
@@ -163,6 +164,9 @@ class PipelineEngine:
         self.steps: dict[str, PipelineStep] = {}
         self.states: dict[str, StepStatus] = {}
         self.results: dict[str, StepResult] = {}
+        # 权威结果存储：step 返回值集中归并于此（加锁写），
+        # 不再让 step 直接写共享 context["steps"]（不可变输入契约）
+        self._completed_outputs: dict[str, Any] = {}
         self._lock = __import__("threading").RLock()
         self._audit = AuditLogger()
         # v2.1: 事件总线（None 时不发布事件）
@@ -243,6 +247,9 @@ class PipelineEngine:
         context = dict(context or {})
         context.setdefault("input", {})
         context.setdefault("steps", {})
+        # 重置权威结果存储（支持引擎复用 / 重跑）
+        with self._lock:
+            self._completed_outputs = {}
 
         logger.info(
             f"Pipeline start: {len(self.steps)} steps, "
@@ -274,6 +281,10 @@ class PipelineEngine:
             duration_ms=total_duration,
             error_message=f"{failed} steps failed" if failed else "",
         )
+
+        # 中央归并：把权威结果汇总进返回 context（公开输出契约不变）
+        with self._lock:
+            context["steps"].update(self._completed_outputs)
 
         return context
 
@@ -484,8 +495,24 @@ class PipelineEngine:
         return start_time
 
     def _run_step_function(self, step: PipelineStep, context: dict) -> Any:
-        """Invoke the step's user function. Exceptions propagate."""
-        return step.func(context)
+        """Invoke the step's user function with an immutable input view.
+
+        step 收到的 context 中 `steps` 是当时已完成结果的只读快照
+        （`MappingProxyType`），消除并发读写 race，并禁止 step 静默污染
+        全局结果存储。step 的输出通过返回值由调度器集中归并。
+        """
+        step_ctx = self._build_step_input(context)
+        return step.func(step_ctx)
+
+    def _build_step_input(self, context: dict) -> dict:
+        """构造传给 step 的不可变输入视图（提交时刻快照）。"""
+        with self._lock:
+            steps_snapshot = MappingProxyType(dict(self._completed_outputs))
+        step_ctx = {
+            k: v for k, v in context.items() if k != "steps"
+        }
+        step_ctx["steps"] = steps_snapshot
+        return step_ctx
 
     def _postprocess_step_success(
         self,
@@ -505,7 +532,8 @@ class PipelineEngine:
                 duration_ms=duration_ms,
                 start_time=start_time,
             )
-            context["steps"][step.id] = output
+            # 中央归并：写入权威结果存储，而非 step 收到的（只读）context
+            self._completed_outputs[step.id] = output
 
         self._audit.log_action(
             action="pipeline_step_done",

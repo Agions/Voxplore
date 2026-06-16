@@ -278,6 +278,42 @@ class TestPipelineEngine:
         # 验证 cleanup 步骤被标记为 COMPLETED
         assert engine.get_state("cleanup") == StepStatus.COMPLETED
 
+    def test_step_receives_immutable_steps_snapshot(self):
+        """step 收到只读 steps 快照：可读已完成依赖结果，写入抛错。"""
+        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
+
+        engine = PipelineEngine(max_workers=2)
+        captured = {}
+
+        def upstream(ctx):
+            return "up_value"
+
+        def downstream(ctx):
+            # 可读到已完成依赖的结果
+            captured["dep"] = ctx["steps"]["up"]
+            # 写只读快照应抛 TypeError（MappingProxyType）
+            try:
+                ctx["steps"]["x"] = 1
+                captured["write_blocked"] = False
+            except TypeError:
+                captured["write_blocked"] = True
+            return "down_value"
+
+        engine.add_step(PipelineStep(id="up", func=upstream))
+        engine.add_step(
+            PipelineStep(id="down", func=downstream, dependencies=["up"])
+        )
+
+        result = engine.run({})
+
+        assert captured["dep"] == "up_value"  # 中央归并的依赖结果可读
+        assert captured["write_blocked"] is True  # 只读快照禁止写
+        # 公开输出契约不变
+        assert result["steps"]["up"] == "up_value"
+        assert result["steps"]["down"] == "down_value"
+        # step 写 ctx["steps"] 未污染权威结果
+        assert "x" not in result["steps"]
+
 
 # === SafeFFmpegCommand ===
 
