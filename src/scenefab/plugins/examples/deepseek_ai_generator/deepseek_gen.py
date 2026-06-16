@@ -35,11 +35,11 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
 
     def _on_enable(self) -> None:
         """启用时的回调"""
-        self.log_info("DeepSeek AI Generator plugin enabled")  # type: ignore[attr-defined]
+        self.log_info("DeepSeek AI Generator plugin enabled")
 
     def _on_disable(self) -> None:
         """禁用时的回调"""
-        self.log_info("DeepSeek AI Generator plugin disabled")  # type: ignore[attr-defined]
+        self.log_info("DeepSeek AI Generator plugin disabled")
 
     def get_provider_name(self) -> str:
         """获取 AI Provider 名称"""
@@ -79,7 +79,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             scenes = self._parse_scene_analysis_response(response, frame_timestamps)
             return scenes
         except Exception as e:
-            self.log_error(f"Scene analysis failed: {e}")  # type: ignore[attr-defined]
+            self.log_error(f"Scene analysis failed: {e}")
             # 返回空列表或可以返回部分结果
             return []
 
@@ -128,7 +128,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                         )
                         scenes.append(scene)
         except Exception as e:
-            self.log_error(f"Failed to parse scene analysis response: {e}")  # type: ignore[attr-defined]
+            self.log_error(f"Failed to parse scene analysis response: {e}")
 
         # 如果解析失败，生成默认场景
         if not scenes:
@@ -174,7 +174,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             response = await self._call_deepseek_api(prompt)
             return self._parse_script_generation_response(response)
         except Exception as e:
-            self.log_error(f"Script generation failed: {e}")  # type: ignore[attr-defined]
+            self.log_error(f"Script generation failed: {e}")
             return ScriptGeneration(
                 script_id=str(uuid.uuid4()),
                 text="脚本生成失败，请稍后重试。",
@@ -221,7 +221,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
                     style_tags=data.get("style_tags", []),
                 )
         except Exception as e:
-            self.log_error(f"Failed to parse script generation response: {e}")  # type: ignore[attr-defined]
+            self.log_error(f"Failed to parse script generation response: {e}")
 
         # 降级处理
         return ScriptGeneration(
@@ -252,7 +252,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
             async for chunk in self._call_deepseek_api_stream(prompt):
                 yield chunk
         except Exception as e:
-            self.log_error(f"Script streaming failed: {e}")  # type: ignore[attr-defined]
+            self.log_error(f"Script streaming failed: {e}")
             yield "脚本生成失败，请稍后重试。"
 
     async def _call_deepseek_api(self, prompt: str) -> str:
