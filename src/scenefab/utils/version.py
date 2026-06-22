@@ -5,7 +5,7 @@ from importlib import metadata as importlib_metadata
 from pathlib import Path
 from typing import NamedTuple
 
-DEFAULT_VERSION = "2.1.1"
+DEFAULT_VERSION = "2.1.2"
 PACKAGE_NAME = "scenefab"
 
 
