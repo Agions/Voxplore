@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QFrame, QLabel, QToolButton, QVBoxLayout
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QToolButton, QVBoxLayout
 
 from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii
 from scenefab.utils.version import get_version_string
@@ -84,19 +84,43 @@ class Sidebar(QFrame):
         layout.setSpacing(18)
 
         brand = QFrame()
-        brand_layout = QVBoxLayout(brand)
+        brand_layout = QHBoxLayout(brand)
         brand_layout.setContentsMargins(0, 0, 0, 0)
-        brand_layout.setSpacing(3)
+        brand_layout.setSpacing(10)
+
+        mark = QLabel("SF")
+        mark.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        mark.setFixedSize(36, 36)
+        mark.setFont(QFont("", FontSizes.sm, QFont.Weight.Bold))
+        mark.setStyleSheet(f"""
+            QLabel {{
+                color: {_C.TEXT_INVERSE};
+                border-radius: {Radii.base};
+                background: qlineargradient(
+                    x1:0, y1:0, x2:1, y2:1,
+                    stop:0 {_C.PRIMARY},
+                    stop:1 {_C.ACCENT}
+                );
+            }}
+        """)
+        brand_layout.addWidget(mark)
+
+        copy = QFrame()
+        copy_layout = QVBoxLayout(copy)
+        copy_layout.setContentsMargins(0, 0, 0, 0)
+        copy_layout.setSpacing(2)
 
         title = QLabel("SceneFab")
         title.setFont(QFont("", FontSizes.lg, QFont.Weight.Bold))
         title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
-        brand_layout.addWidget(title)
+        copy_layout.addWidget(title)
 
         subtitle = QLabel("短剧解说生产台")
         subtitle.setFont(QFont("", FontSizes.xs))
         subtitle.setStyleSheet(f"color: {_C.TEXT_MUTED};")
-        brand_layout.addWidget(subtitle)
+        copy_layout.addWidget(subtitle)
+
+        brand_layout.addWidget(copy, 1)
         layout.addWidget(brand)
 
         nav_frame = QFrame()

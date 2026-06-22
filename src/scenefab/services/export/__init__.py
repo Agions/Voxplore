@@ -59,7 +59,6 @@ from .presets import (
     normalize_resolution,
     parse_bitrate_kbps,
 )
-from .video_exporter import ExportConfig, ExportFormat, VideoExporter
 
 __all__ = [
     # 基类
@@ -87,9 +86,6 @@ __all__ = [
     "JianyingMaterials",
     "CanvasConfig",
     # 视频文件导出
-    "VideoExporter",
-    "ExportConfig",
-    "ExportFormat",
     # 直接视频导出
     "DirectVideoExporter",
     "VideoExportConfig",

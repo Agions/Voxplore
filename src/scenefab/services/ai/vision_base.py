@@ -7,13 +7,17 @@
 
 import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any
 
 
 @dataclass
 class VisionAnalysisResult:
-    """视觉分析结果"""
+    """视觉分析结果
+
+    同时支持属性访问（result.description）和字典风格访问（result["description"]），
+    以保持与 ``dict[str, Any]`` 调用方的兼容性。
+    """
 
     description: str = ""
     content_type: str = "unknown"
@@ -28,6 +32,33 @@ class VisionAnalysisResult:
     protagonist_action: str = ""  # 主角动作
     environment_mood: str = ""  # 环境氛围
     first_person_hook: str = ""  # 适合第一人称的开场钩子
+
+    # ---- dict-like protocol for backward compatibility ----
+
+    def __getitem__(self, key: str) -> Any:
+        """Allow ``result["description"]`` style access."""
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            raise KeyError(key)
+
+    def __contains__(self, key: object) -> bool:
+        """Allow ``"description" in result`` style checks."""
+        if not isinstance(key, str):
+            return False
+        return hasattr(self, key)
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Dict-style ``.get()`` method."""
+        return getattr(self, key, default)
+
+    def keys(self):
+        """Return field names (dict-like)."""
+        return [f.name for f in self.__dataclass_fields__.values()]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Explicit conversion to a plain dict."""
+        return asdict(self)
 
 
 # ============================================================================
@@ -85,8 +116,8 @@ class VisionProvider(ABC):
     @abstractmethod
     def analyze_image(
         self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
-    ) -> dict[str, Any]:
-        """分析图片，返回解析后的字典"""
+    ) -> dict[str, Any] | VisionAnalysisResult:
+        """分析图片，返回解析后的字典或结构化结果"""
         pass
 
     @abstractmethod

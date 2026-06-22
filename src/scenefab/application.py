@@ -6,6 +6,7 @@ SceneFab 应用程序核心类
 """
 
 import logging
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
@@ -68,14 +69,7 @@ class ErrorInfo:
     message: str
     details: str | None = None
     exception: Exception | None = None
-    timestamp: float = field(
-        default_factory=lambda: (
-            __import__(
-                "PySide6.QtWidgets", fromlist=["QApplication"]
-            ).QApplication.instance()
-            or {}
-        ).get("timestamp", 0)
-    )
+    timestamp: float = field(default_factory=time.time)
 
 
 class Application(QObject):
@@ -137,7 +131,7 @@ class Application(QObject):
                 return False
 
             # 执行初始化序列
-            for name, init_func in self._init_sequence:
+            for index, (name, init_func) in enumerate(self._init_sequence, start=1):
                 if not init_func():
                     self.error_occurred.emit(
                         "INIT_ERROR", f"Failed to initialize {name}"
@@ -145,11 +139,7 @@ class Application(QObject):
                     return False
 
                 self.progress_updated.emit(
-                    int(
-                        (self._init_sequence.index((name, init_func)) + 1)
-                        / len(self._init_sequence)
-                        * 100
-                    ),
+                    int(index / len(self._init_sequence) * 100),
                     f"正在初始化 {name}...",
                 )
 

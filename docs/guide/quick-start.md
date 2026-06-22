@@ -1,75 +1,70 @@
 ---
-title: 5 分钟快速开始
-description: 最快 5 分钟上手 SceneFab，开始你的 AI 影视解说创作。
+title: 快速开始
+description: 3 步上手 SceneFab，开始 AI 影视解说创作。
 ---
 
-# 5 分钟快速开始
+# 快速开始
 
-## 环境要求
+3 步完成安装、配置和首次运行。
 
-| 项目 | 要求 |
-|------|------|
-| 操作系统 | Windows 10+ / macOS 12+ / Ubuntu 20.04+ |
-| 内存 | ≥ 8 GB（推荐 16 GB） |
-| 显存 | ≥ 4 GB（用于视觉理解加速，无则自动用 CPU） |
-| 磁盘 | ≥ 5 GB 可用空间 |
+## 第一步：安装
 
-## 安装
-
-::: code-group
-
-```bash [Homebrew (macOS/Linux)]
-brew install scenefab
-scenefab
-```
-
-```bash [pip]
-pip install scenefab
-scenefab
-```
-
-:::
-
-## 配置 API Key
-
-SceneFab 需要以下 API Key：
-
-| 服务 | 用途 | 费用 |
-|------|------|------|
-| DeepSeek | 解说稿生成 | ~¥0.1/百万 tokens |
-| Qwen VL | 视频帧语义分析 | ¥0.1/千次 |
-| Edge TTS | 配音生成 | 免费 |
-
-> 处理一部 2 小时电影解说，成本不足 **1 元**。
-
-### 获取 API Key
-
-**DeepSeek**：
-1. 访问 [platform.deepseek.com](https://platform.deepseek.com) → API Keys → Create
-2. 复制 Key 并填入 SceneFab 设置页
-
-**阿里云百炼（Qwen VL）**：
-1. 访问 [bailian.console.aliyun.com](https://bailian.console.aliyun.com) → API Keys → 创建
-2. 选择 `qwen-vl-max` 模型
-
-### 环境变量配置
+安装 SceneFab 并确认 FFmpeg 可用：
 
 ```bash
-DEEPSEEK_API_KEY=sk-xxx...xxxx
-DASHSCOPE_API_KEY=sk-xxx...xxxx
-TTS_ENGINE=edge-tts
-DEFAULT_EMOTION=heal
+pip install scenefab
 ```
 
-## 快速验证
+验证 FFmpeg：
+
+```bash
+ffmpeg -version
+```
+
+::: tip
+如果 FFmpeg 未安装，macOS 使用 `brew install ffmpeg`，Ubuntu 使用 `sudo apt install ffmpeg`。
+:::
+
+## 第二步：配置
+
+编辑 `config/llm.yaml`，填入至少一个 API Key：
+
+```yaml
+LLM:
+  default_provider: "qwen"
+
+  qwen:
+    enabled: true
+    api_key: "sk-your-qwen-key"
+    model: "qwen3.7-max"
+
+  deepseek:
+    enabled: true
+    api_key: "sk-your-deepseek-key"
+    model: "deepseek-v4-pro"
+```
+
+API Key 获取方式：
+
+- **Qwen (阿里云百炼)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+- **DeepSeek** — [platform.deepseek.com](https://platform.deepseek.com)
+
+## 第三步：运行
+
+启动 SceneFab：
+
+```bash
+scenefab
+```
+
+验证安装：
 
 ```bash
 scenefab --version
-# 输出: scenefab 2.1.1
 ```
 
 ## 下一步
 
-- [完整安装指南](/guide/installation) — 各平台详细步骤
-- [配置 API Key](/guide/ai-configuration) — DeepSeek / Qwen VL 详细配置
-- [AI 工作流详解](/guide/ai-video-guide) — 深入理解 AI 处理流程
+- [配置参考](/config) — 两文件配置结构详解
+- [AI 模型参考](/ai-models) — 模型选择与推荐配置
+- [功能矩阵](/features) — 查看完整产品能力

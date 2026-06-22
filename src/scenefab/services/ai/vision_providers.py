@@ -11,9 +11,11 @@ from collections.abc import Callable
 from typing import Any
 
 # 基类和常量从 vision_base 导入，避免循环导入
+from .model_catalog import DEFAULT_MODELS
 from .vision_base import (
     FIRST_PERSON_ANALYSIS_PROMPT,
     VISION_ANALYSIS_PROMPT,
+    VisionAnalysisResult,
     VisionProvider,
 )
 
@@ -27,7 +29,10 @@ class OpenAIVisionProvider(VisionProvider):
     """OpenAI GPT-5 Vision"""
 
     def __init__(
-        self, api_key: str, model: str = "gpt-4o", base_url: str | None = None
+        self,
+        api_key: str,
+        model: str = DEFAULT_MODELS["openai"],
+        base_url: str | None = None,
     ) -> None:
         self.api_key = api_key
         self.model = model
@@ -69,55 +74,9 @@ class OpenAIVisionProvider(VisionProvider):
 
 
 # ============================================================================
-# 通义千问 Qwen-VL（Plus / Max）
-# ============================================================================
-class QwenVLProvider(VisionProvider):
-    """通义千问 Qwen-VL（Plus/Max）"""
-
-    def __init__(
-        self,
-        api_key: str,
-        base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        model: str = "qwen-vl-plus",
-    ) -> None:
-        self.api_key = api_key
-        self.base_url = base_url
-        self.model = model
-
-    def get_name(self) -> str:
-        return f"Qwen/{self.model}"
-
-    def analyze_image(
-        self, image_base64: str, prompt: str = VISION_ANALYSIS_PROMPT
-    ) -> dict[str, Any]:
-        from openai import OpenAI
-
-        client = OpenAI(api_key=self.api_key, base_url=self.base_url)
-        response = client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_base64}"
-                            },
-                        },
-                    ],
-                }
-            ],
-            max_tokens=800,
-        )
-        return self._parse_json_response(response.choices[0].message.content)  # type: ignore[arg-type]
-
-
-# ============================================================================
 # 通义千问 Qwen3.7（2026年6月最新，多模态 Agent）⭐ 主力推荐
 # ============================================================================
-class Qwen25VLProvider(VisionProvider):
+class Qwen37FrameProvider(VisionProvider):
     """
     通义千问 Qwen3.7（Max/Plus）
 
@@ -129,7 +88,7 @@ class Qwen25VLProvider(VisionProvider):
         self,
         api_key: str,
         base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        model: str = "qwen2.5-vl-72b-instruct",
+        model: str = DEFAULT_MODELS["qwen"],
     ) -> None:
         self.api_key = api_key
         self.base_url = base_url
@@ -301,7 +260,7 @@ class GeminiVisionProvider(VisionProvider):
     """Google Gemini 3.x Vision"""
 
     def __init__(
-        self, api_key: str, model: str = "gemini-2.5-flash-preview-0506"
+        self, api_key: str, model: str = DEFAULT_MODELS["gemini"]
     ) -> None:
         self.api_key = api_key
         self.model = model
@@ -362,19 +321,14 @@ class VisionAnalyzerFactory:
 
     def _get_provider_map(self) -> dict[str, type]:
         """延迟加载 Provider 映射，避免循环导入"""
-        from .providers.gemini35_flash import Gemini35FlashProvider
         from .providers.qwen37 import Qwen37Provider
 
         return {
             "openai": OpenAIVisionProvider,
-            "qwen": QwenVLProvider,
-            "qwen25": Qwen25VLProvider,
+            "qwen37_frames": Qwen37FrameProvider,
             "qwen37": Qwen37Provider,
             "gemini": GeminiVisionProvider,
-            "gemini35": Gemini35FlashProvider,
         }
-
-    PROVIDER_MAP = {}  # type: ignore[var-annotated]  # 保留兼容，实际用 _get_provider_map()
 
     def __init__(self, config: dict[str, Any]) -> None:
         self._config = config
@@ -382,14 +336,13 @@ class VisionAnalyzerFactory:
         self._init_providers()
 
     def _init_providers(self) -> None:
-        from .providers.gemini35_flash import Gemini35FlashProvider
         from .providers.qwen37 import Qwen37Provider
 
         llm = self._config.get("LLM", {})
 
         # Qwen3.7（最优先，2026年6月最新，多模态 Agent）
         qwen37_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
-        vision_model = os.getenv("VISION_MODEL", "qwen3.7-plus")
+        vision_model = os.getenv("VISION_MODEL", DEFAULT_MODELS["qwen"])
         if qwen37_key and not qwen37_key.startswith("${"):
             self._providers.append(
                 Qwen37Provider(
@@ -399,17 +352,7 @@ class VisionAnalyzerFactory:
             )
             logger.info(f"✅ Qwen3.7 ({vision_model}) 已启用 — 多模态 Agent")
 
-        # Qwen-VL Plus（备选）
-        qwen_key = os.getenv("QWEN_API_KEY") or llm.get("qwen", {}).get("api_key", "")
-        if qwen_key and not qwen_key.startswith("${"):
-            self._providers.append(
-                QwenVLProvider(
-                    api_key=qwen_key,
-                    model=llm.get("qwen", {}).get("vision_model", "qwen-vl-plus"),
-                )
-            )
-
-        # OpenAI GPT-4o
+        # OpenAI GPT-5
         openai_key = os.getenv("OPENAI_API_KEY") or llm.get("openai", {}).get(
             "api_key", ""
         )
@@ -417,35 +360,27 @@ class VisionAnalyzerFactory:
             self._providers.append(
                 OpenAIVisionProvider(
                     api_key=openai_key,
-                    model="gpt-4o",
+                    model=llm.get("openai", {}).get(
+                        "vision_model", DEFAULT_MODELS["openai"]
+                    ),
                     base_url=llm.get("openai", {}).get("base_url"),
                 )
             )
 
-        # Gemini 3.5 Flash（2026年5月最新）
+        # Gemini 3.1 Pro
         gemini_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get(
             "api_key", ""
         )
         if gemini_key and not gemini_key.startswith("${"):
             self._providers.append(
-                Gemini35FlashProvider(
-                    api_key=gemini_key,
-                    model="gemini-3.5-flash",
-                )
-            )
-            logger.info("✅ Gemini 3.5 Flash 已启用 — Flash 级别成本")
-
-        # Gemini 旧版（备选）
-        gemini_legacy_key = os.getenv("GEMINI_API_KEY") or llm.get("gemini", {}).get(
-            "api_key", ""
-        )
-        if gemini_legacy_key and not gemini_legacy_key.startswith("${"):
-            self._providers.append(
                 GeminiVisionProvider(
-                    api_key=gemini_legacy_key,
-                    model="gemini-2.5-flash-preview-0506",
+                    api_key=gemini_key,
+                    model=llm.get("gemini", {}).get(
+                        "vision_model", DEFAULT_MODELS["gemini"]
+                    ),
                 )
             )
+            logger.info("✅ Gemini 3.1 Pro 已启用 — 长上下文视频理解")
 
     def get_provider(self, preferred: str | None = None) -> VisionProvider | None:
         """获取可用的 Vision 提供者（优先返回指定的）"""
@@ -457,7 +392,7 @@ class VisionAnalyzerFactory:
 
     def analyze_with_fallback(
         self, image_base64: str, prompt: str = FIRST_PERSON_ANALYSIS_PROMPT
-    ) -> dict[str, Any]:
+    ) -> dict[str, Any] | VisionAnalysisResult:
         """带 fallback 的分析，自动切换提供者直到成功"""
         last_error = None
         tried = []

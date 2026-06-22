@@ -38,6 +38,7 @@ from scenefab.models.project_file_metadata import (
     _ProjectFileVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
 from scenefab.models.project_models import ProjectType
+from scenefab.services.ai.model_catalog import DEFAULT_MODELS
 
 # 获取 logger
 logger = logging.getLogger(__name__)
@@ -69,8 +70,8 @@ class ProjectConfig:
     """项目配置"""
 
     # AI 配置
-    llm_provider: str = "openai"  # LLM 提供商
-    llm_model: str = "gpt-4o-mini"  # LLM 模型
+    llm_provider: str = "deepseek"  # LLM 提供商
+    llm_model: str = DEFAULT_MODELS["deepseek"]  # LLM 模型
     voice_provider: str = "edge"  # 配音提供商
     voice_id: str = ""  # 声音ID
 

@@ -1,249 +1,192 @@
 ---
 title: 配置参考
-description: SceneFab 环境变量、配置文件与高级设置详解。
+description: SceneFab 两文件配置结构与常见配置场景。
 ---
 
 # 配置参考
 
-所有配置通过 `.env` 文件管理（项目根目录，已加入 `.gitignore`）。
+SceneFab 采用两文件配置结构，将应用设置与 LLM 提供商配置分离，便于管理和切换。
 
-::: tip
-API Key 安全存储优先使用 OS Keychain，降级为加密文件。详见 [安全设计](/security)。
-:::
+## 快速参考
 
----
+| 配置项 | 默认值 | 说明 |
+| --- | --- | --- |
+| `default_llm` | `deepseek` | 默认 LLM 提供商 |
+| `cache.enabled` | `true` | 启用结果缓存 |
+| `cache.max_size` | `100` | 最大缓存条目数 |
+| `cache.ttl` | `3600` | 缓存过期时间（秒） |
+| `log_level` | `INFO` | 日志级别 |
+| `retry.max_retries` | `3` | 最大重试次数 |
+| `retry.backoff_factor` | `2.0` | 退避因子 |
+| `retry.base_delay` | `1.0` | 基础延迟（秒） |
+| `retry.max_delay` | `60.0` | 最大延迟（秒） |
 
-## 必需变量
+## 配置文件结构
 
-| 变量 | 说明 | 获取方式 |
-|------|------|----------|
-| `DEEPSEEK_API_KEY` | DeepSeek V4 API Key（解说生成） | [platform.deepseek.com](https://platform.deepseek.com) |
-| `DASHSCOPE_API_KEY` | 阿里云百炼 API Key（Qwen3.7 视觉理解） | [bailian.console.aliyun.com](https://bailian.console.aliyun.com) |
+SceneFab 的配置拆分为两个文件，位于项目根目录的 `config/` 目录：
 
----
+| 文件 | 用途 | 格式 |
+| --- | --- | --- |
+| `config/app_config.yaml` | 应用级设置（缓存、日志、默认提供商、重试策略） | YAML |
+| `config/llm.yaml` | LLM 提供商配置（API Key、模型、参数） | YAML |
 
-## 可选变量
+### app_config.yaml
 
-### AI 服务配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `DEEPSEEK_BASE_URL` | `https://api.deepseek.com` | API 地址（可配置代理） |
-| `DEEPSEEK_MODEL` | `deepseek-chat` | DeepSeek 模型 |
-| `DEEPSEEK_MAX_TOKENS` | `4096` | 最大生成 token 数 |
-| `DEEPSEEK_TEMPERATURE` | `0.7` | 生成温度（0-2） |
-| `DASHSCOPE_BASE_URL` | `https://dashscope.aliyuncs.com` | 阿里云 API 地址 |
-| `DASHSCOPE_MODEL` | `qwen3.7-vl-flash` | 视频理解模型 |
-
-### TTS 配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `TTS_ENGINE` | `edge-tts` | TTS 引擎：`edge-tts` / `f5-tts` / `openai` |
-| `TTS_VOICE` | `zh-CN-XiaoxiaoNeural` | 默认音色 |
-| `TTS_RATE` | `+0%` | 语速调整（-50% ~ +50%） |
-| `TTS_PITCH` | `+0Hz` | 音调调整 |
-
-### 视频处理配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `FFMPEG_PATH` | `ffmpeg` | FFmpeg 路径 |
-| `FRAME_INTERVAL` | `1` | 抽帧间隔（秒） |
-| `MIN_SCENE_LENGTH` | `5` | 最小场景长度（秒） |
-| `CONFIDENCE_THRESHOLD` | `0.6` | 置信度阈值 |
-
-### 导出配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `OUTPUT_DIR` | `~/Videos/SceneFab` | 默认输出目录 |
-| `EXPORT_FORMAT` | `mp4` | 导出格式：`mp4` / `mov` / `jianying` |
-| `VIDEO_CODEC` | `h264` | 视频编码：`h264` / `h265` |
-| `VIDEO_QUALITY` | `high` | 视频质量：`low` / `medium` / `high` |
-
-### 情感风格配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `DEFAULT_EMOTION` | `heal` | 默认情感风格 |
-| `NARRATION_STYLE` | `first_person` | 解说视角：`first_person` / `third_person` |
-
-### 网络配置
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `HTTP_PROXY` | — | HTTP 代理地址 |
-| `HTTPS_PROXY` | — | HTTPS 代理地址 |
-| `REQUEST_TIMEOUT` | `30` | 请求超时时间（秒） |
-| `MAX_RETRIES` | `3` | 最大重试次数 |
-
----
-
-## 完整示例
-
-```ini
-# ═══════════════════════════════════════════════════════════
-# AI API Keys
-# ═══════════════════════════════════════════════════════════
-DEEPSEEK_API_KEY=sk-xxx...xxxx
-DASHSCOPE_API_KEY=sk-xxx...xxxx
-
-# ═══════════════════════════════════════════════════════════
-# DeepSeek 配置
-# ═══════════════════════════════════════════════════════════
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-chat
-DEEPSEEK_MAX_TOKENS=4096
-DEEPSEEK_TEMPERATURE=0.7
-
-# ═══════════════════════════════════════════════════════════
-# 阿里云百炼配置
-# ═══════════════════════════════════════════════════════════
-DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com
-DASHSCOPE_MODEL=qwen3.7-vl-flash
-
-# ═══════════════════════════════════════════════════════════
-# TTS 配置
-# ═══════════════════════════════════════════════════════════
-TTS_ENGINE=edge-tts
-TTS_VOICE=zh-CN-XiaoxiaoNeural
-TTS_RATE=+0%
-TTS_PITCH=+0Hz
-
-# ═══════════════════════════════════════════════════════════
-# 视频处理配置
-# ═══════════════════════════════════════════════════════════
-FFMPEG_PATH=ffmpeg
-FRAME_INTERVAL=1
-MIN_SCENE_LENGTH=5
-CONFIDENCE_THRESHOLD=0.6
-
-# ═══════════════════════════════════════════════════════════
-# 导出配置
-# ═══════════════════════════════════════════════════════════
-OUTPUT_DIR=~/Videos/SceneFab
-EXPORT_FORMAT=mp4
-VIDEO_CODEC=h264
-VIDEO_QUALITY=high
-
-# ═══════════════════════════════════════════════════════════
-# 情感风格配置
-# ═══════════════════════════════════════════════════════════
-DEFAULT_EMOTION=heal
-NARRATION_STYLE=first_person
-
-# ═══════════════════════════════════════════════════════════
-# 网络配置
-# ═══════════════════════════════════════════════════════════
-HTTP_PROXY=http://127.0.0.1:7890
-HTTPS_PROXY=http://127.0.0.1:7890
-REQUEST_TIMEOUT=30
-MAX_RETRIES=3
-```
-
----
-
-## 配置文件
-
-SceneFab 使用以下配置文件（位于 `~/.scenefab/`）：
-
-| 文件 | 说明 | 格式 |
-|------|------|------|
-| `config.yaml` | 主配置文件（应用级设置） | YAML |
-| `credentials.enc` | 加密 API Key（Keychain 不可用时降级） | 二进制 |
-| `projects/` | 项目文件目录 | — |
-| `logs/` | 日志文件目录 | — |
-
-### config.yaml 示例
+应用级配置，控制缓存、日志、默认提供商和重试策略：
 
 ```yaml
-# ~/.scenefab/config.yaml
-app:
-  version: "3.0.0"
-  language: zh-CN
-  theme: dark
-  log_level: INFO
-
-video:
-  default_format: mp4
-  default_codec: h264
-  ffmpeg_path: ffmpeg
-  temp_dir: /tmp/scenefab
-  max_concurrent: 2
-
-ai:
-  provider_priority:
-    - deepseek
-    - openai
-    - claude
-  cache_enabled: true
-  cache_ttl: 3600
-
-export:
-  output_dir: ~/Videos/SceneFab
-  quality_preset: high
-  include_subtitles: true
-  include_audio: true
-
-tts:
-  engine: edge-tts
-  voice: zh-CN-XiaoxiaoNeural
-  rate: "+0%"
-  pitch: "+0Hz"
+# config/app_config.yaml
+cache:
+  enabled: true
+  max_size: 100
+  ttl: 3600
+default_llm: deepseek
+log_level: INFO
+retry:
+  max_retries: 3
+  backoff_factor: 2.0
+  base_delay: 1.0
+  max_delay: 60.0
 ```
 
----
+`default_llm` 字段决定默认使用哪个 LLM 提供商，可选值：`qwen` / `deepseek` / `openai` / `claude` / `gemini` / `kimi` / `glm5` / `doubao` / `hunyuan` / `local`。
 
-## 代理配置
+### llm.yaml
 
-```ini
-# HTTP 代理
-HTTP_PROXY=http://127.0.0.1:7890
-HTTPS_PROXY=http://127.0.0.1:7890
+LLM 提供商配置，每个提供商独立配置 API Key、模型和生成参数：
 
-# SOCKS5 代理
-HTTP_PROXY=socks5://127.0.0.1:1080
-HTTPS_PROXY=socks5://127.0.0.1:1080
+```yaml
+# config/llm.yaml
+LLM:
+  default_provider: "deepseek"
+
+  qwen:
+    enabled: true
+    api_key: ${QWEN_API_KEY}
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen3.7-max"
+    max_tokens: 32768
+    temperature: 0.7
+
+  deepseek:
+    enabled: false
+    api_key: ${DEEPSEEK_API_KEY}
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-v4-pro"
+    max_tokens: 32768
+    temperature: 0.7
 ```
 
-DeepSeek 和阿里云通常国内直连，无需代理。
+::: tip
+`api_key` 支持环境变量引用（`${VAR_NAME}`），避免将密钥硬编码到配置文件中。
+:::
 
----
+### 本地模型配置
 
-## 环境变量优先级
+本地模型通过 Ollama 或 LM Studio 运行，无需 API Key：
+
+```yaml
+# config/llm.yaml 中的 local 段
+local:
+  enabled: false
+  api_key: ""
+  base_url: "http://localhost:11434"
+  model: "qwen3:32b"
+  max_tokens: 4096
+  temperature: 0.7
+```
+
+## 常见配置场景
+
+### 场景一：首次配置
+
+1. 复制配置模板：
+
+```bash
+cp config/llm.yaml.example config/llm.yaml
+cp config/app_config.yaml.example config/app_config.yaml
+```
+
+2. 在 `config/llm.yaml` 中填入 API Key（至少配置一个提供商）：
+
+```yaml
+qwen:
+  enabled: true
+  api_key: "sk-your-qwen-key"
+
+deepseek:
+  enabled: true
+  api_key: "sk-your-deepseek-key"
+```
+
+3. 在 `config/app_config.yaml` 中设置默认提供商：
+
+```yaml
+default_llm: qwen
+```
+
+### 场景二：切换提供商
+
+修改 `config/app_config.yaml` 中的 `default_llm` 字段，然后在 `config/llm.yaml` 中确保目标提供商已启用并配置了 API Key：
+
+```yaml
+# app_config.yaml
+default_llm: deepseek
+```
+
+```yaml
+# llm.yaml
+deepseek:
+  enabled: true
+  api_key: ${DEEPSEEK_API_KEY}
+  model: "deepseek-v4-pro"
+```
+
+### 场景三：自定义模型
+
+在 `config/llm.yaml` 中修改目标提供商的 `model` 字段。模型名必须存在于 `services.ai.model_catalog` 中：
+
+```yaml
+# 切换到 Gemini 3.1 Pro 用于长视频理解
+gemini:
+  enabled: true
+  api_key: ${GEMINI_API_KEY}
+  model: "gemini-3.1-pro"
+  max_tokens: 8000
+```
+
+## 环境变量
+
+API Key 也可以通过环境变量设置，优先级高于配置文件：
+
+| 变量 | 说明 |
+| --- | --- |
+| `QWEN_API_KEY` | 阿里云百炼 API Key |
+| `DEEPSEEK_API_KEY` | DeepSeek API Key |
+| `OPENAI_API_KEY` | OpenAI API Key |
+| `CLAUDE_API_KEY` | Anthropic API Key |
+| `GEMINI_API_KEY` | Google Gemini API Key |
+| `KIMI_API_KEY` | Kimi/Moonshot API Key |
+| `GLM5_API_KEY` | 智谱 GLM API Key |
+| `DOUBAO_API_KEY` | 字节豆包 API Key |
+| `HUNYUAN_API_KEY` | 腾讯混元 API Key |
+
+## 配置优先级
 
 ```
-命令行参数 > 环境变量 > .env 文件 > config.yaml > 默认值
+命令行参数 > 环境变量 > llm.yaml / app_config.yaml > 默认值
 ```
-
----
 
 ## 故障排除
 
-### 配置文件不生效
+| 问题 | 排查步骤 |
+| --- | --- |
+| 配置不生效 | 确认 YAML 语法正确，使用 `scenefab --show-config` 查看当前生效配置 |
+| API Key 无效 (401) | 确认 Key 格式正确（通常 `sk-` 开头）且未过期 |
+| 触发限流 (429) | 降低并发或在服务商控制台升级套餐 |
+| 模型名错误 | 确认模型名存在于 `model_catalog` 中，使用 `scenefab --list-models` 查看 |
 
-1. 确认 `.env` 文件在项目根目录
-2. 验证 YAML 语法
-3. 使用 `--debug` 参数启动：
-```bash
-scenefab --debug
-```
+## 相关文档
 
-### API Key 无效（401）
-
-确认 Key 格式正确（`sk-` 开头）且未过期或被删除。
-
-### 触发限流（429）
-
-降低并发请求数，或在服务商控制台升级套餐。
-
-### 配置冲突
-
-```bash
-# 查看当前生效的配置
-scenefab --show-config
-
-# 重置为默认配置
-scenefab --reset-config
-```
+- [AI 模型参考](/ai-models) — 模型选择与推荐配置
+- [架构概览](/architecture) — 配置在系统中的位置

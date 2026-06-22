@@ -22,6 +22,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 logger = logging.getLogger(__name__)
 
@@ -33,42 +34,8 @@ class QwenProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope
     """
 
-    # 模型管理混入需要
-    MODELS = {
-        "qwen-plus": {
-            "name": "Qwen Plus",
-            "description": "综合最佳模型，32K context",
-            "max_tokens": 8000,
-            "context_length": 32000,
-        },
-        "qwen-max": {
-            "name": "Qwen Max",
-            "description": "最强性能模型，128K context",
-            "max_tokens": 8000,
-            "context_length": 128000,
-        },
-        "qwen-turbo": {
-            "name": "Qwen Turbo",
-            "description": "高性价比，响应最快",
-            "max_tokens": 6000,
-            "context_length": 32000,
-        },
-        "qwq-32b": {
-            "name": "QwQ 32B",
-            "description": "推理能力模型",
-            "max_tokens": 32768,
-            "context_length": 32768,
-            "reasoning": True,
-        },
-        "qwen-vl-plus": {
-            "name": "Qwen VL Plus",
-            "description": "视觉理解版本",
-            "max_tokens": 8000,
-            "context_length": 32000,
-            "vision": True,
-        },
-    }
-    DEFAULT_MODEL = "qwen-plus"
+    MODELS = provider_models("qwen")
+    DEFAULT_MODEL = DEFAULT_MODELS["qwen"]
 
     def __init__(
         self,

@@ -47,12 +47,12 @@ class TestLLMResponse:
         """测试创建响应"""
         response = LLMResponse(
             content="生成的内容",
-            model="qwen-plus",
+            model="qwen3.7-max",
             tokens_used=100,
         )
 
         assert response.content == "生成的内容"
-        assert response.model == "qwen-plus"
+        assert response.model == "qwen3.7-max"
         assert response.tokens_used == 100
         assert response.finish_reason == "stop"
         # metadata 字段已移除，用 raw_response 代替

@@ -136,7 +136,7 @@ class SettingsPage(QFrame):
         layout.addWidget(
             self._row(
                 "默认模型",
-                self._combo(["DeepSeek V3", "GPT-4o", "Gemini 2.0"]),
+                self._combo(["deepseek-v4-pro", "gpt-5", "gemini-3.1-pro", "qwen3.7-max", "claude-sonnet-4-6"]),
                 "影响脚本质量和响应速度",
             )
         )

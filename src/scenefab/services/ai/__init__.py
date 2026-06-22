@@ -26,7 +26,7 @@ _EXPORTS = {
     "SubtitleExtractionResult": ".subtitle_extractor",
     "SubtitleMerger": ".subtitle_extractor",
     "SubtitleSegment": ".subtitle_extractor",
-    "SubtitleTranslator": ".subtitle_extractor",
+    "SubtitleTranslator": ".subtitle_translator",
     "FIRST_PERSON_ANALYSIS_PROMPT": ".vision_providers",
     "VisionAnalyzerFactory": ".vision_providers",
     "VisionProvider": ".vision_providers",

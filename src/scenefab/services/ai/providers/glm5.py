@@ -14,33 +14,14 @@ from ..base_llm_provider import (
     LLMResponse,
     ModelManagerMixin,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class GLM5Provider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     """智谱 GLM-4 提供商"""
 
-    # 模型管理混入需要
-    MODELS = {
-        "glm-4-flash": {
-            "name": "GLM-4 Flash",
-            "description": "高性价比，响应最快",
-            "max_tokens": 8000,
-            "context_length": 128000,
-        },
-        "glm-4-plus": {
-            "name": "GLM-4 Plus",
-            "description": "综合能力增强版",
-            "max_tokens": 8000,
-            "context_length": 128000,
-        },
-        "glm-4": {
-            "name": "GLM-4",
-            "description": "标准版",
-            "max_tokens": 4000,
-            "context_length": 128000,
-        },
-    }
-    DEFAULT_MODEL = "glm-4-flash"
+    MODELS = provider_models("glm5")
+    DEFAULT_MODEL = DEFAULT_MODELS["glm5"]
 
     def __init__(
         self,

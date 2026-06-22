@@ -281,13 +281,13 @@ providers:
       model: Qwen3.7
     gemini_vision:
       enabled: true
-      model: gemini-2.0-flash
+      model: gemini-3.1-pro
 
   llm:
     default: deepseek
     deepseek:
       enabled: true
-      model: deepseek-chat
+      model: deepseek-v4-pro
 
   tts:
     default: edge_tts

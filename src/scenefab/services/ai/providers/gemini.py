@@ -18,6 +18,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -27,31 +28,8 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://ai.google.dev/docs
     """
 
-    # 模型管理混入需要
-    MODELS = {
-        "gemini-3.1-flash-lite": {
-            "name": "Gemini 3.1 Flash Lite",
-            "description": "低成本高效模型 (2026.03)",
-            "max_tokens": 8192,
-            "context_length": 1000000,
-            "vision": True,
-        },
-        "gemini-3.1-flash": {
-            "name": "Gemini 3.1 Flash",
-            "description": "闪电般速度 (2026.03)",
-            "max_tokens": 8192,
-            "context_length": 1000000,
-            "vision": True,
-        },
-        "gemini-3.1-pro": {
-            "name": "Gemini 3.1 Pro",
-            "description": "最智能模型 (2026.03)",
-            "max_tokens": 8192,
-            "context_length": 2000000,
-            "vision": True,
-        },
-    }
-    DEFAULT_MODEL = "gemini-3.1-flash-lite"
+    MODELS = provider_models("gemini")
+    DEFAULT_MODEL = DEFAULT_MODELS["gemini"]
 
     def __init__(
         self,

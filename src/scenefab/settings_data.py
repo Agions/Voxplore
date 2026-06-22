@@ -16,6 +16,7 @@
 - export: 导出设置
 """
 
+from .services.ai.model_catalog import DEFAULT_MODELS, settings_model_options
 from .settings_types import SettingDefinition, SettingType
 
 
@@ -169,8 +170,8 @@ def get_ai_settings() -> dict[str, SettingDefinition]:
             name="默认AI模型",
             description="默认使用的AI模型",
             setting_type=SettingType.STRING,
-            default_value="gpt-3.5-turbo",
-            options=["gpt-5", "gpt-5-mini", "claude-opus-4-6", "gemini-3-pro"],
+            default_value=DEFAULT_MODELS["deepseek"],
+            options=settings_model_options(),
             category="ai",
             subcategory="models",
         ),

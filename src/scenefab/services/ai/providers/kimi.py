@@ -14,6 +14,7 @@ from ..base_llm_provider import (
     LLMResponse,
     ModelManagerMixin,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class KimiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -23,29 +24,8 @@ class KimiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://platform.moonshot.cn/docs
     """
 
-    # 模型管理混入需要
-    MODELS = {
-        "moonshot-v1-128k": {
-            "name": "Kimi 128K",
-            "description": "超长上下文，128K tokens",
-            "max_tokens": 8000,
-            "context_length": 128000,
-            "vision": False,
-        },
-        "moonshot-v1-32k": {
-            "name": "Kimi 32K",
-            "description": "均衡版本，32K tokens",
-            "max_tokens": 8000,
-            "context_length": 32000,
-        },
-        "moonshot-v1-8k": {
-            "name": "Kimi 8K",
-            "description": "标准版本，8K tokens",
-            "max_tokens": 4000,
-            "context_length": 8000,
-        },
-    }
-    DEFAULT_MODEL = "moonshot-v1-128k"
+    MODELS = provider_models("kimi")
+    DEFAULT_MODEL = DEFAULT_MODELS["kimi"]
 
     def __init__(
         self,

@@ -17,12 +17,11 @@ _SUBMODULES = {
     "video_tools",
 }
 
-# AI 管理器权威实现在 services.ai.manager；这里仅为旧导入路径保留命名。
-_SERVICE_MANAGER_ATTRS = {
-    "AIServiceManager": "AIServiceManager",
-    "ServiceStatus": "ServiceStatus",
-    "ServiceHealth": "ServiceHealth",
-    "get_ai_service_manager": "get_ai_service_manager",
+# Lazy-loaded names sourced from the canonical AI modules.
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "AIServiceManager": ("scenefab.services.ai.manager", "AIServiceManager"),
+    "ServiceStatus": ("scenefab.services.ai.base", "ServiceStatus"),
+    "ServiceHealth": ("scenefab.services.ai.base", "ServiceHealth"),
 }
 
 
@@ -32,9 +31,10 @@ def __getattr__(name: str) -> Any:
         globals()[name] = module
         return module
 
-    if name in _SERVICE_MANAGER_ATTRS:
-        module = import_module(f"{__name__}.service_manager")
-        value = getattr(module, _SERVICE_MANAGER_ATTRS[name])
+    if name in _LAZY_IMPORTS:
+        mod_path, attr = _LAZY_IMPORTS[name]
+        module = import_module(mod_path)
+        value = getattr(module, attr)
         globals()[name] = value
         return value
 
@@ -51,5 +51,4 @@ __all__ = [
     "AIServiceManager",
     "ServiceStatus",
     "ServiceHealth",
-    "get_ai_service_manager",
 ]

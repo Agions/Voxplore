@@ -18,6 +18,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -27,55 +28,12 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://platform.deepseek.com/docs
 
     支持模型:
-    - deepseek-reasoner (R1): 推理模型，数学和代码能力强大
-    - deepseek-v3-2 (V3.2): 最新基础模型，多任务能力强
-    - deepseek-chat: 通用对话模型
+    - deepseek-v4-pro: 解说生成主力模型
+    - deepseek-v4-flash: 高吞吐改写模型
     """
 
-    # 可用模型列表
-    MODELS = {
-        "deepseek-v4-flash": {
-            "name": "DeepSeek V4 Flash",
-            "description": "V4 主力模型，MoE架构，1M上下文，极高性价比 (2026.04)",
-            "max_tokens": 16384,
-            "context_length": 1000000,
-        },
-        "deepseek-v4-pro": {
-            "name": "DeepSeek V4 Pro",
-            "description": "V4 高配版，推理能力更强，适合复杂任务 (2026.04)",
-            "max_tokens": 32768,
-            "context_length": 1000000,
-            "reasoning": True,
-        },
-        "deepseek-reasoner": {
-            "name": "DeepSeek R1",
-            "description": "推理模型，数学和代码能力强大，适合复杂推理任务 (2026.03)",
-            "max_tokens": 32768,
-            "context_length": 64000,
-            "reasoning": True,
-        },
-        "deepseek-chat": {
-            "name": "DeepSeek V3 (兼容)",
-            "description": "V3.2 基础模型，多任务能力强 (2026.03)",
-            "max_tokens": 16384,
-            "context_length": 64000,
-        },
-        "deepseek-coder": {
-            "name": "DeepSeek Coder",
-            "description": "代码生成模型",
-            "max_tokens": 4096,
-            "context_length": 16000,
-        },
-        "deepseek-math": {
-            "name": "DeepSeek Math",
-            "description": "数学推理模型",
-            "max_tokens": 4096,
-            "context_length": 64000,
-        },
-    }
-
-    # 默认模型
-    DEFAULT_MODEL = "deepseek-v4-flash"
+    MODELS = provider_models("deepseek")
+    DEFAULT_MODEL = DEFAULT_MODELS["deepseek"]
 
     def __init__(
         self,

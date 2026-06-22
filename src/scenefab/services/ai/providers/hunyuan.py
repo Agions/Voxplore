@@ -19,6 +19,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -28,35 +29,8 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://cloud.tencent.com/document/product/1729
     """
 
-    # 模型列表
-    MODELS = {
-        "hunyuan-pro": {
-            "name": "Hunyuan Pro",
-            "description": "专业版，腾讯最强模型 (2026.03)",
-            "max_tokens": 8000,
-            "context_length": 128000,
-        },
-        "hunyuan-standard": {
-            "name": "Hunyuan Standard",
-            "description": "标准版，均衡性能 (2026.03)",
-            "max_tokens": 4000,
-            "context_length": 64000,
-        },
-        "hunyuan-lite": {
-            "name": "Hunyuan Lite",
-            "description": "轻量版，高性价比 (2026.03)",
-            "max_tokens": 2000,
-            "context_length": 32000,
-        },
-        "hunyuan-vision": {
-            "name": "Hunyuan Vision",
-            "description": "多模态版本，支持图像理解 (2026.02)",
-            "max_tokens": 4000,
-            "context_length": 64000,
-            "vision": True,
-        },
-    }
-    DEFAULT_MODEL = "hunyuan-pro"
+    MODELS = provider_models("hunyuan")
+    DEFAULT_MODEL = DEFAULT_MODELS["hunyuan"]
 
     def __init__(
         self,

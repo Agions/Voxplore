@@ -22,7 +22,7 @@
     logger.log(AuditEntry(
         timestamp=datetime.now(timezone.utc).isoformat(),
         action="llm_api_call",
-        parameters={"model": "deepseek-chat", "tokens": 1024},
+        parameters={"model": "deepseek-v4-pro", "tokens": 1024},
         result="success",
         duration_ms=1234,
     ))

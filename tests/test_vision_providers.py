@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from scenefab.services.ai.vision_providers import (
     GeminiVisionProvider,
     OpenAIVisionProvider,
-    QwenVLProvider,
+    Qwen37FrameProvider,
     VisionAnalyzerFactory,
     VisionProvider,
 )
@@ -50,9 +50,9 @@ class TestOpenAIVisionProvider:
 
     def test_init_custom_model(self):
         """测试自定义模型"""
-        provider = OpenAIVisionProvider(api_key="sk-test", model="gpt-4o-mini")
+        provider = OpenAIVisionProvider(api_key="sk-test", model="gpt-5-mini")
 
-        assert provider.model == "gpt-4o-mini"
+        assert provider.model == "gpt-5-mini"
 
     @patch("openai.OpenAI")
     def test_analyze_image(self, mock_openai):
@@ -77,12 +77,12 @@ class TestOpenAIVisionProvider:
         assert "openai" in provider.get_name().lower()
 
 
-class TestQwenVLProvider:
-    """通义千问 VL 提供商测试"""
+class TestQwen37FrameProvider:
+    """通义千问 3.7 帧分析提供商测试"""
 
     def test_init(self):
         """测试初始化"""
-        provider = QwenVLProvider(api_key="test-key")
+        provider = Qwen37FrameProvider(api_key="test-key")
 
         assert provider.api_key == "test-key"
 
@@ -97,7 +97,7 @@ class TestQwenVLProvider:
         mock_client.chat.completions.create.return_value = mock_response
         mock_openai.return_value = mock_client
 
-        provider = QwenVLProvider(api_key="test-key")
+        provider = Qwen37FrameProvider(api_key="test-key")
 
         result = provider.analyze_image(b"fake_image")
 
@@ -110,7 +110,7 @@ class TestVisionAnalyzerFactory:
     @patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"})
     def test_init_with_config(self):
         """测试工厂初始化"""
-        config = {"LLM": {"openai": {"api_key": "sk-test", "vision_model": "gpt-4o"}}}
+        config = {"LLM": {"openai": {"api_key": "sk-test", "vision_model": "gpt-5"}}}
         factory = VisionAnalyzerFactory(config)
         assert len(factory._providers) >= 0
 

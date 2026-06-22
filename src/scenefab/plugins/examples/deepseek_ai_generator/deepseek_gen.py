@@ -30,7 +30,7 @@ class DeepSeekAIGeneratorPlugin(BaseAIGeneratorPlugin):
         super().__init__(manifest)  # type: ignore[call-arg]
         self._api_key: str | None = None
         self._base_url: str = "https://api.deepseek.com"
-        self._model: str = "deepseek-chat"
+        self._model: str = "deepseek-v4-pro"
         self._client = None
 
     def _on_enable(self) -> None:

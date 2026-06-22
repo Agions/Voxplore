@@ -18,6 +18,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -27,31 +28,8 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://docs.anthropic.com/claude/reference/messages_post
     """
 
-    # 模型管理混入需要
-    MODELS = {
-        "claude-sonnet-4-5": {
-            "name": "Claude Sonnet 4.5",
-            "description": "速度与智能的最佳平衡 (2026.03)",
-            "max_tokens": 16384,
-            "context_length": 200000,
-            "vision": True,
-        },
-        "claude-opus-4-6": {
-            "name": "Claude Opus 4.6",
-            "description": "最智能模型，适合复杂任务",
-            "max_tokens": 16384,
-            "context_length": 200000,
-            "vision": True,
-        },
-        "claude-haiku-4-5": {
-            "name": "Claude Haiku 4.5",
-            "description": "最快速模型",
-            "max_tokens": 8192,
-            "context_length": 200000,
-            "vision": True,
-        },
-    }
-    DEFAULT_MODEL = "claude-sonnet-4-5"
+    MODELS = provider_models("claude")
+    DEFAULT_MODEL = DEFAULT_MODELS["claude"]
 
     def __init__(
         self,

@@ -18,6 +18,7 @@ from typing import Any
 
 from openai import OpenAI
 
+from ..model_catalog import DEFAULT_MODELS, provider_models
 from ..vision_base import VisionAnalysisResult, VisionProvider
 
 logger = logging.getLogger(__name__)
@@ -38,19 +39,8 @@ class Qwen37Provider(VisionProvider):
     - qwen3.7-plus: 轻量快速，适合高吞吐场景
     """
 
-    # 模型配置
-    MODELS = {
-        "qwen3.7-max": {
-            "name": "Qwen3.7 Max",
-            "description": "最强多模态 Agent，Vision Arena 前五",
-            "max_context": 1_000_000,  # 100万 token
-        },
-        "qwen3.7-plus": {
-            "name": "Qwen3.7 Plus",
-            "description": "轻量快速，适合批量处理",
-            "max_context": 1_000_000,
-        },
-    }
+    MODELS = provider_models("qwen")
+    DEFAULT_MODEL = DEFAULT_MODELS["qwen"]
 
     # 默认视频抽帧参数
     DEFAULT_FPS = 2.0
@@ -59,7 +49,7 @@ class Qwen37Provider(VisionProvider):
     def __init__(
         self,
         api_key: str,
-        model: str = "qwen3.7-max",
+        model: str = DEFAULT_MODELS["qwen"],
         base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1",
     ):
         """
@@ -81,7 +71,7 @@ class Qwen37Provider(VisionProvider):
         )
 
         # 获取模型配置
-        self.model_config = self.MODELS.get(model, self.MODELS["qwen3.7-max"])
+        self.model_config = self.MODELS.get(model, self.MODELS[self.DEFAULT_MODEL])
 
         logger.info(f"Qwen3.7 Provider 初始化完成: {model}")
 
@@ -144,7 +134,7 @@ class Qwen37Provider(VisionProvider):
                 raw_response=str(e),
             )
 
-    def analyze_image(  # type: ignore[override]
+    def analyze_image(
         self,
         image_base64: str,
         prompt: str | None = None,

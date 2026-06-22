@@ -2,25 +2,25 @@
 
 LLM:
   # 默认提供商 (qwen | kimi | glm5 | openai | deepseek | claude | gemini | local | doubao | hunyuan)
-  default_provider: "qwen"
+  default_provider: "deepseek"
 
-  # 通义千问 Qwen Plus
+  # 通义千问 Qwen3.7 Max
   qwen:
     enabled: true
     api_key: ${QWEN_API_KEY}
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    model: "qwen-plus"
-    max_tokens: 8000
+    model: "qwen3.7-max"
+    max_tokens: 32768
     temperature: 0.7
     top_p: 0.9
 
-  # DeepSeek V4
+  # DeepSeek V4 Pro
   deepseek:
     enabled: false
     api_key: ${DEEPSEEK_API_KEY}
     base_url: "https://api.deepseek.com"
-    model: "deepseek-v4-flash"
-    max_tokens: 16384
+    model: "deepseek-v4-pro"
+    max_tokens: 32768
     temperature: 0.7
 
   # Kimi moonshot-v1
@@ -32,39 +32,39 @@ LLM:
     max_tokens: 8000
     temperature: 0.7
 
-  # 智谱 GLM-4
+  # 智谱 GLM-5
   glm5:
     enabled: false
     api_key: ${GLM5_API_KEY}
     base_url: "https://open.bigmodel.cn/api/paas/v4/"
-    model: "glm-4-flash"
-    max_tokens: 8000
+    model: "glm-5-plus"
+    max_tokens: 16384
     temperature: 0.7
 
-  # OpenAI GPT-4o
+  # OpenAI GPT-5
   openai:
     enabled: false
     api_key: ${OPENAI_API_KEY}
     base_url: "https://api.openai.com/v1"
-    model: "gpt-4o"
-    max_tokens: 16384
+    model: "gpt-5"
+    max_tokens: 32768
     temperature: 0.7
 
-  # Anthropic Claude Sonnet 4
+  # Anthropic Claude Opus 4.6
   claude:
     enabled: false
     api_key: ${CLAUDE_API_KEY}
     base_url: "https://api.anthropic.com"
-    model: "claude-sonnet-4-20250514"
-    max_tokens: 2000
+    model: "claude-opus-4-6"
+    max_tokens: 16384
     temperature: 0.7
 
-  # Google Gemini 2.0
+  # Google Gemini 3.1 Pro
   gemini:
     enabled: false
     api_key: ${GEMINI_API_KEY}
     base_url: "https://generativelanguage.googleapis.com"
-    model: "gemini-2.0-flash-exp"
+    model: "gemini-3.1-pro"
     max_tokens: 8000
     temperature: 0.7
 
@@ -74,6 +74,7 @@ LLM:
     api_key: ""
     base_url: "http://localhost:11434"
     backend: "ollama"
+    model: "qwen3:32b"
 
   # 字节豆包 Doubao
   doubao:

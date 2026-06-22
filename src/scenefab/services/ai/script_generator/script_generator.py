@@ -38,6 +38,7 @@ from typing import Any
 
 from ..base_llm_provider import LLMRequest
 from ..llm_manager import LLMManager, load_llm_config
+from ..model_catalog import DEFAULT_MODELS
 from ..script_models import (
     GeneratedScript,
     ScriptConfig,
@@ -117,14 +118,16 @@ class ScriptGenerator:
             self.llm_manager = LLMManager(load)
             logger.info("LLMManager 初始化成功")
             logger.info(
-                f"默认提供商: {load.get('LLM', {}).get('default_provider', 'qwen')}"
+                "默认提供商: "
+                f"{load.get('LLM', {}).get('default_provider', 'deepseek')}, "
+                f"主力模型: {DEFAULT_MODELS['deepseek']}"
             )
             logger.info(
                 f"可用提供商: {[p.value for p in self.llm_manager.get_available_providers()]}"
             )
 
         elif api_key:
-            # 使用传统方式 (兼容)
+            # 使用直连 OpenAI 方式
             # 创建一个简单的包装类
             self.api_key = api_key
             logger.info("使用传统 OpenAI 方式")
@@ -435,7 +438,7 @@ class ScriptGenerator:
             user_prompt = build_prompt(topic, config)
 
             response = client.chat.completions.create(
-                model=config.model or "gpt-4",
+                model=config.model or "gpt-5",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},

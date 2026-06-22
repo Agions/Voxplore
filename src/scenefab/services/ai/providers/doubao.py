@@ -17,6 +17,7 @@ from ..base_llm_provider import (
     ModelManagerMixin,
     ProviderError,
 )
+from ..model_catalog import DEFAULT_MODELS, provider_models
 
 
 class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -26,41 +27,8 @@ class DoubaoProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     API 文档: https://www.volcengine.com/docs/82379
     """
 
-    # 模型列表
-    MODELS = {
-        "doubao-pro-32k": {
-            "name": "Doubao Pro 32K",
-            "description": "专业版 32K 上下文，企业级应用 (2026.03)",
-            "max_tokens": 32000,
-            "context_length": 32000,
-        },
-        "doubao-pro-128k": {
-            "name": "Doubao Pro 128K",
-            "description": "专业版 128K 上下文，超长文本处理 (2026.03)",
-            "max_tokens": 64000,
-            "context_length": 128000,
-        },
-        "doubao-lite-32k": {
-            "name": "Doubao Lite 32K",
-            "description": "轻量版 32K，性价比高 (2026.03)",
-            "max_tokens": 16000,
-            "context_length": 32000,
-        },
-        "doubao-lite-128k": {
-            "name": "Doubao Lite 128K",
-            "description": "轻量版 128K，超长上下文 (2026.03)",
-            "max_tokens": 32000,
-            "context_length": 128000,
-        },
-        "doubao-vision-pro": {
-            "name": "Doubao Vision Pro",
-            "description": "多模态版本，支持图像理解 (2026.02)",
-            "max_tokens": 16000,
-            "context_length": 32000,
-            "vision": True,
-        },
-    }
-    DEFAULT_MODEL = "doubao-pro-128k"
+    MODELS = provider_models("doubao")
+    DEFAULT_MODEL = DEFAULT_MODELS["doubao"]
 
     def __init__(
         self,
