@@ -61,9 +61,14 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Job 2: 发布到 PyPI
+  # 必须等 build artifacts 全部成功 (create-release) 才推 PyPI.
+  # 这样保证: 只有 Windows/macOS×2/Linux 4 个 PyInstaller 二进制
+  # 全部产出 + GitHub Release 成功创建后, PyPI 才会被推送.
+  # PyPI 不允许同版本覆盖, 一旦推错无法回滚 — 多等 5 分钟换可恢复性
+  # 是值得的.
   # ─────────────────────────────────────────────
   publish-pypi:
-    needs: setup
+    needs: [setup, create-release]
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.setup.outputs.version }}
