@@ -14,6 +14,7 @@ import uuid
 import zipfile
 from dataclasses import asdict
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from scenefab.signals_bridge import QObject, Signal
@@ -229,10 +230,33 @@ class ProjectManager(QObject):
             os.makedirs(directory, exist_ok=True)
 
     def _load_recent_projects(self) -> list[str]:
-        return self.config_manager.get("editor.recent_files", [])  # type: ignore[no-any-return, attr-defined]
+        # NOTE: recent_projects 持久化改用本地文件 + 在 _save_recent_projects 中处理.
+        # 历史版本曾尝试走 ConfigManager.get/set("editor.recent_files"),但 ConfigManager
+        # 已重构为强类型 AppConfig 接口,不再提供 dict-like get/set.
+        # 见 issue #82 + PR: 全局配置不应承担 UI 状态,改由 ProjectManager 自行持久化.
+        cache_file = Path(self.projects_dir) / ".recent_projects.json"
+        if not cache_file.exists():
+            return []
+        try:
+            import json
+
+            data = json.loads(cache_file.read_text(encoding="utf-8"))
+            return [str(p) for p in data if isinstance(p, str)]
+        except (OSError, ValueError) as e:
+            self.logger.warning(f"无法加载最近项目列表: {e}")
+            return []
 
     def _save_recent_projects(self) -> None:
-        self.config_manager.set("editor.recent_files", self.recent_projects[:10])  # type: ignore[attr-defined]
+        cache_file = Path(self.projects_dir) / ".recent_projects.json"
+        try:
+            import json
+
+            cache_file.write_text(
+                json.dumps(self.recent_projects[:10], ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except OSError as e:
+            self.logger.warning(f"无法保存最近项目列表: {e}")
         self.recent_projects_updated.emit(self.recent_projects[:10])
 
     def _add_to_recent_projects(self, project_path: str) -> None:
