@@ -16,7 +16,6 @@ Each component is tested for:
 from __future__ import annotations
 
 import shutil
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -334,8 +333,8 @@ class TestScriptGeneratorSmoke:
     @pytest.mark.anyio
     async def test_generate_handles_llm_failure(self, llm_config):
         """When the LLM call fails, the generator propagates the error."""
-        from scenefab.services.ai.script_generator import ScriptGenerator
         from scenefab.services.ai.errors import ProviderError
+        from scenefab.services.ai.script_generator import ScriptGenerator
 
         failing_manager = MagicMock()
         failing_manager.generate = AsyncMock(side_effect=ProviderError("所有 Provider 都失败"))
@@ -446,7 +445,7 @@ class TestSubtitleTranslatorSmoke:
             translator = SubtitleTranslator(api_key="test-key", provider="openai")
             result = translator.translate(sample_subtitle_result, target_lang="en")
 
-        for orig, translated in zip(sample_subtitle_result.segments, result.segments):
+        for orig, translated in zip(sample_subtitle_result.segments, result.segments, strict=True):
             assert translated.start == orig.start
             assert translated.end == orig.end
 

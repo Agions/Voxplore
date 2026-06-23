@@ -246,7 +246,7 @@ class TestDefaultModels:
         assert set(DEFAULT_MODELS.keys()) == set(MODEL_CATALOG.keys())
 
     def test_values_are_model_id_strings(self) -> None:
-        for provider, model_id in DEFAULT_MODELS.items():
+        for _provider, model_id in DEFAULT_MODELS.items():
             assert isinstance(model_id, str)
             assert len(model_id) > 0
 
@@ -312,7 +312,7 @@ class TestProviderModels:
 
     def test_each_value_is_provider_dict(self) -> None:
         result = provider_models("qwen")
-        for model_id, meta in result.items():
+        for _model_id, meta in result.items():
             assert isinstance(meta, dict)
             assert "name" in meta
             assert "description" in meta

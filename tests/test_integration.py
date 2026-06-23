@@ -5,22 +5,20 @@
 
 from __future__ import annotations
 
-import os
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from scenefab.services.ai.base_llm_provider import (
-    BaseLLMProvider,
     LLMRequest,
     LLMResponse,
     ProviderError,
 )
 from scenefab.services.ai.llm_manager import LLMManager
+from scenefab.services.ai.provider_types import ProviderType
 from scenefab.services.ai.providers.glm5 import GLM5Provider
 from scenefab.services.ai.providers.kimi import KimiProvider
 from scenefab.services.ai.providers.qwen import QwenProvider
-from scenefab.services.ai.provider_types import ProviderType
 
 
 # Restrict anyio tests to asyncio only (trio is not installed)
