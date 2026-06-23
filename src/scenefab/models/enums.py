@@ -38,12 +38,12 @@ from scenefab.application import (
     ApplicationState,
 )
 
+# ── 服务层 ──────────────────────────────────────────────
+from scenefab.core.di_container import ServiceLifetime
+
 # ── 媒体/AI ─────────────────────────────────────────────
 from scenefab.models.narration import EmotionType, NarrationStyle
 from scenefab.models.project_models import ProjectStatus, ProjectType
-
-# ── 服务层 ──────────────────────────────────────────────
-from scenefab.core.di_container import ServiceLifetime
 from scenefab.services.ai.base import (  # noqa: F401  # re-exported
     ServiceHealth,
     ServiceStatus,
