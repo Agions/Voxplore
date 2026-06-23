@@ -21,9 +21,7 @@ pip install scenefab
 ffmpeg -version
 ```
 
-::: tip
 如果 FFmpeg 未安装，macOS 使用 `brew install ffmpeg`，Ubuntu 使用 `sudo apt install ffmpeg`。
-:::
 
 ## 第二步：配置
 
@@ -65,6 +63,7 @@ scenefab --version
 
 ## 下一步
 
+- [安装指南](/guide/installation) — 各平台完整安装步骤
+- [AI 配置](/guide/ai-configuration) — 多服务商配置详解
 - [配置参考](/config) — 两文件配置结构详解
 - [AI 模型参考](/ai-models) — 模型选择与推荐配置
-- [功能矩阵](/features) — 查看完整产品能力

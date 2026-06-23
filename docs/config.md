@@ -7,6 +7,13 @@ description: SceneFab 两文件配置结构与常见配置场景。
 
 SceneFab 采用两文件配置结构，将应用设置与 LLM 提供商配置分离，便于管理和切换。
 
+## 配置文件结构
+
+| 文件 | 用途 | 格式 |
+| --- | --- | --- |
+| `config/app_config.yaml` | 应用级设置（缓存、日志、默认提供商、重试策略） | YAML |
+| `config/llm.yaml` | LLM 提供商配置（API Key、模型、参数） | YAML |
+
 ## 快速参考
 
 | 配置项 | 默认值 | 说明 |
@@ -20,15 +27,6 @@ SceneFab 采用两文件配置结构，将应用设置与 LLM 提供商配置分
 | `retry.backoff_factor` | `2.0` | 退避因子 |
 | `retry.base_delay` | `1.0` | 基础延迟（秒） |
 | `retry.max_delay` | `60.0` | 最大延迟（秒） |
-
-## 配置文件结构
-
-SceneFab 的配置拆分为两个文件，位于项目根目录的 `config/` 目录：
-
-| 文件 | 用途 | 格式 |
-| --- | --- | --- |
-| `config/app_config.yaml` | 应用级设置（缓存、日志、默认提供商、重试策略） | YAML |
-| `config/llm.yaml` | LLM 提供商配置（API Key、模型、参数） | YAML |
 
 ### app_config.yaml
 
@@ -77,9 +75,7 @@ LLM:
     temperature: 0.7
 ```
 
-::: tip
 `api_key` 支持环境变量引用（`${VAR_NAME}`），避免将密钥硬编码到配置文件中。
-:::
 
 ### 本地模型配置
 
@@ -166,14 +162,14 @@ API Key 也可以通过环境变量设置，优先级高于配置文件：
 | `OPENAI_API_KEY` | OpenAI API Key |
 | `CLAUDE_API_KEY` | Anthropic API Key |
 | `GEMINI_API_KEY` | Google Gemini API Key |
-| `KIMI_API_KEY` | Kimi/Moonshot API Key |
+| `KIMI_API_KEY` | Kimi / Moonshot API Key |
 | `GLM5_API_KEY` | 智谱 GLM API Key |
 | `DOUBAO_API_KEY` | 字节豆包 API Key |
 | `HUNYUAN_API_KEY` | 腾讯混元 API Key |
 
 ## 配置优先级
 
-```
+```text
 命令行参数 > 环境变量 > llm.yaml / app_config.yaml > 默认值
 ```
 
