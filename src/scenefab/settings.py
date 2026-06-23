@@ -6,7 +6,6 @@ SceneFab 配置管理
 
 import os
 from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -18,21 +17,6 @@ from scenefab.utils.version import get_version_string
 
 # 加载 .env 文件
 load_dotenv()
-
-
-class LLMProviderType(Enum):
-    """LLM 提供商类型"""
-
-    QWEN = "qwen"
-    KIMI = "kimi"
-    GLM5 = "glm5"
-    OPENAI = "openai"
-    DEEPSEEK = "deepseek"
-    CLAUDE = "claude"
-    GEMINI = "gemini"
-    DOUBAO = "doubao"
-    HUNYUAN = "hunyuan"
-    LOCAL = "local"
 
 
 @dataclass(slots=True)

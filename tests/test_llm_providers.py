@@ -4,12 +4,6 @@
 单元测试 - LLM 提供商
 """
 
-import sys
-from pathlib import Path
-
-# 添加项目路径
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from scenefab.services.ai.base_llm_provider import LLMRequest, LLMResponse
 
 

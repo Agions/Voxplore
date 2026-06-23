@@ -10,8 +10,6 @@ SceneFab 全局枚举集中地
 
 应用层：
 - ApplicationState: 应用状态（从 application.py + core/__init__.py 合并）
-- ErrorType: 错误类型（从 application.py 迁移）
-- ErrorSeverity: 错误严重程度（从 application.py 迁移，字段：LOW/MEDIUM/HIGH/CRITICAL）
 
 服务层：
 - ServiceStatus: 服务状态（已在 services/ai/base.py 统一为权威，Phase 1 完成）
@@ -28,7 +26,7 @@ AI/媒体层：
 说明：本模块对枚举类**做重新导出**（re-export），不重新定义，以保留
 每个枚举的语义归属。导入新代码推荐::
 
-    from scenefab.models.enums import ApplicationState, ErrorType
+    from scenefab.models.enums import ApplicationState
 
 或继续从权威模块导入（两者指向同一对象）::
 
@@ -38,8 +36,6 @@ AI/媒体层：
 # ── 应用层 ──────────────────────────────────────────────
 from scenefab.application import (
     ApplicationState,
-    ErrorSeverity,
-    ErrorType,
 )
 
 # ── 媒体/AI ─────────────────────────────────────────────
@@ -47,7 +43,7 @@ from scenefab.models.narration import EmotionType, NarrationStyle
 from scenefab.models.project_models import ProjectStatus, ProjectType
 
 # ── 服务层 ──────────────────────────────────────────────
-from scenefab.service_container import ServiceLifetime
+from scenefab.core.di_container import ServiceLifetime
 from scenefab.services.ai.base import (  # noqa: F401  # re-exported
     ServiceHealth,
     ServiceStatus,
@@ -61,8 +57,6 @@ from scenefab.services.ai.base import (  # noqa: F401  # re-exported
 __all__ = [
     # 应用层
     "ApplicationState",
-    "ErrorType",
-    "ErrorSeverity",
     # 服务层
     "ServiceStatus",
     "ServiceHealth",

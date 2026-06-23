@@ -4,11 +4,6 @@
 单元测试 - 流式文案生成器
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from scenefab.services.ai.script_stream import StreamingScriptGenerator
 
 

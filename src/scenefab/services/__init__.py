@@ -19,7 +19,6 @@ _SUBMODULES = {
 
 # Lazy-loaded names sourced from the canonical AI modules.
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "AIServiceManager": ("scenefab.services.ai.manager", "AIServiceManager"),
     "ServiceStatus": ("scenefab.services.ai.base", "ServiceStatus"),
     "ServiceHealth": ("scenefab.services.ai.base", "ServiceHealth"),
 }
@@ -48,7 +47,6 @@ __all__ = [
     "export",
     "video_tools",
     "orchestration",
-    "AIServiceManager",
     "ServiceStatus",
     "ServiceHealth",
 ]

@@ -2,9 +2,6 @@
 
 _PYSIDE6_GUI_TESTS = [
     "tests/test_project_manager.py",
-    "tests/test_application.py",
-    "tests/test_ui_components.py",
-    "tests/test_page_loader.py",
     "tests/test_project_settings_manager.py",
     "tests/test_project_version_manager.py",
     "tests/test_project_template_manager.py",

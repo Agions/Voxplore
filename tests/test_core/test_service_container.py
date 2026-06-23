@@ -1,6 +1,6 @@
-"""Tests for app.core.service_container - enhanced lifecycle management"""
+"""Tests for DIContainer - enhanced lifecycle management"""
 
-from scenefab.service_container import ServiceContainer, ServiceLifetime
+from scenefab.core.di_container import DIContainer as ServiceContainer, ServiceLifetime
 
 
 class TestServiceLifetime:

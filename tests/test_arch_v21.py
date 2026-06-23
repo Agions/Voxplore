@@ -164,28 +164,25 @@ class TestUnifiedEventBus:
 
 
 class TestV1XCompatibility:
-    """v1.x EventBus API 完全兼容"""
+    """v1.x EventBus API 兼容性（直接使用 UnifiedEventBus）"""
 
-    def test_core_eventbus_delegates(self):
-        from scenefab.core import EventBus as CoreEventBus
-
-        b = CoreEventBus()
-        # 委托到 UnifiedEventBus 默认实例
-        assert b._backend is UnifiedEventBus.get_default()
-
-    def test_event_bus_module_delegates(self):
-        from scenefab.event_bus import EventBus as CompatEventBus
-
-        b = CompatEventBus()
-        assert b._backend is UnifiedEventBus.get_default()
+    def test_unified_eventbus_subscribe_publish(self):
+        """UnifiedEventBus 支持字符串事件的 subscribe/publish"""
+        bus = UnifiedEventBus.get_default()
+        received = []
+        bus.subscribe("v1x.test", lambda d: received.append(d))
+        bus.publish("v1x.test", {"y": 1})
+        time.sleep(0.05)
+        assert received == [{"y": 1}]
+        bus.clear_handlers("v1x.test")
 
     def test_v1x_publish_subscribe(self):
-        from scenefab.event_bus import event_bus as compat_event_bus
-
+        """get_event_bus() 返回的实例支持字符串事件"""
+        bus = get_event_bus()
         received = []
-        compat_event_bus.clear_handlers()
-        compat_event_bus.subscribe("v1x.test", lambda d: received.append(d))
-        get_event_bus().publish("v1x.test", {"y": 1})
+        bus.clear_handlers()
+        bus.subscribe("v1x.test", lambda d: received.append(d))
+        bus.publish("v1x.test", {"y": 1})
         time.sleep(0.05)
         assert received == [{"y": 1}]
 
@@ -388,43 +385,6 @@ class TestTaskStore:
 
 
 # ══════════════════════════════════════════════════════════
-# Phase 5: SettingsV2
-# ══════════════════════════════════════════════════════════
-
-
-class TestSettingsV2:
-    """配置层 v2.1（pydantic-settings）"""
-
-    def test_available(self):
-        from scenefab.core.config_v2 import is_settings_v2_available
-
-        assert is_settings_v2_available()
-
-    def test_get_settings(self):
-        from scenefab.core.config_v2 import get_settings
-
-        s = get_settings()
-        assert s.app_name == "scenefab"
-        assert s.profile.value == "development"
-
-    def test_json_schema(self):
-        from scenefab.core.config_v2 import get_settings
-
-        s = get_settings()
-        schema = s.to_json_schema()
-        assert "properties" in schema
-        assert "pipeline" in schema["properties"]
-
-    def test_to_dict(self):
-        from scenefab.core.config_v2 import get_settings
-
-        s = get_settings()
-        d = s.to_dict()
-        assert "llm" in d
-        assert "pipeline" in d
-        assert "storage" in d
-
-
 # ══════════════════════════════════════════════════════════
 # Phase 6: EventStore
 # ══════════════════════════════════════════════════════════

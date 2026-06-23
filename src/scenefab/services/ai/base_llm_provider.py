@@ -28,7 +28,7 @@ from typing import Any
 
 import httpx
 
-from .errors import (
+from scenefab.exceptions import (
     CircuitOpenError,
     ProviderError,
     RateLimitError,

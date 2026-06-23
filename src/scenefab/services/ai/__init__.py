@@ -14,7 +14,6 @@ _EXPORTS = {
     "LLMResponse": ".base_llm_provider",
     "ProviderType": ".base_llm_provider",
     "ProviderError": ".base_llm_provider",
-    "LLMMemoryCache": ".cache",
     "LLMManager": ".llm_manager",
     "SceneAnalyzer": ".scene_analyzer",
     "SceneAnalyzerV2": ".scene_analyzer_v2",

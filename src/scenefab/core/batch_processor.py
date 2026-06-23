@@ -12,7 +12,7 @@
 
 使用示例:
     from scenefab.core.batch_processor import (
-        BatchProcessor, BatchTask, BatchConfig, TaskStatus,
+        BatchProcessor, BatchTask, BatchConfig, BatchBatchTaskStatus,
     )
 
     tasks = [
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 # ============================================
 
 
-class TaskStatus(str, Enum):
+class BatchTaskStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -68,7 +68,7 @@ class BatchTask:
     output_dir: Path
     preset: str = "default"
     episode_number: int = 0
-    status: TaskStatus = TaskStatus.PENDING
+    status: BatchTaskStatus = BatchTaskStatus.PENDING
     progress: float = 0.0
     error: str = ""
     result_path: Path | None = None
@@ -194,7 +194,7 @@ class BatchCheckpoint:
         with self._connect() as conn:
             rows = conn.execute(
                 "SELECT task_id FROM batch_checkpoint WHERE status = ?",
-                (TaskStatus.COMPLETED.value,),
+                (BatchTaskStatus.COMPLETED.value,),
             ).fetchall()
             return {r["task_id"] for r in rows}
 
@@ -252,7 +252,7 @@ class BatchProcessor:
         completed_ids = self.checkpoint.get_completed_ids()
         for task in self.config.tasks:
             if task.id in completed_ids:
-                task.status = TaskStatus.COMPLETED
+                task.status = BatchTaskStatus.COMPLETED
                 cp = self.checkpoint.load(task.id)
                 if cp and cp.get("result_path"):
                     task.result_path = Path(cp["result_path"])
@@ -270,7 +270,7 @@ class BatchProcessor:
         self._started = True
         self._finished = False
 
-        pending = [t for t in self.config.tasks if t.status == TaskStatus.PENDING]
+        pending = [t for t in self.config.tasks if t.status == BatchTaskStatus.PENDING]
         actual_workers = max(1, min(self.config.parallel_count, len(pending) or 1))
 
         self._executor = ThreadPoolExecutor(
@@ -334,7 +334,7 @@ class BatchProcessor:
 
     def summary(self) -> dict:
         """获取任务执行摘要"""
-        statuses = dict.fromkeys(TaskStatus, 0)
+        statuses = dict.fromkeys(BatchTaskStatus, 0)
         for task in self.config.tasks:
             statuses[task.status] += 1
         active = sum(1 for f in self._futures if f.running())
@@ -361,7 +361,7 @@ class BatchProcessor:
 
         for attempt in range(1, max_attempts + 1):
             if self._shutdown.is_set():
-                task.status = TaskStatus.CANCELLED
+                task.status = BatchTaskStatus.CANCELLED
                 self._save_checkpoint(task)
                 return
 
@@ -378,7 +378,7 @@ class BatchProcessor:
     ) -> None:
         """标记任务进入 RUNNING、记录审计日志、触发 on_task_started 回调"""
         task.attempts = attempt
-        task.status = TaskStatus.RUNNING
+        task.status = BatchTaskStatus.RUNNING
         task.started_at = time.time()
 
         self._audit.log_action(
@@ -431,7 +431,7 @@ class BatchProcessor:
 
         task.result_path = Path(result_path) if result_path else None
         task.progress = 1.0
-        task.status = TaskStatus.COMPLETED
+        task.status = BatchTaskStatus.COMPLETED
         task.finished_at = time.time()
         task.error = ""
 
@@ -476,7 +476,7 @@ class BatchProcessor:
             self._shutdown.wait(backoff_sec)
             return
 
-        task.status = TaskStatus.FAILED
+        task.status = BatchTaskStatus.FAILED
         self._audit.log_action(
             action="batch_task_failed",
             parameters={"task_id": task.id, "attempts": attempt},
@@ -522,5 +522,5 @@ __all__ = [
     "BatchConfig",
     "BatchTask",
     "BatchCheckpoint",
-    "TaskStatus",
+    "BatchTaskStatus",  # 注意：已从 TaskStatus 重命名，消除与 core.task_model 的命名冲突
 ]

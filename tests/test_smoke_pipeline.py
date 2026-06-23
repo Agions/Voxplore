@@ -333,7 +333,7 @@ class TestScriptGeneratorSmoke:
     @pytest.mark.anyio
     async def test_generate_handles_llm_failure(self, llm_config):
         """When the LLM call fails, the generator propagates the error."""
-        from scenefab.services.ai.errors import ProviderError
+        from scenefab.exceptions import ProviderError
         from scenefab.services.ai.script_generator import ScriptGenerator
 
         failing_manager = MagicMock()

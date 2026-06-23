@@ -6,9 +6,7 @@ SceneFab 应用程序核心类
 """
 
 import logging
-import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, TypeVar
 
@@ -21,9 +19,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "ApplicationState",
-    "ErrorType",
-    "ErrorSeverity",
-    "ErrorInfo",
     "Application",
 ]
 
@@ -38,38 +33,6 @@ class ApplicationState(Enum):
     PAUSED = "paused"
     SHUTTING_DOWN = "shutting_down"
     ERROR = "error"
-
-
-class ErrorType(Enum):
-    """错误类型枚举"""
-
-    SYSTEM = "system"
-    UI = "ui"
-    FILE = "file"
-    NETWORK = "network"
-    AI = "ai"
-    UNKNOWN = "unknown"
-
-
-class ErrorSeverity(Enum):
-    """错误严重程度枚举"""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-
-@dataclass
-class ErrorInfo:
-    """错误信息数据类"""
-
-    error_type: ErrorType
-    severity: ErrorSeverity
-    message: str
-    details: str | None = None
-    exception: Exception | None = None
-    timestamp: float = field(default_factory=time.time)
 
 
 class Application(QObject):
@@ -93,9 +56,9 @@ class Application(QObject):
         self._state = ApplicationState.INITIALIZING
 
         # 服务容器
-        from .service_container import ServiceContainer
+        from scenefab.core.di_container import DIContainer
 
-        self._service_container = ServiceContainer()
+        self._service_container = DIContainer(name="app")
 
         # 事件系统
         self._event_handlers: dict[str, list[Callable]] = {}
@@ -403,10 +366,9 @@ class Application(QObject):
     def _init_event_bus(self) -> bool:
         """初始化事件总线"""
         try:
-            from .event_bus import EventBus
+            from scenefab.core.unified_event_bus import UnifiedEventBus
 
-            # 使用外部EventBus类
-            event_bus = EventBus()
+            event_bus = UnifiedEventBus.get_default()
             self.register_service("event_bus", event_bus)
 
             self.logger.info("事件总线初始化完成")
@@ -437,13 +399,6 @@ class Application(QObject):
     def _init_services(self) -> bool:
         """初始化其他服务"""
         try:
-            # AI 服务统一从权威 manager 暴露（P2: 移除 ServiceManager 二次注册）
-            from scenefab.services.ai.manager import get_ai_service
-
-            # 注册全局单例 AI 服务管理器
-            ai_service_manager = get_ai_service()
-            self.register_service("ai_service_manager", ai_service_manager)
-
             # 初始化项目管理相关服务
             from .project_manager import ProjectManager
             from .project_template_manager import ProjectTemplateManager

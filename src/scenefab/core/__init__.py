@@ -1,76 +1,13 @@
-"""SceneFab 核心模块兼容导出层。"""
+"""SceneFab 核心模块导出层。
+
+所有导出通过 lazy import 实现，避免循环依赖。
+直接导入子模块更推荐：from scenefab.core.pipeline_engine import PipelineEngine
+"""
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from dataclasses import dataclass, field
-from datetime import datetime
 from importlib import import_module
 from typing import Any
-
-
-@dataclass
-class ErrorInfo:
-    """错误信息。"""
-
-    error_type: str
-    severity: str
-    message: str
-    details: str | None = None
-    exception: Exception | None = None
-    timestamp: float = field(default_factory=lambda: datetime.now().timestamp())
-
-
-class EventBus:
-    """v1.x 事件总线兼容类。"""
-
-    @property
-    def _backend(self):
-        from scenefab.core.unified_event_bus import UnifiedEventBus
-
-        return UnifiedEventBus.get_default()
-
-    def subscribe(self, event_name: str, handler: Callable) -> None:
-        self._backend.subscribe(event_name, handler)
-
-    def unsubscribe(self, event_name: str, handler: Callable) -> None:
-        self._backend.unsubscribe(event_name, handler)
-
-    def publish(self, event_name: str, data: Any = None) -> None:
-        self._backend.publish(event_name, data)
-
-    def clear(self, event_name: str | None = None) -> None:
-        self._backend.clear_handlers(event_name)
-
-    def publish_event(self, event: Any) -> None:
-        self._backend.publish_event(event)
-
-    def replay_all(self) -> int:
-        return self._backend.replay_all()
-
-    def stats(self) -> dict[str, Any]:
-        return self._backend.stats()
-
-
-class EventEmitter:
-    """事件发射器基类。"""
-
-    def __init__(self):
-        self._events = EventBus()
-
-    def on(self, event: str, handler: Callable) -> EventEmitter:
-        self._events.subscribe(event, handler)
-        return self
-
-    def off(self, event: str, handler: Callable) -> EventEmitter:
-        self._events.unsubscribe(event, handler)
-        return self
-
-    def emit(self, event: str, data: Any = None) -> None:
-        self._events.publish(event, data)
-
-
-event_bus = EventBus()
 
 _EXPORTS = {
     "ApplicationState": ("scenefab.application", "ApplicationState"),
@@ -91,7 +28,7 @@ _EXPORTS = {
     "BatchConfig": ("scenefab.core.batch_processor", "BatchConfig"),
     "BatchTask": ("scenefab.core.batch_processor", "BatchTask"),
     "BatchCheckpoint": ("scenefab.core.batch_processor", "BatchCheckpoint"),
-    "BatchTaskStatus": ("scenefab.core.batch_processor", "TaskStatus"),
+    "BatchTaskStatus": ("scenefab.core.batch_processor", "BatchTaskStatus"),
     "ShortDramaStyle": ("scenefab.core.short_drama", "ShortDramaStyle"),
     "ShortDramaPreset": ("scenefab.core.short_drama", "ShortDramaPreset"),
     "ShortDramaNarrator": ("scenefab.core.short_drama", "ShortDramaNarrator"),
@@ -151,22 +88,6 @@ _EXPORTS = {
         "scenefab.core.event_store",
         "install_event_store_into_bus",
     ),
-    "SettingsV2": ("scenefab.core.config_v2", "SettingsV2"),
-    "LLMSettings": ("scenefab.core.config_v2", "LLMSettings"),
-    "LLMProviderConfig": ("scenefab.core.config_v2", "LLMProviderConfig"),
-    "LLMProviderName": ("scenefab.core.config_v2", "LLMProviderName"),
-    "TTSSettings": ("scenefab.core.config_v2", "TTSSettings"),
-    "TTSProviderConfig": ("scenefab.core.config_v2", "TTSProviderConfig"),
-    "TTSProviderName": ("scenefab.core.config_v2", "TTSProviderName"),
-    "PipelineSettings": ("scenefab.core.config_v2", "PipelineSettings"),
-    "StorageSettings": ("scenefab.core.config_v2", "StorageSettings"),
-    "SecuritySettings": ("scenefab.core.config_v2", "SecuritySettings"),
-    "APISettings": ("scenefab.core.config_v2", "APISettings"),
-    "AppProfile": ("scenefab.core.config_v2", "AppProfile"),
-    "TaskStoreBackend": ("scenefab.core.config_v2", "TaskStoreBackend"),
-    "get_settings": ("scenefab.core.config_v2", "get_settings"),
-    "set_settings": ("scenefab.core.config_v2", "set_settings"),
-    "is_settings_v2_available": ("scenefab.core.config_v2", "is_settings_v2_available"),
     "WSHub": ("scenefab.core.ws_hub", "WSHub"),
     "WSConnection": ("scenefab.core.ws_hub", "WSConnection"),
     "get_ws_hub": ("scenefab.core.ws_hub", "get_ws_hub"),
@@ -186,9 +107,5 @@ def __getattr__(name: str) -> Any:
 
 __all__ = [
     "ApplicationState",
-    "ErrorInfo",
-    "EventBus",
-    "EventEmitter",
-    "event_bus",
     *_EXPORTS.keys(),
 ]

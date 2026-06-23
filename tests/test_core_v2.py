@@ -510,7 +510,7 @@ class TestBatchProcessor:
             BatchConfig,
             BatchProcessor,
             BatchTask,
-            TaskStatus,
+            BatchTaskStatus,
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -540,7 +540,7 @@ class TestBatchProcessor:
             processor.wait_until_done(timeout=15)
 
             assert attempt_count[0] == 2
-            assert tasks[0].status == TaskStatus.COMPLETED
+            assert tasks[0].status == BatchTaskStatus.COMPLETED
 
     def test_checkpoint_resume(self):
         from scenefab.core.batch_processor import (
@@ -606,7 +606,7 @@ class TestBatchProcessor:
             BatchConfig,
             BatchProcessor,
             BatchTask,
-            TaskStatus,
+            BatchTaskStatus,
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -636,7 +636,7 @@ class TestBatchProcessor:
             processor.wait_until_done(timeout=10)
             elapsed = _t.time() - start
 
-            assert tasks[0].status == TaskStatus.FAILED
+            assert tasks[0].status == BatchTaskStatus.FAILED
             assert elapsed < 5, f"timeout not enforced, took {elapsed}s"
 
 

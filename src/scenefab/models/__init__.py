@@ -16,8 +16,6 @@
 
 from .enums import (
     ApplicationState,
-    ErrorSeverity,
-    ErrorType,
     ServiceHealth,
     ServiceStatus,
 )
@@ -54,8 +52,6 @@ __all__ = [
     "ServiceStatus",
     "ServiceHealth",
     "ApplicationState",
-    "ErrorSeverity",
-    "ErrorType",
     # narration
     "NarrationStyle",
     "EmotionType",

@@ -15,7 +15,6 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
@@ -56,18 +55,9 @@ except ImportError:
 
     _use_orjson = False
 
+from scenefab.core.task_model import TaskStatus  # v2.1 统一状态枚举
+
 logger = logging.getLogger(__name__)
-
-
-class TaskStatus(Enum):
-    """任务状态"""
-
-    PENDING = "pending"
-    RUNNING = "running"
-    PAUSED = "paused"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
 
 
 @dataclass(slots=True)

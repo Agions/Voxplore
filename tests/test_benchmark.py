@@ -4,13 +4,9 @@
 性能基准测试
 """
 
-import os
-import sys
 import time
 
 import pytest
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
 class BenchmarkSuite:
@@ -39,30 +35,6 @@ class BenchmarkSuite:
 class TestPerformanceBenchmarks:
     """性能基准测试"""
 
-    def test_cache_performance(self):
-        """缓存性能测试"""
-        from scenefab.utils.performance import MemoryCache
-
-        cache = MemoryCache(max_size=1000, ttl=60)
-
-        # 写入性能
-        start = time.perf_counter()
-        for i in range(1000):
-            cache.set(f"key_{i}", f"value_{i}")
-        write_time = time.perf_counter() - start
-
-        # 读取性能
-        start = time.perf_counter()
-        for i in range(1000):
-            cache.get(f"key_{i}")
-        read_time = time.perf_counter() - start
-
-        print(f"Cache write: {write_time * 1000:.2f}ms")
-        print(f"Cache read: {read_time * 1000:.2f}ms")
-
-        assert write_time < 1.0  # 写入应在1秒内
-        assert read_time < 0.5  # 读取应在0.5秒内
-
     def test_task_creation(self):
         """任务创建性能（v2.1 - 用 scenefab.core.task_model.UnifiedTask）"""
         from scenefab.core.task_model import UnifiedTask
@@ -75,26 +47,6 @@ class TestPerformanceBenchmarks:
         print(f"1000 task creations: {duration * 1000:.2f}ms")
 
         assert duration < 1.0
-
-
-class TestMemoryBenchmarks:
-    """内存基准测试"""
-
-    def test_cache_memory(self):
-        """缓存内存使用"""
-        from scenefab.utils.performance import MemoryCache
-
-        cache = MemoryCache(max_size=10000, ttl=60)
-
-        # 填充缓存
-        for i in range(10000):
-            cache.set(f"key_{i}", "x" * 100)  # 100 bytes each
-
-        # 获取大小
-        stats = cache.get_stats()
-
-        print(f"Cache size: {stats['size']} items")
-        assert stats["size"] > 9000  # 至少90%的缓存被使用
 
 
 if __name__ == "__main__":

@@ -5,12 +5,9 @@
 """
 
 import os
-import sys
 from unittest.mock import Mock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from scenefab.services.ai.vision_providers import (
     GeminiVisionProvider,

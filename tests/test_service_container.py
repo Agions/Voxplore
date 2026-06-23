@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""测试服务容器"""
+"""测试服务容器（DIContainer）"""
 
-from scenefab.service_container import ServiceContainer
+from scenefab.core.di_container import DIContainer as ServiceContainer
 
 
 class TestServiceContainer:
@@ -12,7 +12,7 @@ class TestServiceContainer:
         container = ServiceContainer()
 
         assert container._services == {}
-        assert container._services_by_name == {}
+        assert container._by_name == {}
 
     def test_register(self):
         """测试注册服务"""

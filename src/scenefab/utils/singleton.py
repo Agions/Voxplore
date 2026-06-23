@@ -53,14 +53,3 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
-class SingletonMixin:
-    """
-    单例混入类 — 配合 SingletonMeta 使用.
-
-    提供 _init_singleton() 模板方法, 子类覆写此方法做一次性初始化.
-    """
-
-    _singleton_initialized: bool = False
-
-    def _init_singleton(self) -> None:
-        """子类覆写: 只在首次实例化时执行一次."""

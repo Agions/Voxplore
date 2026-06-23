@@ -4,28 +4,7 @@
 from scenefab.settings import (
     CacheConfig,
     LLMConfig,
-    LLMProviderType,
 )
-
-
-class TestLLMProviderType:
-    """测试 LLM 提供商类型"""
-
-    def test_qwen(self):
-        """测试 QWEN"""
-        assert LLMProviderType.QWEN.value == "qwen"
-
-    def test_kimi(self):
-        """测试 KIMI"""
-        assert LLMProviderType.KIMI.value == "kimi"
-
-    def test_glm5(self):
-        """测试 GLM5"""
-        assert LLMProviderType.GLM5.value == "glm5"
-
-    def test_openai(self):
-        """测试 OpenAI"""
-        assert LLMProviderType.OPENAI.value == "openai"
 
 
 class TestLLMConfig:

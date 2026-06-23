@@ -14,7 +14,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from .errors import CircuitOpenError
+from scenefab.exceptions import CircuitOpenError
 
 logger = logging.getLogger(__name__)
 
