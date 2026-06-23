@@ -8,7 +8,7 @@ import os
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import yaml
 from dotenv import load_dotenv
@@ -125,7 +125,6 @@ class ConfigManager:
 
         self._initialized = True
         self._config: AppConfig | None = None
-        self._raw_config: dict = {}
         self._config_file = Path(__file__).parent.parent / "config" / "app_config.yaml"
         self._load_config()
 
@@ -196,7 +195,6 @@ class ConfigManager:
             except Exception as e:
                 print(f"Warning: Failed to load config file: {e}")
 
-        self._raw_config = config_data
         self._config = self._parse_config(config_data)
 
     def _merge_config(self, base: dict, update: dict):
@@ -232,25 +230,6 @@ class ConfigManager:
     def config(self) -> AppConfig:
         """获取应用配置"""
         return self._config  # type: ignore[return-value]
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a config value by dot-notation key."""
-        parts = key.split(".")
-        obj: Any = self._raw_config
-        for part in parts:
-            if isinstance(obj, dict):
-                obj = obj.get(part, default)
-            else:
-                return default
-        return obj
-
-    def set(self, key: str, value: Any) -> None:
-        """Set a config value by dot-notation key."""
-        parts = key.split(".")
-        obj: Any = self._raw_config
-        for part in parts[:-1]:
-            obj = obj.setdefault(part, {})
-        obj[parts[-1]] = value
 
     def get_llm_config(self, provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
         """获取指定 LLM 配置"""
