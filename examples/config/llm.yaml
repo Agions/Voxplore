@@ -1,0 +1,59 @@
+# SceneFab LLM 配置示例
+# 复制到 config/llm.yaml 并填入你的 API Key
+
+LLM:
+  default_provider: "deepseek"
+
+  # DeepSeek - 性价比最高，推荐用于解说生成
+  deepseek:
+    enabled: true
+    api_key: ${DEEPSEEK_API_KEY}  # 环境变量引用
+    base_url: "https://api.deepseek.com"
+    model: "deepseek-v4-pro"
+    max_tokens: 32768
+    temperature: 0.7
+
+  # Qwen (阿里云) - 视频理解首选
+  qwen:
+    enabled: true
+    api_key: ${QWEN_API_KEY}
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model: "qwen3.7-max"
+    max_tokens: 32768
+    temperature: 0.7
+
+  # OpenAI GPT-5
+  openai:
+    enabled: false
+    api_key: ${OPENAI_API_KEY}
+    base_url: "https://api.openai.com/v1"
+    model: "gpt-5"
+    max_tokens: 32768
+    temperature: 0.7
+
+  # Claude (Anthropic)
+  claude:
+    enabled: false
+    api_key: ${CLAUDE_API_KEY}
+    base_url: "https://api.anthropic.com"
+    model: "claude-sonnet-4-5"
+    max_tokens: 16384
+    temperature: 0.7
+
+  # Gemini (Google)
+  gemini:
+    enabled: false
+    api_key: ${GEMINI_API_KEY}
+    base_url: "https://generativelanguage.googleapis.com"
+    model: "gemini-3.1-pro"
+    max_tokens: 8192
+    temperature: 0.7
+
+  # 本地模型 (Ollama)
+  local:
+    enabled: false
+    api_key: ""
+    base_url: "http://localhost:11434"
+    model: "qwen3:32b"
+    max_tokens: 4096
+    temperature: 0.7

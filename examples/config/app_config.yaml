@@ -1,0 +1,21 @@
+# SceneFab 应用配置示例
+# 复制到 config/app_config.yaml
+
+# 默认 LLM 提供商
+default_llm: deepseek
+
+# 缓存配置
+cache:
+  enabled: true
+  max_size: 100
+  ttl: 3600
+
+# 日志级别
+log_level: INFO
+
+# 重试策略
+retry:
+  max_retries: 3
+  backoff_factor: 2.0
+  base_delay: 1.0
+  max_delay: 60.0
