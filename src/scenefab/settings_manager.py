@@ -18,8 +18,8 @@ from scenefab.signals_bridge import QObject, Signal
 from .secure_key_manager import get_secure_key_manager
 from .settings import ConfigManager
 from .settings_data import get_all_settings_definitions
-from .utils.version import get_version_string
 from .settings_types import ProjectSettingsProfile, SettingDefinition, SettingType
+from .utils.version import get_version_string
 
 
 class ProjectSettingsManager(QObject):

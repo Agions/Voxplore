@@ -41,6 +41,8 @@ try:
 
     _use_orjson = True
 except ImportError:
+    import json
+
     _use_orjson = False
 
 

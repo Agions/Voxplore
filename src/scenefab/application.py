@@ -13,8 +13,8 @@ from typing import Any, TypeVar
 from scenefab.signals_bridge import QObject, Signal
 
 try:
-    from PySide6.QtWidgets import QApplication
     from PySide6.QtCore import QSettings, QTimer
+    from PySide6.QtWidgets import QApplication
 
     _HAS_PYSIDE6 = True
 except ImportError:
