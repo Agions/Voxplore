@@ -1,57 +1,107 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
+    <!-- Background gradient - deep dark -->
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0a0a"/>
-      <stop offset="100%" stop-color="#111111"/>
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#0f1629"/>
     </linearGradient>
+
+    <!-- Accent gradient - cyan to purple -->
     <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#06b6d4"/>
       <stop offset="100%" stop-color="#8b5cf6"/>
     </linearGradient>
-    <linearGradient id="play-fill" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
+
+    <!-- Play button gradient -->
+    <linearGradient id="play" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
     </linearGradient>
+
+    <!-- Glow effect -->
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feGaussianBlur stdDeviation="12" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+
+    <!-- Inner shadow for depth -->
+    <filter id="inner-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dx="0" dy="4" result="offsetBlur"/>
+      <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
+    </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <!-- Background with subtle gradient -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
 
-  <!-- Subtle inner border -->
-  <rect x="24" y="24" width="464" height="464" rx="88" stroke="url(#accent)" stroke-width="2" opacity="0.15"/>
+  <!-- Outer border ring -->
+  <rect x="16" y="16" width="480" height="480" rx="96" stroke="url(#accent)" stroke-width="2" opacity="0.2"/>
 
-  <!-- Viewfinder / scene frame corners -->
-  <!-- Top-left -->
-  <path d="M128 168 L128 128 L168 128" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Top-right -->
-  <path d="M344 128 L384 128 L384 168" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Bottom-left -->
-  <path d="M128 344 L128 384 L168 384" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Bottom-right -->
-  <path d="M344 384 L384 384 L384 344" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Film strip element - left side -->
+  <g opacity="0.6">
+    <!-- Film perforations -->
+    <rect x="88" y="140" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+    <rect x="88" y="180" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+    <rect x="88" y="220" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+    <rect x="88" y="260" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+    <rect x="88" y="300" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+    <rect x="88" y="340" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
 
-  <!-- Play button triangle with glow -->
+    <!-- Film strip line -->
+    <line x1="104" y1="132" x2="104" y2="372" stroke="url(#accent)" stroke-width="2" opacity="0.3"/>
+  </g>
+
+  <!-- Main scene frame - center -->
+  <g transform="translate(256, 256)">
+    <!-- Outer frame corners (viewfinder style) -->
+    <!-- Top-left -->
+    <path d="M-80 -80 L-80 -60 M-80 -80 L-60 -80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+    <!-- Top-right -->
+    <path d="M80 -80 L80 -60 M80 -80 L60 -80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+    <!-- Bottom-left -->
+    <path d="M-80 80 L-80 60 M-80 80 L-60 80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+    <!-- Bottom-right -->
+    <path d="M80 80 L80 60 M80 80 L60 80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- Inner frame -->
+    <rect x="-56" y="-56" width="112" height="112" rx="8" stroke="url(#accent)" stroke-width="1.5" opacity="0.3"/>
+  </g>
+
+  <!-- Play button - center with glow -->
   <g filter="url(#glow)">
-    <path d="M216 172 L216 340 L352 256 Z" fill="url(#play-fill)" opacity="0.9"/>
+    <path d="M220 180 L220 332 L348 256 Z" fill="url(#play)" opacity="0.9"/>
   </g>
 
-  <!-- AI sparkle - four-pointed star, upper right -->
-  <g transform="translate(388,148)">
-    <path d="M0 -16 L4 -4 L16 0 L4 4 L0 16 L-4 4 L-16 0 L-4 -4 Z" fill="#22d3ee" opacity="0.85"/>
+  <!-- AI sparkle - top right -->
+  <g transform="translate(400, 140)">
+    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#22d3ee" opacity="0.9"/>
   </g>
 
-  <!-- Smaller secondary sparkle -->
-  <g transform="translate(412,180) scale(0.5)">
-    <path d="M0 -16 L4 -4 L16 0 L4 4 L0 16 L-4 4 L-16 0 L-4 -4 Z" fill="#a78bfa" opacity="0.6"/>
+  <!-- Secondary sparkle - smaller -->
+  <g transform="translate(430, 180) scale(0.6)">
+    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#a78bfa" opacity="0.7"/>
   </g>
 
-  <!-- SF monogram -->
-  <text x="256" y="456" text-anchor="middle" font-family="Inter, system-ui, -apple-system, sans-serif" font-weight="800" font-size="64" fill="url(#accent)" letter-spacing="12">SF</text>
+  <!-- Third sparkle - even smaller -->
+  <g transform="translate(410, 210) scale(0.35)">
+    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#22d3ee" opacity="0.5"/>
+  </g>
+
+  <!-- SceneFab text at bottom -->
+  <text x="256" y="440" text-anchor="middle"
+        font-family="Inter, SF Pro Display, system-ui, -apple-system, sans-serif"
+        font-weight="700" font-size="52" fill="url(#accent)" letter-spacing="8">
+    SceneFab
+  </text>
+
+  <!-- Subtle tagline -->
+  <text x="256" y="472" text-anchor="middle"
+        font-family="Inter, SF Pro Display, system-ui, -apple-system, sans-serif"
+        font-weight="400" font-size="18" fill="#64748b" letter-spacing="4">
+    AI VIDEO PRODUCTION
+  </text>
 </svg>
