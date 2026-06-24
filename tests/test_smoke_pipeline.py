@@ -31,7 +31,7 @@ from scenefab.services.ai.subtitle_types import (
     SubtitleExtractionResult,
     SubtitleSegment,
 )
-from scenefab.services.ai.vision import VisionService
+from scenefab.services.ai.vision_providers import VisionAnalyzerFactory
 from scenefab.services.export.direct_video_exporter import (
     DirectVideoExporter,
     Resolution,
@@ -118,130 +118,6 @@ def _make_vision_mock_session(mock_response: MagicMock) -> MagicMock:
     mock_session.post.return_value = mock_response
     mock_session.mount = MagicMock()
     return mock_session
-
-
-# =========================================================================
-# 1. VisionService
-# =========================================================================
-
-
-class TestVisionServiceSmoke:
-    """Smoke tests for VisionService (video understanding)."""
-
-    def test_instantiation_disabled(self, vision_config: dict):
-        """VisionService can be constructed in disabled mode."""
-        mock_session = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(vision_config)
-        assert svc.name == "qwen"
-        assert svc.enabled is False
-
-    def test_instantiation_enabled(self):
-        """VisionService can be constructed in enabled mode."""
-        cfg = {"name": "qwen", "enabled": True, "api_key": "k", "base_url": "https://x"}
-        mock_session = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(cfg)
-        assert svc.enabled is True
-        assert svc.api_key == "k"
-
-    def test_analyze_frame_returns_dict_disabled(self, vision_config, sample_frame_bytes):
-        """analyze_frame returns a dict with expected keys when disabled (uses _mock_result)."""
-        mock_session = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(vision_config)
-
-        result = svc.analyze_frame(sample_frame_bytes)
-        assert result is not None
-        assert isinstance(result, dict)
-        assert "is_first_person" in result
-        assert "confidence" in result
-        assert "description" in result
-        assert isinstance(result["is_first_person"], bool)
-        assert isinstance(result["confidence"], float)
-
-    def test_analyze_frame_enabled_api_success(self, sample_frame_bytes):
-        """When enabled and API succeeds, result is parsed from the response content."""
-        cfg = {"name": "qwen", "enabled": True, "api_key": "k", "base_url": "https://x"}
-
-        api_response = MagicMock()
-        api_response.status_code = 200
-        api_response.json.return_value = {
-            "choices": [{"message": {"content": "这是一个第一人称 POV 街景"}}],
-        }
-
-        mock_session = _make_vision_mock_session(api_response)
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(cfg)
-
-        result = svc.analyze_frame(sample_frame_bytes, prompt="分析场景")
-        assert result is not None
-        assert result["is_first_person"] is True  # contains "第一人称" and "POV"
-        assert result["confidence"] >= 0.5
-        mock_session.post.assert_called_once()
-
-    def test_analyze_frame_api_failure_returns_mock(self, sample_frame_bytes):
-        """When enabled but API returns non-200, fallback to _mock_result."""
-        cfg = {"name": "qwen", "enabled": True, "api_key": "k", "base_url": "https://x"}
-
-        api_response = MagicMock()
-        api_response.status_code = 500
-
-        mock_session = _make_vision_mock_session(api_response)
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(cfg)
-
-        result = svc.analyze_frame(sample_frame_bytes)
-        assert result is not None
-        assert "is_first_person" in result
-        assert svc._stats["errors"] == 1
-
-    def test_analyze_frame_exception_returns_mock(self, sample_frame_bytes):
-        """When the HTTP call raises, the service degrades gracefully."""
-        cfg = {"name": "qwen", "enabled": True, "api_key": "k", "base_url": "https://x"}
-
-        mock_session = MagicMock()
-        mock_session.post.side_effect = ConnectionError("network down")
-        mock_session.mount = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(cfg)
-
-        result = svc.analyze_frame(sample_frame_bytes)
-        assert result is not None
-        assert svc._stats["errors"] == 1
-
-    def test_analyze_frames_batch(self, vision_config, sample_frame_bytes):
-        """Batch analysis returns a list of result dicts."""
-        mock_session = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(vision_config)
-
-        frames = [sample_frame_bytes, sample_frame_bytes]
-        results = svc.analyze_frames_batch(frames)
-        assert len(results) == 2
-        for r in results:
-            assert r is not None
-            assert "is_first_person" in r
-
-    def test_analyze_frame_caching(self, sample_frame_bytes):
-        """Repeated calls with the same frame hit the cache."""
-        cfg = {"name": "qwen", "enabled": True, "api_key": "k", "base_url": "https://x"}
-
-        api_response = MagicMock()
-        api_response.status_code = 200
-        api_response.json.return_value = {
-            "choices": [{"message": {"content": "cached scene"}}],
-        }
-
-        mock_session = _make_vision_mock_session(api_response)
-        with patch("requests.Session", return_value=mock_session):
-            svc = VisionService(cfg)
-
-        svc.analyze_frame(sample_frame_bytes)
-        svc.analyze_frame(sample_frame_bytes)  # same bytes -> cache hit
-
-        assert svc._stats["cache_hits"] == 1
-        assert svc._stats["requests"] == 1  # only one real request
 
 
 # =========================================================================
@@ -706,40 +582,28 @@ class TestDirectVideoExporterSmoke:
 
 class TestPipelineSmokeIntegration:
     """
-    End-to-end smoke test: vision -> script -> subtitles -> export.
+    End-to-end smoke test: script -> subtitles -> export.
 
-    Exercises the full pipeline in sequence with mocks at every boundary,
+    Exercises the pipeline stages in sequence with mocks at every boundary,
     verifying that outputs from one stage can feed into the next.
     """
 
     @pytest.mark.anyio
     async def test_full_pipeline_sequence(
         self,
-        vision_config,
         llm_config,
-        sample_frame_bytes,
         sample_subtitle_result,
     ):
         """
-        Run the four pipeline stages in order, verifying each produces
+        Run the pipeline stages in order, verifying each produces
         output that the next stage can consume.
         """
         # ------------------------------------------------------------------
-        # Stage 1: Vision - understand the video frame
-        # ------------------------------------------------------------------
-        mock_session = MagicMock()
-        with patch("requests.Session", return_value=mock_session):
-            vision = VisionService(vision_config)
-
-        frame_analysis = vision.analyze_frame(sample_frame_bytes)
-        assert frame_analysis is not None
-        assert "description" in frame_analysis
-
-        # ------------------------------------------------------------------
-        # Stage 2: Script Generation - generate a script from the description
+        # Stage 1: Script Generation - generate a script from a description
         # ------------------------------------------------------------------
         from scenefab.services.ai.script_generator import ScriptGenerator
 
+        scene_description = "城市街头场景，第一人称视角漫步"
         script_content = "在这段视频中，我们看到一个城市街头的场景。第一人称视角带领观众漫步其中。"
         stub_manager = _StubLLMManager(response_content=script_content)
 
@@ -754,7 +618,7 @@ class TestPipelineSmokeIntegration:
             generator.llm_manager = stub_manager
 
             config = ScriptConfig(style=ScriptStyle.COMMENTARY, target_duration=30)
-            script = generator.generate(frame_analysis["description"], config=config)
+            script = generator.generate(scene_description, config=config)
 
         assert script.content is not None
         assert len(script.content) > 0

@@ -10,7 +10,6 @@ from typing import Any
 
 _SUBMODULES = {
     "ai",
-    "audio",
     "export",
     "orchestration",
     "video",
@@ -43,7 +42,6 @@ def __getattr__(name: str) -> Any:
 __all__ = [
     "ai",
     "video",
-    "audio",
     "export",
     "video_tools",
     "orchestration",

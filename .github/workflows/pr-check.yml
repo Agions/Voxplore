@@ -36,7 +36,6 @@ jobs:
           uv run pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=xml --cov-report=term-missing \
             --ignore=tests/test_project_manager.py \
             --ignore=tests/test_project_settings_manager.py \
-            --ignore=tests/test_project_version_manager.py \
             --ignore=tests/test_project_template_manager.py
 
   # Regression gate for issue #82: build a wheel from the PR branch

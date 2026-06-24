@@ -42,7 +42,6 @@ _EXPORTS = {
     "EmotionCurveGenerator": ".scene_converter",
     "PipelineIntegrator": ".pipeline_integrator",
     "VideoFrameCache": ".cache",
-    "VideoCache": ".cache.legacy_cache",
     "FFmpegSession": ".session",
     "VideoAnalyzer": ".analyzer",
     "VideoProcessor": ".processor",

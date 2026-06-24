@@ -6,7 +6,6 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS = {
-    "BaseAIService": ".base",
     "ServiceHealth": ".base",
     "ServiceStatus": ".base",
     "BaseLLMProvider": ".base_llm_provider",
@@ -18,7 +17,6 @@ _EXPORTS = {
     "SceneAnalyzer": ".scene_analyzer",
     "ScriptGenerator": ".script_generator",
     "StreamingScriptGenerator": ".script_stream",
-    "SenseVoiceProvider": ".sensevoice_provider",
     "OCRSubtitleExtractor": ".subtitle_extractor",
     "SpeechSubtitleExtractor": ".subtitle_extractor",
     "SubtitleExtractionResult": ".subtitle_extractor",
@@ -31,9 +29,6 @@ _EXPORTS = {
     "VoiceConfig": ".voice_generator",
     "VoiceGenerator": ".voice_generator",
     "VoiceStyle": ".voice_models",
-    "TranscriptionResult": ".whisper_asr_provider",
-    "TranscriptSegment": ".whisper_asr_provider",
-    "WhisperASRProvider": ".whisper_asr_provider",
 }
 
 
