@@ -69,7 +69,6 @@ class Application(QObject):
         self._service_container = DIContainer(name="app")
 
         # 事件系统
-        self._event_handlers: dict[str, list[Callable]] = {}
 
         # 定时器和任务
         self._timers: dict[str, object] = {}
@@ -272,16 +271,6 @@ class Application(QObject):
         event_bus = self.get_service_by_name("event_bus")
         if event_bus:
             event_bus.publish(event_name, data)  # type: ignore[attr-defined]
-        else:
-            # 回退到内部事件处理器（如果EventBus服务未初始化）
-            if event_name in self._event_handlers:
-                for handler in self._event_handlers[event_name]:
-                    try:
-                        handler(data)
-                    except Exception as e:
-                        self.error_occurred.emit(
-                            "EVENT_ERROR", f"Event handler error: {str(e)}"
-                        )
 
     def add_timer(
         self, name: str, interval: int, callback: Callable, single_shot: bool = False
@@ -461,7 +450,6 @@ class Application(QObject):
         """清理资源"""
         # 清理所有资源
         self._service_container.clear()
-        self._event_handlers.clear()
         self._timers.clear()
         self._tasks.clear()
 

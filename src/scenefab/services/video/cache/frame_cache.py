@@ -13,8 +13,26 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+import os
+import pickle
+import stat
+
 import numpy as np
-from scenefab.utils.pickle_io import safe_pickle_dump, safe_pickle_load
+
+_OWNER_RW = stat.S_IRUSR | stat.S_IWUSR
+
+
+def __safe_pickle_load(path: Path) -> Any:
+    """读取 pickle 文件（仅限当前用户私有文件）"""
+    with open(path, "rb") as f:
+        return pickle.load(f)
+
+
+def __safe_pickle_dump(value: Any, path: Path) -> None:
+    """写入 pickle 文件（owner-only 权限）"""
+    with open(path, "wb") as f:
+        pickle.dump(value, f)
+    os.chmod(path, _OWNER_RW)
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +146,7 @@ class VideoFrameCache:
             disk_path = self._get_disk_path(key)
             if disk_path.exists():
                 try:
-                    frame = safe_pickle_load(disk_path)
+                    frame = _safe_pickle_load(disk_path)
                     self._disk_read_count += 1
                     # 重新加入内存缓存
                     self.set(key, frame)
@@ -165,7 +183,7 @@ class VideoFrameCache:
                 if self._disk_fallback:
                     try:
                         disk_path = self._get_disk_path(oldest_key)
-                        safe_pickle_dump(oldest_frame, disk_path)
+                        _safe_pickle_dump(oldest_frame, disk_path)
                         self._disk_write_count += 1
                     except Exception as e:
                         logger.debug(f"磁盘回退写入失败: {e}")

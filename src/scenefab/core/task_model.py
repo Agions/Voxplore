@@ -1,7 +1,7 @@
 """
 SceneFab 统一任务模型 v2.1
 
-目标：让 TaskManager + BatchProcessor + PipelineEngine 共享同一份任务状态机。
+目标：让 PipelineEngine 共享统一的任务状态机。
 v2.1 新增：
 - 标准状态机：PENDING → RUNNING → (PAUSED ↔ RUNNING) → (COMPLETED | FAILED | CANCELLED)
 - 任务来源标识：batch / pipeline / api / cli 四种来源

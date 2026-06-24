@@ -21,7 +21,6 @@ v2.1 不破坏 v1.x API：
 
 from __future__ import annotations
 
-import functools
 import logging
 import threading
 from collections.abc import Callable, Iterator
@@ -332,45 +331,6 @@ class DIContainer:
         return list(self._services.keys())
 
 
-# ──────────────────────────────────────────────────────────
-# 装饰器：自动注入
-# ──────────────────────────────────────────────────────────
-
-
-def inject(container: DIContainer, service_name: str | type):
-    """
-    装饰器：自动注入服务到被装饰函数的第一个参数位置
-
-    用法::
-
-        @inject(container, MyService)
-        def handle(event, svc: MyService = None):  # svc 会被注入
-            ...
-    """
-
-    def decorator(func: Callable) -> Callable:
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            if isinstance(service_name, str):
-                instance = container.get_by_name(service_name)
-            else:
-                instance = container.get(service_name)
-            kwargs.setdefault(
-                "_inject_target"
-                if service_name == "_inject_target"
-                else (
-                    func.__annotations__.get("inject_param")
-                    or next(iter(func.__annotations__), None)
-                    or "service"
-                ),
-                instance,
-            )
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
-
 
 # ──────────────────────────────────────────────────────────
 # 全局应用容器（v2.1）
@@ -411,7 +371,6 @@ def set_app_container(container: DIContainer) -> None:
 __all__ = [
     "DIContainer",
     "ServiceLifetime",
-    "inject",
     "get_app_container",
     "set_app_container",
 ]

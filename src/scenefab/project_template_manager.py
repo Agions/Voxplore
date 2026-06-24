@@ -9,12 +9,20 @@ import json
 import logging
 import os
 import shutil
-import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from scenefab.signals_bridge import QObject, Signal
+from scenefab.utils.project_io import (
+    PROJECT_SUBDIRS,
+    ensure_directories,
+    export_to_zip,
+    handle_error,
+    import_from_zip,
+)
+
+_handle_template_error = handle_error
 
 from .project_manager import Project, ProjectType
 from .settings import ConfigManager
@@ -60,8 +68,7 @@ class ProjectTemplateManager(QObject):
 
     def _ensure_directories(self) -> None:
         """确保所需目录存在"""
-        for directory in [self.templates_dir, self.temp_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
+        ensure_directories(self.templates_dir, self.temp_dir)
 
     def _init_categories(self) -> None:
         """初始化模板类别"""
@@ -162,6 +169,7 @@ class ProjectTemplateManager(QObject):
             self.logger.error(f"Failed to calculate directory size: {e}")
             return 0
 
+    @_handle_template_error("TEMPLATE", "创建模板")
     def create_template(
         self,
         project: Project,
@@ -171,69 +179,40 @@ class ProjectTemplateManager(QObject):
         tags: list[str] = None,
     ) -> str | None:
         """从项目创建模板"""
-        try:
-            # 生成模板ID
-            template_id = f"template_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        template_id = f"template_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        template_dir = self.templates_dir / template_id
+        template_dir.mkdir(parents=True, exist_ok=True)
 
-            # 创建模板目录
-            template_dir = self.templates_dir / template_id
-            template_dir.mkdir(parents=True, exist_ok=True)
+        self._copy_project_to_template(project.path, template_dir)
 
-            # 复制项目文件到模板目录
-            self._copy_project_to_template(project.path, template_dir)
+        template_metadata = TemplateMetadata(
+            name=template_name, description=description,
+            author=project.metadata.author, version=get_version_string(),
+            category=category, tags=tags or [],
+        )
+        metadata_file = template_dir / "template_metadata.json"
+        with open(metadata_file, "w", encoding="utf-8") as f:
+            json.dump(template_metadata.__dict__, f, indent=2, ensure_ascii=False)
 
-            # 创建模板元数据
-            template_metadata = TemplateMetadata(
-                name=template_name,
-                description=description,
-                author=project.metadata.author,
-                version=get_version_string(),
-                category=category,
-                tags=tags or [],
-            )
+        template_info = TemplateInfo(
+            id=template_id, name=template_name, description=description,
+            category=category, author=project.metadata.author,
+            version=get_version_string(), created_at=datetime.now(),
+            updated_at=datetime.now(),
+            file_size=self._calculate_directory_size(template_dir),
+            tags=tags or [], project_type=project.metadata.project_type,
+        )
 
-            # 保存模板元数据
-            metadata_file = template_dir / "template_metadata.json"
-            with open(metadata_file, "w", encoding="utf-8") as f:
-                json.dump(template_metadata.__dict__, f, indent=2, ensure_ascii=False)
+        if project.metadata.thumbnail_path and os.path.exists(project.metadata.thumbnail_path):  # type: ignore[attr-defined]
+            preview_dest = template_dir / "preview.png"
+            shutil.copy2(project.metadata.thumbnail_path, preview_dest)  # type: ignore[attr-defined]
+            template_info.preview_image = str(preview_dest)
 
-            # 创建模板信息
-            template_info = TemplateInfo(
-                id=template_id,
-                name=template_name,
-                description=description,
-                category=category,
-                author=project.metadata.author,
-                version=get_version_string(),
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-                file_size=self._calculate_directory_size(template_dir),
-                tags=tags or [],
-                project_type=project.metadata.project_type,
-            )
-
-            # 复制预览图（如果存在）
-            if project.metadata.thumbnail_path and os.path.exists(  # type: ignore[attr-defined]
-                project.metadata.thumbnail_path  # type: ignore[attr-defined]
-            ):
-                preview_dest = template_dir / "preview.png"
-                shutil.copy2(project.metadata.thumbnail_path, preview_dest)  # type: ignore[attr-defined]
-                template_info.preview_image = str(preview_dest)
-
-            # 保存模板信息
-            self.templates[template_id] = template_info
-            self._save_templates()
-
-            self.template_created.emit(template_id)
-            self.logger.info(f"Created template: {template_name} ({template_id})")
-            return template_id
-
-        except Exception as e:
-            self.logger.error(
-                f"Failed to create template from project {project.id}: {e}"
-            )
-            self.error_occurred.emit("TEMPLATE_ERROR", f"创建模板失败: {str(e)}")
-            return None
+        self.templates[template_id] = template_info
+        self._save_templates()
+        self.template_created.emit(template_id)
+        self.logger.info(f"Created template: {template_name} ({template_id})")
+        return template_id
 
     def _copy_project_to_template(self, project_path: str, template_dir: Path) -> None:
         """复制项目文件到模板目录"""
@@ -258,6 +237,7 @@ class ProjectTemplateManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to copy project to template: {e}")
 
+    @_handle_template_error("TEMPLATE", "应用模板")
     def apply_template(
         self,
         template_id: str,
@@ -266,51 +246,33 @@ class ProjectTemplateManager(QObject):
         variables: dict[str, Any] = None,  # type: ignore[assignment]
     ) -> bool:
         """应用模板创建项目"""
-        try:
-            if template_id not in self.templates:
-                self.error_occurred.emit("TEMPLATE_ERROR", f"模板不存在: {template_id}")
-                return False
-
-            template_info = self.templates[template_id]
-
-            # 确定模板路径
-            if template_info.is_builtin:
-                template_path = self.builtin_templates_dir / template_id
-            else:
-                template_path = self.templates_dir / template_id
-
-            if not template_path.exists():
-                self.error_occurred.emit(
-                    "TEMPLATE_ERROR", f"模板文件不存在: {template_id}"
-                )
-                return False
-
-            # 创建项目目录
-            project_dir = Path(project_path)
-            project_dir.mkdir(parents=True, exist_ok=True)
-
-            # 创建子目录
-            subdirs = ["media", "exports", "backups", "cache", "assets"]
-            for subdir in subdirs:
-                (project_dir / subdir).mkdir(exist_ok=True)
-
-            # 复制模板文件
-            self._copy_template_to_project(template_path, project_dir, variables or {})
-
-            # 更新模板下载统计
-            if not template_info.is_builtin:
-                template_info.download_count += 1
-                self._save_templates()
-
-            self.logger.info(
-                f"Applied template {template_id} to project {project_name}"
-            )
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to apply template {template_id}: {e}")
-            self.error_occurred.emit("TEMPLATE_ERROR", f"应用模板失败: {str(e)}")
+        if template_id not in self.templates:
+            self.error_occurred.emit("TEMPLATE_ERROR", f"模板不存在: {template_id}")
             return False
+
+        template_info = self.templates[template_id]
+        if template_info.is_builtin:
+            template_path = self.builtin_templates_dir / template_id
+        else:
+            template_path = self.templates_dir / template_id
+
+        if not template_path.exists():
+            self.error_occurred.emit("TEMPLATE_ERROR", f"模板文件不存在: {template_id}")
+            return False
+
+        project_dir = Path(project_path)
+        project_dir.mkdir(parents=True, exist_ok=True)
+        for subdir in PROJECT_SUBDIRS:
+            (project_dir / subdir).mkdir(exist_ok=True)
+
+        self._copy_template_to_project(template_path, project_dir, variables or {})
+
+        if not template_info.is_builtin:
+            template_info.download_count += 1
+            self._save_templates()
+
+        self.logger.info(f"Applied template {template_id} to project {project_name}")
+        return True
 
     def _copy_template_to_project(
         self, template_path: Path, project_dir: Path, variables: dict[str, Any]
@@ -389,62 +351,50 @@ class ProjectTemplateManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to apply variables to project: {e}")
 
+    @_handle_template_error("UPDATE", "更新模板")
     def update_template(self, template_id: str, updates: dict[str, Any]) -> bool:
         """更新模板信息"""
-        try:
-            if template_id not in self.templates:
-                return False
-
-            template_info = self.templates[template_id]
-
-            # 更新信息
-            for key, value in updates.items():
-                if hasattr(template_info, key):
-                    setattr(template_info, key, value)
-
-            template_info.updated_at = datetime.now()
-
-            # 更新模板文件
-            if not template_info.is_builtin:
-                template_dir = self.templates_dir / template_id
-                if template_dir.exists():
-                    metadata_file = template_dir / "template_info.json"
-                    with open(metadata_file, "w") as f:
-                        json.dump(template_info.to_dict(), f, indent=2)
-
-            self._save_templates()
-            self.template_updated.emit(template_id)
-            self.logger.info(f"Updated template: {template_id}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to update template {template_id}: {e}")
+        if template_id not in self.templates:
             return False
 
-    def delete_template(self, template_id: str) -> bool:
-        """删除模板"""
-        try:
-            if template_id not in self.templates:
-                return False
+        template_info = self.templates[template_id]
+        for key, value in updates.items():
+            if hasattr(template_info, key):
+                setattr(template_info, key, value)
 
-            template_info = self.templates[template_id]
+        template_info.updated_at = datetime.now()
 
-            # 不能删除内置模板
-            if template_info.is_builtin:
-                self.error_occurred.emit("TEMPLATE_ERROR", "不能删除内置模板")
-                return False
-
-            # 删除模板目录
+        if not template_info.is_builtin:
             template_dir = self.templates_dir / template_id
             if template_dir.exists():
-                shutil.rmtree(template_dir)
+                metadata_file = template_dir / "template_info.json"
+                with open(metadata_file, "w") as f:
+                    json.dump(template_info.to_dict(), f, indent=2)
 
-            # 从模板列表中移除
-            del self.templates[template_id]
-            self._save_templates()
+        self._save_templates()
+        self.template_updated.emit(template_id)
+        self.logger.info(f"Updated template: {template_id}")
+        return True
 
-            self.template_deleted.emit(template_id)
-            self.logger.info(f"Deleted template: {template_id}")
+    @_handle_template_error("DELETE", "删除模板")
+    def delete_template(self, template_id: str) -> bool:
+        """删除模板"""
+        if template_id not in self.templates:
+            return False
+
+        template_info = self.templates[template_id]
+        if template_info.is_builtin:
+            self.error_occurred.emit("TEMPLATE_ERROR", "不能删除内置模板")
+            return False
+
+        template_dir = self.templates_dir / template_id
+        if template_dir.exists():
+            shutil.rmtree(template_dir)
+
+        del self.templates[template_id]
+        self._save_templates()
+        self.template_deleted.emit(template_id)
+        self.logger.info(f"Deleted template: {template_id}")
             return True
 
         except Exception as e:
@@ -497,122 +447,75 @@ class ProjectTemplateManager(QObject):
 
         return results
 
+    @_handle_template_error("EXPORT", "导出模板")
     def export_template(self, template_id: str, export_path: str) -> bool:
         """导出模板"""
-        try:
-            if template_id not in self.templates:
-                return False
-
-            template_info = self.templates[template_id]
-
-            # 确定模板路径
-            if template_info.is_builtin:
-                template_path = self.builtin_templates_dir / template_id
-            else:
-                template_path = self.templates_dir / template_id
-
-            if not template_path.exists():
-                return False
-
-            # 创建ZIP文件
-            with zipfile.ZipFile(export_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                # 添加模板文件
-                for file_path in template_path.rglob("*"):
-                    if file_path.is_file():
-                        arcname = file_path.relative_to(template_path)
-                        zipf.write(file_path, arcname)
-
-                # 添加导出信息
-                export_info = {
-                    "template_info": template_info.to_dict(),
-                    "exported_at": datetime.now().isoformat(),
-                    "cineai_version": "2.0.0",
-                }
-
-                zipf.writestr("export_info.json", json.dumps(export_info, indent=2))
-
-            self.template_exported.emit(template_id)
-            self.logger.info(f"Exported template: {template_id} to {export_path}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to export template {template_id}: {e}")
+        if template_id not in self.templates:
             return False
 
+        template_info = self.templates[template_id]
+        if template_info.is_builtin:
+            template_path = self.builtin_templates_dir / template_id
+        else:
+            template_path = self.templates_dir / template_id
+
+        if not template_path.exists():
+            return False
+
+        export_to_zip(
+            template_path, export_path,
+            extra_info={"template_info": template_info.to_dict()},
+        )
+        self.template_exported.emit(template_id)
+        self.logger.info(f"Exported template: {template_id} to {export_path}")
+        return True
+
+    @_handle_template_error("IMPORT", "导入模板")
     def import_template(self, import_path: str) -> str | None:
         """导入模板"""
-        try:
-            # 创建临时目录
-            temp_dir = (
-                self.temp_dir
-                / f"template_import_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            )
-            temp_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        temp_dir = self.temp_dir / f"template_import_{timestamp}"
+        template_id = f"imported_{timestamp}"
+        template_dir = self.templates_dir / template_id
 
-            # 解压ZIP文件
-            with zipfile.ZipFile(import_path, "r") as zipf:
-                zipf.extractall(temp_dir)
-
-            # 检查导出信息
-            export_info_file = temp_dir / "export_info.json"
-            if not export_info_file.exists():
-                self.error_occurred.emit("TEMPLATE_ERROR", "无效的模板文件")
-                return None
-
-            with open(export_info_file) as f:
-                export_info = json.load(f)
-
-            template_data = export_info["template_info"]
-            template_info = TemplateInfo.from_dict(template_data)
-
-            # 生成新模板ID
-            template_id = f"imported_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            template_info.id = template_id
-            template_info.is_builtin = False
-            template_info.updated_at = datetime.now()
-
-            # 创建模板目录
-            template_dir = self.templates_dir / template_id
-            shutil.copytree(temp_dir, template_dir)
-
-            # 更新模板信息文件
-            info_file = template_dir / "template_info.json"
-            with open(info_file, "w") as f:
-                json.dump(template_info.to_dict(), f, indent=2)
-
-            # 添加到模板列表
-            self.templates[template_id] = template_info
-            self._save_templates()
-
-            # 清理临时目录
-            shutil.rmtree(temp_dir)
-
-            self.template_imported.emit(template_id)
-            self.logger.info(f"Imported template: {template_id}")
-            return template_id
-
-        except Exception as e:
-            self.logger.error(f"Failed to import template from {import_path}: {e}")
-            self.error_occurred.emit("TEMPLATE_ERROR", f"导入模板失败: {str(e)}")
+        result = import_from_zip(import_path, temp_dir, template_dir, "export_info.json")
+        if result is None:
+            self.error_occurred.emit("TEMPLATE_ERROR", "无效的模板文件")
             return None
 
+        # 读取并更新模板信息
+        export_info_file = result / "export_info.json"
+        with open(export_info_file) as f:
+            export_info = json.load(f)
+
+        template_info = TemplateInfo.from_dict(export_info["template_info"])
+        template_info.id = template_id
+        template_info.is_builtin = False
+        template_info.updated_at = datetime.now()
+
+        info_file = result / "template_info.json"
+        with open(info_file, "w") as f:
+            json.dump(template_info.to_dict(), f, indent=2)
+
+        self.templates[template_id] = template_info
+        self._save_templates()
+        self.template_imported.emit(template_id)
+        self.logger.info(f"Imported template: {template_id}")
+        return template_id
+
+    @_handle_template_error("RATE", "评分模板")
     def rate_template(self, template_id: str, rating: float) -> bool:
         """评分模板"""
-        try:
-            if template_id not in self.templates:
-                return False
-
-            template_info = self.templates[template_id]
-            template_info.rating = max(0.0, min(5.0, rating))
-            template_info.updated_at = datetime.now()
-
-            self._save_templates()
-            self.logger.info(f"Rated template {template_id}: {rating}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to rate template {template_id}: {e}")
+        if template_id not in self.templates:
             return False
+
+        template_info = self.templates[template_id]
+        template_info.rating = max(0.0, min(5.0, rating))
+        template_info.updated_at = datetime.now()
+
+        self._save_templates()
+        self.logger.info(f"Rated template {template_id}: {rating}")
+        return True
 
     def get_template_statistics(self) -> dict[str, Any]:
         """获取模板统计信息"""

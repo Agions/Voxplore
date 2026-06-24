@@ -10,54 +10,29 @@ from collections.abc import AsyncIterator
 
 import httpx
 
-from ..base_llm_provider import (
-    BaseLLMProvider,
-    HTTPClientMixin,
-    LLMRequest,
-    LLMResponse,
-    ModelManagerMixin,
-    ProviderError,
-)
+from ..base_llm_provider import LLMRequest, LLMResponse, ProviderError
 from ..model_catalog import DEFAULT_MODELS, provider_models
+from .openai_compat import OpenAICompatProvider
 
 
-class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
+class DeepSeekProvider(OpenAICompatProvider):
     """
-    DeepSeek 提供商
+    DeepSeek 提供商（OpenAI 兼容 API + reasoning model 支持）
 
     API 文档: https://platform.deepseek.com/docs
-
-    支持模型:
-    - deepseek-v4-pro: 解说生成主力模型
-    - deepseek-v4-flash: 高吞吐改写模型
     """
 
+    PROVIDER_NAME = "deepseek"
+    DEFAULT_BASE_URL = "https://api.deepseek.com"
     MODELS = provider_models("deepseek")
     DEFAULT_MODEL = DEFAULT_MODELS["deepseek"]
 
-    def __init__(
-        self,
-        api_key: str,
-        base_url: str = "https://api.deepseek.com",
-    ):
-        """
-        初始化提供商
-
-        Args:
-            api_key: API 密钥
-            base_url: API 基础 URL
-        """
-        # 调用父类初始化
-        BaseLLMProvider.__init__(self, api_key, base_url)
-        HTTPClientMixin.__init__(self, api_key, base_url, timeout=60.0)
-
-        # 初始化HTTP客户端
-        self._init_http_client(
-            {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            }
-        )
+    def _build_request_body(self, request, model, messages):
+        """构建请求体（reasoning model 启用 thinking 参数）"""
+        body = super()._build_request_body(request, model, messages)
+        if self._is_reasoning_model(model):
+            body["thinking"] = {"type": "enabled"}
+        return body
 
     def _is_reasoning_model(self, model: str) -> bool:
         """检查是否是推理模型"""
@@ -65,23 +40,14 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         return model_info.get("reasoning", False)  # type: ignore[no-any-return]
 
     async def generate(self, request: LLMRequest) -> LLMResponse:
-        """生成文本"""
+        """生成文本（支持 reasoning model）"""
         model = self._get_model_name(request.model)
         is_reasoning = self._is_reasoning_model(model)
         messages = self._build_messages(request)
-
-        api_request = {
-            "model": model,
-            "messages": messages,
-            "max_tokens": request.max_tokens,
-            "temperature": request.temperature,
-            "top_p": request.top_p,
-        }
-        if is_reasoning:
-            api_request["thinking"] = {"type": "enabled"}
+        body = self._build_request_body(request, model, messages)
 
         data = await self._call_api(
-            "POST", f"{self.base_url}/chat/completions", json=api_request
+            "POST", f"{self.base_url}/chat/completions", json=body
         )
         result = self._parse_response(data, model)
         if is_reasoning:
@@ -138,7 +104,6 @@ class DeepSeekProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
 
     async def count_tokens(self, text: str) -> int:
         """计算 token 数量（估算）"""
-        # 简单估算：中文约 1.5 token/字符，英文约 0.25 token/字符
-        chinese_chars = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
+        chinese_chars = sum(1 for c in text if "一" <= c <= "鿿")
         other_chars = len(text) - chinese_chars
         return int(chinese_chars * 1.5 + other_chars * 0.25)

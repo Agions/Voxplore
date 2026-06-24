@@ -5,8 +5,8 @@ from scenefab.exceptions import (
     ConfigError,
     ErrorCode,
     FileError,
-    LLMError,
     NetworkError,
+    ProviderError,
     SceneFabError,
     VideoError,
     format_error_message,
@@ -70,33 +70,18 @@ class TestSceneFabError:
         assert "配置缺失" in err_str
 
 
-class TestLLMError:
-    """测试 LLM 异常"""
+class TestProviderError:
+    """测试 Provider 异常"""
 
-    def test_rate_limit_detection(self):
-        """测试速率限制检测"""
-        err = LLMError("Rate limit exceeded")
-
-        assert err.code == ErrorCode.LLM_RATE_LIMIT
-        assert err.hint is not None
-        assert "稍后重试" in err.hint
-
-    def test_invalid_key_detection(self):
-        """测试无效密钥检测"""
-        err = LLMError("Invalid API key")
-
-        assert err.code == ErrorCode.LLM_KEY_MISSING
-
-    def test_connection_error_detection(self):
-        """测试连接错误检测"""
-        err = LLMError("Connection failed")
-
-        assert err.code == ErrorCode.LLM_CONNECTION_FAILED
+    def test_basic_creation(self):
+        """测试基本创建"""
+        err = ProviderError("API error")
+        assert err.code == ErrorCode.LLM_API_ERROR
+        assert "API error" in str(err)
 
     def test_with_provider_info(self):
         """测试带提供商信息"""
-        err = LLMError("API error", provider="openai", model="gpt-4")
-
+        err = ProviderError("API error", provider="openai", model="gpt-4")
         assert err.details["provider"] == "openai"
         assert err.details["model"] == "gpt-4"
 
@@ -155,7 +140,7 @@ class TestFormatErrorMessage:
 
     def test_scenefab_error_uses_str_directly(self):
         """测试 SceneFabError 直接返回字符串"""
-        err = LLMError("API调用失败")
+        err = ProviderError("API调用失败")
         result = format_error_message(err)
         assert "API调用失败" in result
 

@@ -5,19 +5,23 @@ SceneFab 项目管理器
 提供完整的项目生命周期管理功能
 """
 
-import functools
 import json
 import logging
 import os
 import shutil
 import uuid
-import zipfile
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from scenefab.signals_bridge import QObject, Signal
+from scenefab.utils.project_io import (
+    PROJECT_SUBDIRS,
+    export_to_zip,
+    handle_error,
+    import_from_zip,
+)
 
 from .models.project_models import (
     ProjectMedia,
@@ -30,34 +34,7 @@ from .models.project_models import (
 from .secure_key_manager import get_secure_key_manager
 from .settings import ConfigManager
 
-
-# ─── 错误处理装饰器 ────────────────────────────────────────────
-def _handle_project_error(action_code: str, action_name: str):
-    """
-    统一处理 ProjectManager 各方法的异常：记录日志、发送信号、返回默认值。
-    适用于所有返回 bool / Optional[str] 的项目操作方法。
-    """
-
-    def decorator(method):
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            try:
-                return method(self, *args, **kwargs)
-            except Exception as e:
-                self.logger.error(f"Failed to {action_name}: {e}")
-                self.error_occurred.emit(
-                    f"{action_code}_ERROR", f"{action_name}失败: {str(e)}"
-                )
-                # 根据返回值类型返回 False 或 None
-                hints = {"bool": False, "str": None}
-                ret_type = method.__annotations__.get("return", "")
-                return hints.get(
-                    str(ret_type).split("'")[1] if "'" in str(ret_type) else ""
-                )
-
-        return wrapper
-
-    return decorator
+_handle_project_error = handle_error
 
 
 class Project:
@@ -301,7 +278,7 @@ class ProjectManager(QObject):
         project_id = str(uuid.uuid4())
         project_path = os.path.join(self.projects_dir, f"{name}_{project_id[:8]}")
         os.makedirs(project_path, exist_ok=True)
-        for subdir in ["media", "exports", "backups", "cache", "assets"]:
+        for subdir in PROJECT_SUBDIRS:
             os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
         metadata = ProjectMetadata(
             name=name,
@@ -409,65 +386,51 @@ class ProjectManager(QObject):
         if project_id not in self.projects:
             return False
         project = self.projects[project_id]
-        with zipfile.ZipFile(export_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-            project_file = os.path.join(project.path, "project.json")
-            if os.path.exists(project_file):
-                zipf.write(project_file, "project.json")
-            if include_media:
-                media_dir = os.path.join(project.path, "media")
-                if os.path.exists(media_dir):
-                    for root, _dirs, files in os.walk(media_dir):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            arcname = os.path.relpath(file_path, project.path)
-                            zipf.write(file_path, arcname)
-            export_info = {
-                "exported_at": datetime.now().isoformat(),
+
+        def _filter(path: Path) -> bool:
+            if not include_media:
+                return path.name == "project.json"
+            return True
+
+        export_to_zip(
+            project.path,
+            export_path,
+            extra_info={
                 "project_version": project.metadata.version,
-                "cineai_version": "2.0.0",
                 "include_media": include_media,
-            }
-            zipf.writestr("export_info.json", json.dumps(export_info, indent=2))
+            },
+            file_filter=_filter,
+        )
         self.project_exported.emit(project_id)
         self.logger.info(f"Exported project: {project.metadata.name} to {export_path}")
         return True
 
     @_handle_project_error("IMPORT", "导入项目")
     def import_project(self, import_path: str) -> str | None:
-        temp_dir = os.path.join(
-            self.temp_dir, f"import_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        )
-        os.makedirs(temp_dir, exist_ok=True)
-        try:
-            with zipfile.ZipFile(import_path, "r") as zipf:
-                zipf.extractall(temp_dir)
-            project_file = os.path.join(temp_dir, "project.json")
-            if not os.path.exists(project_file):
-                self.error_occurred.emit("IMPORT_ERROR", "无效的项目文件")
-                return None
-            with open(project_file, encoding="utf-8") as f:
-                project_data = json.load(f)
-            metadata = ProjectMetadata.from_dict(project_data["metadata"])
-            project_name = f"{metadata.name}_imported"
-            project_path = os.path.join(
-                self.projects_dir, f"{project_name}_{uuid.uuid4().hex[:8]}"
-            )
-            shutil.copytree(temp_dir, project_path)
-            project_file = os.path.join(project_path, "project.json")
-            with open(project_file, encoding="utf-8") as f:
-                project_data = json.load(f)
-            project_data["metadata"]["name"] = project_name
-            project_data["metadata"]["modified_at"] = datetime.now().isoformat()
-            with open(project_file, "w", encoding="utf-8") as f:
-                json.dump(project_data, f, indent=2, ensure_ascii=False)
-        finally:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
-        project_id = self.open_project(project_path)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        temp_dir = Path(self.temp_dir) / f"import_{timestamp}"
+        project_name = f"imported_{timestamp}"
+        project_path = Path(self.projects_dir) / f"{project_name}_{uuid.uuid4().hex[:8]}"
+
+        result = import_from_zip(import_path, temp_dir, project_path, "project.json")
+        if result is None:
+            self.error_occurred.emit("IMPORT_ERROR", "无效的项目文件")
+            return None
+
+        # 更新项目名称
+        project_file = result / "project.json"
+        with open(project_file, encoding="utf-8") as f:
+            project_data = json.load(f)
+        project_data["metadata"]["name"] = project_name
+        project_data["metadata"]["modified_at"] = datetime.now().isoformat()
+        with open(project_file, "w", encoding="utf-8") as f:
+            json.dump(project_data, f, indent=2, ensure_ascii=False)
+
+        project_id = self.open_project(str(result))
         if project_id:
             self.project_imported.emit(project_id)
             self.logger.info(f"Imported project: {project_name} from {import_path}")
-        return project_id  # type: ignore[no-any-return, attr-defined]  # type: ignore[attr-defined]
+        return project_id  # type: ignore[no-any-return]
 
     @_handle_project_error("CREATE", "创建模板")
     def create_template(self, project_id: str, template_name: str) -> bool:

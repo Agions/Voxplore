@@ -91,32 +91,7 @@ async def retry_async(
     backoff: float = 2.0,
     exceptions: tuple[type[BaseException], ...] = (Exception,),
 ) -> T:
-    """
-    异步重试装饰器（指数退避）。
+    """异步重试（指数退避 + 抖动）。委托给 utils.retry.retry_async。"""
+    from scenefab.utils.retry import retry_async as _retry_async
 
-    替代 AI 重试循环中的 time.sleep 阻塞。
-
-    Args:
-        func: 异步函数
-        max_attempts: 最大尝试次数
-        delay: 初始延迟秒数
-        backoff: 退避倍数
-        exceptions: 触发重试的异常类型
-
-    Returns:
-        函数返回值
-    """
-    current_delay = delay
-    for attempt in range(1, max_attempts + 1):
-        try:
-            return await func()
-        except exceptions as e:
-            if attempt == max_attempts:
-                logger.error(f"Retry failed after {max_attempts} attempts: {e}")
-                raise
-            logger.warning(
-                f"Attempt {attempt}/{max_attempts} failed: {e}, retrying in {current_delay}s"
-            )
-            await asyncio.sleep(current_delay)
-            current_delay *= backoff
-    raise RuntimeError("unreachable")  # pragma: no cover
+    return await _retry_async(func, max_attempts, delay, backoff, exceptions)

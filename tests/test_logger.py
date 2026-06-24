@@ -4,29 +4,7 @@
 import logging
 from io import StringIO
 
-from scenefab.logger import LogFormat, Logger, LogLevel
-
-
-class TestLogLevel:
-    """测试日志级别枚举"""
-
-    def test_enum_values(self):
-        """测试枚举值"""
-        assert LogLevel.DEBUG.value == logging.DEBUG
-        assert LogLevel.INFO.value == logging.INFO
-        assert LogLevel.WARNING.value == logging.WARNING
-        assert LogLevel.ERROR.value == logging.ERROR
-        assert LogLevel.CRITICAL.value == logging.CRITICAL
-
-
-class TestLogFormat:
-    """测试日志格式枚举"""
-
-    def test_enum_values(self):
-        """测试枚举值"""
-        assert LogFormat.SIMPLE.value == "simple"
-        assert LogFormat.DETAILED.value == "detailed"
-        assert LogFormat.STRUCTURED.value == "structured"
+from scenefab.logger import Logger
 
 
 class TestLogger:
@@ -65,6 +43,13 @@ class TestLogger:
         """测试日志器名称"""
         logger = Logger("my_test_logger")
         assert logger.logger.name == "my_test_logger"
+
+    def test_log_lazy(self):
+        """测试懒加载日志"""
+        logger = Logger("test_lazy", level=logging.INFO)
+        called = []
+        logger.log_lazy(logging.INFO, lambda: called.append(1) or "lazy message")
+        assert len(called) == 1
 
 
 class TestLoggerIntegration:

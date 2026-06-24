@@ -75,41 +75,6 @@ class SceneFabError(Exception):
         return result
 
 
-class LLMError(SceneFabError):
-    """LLM 错误"""
-
-    def __init__(
-        self,
-        message: str,
-        provider: str | None = None,
-        model: str | None = None,
-        details: dict[str, Any] | None = None,
-    ):
-        code = ErrorCode.LLM_API_ERROR
-        hint = None
-
-        if "rate limit" in message.lower():
-            code = ErrorCode.LLM_RATE_LIMIT
-            hint = "请稍后重试，或升级 API 计划"
-
-        if "invalid api key" in message.lower() or "unauthorized" in message.lower():
-            code = ErrorCode.LLM_KEY_MISSING
-            hint = "请检查 API 密钥配置"
-
-        if "connection" in message.lower():
-            code = ErrorCode.LLM_CONNECTION_FAILED
-            hint = "请检查网络连接"
-
-        if provider or model:
-            details = details or {}
-            if provider:
-                details["provider"] = provider
-            if model:
-                details["model"] = model
-
-        super().__init__(code=code, message=message, details=details, hint=hint)
-
-
 class ConfigError(SceneFabError):
     """配置错误"""
 
@@ -272,18 +237,6 @@ class CircuitOpenError(ProviderError):
             message=message,
             provider=provider,
             details=details,
-        )
-
-
-class SecurityError(SceneFabError):
-    """安全错误（路径遍历、格式验证等）"""
-
-    def __init__(self, message: str, path: str | None = None):
-        super().__init__(
-            code=ErrorCode.FILE_NOT_FOUND,
-            message=message,
-            details={"path": path} if path else None,
-            hint="请检查文件路径是否合法",
         )
 
 
@@ -462,7 +415,6 @@ def get_error_hint(code: ErrorCode) -> str:
 __all__ = [
     "ErrorCode",
     "SceneFabError",
-    "LLMError",
     "ConfigError",
     "FileError",
     "VideoError",
@@ -471,7 +423,6 @@ __all__ = [
     "ProviderError",
     "RateLimitError",
     "CircuitOpenError",
-    "SecurityError",
     "ExportError",
     "ProjectError",
     "ServiceError",

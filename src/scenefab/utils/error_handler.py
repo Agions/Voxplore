@@ -8,10 +8,8 @@ SceneFab 错误处理模块 ✅ 优化版本
 
 import asyncio
 import logging
-import random
 import sys
 import threading
-import time
 import traceback
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -299,54 +297,15 @@ class ErrorHandler:
 # ============ 装饰器 ============
 
 
-def _compute_delay(attempt: int, base_delay: float) -> float:
-    """计算带抖动的指数退避延迟"""
-    return base_delay * (2**attempt) * (0.5 + random.random() * 0.5)  # type: ignore[no-any-return]
-
-
-def _log_retry(
-    func_name: str, attempt: int, max_attempts: int, e: Exception, delay: float
-) -> None:
-    """记录重试日志"""
-    logger.warning(
-        f"{func_name} 失败 (尝试 {attempt + 1}/{max_attempts}): {e}. "
-        f"{delay:.1f}秒后重试..."
-    )
-
-
 def async_retry(
     max_attempts: int = 3,
     base_delay: float = 1.0,
     retryable_exceptions: tuple = (Exception,),
 ):
-    """
-    异步重试装饰器
+    """异步重试装饰器。委托给 utils.retry.async_retry_decorator。"""
+    from scenefab.utils.retry import async_retry_decorator
 
-    Args:
-        max_attempts: 最大重试次数
-        base_delay: 基础延迟（秒）
-        retryable_exceptions: 可重试的异常类型元组
-    """
-
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            for attempt in range(max_attempts):
-                try:
-                    return await func(*args, **kwargs)
-                except retryable_exceptions as e:
-                    if attempt < max_attempts - 1:
-                        delay = _compute_delay(attempt, base_delay)
-                        _log_retry(func.__name__, attempt, max_attempts, e, delay)
-                        await asyncio.sleep(delay)
-                    else:
-                        logger.error(f"{func.__name__} 最终失败: {e}")
-                        raise
-            return None
-
-        return wrapper
-
-    return decorator
+    return async_retry_decorator(max_attempts, base_delay, retryable_exceptions)
 
 
 def sync_retry(
@@ -354,30 +313,16 @@ def sync_retry(
     base_delay: float = 1.0,
     retryable_exceptions: tuple = (Exception,),
 ):
-    """
-    同步重试装饰器
-
-    Args:
-        max_attempts: 最大重试次数
-        base_delay: 基础延迟（秒）
-        retryable_exceptions: 可重试的异常类型元组
-    """
+    """同步重试装饰器。委托给 utils.retry.retry_sync。"""
+    from scenefab.utils.retry import retry_sync
+    from functools import wraps as _wraps
 
     def decorator(func):
-        @wraps(func)
+        @_wraps(func)
         def wrapper(*args, **kwargs):
-            for attempt in range(max_attempts):
-                try:
-                    return func(*args, **kwargs)
-                except retryable_exceptions as e:
-                    if attempt < max_attempts - 1:
-                        delay = _compute_delay(attempt, base_delay)
-                        _log_retry(func.__name__, attempt, max_attempts, e, delay)
-                        time.sleep(delay)
-                    else:
-                        logger.error(f"{func.__name__} 最终失败: {e}")
-                        raise
-            return None
+            return retry_sync(
+                func, max_attempts, base_delay, 2.0, retryable_exceptions, *args, **kwargs
+            )
 
         return wrapper
 

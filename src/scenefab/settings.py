@@ -5,13 +5,13 @@ SceneFab 配置管理
 """
 
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
 
-from scenefab.services.ai.model_catalog import DEFAULT_MODELS
 from scenefab.utils.singleton import SingletonMeta
 from scenefab.utils.version import get_version_string
 
@@ -100,8 +100,16 @@ class ConfigManager(metaclass=SingletonMeta):
         self._config: AppConfig = AppConfig()
         self._load_config()
 
+    @staticmethod
+    def _substitute_env_vars(value: str) -> str:
+        """替换字符串中的 ${ENV_VAR} 为环境变量值"""
+        def _replace(match: re.Match) -> str:
+            var_name = match.group(1)
+            return os.getenv(var_name, "")
+        return re.sub(r"\$\{(\w+)\}", _replace, value)
+
     def _load_config(self):
-        """加载配置文件"""
+        """加载配置文件（LLM 配置统一从 llm.yaml 加载）"""
         config_data = {
             "name": "SceneFab",
             "version": get_version_string(),
@@ -129,43 +137,49 @@ class ConfigManager(metaclass=SingletonMeta):
                 "pitch": 0.0,
                 "volume": 1.0,
             },
-            "llm_providers": {
-                "deepseek": {
-                    "enabled": bool(os.getenv("DEEPSEEK_API_KEY")),
-                    "api_key": os.getenv("DEEPSEEK_API_KEY", ""),
-                    "base_url": "https://api.deepseek.com",
-                    "model": DEFAULT_MODELS["deepseek"],
-                    "max_tokens": 32768,
-                    "temperature": 0.7,
-                },
-                "qwen": {
-                    "enabled": bool(os.getenv("QWEN_API_KEY")),
-                    "api_key": os.getenv("QWEN_API_KEY", ""),
-                    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-                    "model": DEFAULT_MODELS["qwen"],
-                    "max_tokens": 32768,
-                    "temperature": 0.7,
-                },
-                "openai": {
-                    "enabled": bool(os.getenv("OPENAI_API_KEY")),
-                    "api_key": os.getenv("OPENAI_API_KEY", ""),
-                    "base_url": "https://api.openai.com/v1",
-                    "model": DEFAULT_MODELS["openai"],
-                    "max_tokens": 32768,
-                    "temperature": 0.7,
-                },
-            },
+            "llm_providers": {},
             "default_llm": "deepseek",
         }
 
-        # 从 YAML 文件加载（如果存在）
+        # 从 app_config.yaml 加载非 LLM 配置（cache、video、tts 等）
         if self._config_file.exists():
             try:
                 with open(self._config_file, encoding="utf-8") as f:
                     yaml_config = yaml.safe_load(f) or {}
+                    # 移除已废弃的 llm_providers 段落（LLM 配置从 llm.yaml 加载）
+                    yaml_config.pop("llm_providers", None)
+                    yaml_config.pop("default_llm", None)
                     self._merge_config(config_data, yaml_config)
             except Exception as e:
                 print(f"Warning: Failed to load config file: {e}")
+
+        # LLM 配置统一从 llm.yaml 加载（单一数据源）
+        llm_config_path = Path(__file__).parent.parent / "config" / "llm.yaml"
+        if llm_config_path.exists():
+            try:
+                with open(llm_config_path, encoding="utf-8") as f:
+                    llm_yaml = yaml.safe_load(f) or {}
+                llm_section = llm_yaml.get("LLM", {})
+                default_provider = llm_section.pop("default_provider", "deepseek")
+                config_data["default_llm"] = default_provider
+
+                for name, provider_data in llm_section.items():
+                    if not isinstance(provider_data, dict):
+                        continue
+                    # 替换 ${ENV_VAR} 为环境变量值
+                    api_key = provider_data.get("api_key", "")
+                    if isinstance(api_key, str) and "${" in api_key:
+                        api_key = self._substitute_env_vars(api_key)
+                    config_data["llm_providers"][name] = {
+                        "enabled": provider_data.get("enabled", False),
+                        "api_key": api_key,
+                        "base_url": provider_data.get("base_url", ""),
+                        "model": provider_data.get("model", ""),
+                        "max_tokens": provider_data.get("max_tokens", 8000),
+                        "temperature": provider_data.get("temperature", 0.7),
+                    }
+            except Exception as e:
+                print(f"Warning: Failed to load llm.yaml: {e}")
 
         self._config = self._parse_config(config_data)
 

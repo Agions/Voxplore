@@ -20,7 +20,7 @@ from .services.ai.model_catalog import DEFAULT_MODELS, settings_model_options
 from .settings_types import SettingDefinition, SettingType
 
 
-def get_video_settings() -> dict[str, SettingDefinition]:
+def _get_video_settings() -> dict[str, SettingDefinition]:
     """视频设置定义"""
     return {
         "video.resolution": SettingDefinition(
@@ -78,7 +78,7 @@ def get_video_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_audio_settings() -> dict[str, SettingDefinition]:
+def _get_audio_settings() -> dict[str, SettingDefinition]:
     """音频设置定义"""
     return {
         "audio.sample_rate": SettingDefinition(
@@ -125,7 +125,7 @@ def get_audio_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_auto_save_settings() -> dict[str, SettingDefinition]:
+def _get_auto_save_settings() -> dict[str, SettingDefinition]:
     """自动保存设置定义"""
     return {
         "auto_save.enabled": SettingDefinition(
@@ -162,7 +162,7 @@ def get_auto_save_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_ai_settings() -> dict[str, SettingDefinition]:
+def _get_ai_settings() -> dict[str, SettingDefinition]:
     """AI设置定义"""
     return {
         "ai.default_model": SettingDefinition(
@@ -209,7 +209,7 @@ def get_ai_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_ui_settings() -> dict[str, SettingDefinition]:
+def _get_ui_settings() -> dict[str, SettingDefinition]:
     """界面设置定义"""
     return {
         "ui.theme": SettingDefinition(
@@ -266,7 +266,7 @@ def get_ui_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_performance_settings() -> dict[str, SettingDefinition]:
+def _get_performance_settings() -> dict[str, SettingDefinition]:
     """性能设置定义"""
     return {
         "performance.enable_gpu": SettingDefinition(
@@ -303,7 +303,7 @@ def get_performance_settings() -> dict[str, SettingDefinition]:
     }
 
 
-def get_export_settings() -> dict[str, SettingDefinition]:
+def _get_export_settings() -> dict[str, SettingDefinition]:
     """导出设置定义"""
     return {
         "export.default_format": SettingDefinition(
@@ -341,23 +341,16 @@ def get_export_settings() -> dict[str, SettingDefinition]:
 def get_all_settings_definitions() -> dict[str, SettingDefinition]:
     """获取所有设置定义"""
     all_defs: dict[str, SettingDefinition] = {}
-    all_defs.update(get_video_settings())
-    all_defs.update(get_audio_settings())
-    all_defs.update(get_auto_save_settings())
-    all_defs.update(get_ai_settings())
-    all_defs.update(get_ui_settings())
-    all_defs.update(get_performance_settings())
-    all_defs.update(get_export_settings())
+    all_defs.update(_get_video_settings())
+    all_defs.update(_get_audio_settings())
+    all_defs.update(_get_auto_save_settings())
+    all_defs.update(_get_ai_settings())
+    all_defs.update(_get_ui_settings())
+    all_defs.update(_get_performance_settings())
+    all_defs.update(_get_export_settings())
     return all_defs
 
 
 __all__ = [
-    "get_video_settings",
-    "get_audio_settings",
-    "get_auto_save_settings",
-    "get_ai_settings",
-    "get_ui_settings",
-    "get_performance_settings",
-    "get_export_settings",
     "get_all_settings_definitions",
 ]
