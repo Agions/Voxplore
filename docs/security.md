@@ -123,15 +123,6 @@ cat ~/.scenefab/logs/security.log | grep "ALERT"
 | 应用更新 | 每月 | 使用最新稳定版本 |
 | 安全补丁 | 及时 | 关注 GitHub Security Advisories |
 
-## 漏洞报告
-
-如发现安全漏洞，请通过以下方式报告：
-
-- **邮箱**：security@agions.com
-- **GitHub**：[Security Advisories](https://github.com/Agions/scene-fab/security/advisories)
-
-我们承诺在 48 小时内响应安全漏洞报告。
-
 ## 合规性
 
 | 标准 | 状态 | 说明 |
