@@ -439,8 +439,8 @@ class UnifiedEventBus:
     def _on_handler_done(self, fut) -> None:
         try:
             fut.result()
-        except Exception:
-            pass  # 异常已在 _invoke 捕获
+        except Exception as e:
+            logger.debug(f"Async handler future completed with error: {e}")
 
     # ────────────────────────────────────────────────
     # 重放

@@ -3,26 +3,24 @@
 """
 场景分析器 (Scene Analyzer)
 
-提供场景检测、镜头评分、关键帧提取、上下文提示生成等功能。
+提供场景检测、镜头评分、关键帧提取、重要性评分、上下文提示生成等功能。
 
 使用示例:
     from scenefab.services.ai import SceneAnalyzer
 
     analyzer = SceneAnalyzer()
     scenes = analyzer.analyze('video.mp4')
-
     key_moments = analyzer.extract_key_moments(scenes, top_k=5)
-
-注意:
-    SceneAnalyzerV2 已移至 scene_analyzer_v2.py。
 """
 
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 from ...utils.security import get_ffmpeg_executor
 from .scene_models import AnalysisConfig, SceneInfo, SceneType
+from .scene_scorer import SceneScorer
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +43,14 @@ class SceneAnalyzer:
         self.config = config or AnalysisConfig()
         self._pyscenect_available = self._check_pyscenect()
         self._executor = get_ffmpeg_executor()
+        self._importance_weights = {
+            "duration": 0.20,
+            "brightness": 0.15,
+            "motion": 0.15,
+            "scene_type": 0.30,
+            "audio": 0.20,
+        }
+        self._scorer = SceneScorer()
 
     def _check_pyscenect(self) -> bool:
         """检查 PySceneDetect 是否可用"""
@@ -395,3 +401,119 @@ class SceneAnalyzer:
 
             except Exception as e:
                 logger.error(f"提取关键帧失败 (场景 {scene.index}): {e}")
+
+    # ── 重要性评分与关键时刻提取（原 SceneAnalyzerV2） ─────────────
+
+    def analyze_with_importance(
+        self,
+        video_path: str,
+        narration_importance_fn: Callable[[SceneInfo], float] | None = None,
+    ) -> list[SceneInfo]:
+        """分析视频场景并计算重要性评分"""
+        scenes = self.analyze(video_path)
+        for scene in scenes:
+            scene.suitability_score = self._scorer.calculate_importance(
+                scene, self._importance_weights
+            )
+            if narration_importance_fn is not None:
+                scene.narration_importance = narration_importance_fn(scene)  # type: ignore[attr-defined]
+            elif (
+                not hasattr(scene, "narration_importance")
+                or scene.narration_importance <= 0
+            ):
+                scene.narration_importance = self._scorer.calculate_narration_importance(scene)  # type: ignore[attr-defined]
+        return scenes
+
+    def extract_key_moments(
+        self,
+        scenes: list[SceneInfo],
+        top_k: int = 5,
+        min_score: float = 30.0,
+    ) -> list[SceneInfo]:
+        """提取关键时刻（得分最高的场景）"""
+        filtered = [s for s in scenes if s.suitability_score >= min_score]
+        return sorted(filtered, key=lambda s: s.suitability_score, reverse=True)[:top_k]
+
+    def extract_key_moments_by_type(
+        self,
+        scenes: list[SceneInfo],
+        scene_type: SceneType,
+        top_k: int = 3,
+    ) -> list[SceneInfo]:
+        """按场景类型提取关键时刻"""
+        filtered = [s for s in scenes if s.type == scene_type]
+        return sorted(filtered, key=lambda s: s.suitability_score, reverse=True)[:top_k]
+
+    def generate_scene_context_prompt(self, scenes: list[SceneInfo]) -> str:
+        """生成场景上下文提示（用于 ScriptGenerator）"""
+        if not scenes:
+            return "## 场景列表\n\n*暂无场景数据*"
+
+        type_names = {
+            SceneType.LANDSCAPE: "风景画面",
+            SceneType.B_ROLL: "素材画面",
+            SceneType.ACTION: "动作场景",
+            SceneType.TALKING_HEAD: "人物讲话",
+            SceneType.TRANSITION: "转场",
+            SceneType.TITLE: "标题画面",
+            SceneType.PRODUCT: "产品展示",
+            SceneType.UNKNOWN: "未知",
+        }
+
+        lines = ["## 场景列表\n"]
+        for i, scene in enumerate(scenes, 1):
+            start_str = f"{int(scene.start // 60):02d}:{int(scene.start % 60):02d}"
+            end_str = f"{int(scene.end // 60):02d}:{int(scene.end % 60):02d}"
+            type_name = type_names.get(scene.type, "未知")
+
+            lines.append(f"{i}. **{start_str} - {end_str}** {type_name}")
+            lines.append(f"   - 类型: `{scene.type.value}`")
+            lines.append(f"   - 评分: {scene.suitability_score:.0f}/100")
+            if scene.description:
+                lines.append(f"   - 描述: {scene.description}")
+
+            details = []
+            if scene.avg_brightness > 0:
+                b = scene.avg_brightness
+                details.append(f"亮度{'暗' if b < 0.3 else '亮' if b > 0.7 else '适中'}")
+            if scene.motion_level > 0:
+                m = scene.motion_level
+                details.append(f"运动{'静态' if m < 0.2 else '剧烈' if m > 0.7 else '适中'}")
+            if scene.audio_level > 0:
+                details.append(f"音频{'有' if scene.audio_level > 0.3 else '弱'}")
+            if details:
+                lines.append(f"   - 特征: {', '.join(details)}")
+            lines.append("")
+
+        return "\n".join(lines)
+
+    def generate_brief_scene_summary(
+        self,
+        scenes: list[SceneInfo],
+        max_scenes: int = 10,
+    ) -> str:
+        """生成简短场景摘要（适用于提示词）"""
+        if not scenes:
+            return "视频包含0个有效场景。"
+
+        sorted_scenes = sorted(scenes, key=lambda s: s.suitability_score, reverse=True)[
+            :max_scenes
+        ]
+
+        type_names = {
+            SceneType.LANDSCAPE: "风景画面",
+            SceneType.B_ROLL: "素材画面",
+            SceneType.ACTION: "动作场景",
+            SceneType.TALKING_HEAD: "人物讲话",
+            SceneType.TRANSITION: "转场",
+            SceneType.TITLE: "标题画面",
+            SceneType.PRODUCT: "产品展示",
+            SceneType.UNKNOWN: "未知",
+        }
+
+        parts = [f"视频共 {len(scenes)} 个场景，选取最重要的 {len(sorted_scenes)} 个：\n"]
+        for scene in sorted_scenes:
+            start_str = f"{int(scene.start // 60):02d}:{int(scene.start % 60):02d}"
+            type_name = type_names.get(scene.type, "未知")
+            parts.append(f"- [{start_str}] {type_name} (评分:{scene.suitability_score:.0f})")
+        return "\n".join(parts)

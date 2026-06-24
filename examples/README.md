@@ -1,50 +1,52 @@
-# SceneFab 示例
+# SceneFab 使用示例
 
-本目录包含 SceneFab 的使用示例，帮助你快速上手。
+> **文档已迁移**：完整的使用说明和 API 文档已移至 [docs/](../docs/) 目录。
 
-## 目录结构
+## 文档入口
 
-```text
-examples/
-├── README.md              # 本文件
-├── config/                # 配置文件示例
-│   ├── llm.yaml           # LLM 配置示例
-│   └── app_config.yaml    # 应用配置示例
-├── cli-usage.sh           # CLI 命令示例
-└── python-api.py          # Python API 示例
-```
+- [快速开始](../docs/guide/quick-start.md) — 3 步上手
+- [CLI 参考](../docs/guide/cli-reference.md) — 命令行使用说明
+- [Python API](../docs/guide/python-api.md) — Python API 完整文档
+- [AI 配置](../docs/guide/ai-configuration.md) — 多服务商配置详解
+- [配置参考](../docs/config.md) — 配置文件结构
 
-## 快速开始
+## 快速示例
 
-### 1. 配置示例
-
-复制配置文件到项目根目录的 `config/` 目录：
+### 启动 GUI
 
 ```bash
-cp examples/config/llm.yaml config/llm.yaml
-cp examples/config/app_config.yaml config/app_config.yaml
+scenefab
 ```
 
-编辑 `config/llm.yaml`，填入你的 API Key。
-
-### 2. CLI 使用
-
-查看 CLI 命令示例：
+### 命令行模式
 
 ```bash
-cat examples/cli-usage.sh
+scenefab
+# 选择功能 1 (AI 第一人称解说) 或 2 (剪映草稿导出)
 ```
 
-### 3. Python API
+### Python API
 
-查看 Python API 示例：
+```python
+from scenefab.services.video import MonologueMaker
+
+maker = MonologueMaker(voice_provider="edge")
+project = maker.create_project(
+    source_video="./movie.mp4",
+    context="解说主题",
+    emotion="平静",
+)
+maker.generate_script(project)
+maker.generate_voice(project)
+maker.generate_captions(project, style="cinematic")
+draft_path = maker.export_to_jianying(project, "./output")
+```
+
+## 环境变量
 
 ```bash
-cat examples/python-api.py
+export DEEPSEEK_API_KEY="sk-your-deepseek-key"
+export QWEN_API_KEY="sk-your-qwen-key"
 ```
 
-## 更多资源
-
-- [快速开始指南](https://agions.github.io/scene-fab/guide/quick-start)
-- [配置参考](https://agions.github.io/scene-fab/config)
-- [AI 模型参考](https://agions.github.io/scene-fab/ai-models)
+或使用 `.env` 文件（参考 [../.env.example](../.env.example)）。

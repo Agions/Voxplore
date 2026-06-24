@@ -16,17 +16,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, ClassVar
 
-try:
-    from pydantic import BaseModel, Field
-
-    _HAS_PYDANTIC = True
-except ImportError:  # 兼容未装 pydantic
-    _HAS_PYDANTIC = False
-    BaseModel = object  # type: ignore[assignment,misc]
-
-    def Field(*args, **kwargs):  # type: ignore[no-redef]
-        return None
-
 
 # ──────────────────────────────────────────────────────────
 # 事件基类
@@ -65,26 +54,6 @@ class DomainEvent:
     def _payload_dict(self) -> dict[str, Any]:
         """子类重写以暴露业务字段"""
         return {}
-
-
-# ──────────────────────────────────────────────────────────
-# Pydantic 强类型事件（可选）
-# ──────────────────────────────────────────────────────────
-
-
-if _HAS_PYDANTIC:
-
-    class _EventModel(BaseModel):
-        """Pydantic 风格强类型事件基类"""
-
-        event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-        timestamp: str = Field(
-            default_factory=lambda: datetime.now(timezone.utc).isoformat()
-        )
-        correlation_id: str | None = None
-        causation_id: str | None = None
-
-        model_config = {"frozen": False, "extra": "allow"}
 
 
 # ──────────────────────────────────────────────────────────

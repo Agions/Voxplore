@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # v2.1: 桥接事件总线（DomainEvent 发布）
 try:
@@ -39,23 +39,33 @@ except ImportError:
 try:
     import orjson
 
-    _json_loads = orjson.loads
-
-    def _json_dumps(obj):
-        return orjson.dumps(obj, option=orjson.OPT_INDENT_2)
-
     _use_orjson = True
 except ImportError:
-    import json
-
-    _json_loads = json.load  # type: ignore[unused-ignore, str]
-
-    def _json_dumps(obj):
-        return json.dumps(obj, ensure_ascii=False, indent=2)
-
     _use_orjson = False
 
+
+def _read_json(path: str | Path) -> Any:
+    """读取 JSON 文件（自动选择 orjson / json）"""
+    if _use_orjson:
+        with open(path, "rb") as f:
+            return orjson.loads(f.read())
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _write_json(path: str | Path, data: Any) -> None:
+    """写入 JSON 文件（原子替换，自动选择 orjson / json）"""
+    temp = str(path) + ".tmp"
+    if _use_orjson:
+        with open(temp, "wb") as f:
+            f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
+    else:
+        with open(temp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(temp, str(path))
+
 from scenefab.core.task_model import TaskStatus  # v2.1 统一状态枚举
+from scenefab.utils.singleton import SingletonMeta
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +123,7 @@ class Task:
         }
 
 
-class TaskManager:
+class TaskManager(metaclass=SingletonMeta):
     """
     任务管理器 V2
     支持任务的创建、暂停、恢复、取消、断点续传
@@ -122,19 +132,7 @@ class TaskManager:
     - 批量操作支持
     """
 
-    _instance: Optional["TaskManager"] = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False  # type: ignore[has-type]
-        return cls._instance
-
     def __init__(self):
-        if self._initialized:  # type: ignore[has-type]
-            return
-
-        self._initialized = True
         self._tasks: dict[str, Task] = {}
         self._lock = threading.RLock()  # 可重入锁
         self._executor = ThreadPoolExecutor(max_workers=2)  # 异步保存线程池
@@ -152,12 +150,7 @@ class TaskManager:
         try:
             for file in Path(self._task_dir).glob("*.json"):
                 try:
-                    if _use_orjson:
-                        with open(file, "rb") as f:
-                            data = orjson.loads(f.read())
-                    else:
-                        with open(file, encoding="utf-8") as f:
-                            data = json.load(f)
+                    data = _read_json(file)
                     task = self._dict_to_task(data)
                     self._tasks[task.task_id] = task
                 except Exception as e:
@@ -165,41 +158,19 @@ class TaskManager:
         except Exception as e:
             logger.warning(f"Failed to load tasks: {e}")
 
-    def _save_task_async(self, task: Task):
-        """异步保存任务到磁盘"""
-
-        def _write():
-            try:
-                file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
-                temp_path = file_path + ".tmp"
-                if _use_orjson:
-                    with open(temp_path, "wb") as f:
-                        f.write(
-                            orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2)
-                        )
-                else:
-                    with open(temp_path, "w", encoding="utf-8") as f:
-                        json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
-                os.replace(temp_path, file_path)
-            except Exception as e:
-                logger.error(f"Failed to save task: {e}")
-
-        self._executor.submit(_write)
-
     def _save_task(self, task: Task):
-        """同步保存任务到磁盘（保留兼容性）"""
+        """同步保存任务到磁盘"""
         try:
-            file_path = os.path.join(self._task_dir, f"{task.task_id}.json")
-            temp_path = file_path + ".tmp"
-            if _use_orjson:
-                with open(temp_path, "wb") as f:
-                    f.write(orjson.dumps(task.to_dict(), option=orjson.OPT_INDENT_2))
-            else:
-                with open(temp_path, "w", encoding="utf-8") as f:
-                    json.dump(task.to_dict(), f, ensure_ascii=False, indent=2)
-            os.replace(temp_path, file_path)
+            _write_json(
+                os.path.join(self._task_dir, f"{task.task_id}.json"),
+                task.to_dict(),
+            )
         except Exception as e:
             logger.error(f"Failed to save task: {e}")
+
+    def _save_task_async(self, task: Task):
+        """异步保存任务到磁盘"""
+        self._executor.submit(self._save_task, task)
 
     def _dict_to_task(self, data: dict) -> Task:
         """从字典创建任务"""
@@ -222,7 +193,7 @@ class TaskManager:
         )
 
     def create_task(
-        self, name: str, steps: list[str] = None, metadata: dict[str, Any] = None  # type: ignore[assignment]
+        self, name: str, steps: list[str] | None = None, metadata: dict[str, Any] | None = None
     ) -> str:
         """
         创建新任务
@@ -238,7 +209,7 @@ class TaskManager:
         task_id = str(uuid.uuid4())[:8]
 
         if steps is None:
-            steps = ["准备", "处理", "完成"]  # type: ignore[unreachable]
+            steps = ["准备", "处理", "完成"]
 
         now = datetime.now().timestamp()
 
@@ -293,8 +264,8 @@ class TaskManager:
         self,
         task_id: str,
         progress: float,
-        step: str = None,  # type: ignore[assignment]
-        step_index: int = None,  # type: ignore[assignment]
+        step: str | None = None,
+        step_index: int | None = None,
         **kwargs,
     ):
         """更新任务进度"""
@@ -340,7 +311,7 @@ class TaskManager:
                 logger.debug(f"TaskProgressUpdated event publish failed: {e}")
 
     def set_status(
-        self, task_id: str, status: TaskStatus, error: str = None, result: Any = None  # type: ignore[assignment]
+        self, task_id: str, status: TaskStatus, error: str | None = None, result: Any | None = None
     ):
         """设置任务状态"""
         with self._lock:
@@ -451,20 +422,11 @@ class TaskManager:
             "data": data,
             "timestamp": datetime.now().timestamp(),
         }
-
-        checkpoint_file = os.path.join(
-            self._checkpoints_dir, f"{task_id}_checkpoint_{step}.json"
-        )
-
         try:
-            temp_path = checkpoint_file + ".tmp"
-            if _use_orjson:
-                with open(temp_path, "wb") as f:
-                    f.write(orjson.dumps(checkpoint, option=orjson.OPT_INDENT_2))
-            else:
-                with open(temp_path, "w", encoding="utf-8") as f:
-                    json.dump(checkpoint, f, ensure_ascii=False, indent=2)
-            os.replace(temp_path, checkpoint_file)
+            _write_json(
+                os.path.join(self._checkpoints_dir, f"{task_id}_checkpoint_{step}.json"),
+                checkpoint,
+            )
         except Exception as e:
             logger.error(f"Failed to save checkpoint: {e}")
 
@@ -473,18 +435,10 @@ class TaskManager:
         checkpoint_file = os.path.join(
             self._checkpoints_dir, f"{task_id}_checkpoint_{step}.json"
         )
-
         if not os.path.exists(checkpoint_file):
             return None
-
         try:
-            if _use_orjson:
-                with open(checkpoint_file, "rb") as f:
-                    data = orjson.loads(f.read())
-            else:
-                with open(checkpoint_file, encoding="utf-8") as f:
-                    data = json.load(f)
-            return TaskCheckpoint(**data)
+            return TaskCheckpoint(**_read_json(checkpoint_file))
         except Exception as e:
             logger.error(f"Failed to load checkpoint: {e}")
             return None

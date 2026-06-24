@@ -39,7 +39,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +126,7 @@ class AuditLogger:
     线程安全：内部用 threading.Lock 保护
     """
 
-    _instance: Optional["AuditLogger"] = None
+    _instance: "AuditLogger | None" = None
     _instance_lock = threading.Lock()
 
     def __new__(cls, db_path: Path | None = None) -> "AuditLogger":

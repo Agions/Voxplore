@@ -16,7 +16,6 @@ _EXPORTS = {
     "ProviderError": ".base_llm_provider",
     "LLMManager": ".llm_manager",
     "SceneAnalyzer": ".scene_analyzer",
-    "SceneAnalyzerV2": ".scene_analyzer_v2",
     "ScriptGenerator": ".script_generator",
     "StreamingScriptGenerator": ".script_stream",
     "SenseVoiceProvider": ".sensevoice_provider",

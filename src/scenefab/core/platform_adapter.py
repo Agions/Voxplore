@@ -264,13 +264,6 @@ class SmartCropper:
             y = (height - new_height) // 2
             return CropRegion(x=0, y=y, width=width, height=new_height)
 
-    def _detect_faces(self, frame: Any) -> list[tuple[int, int, int, int]]:
-        """
-        检测人脸位置（需集成 OpenCV 的 Haar Cascade 或 MediaPipe）
-        此处为占位实现，实际项目可替换
-        """
-        return []
-
 
 # ============================================
 # 封面生成

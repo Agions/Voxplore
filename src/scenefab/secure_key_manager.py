@@ -152,7 +152,7 @@ class SecureKeyManager:
         return key
 
     def store_api_key(
-        self, provider: str, api_key: str, metadata: dict[str, Any] = None  # type: ignore[assignment]
+        self, provider: str, api_key: str, metadata: dict[str, Any] | None = None
     ) -> bool:
         """安全存储API密钥"""
         try:

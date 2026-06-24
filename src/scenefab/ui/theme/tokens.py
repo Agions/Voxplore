@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 
 """
-Runtime theme tokens aligned with resources/styles.
+Runtime theme tokens — compatibility layer.
 
-Qt style sheets require conservative color syntax, so all runtime tokens use
-plain HEX values. Public names are kept stable for existing theme manager code.
+All values are derived from ds_tokens.py (the authoritative design token source).
+Public names are kept stable for existing theme manager code.
 """
+
+from .ds_tokens import Colors, FontSizes, Radii, Shadows
+
+# ── Dark / Light palette dicts (used by ThemeManager) ─────────────
 
 DARK_TOKENS = {
     "primary": "#0891b2",
     "primary-hover": "#06b6d4",
     "primary-pressed": "#0e7490",
-    "primary-subtle": "#164e63",
+    "primary-subtle": Colors.PRIMARY_DARKEST,
     "bg-base": "#0b1120",
     "bg-surface": "#111827",
     "bg-elevated": "#182235",
@@ -19,69 +23,71 @@ DARK_TOKENS = {
     "border": "#334155",
     "border-default": "#334155",
     "border-subtle": "#253247",
-    "border-strong": "#38bdf8",
+    "border-strong": Colors.BORDER_STRONG,
     "text-primary": "#e5edf6",
     "text-secondary": "#cbd5e1",
     "text-muted": "#91a4ba",
     "text-disabled": "#64748b",
-    "success": "#22c55e",
+    "success": Colors.SUCCESS,
     "success-subtle": "#163923",
-    "warning": "#f59e0b",
+    "warning": Colors.WARNING,
     "warning-subtle": "#422d12",
-    "error": "#e11d48",
+    "error": Colors.ERROR,
     "error-subtle": "#4c1d2f",
     "info": "#22d3ee",
-    "accent": "#f43f5e",
-    "accent-hover": "#fb7185",
+    "accent": Colors.ACCENT,
+    "accent-hover": Colors.ACCENT_NORMAL,
     "accent-subtle": "#4c1d2f",
 }
 
 LIGHT_TOKENS = {
-    "primary": "#0891b2",
-    "primary-hover": "#0e7490",
-    "primary-pressed": "#155e75",
-    "primary-subtle": "#e0f7fb",
-    "bg-base": "#f6f8fb",
-    "bg-surface": "#ffffff",
-    "bg-elevated": "#f1f5f9",
-    "bg-overlay": "#e2e8f0",
-    "border": "#cbd5e1",
-    "border-default": "#cbd5e1",
-    "border-subtle": "#dbe3ee",
-    "border-strong": "#0891b2",
-    "text-primary": "#182235",
-    "text-secondary": "#334155",
-    "text-muted": "#64748b",
-    "text-disabled": "#94a3b8",
+    "primary": Colors.PRIMARY,
+    "primary-hover": Colors.PRIMARY_DARK,
+    "primary-pressed": Colors.PRIMARY_DARKER,
+    "primary-subtle": Colors.PRIMARY_LIGHTEST,
+    "bg-base": Colors.BG_BASE,
+    "bg-surface": Colors.BG_SURFACE,
+    "bg-elevated": Colors.BG_ELEVATED,
+    "bg-overlay": Colors.BG_OVERLAY,
+    "border": Colors.BORDER_DEFAULT,
+    "border-default": Colors.BORDER_DEFAULT,
+    "border-subtle": Colors.BORDER_SUBTLE,
+    "border-strong": Colors.BORDER_STRONG,
+    "text-primary": Colors.TEXT_PRIMARY,
+    "text-secondary": Colors.TEXT_SECONDARY,
+    "text-muted": Colors.TEXT_MUTED,
+    "text-disabled": Colors.TEXT_DISABLED,
     "success": "#16a34a",
-    "success-subtle": "#dcfce7",
+    "success-subtle": Colors.SUCCESS_LIGHT,
     "warning": "#d97706",
-    "warning-subtle": "#fef3c7",
-    "error": "#e11d48",
-    "error-subtle": "#ffe4e6",
-    "info": "#0891b2",
-    "accent": "#f43f5e",
-    "accent-hover": "#be123c",
-    "accent-subtle": "#ffe4e6",
+    "warning-subtle": Colors.WARNING_LIGHT,
+    "error": Colors.ERROR,
+    "error-subtle": Colors.ERROR_LIGHT,
+    "info": Colors.PRIMARY,
+    "accent": Colors.ACCENT,
+    "accent-hover": Colors.ACCENT_DARK,
+    "accent-subtle": Colors.ACCENT_LIGHT,
 }
 
 COLORS = LIGHT_TOKENS
 
+# ── Spacing / Radius / Font / Shadow / Transition (dict form) ─────
+
 SPACING = {
-    "xs": "4px",
+    "xs": f"{Radii.sm}px",
     "sm": "8px",
-    "md": "16px",
+    "md": f"{Radii.base}px",
     "lg": "24px",
     "xl": "32px",
     "2xl": "48px",
 }
 
 RADIUS = {
-    "sm": "4px",
+    "sm": f"{Radii.sm}px",
     "md": "7px",
-    "lg": "8px",
-    "xl": "12px",
-    "full": "9999px",
+    "lg": f"{Radii.base}px",
+    "xl": f"{Radii.lg}px",
+    "full": f"{Radii.full}px",
 }
 
 FONT = {
@@ -91,20 +97,20 @@ FONT = {
     ),
     "mono": "'JetBrains Mono', 'SF Mono', Consolas, monospace",
     "size": {
-        "xs": "11px",
-        "sm": "12px",
-        "md": "14px",
-        "lg": "16px",
-        "xl": "18px",
-        "2xl": "22px",
-        "3xl": "28px",
+        "xs": f"{FontSizes.xs}px",
+        "sm": f"{FontSizes.sm}px",
+        "md": f"{FontSizes.md}px",
+        "lg": f"{FontSizes.lg}px",
+        "xl": f"{FontSizes.xl}px",
+        "2xl": f"{FontSizes.xxl}px",
+        "3xl": f"{FontSizes.xxxl}px",
     },
 }
 
 SHADOW = {
-    "sm": "0 1px 2px rgba(15,23,42,0.16)",
-    "md": "0 2px 8px rgba(15,23,42,0.22)",
-    "lg": "0 4px 16px rgba(15,23,42,0.28)",
+    "sm": Shadows.SM,
+    "md": Shadows.MD,
+    "lg": Shadows.LG,
 }
 
 TRANSITION = {

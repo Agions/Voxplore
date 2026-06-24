@@ -18,11 +18,22 @@ from scenefab.signals_bridge import QObject, Signal
 from .secure_key_manager import get_secure_key_manager
 from .settings import ConfigManager
 from .settings_data import get_all_settings_definitions
+from .utils.version import get_version_string
 from .settings_types import ProjectSettingsProfile, SettingDefinition, SettingType
 
 
 class ProjectSettingsManager(QObject):
     """项目设置管理器"""
+
+    # 类型映射表：SettingType → 期望的 Python 类型
+    _TYPE_MAP: dict = {
+        SettingType.STRING: str,
+        SettingType.INTEGER: int,
+        SettingType.FLOAT: (int, float),
+        SettingType.BOOLEAN: bool,
+        SettingType.LIST: list,
+        SettingType.DICT: dict,
+    }
 
     # 信号定义
     settings_changed = Signal(str, object)  # 设置变更信号
@@ -171,19 +182,9 @@ class ProjectSettingsManager(QObject):
 
         definition = self.settings_definitions[key]
 
-        # 类型映射表：SettingType → 期望的 Python 类型
-        _TYPE_MAP: dict = {
-            SettingType.STRING: str,
-            SettingType.INTEGER: int,
-            SettingType.FLOAT: (int, float),
-            SettingType.BOOLEAN: bool,
-            SettingType.LIST: list,
-            SettingType.DICT: dict,
-        }
-
         # 类型检查
         try:
-            expected_type = _TYPE_MAP.get(definition.setting_type)
+            expected_type = self._TYPE_MAP.get(definition.setting_type)
             if expected_type is None:
                 self.logger.debug("Unknown setting type: %s", definition.setting_type)
                 return False
@@ -287,7 +288,7 @@ class ProjectSettingsManager(QObject):
             self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
     def create_profile(
-        self, name: str, description: str, settings_filter: list[str] = None
+        self, name: str, description: str, settings_filter: list[str] | None = None
     ) -> bool:
         """创建配置文件"""
         try:
@@ -415,7 +416,7 @@ class ProjectSettingsManager(QObject):
             export_data = {
                 "settings": settings_to_export,
                 "exported_at": datetime.now().isoformat(),
-                "cineai_version": "2.0.0",
+                "scenefab_version": get_version_string(),
                 "profile_name": profile_name,
             }
 

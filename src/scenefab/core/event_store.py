@@ -107,11 +107,10 @@ class EventStore(ABC):
 
     def events_after(self, event_id: str) -> list[EventRecord]:
         """从指定 event_id 之后开始查"""
-        for r in self.query(limit=100000):
+        all_events = self.query(limit=100000)
+        for i, r in enumerate(all_events):
             if r.event_id == event_id:
-                # 找到后，从下一个开始
-                idx = self.query(limit=100000).index(r)
-                return self.query(limit=100000)[idx + 1 :]
+                return all_events[i + 1 :]
         return []
 
 

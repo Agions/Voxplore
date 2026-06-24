@@ -7,12 +7,12 @@ SceneFab 配置管理
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from dotenv import load_dotenv
 
 from scenefab.services.ai.model_catalog import DEFAULT_MODELS
+from scenefab.utils.singleton import SingletonMeta
 from scenefab.utils.version import get_version_string
 
 # 加载 .env 文件
@@ -89,27 +89,15 @@ class AppConfig:
     default_llm: str = "deepseek"
 
 
-class ConfigManager:
+class ConfigManager(metaclass=SingletonMeta):
     """
     配置管理器
     负责加载、验证和管理所有配置
     """
 
-    _instance: Optional["ConfigManager"] = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False  # type: ignore[has-type]
-        return cls._instance
-
     def __init__(self):
-        if self._initialized:  # type: ignore[has-type]
-            return
-
-        self._initialized = True
-        self._config: AppConfig | None = None
         self._config_file = Path(__file__).parent.parent / "config" / "app_config.yaml"
+        self._config: AppConfig = AppConfig()
         self._load_config()
 
     def _load_config(self):
@@ -213,51 +201,51 @@ class ConfigManager:
     @property
     def config(self) -> AppConfig:
         """获取应用配置"""
-        return self._config  # type: ignore[return-value]
+        return self._config
 
-    def get_llm_config(self, provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
+    def get_llm_config(self, provider: str | None = None) -> LLMConfig | None:
         """获取指定 LLM 配置"""
         if provider is None:
-            provider = self._config.default_llm  # type: ignore[unreachable]
-        return self._config.llm_providers.get(provider)  # type: ignore[union-attr]
+            provider = self._config.default_llm
+        return self._config.llm_providers.get(provider)
 
     def get_enabled_llm(self) -> list[LLMConfig]:
         """获取所有启用的 LLM"""
-        return [cfg for cfg in self._config.llm_providers.values() if cfg.enabled]  # type: ignore[union-attr]
+        return [cfg for cfg in self._config.llm_providers.values() if cfg.enabled]
 
     def reload(self):
         """重新加载配置"""
         self._load_config()
 
-    def save(self, config_file: str = None):  # type: ignore[assignment]
+    def save(self, config_file: str | None = None):
         """保存配置到文件"""
         file_path = Path(config_file) if config_file else self._config_file
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         config_data = {
-            "name": self._config.name,  # type: ignore[union-attr]
-            "version": self._config.version,  # type: ignore[union-attr]
-            "debug": self._config.debug,  # type: ignore[union-attr]
+            "name": self._config.name,
+            "version": self._config.version,
+            "debug": self._config.debug,
             "cache": {
-                "enabled": self._config.cache.enabled,  # type: ignore[union-attr]
-                "max_size": self._config.cache.max_size,  # type: ignore[union-attr]
-                "ttl": self._config.cache.ttl,  # type: ignore[union-attr]
-                "cache_dir": self._config.cache.cache_dir,  # type: ignore[union-attr]
+                "enabled": self._config.cache.enabled,
+                "max_size": self._config.cache.max_size,
+                "ttl": self._config.cache.ttl,
+                "cache_dir": self._config.cache.cache_dir,
             },
             "video": {
-                "min_segment_duration": self._config.video.min_segment_duration,  # type: ignore[union-attr]
-                "max_segment_duration": self._config.video.max_segment_duration,  # type: ignore[union-attr]
-                "frame_sample_interval": self._config.video.frame_sample_interval,  # type: ignore[union-attr]
-                "min_confidence": self._config.video.min_confidence,  # type: ignore[union-attr]
-                "visual_weight": self._config.video.visual_weight,  # type: ignore[union-attr]
-                "audio_weight": self._config.video.audio_weight,  # type: ignore[union-attr]
+                "min_segment_duration": self._config.video.min_segment_duration,
+                "max_segment_duration": self._config.video.max_segment_duration,
+                "frame_sample_interval": self._config.video.frame_sample_interval,
+                "min_confidence": self._config.video.min_confidence,
+                "visual_weight": self._config.video.visual_weight,
+                "audio_weight": self._config.video.audio_weight,
             },
             "tts": {
-                "provider": self._config.tts.provider,  # type: ignore[union-attr]
-                "voice": self._config.tts.voice,  # type: ignore[union-attr]
-                "rate": self._config.tts.rate,  # type: ignore[union-attr]
-                "pitch": self._config.tts.pitch,  # type: ignore[union-attr]
-                "volume": self._config.tts.volume,  # type: ignore[union-attr]
+                "provider": self._config.tts.provider,
+                "voice": self._config.tts.voice,
+                "rate": self._config.tts.rate,
+                "pitch": self._config.tts.pitch,
+                "volume": self._config.tts.volume,
             },
             "llm_providers": {
                 name: {
@@ -268,9 +256,9 @@ class ConfigManager:
                     "max_tokens": cfg.max_tokens,
                     "temperature": cfg.temperature,
                 }
-                for name, cfg in self._config.llm_providers.items()  # type: ignore[union-attr]
+                for name, cfg in self._config.llm_providers.items()
             },
-            "default_llm": self._config.default_llm,  # type: ignore[union-attr]
+            "default_llm": self._config.default_llm,
         }
 
         with open(file_path, "w", encoding="utf-8") as f:
@@ -286,7 +274,7 @@ def get_config() -> AppConfig:
     return config_manager.config
 
 
-def get_llm_config(provider: str = None) -> LLMConfig | None:  # type: ignore[assignment]
+def get_llm_config(provider: str | None = None) -> LLMConfig | None:
     """获取 LLM 配置（快捷函数）"""
     return config_manager.get_llm_config(provider)
 

@@ -7,6 +7,7 @@ SceneFab 日志记录器模块
 
 import logging
 import sys
+from collections.abc import Callable
 from enum import Enum
 
 
@@ -49,7 +50,7 @@ class Logger:
         """获取日志记录器实例"""
         return cls(name)
 
-    def _log(self, level: int, message: str, *args, **kwargs) -> None:
+    def _log(self, level: int, message: str | Callable[[], str], *args, **kwargs) -> None:
         """内部日志方法，支持懒加载格式化"""
         if self.logger.isEnabledFor(level):
             # 如果消息是 callable（延迟计算），执行它获取实际消息
@@ -77,7 +78,7 @@ class Logger:
         """严重错误日志"""
         self._log(logging.CRITICAL, message)
 
-    def log_lazy(self, level: int, message_fn: callable) -> None:  # type: ignore[valid-type]
+    def log_lazy(self, level: int, message_fn: Callable[[], str]) -> None:
         """懒加载日志：仅在对应日志级别启用时才计算消息内容
 
         Args:

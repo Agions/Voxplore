@@ -12,6 +12,14 @@ from typing import Any, TypeVar
 
 from scenefab.signals_bridge import QObject, Signal
 
+try:
+    from PySide6.QtWidgets import QApplication
+    from PySide6.QtCore import QSettings, QTimer
+
+    _HAS_PYSIDE6 = True
+except ImportError:
+    _HAS_PYSIDE6 = False
+
 # 泛型类型变量: get_service(T) 返回 T | None, 替代 object | None 的类型擦除
 T = TypeVar("T")
 
@@ -82,9 +90,9 @@ class Application(QObject):
             self._set_state(ApplicationState.INITIALIZING)
 
             # 确保QApplication存在 - 应该已经在main.py中创建
-            QApplication = __import__(
-                "PySide6.QtWidgets", fromlist=["QApplication"]
-            ).QApplication
+            if not _HAS_PYSIDE6:
+                self.error_occurred.emit("INIT_ERROR", "PySide6 not available")
+                return False
             app = QApplication.instance()
             if not app:
                 self.error_occurred.emit(
@@ -196,25 +204,6 @@ class Application(QObject):
                     "SHUTDOWN_ERROR", f"Error closing event bus: {str(e)}"
                 )
 
-    def run(self) -> int:
-        """运行应用程序主循环"""
-        try:
-            QApplication = __import__(
-                "PySide6.QtWidgets", fromlist=["QApplication"]
-            ).QApplication
-            app = QApplication.instance()
-            if not app:
-                self.error_occurred.emit("RUN_ERROR", "QApplication not found")
-                return 1
-
-            # 运行主循环 - 注意：实际的事件循环在main.py中运行
-            # 这里只返回0表示成功
-            return 0
-
-        except Exception as e:
-            self.error_occurred.emit("RUN_ERROR", f"Run failed: {str(e)}")
-            return 1
-
     def get_service(self, service_type: type[T]) -> T | None:
         """获取指定类型的服务 (TypeVar 化 — 替代原 object | None 的类型擦除)"""
         try:
@@ -305,7 +294,6 @@ class Application(QObject):
         确保所有定时器相关调用都在主线程中执行，或使用 QMetaObject.invokeMethod
         将定时器操作调度到主线程。
         """
-        QTimer = __import__("PySide6.QtCore", fromlist=["QTimer"]).QTimer
         timer = QTimer()
         timer.setInterval(interval)
         timer.setSingleShot(single_shot)
@@ -434,8 +422,6 @@ class Application(QObject):
     def _load_configuration(self) -> None:
         """加载配置"""
         try:
-            # 从 PySide6 QSettings 加载
-            QSettings = __import__("PySide6.QtCore", fromlist=["QSettings"]).QSettings
             settings = QSettings("SceneFab", "Application")
             self.logger.info(f"配置加载完成: {len(settings.allKeys())} keys")  # type: ignore[call-arg]
         except Exception as e:
@@ -444,8 +430,6 @@ class Application(QObject):
     def _save_configuration(self) -> None:
         """保存配置"""
         try:
-            # 保存到 PySide6 QSettings
-            QSettings = __import__("PySide6.QtCore", fromlist=["QSettings"]).QSettings
             QSettings("SceneFab", "Application")  # persist session config
             self.logger.info("配置保存完成")
         except Exception as e:

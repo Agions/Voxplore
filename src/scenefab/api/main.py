@@ -130,7 +130,7 @@ app = create_app()
 async def root():
     return {
         "name": "SceneFab API",
-        "version": "1.0.0",
+        "version": get_version_string(),
         "docs": "/docs",
         "health": "/api/v1/health",
     }

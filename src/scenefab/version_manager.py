@@ -290,7 +290,7 @@ class ProjectVersionManager(QObject):
         return sorted(versions, key=lambda v: v.timestamp, reverse=True)
 
     def create_branch(
-        self, branch_name: str, description: str, parent_branch: str = None  # type: ignore[assignment]
+        self, branch_name: str, description: str, parent_branch: str | None = None
     ) -> bool:
         """创建新分支"""
         try:

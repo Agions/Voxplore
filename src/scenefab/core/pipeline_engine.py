@@ -42,6 +42,7 @@ DAG 并行流水线引擎 — v2.0 重构
 """
 
 import logging
+import threading
 import time
 import uuid
 from collections.abc import Callable
@@ -167,7 +168,7 @@ class PipelineEngine:
         # 权威结果存储：step 返回值集中归并于此（加锁写），
         # 不再让 step 直接写共享 context["steps"]（不可变输入契约）
         self._completed_outputs: dict[str, Any] = {}
-        self._lock = __import__("threading").RLock()
+        self._lock = threading.RLock()
         self._audit = AuditLogger()
         # v2.1: 事件总线（None 时不发布事件）
         self._event_bus = event_bus
