@@ -31,7 +31,6 @@ from scenefab.services.ai.subtitle_types import (
     SubtitleExtractionResult,
     SubtitleSegment,
 )
-from scenefab.services.ai.vision_providers import VisionAnalyzerFactory
 from scenefab.services.export.direct_video_exporter import (
     DirectVideoExporter,
     Resolution,
