@@ -14,7 +14,6 @@ import traceback
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from functools import wraps
 from typing import Any
 
 from PySide6.QtWidgets import QMessageBox, QWidget
@@ -314,8 +313,9 @@ def sync_retry(
     retryable_exceptions: tuple = (Exception,),
 ):
     """同步重试装饰器。委托给 utils.retry.retry_sync。"""
-    from scenefab.utils.retry import retry_sync
     from functools import wraps as _wraps
+
+    from scenefab.utils.retry import retry_sync
 
     def decorator(func):
         @_wraps(func)

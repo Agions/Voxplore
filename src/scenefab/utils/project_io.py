@@ -12,7 +12,6 @@ from __future__ import annotations
 import functools
 import json
 import logging
-import os
 import shutil
 import zipfile
 from collections.abc import Callable

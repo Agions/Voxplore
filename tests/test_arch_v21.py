@@ -13,7 +13,6 @@ SceneFab v2.1 架构升级测试套件
 
 from __future__ import annotations
 
-import asyncio
 import os
 import tempfile
 import time

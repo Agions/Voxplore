@@ -395,11 +395,7 @@ class ProjectTemplateManager(QObject):
         self._save_templates()
         self.template_deleted.emit(template_id)
         self.logger.info(f"Deleted template: {template_id}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to delete template {template_id}: {e}")
-            return False
+        return True
 
     def get_template(self, template_id: str) -> TemplateInfo | None:
         """获取模板信息"""
