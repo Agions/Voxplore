@@ -121,9 +121,9 @@ async def _process_narration(task_id: str):
         _update(task_id, "pending", 5.0, "正在创建项目...")
 
         project = integrator.create_project(
-            source_video=req["source_video"],
+            source_video=req["video_url"],
             context=req.get("context", ""),
-            emotion=req.get("emotion", "惆怅"),
+            emotion=req.get("emotion", "healing"),
             name=req.get("name"),
         )
 

@@ -3,6 +3,7 @@ Export Router
 导出 API - 支持 MP4/MOV/GIF/剪映草稿格式
 """
 
+import os
 import uuid
 from pathlib import Path
 
@@ -15,11 +16,74 @@ from scenefab.services.export.export_manager import (
     ExportFormat,
     ExportManager,
 )
+from scenefab.utils.security import (
+    ALLOWED_VIDEO_EXTENSIONS,
+    PathValidator,
+    SecurityError,
+)
 
 router = APIRouter()
 
 # 导出任务存储（生产环境应使用 Redis）
 _export_tasks: dict = {}
+
+
+# 安全默认: API 模式下 output_path 只允许落在项目工作区下的 outputs/ 或用户主目录下的 scenefab 导出目录,
+# 避免任意写 /etc /root /System32 等敏感位置. 用户可在 settings.allowed_base_dirs 扩展.
+_DEFAULT_ALLOWED_BASE_DIRS = (
+    os.path.join(os.getcwd(), "outputs"),
+    os.path.expanduser("~/.scenefab/exports"),
+    os.path.expanduser("~/Downloads"),
+    os.path.expanduser("~/.cache/scenefab/exports"),
+)
+
+
+def _get_path_validator() -> PathValidator:
+    """获取路径校验器: 优先使用 settings 中的 allowed_base_dirs, 否则使用安全默认."""
+    try:
+        from scenefab.settings import get_config
+
+        configured = getattr(get_config(), "allowed_base_dirs", None)
+        base_dirs = list(configured) if configured else list(_DEFAULT_ALLOWED_BASE_DIRS)
+    except Exception:
+        # 配置加载失败时回退到安全默认
+        base_dirs = list(_DEFAULT_ALLOWED_BASE_DIRS)
+    return PathValidator(allowed_base_dirs=base_dirs)
+
+
+def _validate_output_path(output_path: str | None) -> None:
+    """校验用户提供的 output_path, 不合法时抛 HTTPException."""
+    if not output_path:
+        return
+
+    validator = _get_path_validator()
+
+    # 1) 路径合法性 (含 DANGEROUS_PATH_PATTERNS 黑名单 + 允许的 base 目录)
+    try:
+        result = validator.validate(output_path)
+    except SecurityError as e:
+        raise HTTPException(status_code=400, detail=f"无效的路径: {e}") from e
+    if not result.passed:
+        raise HTTPException(status_code=400, detail=f"无效的路径: {result.message}")
+
+    # 2) 扩展名白名单 (视频/字幕/草稿包)
+    abs_path = Path(result.details["abs_path"]) if result.details else Path(output_path)
+    ext_result = validator.validate_extension(
+        str(abs_path), ALLOWED_VIDEO_EXTENSIONS
+    )
+    if not ext_result.passed:
+        raise HTTPException(
+            status_code=400,
+            detail=ext_result.message,
+        )
+
+    # 3) 父目录存在性 (可写性由执行期决定, 这里只校验路径)
+    output_dir = abs_path.parent
+    if not output_dir.is_dir():
+        raise HTTPException(
+            status_code=400,
+            detail=f"输出目录不存在或无效: {output_dir}",
+        )
 
 
 def _build_export_config(req: ExportRequest) -> ExportConfig:
@@ -76,22 +140,8 @@ async def create_export_task(
     """创建导出任务（异步后台执行）"""
     task_id = str(uuid.uuid4())
 
-    # 验证输出路径
-    output_path = request.output_path
-    if output_path:
-        # 安全检查：防止路径遍历
-        output_p = Path(output_path).resolve()
-        if ".." in output_p.parts:
-            raise HTTPException(
-                status_code=400,
-                detail="无效的路径: 不允许路径遍历",
-            )
-        output_dir = str(output_p.parent)
-        if not Path(output_dir).is_dir():
-            raise HTTPException(
-                status_code=400,
-                detail=f"输出目录不存在或无效: {output_dir}",
-            )
+    # 验证输出路径 (走 PathValidator: DANGEROUS_PATH_PATTERNS + allowed_base_dirs)
+    _validate_output_path(request.output_path)
 
     config = _build_export_config(request)
 
