@@ -66,10 +66,10 @@ class ExportManager:
 
     def export(self, project_data: dict[str, Any], config: ExportConfig) -> bool:
         """
-        导出项目
+        导出项目 (统一入口, 按 config.format 分发到具体 exporter)
 
         Args:
-            project_data: 项目数据
+            project_data: 项目数据 (含 project_id, segments 等)
             config: 导出配置
 
         Returns:
@@ -86,15 +86,59 @@ class ExportManager:
         if not config.output_path:
             config.output_path = self._generate_output_path(config)
 
-        # 执行导出
+        # 执行导出 — 不同 exporter 的统一入口签名不同, 显式 dispatch
         try:
-            return exporter.export(project_data, config)  # type: ignore[no-any-return, attr-defined]
+            return self._dispatch(exporter, project_data, config)
         except ExportError:
             raise  # 已是对应异常，直接重新抛出
         except Exception as e:
             logger.error(f"导出失败: {e}")
             self._last_error = str(e)
             raise ExportError(f"导出失败: {e}")
+
+    @staticmethod
+    def _dispatch(
+        exporter: Any, project_data: dict[str, Any], config: ExportConfig
+    ) -> bool:
+        """
+        把 (project_data, config) 分发到正确的 exporter 方法.
+
+        - JianyingExporter.export(draft, output_dir, progress_callback)
+        - DirectVideoExporter.export(project_data, config)  (统一入口, 见下面 export 方法)
+
+        Raises:
+            ExportError: dict 缺少必填字段时给出明确错误 (不再 AttributeError)
+        """
+        if isinstance(exporter, JianyingExporter):
+            if not isinstance(project_data, dict) or "draft" not in project_data:
+                raise ExportError(
+                    message="JianyingExporter 需要 project_data['draft'] = JianyingDraft 对象",
+                    format=str(config.format.value),
+                )
+            output_dir = (
+                str(Path(config.output_path).parent)
+                if config.output_path
+                else ""
+            )
+            result_path = exporter.export(
+                draft=project_data["draft"],
+                output_dir=output_dir,
+                progress_callback=config.progress_callback,
+            )
+            config.output_path = result_path
+            return True
+
+        if isinstance(exporter, DirectVideoExporter):
+            # DirectVideoExporter 已有统一 export 入口 (接受 project_data dict + config)
+            if not config.output_path:
+                raise ExportError(
+                    message="DirectVideoExporter 需要 config.output_path",
+                    format=str(config.format.value),
+                )
+            # 委托给 DirectVideoExporter.export, 它内部做格式分发
+            return exporter.export(project_data, config)  # type: ignore[arg-type]
+
+        raise ExportError(message="exporter 类型未知, 无法 dispatch", format=str(config.format.value))
 
     def _generate_output_path(self, config: ExportConfig) -> str:
         """生成输出路径"""

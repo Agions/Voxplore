@@ -492,6 +492,47 @@ class DirectVideoExporter:
             cmd.insert(2, hwaccel_arg)
         return cmd
 
+    def export(
+        self,
+        project_data: Any,
+        config: VideoExportConfig | None = None,
+    ) -> str:
+        """
+        统一导出入口 (对齐 ExportManager.export 契约)
+
+        - project_data 可以是 dict (含 'commentary_project' 或 'source_video' + 'segments')
+          也可以是直接的项目对象 (MonologueProject / Project 等)
+        - config.output_path 必填
+
+        Args:
+            project_data: 项目数据 (dict 或对象)
+            config: 可选的 VideoExportConfig (不传则用 self.config)
+
+        Returns:
+            输出视频路径
+
+        Raises:
+            ValueError: config.output_path 缺失
+        """
+        cfg = config or self.config
+
+        if not getattr(config, "output_path", None):  # type: ignore[union-attr]
+            raise ValueError(
+                "config.output_path is required for DirectVideoExporter.export"
+            )
+
+        # 解析 commentary_project 对象
+        if isinstance(project_data, dict):
+            project = project_data.get("commentary_project") or project_data
+        else:
+            project = project_data
+
+        return self.export_commentary(
+            commentary_project=project,
+            output_path=config.output_path,  # type: ignore[union-attr]
+            config=cfg,
+        )
+
     def export_with_presets(
         self,
         project: Any,
