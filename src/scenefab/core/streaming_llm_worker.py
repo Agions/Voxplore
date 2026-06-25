@@ -166,8 +166,9 @@ class StreamingLLMWorker(BaseWorker):
         """分发 token 到 Signal + 回调"""
         try:
             self.token_received.emit(token)
-        except Exception:
-            pass
+        except Exception as e:
+            # Signal emit 失败 (接收方 C++ 对象已 delete) 跟 callback 失败同等重要, 统一 debug 级别
+            logger.debug(f"token_received.emit error: {e}")
         if self._on_token:
             try:
                 self._on_token(token)
@@ -180,8 +181,9 @@ class StreamingLLMWorker(BaseWorker):
             if sentence:
                 try:
                     self.sentence_completed.emit(sentence)
-                except Exception:
-                    pass
+                except Exception as e:
+                    # 同上, Signal emit 失败与 callback 失败同等级
+                    logger.debug(f"sentence_completed.emit error: {e}")
                 if self._on_sentence:
                     try:
                         self._on_sentence(sentence)
