@@ -5,9 +5,11 @@
 支持 Qwen Plus/Max/Turbo 等模型
 """
 
+import json
 import logging
 import time
 
+import httpx
 from ..base_llm_provider import LLMRequest, LLMResponse, ProviderError
 from ..model_catalog import DEFAULT_MODELS, provider_models
 from .openai_compat import OpenAICompatProvider
@@ -44,5 +46,9 @@ class QwenProvider(OpenAICompatProvider):
             data = await self._retry_handler.execute(_call)
             latency_ms = (time.monotonic() - start_time) * 1000
             return self._parse_response(data, model, latency_ms)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        except httpx.HTTPError as e:
+            # 网络/HTTP 错误 (连接超时/DNS失败/SSL错误/非 2xx 状态), 显式收口
+            raise ProviderError(f"生成失败 (网络错误): {e}") from e
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # 响应解析错误 (上游返回非预期格式), 显式收口
+            raise ProviderError(f"生成失败 (响应解析): {e}") from e

@@ -9,6 +9,8 @@
 
 from typing import Any
 
+import httpx
+
 from ..base_llm_provider import (
     DEFAULT_LOCAL_TIMEOUT,
     BaseLLMProvider,
@@ -186,8 +188,9 @@ class LocalProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                 timeout=600.0,
             )
             return response.status_code == 200
-        except Exception as e:
-            raise ProviderError(f"拉取模型失败: {str(e)}")
+        except httpx.HTTPError as e:
+            # 本地 Ollama server 网络错误, 显式收口
+            raise ProviderError(f"拉取模型失败 (网络错误): {e}") from e
 
     def get_available_models(self) -> list[str]:
         """获取可用模型列表"""

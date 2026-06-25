@@ -74,8 +74,10 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             )
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"生成失败: {str(e)}")
+        except httpx.HTTPError as e:
+            raise ProviderError(f"生成失败 (网络错误): {e}") from e
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
+            raise ProviderError(f"生成失败 (响应解析): {e}") from e
 
         if response.status_code != 200:
             raise ProviderError(f"API Error: {response.status_code}")
@@ -128,5 +130,7 @@ class HunyuanProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
                                 yield delta["Content"]
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"流式生成失败: {str(e)}")
+        except httpx.HTTPError as e:
+            raise ProviderError(f"流式生成失败 (网络错误): {e}") from e
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
+            raise ProviderError(f"流式生成失败 (响应解析): {e}") from e

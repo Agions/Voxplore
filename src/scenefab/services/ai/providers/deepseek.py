@@ -99,8 +99,10 @@ class DeepSeekProvider(OpenAICompatProvider):
                         yield {"done": False, "content": content}
         except httpx.HTTPStatusError as e:
             raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"流式生成失败: {str(e)}")
+        except httpx.HTTPError as e:
+            raise ProviderError(f"流式生成失败 (网络错误): {e}") from e
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
+            raise ProviderError(f"流式生成失败 (响应解析): {e}") from e
 
     async def count_tokens(self, text: str) -> int:
         """计算 token 数量（估算）"""
