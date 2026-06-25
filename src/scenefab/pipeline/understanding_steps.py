@@ -452,12 +452,15 @@ def _collect_keywords(ctx: NarrationContext, topic_parts: list[str]) -> list[str
 
 
 def _inject_bridge_keyword(ctx: NarrationContext, word: str, keywords: list[str]) -> None:
-    """如果 word 出现在任意 bridge_template 中, 把它加入 keywords (去重)"""
+    """如果 word 出现在任意 bridge_template 中, 把它加入 keywords (去重)
+
+    字段类型契约 dict[BridgeType, str] (narration_context.py:221), 唯一赋值点是测试 fixture,
+    所以 bt 始终是 BridgeType 枚举, 不需要 isinstance 防御.
+    """
     if word in keywords:
         return
-    for bt, template in ctx.bridge_templates.items():
-        # bt 是 bridge_templates dict 的 key, 当 key 不是 BridgeType 时此逻辑不触发
-        if isinstance(bt, BridgeType) and template and word in template:
+    for template in ctx.bridge_templates.values():
+        if template and word in template:
             keywords.append(word)
             return
 
