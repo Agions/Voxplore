@@ -22,13 +22,13 @@ import numpy as np
 _OWNER_RW = stat.S_IRUSR | stat.S_IWUSR
 
 
-def __safe_pickle_load(path: Path) -> Any:
+def _safe_pickle_load(path: Path) -> Any:
     """读取 pickle 文件（仅限当前用户私有文件）"""
     with open(path, "rb") as f:
         return pickle.load(f)
 
 
-def __safe_pickle_dump(value: Any, path: Path) -> None:
+def _safe_pickle_dump(value: Any, path: Path) -> None:
     """写入 pickle 文件（owner-only 权限）"""
     with open(path, "wb") as f:
         pickle.dump(value, f)
@@ -151,8 +151,12 @@ class VideoFrameCache:
                     # 重新加入内存缓存
                     self.set(key, frame)
                     return frame  # type: ignore[no-any-return]
-                except Exception as e:
-                    logger.debug(f"磁盘读取失败: {e}")
+                except (OSError, pickle.UnpicklingError) as e:
+                    # 真实 I/O 错误 (磁盘满/损坏), warning 级别让用户感知
+                    logger.warning(
+                        "frame_cache 磁盘读取失败 key=%s path=%s: %s",
+                        key, disk_path, e,
+                    )
 
         return None
 
@@ -185,8 +189,12 @@ class VideoFrameCache:
                         disk_path = self._get_disk_path(oldest_key)
                         _safe_pickle_dump(oldest_frame, disk_path)
                         self._disk_write_count += 1
-                    except Exception as e:
-                        logger.debug(f"磁盘回退写入失败: {e}")
+                    except (OSError, pickle.PicklingError) as e:
+                        # 真实 I/O 错误 (磁盘满/权限), warning 级别让用户感知
+                        logger.warning(
+                            "frame_cache 磁盘回退写入失败 key=%s: %s",
+                            oldest_key, e,
+                        )
 
             # 存储到内存
             self._memory_cache[key] = frame
