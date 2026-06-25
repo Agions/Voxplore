@@ -329,34 +329,14 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         self._report_progress("生成独白", 1.0)
 
     def _segment_script(self, project: MonologueProject) -> None:
-        """将独白分段 — 支持空白行和中文句末标点双重拆分"""
-        # 优先按空白行分段，否则按中文句末标点分
-        paragraphs = [p.strip() for p in project.full_script.split("\n\n") if p.strip()]
+        """将独白分段 — 支持空白行和中文句末标点双重拆分
 
-        if len(paragraphs) <= 1:
-            # 按句末标点拆分（保留标点）
-            parts = re.split(r"([。！？\?!]+)", project.full_script)
-            merged = []
-            for i in range(0, len(parts) - 1, 2):
-                text = parts[i] + (parts[i + 1] if i + 1 < len(parts) else "")
-                if text.strip():
-                    merged.append(text.strip())
-            # 合并过短的碎片
-            if merged and len(merged) > 3:
-                paragraphs = []
-                buf = ""
-                for p in merged:
-                    buf += p
-                    if len(buf) >= 30:
-                        paragraphs.append(buf)
-                        buf = ""
-                if buf:
-                    paragraphs.append(buf)
-            elif merged:
-                paragraphs = merged
-
-        if not paragraphs:
-            paragraphs = [project.full_script]
+        流程:
+        1. 优先按 \\n\\n 段落分
+        2. 否则按中文句末标点分, 合并过短碎片
+        3. 匹配场景 + 推断情感 + 计算时长 → 创建 MonologueSegment
+        """
+        paragraphs = self._split_paragraphs(project.full_script)
 
         # 匹配场景
         scenes = project.scenes if project.scenes else [None]
@@ -380,6 +360,33 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 video_end=scene.end if scene else (i + 1) * seg_duration,
             )
             project.segments.append(segment)
+
+    def _split_paragraphs(self, full_script: str) -> list[str]:
+        """将独白文本拆分为段落列表
+
+        拆分策略:
+        - 优先按空行 (\\n\\n) 切分
+        - 若只有 1 段 (无空行), 改按中文句末标点 (。！？?!) 切分
+        - 标点切分时若碎片过短 (merged > 3 且 buf < 30 字), 合并到 30 字以上
+
+        Returns:
+            段落列表 (至少 1 段)
+        """
+        # 优先按空白行分段
+        paragraphs = [p.strip() for p in full_script.split("\n\n") if p.strip()]
+
+        if len(paragraphs) > 1:
+            return paragraphs
+
+        # 按中文句末标点拆分（保留标点）
+        paragraphs = _split_by_chinese_punctuation(full_script)
+        if not paragraphs:
+            return [full_script]
+
+        # 碎片合并: 仅当碎片数 > 3 才合并到 30 字以上, 否则保留原样
+        if len(paragraphs) > 3:
+            return _merge_short_fragments(paragraphs, min_chars=30)
+        return paragraphs
 
     def _infer_emotion(self, text: str, base_emotion: str) -> EmotionType:
         """根据文本内容推断情感"""
@@ -670,3 +677,44 @@ def create_monologue(
     maker.generate_captions(project)
 
     return maker.export_to_jianying(project, output_jianying_dir)
+
+
+# ============================================
+# MonologueMaker._split_paragraphs 的 2 个纯函数辅助
+# ============================================
+
+
+def _split_by_chinese_punctuation(text: str) -> list[str]:
+    """按中文 + 英文句末标点拆分, 保留标点.
+
+    支持的标点: 。 ！ ？ ? !
+
+    Example:
+        "你好。今天！是吗?" → ["你好。", "今天！", "是吗?"]
+    """
+    parts = re.split(r"([。！？\?!]+)", text)
+    result: list[str] = []
+    for i in range(0, len(parts) - 1, 2):
+        chunk = parts[i] + (parts[i + 1] if i + 1 < len(parts) else "")
+        if chunk.strip():
+            result.append(chunk.strip())
+    return result
+
+
+def _merge_short_fragments(fragments: list[str], min_chars: int = 30) -> list[str]:
+    """合并短碎片, 每段累计到至少 min_chars 字才输出.
+
+    Example:
+        ["短。", "也短。", "再来一句凑够30字。", "短。"] (min_chars=10) →
+        ["短。也短。再来一句凑够30字。短。"]
+    """
+    result: list[str] = []
+    buf = ""
+    for frag in fragments:
+        buf += frag
+        if len(buf) >= min_chars:
+            result.append(buf)
+            buf = ""
+    if buf:
+        result.append(buf)
+    return result
