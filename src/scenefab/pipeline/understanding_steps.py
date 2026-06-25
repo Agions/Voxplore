@@ -31,10 +31,14 @@ from .narration_context import (
     NarrationStyle,
 )
 from .narration_state_machine import NarrationState, StepResult
+from scenefab.services.ai.script_models import (
+    ScriptConfig,
+    ScriptStyle,
+    VoiceTone,
+)
 
 if TYPE_CHECKING:
     from scenefab.services.ai.script_generator.script_generator import ScriptGenerator
-    from scenefab.services.ai.script_models import ScriptConfig
 
 logger = logging.getLogger(__name__)
 
@@ -290,104 +294,28 @@ def _build_narration_prompt(
 ) -> tuple[str, ScriptConfig]:
     """把 NarrationContext 翻译成 ScriptGenerator 友好的 (topic, ScriptConfig)
 
-    4 类上下文映射:
+    4 类上下文映射 (每个区块已抽到独立函数, 主函数只负责组装):
     ① 指令上下文 (persona/style/platform) → ScriptConfig.style/tone/target_duration
     ② 数据上下文 (story_graph/scenes/bridges) → topic 主体
     ③ 历史上下文 (history) → topic 末尾"前情提要"段
     ④ 工具上下文 (few_shots/bridge_templates) → ScriptConfig.keywords 注入
     """
-    from scenefab.services.ai.script_models import (
-        ScriptConfig,
-        ScriptStyle,
-        VoiceTone,
-    )
-
-    # —— ① 指令上下文 ——
-    script_style_str = _NARRATION_TO_SCRIPT_STYLE.get(ctx.style, "commentary")
-    tone_str = _NARRATION_TO_TONE.get(ctx.style, "neutral")
-
-    style_enum = ScriptStyle(script_style_str)
-    tone_enum = VoiceTone(tone_str)
-
-    # 平台规格 → 目标时长
-    platform_spec = ctx.platform_spec
-    target_duration = platform_spec.target_duration_sec
-    # 抖音 4.5字/秒, B站 4.0字/秒, 已在 platform_spec 里
-    words_per_second = platform_spec.char_per_second
+    # —— ① 指令上下文 → ScriptConfig.style/tone/target_duration ——
+    style_enum, tone_enum, target_duration, words_per_second = _map_directive_context(ctx)
 
     # —— ② 数据上下文 → topic 主体 ——
-    topic_parts: list[str] = []
+    topic_parts = _build_topic_data_parts(ctx)
 
-    # 短剧生产字段: 题材、爽点、关系和集数上下文
-    if ctx.content_tags:
-        topic_parts.append(f"【短剧标签】{', '.join(ctx.content_tags[:8])}")
+    # —— ③ 历史上下文 → "前情提要" 段 ——
+    _append_history_part(topic_parts, ctx)
 
-    if ctx.relationship_notes:
-        topic_parts.append(f"【人物关系】{'; '.join(ctx.relationship_notes[:5])}")
+    # —— ④ 工具上下文 → ScriptConfig.keywords ——
+    keywords = _collect_keywords(ctx, topic_parts)
 
-    episode_parts: list[str] = []
-    if ctx.episode_index is not None:
-        episode_parts.append(f"第 {ctx.episode_index} 集")
-    if ctx.previous_episode_summary:
-        episode_parts.append(f"上一集: {ctx.previous_episode_summary[:80]}")
-    if ctx.next_hook_hint:
-        episode_parts.append(f"下一集钩子: {ctx.next_hook_hint[:80]}")
-    if episode_parts:
-        topic_parts.append("【集数上下文】" + "；".join(episode_parts))
-
-    # 剧情梗概
-    if ctx.story_graph and ctx.story_graph.synopsis:
-        topic_parts.append(f"【剧情】{ctx.story_graph.synopsis}")
-
-    # 角色 (最多 3 个)
-    if ctx.story_graph and ctx.story_graph.characters:
-        char_descs = [
-            f"{c.name}: {c.description[:30]}"
-            for c in ctx.story_graph.characters[:3]
-        ]
-        topic_parts.append("【角色】" + "; ".join(char_descs))
-
-    # 场景摘要 (最多 5 个)
-    if ctx.scenes:
-        scene_descs = [
-            f"场景{s.index + 1}: {s.description[:40] or s.type.value}"
-            for s in ctx.scenes[:5]
-        ]
-        topic_parts.append("【场景】" + " | ".join(scene_descs))
-
-    # 桥段 (短剧特化)
-    if ctx.bridges:
-        bridge_strs = [b.bridge_type.value for b in ctx.bridges[:5]]
-        topic_parts.append(f"【桥段】触发: {', '.join(bridge_strs)}")
-
-    # —— ③ 历史上下文 → 前情提要 ——
-    if ctx.history:
-        prev_chars = set()
-        for h in ctx.history[-3:]:  # 最近 3 段
-            prev_chars.update(h.characters_mentioned)
-        if prev_chars:
-            topic_parts.append(
-                f"【前情已提角色】{', '.join(list(prev_chars)[:5])}"
-            )
-
-    # —— ④ 工具上下文 → keywords ——
-    keywords: list[str] = []
-    for tag in ctx.content_tags[:5]:
-        if tag and tag not in keywords:
-            keywords.append(tag)
-
-    # 桥段模板里高频词注入
-    for bt, template in ctx.bridge_templates.items():
-        if isinstance(bt, BridgeType) and template:
-            # 提取模板里的中文词
-            for word in ["冲突", "反转", "打脸", "心动", "背叛", "对峙"]:
-                if word in template and word not in keywords:
-                    keywords.append(word)
-
-    # 组装 topic
+    # —— 组装 topic ——
     topic = "\n".join(topic_parts) if topic_parts else "通用影视解说"
 
-    # 组装 ScriptConfig
+    # —— 组装 ScriptConfig ——
     config = ScriptConfig(
         style=style_enum,
         tone=tone_enum,
@@ -399,6 +327,139 @@ def _build_narration_prompt(
     )
 
     return topic, config
+
+
+# ============================================
+# _build_narration_prompt 的 4 个上下文映射子函数
+# ============================================
+
+
+def _map_directive_context(ctx: NarrationContext) -> tuple[ScriptStyle, VoiceTone, float, float]:
+    """① 指令上下文: persona/style/platform → ScriptConfig 风格/语气/时长
+
+    Returns:
+        (style_enum, tone_enum, target_duration_sec, words_per_second)
+    """
+    script_style_str = _NARRATION_TO_SCRIPT_STYLE.get(ctx.style, "commentary")
+    tone_str = _NARRATION_TO_TONE.get(ctx.style, "neutral")
+
+    platform_spec = ctx.platform_spec
+    # 抖音 4.5字/秒, B站 4.0字/秒 等, 已在 platform_spec 里
+    return (
+        ScriptStyle(script_style_str),
+        VoiceTone(tone_str),
+        platform_spec.target_duration_sec,
+        platform_spec.char_per_second,
+    )
+
+
+def _build_topic_data_parts(ctx: NarrationContext) -> list[str]:
+    """② 数据上下文: story_graph/scenes/bridges → topic 主体 (短剧生产字段 + 集数 + 剧情 + 角色 + 场景 + 桥段)"""
+    parts: list[str] = []
+
+    _append_drama_metadata(parts, ctx)
+    _append_episode_context(parts, ctx)
+    _append_story_graph(parts, ctx)
+    _append_scenes(parts, ctx)
+    _append_bridges(parts, ctx)
+
+    return parts
+
+
+def _append_drama_metadata(parts: list[str], ctx: NarrationContext) -> None:
+    """短剧生产字段: 题材 / 爽点 / 关系"""
+    if ctx.content_tags:
+        parts.append(f"【短剧标签】{', '.join(ctx.content_tags[:8])}")
+    if ctx.relationship_notes:
+        parts.append(f"【人物关系】{'; '.join(ctx.relationship_notes[:5])}")
+
+
+def _append_episode_context(parts: list[str], ctx: NarrationContext) -> None:
+    """集数上下文: 第 N 集 / 上一集摘要 / 下一集钩子"""
+    episode_parts: list[str] = []
+    if ctx.episode_index is not None:
+        episode_parts.append(f"第 {ctx.episode_index} 集")
+    if ctx.previous_episode_summary:
+        episode_parts.append(f"上一集: {ctx.previous_episode_summary[:80]}")
+    if ctx.next_hook_hint:
+        episode_parts.append(f"下一集钩子: {ctx.next_hook_hint[:80]}")
+    if episode_parts:
+        parts.append("【集数上下文】" + "；".join(episode_parts))
+
+
+def _append_story_graph(parts: list[str], ctx: NarrationContext) -> None:
+    """剧情梗概 + 角色 (最多 3 个)"""
+    graph = ctx.story_graph
+    if not graph:
+        return
+    if graph.synopsis:
+        parts.append(f"【剧情】{graph.synopsis}")
+    if graph.characters:
+        char_descs = [
+            f"{c.name}: {c.description[:30]}" for c in graph.characters[:3]
+        ]
+        parts.append("【角色】" + "; ".join(char_descs))
+
+
+def _append_scenes(parts: list[str], ctx: NarrationContext) -> None:
+    """场景摘要 (最多 5 个)"""
+    if not ctx.scenes:
+        return
+    scene_descs = [
+        f"场景{s.index + 1}: {s.description[:40] or s.type.value}"
+        for s in ctx.scenes[:5]
+    ]
+    parts.append("【场景】" + " | ".join(scene_descs))
+
+
+def _append_bridges(parts: list[str], ctx: NarrationContext) -> None:
+    """桥段 (短剧特化)"""
+    if not ctx.bridges:
+        return
+    bridge_strs = [b.bridge_type.value for b in ctx.bridges[:5]]
+    parts.append(f"【桥段】触发: {', '.join(bridge_strs)}")
+
+
+def _append_history_part(parts: list[str], ctx: NarrationContext) -> None:
+    """③ 历史上下文: 最近 3 段提到的角色 → '前情已提角色' 段"""
+    if not ctx.history:
+        return
+    prev_chars: set[str] = set()
+    for h in ctx.history[-3:]:
+        prev_chars.update(h.characters_mentioned)
+    if prev_chars:
+        parts.append(f"【前情已提角色】{', '.join(list(prev_chars)[:5])}")
+
+
+def _collect_keywords(ctx: NarrationContext, topic_parts: list[str]) -> list[str]:
+    """④ 工具上下文: few_shots / bridge_templates 高频词 → ScriptConfig.keywords
+
+    Returns:
+        去重后的关键词列表 (最多 5 个)
+    """
+    keywords: list[str] = []
+
+    # few_shots 视作 content_tags 的扩展
+    for tag in ctx.content_tags[:5]:
+        if tag and tag not in keywords:
+            keywords.append(tag)
+
+    # 桥段模板里高频词注入 (中文关键词白名单)
+    for word in ("冲突", "反转", "打脸", "心动", "背叛", "对峙"):
+        _inject_bridge_keyword(ctx, word, keywords)
+
+    return keywords[:5]
+
+
+def _inject_bridge_keyword(ctx: NarrationContext, word: str, keywords: list[str]) -> None:
+    """如果 word 出现在任意 bridge_template 中, 把它加入 keywords (去重)"""
+    if word in keywords:
+        return
+    for bt, template in ctx.bridge_templates.items():
+        # bt 是 bridge_templates dict 的 key, 当 key 不是 BridgeType 时此逻辑不触发
+        if isinstance(bt, BridgeType) and template and word in template:
+            keywords.append(word)
+            return
 
 
 # ============================================
