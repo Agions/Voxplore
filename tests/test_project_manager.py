@@ -57,7 +57,10 @@ class TestProjectMetadata:
 
         assert metadata.created_at is not None
         assert metadata.modified_at is not None
-        assert metadata.version == "2.1.2"  # 版本与 pyproject.toml 保持一致
+        # version 字段从 pyproject.toml 动态读取 (field(default_factory=get_version_string)),
+        # 验证与当前安装版本一致, 不硬编码 (避免 version bump 误报)
+        from scenefab.utils.version import get_version_string
+        assert metadata.version == get_version_string()
         assert metadata.tags == []
         assert metadata.status == ProjectStatus.ACTIVE
 
