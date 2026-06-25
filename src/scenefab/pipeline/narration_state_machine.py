@@ -289,6 +289,12 @@ class NarrationStateMachine:
 
         Returns:
             最终 StepResult (DONE 成功 / ERROR 失败)
+
+        主循环已拆分:
+        - _build_flow_table() 状态流转表
+        - _execute_step() 单步执行
+        - _select_next_state() 决定下一步
+        - _build_final_result() 包装终态返回
         """
         self._trace_id = ctx.trace_id
         self._current_state = NarrationState.INGEST
@@ -301,68 +307,11 @@ class NarrationStateMachine:
             "状态机启动",
         )
 
-        # —— 状态流转表 (硬编码, v2.2 范围内足够, Phase 3 可改为声明式 YAML) ——
-        # state -> [(next_state, reason, condition_fn)]
-        # condition_fn: (ctx, step_result) -> bool
-        FLOW: dict[NarrationState, list[tuple[NarrationState, TransitionReason, Any]]] = {
-            NarrationState.INGEST: [
-                (NarrationState.UNDERSTAND, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.UNDERSTAND: [
-                (NarrationState.STORYGRAPH, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.STORYGRAPH: [
-                (NarrationState.DRAFT, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.DRAFT: [
-                (NarrationState.EVALUATE, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.EVALUATE: [
-                (NarrationState.ACCEPT, TransitionReason.EVAL_ACCEPT, None),
-                (NarrationState.REJECT, TransitionReason.EVAL_REJECT, None),
-            ],
-            NarrationState.ACCEPT: [
-                (NarrationState.HOOK_REWRITE, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.HOOK_REWRITE: [
-                (
-                    NarrationState.TTS_LENGTH_ADJUST,
-                    TransitionReason.SUCCESS,
-                    None,
-                ),
-            ],
-            NarrationState.REJECT: [
-                (NarrationState.DRAFT, TransitionReason.EVAL_REJECT, None),
-                (NarrationState.ERROR, TransitionReason.MAX_ATTEMPTS, None),
-            ],
-            NarrationState.TTS_LENGTH_ADJUST: [
-                (NarrationState.TTS, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.TTS: [
-                (NarrationState.ASSEMBLE, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.ASSEMBLE: [
-                (NarrationState.DONE, TransitionReason.SUCCESS, None),
-            ],
-            NarrationState.DONE: [],
-            NarrationState.ERROR: [],
-        }
-
+        flow = _build_flow_table()
         max_iterations = 50  # 防止死循环
-        iteration = 0
 
-        while self._current_state not in (NarrationState.DONE, NarrationState.ERROR):
-            iteration += 1
-            if iteration > max_iterations:
-                logger.error(
-                    f"[{self._trace_id[:8]}] 状态机超过 {max_iterations} 次迭代, 强制终止"
-                )
-                self._transition(
-                    self._current_state,
-                    NarrationState.ERROR,
-                    TransitionReason.EXCEPTION,
-                    "超过最大迭代次数 (可能死循环)",
-                )
+        for iteration in range(1, max_iterations + 1):
+            if self._current_state in (NarrationState.DONE, NarrationState.ERROR):
                 break
 
             current = self._current_state
@@ -371,101 +320,59 @@ class NarrationStateMachine:
             result = self._execute_step(current, ctx)
 
             if not result.success:
-                self._transition(
-                    current,
-                    NarrationState.ERROR,
-                    TransitionReason.EXCEPTION,
-                    result.error or result.message or "Step 失败",
+                return self._terminate_on_error(
+                    current, result, "Step 失败", result.error or result.message
                 )
-                # 返回反映终态的 result
-                result.state = NarrationState.ERROR
-                return result
 
             # 2. 决定下一步
-            if current not in FLOW:
-                self._transition(
-                    current,
-                    NarrationState.ERROR,
-                    TransitionReason.EXCEPTION,
-                    f"State {current.value} 无转移规则",
+            if current not in flow:
+                return self._terminate_on_error(
+                    current, result, f"State {current.value} 无转移规则"
                 )
-                result.state = NarrationState.ERROR
-                break
 
-            candidates = FLOW[current]
-            next_state: NarrationState | None = None
-            reason: TransitionReason = TransitionReason.SUCCESS
-
-            for candidate_state, candidate_reason, _cond_fn in candidates:
-                # EVALUATE 分支: 根据 eval_score 选 ACCEPT/REJECT
-                if current == NarrationState.EVALUATE:
-                    if (
-                        candidate_state == NarrationState.ACCEPT
-                        and ctx.eval_score >= self.config.eval_accept_threshold
-                    ):
-                        next_state = candidate_state
-                        reason = candidate_reason
-                        break
-                    if (
-                        candidate_state == NarrationState.REJECT
-                        and ctx.eval_score < self.config.eval_accept_threshold
-                    ):
-                        next_state = candidate_state
-                        reason = candidate_reason
-                        break
-                # REJECT 分支: max_attempts 决定回 DRAFT 还是 ERROR
-                elif current == NarrationState.REJECT:
-                    if (
-                        candidate_state == NarrationState.DRAFT
-                        and not ctx.is_max_attempts_reached(
-                            self.config.max_draft_attempts
-                        )
-                    ):
-                        next_state = candidate_state
-                        reason = candidate_reason
-                        break
-                    if (
-                        candidate_state == NarrationState.ERROR
-                        and ctx.is_max_attempts_reached(
-                            self.config.max_draft_attempts
-                        )
-                    ):
-                        next_state = candidate_state
-                        reason = candidate_reason
-                        break
-                # 其余状态: 取第一个候选
-                else:
-                    next_state = candidate_state
-                    reason = candidate_reason
-                    break
-
+            next_state, reason = self._select_next_state(current, flow[current], ctx)
             if next_state is None:
-                # 未匹配到转移条件 (理论上不应发生)
-                self._transition(
-                    current,
-                    NarrationState.ERROR,
-                    TransitionReason.EXCEPTION,
-                    f"State {current.value} 未匹配转移条件",
+                return self._terminate_on_error(
+                    current, result, f"State {current.value} 未匹配转移条件"
                 )
-                break
 
             self._transition(current, next_state, reason, result.message)
-
-        # 返回最终结果
-        if self._current_state == NarrationState.DONE:
-            return StepResult(
-                success=True,
-                state=NarrationState.DONE,
-                message=f"状态机完成 ({len(self._transitions)} 转移)",
-                data={"transitions": len(self._transitions)},
+        else:
+            # 超过最大迭代次数 (for-else: 未 break 走这里)
+            logger.error(
+                f"[{self._trace_id[:8]}] 状态机超过 {max_iterations} 次迭代, 强制终止"
+            )
+            self._transition(
+                self._current_state,
+                NarrationState.ERROR,
+                TransitionReason.EXCEPTION,
+                "超过最大迭代次数 (可能死循环)",
             )
 
-        return StepResult(
-            success=False,
-            state=self._current_state,
-            message=f"状态机终止于 {self._current_state.value}",
-            data={"transitions": len(self._transitions)},
+        return self._build_final_result()
+
+    def _terminate_on_error(
+        self,
+        current: NarrationState,
+        result: StepResult,
+        message: str,
+        error_detail: str | None = None,
+    ) -> StepResult:
+        """统一错误终止: 记录 transition → 把 result 改成 ERROR → 返回
+
+        注: 复用传入的 result 对象 (避免额外对象分配)
+        """
+        self._transition(
+            current,
+            NarrationState.ERROR,
+            TransitionReason.EXCEPTION,
+            error_detail or message,
         )
+        result.state = NarrationState.ERROR
+        result.success = False
+        if error_detail and not result.error:
+            result.error = error_detail
+        return result
 
     # ============================================================
     # 复用支持: 转换为 DAG Step
@@ -487,3 +394,122 @@ class NarrationStateMachine:
             "state": state,
             "sm": self,
         }
+
+    # ============================================================
+    # run() 拆分出来的子函数
+    # ============================================================
+
+    def _select_next_state(
+        self,
+        current: NarrationState,
+        candidates: list[tuple[NarrationState, TransitionReason, Any]],
+        ctx: NarrationContext,
+    ) -> tuple[NarrationState | None, TransitionReason]:
+        """从 candidates 中选下一个状态.
+
+        - EVALUATE: 根据 eval_score 选 ACCEPT/REJECT
+        - REJECT: 根据 max_attempts 选 DRAFT 或 ERROR
+        - 其余: 取第一个候选 (默认唯一)
+
+        Returns:
+            (next_state, reason). 若无匹配 next_state 为 None
+        """
+        for candidate_state, candidate_reason, _cond_fn in candidates:
+            if current == NarrationState.EVALUATE:
+                if self._is_evaluate_branch(candidate_state, ctx):
+                    return candidate_state, candidate_reason
+            elif current == NarrationState.REJECT:
+                if self._is_reject_branch(candidate_state, ctx):
+                    return candidate_state, candidate_reason
+            else:
+                # 其它状态: 取第一个候选
+                return candidate_state, candidate_reason
+        return None, TransitionReason.SUCCESS
+
+    def _is_evaluate_branch(
+        self, candidate_state: NarrationState, ctx: NarrationContext
+    ) -> bool:
+        """EVALUATE 分支判定: ACCEPT (score >= threshold) 或 REJECT (score < threshold)"""
+        if candidate_state == NarrationState.ACCEPT:
+            return ctx.eval_score >= self.config.eval_accept_threshold
+        if candidate_state == NarrationState.REJECT:
+            return ctx.eval_score < self.config.eval_accept_threshold
+        return False
+
+    def _is_reject_branch(
+        self, candidate_state: NarrationState, ctx: NarrationContext
+    ) -> bool:
+        """REJECT 分支判定: DRAFT (未达 max) 或 ERROR (已达 max)"""
+        if candidate_state == NarrationState.DRAFT:
+            return not ctx.is_max_attempts_reached(self.config.max_draft_attempts)
+        if candidate_state == NarrationState.ERROR:
+            return ctx.is_max_attempts_reached(self.config.max_draft_attempts)
+        return False
+
+    def _build_final_result(self) -> StepResult:
+        """根据当前状态包装最终 StepResult"""
+        if self._current_state == NarrationState.DONE:
+            return StepResult(
+                success=True,
+                state=NarrationState.DONE,
+                message=f"状态机完成 ({len(self._transitions)} 转移)",
+                data={"transitions": len(self._transitions)},
+            )
+        return StepResult(
+            success=False,
+            state=self._current_state,
+            message=f"状态机终止于 {self._current_state.value}",
+            data={"transitions": len(self._transitions)},
+        )
+
+
+# ============================================================
+# 状态流转表 (独立 module-level 函数, 便于 Phase 3 改为声明式 YAML)
+# ============================================================
+
+
+def _build_flow_table() -> dict[NarrationState, list[tuple[NarrationState, TransitionReason, Any]]]:
+    """状态流转表 — 硬编码, v2.2 范围内足够, Phase 3 可改为声明式 YAML
+
+    state -> [(next_state, reason, condition_fn)]
+    condition_fn: (ctx, step_result) -> bool
+    """
+    return {
+        NarrationState.INGEST: [
+            (NarrationState.UNDERSTAND, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.UNDERSTAND: [
+            (NarrationState.STORYGRAPH, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.STORYGRAPH: [
+            (NarrationState.DRAFT, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.DRAFT: [
+            (NarrationState.EVALUATE, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.EVALUATE: [
+            (NarrationState.ACCEPT, TransitionReason.EVAL_ACCEPT, None),
+            (NarrationState.REJECT, TransitionReason.EVAL_REJECT, None),
+        ],
+        NarrationState.ACCEPT: [
+            (NarrationState.HOOK_REWRITE, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.HOOK_REWRITE: [
+            (NarrationState.TTS_LENGTH_ADJUST, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.REJECT: [
+            (NarrationState.DRAFT, TransitionReason.EVAL_REJECT, None),
+            (NarrationState.ERROR, TransitionReason.MAX_ATTEMPTS, None),
+        ],
+        NarrationState.TTS_LENGTH_ADJUST: [
+            (NarrationState.TTS, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.TTS: [
+            (NarrationState.ASSEMBLE, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.ASSEMBLE: [
+            (NarrationState.DONE, TransitionReason.SUCCESS, None),
+        ],
+        NarrationState.DONE: [],
+        NarrationState.ERROR: [],
+    }
