@@ -37,9 +37,12 @@ class UpdateInfo:
 
 
 def _parse_version(v: str) -> Version:
-    """解析版本字符串，返回 Version 对象用于比较"""
+    """解析版本字符串，返回 Version 对象用于比较
+
+    接受带前缀的 tag: v1.2.3 / V1.2.3 / 1.2.3 (大小写 v 都 strip)
+    """
     try:
-        return Version.parse(v.lstrip("v"))
+        return Version.parse(v.lstrip("vV"))
     except ValueError:
         # 降级为 tuple 比较
         nums = tuple(int(x) for x in re.findall(r"\d+", v))

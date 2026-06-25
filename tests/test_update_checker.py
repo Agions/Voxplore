@@ -44,15 +44,13 @@ class TestParseVersion:
         assert result.major == 1
 
     def test_version_with_V_prefix(self):
-        """带 V 前缀 (注意: _parse_version 只 strip 'v', 不会 strip 'V' — 这是已知行为)"""
+        """带 V 前缀 — _parse_version 接受大小写 v (lstrip [quote]vV[/quote])"""
         result = _parse_version("V2.0.0")
-        # V 前缀不会 strip, 走 ValueError 降级到 tuple 比较
-        assert result == (2, 0, 0)
+        assert isinstance(result, Version)
+        assert result.major == 2
 
     def test_non_standard_fallback(self):
-        """非 semver 格式 — 实际 Version.parse 支持 prerelease 也能解析, 不走 tuple 降级"""
-        # 2024.06.25-rc1 实际是合法 semver (major.minor.patch-prerelease)
-        # Version.parse 能解析, 不走 tuple 降级
+        """带 prerelease 的 semver 解析"""
         result = _parse_version("2.0.0-rc1")
         assert isinstance(result, Version)
         assert result.major == 2

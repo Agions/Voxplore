@@ -59,7 +59,7 @@ def _check_update_async(window):
         )  # 更新检测失败，静默忽略，不影响用户使用
 
 
-def main():
+def main() -> None:
     """主函数"""
     from scenefab.utils.version import __version__
 
@@ -121,7 +121,7 @@ def main():
         run_cli_mode()
 
 
-def check_dependencies():
+def check_dependencies() -> None:
     """检查依赖"""
     logger.info("检查依赖...")
 
@@ -145,7 +145,7 @@ def check_dependencies():
         logger.info("请安装 FFmpeg: https://ffmpeg.org/download.html")
 
 
-def run_cli_mode():
+def run_cli_mode() -> None:
     """命令行模式"""
     print("SceneFab 命令行模式")
     print("-" * 30)
@@ -179,7 +179,7 @@ def run_cli_mode():
             print(f"错误: {e}")
 
 
-def run_commentary():
+def run_commentary() -> None:
     """运行解说功能 — 使用 MonologueMaker 作为第一人称解说"""
     print("\n--- AI 第一人称解说 ---")
     print("(SceneFab 核心功能)")
@@ -247,7 +247,7 @@ def run_commentary():
     print(f"\n✅ 完成! 草稿路径: {draft_path}")
 
 
-def run_export():
+def run_export() -> None:
     """运行导出功能"""
     print("\n--- 剪映草稿导出 ---")
 
