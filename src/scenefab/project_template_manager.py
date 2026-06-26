@@ -103,7 +103,9 @@ class ProjectTemplateManager(QObject):
 
             self.logger.info(f"Loaded {len(self.templates)} user templates")
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+            # 文件不存在/权限不足 / JSON 解析失败 / TemplateInfo 字段类型错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to load templates: {e}")
 
     def _load_builtin_templates(self) -> None:
@@ -137,7 +139,9 @@ class ProjectTemplateManager(QObject):
                 f"Loaded {len([t for t in self.templates.values() if t.is_builtin])} builtin templates"
             )
 
-        except Exception as e:
+        except OSError as e:
+            # iterdir / stat 失败 (目录不存在 / 权限不足)
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to load builtin templates: {e}")
 
     def _save_templates(self) -> None:
@@ -152,7 +156,9 @@ class ProjectTemplateManager(QObject):
             with open(index_file, "w", encoding="utf-8") as f:
                 json.dump(templates_data, f, indent=2, ensure_ascii=False)
 
-        except Exception as e:
+        except (OSError, TypeError, ValueError) as e:
+            # 文件写入失败 / templates_data 不可序列化 / 嵌套结构错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to save templates: {e}")
 
     def _calculate_directory_size(self, directory: Path) -> int:
@@ -165,7 +171,9 @@ class ProjectTemplateManager(QObject):
                     if os.path.exists(file_path):
                         total_size += os.path.getsize(file_path)
             return total_size
-        except Exception as e:
+        except OSError as e:
+            # os.walk / os.path.exists / os.path.getsize 失败 (目录不存在 / 权限不足)
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to calculate directory size: {e}")
             return 0
 
@@ -234,7 +242,9 @@ class ProjectTemplateManager(QObject):
                 assets_dest = template_dir / "assets"
                 shutil.copytree(assets_source, assets_dest, dirs_exist_ok=True)
 
-        except Exception as e:
+        except (OSError, shutil.Error) as e:
+            # shutil.copytree 失败 / 文件 IO 错误
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to copy project to template: {e}")
 
     @_handle_template_error("TEMPLATE", "应用模板")
@@ -324,7 +334,9 @@ class ProjectTemplateManager(QObject):
                     dest_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(file_path, dest_path)
 
-        except Exception as e:
+        except (OSError, shutil.Error) as e:
+            # shutil.copy2 / rglob 失败 (文件 IO 错误)
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to copy template to project: {e}")
 
     def _apply_variables_to_project(
@@ -348,7 +360,9 @@ class ProjectTemplateManager(QObject):
 
             project_data = replace_variables(project_data)
 
-        except Exception as e:
+        except (TypeError, AttributeError, KeyError) as e:
+            # project_data 不是 dict/list/str / 字段访问错 / variables 缺 key
+            # 不吞 RuntimeError 等真实编程 bug
             self.logger.error(f"Failed to apply variables to project: {e}")
 
     @_handle_template_error("UPDATE", "更新模板")
@@ -564,7 +578,9 @@ class ProjectTemplateManager(QObject):
                 "rated_templates_count": len(rated_templates),
             }
 
-        except Exception as e:
+        except (KeyError, AttributeError, TypeError) as e:
+            # 模板对象字段访问错 / 统计计算时类型错
+            # 不吞 RuntimeError 等真实编程 bug
             self.logger.error(f"Failed to get template statistics: {e}")
             return {}
 
@@ -614,6 +630,8 @@ class ProjectTemplateManager(QObject):
                 "actual_size": actual_size,
             }
 
-        except Exception as e:
+        except (OSError, KeyError, TypeError) as e:
+            # 文件 IO 失败 / 模板对象字段访问错 / 类型计算错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to validate template {template_id}: {e}")
             return {"valid": False, "errors": [f"验证失败: {str(e)}"]}

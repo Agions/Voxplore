@@ -216,7 +216,9 @@ class HighlightDetector:
             return subprocess.CompletedProcess(
                 cmd, 1, "", "SecurityError: command blocked"
             )
-        except Exception as e:
+        except (subprocess.SubprocessError, FileNotFoundError, PermissionError, OSError) as e:
+            # FFmpeg subprocess 失败 / FFmpeg 未安装 / 权限不足
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             logger.debug(f"FFmpeg 执行失败: {e}")
             return subprocess.CompletedProcess(cmd, 1, "", str(e))
 
