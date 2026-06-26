@@ -243,7 +243,9 @@ class HTTPClientMixin:
             logger.debug(f"Failed to parse error response: {e}")
         return ProviderError(error_msg)
 
-    async def _call_api(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
+    async def _call_api(
+        self, method: str, endpoint: str, **kwargs
+    ) -> dict[str, Any]:
         """
         通用非流式 API 调用（含统一错误包装）。
 
@@ -252,11 +254,18 @@ class HTTPClientMixin:
         """
         try:
             response = await self.http_client.request(method, endpoint, **kwargs)  # type: ignore[union-attr]
-            return response.json()  # type: ignore[no-any-return]
+            response.raise_for_status()
         except httpx.HTTPStatusError as e:
-            raise self._handle_http_error(e)
-        except Exception as e:
-            raise ProviderError(f"API 调用失败: {str(e)}")
+            raise self._handle_http_error(e) from e
+        except httpx.HTTPError as e:
+            # 网络/HTTP 错误 (连接超时/DNS失败/SSL错误等), 显式收口
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
+            raise ProviderError(f"API 调用失败 (网络错误): {e}") from e
+        # 响应解析错误单独 catch, 不污染网络错误路径
+        try:
+            return response.json()  # type: ignore[no-any-return]
+        except (json.JSONDecodeError, ValueError) as e:
+            raise ProviderError(f"API 调用失败 (响应解析): {e}") from e
 
     async def _generate_openai_compatible(
         self,
