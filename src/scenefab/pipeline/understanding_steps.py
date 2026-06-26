@@ -516,7 +516,10 @@ def _detect_bridges(narrator, scenes: list) -> list[Bridge]:
                             description=scene.description[:50],
                         )
                     )
-        except Exception:  # noqa: BLE001
+        except (AttributeError, KeyError, TypeError):
+            # scene 属性缺失 / Bridge 字段类型错 (detect_trope 纯字符串操作不抛错)
+            # 单 scene 失败不影响其他 scene, continue
+            # 不吞 RuntimeError 等真实编程 bug
             continue
     return bridges
 

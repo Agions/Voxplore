@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import logging
+import subprocess
 import time
 import wave
 from pathlib import Path
@@ -68,7 +69,9 @@ def probe_audio_duration(audio_path: Path) -> float:
         dur = FFmpegTool.get_duration(str(audio_path))
         if dur > 0:
             return dur
-    except Exception:  # noqa: BLE001
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        # FFmpeg subprocess 失败 / FFmpeg 未安装 / 文件不存在
+        # 不吞 RuntimeError/TypeError 等真实编程 bug
         pass
 
     # 3. 文件大小估算 (16kbps 兜底)
@@ -296,7 +299,9 @@ def _tts_stub(
             wf.setsampwidth(2)
             wf.setframerate(16000)
             wf.writeframes(b"\x00" * 3200)  # 0.1s
-    except Exception as e:  # noqa: BLE001
+    except (OSError, wave.Error) as e:
+        # wave 写文件失败 / WAV 格式错
+        # 不吞 TypeError (wf 方法调用错, 真实 bug)
         return StepResult(
             success=False,
             state=NarrationState.TTS,
@@ -377,14 +382,18 @@ def assemble_step(ctx: NarrationContext) -> StepResult:
     try:
         _write_jianying_metadata(ctx, jianying_path)
         jianying_success = True
-    except Exception as e:  # noqa: BLE001
+    except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+        # 文件 IO 失败 / JSON 序列化失败 / 字段类型错
+        # 不吞 RuntimeError/AttributeError 等真实编程 bug
         logger.warning(f"剪映草稿元数据生成失败: {e}")
 
     # 3. 视频合成 (占位, 实际 FFmpeg 在 step 6 之后)
     # 这里只写占位 mp4 (合并步骤由 caller 负责)
     try:
         _write_placeholder_video(video_path, ctx)
-    except Exception as e:  # noqa: BLE001
+    except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+        # 文件 IO 失败 / JSON 序列化失败 / 字段类型错
+        # 不吞 RuntimeError/AttributeError 等真实编程 bug
         logger.warning(f"占位视频写入失败: {e}")
 
     # 4. 更新 ctx 终态
