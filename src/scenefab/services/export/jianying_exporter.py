@@ -25,6 +25,7 @@
 import json
 import logging
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -429,6 +430,8 @@ class JianyingExporter:
                 "height": meta["height"],
                 "duration": TimeRange.from_seconds(0, meta["duration"]).duration,
             }
-        except Exception as e:
+        except (subprocess.SubprocessError, FileNotFoundError, json.JSONDecodeError, KeyError, IndexError) as e:
+            # ffprobe 失败 / FFmpeg 未安装 / JSON 解析失败 / 字段缺失
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             logger.error(f"获取视频信息失败: {e}")
             return {"width": 1920, "height": 1080, "duration": 0}

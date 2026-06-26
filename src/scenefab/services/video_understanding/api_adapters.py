@@ -235,7 +235,8 @@ class APIAdapterMixin:
 
             return json.loads(json_str)  # type: ignore[no-any-return]
 
-        except Exception as e:
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # 响应解析错误 (上游 LLM 返回非预期格式 / 字段缺失)
             logger.warning(f"解析响应失败: {e}")
             return {
                 "summary": text[:200] if text else "",

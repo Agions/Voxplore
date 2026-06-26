@@ -26,7 +26,9 @@ class SubtitleExporter:
                     f.write("\n")
             logger.info(f"Exported SRT to: {output_path}")
             return True
-        except Exception as e:
+        except OSError as e:
+            # 磁盘满 / 权限不足 / 路径无效 等文件 IO 错误
+            # 不吞 TypeError/AttributeError (sub.to_srt 真实 bug)
             logger.error(f"Failed to export SRT: {e}")
             return False
 

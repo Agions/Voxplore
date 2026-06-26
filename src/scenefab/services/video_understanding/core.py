@@ -7,6 +7,8 @@ SceneFab 长视频理解器核心逻辑
 import logging
 import time
 
+import httpx
+
 from scenefab.models.constants import DASHSCOPE_BASE_URL
 from scenefab.services.video_understanding.api_adapters import APIAdapterMixin
 from scenefab.services.video_understanding.models import (
@@ -93,11 +95,16 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
         # Gemini 客户端
         if "gemini" in self.api_keys:
             try:
-                import httpx
-
+                # httpx 已在模块顶部导入
                 self.gemini_client = httpx.Client(timeout=300.0)
                 self.gemini_api_key = self.api_keys["gemini"]
-            except Exception as e:
+            except ImportError as e:
+                # httpx 导入失败 (Python 环境异常)
+                logger.warning(f"Gemini 客户端初始化失败 (httpx 未安装): {e}")
+                self.gemini_client = None  # type: ignore[assignment]
+            except (httpx.HTTPError, OSError) as e:
+                # 网络环境不允许初始化 client / OS 资源错误
+                # 不吞 RuntimeError/TypeError 等真实编程 bug
                 logger.warning(f"Gemini 客户端初始化失败: {e}")
                 self.gemini_client = None  # type: ignore[assignment]
         else:
