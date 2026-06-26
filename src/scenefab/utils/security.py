@@ -545,6 +545,11 @@ def validate_video_path(path: str, base_dir: str | None = None) -> SecurityCheck
 # 所有使用 ffmpeg/ffprobe 的模块统一使用此单例，避免重复实例化
 _FFMPEG_EXECUTOR: SecureExecutor | None = None
 
+# ============ 全局 Probe Executor 单例 ============
+# 只读能力探测 (nvidia-smi / wmic / cpuinfo 等) 走此单例,
+# 仍受白名单审计 + 路径校验约束, 但不限定在 ffmpeg 工具集.
+_PROBE_EXECUTOR: SecureExecutor | None = None
+
 
 def get_ffmpeg_executor() -> SecureExecutor:
     """
@@ -563,3 +568,25 @@ def get_ffmpeg_executor() -> SecureExecutor:
             allowed_commands=["ffmpeg", "ffprobe"],
         )
     return _FFMPEG_EXECUTOR
+
+
+def get_probe_executor() -> SecureExecutor:
+    """
+    获取全局 read-only 探测安全执行器单例。
+
+    用于硬件/系统能力探测 (nvidia-smi / wmic / cpuinfo 等)。
+    仍受 SecureExecutor 审计链约束 (白名单 + 路径 + shell=False + env sanitization),
+    仅扩展白名单允许探测工具, 不影响 ffmpeg 主执行器。
+
+    白名单可扩展: 调用方传 allowed_commands= 可覆盖默认。
+
+    Returns:
+        SecureExecutor: 已配置好的执行器（nvidia-smi, wmic）
+    """
+    global _PROBE_EXECUTOR
+    if _PROBE_EXECUTOR is None:
+        _PROBE_EXECUTOR = SecureExecutor(
+            allowed_base_dirs=[str(Path.home())],
+            allowed_commands=["nvidia-smi", "wmic"],
+        )
+    return _PROBE_EXECUTOR

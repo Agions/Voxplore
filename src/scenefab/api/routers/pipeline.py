@@ -4,6 +4,8 @@ Pipeline Router
 """
 
 import asyncio
+import logging
+import os
 import threading
 import uuid
 from typing import Any
@@ -13,6 +15,9 @@ from fastapi import APIRouter, HTTPException
 from scenefab.api.schemas.models import NarrationRequest, PipelineStatus
 from scenefab.core.task_store import get_task_store
 from scenefab.services.video.pipeline_integrator import PipelineIntegrator
+from scenefab.utils.security import PathValidator, SecurityError
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -23,6 +28,51 @@ _task_store = get_task_store()
 # 全局 PipelineIntegrator 实例
 _integrator: PipelineIntegrator | None = None
 _integrator_lock = threading.Lock()
+
+# 安全默认: output_dir 只允许落在项目工作区下的 outputs/ 或用户主目录下的 scenefab 导出目录,
+# 避免任意写 /etc /root /System32 等敏感位置. 用户可在 settings.allowed_base_dirs 扩展.
+# 与 api/routers/export.py:33 保持一致, 复用同一安全语义.
+_DEFAULT_ALLOWED_BASE_DIRS = (
+    os.path.join(os.getcwd(), "outputs"),
+    os.path.expanduser("~/.scenefab/exports"),
+    os.path.expanduser("~/Downloads"),
+    os.path.expanduser("~/.cache/scenefab/exports"),
+)
+
+
+def _get_path_validator() -> PathValidator:
+    """获取路径校验器: 优先使用 settings 中的 allowed_base_dirs, 否则使用安全默认."""
+    try:
+        from scenefab.settings import get_config
+
+        configured = getattr(get_config(), "allowed_base_dirs", None)
+        base_dirs = list(configured) if configured else list(_DEFAULT_ALLOWED_BASE_DIRS)
+    except Exception:
+        # 配置加载失败时回退到安全默认
+        base_dirs = list(_DEFAULT_ALLOWED_BASE_DIRS)
+    return PathValidator(allowed_base_dirs=base_dirs)
+
+
+def _validate_output_dir(output_dir: str | None) -> str | None:
+    """校验用户提供的 output_dir, 不合法时抛 HTTPException.
+
+    与 api/routers/export.py:_validate_output_path 同型, 但用于目录而非文件.
+    用户未提供 (None) 时返回 None (调用方用默认).
+    """
+    if not output_dir:
+        return output_dir
+
+    validator = _get_path_validator()
+
+    # 1) 路径合法性 (含 DANGEROUS_PATH_PATTERNS 黑名单 + 允许的 base 目录)
+    try:
+        result = validator.validate(output_dir)
+    except SecurityError as e:
+        raise HTTPException(status_code=400, detail=f"无效的路径: {e}") from e
+    if not result.passed:
+        raise HTTPException(status_code=400, detail=f"无效的路径: {result.message}")
+
+    return output_dir
 
 
 def _get_integrator() -> PipelineIntegrator:
@@ -48,6 +98,14 @@ async def create_narration_task(request: NarrationRequest):
 
     返回 task_id 用于查询进度
     """
+    # 早期校验 (避免进入处理流程后才拒绝)
+    # NarrationRequest 当前不包含 output_dir 字段, 但 _process_narration
+    # 内部用 req.get("output_dir", default), 所以 source_video 也走
+    # PipelineIntegrator._validate_source_video (URL prefix or os.path.exists).
+    # 防御性校验 source_video 防止空字符串/None.
+    if not request.video_url or not request.video_url.strip():
+        raise HTTPException(status_code=400, detail="video_url 不能为空")
+
     task_id = str(uuid.uuid4())
 
     _task_store.save(
@@ -156,9 +214,20 @@ async def _process_narration(task_id: str):
 
         # ── 步骤 7: 导出 ──
         _update(task_id, "exporting", 95.0, "正在生成最终视频...")
-        _ = integrator.export_to_jianying(
-            project, req.get("output_dir", "./output/jianying_drafts")
-        )
+        # output_dir 早期校验: 即使 schema 不包含, 防御性验证 default 路径
+        # 落入安全 base dir (output/jianying_drafts 在 cwd 下的 outputs 子目录)
+        output_dir = req.get("output_dir", "./output/jianying_drafts")
+        if output_dir:
+            try:
+                _validate_output_dir(output_dir)
+            except HTTPException:
+                # 校验失败时降级到安全默认
+                logger.warning(
+                    f"output_dir 校验失败 ({output_dir}), 降级到安全默认"
+                )
+                output_dir = os.path.join(os.getcwd(), "outputs", "jianying_drafts")
+
+        _ = integrator.export_to_jianying(project, output_dir)
 
         _update(
             task_id,

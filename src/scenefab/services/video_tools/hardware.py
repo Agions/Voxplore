@@ -1,19 +1,20 @@
 """FFmpeg 硬件加速检测。
 
 从 ffmpeg_tool 拆出（P3 后续）。提供 `HWAccelType` 枚举与平台无关的
-硬件加速检测函数。FFmpeg 编码器支持探测经统一安全执行器；
-nvidia-smi / wmic 等非 ffmpeg 能力探测保留裸 subprocess（不在白名单内）。
+硬件加速检测函数。所有外部命令探测都经统一安全执行器：
+- FFmpeg 编码器支持探测走 `get_ffmpeg_executor()` (白名单: ffmpeg, ffprobe)
+- 硬件/系统能力探测 (nvidia-smi / wmic) 走 `get_probe_executor()` (白名单: nvidia-smi, wmic)
+- `/proc/cpuinfo` 走纯文件 IO, 不需要执行器
 """
 
 from __future__ import annotations
 
 import logging
 import platform
-import subprocess
 from enum import Enum
 from pathlib import Path
 
-from ...utils.security import SecurityError, get_ffmpeg_executor
+from ...utils.security import SecurityError, get_ffmpeg_executor, get_probe_executor
 
 logger = logging.getLogger(__name__)
 
@@ -89,19 +90,20 @@ def ffmpeg_supports_encoder(encoder: str) -> bool:
 def check_nvidia_smi() -> bool:
     """检测 NVIDIA GPU 和 NVENC 支持。
 
-    nvidia-smi 不在 ffmpeg 安全执行器白名单内，作为只读能力探测保留
-    裸 subprocess；FFmpeg 编码器支持检查走统一执行器。
+    nvidia-smi 走 `get_probe_executor()` (白名单 + shell=False + env sanitization),
+    FFmpeg 编码器支持检查走 `get_ffmpeg_executor()`。
     """
     try:
-        result = subprocess.run(
+        result = get_probe_executor().run(
             ["nvidia-smi"],
-            capture_output=True,
             timeout=5,
         )
         if result.returncode == 0:
             return ffmpeg_supports_encoder("h264_nvenc")
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
+    except (SecurityError, TimeoutError):
+        # SecurityError: 白名单拒绝 / 路径校验失败 / 命令不存在
+        # TimeoutError: SecureExecutor 内部包装 subprocess.TimeoutExpired
+        return False
     return False
 
 
@@ -117,17 +119,16 @@ def check_intel_cpu() -> bool:
     """检测 Intel CPU (用于 QSV)"""
     try:
         if platform.system() == "Windows":
-            result = subprocess.run(
+            result = get_probe_executor().run(
                 ["wmic", "cpu", "get", "name"],
-                capture_output=True,
                 timeout=5,
             )
-            return "Intel" in result.stdout.decode("utf-8", errors="ignore")
+            return "Intel" in (result.stdout or "")
         else:
             # Linux/macOS 下检测 /proc/cpuinfo
             with open("/proc/cpuinfo") as f:
                 return "genuineintel" in f.read().lower()
-    except (OSError, subprocess.SubprocessError) as e:
+    except (OSError, SecurityError) as e:
         logger.debug(f"CPU vendor detection failed: {e}")
     return False
 
