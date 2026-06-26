@@ -275,8 +275,8 @@ class SceneAnalyzer:
             match = re.search(regex, result.stderr)
             if match:
                 return float(match.group(1))
-        except Exception:
-            pass
+        except (subprocess.SubprocessError, OSError, ValueError) as e:
+            logger.debug(f"_run_video_metric failed (cmd={cmd[1]}): {e}")
         return default
 
     def _get_avg_brightness(

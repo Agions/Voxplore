@@ -127,8 +127,8 @@ def check_intel_cpu() -> bool:
             # Linux/macOS 下检测 /proc/cpuinfo
             with open("/proc/cpuinfo") as f:
                 return "genuineintel" in f.read().lower()
-    except Exception:
-        pass
+    except (OSError, subprocess.SubprocessError) as e:
+        logger.debug(f"CPU vendor detection failed: {e}")
     return False
 
 

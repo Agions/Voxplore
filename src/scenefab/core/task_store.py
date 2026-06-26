@@ -393,8 +393,9 @@ def set_task_store(store: TaskStore) -> None:
         if _global_store is not None and _global_store is not store:
             try:
                 _global_store.close()
-            except Exception:
-                pass
+            except (OSError, RuntimeError) as e:
+                # 关闭旧存储失败不应阻止新存储注入 — 仅记录后继续
+                logger.warning(f"关闭旧 TaskStore 失败: {e}")
         _global_store = store
 
 

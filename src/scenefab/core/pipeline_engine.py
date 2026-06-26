@@ -385,7 +385,8 @@ class PipelineEngine:
                     timeout=0.1,
                     return_when=concurrent.futures.FIRST_COMPLETED,
                 )
-            except Exception:
+            except concurrent.futures.TimeoutError:
+                # Polling timeout means no future completed yet — normal in busy pipelines.
                 pass
 
     def _should_fail_fast(self) -> bool:
