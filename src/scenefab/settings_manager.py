@@ -85,7 +85,9 @@ class ProjectSettingsManager(QObject):
 
             self.logger.info("Project settings loaded successfully")
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
+            # 文件不存在/权限不足 / JSON 解析失败 / 数据结构异常
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to load settings: {e}")
 
     def _load_profiles(self) -> None:
@@ -103,7 +105,9 @@ class ProjectSettingsManager(QObject):
 
             self.logger.info("Project profiles loaded successfully")
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError, TypeError) as e:
+            # 文件不存在/权限不足 / JSON 解析失败 / 数据结构异常 / 字段类型错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to load profiles: {e}")
 
     def _create_default_profiles(self) -> None:
@@ -284,7 +288,9 @@ class ProjectSettingsManager(QObject):
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-        except Exception as e:
+        except (OSError, TypeError, ValueError) as e:
+            # 目录创建失败/磁盘满/权限不足 / data 不是 JSON 可序列化 / 嵌套结构错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to save {os.path.basename(file_path)}: {e}")
 
     def create_profile(
@@ -400,7 +406,9 @@ class ProjectSettingsManager(QObject):
             }
             with open(self.profiles_file, "w", encoding="utf-8") as f:
                 json.dump(profiles_data, f, indent=2, ensure_ascii=False)
-        except Exception as e:
+        except (OSError, TypeError, ValueError) as e:
+            # 目录创建失败/磁盘满/权限不足 / profile 字段类型错 / 嵌套结构错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             self.logger.error(f"Failed to save profiles: {e}")
 
     def export_settings(self, export_path: str, profile_name: str = None) -> bool:  # type: ignore[assignment]

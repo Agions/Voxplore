@@ -141,7 +141,9 @@ class PathValidator:
         # 转换为绝对路径
         try:
             abs_path = os.path.abspath(path)
-        except Exception as e:
+        except OSError as e:
+            # 路径解析失败 (含非法字符 / 权限 / 路径过长等)
+            # 不吞 TypeError (path 参数类型错误, 真实 bug)
             return SecurityCheckResult(False, f"路径解析失败: {e}")
 
         # 检查是否在允许的基础目录内
@@ -293,7 +295,10 @@ class SecureExecutor:
 
         except subprocess.TimeoutExpired:
             raise SecurityError(f"命令执行超时: {timeout}秒")
-        except Exception as e:
+        except (subprocess.SubprocessError, FileNotFoundError, PermissionError) as e:
+            # subprocess 失败 / 命令不存在 (FileNotFoundError 是 OSError 子类, 非 SubprocessError)
+            # / 权限不足 (PermissionError 同上)
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             raise SecurityError(f"命令执行失败: {e}")
 
     def _sanitize_env(self, env: dict[str, str] | None) -> dict[str, str] | None:
@@ -449,14 +454,17 @@ class SecureFileHandler:
             size = os.path.getsize(path)
             if size > max_size:
                 raise SecurityError(f"文件过大: {size} > {max_size}")
-        except Exception as e:
+        except OSError as e:
+            # 文件不存在 / 权限不足 / 路径无效
             raise SecurityError(f"无法获取文件大小: {e}")
 
         # 读取文件
         try:
             with open(path, mode) as f:
                 return f.read()  # type: ignore[no-any-return]
-        except Exception as e:
+        except OSError as e:
+            # 文件不存在 / 权限不足 / 磁盘错误
+            # 不吞 TypeError (mode 参数错误, 真实 bug)
             raise SecurityError(f"文件读取失败: {e}")
 
     def write(
@@ -483,7 +491,9 @@ class SecureFileHandler:
         try:
             with open(path, mode) as f:
                 f.write(content)
-        except Exception as e:
+        except OSError as e:
+            # 磁盘满 / 权限不足 / 路径无效
+            # 不吞 TypeError (content/mode 类型错误, 真实 bug)
             raise SecurityError(f"文件写入失败: {e}")
 
 

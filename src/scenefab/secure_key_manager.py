@@ -135,7 +135,9 @@ class SecureKeyManager:
             try:
                 with open(key_file, "rb") as f:
                     return f.read()
-            except Exception as e:
+            except OSError as e:
+                # 文件读取失败 (权限不足 / 文件被占用)
+                # 不吞 TypeError (key_file 类型错, 真实 bug)
                 self.logger.error(f"Failed to read key file: {e}")
 
         # 生成新密钥
@@ -146,7 +148,9 @@ class SecureKeyManager:
             # 设置文件权限（仅用户可读）
             os.chmod(key_file, 0o600)
             self.logger.info("Generated new file-based encryption key")
-        except Exception as e:
+        except OSError as e:
+            # 文件写入失败 / chmod 权限错误
+            # 不吞 TypeError (key 类型错, 真实 bug)
             self.logger.error(f"Failed to save key file: {e}")
 
         return key
@@ -205,7 +209,9 @@ class SecureKeyManager:
             self.logger.info(f"API key for {provider} stored in encrypted file")
             return True
 
-        except Exception as e:
+        except OSError as e:
+            # 文件写入失败 / chmod 权限错误 / 目录创建失败
+            # keyring 相关错误 (keyring.exceptions.*) 在更外层 Exception 兜底
             self.logger.error(f"Failed to store encrypted key for {provider}: {e}")
             return False
 
@@ -253,7 +259,9 @@ class SecureKeyManager:
 
             return key_data  # type: ignore[no-any-return]
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, ValueError) as e:
+            # 文件读取失败 / JSON 解析失败 / Fernet 解密失败 (InvalidToken 是 ValueError 子类)
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             self.logger.error(f"Failed to get encrypted key for {provider}: {e}")
             return None
 
@@ -279,7 +287,9 @@ class SecureKeyManager:
                     key_file.unlink()
                     success = True
                     self.logger.info(f"Deleted encrypted key file for {provider}")
-            except Exception as e:
+            except OSError as e:
+                # 文件删除失败 (权限不足 / 文件被占用)
+                # 不吞 TypeError (key_file 类型错, 真实 bug)
                 self.logger.error(f"Failed to delete encrypted key file: {e}")
 
             return success
@@ -298,7 +308,9 @@ class SecureKeyManager:
             if secure_dir.exists():
                 for key_file in secure_dir.glob("*.key"):
                     providers.add(key_file.stem)
-        except Exception as e:
+        except OSError as e:
+            # 文件扫描失败 (权限不足 / 目录读取错)
+            # 不吞 TypeError (key_file 类型错, 真实 bug)
             self.logger.error(f"Failed to list encrypted keys: {e}")
 
         return list(providers)

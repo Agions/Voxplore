@@ -15,6 +15,7 @@
 
 import logging
 import re
+import subprocess
 from collections.abc import Callable
 from pathlib import Path
 
@@ -198,7 +199,9 @@ class SceneAnalyzer:
         except TimeoutError:
             logger.warning("场景检测超时")
             return [0.0]
-        except Exception as e:
+        except (subprocess.SubprocessError, OSError, ValueError, IndexError) as e:
+            # FFmpeg subprocess 失败 / OS 资源错误 / float 转换失败 / list 越界
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             logger.error(f"场景检测失败: {e}")
             return [0.0]
 
@@ -314,7 +317,8 @@ class SceneAnalyzer:
             if scores:
                 avg_score = sum(float(s) for s in scores) / len(scores)
                 return min(1.0, avg_score * 2)
-        except Exception as e:
+        except (subprocess.SubprocessError, OSError, ValueError, IndexError) as e:
+            # FFmpeg subprocess 失败 / OS 资源错误 / float 转换失败 / list 越界
             logger.debug(f"Scene score detection failed: {e}")
         return 0.3
 
@@ -399,7 +403,9 @@ class SceneAnalyzer:
                 if result.returncode == 0:
                     scene.keyframe_path = str(output_path)
 
-            except Exception as e:
+            except (subprocess.SubprocessError, OSError) as e:
+                # FFmpeg subprocess 失败 / 文件 IO 错误
+                # 不吞 RuntimeError/TypeError 等真实编程 bug
                 logger.error(f"提取关键帧失败 (场景 {scene.index}): {e}")
 
     # ── 重要性评分与关键时刻提取（原 SceneAnalyzerV2） ─────────────
