@@ -26,6 +26,7 @@ AI 第一人称独白制作器 (Monologue Maker)
 
 import logging
 import re
+import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
@@ -290,7 +291,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
         if project.video_duration <= 0:
             try:
                 project.video_duration = FFmpegTool.get_duration(source_video) or 0.0
-            except Exception as e:
+            except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
+                # FFmpegTool.get_duration 失败: 子进程错误 / FFmpeg 未安装 / OS 错误
+                # 不吞 RuntimeError/TypeError 等真实编程 bug
                 logger.warning(f"Failed to get video duration for {source_video}: {e}")
                 project.video_duration = 0.0
 

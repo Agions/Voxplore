@@ -6,7 +6,9 @@ FFmpeg 会话管理模块
 
 from __future__ import annotations
 
+import json
 import logging
+import subprocess
 import threading
 
 import numpy as np
@@ -88,7 +90,9 @@ class FFmpegSession:
                 self._info_cache[cache_key] = info
                 return info
 
-        except Exception as e:
+        except (subprocess.SubprocessError, FileNotFoundError, json.JSONDecodeError, KeyError, IndexError) as e:
+            # ffprobe 失败: 子进程错误 / FFmpeg 未安装 / JSON 解析失败 / 字段缺失
+            # 不吞 RuntimeError/TypeError 等真实编程 bug
             logger.warning(f"ffprobe failed: {e}")
 
         return {

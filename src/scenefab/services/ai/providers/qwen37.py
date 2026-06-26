@@ -12,10 +12,12 @@ Qwen3.7 Vision Provider
 API 文档：https://help.aliyun.com/zh/model-studio/developer-reference/qwen3-7
 """
 
+import json
 import logging
 import os
 from typing import Any
 
+import openai
 from openai import OpenAI
 
 from ..model_catalog import DEFAULT_MODELS, provider_models
@@ -127,10 +129,18 @@ class Qwen37Provider(VisionProvider):
             result_text = response.choices[0].message.content or ""
             return self._parse_response(result_text)
 
-        except Exception as e:
-            logger.error(f"Qwen3.7 视频分析失败: {e}")
+        except openai.OpenAIError as e:
+            # API/HTTP/网络错误 (openai SDK 异常基类, 覆盖所有 4xx/5xx/连接/超时)
+            logger.error(f"Qwen3.7 视频分析失败 (API错误): {e}")
             return VisionAnalysisResult(
-                description=f"分析失败: {str(e)}",
+                description=f"分析失败 (API错误): {str(e)}",
+                raw_response=str(e),
+            )
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # 响应解析错误 (上游返回非预期格式 / 字段缺失)
+            logger.error(f"Qwen3.7 视频分析失败 (响应解析): {e}")
+            return VisionAnalysisResult(
+                description=f"分析失败 (响应解析): {str(e)}",
                 raw_response=str(e),
             )
 
@@ -175,10 +185,18 @@ class Qwen37Provider(VisionProvider):
             result_text = response.choices[0].message.content or ""
             return self._parse_response(result_text)
 
-        except Exception as e:
-            logger.error(f"Qwen3.7 图像分析失败: {e}")
+        except openai.OpenAIError as e:
+            # API/HTTP/网络错误 (openai SDK 异常基类, 覆盖所有 4xx/5xx/连接/超时)
+            logger.error(f"Qwen3.7 图像分析失败 (API错误): {e}")
             return VisionAnalysisResult(
-                description=f"分析失败: {str(e)}",
+                description=f"分析失败 (API错误): {str(e)}",
+                raw_response=str(e),
+            )
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # 响应解析错误 (上游返回非预期格式 / 字段缺失)
+            logger.error(f"Qwen3.7 图像分析失败 (响应解析): {e}")
+            return VisionAnalysisResult(
+                description=f"分析失败 (响应解析): {str(e)}",
                 raw_response=str(e),
             )
 
@@ -235,8 +253,9 @@ class Qwen37Provider(VisionProvider):
                 json_str = response_text
 
             return json.loads(json_str)  # type: ignore[no-any-return]
-        except Exception as e:
-            logger.warning(f"解析时间戳响应失败: {e}")
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # JSON 解析/字段缺失错误 (上游 LLM 返回非预期格式)
+            logger.warning(f"解析时间戳响应失败 (响应解析): {e}")
             return {
                 "summary": result.description,
                 "events": [],
@@ -291,8 +310,9 @@ class Qwen37Provider(VisionProvider):
             result.first_person_hook = data.get("first_person_hook", "")
             result.confidence = 0.9  # Qwen3.7 置信度较高
 
-        except Exception as e:
-            logger.warning(f"解析 Qwen3.7 响应失败: {e}")
+        except (json.JSONDecodeError, KeyError, IndexError, ValueError) as e:
+            # JSON 解析/字段缺失错误 (上游 LLM 返回非预期格式, 截取原文兜底)
+            logger.warning(f"解析 Qwen3.7 响应失败 (响应解析): {e}")
             result.description = response_text[:500]  # 截取前500字符
 
         return result
