@@ -118,19 +118,18 @@ def create_app() -> FastAPI:
     _register_routers(app)
     _register_lifecycle_events(app)
 
+    @app.get("/")
+    async def root() -> dict:
+        """根路由: 返回 API metadata"""
+        return {
+            "name": "SceneFab API",
+            "version": get_version_string(),
+            "docs": "/docs",
+            "health": "/api/v1/health",
+        }
+
     return app
 
 
 # 创建应用实例
 app = create_app()
-
-
-# 根路由
-@app.get("/")
-async def root():
-    return {
-        "name": "SceneFab API",
-        "version": get_version_string(),
-        "docs": "/docs",
-        "health": "/api/v1/health",
-    }

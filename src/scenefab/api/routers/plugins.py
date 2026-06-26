@@ -62,6 +62,23 @@ async def list_plugins():
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+
+@router.get("/plugins/types")
+async def list_plugin_types():
+    """
+    列出所有支持的插件类型
+    """
+    try:
+        from scenefab.plugins.interfaces.base import PluginType
+
+        return {
+            "types": [
+                {"value": t.value, "description": _type_description(t.value)}
+                for t in PluginType
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
 @router.get("/plugins/{plugin_id}", response_model=PluginInfo)
 async def get_plugin(plugin_id: str):
     """
@@ -122,23 +139,6 @@ async def enable_plugin(plugin_id: str, request: PluginEnableRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-
-@router.get("/plugins/types")
-async def list_plugin_types():
-    """
-    列出所有支持的插件类型
-    """
-    try:
-        from scenefab.plugins.interfaces.base import PluginType
-
-        return {
-            "types": [
-                {"value": t.value, "description": _type_description(t.value)}
-                for t in PluginType
-            ]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 def _type_description(plugin_type: str) -> str:
