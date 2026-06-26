@@ -220,7 +220,9 @@ class PluginLoader:
             manifest = PluginManifest(**data)
             return manifest
 
-        except Exception as e:
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as e:
+            # 文件读取失败 / JSON 解析失败 / 字段类型错 / PluginType 枚举错
+            # 不吞 RuntimeError/AttributeError 等真实编程 bug
             logger.warning("Failed to load manifest from %s: %s", manifest_path, e)
             return None
 

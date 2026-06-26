@@ -166,13 +166,15 @@ class StreamingLLMWorker(BaseWorker):
         """分发 token 到 Signal + 回调"""
         try:
             self.token_received.emit(token)
-        except Exception as e:
-            # Signal emit 失败 (接收方 C++ 对象已 delete) 跟 callback 失败同等重要, 统一 debug 级别
+        except RuntimeError as e:
+            # PyQt Signal emit 失败 (接收方 C++ 对象已 delete, RuntimeError 是 PyQt 标准异常)
+            # 不吞 TypeError/AttributeError 等真实编程 bug
             logger.debug(f"token_received.emit error: {e}")
         if self._on_token:
             try:
                 self._on_token(token)
             except Exception as e:
+                # 回调由用户提供, 错误类型不可控, 保留 Exception
                 logger.debug(f"on_token callback error: {e}")
 
         # 检测句子结束（中文/英文句末标点）
@@ -181,13 +183,14 @@ class StreamingLLMWorker(BaseWorker):
             if sentence:
                 try:
                     self.sentence_completed.emit(sentence)
-                except Exception as e:
-                    # 同上, Signal emit 失败与 callback 失败同等级
+                except RuntimeError as e:
+                    # PyQt Signal emit 失败 (RuntimeError 是 PyQt 标准异常)
                     logger.debug(f"sentence_completed.emit error: {e}")
                 if self._on_sentence:
                     try:
                         self._on_sentence(sentence)
                     except Exception as e:
+                        # 回调由用户提供, 错误类型不可控, 保留 Exception
                         logger.debug(f"on_sentence callback error: {e}")
 
     def _extract_last_sentence(self) -> str:
