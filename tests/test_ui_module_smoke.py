@@ -17,7 +17,6 @@ import os
 
 import pytest
 
-
 # PySide6 可能不可用 (headless CI), 但要尝试
 PySide6 = pytest.importorskip("PySide6")
 

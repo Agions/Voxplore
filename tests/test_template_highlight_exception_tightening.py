@@ -7,13 +7,10 @@
 而不再被 log 后吞掉 (掩盖 bug).
 """
 
-import json
 import subprocess
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 
 # =============================================================================
 # 1. project_template_manager.py:106 _load_templates JSON 加载

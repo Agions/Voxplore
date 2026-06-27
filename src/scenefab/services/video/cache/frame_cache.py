@@ -6,16 +6,16 @@
 from __future__ import annotations
 
 import logging
-import shutil
-import threading
-from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
-from typing import Any, Callable, Optional
-
 import os
 import pickle
+import shutil
 import stat
+import threading
+from collections import OrderedDict
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -65,10 +65,10 @@ class VideoFrameCache:
     """
 
     # 全局共享缓存实例
-    _shared_cache: Optional["VideoFrameCache"] = None
+    _shared_cache: VideoFrameCache | None = None
 
     @classmethod
-    def get_shared(cls) -> "VideoFrameCache":
+    def get_shared(cls) -> VideoFrameCache:
         """获取共享缓存实例"""
         if cls._shared_cache is None:
             cls._shared_cache = cls(
@@ -82,7 +82,7 @@ class VideoFrameCache:
         self,
         max_frames: int = 100,
         max_memory_mb: int = 500,
-        temp_dir: Optional[str] = None,
+        temp_dir: str | None = None,
         disk_fallback: bool = True,
     ):
         """
@@ -207,8 +207,8 @@ class VideoFrameCache:
         self,
         video_path: str,
         timestamps: list[float],
-        extract_func: Callable[[str, float], Optional[np.ndarray]],
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        extract_func: Callable[[str, float], np.ndarray | None],
+        progress_callback: Callable[[int, int], None] | None = None,
     ) -> dict[str, np.ndarray]:
         """
         批量预提取关键帧（并行）
@@ -225,7 +225,7 @@ class VideoFrameCache:
         total = len(timestamps)
 
         # 第一步：并行提取所有缺失帧
-        def extract_missing(ts: float) -> tuple[str, Optional[np.ndarray]]:
+        def extract_missing(ts: float) -> tuple[str, np.ndarray | None]:
             key = self._generate_key(video_path, ts)
             # 检查缓存（只用于跳过，不阻塞其他线程）
             if self.get(key) is not None:

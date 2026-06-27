@@ -21,7 +21,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-
 # =============================================================================
 # 1. hardware.py: check_nvidia_smi / check_intel_cpu 走 SecureExecutor
 # =============================================================================

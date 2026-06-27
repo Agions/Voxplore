@@ -12,7 +12,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-
 # =============================================================================
 # 1. plugins/loader.py:223 _discover_plugin_in_dir JSON load
 # =============================================================================

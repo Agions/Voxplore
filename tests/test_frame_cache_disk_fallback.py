@@ -8,12 +8,9 @@ Covers:
 3) 磁盘文件能正确被读回 (回环测试)
 """
 
-import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import numpy as np
-import pytest
 
 from scenefab.services.video.cache.frame_cache import (
     VideoFrameCache,

@@ -10,6 +10,7 @@ import logging
 import time
 
 import httpx
+
 from ..base_llm_provider import LLMRequest, LLMResponse, ProviderError
 from ..model_catalog import DEFAULT_MODELS, provider_models
 from .openai_compat import OpenAICompatProvider

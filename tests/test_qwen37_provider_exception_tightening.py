@@ -13,7 +13,7 @@
 - 正常路径 → 返回 VisionAnalysisResult (description 来自解析后的 JSON)
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import openai
 import pytest

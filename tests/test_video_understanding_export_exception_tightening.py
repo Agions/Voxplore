@@ -13,8 +13,7 @@ HTTP/JSON/subprocess 错误仍正确处理, 但 RuntimeError/TypeError 不再被
 而不再被 log 后吞掉 (掩盖 bug).
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import httpx
 import pytest
@@ -22,7 +21,6 @@ import pytest
 from scenefab.services.export.jianying_exporter import JianyingExporter
 from scenefab.services.export.subtitle_exporter import SubtitleExporter
 from scenefab.services.video_understanding.api_adapters import APIAdapterMixin
-
 
 # =============================================================================
 # 1. api_adapters._parse_video_response
@@ -99,7 +97,7 @@ def test_get_video_info_jianying_filenotfound_returns_default():
 
 def test_export_srt_oserror_returns_false(tmp_path):
     """磁盘满 / 权限不足 (OSError) → 返回 False (行为保持)"""
-    bad_path = tmp_path / "readonly" / "out.srt"
+    tmp_path / "readonly" / "out.srt"
 
     # 在只读目录尝试写入会触发 PermissionError (OSError 子类)
     import os

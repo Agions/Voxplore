@@ -6,17 +6,16 @@
 
 import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from scenefab.utils.security import (
-    SecurityCheckResult,
     SecureExecutor,
     SecureFileHandler,
+    SecurityCheckResult,
     SecurityError,
 )
-
 
 # =============================================================================
 # 1. utils/security.py - SecureExecutor
@@ -119,8 +118,9 @@ def test_secure_key_get_file_based_key_oserror_falls_back():
 
 def test_secure_key_get_encrypted_fernet_invalid_token():
     """Fernet decrypt 抛 InvalidToken (ValueError 子类) → log + return None"""
-    from scenefab.secure_key_manager import SecureKeyManager
     from cryptography.fernet import Fernet
+
+    from scenefab.secure_key_manager import SecureKeyManager
 
     mgr = SecureKeyManager(app_name="test_app_xyz_123")
     valid_key = Fernet.generate_key()
@@ -136,8 +136,9 @@ def test_secure_key_get_encrypted_fernet_invalid_token():
 
 def test_secure_key_get_encrypted_runtime_error_propagates():
     """★诚实性: _get_encrypted_key 中 RuntimeError 不再被吞"""
-    from scenefab.secure_key_manager import SecureKeyManager
     from cryptography.fernet import Fernet
+
+    from scenefab.secure_key_manager import SecureKeyManager
 
     mgr = SecureKeyManager(app_name="test_app_xyz_123")
     valid_key = Fernet.generate_key()

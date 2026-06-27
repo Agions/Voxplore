@@ -12,11 +12,8 @@ Test update/checker.py
 from unittest.mock import MagicMock, patch
 
 import httpx
-import pytest
 
 from scenefab.update.checker import (
-    GITHUB_API_RELEASES,
-    GITHUB_RELEASES_PAGE,
     UpdateInfo,
     _parse_version,
     _strip_tag,
@@ -248,7 +245,7 @@ class TestCheckUpdate:
 
     def test_missing_tag_name_falls_back(self):
         """tag_name 缺失时不应崩溃"""
-        current = get_version_string()
+        get_version_string()
         mock_resp = self._mock_response({
             "html_url": "https://github.com/Agions/scene-fab/releases",
             "body": "no tag",

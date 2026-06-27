@@ -8,15 +8,11 @@ FFmpeg / wave / 文件 IO / scene Bridge 构造错误仍正确处理,
 而不再被 log/continue 后吞掉 (掩盖 bug).
 """
 
-import json
-import os
 import subprocess
-import wave
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 
 # =============================================================================
 # 1. assembly_steps.py:71 — probe_audio_duration FFmpeg fallback
@@ -160,8 +156,8 @@ def test_placeholder_video_runtime_error_propagates(tmp_path):
 
 def test_detect_bridges_scene_attribute_error_continues():
     """_detect_bridges 单 scene AttributeError → continue, 不影响其他 scene"""
-    from scenefab.pipeline.understanding_steps import _detect_bridges
     from scenefab.core.short_drama import TropeType
+    from scenefab.pipeline.understanding_steps import _detect_bridges
 
     narrator = MagicMock()
 
@@ -199,8 +195,8 @@ def test_detect_bridges_runtime_error_propagates():
 
 def test_detect_bridges_empty_description_skipped():
     """scene.description 为空 → skip (行为保持)"""
-    from scenefab.pipeline.understanding_steps import _detect_bridges
     from scenefab.core.short_drama import TropeType
+    from scenefab.pipeline.understanding_steps import _detect_bridges
 
     narrator = MagicMock()
     narrator.detect_trope.return_value = TropeType.IDENTITY_REVEAL

@@ -310,7 +310,7 @@ class NarrationStateMachine:
         flow = _build_flow_table()
         max_iterations = 50  # 防止死循环
 
-        for iteration in range(1, max_iterations + 1):
+        for _iteration in range(1, max_iterations + 1):
             if self._current_state in (NarrationState.DONE, NarrationState.ERROR):
                 break
 

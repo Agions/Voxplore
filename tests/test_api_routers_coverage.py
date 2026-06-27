@@ -18,15 +18,13 @@
 - pipeline 端点异步 task 模式: 返回 task_id, status 返回 task 状态
 """
 
-import os
-from unittest.mock import MagicMock, patch
 
 import pytest
-
 
 # FastAPI TestClient 可能在缺 fastapi 时不可用
 try:
     from fastapi.testclient import TestClient
+
     from scenefab.api.main import create_app
     HAS_TESTCLIENT = True
 except ImportError:

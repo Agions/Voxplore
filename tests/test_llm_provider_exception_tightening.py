@@ -15,8 +15,8 @@ import httpx
 import pytest
 
 from scenefab.services.ai.base_llm_provider import ProviderError
-from scenefab.services.ai.providers.doubao import DoubaoProvider
 from scenefab.services.ai.providers.deepseek import DeepSeekProvider
+from scenefab.services.ai.providers.doubao import DoubaoProvider
 from scenefab.services.ai.providers.hunyuan import HunyuanProvider
 from scenefab.services.ai.providers.qwen import QwenProvider
 

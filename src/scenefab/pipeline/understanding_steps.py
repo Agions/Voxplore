@@ -24,6 +24,12 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
+from scenefab.services.ai.script_models import (
+    ScriptConfig,
+    ScriptStyle,
+    VoiceTone,
+)
+
 from .narration_context import (
     Bridge,
     BridgeType,
@@ -31,11 +37,6 @@ from .narration_context import (
     NarrationStyle,
 )
 from .narration_state_machine import NarrationState, StepResult
-from scenefab.services.ai.script_models import (
-    ScriptConfig,
-    ScriptStyle,
-    VoiceTone,
-)
 
 if TYPE_CHECKING:
     from scenefab.services.ai.script_generator.script_generator import ScriptGenerator
