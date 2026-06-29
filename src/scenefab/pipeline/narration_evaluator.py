@@ -10,8 +10,6 @@ v2.2 Phase 3 — NarrationEvaluator 5 维加权评估器
 设计原则:
 - 0 LLM 调用 (5 维都是规则评分), 评估本身不消耗 token
 - 短剧连续生产时强制检查题材标签、人物关系和下一集钩子
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

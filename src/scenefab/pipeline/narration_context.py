@@ -15,8 +15,6 @@ v2.2 解说生成上下文 — 4 类上下文 (Context Engineering)
 - 与 services.ai.scene_models.SceneInfo 复用
 - 与 core.short_drama.ShortDramaNarrator.detect_bridges() 复用
 - 不引入新依赖
-
-v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

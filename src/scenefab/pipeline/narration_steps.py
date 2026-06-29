@@ -8,8 +8,6 @@ Phase 1: 仅提供"骨架实现", 验证状态机流转
 Phase 2: 接入 UNDERSTAND/STORYGRAPH/DRAFT 真实实现
 Phase 3: 接入 EVALUATE/HOOK_REWRITE
 Phase 4: 接入 TTS_LENGTH_ADJUST/TTS/ASSEMBLE
-
-v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

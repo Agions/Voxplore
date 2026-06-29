@@ -12,8 +12,6 @@
 降级策略:
 - 评估器: 永远可用 (5 维都是规则评分, 无 LLM 依赖)
 - Hook 改写: 需 LLM, 失败时保留原 draft (Phase 1 行为)
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

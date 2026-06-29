@@ -18,8 +18,6 @@ v2.2 解说生成状态机 — 5 状态 + 评估循环
 - 集成到 core.unified_event_bus, 发 NarrationStageChanged 事件
 - 与 core.pipeline_engine.PipelineEngine 兼容: 每个状态可作为 DAG Step
 - 失败处理: max_attempts=2, 强制退出循环
-
-v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

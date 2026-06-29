@@ -9,8 +9,6 @@ v2.2 解说生成状态机 — Phase 1 骨架 + Phase 2/3/4 真实实现
 - register_understanding_steps (Phase 2 真实实现 — 替换 UNDERSTAND/STORYGRAPH/DRAFT)
 - register_evaluation_steps (Phase 3 真实实现 — 替换 EVALUATE/HOOK_REWRITE)
 - register_assembly_steps (Phase 4 真实实现 — 替换 TTS_LENGTH_ADJUST/TTS/ASSEMBLE)
-
-v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
 from .assembly_steps import (

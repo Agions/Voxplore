@@ -13,8 +13,6 @@
 - 无 video_tools.caption_gen: 用 stub 字幕
 - 无 jianying_adapter: 只导出 SRT 字幕 + 草稿元数据 JSON
 - LLM 不可用: TTS_LENGTH_ADJUST 跳过"调 LLM 压缩"步骤, 保留原始 draft
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

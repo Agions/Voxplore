@@ -11,8 +11,6 @@ v2.2 Narration State Machine — Phase 2 真实实现测试
 
 设计: 全部测试不需要真实 API key, 走降级路径。LLM/SceneAnalyzer 失败时
 _降级 stub_ 仍能产出有效 draft, 验证整链路通畅。
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

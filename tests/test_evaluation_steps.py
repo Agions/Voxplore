@@ -9,8 +9,6 @@ v2.2 Narration State Machine — Phase 3 真实实现测试
 - 评估循环 REJECT → DRAFT → ACCEPT 全链路
 - evaluate_step + hook_rewrite_step 真实实现
 - 端到端 Phase 1+2+3 跑通
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

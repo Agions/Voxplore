@@ -14,8 +14,6 @@
 - **零破坏兼容 v2.1**: 现有 monologue_maker.generate_script 完全不动
 - **复用现有模型**: SceneInfo / StoryGraph / ScriptConfig / GeneratedScript 直接复用
 - **错误隔离**: 任何底层异常被捕获, 状态机主循环接到 StepResult(success=False) 转 ERROR
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

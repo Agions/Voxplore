@@ -8,8 +8,6 @@ v2.2 Narration State Machine — Phase 4 真实实现测试
 - assemble_step: 字幕生成 (ASS+SRT) + 剪映草稿元数据
 - probe_audio_duration: WAV/ffprobe/文件大小 3 层探测
 - 端到端 Phase 1+2+3+4 跑通, 11 状态全 DONE
-
-v2.2 决策: docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations

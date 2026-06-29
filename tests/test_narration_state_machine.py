@@ -10,8 +10,6 @@ v2.2 Narration State Machine — Phase 1 骨架测试
 - 配置参数生效
 - TTS/ASSEMBLE 产物路径正确
 - 零外部依赖 (不调真实 LLM)
-
-v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
 from __future__ import annotations
