@@ -400,6 +400,10 @@ class Application(QObject):
             settings_manager = ProjectSettingsManager(config_manager)  # type: ignore[arg-type]
             self.register_service("settings_manager", settings_manager)
 
+            # 创建并注册 MonologueMaker (Phase 2B — ProductionViewModel 需要)
+            from scenefab.services.video.monologue_maker import MonologueMaker
+            self.register_service("monologue_maker", MonologueMaker())
+
             self.logger.info("服务初始化完成")
             return True
 
