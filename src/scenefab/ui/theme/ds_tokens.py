@@ -4,6 +4,22 @@ Design system tokens.
 
 These values are aligned with resources/styles and keep the public token names
 used by existing UI modules.
+
+Theme mode (Phase 3)
+---------------------
+
+This module exposes two palettes, :class:`Colors` (light) and
+:class:`DarkColors` (dark), and a single mutable container :class:`_C`
+that most UI code reads from. The active palette is controlled by
+:func:`set_theme_mode`. Pages that have already rendered read the
+token via ``_C.X`` which is *rebound* on each mode change — that
+means existing widgets don't auto-restyle. Callers that want
+live theme switching must re-apply their stylesheets after
+:func:`set_theme_mode` returns.
+
+Persistence: the mode is *not* persisted here — that's the job of
+``Application`` / ``QSettings`` layer. The function returns the new
+mode so the caller can save it.
 """
 
 
@@ -71,6 +87,73 @@ class Colors:
     PRIMARY_10 = "#0891b21A"
     SUCCESS_10 = "#22c55e1A"
     ERROR_10 = "#e11d481A"
+
+
+class DarkColors:
+    """Dark theme palette (Phase 3).
+
+    Mirror of :class:`Colors` with values tuned for low-light UI. Only
+    the colour tokens are redefined here — ``Radii`` / ``FontSizes``
+    / ``Shadows`` etc. are shared with the light theme because they
+    are theme-agnostic.
+    """
+
+    # ── 背景层 ──────────────────────────────────────────────────
+    BG_BASE = "#0f172a"
+    BG_SURFACE = "#1e293b"
+    BG_ELEVATED = "#334155"
+    BG_OVERLAY = "#475569"
+    BG_INPUT = "#1e293b"
+
+    # ── 边框层 ──────────────────────────────────────────────────
+    BORDER_SUBTLE = "#334155"
+    BORDER_DEFAULT = "#475569"
+    BORDER_STRONG = "#22d3ee"
+    BORDER_FOCUS = "#22d3ee"
+
+    # ── 主色：叙事青 (提亮) ────────────────────────────────────
+    PRIMARY_LIGHTEST = "#164e63"
+    PRIMARY_LIGHTER = "#155e75"
+    PRIMARY_LIGHT = "#0e7490"
+    PRIMARY_NORMAL = "#0891b2"
+    PRIMARY = "#22d3ee"
+    PRIMARY_DARK = "#67e8f9"
+    PRIMARY_DARKER = "#a5f3fc"
+    PRIMARY_DARKEST = "#e0f7fb"
+
+    # ── 辅助色 (提亮) ─────────────────────────────────────────
+    ACCENT_LIGHT = "#4c0519"
+    ACCENT_NORMAL = "#fb7185"
+    ACCENT = "#fda4af"
+    ACCENT_DARK = "#fecdd3"
+    ACCENT_SUBTLE = "#4c0519"
+
+    # ── 功能色 ─────────────────────────────────────────────────
+    SUCCESS = "#4ade80"
+    SUCCESS_LIGHT = "#14532d"
+    WARNING = "#fbbf24"
+    WARNING_LIGHT = "#78350f"
+    ERROR = "#fb7185"
+    ERROR_LIGHT = "#4c0519"
+    INFO = "#22d3ee"
+
+    # ── 文字层 (反转) ─────────────────────────────────────────
+    TEXT_PRIMARY = "#f1f5f9"
+    TEXT_SECONDARY = "#cbd5e1"
+    TEXT_MUTED = "#94a3b8"
+    TEXT_DISABLED = "#475569"
+    TEXT_INVERSE = "#0f172a"
+
+    # ── 侧边栏渐变 (深色版) ─────────────────────────────────
+    SIDEBAR_TOP = "#0f172a"
+    SIDEBAR_MID = "#1e293b"
+    SIDEBAR_BOTTOM = "#334155"
+    SIDEBAR_GLOW = "#22d3ee"
+
+    # ── 状态色 (深色版透明度) ───────────────────────────────
+    PRIMARY_10 = "#22d3ee1A"
+    SUCCESS_10 = "#4ade801A"
+    ERROR_10 = "#fb71851A"
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -434,3 +517,112 @@ class QSSComponents:
                 min-width: 40px;
             }}
         """
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Theme mode (Phase 3) — runtime theme switching
+# ═══════════════════════════════════════════════════════════════════
+
+
+# Currently active palette source. "light" or "dark".
+_THEME_MODE: str = "light"
+
+
+def get_theme_mode() -> str:
+    """Return the active theme mode (``"light"`` / ``"dark"``)."""
+    return _THEME_MODE
+
+
+def _set_c_from_palette(palette) -> None:
+    """Rebind every colour token on :class:`_C` to the values in ``palette``.
+
+    Called by :func:`set_theme_mode`. Operates on ``_C.__dict__`` so
+    existing references like ``_C.BG_BASE`` pick up the new value
+    without code that uses them needing to be re-imported.
+    """
+    for name in (
+        "ACCENT",
+        "ACCENT_DARK",
+        "ACCENT_LIGHT",
+        "ACCENT_NORMAL",
+        "ACCENT_SUBTLE",
+        "BG_BASE",
+        "BG_ELEVATED",
+        "BG_INPUT",
+        "BG_OVERLAY",
+        "BG_SURFACE",
+        "BORDER_DEFAULT",
+        "BORDER_FOCUS",
+        "BORDER_STRONG",
+        "BORDER_SUBTLE",
+        "ERROR",
+        "ERROR_10",
+        "ERROR_LIGHT",
+        "INFO",
+        "PRIMARY",
+        "PRIMARY_10",
+        "PRIMARY_DARK",
+        "PRIMARY_DARKER",
+        "PRIMARY_DARKEST",
+        "PRIMARY_LIGHT",
+        "PRIMARY_LIGHTER",
+        "PRIMARY_LIGHTEST",
+        "PRIMARY_NORMAL",
+        "SIDEBAR_BOTTOM",
+        "SIDEBAR_GLOW",
+        "SIDEBAR_MID",
+        "SIDEBAR_TOP",
+        "SUCCESS",
+        "SUCCESS_10",
+        "SUCCESS_LIGHT",
+        "TEXT_DISABLED",
+        "TEXT_INVERSE",
+        "TEXT_MUTED",
+        "TEXT_PRIMARY",
+        "TEXT_SECONDARY",
+        "WARNING",
+        "WARNING_LIGHT",
+    ):
+        setattr(_C, name, getattr(palette, name))
+
+
+def set_theme_mode(mode: str) -> str:
+    """Switch the global theme palette. Idempotent.
+
+    Parameters
+    ----------
+    mode : str
+        Either ``"light"`` (use :class:`Colors`) or ``"dark"`` (use
+        :class:`DarkColors`).
+
+    Returns
+    -------
+    str
+        The mode that ended up being applied. Unknown values fall
+        back to ``"light"`` and the palette is reset to :class:`Colors`.
+    """
+    global _THEME_MODE
+    if mode == "dark":
+        _set_c_from_palette(DarkColors)
+        _THEME_MODE = "dark"
+    else:
+        _set_c_from_palette(Colors)
+        _THEME_MODE = "light"
+    return _THEME_MODE
+
+
+__all__ = [
+    "Colors",
+    "DarkColors",
+    "FontSizes",
+    "FontWeights",
+    "Spacing",
+    "Radii",
+    "Shadows",
+    "Durations",
+    "Easings",
+    "QSSComponents",
+    "_C",
+    "set_theme_mode",
+    "get_theme_mode",
+]
