@@ -13,6 +13,11 @@ _PYSIDE6_GUI_TESTS = [
     # 6.11+), so we skip in headless CI.
     "tests/test_ui_module_smoke.py",
     "tests/test_home_viewmodel.py",
+    # Phase 2B/2C: viewmodel tests import scenefab.ui.viewmodels.* which
+    # transitively triggers `scenefab.ui.__init__` → `from .main.main_window
+    # import SceneFabMainWindow` → PySide6.QtWidgets → libEGL.
+    "tests/test_production_viewmodel.py",
+    "tests/test_assets_viewmodel.py",
 ]
 
 
