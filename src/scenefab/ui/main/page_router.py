@@ -11,10 +11,15 @@ page changes; the main window uses this to update the top-bar title.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QObject, Signal
 
 from scenefab.ui.main.main_window.content_area import ContentArea
 from scenefab.ui.main.registry import PAGE_BUILDERS
+
+if TYPE_CHECKING:
+    from scenefab.application import Application
 
 
 class PageRouter(QObject):
@@ -22,9 +27,15 @@ class PageRouter(QObject):
 
     page_changed = Signal(str)
 
-    def __init__(self, content: ContentArea, parent: QObject | None = None) -> None:
+    def __init__(
+        self,
+        content: ContentArea,
+        application: Application | None = None,
+        parent: QObject | None = None,
+    ) -> None:
         super().__init__(parent)
         self._content = content
+        self._application = application
         self._page_map: dict[str, object] = {}
 
     def navigate(self, page_id: str, animated: bool = True) -> None:
@@ -34,7 +45,7 @@ class PageRouter(QObject):
             builder = PAGE_BUILDERS.get(page_id)
             if builder is None:
                 return
-            widget = builder()
+            widget = builder(self._application)
             self._page_map[page_id] = widget
             self._content.add_page(page_id, widget)
         self._content.set_page(page_id, animated=animated)

@@ -81,7 +81,7 @@ class SceneFabMainWindow(QMainWindow):
         root_layout.addWidget(self.sidebar)
 
         self.content = ContentArea()
-        self.router = PageRouter(self.content, parent=self)
+        self.router = PageRouter(self.content, application=self._application, parent=self)
         root_layout.addWidget(self.content, 1)
 
         outer.addWidget(body, 1)

@@ -32,11 +32,14 @@ class HomePage(QFrame):
     open_project = Signal(str)
     navigate = Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, viewmodel=None, parent=None):
         super().__init__(parent)
         self.setObjectName("home_page")
+        self._vm = viewmodel
         self._setup_style()
         self._setup_ui()
+        if self._vm is not None:
+            self._bind_viewmodel()
 
     def _setup_style(self):
         self.setStyleSheet(page_background_style("home_page"))
@@ -88,6 +91,9 @@ class HomePage(QFrame):
         layout.setHorizontalSpacing(14)
         layout.setVerticalSpacing(14)
 
+        # 4 张状态卡 — 数据来源从 ViewModel 读
+        self._status_cards: list[tuple[QFrame, QLabel, QLabel, str]] = []
+        self._recent_panel_layout: QVBoxLayout | None = None
         items = [
             ("素材", "未导入", "0"),
             ("场景", "未拆分", "0"),
@@ -95,8 +101,65 @@ class HomePage(QFrame):
             ("导出", "待配置", "1080x1920"),
         ]
         for index, (title, status, value) in enumerate(items):
-            layout.addWidget(self._status_card(title, status, value), 0, index)
+            card, val_lbl, state_lbl = self._build_status_card(title, status, value)
+            layout.addWidget(card, 0, index)
+            self._status_cards.append((card, val_lbl, state_lbl, title))
         return frame
+
+    # ──────────────────────────────────────────────────────────
+    # ViewModel 绑定
+    # ──────────────────────────────────────────────────────────
+
+    def _bind_viewmodel(self) -> None:
+        """Subscribe to VM signals and apply current state to cards."""
+        vm = self._vm
+        if vm is None:
+            return
+        vm.media_count_changed.connect(self._refresh_status_cards)
+        vm.scene_count_changed.connect(self._refresh_status_cards)
+        vm.script_status_changed.connect(self._refresh_status_cards)
+        vm.export_config_changed.connect(self._refresh_status_cards)
+        vm.recent_projects_changed.connect(self._refresh_recent_panel)
+        # 立即拉一次
+        self._refresh_status_cards()
+        self._refresh_recent_panel()
+
+    def _refresh_status_cards(self) -> None:
+        """Update the 4 status cards from the ViewModel state."""
+        if not self._status_cards or self._vm is None:
+            return
+        mapping = {
+            "素材": (str(self._vm.media_count), "已导入" if self._vm.media_count else "未导入"),
+            "场景": (str(self._vm.scene_count), "已拆分" if self._vm.scene_count else "未拆分"),
+            "脚本": (
+                "--" if self._vm.script_status == "待生成" else "已生成",
+                self._vm.script_status,
+            ),
+            "导出": (self._vm.export_config, "已配置"),
+        }
+        for _card, val_lbl, state_lbl, title in self._status_cards:
+            value, state = mapping.get(title, ("0", "未配置"))
+            val_lbl.setText(value)
+            state_lbl.setText(state)
+
+    def _refresh_recent_panel(self) -> None:
+        """Replace the empty-state placeholder with recent projects list."""
+        if self._vm is None or self._recent_panel_layout is None:
+            return
+        recents = self._vm.recent_projects
+        if not recents:
+            return
+        # Remove existing placeholder if any
+        for i in reversed(range(self._recent_panel_layout.count())):
+            item = self._recent_panel_layout.itemAt(i)
+            widget = item.widget() if item else None
+            if widget is not None and widget.property("recent_placeholder") is True:
+                widget.deleteLater()
+                self._recent_panel_layout.removeWidget(widget)
+        for path in recents[:3]:
+            lbl = QLabel(path)
+            lbl.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
+            self._recent_panel_layout.addWidget(lbl)
 
     def _build_workflow_panel(self) -> QFrame:
         frame = panel("workflow_panel")
@@ -148,30 +211,41 @@ class HomePage(QFrame):
         row.addWidget(open_btn)
         layout.addLayout(row)
 
-        layout.addWidget(empty_state("暂无项目资产", 120), 1)
+        # 暴露 layout 给 ViewModel 刷新使用
+        self._recent_panel_layout = layout
+        placeholder = empty_state("暂无项目资产", 120)
+        placeholder.setProperty("recent_placeholder", True)
+        layout.addWidget(placeholder, 1)
         return frame
 
-    def _status_card(self, title: str, status: str, value: str) -> QFrame:
+    def _build_status_card(
+        self, title: str, status: str, value: str
+    ) -> tuple[QFrame, QLabel, QLabel]:
+        """Build a status card and return (frame, value_label, state_label).
+
+        The two labels are returned so the ViewModel can update them
+        in-place without traversing child widgets.
+        """
         card = panel(f"status_{title}")
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(6)
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(16, 14, 16, 14)
+        card_layout.setSpacing(6)
 
         label = QLabel(title)
         label.setFont(QFont("", FontSizes.xs, QFont.Weight.Medium))
         label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
-        layout.addWidget(label)
+        card_layout.addWidget(label)
 
         val = QLabel(value)
         val.setFont(QFont("", FontSizes.lg, QFont.Weight.Bold))
         val.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
-        layout.addWidget(val)
+        card_layout.addWidget(val)
 
         state = QLabel(status)
         state.setFont(QFont("", FontSizes.xs))
         state.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
-        layout.addWidget(state)
-        return card
+        card_layout.addWidget(state)
+        return card, val, state
 
     def _workflow_row(self, step: str, name: str, status: str) -> QFrame:
         row = QFrame()

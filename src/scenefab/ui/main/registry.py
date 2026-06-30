@@ -8,7 +8,9 @@ breadcrumb) pair so the top bar never falls out of sync with the sidebar.
 
 Add a new page in three steps:
     1. Create ``pages/<name>_page.py`` exposing a ``<Name>Page`` widget.
-    2. Add a factory to ``PAGE_BUILDERS`` below.
+    2. Register a builder in :py:data:`PAGE_BUILDERS` (call
+       :py:func:`_build_simple` if the page takes no ViewModel, or write a
+       dedicated builder like :py:func:`_build_home` that wires a VM).
     3. Add a ``NavItem`` to ``NAV_ITEMS`` and a title to ``PAGE_TITLES``.
 
 The lazy ``import`` inside each factory keeps startup cost flat and avoids
@@ -23,6 +25,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
+
+    from scenefab.application import Application
 
 
 @dataclass(frozen=True)
@@ -70,28 +74,43 @@ PAGE_TITLES: dict[str, PageSpec] = {
 # Lazy page factories (consumed by PageRouter)
 # ─────────────────────────────────────────────────────────────────────
 
-PageBuilder = Callable[[], "QWidget"]
-
-PAGE_BUILDERS: dict[str, PageBuilder] = {
-    "home": lambda: _import("scenefab.ui.main.pages.home_page", "HomePage")(),
-    "create": lambda: _import(
-        "scenefab.ui.main.pages.production_page", "ProductionPage"
-    )(),
-    "assets": lambda: _import(
-        "scenefab.ui.main.pages.assets_page", "AssetsPage"
-    )(),
-    "settings": lambda: _import(
-        "scenefab.ui.main.pages.settings_page", "SettingsPage"
-    )(),
-}
+PageBuilder = Callable[["Application | None"], "QWidget"]
 
 
-def _import(module: str, attr: str) -> type:
-    """Lazy import helper — keeps registry import-cost flat."""
+def _build_simple(module: str, attr: str) -> PageBuilder:
+    """Build a no-arg page widget. Page takes no ViewModel yet."""
+
+    def builder(app: Application | None) -> QWidget:  # noqa: ARG001
+        import importlib
+
+        cls = getattr(importlib.import_module(module), attr)
+        return cls()
+
+    return builder
+
+
+def _build_home(app: Application | None) -> QWidget:
+    """HomePage needs a ViewModel — wire it through here."""
     import importlib
 
-    value: type = getattr(importlib.import_module(module), attr)
-    return value
+    cls = importlib.import_module("scenefab.ui.main.pages.home_page").HomePage
+    if app is None:
+        return cls()
+    from scenefab.ui.viewmodels.home_viewmodel import HomePageViewModel
+
+    return cls(viewmodel=HomePageViewModel(application=app))
+
+
+PAGE_BUILDERS: dict[str, PageBuilder] = {
+    "home": _build_home,
+    "create": _build_simple(
+        "scenefab.ui.main.pages.production_page", "ProductionPage"
+    ),
+    "assets": _build_simple("scenefab.ui.main.pages.assets_page", "AssetsPage"),
+    "settings": _build_simple(
+        "scenefab.ui.main.pages.settings_page", "SettingsPage"
+    ),
+}
 
 
 __all__ = ["NAV_ITEMS", "PAGE_TITLES", "PAGE_BUILDERS", "NavItem", "PageSpec"]
