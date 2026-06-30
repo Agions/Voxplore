@@ -41,6 +41,13 @@ def test_resource_styles_do_not_use_legacy_tokens() -> None:
 
 
 def test_qss_uses_qt_compatible_syntax() -> None:
+    """Banned-token scan across all shipped QSS sources.
+
+    As of v2.3.x the theme is built programmatically from ``ds_tokens.py``;
+    legacy ``base_styles.py`` and ``resources/styles/*.qss`` were removed, so
+    we no longer scan those paths. This test now only guards against future
+    regressions if any external ``.qss`` files are reintroduced.
+    """
     banned = (
         "var(--",
         "linear-gradient(",
@@ -50,9 +57,12 @@ def test_qss_uses_qt_compatible_syntax() -> None:
         "transform:",
     )
 
-    for path in [*(RESOURCES / "styles").glob("*.qss"), *SRC_THEME.glob("*.qss")]:
+    qss_files: list[Path] = []
+    resources_styles = RESOURCES / "styles"
+    if resources_styles.exists():
+        qss_files.extend(resources_styles.glob("*.qss"))
+    qss_files.extend(SRC_THEME.glob("*.qss"))
+
+    for path in qss_files:
         text = path.read_text(encoding="utf-8").lower()
         assert not any(token in text for token in banned), path
-
-    base_styles = (SRC_THEME / "base_styles.py").read_text(encoding="utf-8").lower()
-    assert not any(token in base_styles for token in banned)

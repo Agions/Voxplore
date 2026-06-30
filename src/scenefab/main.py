@@ -97,10 +97,10 @@ def main() -> None:
             logger.error("应用程序启动失败")
             sys.exit(1)
 
-        # 创建主窗口并注入 application 实例
+        # 创建主窗口并注入 application 实例 (Phase 1.5 接线)
         from scenefab.ui.main.main_window import SceneFabMainWindow
 
-        window = SceneFabMainWindow()
+        window = SceneFabMainWindow(application=application)
         window.show()
 
         # 启动后 3 秒异步检测更新（非阻塞）

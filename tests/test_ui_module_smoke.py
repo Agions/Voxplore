@@ -39,10 +39,11 @@ def test_main_window_imports():
 
 
 def test_main_window_class_structure():
-    """SceneFabMainWindow 结构契约: 4 个 production page + PAGE_TITLES"""
+    """SceneFabMainWindow 结构契约: 4 个 production page + registry 一致性"""
     from PySide6.QtWidgets import QApplication
 
     from scenefab.ui.main.main_window import SceneFabMainWindow
+    from scenefab.ui.main.registry import PAGE_BUILDERS, PAGE_TITLES
 
     app = QApplication.instance() or QApplication([])
     window = SceneFabMainWindow()
@@ -51,17 +52,17 @@ def test_main_window_class_structure():
         # 窗口标题
         assert window.windowTitle() == "SceneFab"
 
-        # PAGE_TITLES 必须含 4 个 production page
-        assert "home" in window.PAGE_TITLES
-        assert "create" in window.PAGE_TITLES
-        assert "assets" in window.PAGE_TITLES
-        assert "settings" in window.PAGE_TITLES
+        # PAGE_TITLES 必须在 registry 里 (Phase 1.4: 移到 registry 单源)
+        assert "home" in PAGE_TITLES
+        assert "create" in PAGE_TITLES
+        assert "assets" in PAGE_TITLES
+        assert "settings" in PAGE_TITLES
 
-        # ContentArea 必须有 _page_map 含 4 个 page
-        assert set(window.content._page_map) == {"home", "create", "assets", "settings"}
+        # PAGE_BUILDERS 4 个 page 都已注册
+        assert set(PAGE_BUILDERS) == {"home", "create", "assets", "settings"}
 
-        # QStackedWidget 必须有 4 页
-        assert window.content._stack.count() == 4
+        # ContentArea 必须有 _stack (Phase 1.4: 页面懒加载,通过 router 访问)
+        assert window.content._stack is not None
     finally:
         window.close()
         app.quit()

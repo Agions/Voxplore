@@ -6,21 +6,15 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QToolButton, QVBoxLayout
 
+from scenefab.ui.main.registry import NavItem
 from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii
 from scenefab.utils.version import get_version_string
-
-NAV_ITEMS = [
-    ("home", "工作台"),
-    ("create", "创作流程"),
-    ("assets", "项目资产"),
-    ("settings", "系统设置"),
-]
 
 
 class SideNavBtn(QToolButton):
     """Sidebar navigation button."""
 
-    def __init__(self, item_id: str, label: str, parent=None):
+    def __init__(self, item_id: str, label: str, tooltip: str = "", parent=None):
         super().__init__(parent)
         self._item_id = item_id
         self.setText(label)
@@ -28,6 +22,8 @@ class SideNavBtn(QToolButton):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setObjectName("side_nav_btn")
         self.setFixedHeight(38)
+        if tooltip:
+            self.setToolTip(tooltip)
         self._apply_style(False)
 
     def _apply_style(self, active: bool):
@@ -61,14 +57,16 @@ class Sidebar(QFrame):
 
     navigated = Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, items: list[NavItem] | tuple[NavItem, ...] | None = None, parent=None):
         super().__init__(parent)
         self.setFixedWidth(188)
         self.setObjectName("sidebar")
-        self._current = "home"
+        self._items = list(items) if items else []
+        self._current = self._items[0].id if self._items else None
         self._setup_style()
         self._setup_ui()
-        self._set_active("home")
+        if self._current is not None:
+            self._set_active(self._current)
 
     def _setup_style(self):
         self.setStyleSheet(f"""
@@ -129,11 +127,11 @@ class Sidebar(QFrame):
         nav_layout.setSpacing(6)
 
         self._nav_btns = {}
-        for item_id, label in NAV_ITEMS:
-            btn = SideNavBtn(item_id, label)
-            btn.clicked.connect(lambda checked, i=item_id: self._on_nav(i))
+        for item in self._items:
+            btn = SideNavBtn(item.id, item.label, item.tooltip)
+            btn.clicked.connect(lambda checked, i=item.id: self._on_nav(i))
             nav_layout.addWidget(btn)
-            self._nav_btns[item_id] = btn
+            self._nav_btns[item.id] = btn
 
         layout.addWidget(nav_frame)
         layout.addStretch()

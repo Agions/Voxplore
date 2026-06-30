@@ -29,7 +29,11 @@ def test_main_window_registers_production_pages() -> None:
     window = SceneFabMainWindow()
     try:
         assert window.windowTitle() == "SceneFab"
-        assert set(window.content._page_map) == {
+
+        # Phase 1 重构后页面是懒加载的：通过 router 依次跳转验证
+        for page_id in ("home", "create", "assets", "settings"):
+            window.router.navigate(page_id)
+        assert set(window.router.cached_pages()) == {
             "home",
             "create",
             "assets",
