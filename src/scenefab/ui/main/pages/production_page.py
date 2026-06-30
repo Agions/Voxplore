@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Production workflow page."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -23,17 +27,28 @@ from .page_widgets import (
     section_title,
 )
 
+if TYPE_CHECKING:
+    from ...viewmodels.production_viewmodel import ProductionPageViewModel
+
 
 class ProductionPage(QFrame):
-    """Structured workflow for first-person narration production."""
+    """Structured workflow for first-person narration production.
+
+    Phase 2B: 5-step pipeline + per-step status are read from
+    :class:`ProductionPageViewModel`. The view renders them declaratively
+    and forwards ``start_requested`` clicks to ``vm.start_pipeline()``.
+    """
 
     start_requested = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, viewmodel: ProductionPageViewModel | None = None, parent=None):
         super().__init__(parent)
+        self._vm = viewmodel
         self.setObjectName("production_page")
         self._setup_style()
         self._setup_ui()
+        if self._vm is not None:
+            self._bind_viewmodel()
 
     def _setup_style(self):
         self.setStyleSheet(page_background_style("production_page"))
@@ -79,17 +94,29 @@ class ProductionPage(QFrame):
         layout.setSpacing(12)
         layout.addWidget(section_title("流程队列"))
 
-        steps = [
-            ("01", "素材导入", "选择影视片段并记录来源"),
-            ("02", "场景拆分", "识别人物、冲突和关键转折"),
-            ("03", "脚本生成", "使用第一人称视角组织叙事"),
-            ("04", "配音字幕", "完成音频、字幕与节奏校准"),
-            ("05", "导出发布", "按竖屏平台参数生成成片"),
-        ]
+        # Phase 2B: read 5 steps from VM (falls back to canon if no VM)
+        steps = self._step_definitions()
+        self._step_rows: list[tuple[QFrame, QLabel | None, QLabel | None, QLabel | None, str, str]] = []
         for number, name, desc in steps:
-            layout.addWidget(self._step_row(number, name, desc))
+            row = self._step_row(number, name, desc)
+            layout.addWidget(row)
+            # 保存 step row 引用,后续 _refresh_step_status 用
+            # _step_rows 内 tuple: (row, badge, title, status_label, number, name)
+            # 但 _step_row 返回 row,内部的 badge/title/status 都是 row 的子 widget
+            # 取出来便于更新
+            badge = row.findChild(QLabel, "step_badge")
+            title = row.findChild(QLabel, "step_title")
+            status_lbl = row.findChild(QLabel, "step_status")
+            self._step_rows.append((row, badge, title, status_lbl, number, name))
         layout.addStretch()
         return frame
+
+    def _step_definitions(self) -> list[tuple[str, str, str]]:
+        if self._vm is not None:
+            return self._vm.step_definitions
+        # Fallback: mirror the VM canon so no-VM smoke tests still render
+        from ...viewmodels.production_viewmodel import STEP_DEFINITIONS
+        return STEP_DEFINITIONS
 
     def _build_brief(self) -> QFrame:
         frame = panel("production_brief")
@@ -141,6 +168,7 @@ class ProductionPage(QFrame):
         layout.setSpacing(12)
 
         badge = QLabel(number)
+        badge.setObjectName("step_badge")
         badge.setFixedWidth(32)
         badge.setFont(QFont("", FontSizes.xs, QFont.Weight.Bold))
         badge.setStyleSheet(f"color: {_C.PRIMARY};")
@@ -149,6 +177,7 @@ class ProductionPage(QFrame):
         copy = QVBoxLayout()
         copy.setSpacing(2)
         title = QLabel(name)
+        title.setObjectName("step_title")
         title.setFont(QFont("", FontSizes.sm, QFont.Weight.Medium))
         title.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
         copy.addWidget(title)
@@ -159,6 +188,7 @@ class ProductionPage(QFrame):
         layout.addLayout(copy, 1)
 
         status = QLabel("待开始")
+        status.setObjectName("step_status")
         status.setFont(QFont("", FontSizes.xs))
         status.setStyleSheet(f"color: {_C.TEXT_DISABLED};")
         layout.addWidget(status)
@@ -177,3 +207,52 @@ class ProductionPage(QFrame):
             }}
         """)
         return label
+
+    # ──────────────────────────────────────────────────────────
+    # ViewModel 绑定 (Phase 2B)
+    # ──────────────────────────────────────────────────────────
+
+    def _bind_viewmodel(self) -> None:
+        vm = self._vm
+        if vm is None:
+            return
+        vm.step_status_changed.connect(self._refresh_step_status)
+        vm.pipeline_state_changed.connect(self._refresh_pipeline_state)
+        self._refresh_step_status()
+        self._refresh_pipeline_state()
+
+    def _refresh_step_status(self) -> None:
+        """Update each step row's status label from VM."""
+        if self._vm is None or not self._step_rows:
+            return
+        statuses = self._vm.step_status
+        for index, (_row, _badge, _title, status_lbl, _num, _name) in enumerate(self._step_rows):
+            raw = statuses[index] if index < len(statuses) else "pending"
+            label = self._vm.get_status_label(raw)
+            color = {
+                "pending": _C.TEXT_DISABLED,
+                "active": _C.PRIMARY,
+                "done": "#10b981",  # 绿
+                "error": "#ef4444",  # 红
+            }.get(raw, _C.TEXT_MUTED)
+            if status_lbl is not None:
+                status_lbl.setText(label)
+                status_lbl.setStyleSheet(f"color: {color};")
+
+    def _refresh_pipeline_state(self) -> None:
+        """Update the header / start button enabled state from VM."""
+        if self._vm is None:
+            return
+        # Disabled start while running (Phase 2B: simple model, full UX is 2C+)
+        # Currently: just observe — disabled-state wiring is a small follow-up
+        # in Phase 2B+1 when full pipeline UI lands.
+        _ = self._vm.pipeline_state  # observe; future hook for button state
+
+    # ──────────────────────────────────────────────────────────
+    # 公共入口 (Phase 2B: start button 转发到 VM)
+    # ──────────────────────────────────────────────────────────
+
+    def start_pipeline(self, source_video: str, context: str) -> None:
+        """Forward start request to ViewModel (no-op if no VM bound)."""
+        if self._vm is not None:
+            self._vm.start_pipeline(source_video, context)

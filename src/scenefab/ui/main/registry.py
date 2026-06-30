@@ -101,12 +101,34 @@ def _build_home(app: Application | None) -> QWidget:
     return cls(viewmodel=HomePageViewModel(application=app))
 
 
+def _build_production(app: Application | None) -> QWidget:
+    """ProductionPage needs a ViewModel — wire it through here (Phase 2B)."""
+    import importlib
+
+    cls = importlib.import_module("scenefab.ui.main.pages.production_page").ProductionPage
+    if app is None:
+        return cls()
+    from scenefab.ui.viewmodels.production_viewmodel import ProductionPageViewModel
+
+    return cls(viewmodel=ProductionPageViewModel(application=app))
+
+
+def _build_assets(app: Application | None) -> QWidget:
+    """AssetsPage needs a ViewModel — wire it through here (Phase 2C)."""
+    import importlib
+
+    cls = importlib.import_module("scenefab.ui.main.pages.assets_page").AssetsPage
+    if app is None:
+        return cls()
+    from scenefab.ui.viewmodels.assets_viewmodel import AssetsPageViewModel
+
+    return cls(viewmodel=AssetsPageViewModel(application=app))
+
+
 PAGE_BUILDERS: dict[str, PageBuilder] = {
     "home": _build_home,
-    "create": _build_simple(
-        "scenefab.ui.main.pages.production_page", "ProductionPage"
-    ),
-    "assets": _build_simple("scenefab.ui.main.pages.assets_page", "AssetsPage"),
+    "create": _build_production,
+    "assets": _build_assets,
     "settings": _build_simple(
         "scenefab.ui.main.pages.settings_page", "SettingsPage"
     ),
