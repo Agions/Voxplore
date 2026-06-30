@@ -8,10 +8,12 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QVBoxLayout,
+    QWidget,
 )
 
 from ...theme.ds_tokens import _C, FontSizes, Radii
@@ -71,7 +73,8 @@ class AssetsPage(QFrame):
 
     def _build_header(self) -> QFrame:
         import_btn = action_button("导入素材", primary=True)
-        import_btn.clicked.connect(self.import_requested.emit)
+        # Phase 2D+: import button triggers file dialog directly (was: signal)
+        import_btn.clicked.connect(self._on_import_requested)
         return header_panel(
             "assets_header",
             "项目资产",
@@ -251,3 +254,44 @@ class AssetsPage(QFrame):
         if self._vm is None:
             return 0
         return self._vm.import_media(files)
+
+    # ──────────────────────────────────────────────────────────
+    # Phase 2D+: 拖拽导入素材 (file dialog 触发)
+    # ──────────────────────────────────────────────────────────
+
+    def _on_import_requested(self) -> None:
+        """Slot for the '导入素材' button — show a file picker.
+
+        The picked paths are forwarded to ``vm.import_media``. If the
+        page has no VM bound (e.g. smoke test mode), the dialog still
+        opens but nothing is recorded — the user just gets a no-op.
+        """
+        paths = self._show_import_dialog(parent=self.window())
+        if paths:
+            self.import_media(paths)
+
+    def _show_import_dialog(self, parent: QWidget | None = None) -> list[str]:
+        """Open a multi-select file picker. Returns the chosen paths.
+
+        The dialog accepts common video / audio formats used by the
+        first-person narration pipeline. Returns an empty list if the
+        user cancels.
+
+        Splitting this out from :meth:`_on_import_requested` makes it
+        easy to mock the dialog in tests (just monkey-patch the method
+        to return a fixed list).
+        """
+        filter_str = (
+            "媒体文件 (*.mp4 *.mov *.mkv *.avi *.flv *.wmv "
+            "*.mp3 *.wav *.m4a *.flac);;所有文件 (*)"
+        )
+        result: list[str] = []
+        # Use getOpenFileNames (static) so the dialog doesn't block the
+        # page on a non-Qt event loop. Returns ([paths], selectedFilter).
+        result, _ = QFileDialog.getOpenFileNames(
+            parent,
+            "选择要导入的素材",
+            "",
+            filter_str,
+        )
+        return list(result)
