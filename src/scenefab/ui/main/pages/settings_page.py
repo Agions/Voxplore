@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Application settings page."""
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QComboBox,
@@ -14,7 +14,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...theme.ds_tokens import _C, FontSizes, Radii
+from ...theme.ds_tokens import _C, FontSizes, Radii, get_theme_mode
+from ...theme.runtime import ThemeAwareMixin
 from ..controls import ToggleSwitch
 from .page_widgets import (
     action_button_style,
@@ -26,20 +27,48 @@ from .page_widgets import (
     section_title,
 )
 
+# Theme mode options presented in the appearance combo box.
+THEME_OPTIONS = ("浅色", "深色")  # display labels
+THEME_MODES = ("light", "dark")  # values emitted on theme_changed
 
-class SettingsPage(QFrame):
-    """Professional settings surface."""
+
+class SettingsPage(QFrame, ThemeAwareMixin):
+    """Professional settings surface.
+
+    Hosts the theme switcher in :meth:`_appearance_group`. Picking a
+    new option emits :attr:`theme_changed`; :class:`SceneFabMainWindow`
+    listens and applies the new palette via :func:`restyle_app` plus
+    each :class:`ThemeAwareMixin.apply_theme`.
+    """
+
+    theme_changed = Signal(str)  # "light" / "dark"
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("settings_page")
         self._tray_toggle: ToggleSwitch | None = None
-        self._setup_style()
+        self._theme_combo: QComboBox | None = None
+        # Apply stylesheet once ThemeAwareMixin is in the MRO. The mixin
+        # has no ``__init__`` — declaring it on the class is enough.
+        ThemeAwareMixin.__init__(self)
+        self.setStyleSheet(self._build_stylesheet())
         self._setup_ui()
         self._connect_tray_signal()
+        self._connect_theme_signal()
 
     def _setup_style(self):
+        # Kept for backwards-compat: ThemeAwareMixin.__init__ now calls
+        # build_stylesheet directly. Re-applied here so subclasses that
+        # override ``_setup_style`` keep working.
         self.setStyleSheet(page_background_style("settings_page"))
+
+    def _build_stylesheet(self) -> str:
+        """Return the page-level stylesheet using the **current** ``_C``.
+
+        Used by :class:`ThemeAwareMixin.apply_theme` to refresh colours
+        after :func:`set_theme_mode`.
+        """
+        return page_background_style("settings_page")
 
     def _setup_ui(self):
         root = QVBoxLayout(self)
@@ -51,6 +80,7 @@ class SettingsPage(QFrame):
 
         layout.addWidget(self._build_header())
         layout.addWidget(self._workspace_group())
+        layout.addWidget(self._appearance_group())
         layout.addWidget(self._ai_group())
         layout.addWidget(self._export_group())
         layout.addWidget(self._behavior_group())
@@ -62,6 +92,29 @@ class SettingsPage(QFrame):
     def _connect_tray_signal(self):
         if self._tray_toggle is not None:
             self._tray_toggle.toggled.connect(self._on_tray_toggled)
+
+    def _connect_theme_signal(self):
+        if self._theme_combo is not None:
+            self._theme_combo.currentIndexChanged.connect(self._on_theme_changed)
+
+    def _on_theme_changed(self, index: int) -> None:
+        if 0 <= index < len(THEME_MODES):
+            mode = THEME_MODES[index]
+            self.theme_changed.emit(mode)
+
+    def set_theme_mode_index(self, mode: str) -> None:
+        """Programmatically select a theme option without firing the signal.
+
+        Used by :class:`SceneFabMainWindow` when restoring the user's
+        persisted preference on startup. Falls back silently when the
+        combo has not been built yet (headless test path).
+        """
+        if self._theme_combo is None or mode not in THEME_MODES:
+            return
+        target = THEME_MODES.index(mode)
+        self._theme_combo.blockSignals(True)
+        self._theme_combo.setCurrentIndex(target)
+        self._theme_combo.blockSignals(False)
 
     def _on_tray_toggled(self, checked: bool):
         window = self.window()
@@ -81,6 +134,28 @@ class SettingsPage(QFrame):
             self._row("输出目录", self._path_input("~/SceneFab/exports"), "成片和草稿导出位置")
         )
         layout.addWidget(self._row("界面语言", self._combo(["简体中文", "English"])))
+        return group
+
+    def _appearance_group(self) -> QFrame:
+        """Theme selector — emits ``theme_changed`` on pick.
+
+        The combo is captured on the instance so that
+        :meth:`set_theme_mode_index` can sync it to the persisted
+        preference without bouncing the signal back.
+        """
+        group = self._group("外观")
+        layout = group.layout()
+        theme_combo = self._combo(list(THEME_OPTIONS))
+        # Default to the active theme (light on startup).
+        theme_combo.setCurrentIndex(THEME_MODES.index(get_theme_mode()))
+        self._theme_combo = theme_combo
+        layout.addWidget(
+            self._row(
+                "界面主题",
+                theme_combo,
+                "切换后立即生效",
+            )
+        )
         return group
 
     def _ai_group(self) -> QFrame:

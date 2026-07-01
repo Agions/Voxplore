@@ -30,17 +30,23 @@ from scenefab.ui.main.main_window.top_bar import TopBar
 from scenefab.ui.main.page_router import PageRouter
 from scenefab.ui.main.registry import NAV_ITEMS, PAGE_TITLES
 from scenefab.ui.main.system_tray import SystemTrayController
-from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii
+from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii, set_theme_mode
+from scenefab.ui.theme.runtime import ThemeAwareMixin, restyle_app
 
 if TYPE_CHECKING:
     from scenefab.application import Application
 
 
-class SceneFabMainWindow(QMainWindow):
+class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
     """SceneFab 主窗口 — 装配器,只做信号路由。
 
     Phase 1 之后不直接持有页面、不直接读 services、不直接管托盘。
     注入的 ``application`` 实例在 Phase 2 才会被 ViewModel 消费。
+
+    现在通过 :class:`ThemeAwareMixin` 接入运行时主题切换:
+    :func:`build_global_stylesheet` 在每次主题变更后被
+    :meth:`apply_theme` 重新求值,新的 ``_C.X`` 字面值注入到
+    QApplication 级别的 ``*`` selector 块里。
     """
 
     def __init__(self, application: Application | None = None) -> None:
@@ -48,6 +54,7 @@ class SceneFabMainWindow(QMainWindow):
         self._application = application
         self.setWindowTitle("SceneFab")
         self.setMinimumSize(1200, 720)
+        self.setStyleSheet(self.build_global_stylesheet())
 
         # 子组件
         self.sidebar: Sidebar
@@ -59,7 +66,6 @@ class SceneFabMainWindow(QMainWindow):
 
         self._setup_ui()
         self._connect_signals()
-        self._apply_global_style()
 
     # ──────────────────────────────────────────────────────────
     # 装配
@@ -102,8 +108,62 @@ class SceneFabMainWindow(QMainWindow):
         self.tray.open_settings_requested.connect(self._open_settings_from_tray)
         self.tray.quit_requested.connect(self._quit_application)
 
-    def _apply_global_style(self) -> None:
-        self.setStyleSheet(f"""  # type: ignore[attr-defined]
+    def _on_page_changed(self, page_id: str) -> None:
+        spec = PAGE_TITLES.get(page_id)
+        if spec is None:
+            return
+        self.topbar.set_title(spec.title, spec.breadcrumb)
+        self.statusbar.set_status(f"当前: {spec.title}")
+        # Lazy-connect the settings page theme_changed signal: routes
+        # through here once the user has opened the page at least once.
+        if page_id == "settings":
+            self._wire_theme_switcher()
+
+    def _wire_theme_switcher(self) -> None:
+        """Connect :attr:`SettingsPage.theme_changed` exactly once.
+
+        The router caches pages, so the same ``SettingsPage`` instance is
+        re-shown across visits — guarding the connect with a flag avoids
+        duplicate slots firing twice on repeat navigation.
+        """
+        if getattr(self, "_theme_signal_wired", False):
+            return
+        page = self.router._page_map.get("settings")
+        connect = getattr(page, "theme_changed", None)
+        if connect is None:
+            return
+        connect.connect(self._on_theme_switched)
+        self._theme_signal_wired = True
+
+    def _on_theme_switched(self, mode: str) -> None:
+        """Apply a new theme: rebind tokens → restyle the whole tree.
+
+        Iterates over every cached page that mixes in
+        :class:`ThemeAwareMixin` and calls :meth:`apply_theme` so
+        already-rendered widgets pick up the new ``_C`` literals.
+        """
+        set_theme_mode(mode)
+        # Update self first so the global ``*`` block picks up new colours.
+        self.apply_theme()
+        # Then walk every ThemeAwareMixin page in the cache.
+        for page in getattr(self.router, "_page_map", {}).values():  # pragma: no cover
+            apply = getattr(page, "apply_theme", None)
+            if callable(apply):
+                try:
+                    apply()
+                except Exception:  # noqa: BLE001 — be tolerant of buggy pages
+                    pass
+        # Finally let Qt re-polish non-themed widgets (e.g. native dialogs).
+        restyle_app()
+
+    def build_global_stylesheet(self) -> str:
+        """Return the QApplication-level stylesheet using the **current** ``_C`` values.
+
+        Re-evaluated every time :meth:`ThemeAwareMixin.apply_theme`
+        is called (via :func:`restyle_app` triggered by SettingsPage),
+        so colour literals stay in sync after :func:`set_theme_mode`.
+        """
+        return f"""
             QMainWindow {{
                 background: {_C.BG_BASE};
                 outline: none;
@@ -159,7 +219,11 @@ class SceneFabMainWindow(QMainWindow):
                 selection-background-color: {_C.PRIMARY};
                 selection-color: {_C.TEXT_INVERSE};
             }}
-        """)
+        """
+
+    # ThemeAwareMixin hook: route _build_stylesheet to the live builder above
+    def _build_stylesheet(self) -> str:
+        return self.build_global_stylesheet()
 
     # ──────────────────────────────────────────────────────────
     # 路由 + 动作
@@ -167,13 +231,6 @@ class SceneFabMainWindow(QMainWindow):
 
     def _on_navigate(self, page_id: str) -> None:
         self.router.navigate(page_id)
-
-    def _on_page_changed(self, page_id: str) -> None:
-        spec = PAGE_TITLES.get(page_id)
-        if spec is None:
-            return
-        self.topbar.set_title(spec.title, spec.breadcrumb)
-        self.statusbar.set_status(f"当前: {spec.title}")
 
     def navigate_to(self, page_id: str, **_kwargs: object) -> None:
         """公共导航接口(供其他模块从外部跳转)。"""
