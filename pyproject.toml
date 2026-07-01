@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scenefab"
-version = "2.3.0"
+version = "2.4.0"
 description = "SceneFab - AI 影视解说视频创作工具，一键完成智能拆条 · 解说生成 · 配音合成"
 readme = "README.md"
 license = {text = "MIT"}
