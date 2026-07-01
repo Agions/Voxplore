@@ -277,7 +277,7 @@ class EdgeTTSProvider(TTSProvider):
         self, text: str, voice: str, rate_str: str, pitch_str: str,
     ) -> Any:
         """构造 edge-tts Communicate 对象（集中惰性导入）"""
-        import edge_tts  # type: ignore[import-untyped]
+        import edge_tts
 
         return edge_tts.Communicate(text, voice, rate=rate_str, pitch=pitch_str)
 
@@ -289,7 +289,7 @@ class EdgeTTSProvider(TTSProvider):
         progress_callback=None,
     ) -> None:
         """遍历 edge-tts 流，写入音频并收集时间戳，回调每句进度"""
-        submaker = self.edge_tts.SubMaker()  # type: ignore[attr-defined]
+        submaker = self.edge_tts.SubMaker()
 
         with open(output_path, "wb") as f:
             async for chunk in communicate.stream():

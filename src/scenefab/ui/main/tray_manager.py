@@ -91,8 +91,8 @@ class TrayManager(QObject):
             else:
                 # 降级：使用应用默认图标
                 app = QApplication.instance()
-                if app and not app.windowIcon().isNull():  # type: ignore[attr-defined]
-                    tray_icon.setIcon(app.windowIcon())  # type: ignore[attr-defined]
+                if app and not app.windowIcon().isNull():
+                    tray_icon.setIcon(app.windowIcon())
 
             # 构建菜单
             self._build_menu(window_title)

@@ -42,8 +42,8 @@ try:
     _QT_AVAILABLE = True
 except ImportError:
     _QT_AVAILABLE = False
-    QObject = object  # type: ignore[misc,assignment]
-    QThread = object  # type: ignore[misc,assignment]
+    QObject = object
+    QThread = object
 
     class _DummySignal:  # noqa: D401
         """PySide6 不可用时的占位 Signal"""
@@ -61,7 +61,7 @@ except ImportError:
                 except Exception as e:
                     logger.error(f"Signal handler error: {e}")
 
-    Signal = _DummySignal  # type: ignore[misc,assignment]
+    Signal = _DummySignal
 
 
 @dataclass
@@ -77,7 +77,7 @@ class WorkerResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignore[misc,valid-type]
+class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignore[misc]
     """
     统一 Worker 基类
 

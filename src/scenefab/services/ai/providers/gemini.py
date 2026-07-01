@@ -128,7 +128,7 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     @staticmethod
     def _detect_image_mime(image_path) -> str:
         """根据文件后缀检测 MIME 类型"""
-        suffix = image_path.suffix.lower()  # type: ignore[attr-defined]
+        suffix = image_path.suffix.lower()
         mime_map = {
             ".png": "image/png",
             ".jpg": "image/jpeg",

@@ -516,7 +516,7 @@ class DirectVideoExporter:
         """
         cfg = config or self.config
 
-        if not getattr(config, "output_path", None):  # type: ignore[union-attr]
+        if not getattr(config, "output_path", None):
             raise ValueError(
                 "config.output_path is required for DirectVideoExporter.export"
             )

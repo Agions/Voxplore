@@ -63,7 +63,7 @@ class SystemTrayController(QObject):
         if self._tray is not None:
             self._tray.disable()
         self.quit_requested.emit()
-        QApplication.instance().quit()  # type: ignore[union-attr]
+        QApplication.instance().quit()
 
     # ── Public API ─────────────────────────────────────────────
 

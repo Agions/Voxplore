@@ -63,7 +63,7 @@ def check_update() -> UpdateInfo | None:
     """
     current = get_version_string()
     try:
-        with httpx.Client(**_client_config) as client:  # type: ignore[arg-type]
+        with httpx.Client(**_client_config) as client:
             response = client.get(GITHUB_API_RELEASES)
             response.raise_for_status()
             data = response.json()

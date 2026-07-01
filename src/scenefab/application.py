@@ -206,7 +206,7 @@ class Application(QObject):
     def get_service(self, service_type: type[T]) -> T | None:
         """获取指定类型的服务 (TypeVar 化 — 替代原 object | None 的类型擦除)"""
         try:
-            return self._service_container.get(service_type)  # type: ignore[return-value]
+            return self._service_container.get(service_type)
         except ValueError:
             return None
 
@@ -416,7 +416,7 @@ class Application(QObject):
         """加载配置"""
         try:
             settings = QSettings("SceneFab", "Application")
-            self.logger.info(f"配置加载完成: {len(settings.allKeys())} keys")  # type: ignore[call-arg]
+            self.logger.info(f"配置加载完成: {len(settings.allKeys())} keys")
         except Exception as e:
             self.logger.error(f"配置加载失败: {e}")
 

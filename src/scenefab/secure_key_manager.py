@@ -35,7 +35,7 @@ except ImportError:
         def delete_password(self, service_name: str, username: str) -> None:
             raise RuntimeError("keyring package is not installed")
 
-    keyring = _UnavailableKeyring()  # type: ignore[assignment]
+    keyring = _UnavailableKeyring()
 
 
 class SecureKeyManager:
@@ -338,7 +338,7 @@ class SecureKeyManager:
             # 重新存储所有密钥（使用新的主密钥）
             for provider, key_data in stored_keys.items():
                 self.store_api_key(
-                    provider, key_data["api_key"], key_data.get("metadata")  # type: ignore[arg-type]
+                    provider, key_data["api_key"], key_data.get("metadata")
                 )
 
             self.logger.info("Master key rotated successfully")
