@@ -253,7 +253,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self._on_navigate("settings")
 
     def _quit_application(self) -> None:
-        QApplication.instance().quit()
+        QApplication.instance().quit()  # type: ignore[union-attr]
 
     def set_minimize_to_tray(self, enabled: bool) -> None:
         """供 SettingsPage 调用的关闭行为开关。"""

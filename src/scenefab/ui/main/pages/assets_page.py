@@ -62,6 +62,7 @@ class AssetsPage(QFrame):
         scroll = scroll_area()
         container = page_container()
         layout = container.layout()
+        assert layout is not None  # for type checker
 
         layout.addWidget(self._build_header())
         layout.addWidget(self._build_asset_table(), 1)

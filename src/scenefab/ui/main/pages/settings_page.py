@@ -77,6 +77,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
         scroll = scroll_area()
         container = page_container()
         layout = container.layout()
+        assert layout is not None  # for type checker
 
         layout.addWidget(self._build_header())
         layout.addWidget(self._workspace_group())
@@ -127,6 +128,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
     def _workspace_group(self) -> QFrame:
         group = self._group("工作区")
         layout = group.layout()
+        assert layout is not None  # for type checker
         layout.addWidget(
             self._row("项目目录", self._path_input("~/SceneFab/projects"), "默认项目保存位置")
         )
@@ -145,6 +147,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
         """
         group = self._group("外观")
         layout = group.layout()
+        assert layout is not None  # for type checker
         theme_combo = self._combo(list(THEME_OPTIONS))
         # Default to the active theme (light on startup).
         theme_combo.setCurrentIndex(THEME_MODES.index(get_theme_mode()))
@@ -161,6 +164,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
     def _ai_group(self) -> QFrame:
         group = self._group("AI 服务")
         layout = group.layout()
+        assert layout is not None  # for type checker
         api_input = QLineEdit()
         api_input.setEchoMode(QLineEdit.EchoMode.Password)
         api_input.setPlaceholderText("输入 API Key")
@@ -179,6 +183,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
     def _export_group(self) -> QFrame:
         group = self._group("导出默认值")
         layout = group.layout()
+        assert layout is not None  # for type checker
         layout.addWidget(
             self._row(
                 "画布",
@@ -198,6 +203,7 @@ class SettingsPage(QFrame, ThemeAwareMixin):
     def _behavior_group(self) -> QFrame:
         group = self._group("应用行为")
         layout = group.layout()
+        assert layout is not None  # for type checker
         layout.addWidget(self._row("自动保存", ToggleSwitch(True), "每 5 分钟保存项目状态"))
         self._tray_toggle = ToggleSwitch(False)
         layout.addWidget(

@@ -60,6 +60,7 @@ class ProductionPage(QFrame):
         scroll = scroll_area()
         container = page_container()
         layout = container.layout()
+        assert layout is not None  # for type checker
 
         layout.addWidget(self._build_header())
 

@@ -135,6 +135,7 @@ class Application(QObject):
             for service_name in self._service_container.all_names():
                 service = self._service_container.get_by_name(service_name)
                 if hasattr(service, "start"):
+                    assert service is not None  # for type checker
                     if not service.start():
                         self.error_occurred.emit(
                             "SERVICE_ERROR", f"Failed to start service: {service_name}"
@@ -169,6 +170,7 @@ class Application(QObject):
             for service_name in reversed(services_list):
                 service = self._service_container.get_by_name(service_name)
                 if hasattr(service, "stop"):
+                    assert service is not None  # for type checker
                     try:
                         service.stop()
                     except Exception as e:
