@@ -197,7 +197,7 @@ src/scenefab/
 │   └── export/            # 成片、字幕和剪映草稿导出
 ├── ui/
 │   ├── main/              # Home / Production / Assets / Settings
-│   └── theme/             # 设计令牌和主题加载
+│   └── theme/             # 设计令牌 (Colors / DarkColors / Radii / Spacing) + 运行时切换 (set_theme_mode / restyle_app / ThemeAwareMixin)
 └── models/                # 稳定数据模型
 ```
 
