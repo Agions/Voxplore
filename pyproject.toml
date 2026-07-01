@@ -215,6 +215,10 @@ ignore_missing_imports = true
 module = "numpy.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["deepl", "fastapi", "fastapi.middleware.cors", "fastapi.responses", "importlib_metadata", "keyring", "orjson", "PIL", "pydub", "torch"]
+ignore_missing_imports = true
+
 [tool.uv]
 # uv workspace members (for monorepo support in future)
 # members = []
