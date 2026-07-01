@@ -298,7 +298,7 @@ class UnifiedEventBus:
         """
         if self._closed:
             return
-        self._dispatch(event_name, data, source_event=None)
+        self._dispatch(event_name, data)
 
     def emit(self, event_name: str, data: Any = None) -> None:
         """publish 的别名（兼容 EventEmitter.emit）"""
@@ -337,7 +337,7 @@ class UnifiedEventBus:
                 correlation_id=event.correlation_id,
                 causation_id=event.causation_id,
             )
-        self._dispatch(event.event_name, event, source_event=event)
+        self._dispatch(event.event_name, event)
 
     # ────────────────────────────────────────────────
     # 内部调度
@@ -347,8 +347,6 @@ class UnifiedEventBus:
         self,
         event_name: str,
         data: Any,
-        *,
-        source_event: DomainEvent | None,
     ) -> None:
         with self._lock:
             handlers = list(self._handlers.get(event_name, []))
@@ -454,7 +452,7 @@ class UnifiedEventBus:
             return 0
         records = self._log.all()
         for r in records:
-            self._dispatch(r.event_name, r.payload, source_event=None)
+            self._dispatch(r.event_name, r.payload)
         return len(records)
 
     def replay_from(self, after_event_id: str) -> int:
@@ -463,7 +461,7 @@ class UnifiedEventBus:
             return 0
         records = self._log.from_event_id(after_event_id)
         for r in records:
-            self._dispatch(r.event_name, r.payload, source_event=None)
+            self._dispatch(r.event_name, r.payload)
         return len(records)
 
     def replay_from_sequence(self, after_seq: int) -> int:
@@ -472,7 +470,7 @@ class UnifiedEventBus:
             return 0
         records = self._log.from_sequence(after_seq)
         for r in records:
-            self._dispatch(r.event_name, r.payload, source_event=None)
+            self._dispatch(r.event_name, r.payload)
         return len(records)
 
     # ────────────────────────────────────────────────
