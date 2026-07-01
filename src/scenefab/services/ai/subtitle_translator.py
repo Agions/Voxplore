@@ -328,7 +328,8 @@ class SubtitleTranslator:
                 )
 
             # 解析结果
-            result_text = result.text  # type: ignore[union-attr]
+            assert result is not None, "DeepL 返回结果不应为 None"
+            result_text = result.text
             translated = []
             for i in range(len(texts)):
                 marker = f"[{i}]"

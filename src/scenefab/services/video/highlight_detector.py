@@ -333,7 +333,7 @@ class HighlightDetector:
 
         try:
             import numpy as np
-            from pydub import AudioSegment  # type: ignore[import-untyped]
+            from pydub import AudioSegment
 
             audio = AudioSegment.from_wav(str(audio_path))
             samples = np.array(audio.get_array_of_samples(), dtype=np.float32)

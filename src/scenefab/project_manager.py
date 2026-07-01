@@ -271,7 +271,7 @@ class ProjectManager(QObject):
         try:
             import psutil
 
-            return psutil.pid_exists(int(pid_str))  # type: ignore[no-any-return, attr-defined]  # type: ignore[attr-defined]
+            return psutil.pid_exists(int(pid_str))  # type: ignore[no-any-return]
         except (ImportError, ValueError):
             return False
 

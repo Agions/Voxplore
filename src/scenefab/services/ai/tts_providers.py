@@ -46,7 +46,7 @@ class TTSProvider(ABC):
         """统一获取音频时长（子模块如有更优实现可覆盖）"""
         # 优先用 pydub（适合本地 wav/mp3）
         try:
-            from pydub import AudioSegment  # type: ignore[import-untyped]
+            from pydub import AudioSegment
 
             audio = AudioSegment.from_file(audio_path)
             return len(audio) / 1000.0
