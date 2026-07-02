@@ -139,3 +139,6 @@ LLM:
 
 ## 相关文档
 
+- [快速开始](/guide/quick-start) — 3 步上手
+- [CLI 参考](/guide/cli-reference) — 环境变量配置
+- [疑难排查](/guide/troubleshooting) — 常见问题解决

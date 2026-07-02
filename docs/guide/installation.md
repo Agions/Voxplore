@@ -7,35 +7,35 @@ description: 在 Windows、macOS 和 Linux 上完整安装 SceneFab 的详细步
 
 ## 系统要求
 
-| 组件 | 最低要求 | 推荐配置 |
-|------|---------|---------|
-| 操作系统 | Windows 10 / macOS 12 / Ubuntu 20.04 | 最新稳定版 |
-| CPU | 4 核 | 8 核+ |
-| 内存 | 8 GB | 16 GB+ |
-| 显卡 | 集成显卡 | NVIDIA 4GB+（加速 AI 推理） |
-| 磁盘 | 5 GB | 10 GB+ |
-| Python | 3.10+ | 3.12 |
-| FFmpeg | 6.x | 最新稳定版 |
+| 要求 | 最低配置 | 推荐配置 |
+|------|----------|----------|
+| 操作系统 | Windows 10 / macOS 11 / Ubuntu 20.04 | 最新稳定版 |
+| Python | 3.10+ | 3.11+ |
+| 内存 | 4 GB | 8 GB+ |
+| 磁盘 | 2 GB 可用空间 | 5 GB 可用空间 |
+| FFmpeg | 6.0+ | 最新版 |
+| GPU | 可选（F5-TTS 需要） | NVIDIA CUDA / Apple Silicon |
 
 ## Windows
 
 ### 方式一：安装包（推荐）
 
-1. 从 [GitHub Releases](https://github.com/Agions/scene-fab/releases) 下载 `.exe` 安装包
-2. 运行安装程序，按照向导完成安装
-3. 启动 SceneFab
+1. 从 [Releases](https://github.com/Agions/scene-fab/releases) 下载最新 `.exe`
+2. 双击运行安装程序
+3. 安装完成后，桌面会出现 **SceneFab** 图标
 
 ### 方式二：pip
 
-```powershell
-### 确认 Python 版本
-python --version   # 需 Python 3.10+
+```bash
+# 确认 Python 版本
+python --version
+# 应输出：Python 3.10.x 或更高
 
-### 安装 SceneFab
+# 安装 SceneFab
 pip install scenefab
 
-### 启动
-scenefab
+# 验证安装
+scenefab --version
 ```
 
 ## macOS
@@ -43,99 +43,119 @@ scenefab
 ### 方式一：pip（推荐）
 
 ```bash
-### 安装依赖
-brew install python@3.12 ffmpeg
+# 确认 Python 版本
+python3 --version
+# 应输出：Python 3.10.x 或更高
 
-### 安装 SceneFab
+# 安装 SceneFab
 pip3 install scenefab
 
-### 启动
-scenefab
+# 验证安装
+scenefab --version
 ```
 
-### 方式二：源码安装
+### 方式二：Homebrew
 
 ```bash
-git clone https://github.com/Agions/scene-fab.git
-cd scene-fab
-pip install -e ".[dev]"
+# 安装依赖
+brew install ffmpeg python@3.11
+
+# 安装 SceneFab
+pip3 install scenefab
 ```
 
-## Linux (Ubuntu/Debian)
+## Linux（Ubuntu/Debian）
+
+### 完整安装脚本
 
 ```bash
-### 安装系统依赖
-sudo apt update
-sudo apt install -y python3 python3-pip python3-venv ffmpeg \
-  libsm6 libxext6 libgl1 libegl1 libxkbcommon0 libdbus-1-3
+# 1. 更新系统
+sudo apt update && sudo apt upgrade -y
 
-### 安装 SceneFab
+# 2. 安装 Python 3.11
+sudo apt install python3.11 python3.11-venv python3-pip -y
+
+# 3. 安装 FFmpeg
+sudo apt install ffmpeg -y
+
+# 4. 安装 GUI 依赖（PySide6 需要）
+sudo apt install libegl1 libgl1 libxkbcommon-x11-0 libxext6 libsm6 libxrender1 libdbus-1-3 -y
+
+# 5. 创建虚拟环境
+python3.11 -m venv ~/.venv/scenefab
+source ~/.venv/scenefab/bin/activate
+
+# 6. 安装 SceneFab
+pip install --upgrade pip
 pip install scenefab
 
-### 启动
-scenefab
+# 7. 验证安装
+scenefab --version
 ```
 
-## 依赖说明
+### 无头环境（无显示器）
 
-| 依赖 | 版本 | 用途 | 安装方式 |
-|------|------|------|---------|
-| Python | 3.10+ | 运行时环境 | 系统包管理器 |
-| FFmpeg | 6.x | 音视频处理 | 系统包管理器 |
-| PySide6 | 6.9+ | Qt 桌面 UI | pip（自动安装） |
-| OpenCV | 4.8+ | 视频帧处理 | pip（自动安装） |
+```bash
+# 使用 offscreen 模式启动
+QT_QPA_PLATFORM=offscreen scenefab
+```
 
 ## 验证安装
 
+运行以下命令确认安装成功：
+
 ```bash
-### 检查版本
+# 1. 检查 Python 版本
+python --version
+
+# 2. 检查 FFmpeg
+ffmpeg -version | head -1
+
+# 3. 检查 SceneFab
 scenefab --version
-### 输出: scenefab 2.1.2
 
-### 检查 FFmpeg
-ffmpeg -version
-
-### 检查 Python
-python3 --version
+# 4. 检查 GUI 依赖
+python -c "from PySide6.QtCore import qVersion; print('Qt', qVersion())"
 ```
 
-## 可选依赖
+## 常见问题
 
-### AI 完整模式（含 Whisper 语音识别）
+### FFmpeg 未找到
 
 ```bash
-pip install scenefab[ai-full]
+# macOS
+brew install ffmpeg
+
+# Ubuntu
+sudo apt install ffmpeg
+
+# Windows
+winget install ffmpeg
 ```
 
-此模式会安装 `faster-whisper` 和 `torch`（约 2GB+），支持本地语音识别。
-
-### 翻译功能
+### GUI 依赖缺失
 
 ```bash
-pip install scenefab[translation]
+# Ubuntu
+sudo apt install libegl1 libgl1 libxkbcommon-x11-0 libxext6 libsm6 libxrender1 libdbus-1-3
 ```
 
-### HTTP API 服务
+### 虚拟环境最佳实践
 
 ```bash
-pip install scenefab[api]
+# 创建虚拟环境
+python -m venv .venv
+
+# 激活
+source .venv/bin/activate  # Linux/macOS
+.venv\Scripts\activate     # Windows
+
+# 安装依赖
+pip install scenefab
 ```
-
-### 全部可选功能
-
-```bash
-pip install scenefab[all]
-```
-
-## 卸载
-
-```bash
-pip uninstall scenefab
-```
-
-卸载前请确保已导出所有项目文件。配置文件位于 `~/.scenefab/`，可手动删除。
 
 ## 相关文档
 
 - [快速开始](/guide/quick-start) — 3 步上手
-- [AI 配置](/guide/ai-configuration) — 配置 AI 服务商
+- [界面介绍](/guide/interface) — 了解桌面界面
+- [疑难排查](/guide/troubleshooting) — 常见问题解决
