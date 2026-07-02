@@ -6,7 +6,7 @@
   "scripts": {
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev",
-    "docs:spellcheck": "cspell \"docs/**/*.md\" --config cspell.json"
+    "docs:spellcheck": "cspell \"**/*.md\" --config cspell.json"
   },
   "devDependencies": {
     "vitepress": "^1.5.0",
