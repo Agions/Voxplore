@@ -1,22 +1,22 @@
 ---
 title: CLI 参考
-description: SceneFab 命令行工具的使用方法和参数说明。
+description: SceneFab 命令行工具的使用方法、参数和环境变量配置。
 ---
 
 # CLI 参考
 
-SceneFab 提供命令行工具，支持直接启动 GUI 或进入命令行模式。
+SceneFab 提供命令行入口，可直接启动 GUI，或在无 GUI 环境进入命令行模式。
 
 ## 基础命令
 
 ```bash
-# 启动 GUI（默认）
+### 启动 GUI（默认）
 scenefab
 
-# 查看版本
+### 查看版本
 scenefab --version
 
-# 查看帮助
+### 查看帮助
 scenefab --help
 ```
 
@@ -28,7 +28,7 @@ scenefab --help
 scenefab
 ```
 
-命令行模式提供以下功能：
+可用功能：
 
 ```text
 SceneFab 命令行模式
@@ -39,17 +39,17 @@ SceneFab 命令行模式
   3. 退出
 ```
 
-### 功能 1：AI 第一人称解说
+### AI 第一人称解说
 
 交互式生成视频解说：
 
 1. 输入视频文件路径
 2. 输入解说主题（可选）
-3. 选择使用 AI 生成或自定义解说词
+3. 选择 AI 生成或自定义解说词
 4. 自动生成配音和字幕
 5. 导出剪映草稿
 
-### 功能 2：剪映草稿导出
+### 剪映草稿导出
 
 将视频导出为剪映可导入的草稿格式：
 
@@ -63,22 +63,22 @@ SceneFab 命令行模式
 通过环境变量配置 API Key 和运行参数：
 
 ```bash
-# LLM API Key
+### LLM API Key
 export DEEPSEEK_API_KEY="sk-your-deepseek-key"
 export QWEN_API_KEY="sk-your-qwen-key"
 export OPENAI_API_KEY="sk-your-openai-key"
 
-# 调试模式
+### 调试模式
 export SCENEFAB_DEBUG=true
 
-# 缓存目录
+### 缓存目录
 export SCENEFAB_CACHE_DIR="~/.cache/scenefab"
 ```
 
 或使用 `.env` 文件：
 
 ```bash
-# .env
+### .env
 DEEPSEEK_API_KEY=sk-your-deepseek-key
 QWEN_API_KEY=sk-your-qwen-key
 SCENEFAB_DEBUG=false
@@ -87,7 +87,7 @@ SCENEFAB_DEBUG=false
 ## Python 模块调用
 
 ```bash
-# 通过 python -m 调用
+### 通过 python -m 调用
 python -m scenefab
 ```
 
@@ -101,19 +101,18 @@ config/
 └── llm.yaml           # LLM 专用配置（API Key、模型）
 ```
 
-
 ## 常见问题
 
 ### FFmpeg 未找到
 
 ```bash
-# 检查 FFmpeg
+### 检查 FFmpeg
 ffmpeg -version
 
-# macOS 安装
+### macOS 安装
 brew install ffmpeg
 
-# Ubuntu 安装
+### Ubuntu 安装
 sudo apt install ffmpeg
 ```
 
@@ -122,10 +121,10 @@ sudo apt install ffmpeg
 如果 PySide6 未安装，SceneFab 会自动切换到命令行模式：
 
 ```bash
-# 安装 PySide6
+### 安装 PySide6
 pip install PySide6
 
-# 或使用命令行模式（无需 PySide6）
+### 或使用命令行模式（无需 PySide6）
 scenefab
 ```
 
@@ -134,7 +133,7 @@ scenefab
 确保至少配置了一个 LLM 提供者的 API Key：
 
 ```bash
-# 检查配置
+### 检查配置
 cat config/llm.yaml
 ```
 

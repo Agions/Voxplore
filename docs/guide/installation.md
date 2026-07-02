@@ -28,13 +28,13 @@ description: 在 Windows、macOS 和 Linux 上完整安装 SceneFab 的详细步
 ### 方式二：pip
 
 ```powershell
-# 确认 Python 版本
+### 确认 Python 版本
 python --version   # 需 Python 3.10+
 
-# 安装 SceneFab
+### 安装 SceneFab
 pip install scenefab
 
-# 启动
+### 启动
 scenefab
 ```
 
@@ -43,13 +43,13 @@ scenefab
 ### 方式一：pip（推荐）
 
 ```bash
-# 安装依赖
+### 安装依赖
 brew install python@3.12 ffmpeg
 
-# 安装 SceneFab
+### 安装 SceneFab
 pip3 install scenefab
 
-# 启动
+### 启动
 scenefab
 ```
 
@@ -64,15 +64,15 @@ pip install -e ".[dev]"
 ## Linux (Ubuntu/Debian)
 
 ```bash
-# 安装系统依赖
+### 安装系统依赖
 sudo apt update
 sudo apt install -y python3 python3-pip python3-venv ffmpeg \
   libsm6 libxext6 libgl1 libegl1 libxkbcommon0 libdbus-1-3
 
-# 安装 SceneFab
+### 安装 SceneFab
 pip install scenefab
 
-# 启动
+### 启动
 scenefab
 ```
 
@@ -88,14 +88,14 @@ scenefab
 ## 验证安装
 
 ```bash
-# 检查版本
+### 检查版本
 scenefab --version
-# 输出: scenefab 2.1.2
+### 输出: scenefab 2.1.2
 
-# 检查 FFmpeg
+### 检查 FFmpeg
 ffmpeg -version
 
-# 检查 Python
+### 检查 Python
 python3 --version
 ```
 

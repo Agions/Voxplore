@@ -31,10 +31,10 @@ pip3 show scenefab
 ### GUI 启动失败
 
 ```bash
-# 检查 PySide6 是否安装
+### 检查 PySide6 是否安装
 python3 -c "import PySide6; print(PySide6.__version__)"
 
-# 无头环境使用 offscreen 模式
+### 无头环境使用 offscreen 模式
 export QT_QPA_PLATFORM=offscreen
 scenefab
 ```
@@ -48,9 +48,9 @@ scenefab
 3. 确认 Key 已正确填入 `config/llm.yaml` 或环境变量
 
 ```bash
-# 检查环境变量
+### 检查环境变量
 echo $DEEPSEEK_API_KEY | head -c 3
-# 应显示 sk-
+### 应显示 sk-
 ```
 
 ### API 调用报 429 Rate Limit
@@ -82,13 +82,13 @@ echo $DEEPSEEK_API_KEY | head -c 3
 ### 显存不足（OOM）
 
 ```bash
-# 关闭 GPU 加速
+### 关闭 GPU 加速
 scenefab --no-gpu
 
-# 减少抽帧密度
+### 减少抽帧密度
 scenefab --frame-interval 2
 
-# 降低视频分辨率
+### 降低视频分辨率
 ffmpeg -i input.mp4 -vf scale=1280:720 output.mp4
 ```
 

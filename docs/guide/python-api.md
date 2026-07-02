@@ -12,22 +12,22 @@ SceneFab 提供完整的 Python API，支持在脚本或项目中调用核心功
 ```python
 from scenefab.services.video import MonologueMaker
 
-# 创建解说器
+### 创建解说器
 maker = MonologueMaker(voice_provider="edge")
 
-# 创建项目
+### 创建项目
 project = maker.create_project(
     source_video="./input/movie.mp4",
     context="分析这段视频的精彩瞬间",
     emotion="平静",
 )
 
-# 生成解说
+### 生成解说
 maker.generate_script(project)
 maker.generate_voice(project)
 maker.generate_captions(project, style="cinematic")
 
-# 导出剪映草稿
+### 导出剪映草稿
 draft_path = maker.export_to_jianying(project, "./output")
 print(f"草稿路径: {draft_path}")
 ```
@@ -69,10 +69,10 @@ project = maker.create_project(
 生成解说脚本。传入 `custom_script` 使用自定义文案，否则由 AI 生成。
 
 ```python
-# AI 自动生成
+### AI 自动生成
 maker.generate_script(project)
 
-# 使用自定义文案
+### 使用自定义文案
 maker.generate_script(project, custom_script="这是我的自定义解说词...")
 ```
 
@@ -188,21 +188,21 @@ from scenefab.services.export import (
     Track, TrackType, Segment, TimeRange, VideoMaterial,
 )
 
-# 创建导出器
+### 创建导出器
 exporter = JianyingExporter(JianyingConfig(canvas_ratio="9:16"))
 
-# 创建草稿
+### 创建草稿
 draft = exporter.create_draft("我的项目")
 
-# 添加视频轨道
+### 添加视频轨道
 video_track = Track(type=TrackType.VIDEO, attribute=1)
 draft.add_track(video_track)
 
-# 添加视频素材
+### 添加视频素材
 video_material = VideoMaterial(path="./movie.mp4")
 draft.add_video(video_material)
 
-# 添加片段
+### 添加片段
 segment = Segment(
     material_id=video_material.id,
     source_timerange=TimeRange.from_seconds(0, 30),
@@ -210,7 +210,7 @@ segment = Segment(
 )
 video_track.add_segment(segment)
 
-# 导出
+### 导出
 draft_path = exporter.export(draft, "./output")
 ```
 
@@ -223,15 +223,15 @@ draft_path = exporter.export(draft, "./output")
 ```python
 from scenefab.settings import ConfigManager, get_config, get_llm_config
 
-# 获取配置管理器
+### 获取配置管理器
 config = ConfigManager()
 
-# 获取应用配置
+### 获取应用配置
 app_config = get_config()
 print(f"应用名: {app_config.name}")
 print(f"版本: {app_config.version}")
 
-# 获取 LLM 配置
+### 获取 LLM 配置
 llm_config = get_llm_config("deepseek")
 if llm_config and llm_config.is_valid():
     print(f"模型: {llm_config.model}")
