@@ -1,0 +1,60 @@
+name: Docs Link Check
+
+# Dead/internal-link validator for docs/.
+# Runs on:
+#   - PR/push to main when docs/** or scripts/** change
+#   - weekly cron (Sunday 06:00 UTC) to catch link rot
+#   - manual dispatch
+#
+# Why a separate workflow (not part of docs.yml):
+#   1. Fast feedback: link check completes in seconds; full VitePress build takes 10-30s
+#   2. Weekly link-rot guard: catches upstream URL changes / file renames
+#   3. Independent failure surface: broken links don't block docs deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/docs-check-links.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'scripts/docs-check-links.mjs'
+  schedule:
+    # Weekly Sunday 06:00 UTC
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-links"
+  cancel-in-progress: true
+
+jobs:
+  check-links:
+    name: Check internal links
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run link checker
+        run: node scripts/docs-check-links.mjs
+
+      - name: Annotate on failure
+        if: failure()
+        run: |
+          echo "::error::docs 内部死链检查失败，请运行 \`node scripts/docs-check-links.mjs\` 本地修复"
