@@ -130,4 +130,3 @@ SceneFab > 设置 > 界面 > 重置窗口布局
 
 - [GitHub Issues](https://github.com/Agions/scene-fab/issues/new?template=bug_report.md) — 提交 Bug 报告
 - [GitHub Discussions](https://github.com/Agions/scene-fab/discussions) — 社区讨论
-- [常见问题](/faq) — 更多 FAQ

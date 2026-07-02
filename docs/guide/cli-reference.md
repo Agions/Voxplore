@@ -101,7 +101,6 @@ config/
 └── llm.yaml           # LLM 专用配置（API Key、模型）
 ```
 
-详见 [配置参考](/config)。
 
 ## 常见问题
 
@@ -145,5 +144,4 @@ cat config/llm.yaml
 
 - [快速开始](/guide/quick-start) — 3 步上手
 - [安装指南](/guide/installation) — 各平台安装步骤
-- [配置参考](/config) — 配置文件结构
 - [疑难排查](/guide/troubleshooting) — 常见问题解决

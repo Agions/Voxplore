@@ -293,5 +293,3 @@ LLM 提供者配置。
 
 - [快速开始](/guide/quick-start) — 3 步上手
 - [AI 配置](/guide/ai-configuration) — 多服务商配置详解
-- [AI 模型参考](/ai-models) — 模型选择与推荐
-- [配置参考](/config) — 配置文件结构

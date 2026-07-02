@@ -65,5 +65,3 @@ scenefab --version
 
 - [安装指南](/guide/installation) — 各平台完整安装步骤
 - [AI 配置](/guide/ai-configuration) — 多服务商配置详解
-- [配置参考](/config) — 两文件配置结构详解
-- [AI 模型参考](/ai-models) — 模型选择与推荐配置
