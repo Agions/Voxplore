@@ -5,13 +5,13 @@ on:
     branches: [main]
     paths:
       - 'docs/**/*.md'
-      - 'cspell.json'
+      - 'docs/cspell.json'
       - 'docs/package.json'
   pull_request:
     branches: [main]
     paths:
       - 'docs/**/*.md'
-      - 'cspell.json'
+      - 'docs/cspell.json'
       - 'docs/package.json'
   schedule:
     - cron: '0 6 * * 0'
@@ -29,6 +29,9 @@ jobs:
     name: Spell check docs
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: docs
 
     steps:
       - name: Checkout
@@ -42,14 +45,10 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: |
-          cd docs
-          npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Run spell check
-        run: |
-          cd docs
-          npm run docs:spellcheck
+        run: npm run docs:spellcheck
 
       - name: Annotate on failure
         if: failure()
