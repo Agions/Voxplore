@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "docs:build": "vitepress build",
-    "docs:dev": "vitepress dev"
+    "docs:dev": "vitepress dev",
+    "docs:spellcheck": "cspell \"docs/**/*.md\" --config cspell.json"
   },
   "devDependencies": {
-    "vitepress": "^1.5.0"
+    "vitepress": "^1.5.0",
+    "cspell": "^8.17.2"
   }
 }
