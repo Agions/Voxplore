@@ -6,10 +6,15 @@
   "scripts": {
     "docs:build": "vitepress build",
     "docs:dev": "vitepress dev",
-    "docs:spellcheck": "cspell \"**/*.md\" --config cspell.json"
+    "docs:spellcheck": "cspell \"**/*.md\" --config cspell.json",
+    "docs:lint": "markdownlint-cli2 \"**/*.md\"",
+    "docs:check": "npm run docs:lint && npm run docs:spellcheck",
+    "docs:check-links": "node ../scripts/docs-check-links.mjs",
+    "docs:check-external-links": "node ../scripts/docs-check-external-links.mjs"
   },
   "devDependencies": {
-    "vitepress": "^1.5.0",
-    "cspell": "^8.17.2"
+    "cspell": "^8.17.2",
+    "markdownlint-cli2": "^0.23.0",
+    "vitepress": "^1.5.0"
   }
 }

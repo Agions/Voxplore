@@ -23,6 +23,7 @@ ffmpeg -version
 ```
 
 如果 FFmpeg 未安装：
+
 - **macOS**：`brew install ffmpeg`
 - **Ubuntu/Debian**：`sudo apt install ffmpeg`
 - **Windows**：通过 winget 或 [ffmpeg.org](https://ffmpeg.org) 下载

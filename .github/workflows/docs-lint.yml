@@ -1,0 +1,54 @@
+name: Docs Lint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'docs/.markdownlint-cli2.jsonc'
+      - 'docs/package.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'docs/.markdownlint-cli2.jsonc'
+      - 'docs/package.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-lint"
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: docs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run markdownlint
+        run: npm run docs:lint
+
+      - name: Annotate on failure
+        if: failure()
+        run: |
+          echo "::error::docs markdownlint 检查失败，请运行 \`cd docs && npm run docs:lint --fix\` 本地修复"

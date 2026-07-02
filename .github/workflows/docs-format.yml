@@ -1,0 +1,46 @@
+name: Docs Format Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'scripts/docs-check-format.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'scripts/docs-check-format.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-format"
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Check markdown format
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check markdown format
+        run: node scripts/docs-check-format.mjs
+
+      - name: Annotate on failure
+        if: failure()
+        run: |
+          echo "::error::docs 格式检查失败，请运行 \`node scripts/docs-check-format.mjs\` 查看问题"
