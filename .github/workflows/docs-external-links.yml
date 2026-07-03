@@ -64,13 +64,25 @@ jobs:
           restore-keys: |
             lychee-cache-${{ runner.os }}-
 
+      - name: Pre-process markdown to rewrite root-relative links
+        # Convert ](/guide/...) to ](https://internal.invalid/guide/...) so lychee
+        # parses them as valid https URLs instead of trying to resolve them as
+        # filesystem paths (which would require --root-dir and trigger errors).
+        # The placeholder is excluded via .lychee.toml; no real HTTP request is made.
+        # Internal link correctness is covered separately by docs-links.yml.
+        run: |
+          set -euo pipefail
+          # Back up originals (not committed, only used for sed -i inplace is fine here)
+          find docs -name "*.md" -not -path "*/node_modules/*" -print0 \
+            | xargs -0 sed -i -E 's#\]\(/guide/#\](https://internal.invalid/guide/#g'
+
       - name: Run lychee link checker
         id: lychee
         uses: lycheeverse/lychee-action@v2.8.0
         with:
-          # Skip markdown's root-relative /guide/* links via .lycheeignore
-          # (those are checked by docs-links.yml as internal links).
-          # This workflow only validates external HTTP(S) URLs.
+          # The sed pre-process step above rewrote root-relative links to a
+          # placeholder host (internal.invalid) that's excluded in .lychee.toml.
+          # This workflow validates only external HTTP(S) URLs.
           args: >-
             --config .lychee.toml
             --no-progress
@@ -80,4 +92,4 @@ jobs:
       - name: Annotate on failure
         if: failure()
         run: |
-          echo "::error::docs 外部链接检查失败，请查看 lychee-action 输出或本地运行 \`lychee --config .lychee.toml docs/\` 调试"
+          echo "::error::docs 外部链接检查失败，请查看 lychee-action 输出或本地运行 \`lychee --config .lychee.toml docs/\\` 调试"
