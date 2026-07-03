@@ -64,10 +64,13 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v2.8.0
         with:
+          # Skip markdown's root-relative /guide/* links via .lycheeignore
+          # (those are checked by docs-links.yml as internal links).
+          # This workflow only validates external HTTP(S) URLs.
           args: >-
             --config .lychee.toml
             --no-progress
-            docs/
+            'docs/**/*.md'
           fail: true
 
       - name: Annotate on failure
