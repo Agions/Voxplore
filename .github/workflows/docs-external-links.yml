@@ -23,11 +23,15 @@ on:
     paths:
       - 'docs/**'
       - '.lychee.toml'
+      - '.lycheeignore'
+      - '.github/workflows/docs-external-links.yml'
   pull_request:
     branches: [main]
     paths:
       - 'docs/**'
       - '.lychee.toml'
+      - '.lycheeignore'
+      - '.github/workflows/docs-external-links.yml'
   schedule:
     # Weekly Sunday 07:00 UTC (1h after internal link check)
     - cron: '0 7 * * 0'
