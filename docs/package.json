@@ -10,7 +10,7 @@
     "docs:lint": "markdownlint-cli2 \"**/*.md\"",
     "docs:check": "npm run docs:lint && npm run docs:spellcheck",
     "docs:check-links": "node ../scripts/docs-check-links.mjs",
-    "docs:check-external-links": "node ../scripts/docs-check-external-links.mjs"
+    "docs:check-external-links": "lychee --config ../.lychee.toml --offline 'docs/**/*.md' || lychee --config ../.lychee.toml 'docs/**/*.md'"
   },
   "devDependencies": {
     "cspell": "^8.17.2",

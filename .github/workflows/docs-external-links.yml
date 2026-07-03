@@ -1,0 +1,76 @@
+name: Docs External Links
+
+# External HTTP(S) link validator for docs/.
+# Powered by lychee (https://github.com/lycheeverse/lychee).
+# Runs on:
+#   - PR/push to main when docs/** or lychee config change
+#   - weekly cron (Sunday 07:00 UTC, offset from internal link check at 06:00)
+#   - manual dispatch
+#
+# Why a separate workflow (not part of docs.yml):
+#   1. Slow: external HTTP calls take 30-60s (vs internal link check ~1s)
+#   2. Flaky: external sites can rate-limit or 5xx transiently
+#   3. Independent failure surface: external link rot doesn't block docs deploy
+#
+# Why lychee (not the in-repo docs-check-external-links.mjs):
+#   - lychee handles retries, rate-limiting, anti-bot 4xx out of the box
+#   - GitHub-maintained lycheeverse/lychee-action, no custom Node code
+#   - The mjs script was retired in favor of lychee; see CHANGELOG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.lychee.toml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.lychee.toml'
+  schedule:
+    # Weekly Sunday 07:00 UTC (1h after internal link check)
+    - cron: '0 7 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-external-links"
+  cancel-in-progress: true
+
+jobs:
+  check-external-links:
+    name: Check external links (lychee)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lychee/cache
+          key: lychee-cache-${{ runner.os }}-${{ hashFiles('.lychee.toml', 'docs/**/*.md') }}
+          restore-keys: |
+            lychee-cache-${{ runner.os }}-
+
+      - name: Run lychee link checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v2.8.0
+        with:
+          args: >-
+            --config .lychee.toml
+            --no-progress
+            docs/
+          fail: true
+
+      - name: Annotate on failure
+        if: failure()
+        run: |
+          echo "::error::docs 外部链接检查失败，请查看 lychee-action 输出或本地运行 \`lychee --config .lychee.toml docs/\` 调试"
