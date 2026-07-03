@@ -8,7 +8,6 @@
 - [CLI 参考](../docs/guide/cli-reference.md) — 命令行使用说明
 - [Python API](../docs/guide/python-api.md) — Python API 完整文档
 - [AI 配置](../docs/guide/ai-configuration.md) — 多服务商配置详解
-- [配置参考](../docs/config.md) — 配置文件结构
 
 ## 快速示例
 
