@@ -1,7 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Paint palette / brush - style/genre -->
-  <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.04-.23-.29-.38-.63-.38-1.02 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.17-4.49-8.94-10-8.94z"/>
-  <circle cx="7.5" cy="11.5" r="1.5" fill="#06b6d4"/>
-  <circle cx="11" cy="7.5" r="1.5" fill="#8b5cf6"/>
-  <circle cx="15.5" cy="9" r="1.5" fill="#06b6d4" opacity="0.7"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 风格 / 调色板 (style / genre) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="brandCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <!-- 调色板主体 -->
+  <path d="M 12 2
+           C 6.5 2 2 6.5 2 12
+           C 2 17.5 6.5 22 12 22
+           C 13 22 13.5 21.3 13.5 20.5
+           C 13.5 20.1 13.35 19.75 13.1 19.45
+           C 12.85 19.15 12.7 18.8 12.7 18.4
+           C 12.7 17.6 13.4 17 14.25 17
+           H 16
+           C 19.5 17 22 14.5 22 11
+           C 22 5.5 17.5 2 12 2 Z"
+        stroke="url(#brandCyan)" stroke-width="1.75" stroke-linejoin="round"/>
+  <!-- 3 个色点 (代表不同风格预设) -->
+  <circle cx="7" cy="11.5" r="1.5" fill="url(#brandCyan)"/>
+  <circle cx="11.5" cy="7.5" r="1.5" fill="#a855f7"/>
+  <circle cx="16" cy="9.5" r="1.5" fill="url(#brandCyan)" opacity="0.7"/>
 </svg>

@@ -1,107 +1,136 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SceneFab — Application Icon (无文字版本,符合 resources/README.md "text-free" 设计原则)
+
+  Usage: 应用于 macOS/Windows/Linux 桌面图标、托盘、dock、任务栏、安装包。
+  与 assets/logo-mark.svg 同源设计,差异:
+  - 无文字 (text-free): 在 16×16 托盘图标下文字不可读
+  - 几何比例微调: 中心盘略大,外环更突出 (适应小尺寸)
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 512 512"
+     role="img"
+     aria-label="SceneFab application icon">
+  <title>SceneFab</title>
   <defs>
-    <!-- Background gradient - deep dark -->
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="100%" stop-color="#0f1629"/>
+    <!-- 深空底色: 比 mark 更深, 桌面图标在白背景上更显眼 -->
+    <linearGradient id="bgApp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
     </linearGradient>
 
-    <!-- Accent gradient - cyan to purple -->
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-
-    <!-- Play button gradient -->
-    <linearGradient id="play" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- 主品牌渐变 -->
+    <linearGradient id="brandApp" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
+      <stop offset="55%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#a855f7"/>
     </linearGradient>
 
-    <!-- Glow effect -->
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="12" result="blur"/>
+    <!-- 高光 -->
+    <linearGradient id="hiApp" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+
+    <!-- 中心内核径向 -->
+    <radialGradient id="coreApp" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </radialGradient>
+
+    <!-- 中心径向光晕 (中心盘亮起来) -->
+    <radialGradient id="coreGlowApp" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 整体发光 -->
+    <filter id="glowApp" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <!-- Inner shadow for depth -->
-    <filter id="inner-shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
-      <feOffset dx="0" dy="4" result="offsetBlur"/>
-      <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
-    </filter>
+    <!-- 剪裁路径 -->
+    <clipPath id="clipApp">
+      <rect width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
   </defs>
 
-  <!-- Background with subtle gradient -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- 1. 底板: 圆角方形 (macOS Big Sur+ / iOS 风格) -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bgApp)"/>
 
-  <!-- Outer border ring -->
-  <rect x="16" y="16" width="480" height="480" rx="96" stroke="url(#accent)" stroke-width="2" opacity="0.2"/>
+  <!-- 2. 内部描边 (质感) -->
+  <rect x="2" y="2" width="508" height="508" rx="110" ry="110"
+        fill="none" stroke="url(#brandApp)" stroke-width="1.5" opacity="0.25"/>
 
-  <!-- Film strip element - left side -->
-  <g opacity="0.6">
-    <!-- Film perforations -->
-    <rect x="88" y="140" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
-    <rect x="88" y="180" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
-    <rect x="88" y="220" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
-    <rect x="88" y="260" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
-    <rect x="88" y="300" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
-    <rect x="88" y="340" width="16" height="24" rx="4" fill="url(#accent)" opacity="0.4"/>
+  <!-- 3. 中心径向光晕 (轻微背景辉光) -->
+  <circle cx="256" cy="256" r="240" fill="url(#coreGlowApp)"/>
 
-    <!-- Film strip line -->
-    <line x1="104" y1="132" x2="104" y2="372" stroke="url(#accent)" stroke-width="2" opacity="0.3"/>
+  <!-- 4. 外环 (虚线, 代表数据流水线轨道) -->
+  <g clip-path="url(#clipApp)">
+    <circle cx="256" cy="256" r="184" fill="none"
+            stroke="url(#brandApp)" stroke-width="3"
+            stroke-dasharray="4 9" opacity="0.6"/>
+
+    <!-- 中环 (实线,主框架) -->
+    <circle cx="256" cy="256" r="136" fill="none"
+            stroke="url(#brandApp)" stroke-width="2.5" opacity="0.65"/>
+
+    <!-- 4 个 tick (12/3/6/9 点位,工业感) -->
+    <g fill="url(#hiApp)">
+      <circle cx="256" cy="72"  r="4.5"/>
+      <circle cx="440" cy="256" r="4.5"/>
+      <circle cx="256" cy="440" r="4.5"/>
+      <circle cx="72"  cy="256" r="4.5"/>
+    </g>
   </g>
 
-  <!-- Main scene frame - center -->
-  <g transform="translate(256, 256)">
-    <!-- Outer frame corners (viewfinder style) -->
-    <!-- Top-left -->
-    <path d="M-80 -80 L-80 -60 M-80 -80 L-60 -80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
-    <!-- Top-right -->
-    <path d="M80 -80 L80 -60 M80 -80 L60 -80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
-    <!-- Bottom-left -->
-    <path d="M-80 80 L-80 60 M-80 80 L-60 80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
-    <!-- Bottom-right -->
-    <path d="M80 80 L80 60 M80 80 L60 80" stroke="url(#accent)" stroke-width="6" stroke-linecap="round"/>
+  <!-- 5. 中心内核盘 -->
+  <g transform="translate(256 256)">
+    <!-- 中心圆盘 (深色, 做对比) -->
+    <circle r="88" fill="#020617"/>
+    <circle r="88" fill="none" stroke="url(#brandApp)" stroke-width="2" opacity="0.65"/>
 
-    <!-- Inner frame -->
-    <rect x="-56" y="-56" width="112" height="112" rx="8" stroke="url(#accent)" stroke-width="1.5" opacity="0.3"/>
+    <!-- AI 处理弧线 (围绕中心) -->
+    <path d="M -56 0 A 56 56 0 0 1 0 -56" fill="none"
+          stroke="url(#hiApp)" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
+    <path d="M 56 0 A 56 56 0 0 1 0 56" fill="none"
+          stroke="url(#hiApp)" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
+
+    <!-- 内圈 AI 弧 (额外细节) -->
+    <path d="M -36 -36 A 51 51 0 0 1 36 -36" fill="none"
+          stroke="url(#brandApp)" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- 中心 Play 三角 (主识别符 + 发光) -->
+    <g filter="url(#glowApp)">
+      <path d="M -20 -32 L 36 0 L -20 32 Z" fill="url(#coreApp)"/>
+    </g>
   </g>
 
-  <!-- Play button - center with glow -->
-  <g filter="url(#glow)">
-    <path d="M220 180 L220 332 L348 256 Z" fill="url(#play)" opacity="0.9"/>
+  <!-- 6. AI sparkle (右上) -->
+  <g fill="url(#hiApp)">
+    <path d="M 392 120
+             L 398 134
+             L 412 140
+             L 398 146
+             L 392 160
+             L 386 146
+             L 372 140
+             L 386 134 Z" opacity="0.95"/>
   </g>
 
-  <!-- AI sparkle - top right -->
-  <g transform="translate(400, 140)">
-    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#22d3ee" opacity="0.9"/>
+  <!-- 7. 副 sparkle (右下, 紫色) -->
+  <g fill="#a855f7" opacity="0.75">
+    <path d="M 420 176
+             L 423 183
+             L 430 186
+             L 423 189
+             L 420 196
+             L 417 189
+             L 410 186
+             L 417 183 Z"/>
   </g>
-
-  <!-- Secondary sparkle - smaller -->
-  <g transform="translate(430, 180) scale(0.6)">
-    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#a78bfa" opacity="0.7"/>
-  </g>
-
-  <!-- Third sparkle - even smaller -->
-  <g transform="translate(410, 210) scale(0.35)">
-    <path d="M0 -20 L5 -5 L20 0 L5 5 L0 20 L-5 5 L-20 0 L-5 -5 Z" fill="#22d3ee" opacity="0.5"/>
-  </g>
-
-  <!-- SceneFab text at bottom -->
-  <text x="256" y="440" text-anchor="middle"
-        font-family="Inter, SF Pro Display, system-ui, -apple-system, sans-serif"
-        font-weight="700" font-size="52" fill="url(#accent)" letter-spacing="8">
-    SceneFab
-  </text>
-
-  <!-- Subtle tagline -->
-  <text x="256" y="472" text-anchor="middle"
-        font-family="Inter, SF Pro Display, system-ui, -apple-system, sans-serif"
-        font-weight="400" font-size="18" fill="#64748b" letter-spacing="4">
-    AI VIDEO PRODUCTION
-  </text>
 </svg>

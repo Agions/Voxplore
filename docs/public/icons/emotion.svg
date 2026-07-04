@@ -1,5 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Heart with pulse line - emotion/sentiment -->
-  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-  <path d="M8 14h2.5l1.5-3 2 6 1.5-3H20" opacity="0.6"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 情感 / 心电脉冲 (emotion / sentiment) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <linearGradient id="brandCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="heartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <!-- 心形 (主结构, 双色渐变描边) -->
+  <path d="M 12 20.5
+           C 12 20.5 3 14.5 3 8.5
+           A 4.5 4.5 0 0 1 12 6
+           A 4.5 4.5 0 0 1 21 8.5
+           C 21 14.5 12 20.5 12 20.5 Z"
+        stroke="url(#heartGrad)" stroke-width="1.75" stroke-linejoin="round"/>
+  <!-- 心电脉冲线 (violet 强调) -->
+  <path d="M 6 13 H 8 L 9 11 L 10.5 14.5 L 12 9.5 L 13.5 14 L 14.5 11.5 L 15.5 13 H 18"
+        stroke="#a855f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
 </svg>

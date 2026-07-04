@@ -1,61 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Vynaro emblem light">
-  <title>Vynaro 叙影</title>
+<!--
+  SceneFab — Logo Mark (LIGHT theme variant)
+  用于 VitePress light 主题 + 浅色场景。
+  与 dark 版差异: 底色从深空黑 → 纯净白, 描边保留, Play/光环配色一致。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="SceneFab mark (light)">
+  <title>SceneFab</title>
   <defs>
-    <!-- 亮色软白底板渐变 -->
-    <linearGradient id="vynaroBgLight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#F3F4F6"/>
+    <linearGradient id="bgMarkLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f1f5f9"/>
     </linearGradient>
-
-    <!-- 亮色琥珀金渐变 -->
-    <linearGradient id="vynaroGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D97706"/>
-      <stop offset="50%" stop-color="#B45309"/>
-      <stop offset="100%" stop-color="#78350F"/>
+    <linearGradient id="brandMarkLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0891b2"/>
+      <stop offset="55%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
-
-    <linearGradient id="vynaroCoreLight" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#F5C842"/>
-      <stop offset="100%" stop-color="#D97706"/>
+    <linearGradient id="hiMarkLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
     </linearGradient>
-
-    <clipPath id="squircleLight">
+    <radialGradient id="coreMarkLight" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </radialGradient>
+    <filter id="glowMarkLight" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <clipPath id="clipMarkLight">
       <rect width="256" height="256" rx="56" ry="56"/>
     </clipPath>
   </defs>
 
-  <!-- 底板 -->
-  <rect width="256" height="256" rx="56" ry="56" fill="url(#vynaroBgLight)"/>
-  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" ry="54.5" fill="none" stroke="#D97706" stroke-width="1.5" opacity="0.2"/>
+  <!-- 1. 底板: 浅色纯净白 -->
+  <rect width="256" height="256" rx="56" ry="56" fill="url(#bgMarkLight)"/>
 
-  <!-- 背景饰纹 -->
-  <g clip-path="url(#squircleLight)" opacity="0.12">
-    <circle cx="128" cy="128" r="105" fill="none" stroke="#B45309" stroke-width="2" stroke-dasharray="4 8"/>
-  </g>
+  <!-- 2. 内描边 -->
+  <rect x="1" y="1" width="254" height="254" rx="55" ry="55"
+        fill="none" stroke="url(#brandMarkLight)" stroke-width="1" opacity="0.35"/>
 
-  <!-- 核心 V 图案 -->
-  <g transform="translate(128 126)">
-    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#vynaroGoldLight)"/>
-    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#vynaroGoldLight)"/>
-    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="url(#vynaroCoreLight)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 3. 外环 (虚线, 流水线轨道) -->
+  <g clip-path="url(#clipMarkLight)" opacity="0.95">
+    <circle cx="128" cy="128" r="92"
+            fill="none" stroke="url(#brandMarkLight)" stroke-width="2.5"
+            stroke-dasharray="3 6" opacity="0.65"/>
 
-    <!-- 声波柱 -->
-    <g fill="url(#vynaroGoldLight)">
-      <rect x="-24" y="-12" width="4" height="20" rx="2"/>
-      <rect x="-14" y="-24" width="4" height="34" rx="2"/>
-      <rect x="-4"  y="-34" width="4" height="48" rx="2"/>
-      <rect x="6"   y="-28" width="4" height="40" rx="2"/>
-      <rect x="16"  y="-16" width="4" height="26" rx="2"/>
+    <circle cx="128" cy="128" r="68"
+            fill="none" stroke="url(#brandMarkLight)" stroke-width="1.5" opacity="0.7"/>
+
+    <g fill="url(#hiMarkLight)">
+      <circle cx="128" cy="36"  r="2.5"/>
+      <circle cx="220" cy="128" r="2.5"/>
+      <circle cx="128" cy="220" r="2.5"/>
+      <circle cx="36"  cy="128" r="2.5"/>
     </g>
-
-    <!-- Play 按键 -->
-    <path d="M -7 -4 L 11 -14 L 11 6 Z" fill="#FFFFFF"/>
-    <path d="M -6 -3 L 9 -12 L 9 4 Z" fill="#D97706"/>
   </g>
 
-  <!-- AI 火花 -->
-  <g fill="#D97706">
-    <path d="M 188 52 L 191 60 L 199 63 L 191 66 L 188 74 L 185 66 L 177 63 L 185 60 Z"/>
+  <!-- 4. 内核盘 -->
+  <g transform="translate(128 128)">
+    <!-- 中心圆盘: 浅色主题下用淡灰做对比 (不能纯白,否则 Play 看不清) -->
+    <circle r="44" fill="#f8fafc"/>
+    <circle r="44" fill="none" stroke="url(#brandMarkLight)" stroke-width="1.5" opacity="0.7"/>
+
+    <!-- AI 弧线 -->
+    <path d="M -28 0 A 28 28 0 0 1 0 -28" fill="none"
+          stroke="url(#hiMarkLight)" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+    <path d="M 28 0 A 28 28 0 0 1 0 28" fill="none"
+          stroke="url(#hiMarkLight)" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+
+    <!-- 中心 Play 三角 -->
+    <path d="M -10 -16 L 18 0 L -10 16 Z" fill="url(#coreMarkLight)" filter="url(#glowMarkLight)"/>
+  </g>
+
+  <!-- 5. Sparkle -->
+  <g fill="url(#hiMarkLight)" opacity="0.95">
+    <path d="M 196 60 L 199 67 L 206 70 L 199 73 L 196 80 L 193 73 L 186 70 L 193 67 Z"/>
+  </g>
+  <g fill="#7c3aed" opacity="0.7">
+    <path d="M 210 88 L 211.5 92 L 215.5 93.5 L 211.5 95 L 210 99 L 208.5 95 L 204.5 93.5 L 208.5 92 Z"/>
   </g>
 </svg>

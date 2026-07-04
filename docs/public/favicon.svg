@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 32 32"
+     role="img"
+     aria-label="SceneFab">
+  <title>SceneFab</title>
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0e1a"/>
-      <stop offset="100%" stop-color="#0f1629"/>
+    <linearGradient id="bgFav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050816"/>
+      <stop offset="100%" stop-color="#0f172a"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-    <linearGradient id="play" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="brandFav" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#a855f7"/>
     </linearGradient>
+    <radialGradient id="coreFav" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </radialGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- 底板 -->
+  <rect width="32" height="32" rx="7" fill="url(#bgFav)"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5"
+        fill="none" stroke="url(#brandFav)" stroke-width="0.5" opacity="0.3"/>
 
-  <!-- Outer border -->
-  <rect x="3" y="3" width="58" height="58" rx="11" stroke="url(#accent)" stroke-width="1" opacity="0.2"/>
+  <!-- 外环 (实线, 缩小场景只保留核心) -->
+  <circle cx="16" cy="16" r="11" fill="none"
+          stroke="url(#brandFav)" stroke-width="1" opacity="0.7"/>
 
-  <!-- Viewfinder corners -->
-  <g transform="translate(32, 28)">
-    <!-- Top-left -->
-    <path d="M-12 -12 L-12 -8 M-12 -12 L-8 -12" stroke="url(#accent)" stroke-width="2" stroke-linecap="round"/>
-    <!-- Top-right -->
-    <path d="M12 -12 L12 -8 M12 -12 L8 -12" stroke="url(#accent)" stroke-width="2" stroke-linecap="round"/>
-    <!-- Bottom-left -->
-    <path d="M-12 12 L-12 8 M-12 12 L-8 12" stroke="url(#accent)" stroke-width="2" stroke-linecap="round"/>
-    <!-- Bottom-right -->
-    <path d="M12 12 L12 8 M12 12 L8 12" stroke="url(#accent)" stroke-width="2" stroke-linecap="round"/>
-  </g>
+  <!-- 中心圆盘 -->
+  <circle cx="16" cy="16" r="7" fill="#050816"/>
+  <circle cx="16" cy="16" r="7" fill="none"
+          stroke="url(#brandFav)" stroke-width="0.6" opacity="0.55"/>
 
-  <!-- Play button -->
-  <path d="M26 18 L26 38 L42 28 Z" fill="url(#play)" opacity="0.9"/>
-
-  <!-- AI sparkle -->
-  <g transform="translate(52, 16)">
-    <path d="M0 -5 L1.5 -1.5 L5 0 L1.5 1.5 L0 5 L-1.5 1.5 L-5 0 L-1.5 -1.5 Z" fill="#22d3ee" opacity="0.9"/>
-  </g>
+  <!-- Play 三角 (主识别符) -->
+  <path d="M 14 12 L 21 16 L 14 20 Z" fill="url(#coreFav)"/>
 </svg>
