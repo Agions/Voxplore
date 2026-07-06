@@ -7,9 +7,6 @@ Google Gemini 提供商
 使用公共混入类减少重复代码
 """
 
-import base64
-from pathlib import Path
-
 from ..base_llm_provider import (
     BaseLLMProvider,
     HTTPClientMixin,
@@ -19,6 +16,7 @@ from ..base_llm_provider import (
     ProviderError,
 )
 from ..model_catalog import DEFAULT_MODELS, provider_models
+from ..vision_base import VisionProvider
 
 
 class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -68,12 +66,8 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
     ) -> LLMResponse:
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
-        image_path = Path(image_path)  # type: ignore[assignment]
-        if not image_path.exists():  # type: ignore[attr-defined]
-            raise ProviderError(f"图片不存在: {image_path}")
-
-        image_data = self._read_image_as_base64(image_path)
-        mime_type = self._detect_image_mime(image_path)
+        image_data = VisionProvider.read_image_as_base64(image_path)
+        mime_type = VisionProvider.detect_image_mime(image_path)
         contents = self._build_multimodal_contents(request, image_data, mime_type)
 
         data = await self._call_api(
@@ -103,25 +97,6 @@ class GeminiProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             )
             contents.append({"role": "model", "parts": [{"text": "Understood."}]})
         return contents
-
-    @staticmethod
-    def _read_image_as_base64(image_path) -> str:
-        """读取图片并 base64 编码"""
-        with open(image_path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8")
-
-    @staticmethod
-    def _detect_image_mime(image_path) -> str:
-        """根据文件后缀检测 MIME 类型"""
-        suffix = image_path.suffix.lower()
-        mime_map = {
-            ".png": "image/png",
-            ".jpg": "image/jpeg",
-            ".jpeg": "image/jpeg",
-            ".webp": "image/webp",
-            ".gif": "image/gif",
-        }
-        return mime_map.get(suffix, "image/jpeg")
 
     @staticmethod
     def _build_multimodal_contents(

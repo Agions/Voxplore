@@ -5,10 +5,14 @@
 所有 vision provider（包括 providers/ 子目录下的）都从这里导入基类。
 """
 
+import base64
 import json
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any
+
+from scenefab.exceptions import ProviderError
 
 
 @dataclass
@@ -135,3 +139,34 @@ class VisionProvider(ABC):
             return json.loads(content.strip())  # type: ignore[no-any-return]
         except json.JSONDecodeError:
             return {"description": content.strip()}
+
+    @staticmethod
+    def read_image_as_base64(image_path: str | Path) -> str:
+        """Read ``image_path`` and return base64-encoded UTF-8 string.
+
+        Raises ``ProviderError`` if the file does not exist. Shared by
+        every vision-capable provider (Claude / Gemini / OpenAI-Compat)
+        to avoid re-implementing the same ``open(path, "rb").read()``
+        dance in each subclass.
+        """
+        p = Path(image_path)
+        if not p.exists():
+            raise ProviderError(f"图片不存在: {p}")
+        with open(p, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+
+    # MIME map shared by all vision providers. ``.jpeg`` is normalised to
+    # ``image/jpeg`` (Anthropic / OpenAI both accept this canonical form).
+    _IMAGE_MIME_MAP: dict[str, str] = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }
+
+    @classmethod
+    def detect_image_mime(cls, image_path: str | Path) -> str:
+        """Infer MIME type from file suffix. Falls back to ``image/jpeg``."""
+        suffix = Path(image_path).suffix.lower()
+        return cls._IMAGE_MIME_MAP.get(suffix, "image/jpeg")

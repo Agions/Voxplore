@@ -7,9 +7,6 @@ Anthropic Claude 提供商
 使用公共混入类减少重复代码
 """
 
-import base64
-from pathlib import Path
-
 from ..base_llm_provider import (
     BaseLLMProvider,
     HTTPClientMixin,
@@ -19,6 +16,7 @@ from ..base_llm_provider import (
     ProviderError,
 )
 from ..model_catalog import DEFAULT_MODELS, provider_models
+from ..vision_base import VisionProvider
 
 
 class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
@@ -81,20 +79,8 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
         """带图片的生成（Vision 能力）"""
         model = self._get_model_name(request.model)
 
-        image_path = Path(image_path)  # type: ignore[assignment]
-        if not image_path.exists():  # type: ignore[attr-defined]
-            raise ProviderError(f"图片不存在: {image_path}")
-
-        with open(image_path, "rb") as f:
-            image_data = base64.b64encode(f.read()).decode("utf-8")
-
-        mime_type = "image/jpeg"
-        if image_path.suffix.lower() == ".png":  # type: ignore[attr-defined]
-            mime_type = "image/png"
-        elif image_path.suffix.lower() in [".jpg", ".jpeg"]:  # type: ignore[attr-defined]
-            mime_type = "image/jpeg"
-        elif image_path.suffix.lower() == ".webp":  # type: ignore[attr-defined]
-            mime_type = "image/webp"
+        image_data = VisionProvider.read_image_as_base64(image_path)
+        mime_type = VisionProvider.detect_image_mime(image_path)
 
         messages = [
             {
