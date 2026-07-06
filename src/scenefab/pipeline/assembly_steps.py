@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .narration_context import NarrationContext
-from .narration_state_machine import NarrationState, StepResult
+from .narration_state_machine import NarrationState, StepResult, success_step
 
 if TYPE_CHECKING:
     pass
@@ -119,17 +119,7 @@ def tts_length_adjust_step(ctx: NarrationContext) -> StepResult:
     needs_adjust = deviation > 0.05  # 偏离 > 5% 才调
 
     if not needs_adjust:
-        duration_ms = (time.time() - start) * 1000
-        return StepResult(
-            success=True,
-            state=NarrationState.TTS_LENGTH_ADJUST,
-            duration_ms=duration_ms,
-            message=(
-                f"tts_length_adjust: 时长 OK (est={estimated_sec:.1f}s, "
-                f"target={target_sec:.1f}s, 偏离 {deviation * 100:.1f}% < 5%)"
-            ),
-            data={"deviation": deviation, "adjusted": False},
-        )
+        return success_step(start, state=NarrationState.TTS_LENGTH_ADJUST, message=f'tts_length_adjust: 时长 OK (est={estimated_sec:.1f}s, target={target_sec:.1f}s, 偏离 {deviation * 100:.1f}% < 5%)', data={'deviation': deviation, 'adjusted': False})
 
     # 3. 需要调整: 调 LLM 压缩/扩展
     try:
@@ -140,36 +130,12 @@ def tts_length_adjust_step(ctx: NarrationContext) -> StepResult:
             new_estimated = new_chars / ctx.platform_spec.char_per_second
             ctx.tts_real_duration_sec = new_estimated
 
-            duration_ms = (time.time() - start) * 1000
-            return StepResult(
-                success=True,
-                state=NarrationState.TTS_LENGTH_ADJUST,
-                duration_ms=duration_ms,
-                message=(
-                    f"tts_length_adjust: 调整 {actual_chars}→{new_chars} 字, "
-                    f"est {estimated_sec:.1f}s→{new_estimated:.1f}s"
-                ),
-                data={
-                    "deviation_before": deviation,
-                    "chars_before": actual_chars,
-                    "chars_after": new_chars,
-                    "adjusted": True,
-                },
-            )
+            return success_step(start, state=NarrationState.TTS_LENGTH_ADJUST, message=f'tts_length_adjust: 调整 {actual_chars}→{new_chars} 字, est {estimated_sec:.1f}s→{new_estimated:.1f}s', data={'deviation_before': deviation, 'chars_before': actual_chars, 'chars_after': new_chars, 'adjusted': True})
     except Exception as e:  # noqa: BLE001
         logger.warning(f"[{ctx.trace_id[:8]}] LLM 长度调整失败, 保留原 draft: {e}")
 
     # 4. 降级: 保留原 draft (Phase 1 行为)
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.TTS_LENGTH_ADJUST,
-        duration_ms=duration_ms,
-        message=(
-            f"tts_length_adjust: 偏离 {deviation * 100:.1f}% > 5% 但 LLM 不可用, 保留原 draft"
-        ),
-        data={"deviation": deviation, "adjusted": False, "fallback": True},
-    )
+    return success_step(start, state=NarrationState.TTS_LENGTH_ADJUST, message=f'tts_length_adjust: 偏离 {deviation * 100:.1f}% > 5% 但 LLM 不可用, 保留原 draft', data={'deviation': deviation, 'adjusted': False, 'fallback': True})
 
 
 def _adjust_draft_length_via_llm(
@@ -266,21 +232,7 @@ def tts_step(ctx: NarrationContext) -> StepResult:
             ctx.tts_real_duration_sec = real_duration
 
         ctx.tts_audio_path = audio_path
-        duration_ms = (time.time() - start) * 1000
-        return StepResult(
-            success=True,
-            state=NarrationState.TTS,
-            duration_ms=duration_ms,
-            message=(
-                f"tts: Edge-TTS 完成 ({len(ctx.current_draft)} 字, "
-                f"音频 {real_duration:.1f}s @ {audio_path.name})"
-            ),
-            data={
-                "audio_path": str(audio_path),
-                "duration_sec": real_duration,
-                "chars": len(ctx.current_draft),
-            },
-        )
+        return success_step(start, state=NarrationState.TTS, message=f'tts: Edge-TTS 完成 ({len(ctx.current_draft)} 字, 音频 {real_duration:.1f}s @ {audio_path.name})', data={'audio_path': str(audio_path), 'duration_sec': real_duration, 'chars': len(ctx.current_draft)})
     except Exception as e:  # noqa: BLE001
         logger.warning(f"[{ctx.trace_id[:8]}] Edge-TTS 失败, 降级 stub: {e}")
         return _tts_stub(ctx, audio_path, start)
@@ -311,14 +263,7 @@ def _tts_stub(
     ctx.tts_real_duration_sec = estimated_sec
     ctx.tts_audio_path = audio_path
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.TTS,
-        duration_ms=duration_ms,
-        message=f"tts: 降级 stub (估算 {estimated_sec:.1f}s, {audio_path.name})",
-        data={"audio_path": str(audio_path), "fallback": True},
-    )
+    return success_step(start, state=NarrationState.TTS, message=f'tts: 降级 stub (估算 {estimated_sec:.1f}s, {audio_path.name})', data={'audio_path': str(audio_path), 'fallback': True})
 
 
 # ============================================
@@ -400,23 +345,7 @@ def assemble_step(ctx: NarrationContext) -> StepResult:
     ctx.final_subtitle_path = subtitle_path
     ctx.final_video_path = video_path
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.ASSEMBLE,
-        duration_ms=duration_ms,
-        message=(
-            f"assemble: 字幕 + 草稿 + 视频占位完成 "
-            f"(ASS={ass_success}, 剪映={jianying_success}, "
-            f"{subtitle_path.name})"
-        ),
-        data={
-            "subtitle_path": str(subtitle_path),
-            "ass_path": str(ass_path) if ass_success else None,
-            "video_path": str(video_path),
-            "jianying_path": str(jianying_path) if jianying_success else None,
-        },
-    )
+    return success_step(start, state=NarrationState.ASSEMBLE, message=f'assemble: 字幕 + 草稿 + 视频占位完成 (ASS={ass_success}, 剪映={jianying_success}, {subtitle_path.name})', data={'subtitle_path': str(subtitle_path), 'ass_path': str(ass_path) if ass_success else None, 'video_path': str(video_path), 'jianying_path': str(jianying_path) if jianying_success else None})
 
 
 # ============================================

@@ -96,6 +96,37 @@ class StepResult:
     error: str | None = None
 
 
+def success_step(
+    start: float,
+    state: NarrationState,
+    message: str,
+    data: dict[str, Any] | None = None,
+) -> StepResult:
+    """Build a successful :class:`StepResult` with auto-computed ``duration_ms``.
+
+    Replaces the 22-site ``StepResult(success=True, state=..., duration_ms=
+    (time.time()-start)*1000, message=..., data=...)`` boilerplate across
+    ``assembly_steps`` / ``narration_steps`` / ``evaluation_steps`` /
+    ``narration_state_machine`` / ``understanding_steps``.
+
+    Args:
+        start: ``time.monotonic()`` or ``time.time()`` recorded at the
+            beginning of the step.
+        state: target ``NarrationState`` for this step's outcome.
+        message: human-readable summary (e.g. ``"tts_length_adjust: ..."``).
+        data: optional structured payload merged into ``StepResult.data``.
+    """
+    import time
+
+    return StepResult(
+        success=True,
+        state=state,
+        duration_ms=(time.time() - start) * 1000,
+        message=message,
+        data=data if data is not None else {},
+    )
+
+
 @dataclass(slots=True)
 class StateTransition:
     """状态转移记录 (用于审计)"""

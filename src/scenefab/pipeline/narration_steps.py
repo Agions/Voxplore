@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 from .narration_context import NarrationContext
-from .narration_state_machine import NarrationState, StepResult
+from .narration_state_machine import NarrationState, StepResult, success_step
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +55,10 @@ def ingest_step(ctx: NarrationContext) -> StepResult:
             error=f"创建输出目录失败: {e}",
         )
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.INGEST,
-        duration_ms=duration_ms,
-        message=f"ingest 完成 (video={ctx.source_video.name}, dir={ctx.output_dir})",
+    return success_step(
+        start,
+        NarrationState.INGEST,
+        f"ingest 完成 (video={ctx.source_video.name}, dir={ctx.output_dir})",
     )
 
 
@@ -73,14 +71,7 @@ def understand_step(ctx: NarrationContext) -> StepResult:
     """
     start = time.time()
     # Phase 1 骨架: 仅占位, 等待 Phase 2 实现
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.UNDERSTAND,
-        duration_ms=duration_ms,
-        message="understand (Phase 1 stub — Phase 2 接入 SceneAnalyzer)",
-        data={"stub": True},
-    )
+    return success_step(start, state=NarrationState.UNDERSTAND, message='understand (Phase 1 stub — Phase 2 接入 SceneAnalyzer)', data={'stub': True})
 
 
 def storygraph_step(ctx: NarrationContext) -> StepResult:
@@ -93,14 +84,7 @@ def storygraph_step(ctx: NarrationContext) -> StepResult:
     """
     start = time.time()
     # Phase 1 骨架: 仅占位
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.STORYGRAPH,
-        duration_ms=duration_ms,
-        message="storygraph (Phase 1 stub — Phase 2 接入 LongVideoUnderstanding)",
-        data={"stub": True},
-    )
+    return success_step(start, state=NarrationState.STORYGRAPH, message='storygraph (Phase 1 stub — Phase 2 接入 LongVideoUnderstanding)', data={'stub': True})
 
 
 def draft_step(ctx: NarrationContext) -> StepResult:
@@ -119,14 +103,7 @@ def draft_step(ctx: NarrationContext) -> StepResult:
     )
     ctx.current_segments = [{"text": ctx.current_draft, "duration": 5.0}]
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.DRAFT,
-        duration_ms=duration_ms,
-        message=f"draft 完成 (attempt={ctx.draft_attempts + 1})",
-        data={"chars": len(ctx.current_draft)},
-    )
+    return success_step(start, state=NarrationState.DRAFT, message=f'draft 完成 (attempt={ctx.draft_attempts + 1})', data={'chars': len(ctx.current_draft)})
 
 
 def hook_rewrite_step(ctx: NarrationContext) -> StepResult:
@@ -139,14 +116,7 @@ def hook_rewrite_step(ctx: NarrationContext) -> StepResult:
     """
     start = time.time()
     # Phase 1 骨架: 仅占位
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.HOOK_REWRITE,
-        duration_ms=duration_ms,
-        message="hook_rewrite (Phase 1 stub — Phase 3 接入)",
-        data={"stub": True},
-    )
+    return success_step(start, state=NarrationState.HOOK_REWRITE, message='hook_rewrite (Phase 1 stub — Phase 3 接入)', data={'stub': True})
 
 
 # ============================================
@@ -167,14 +137,7 @@ def evaluate_step(ctx: NarrationContext) -> StepResult:
     ctx.eval_issues = []
     ctx.eval_suggestion = ""
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.EVALUATE,
-        duration_ms=duration_ms,
-        message=f"evaluate 完成 (score={ctx.eval_score})",
-        data={"score": ctx.eval_score, "stub": True},
-    )
+    return success_step(start, state=NarrationState.EVALUATE, message=f'evaluate 完成 (score={ctx.eval_score})', data={'score': ctx.eval_score, 'stub': True})
 
 
 def accept_step(ctx: NarrationContext) -> StepResult:
@@ -226,17 +189,7 @@ def tts_length_adjust_step(ctx: NarrationContext) -> StepResult:
     ctx.tts_real_duration_sec = 45.0
     ctx.tts_target_duration_sec = ctx.platform_spec.target_duration_sec
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.TTS_LENGTH_ADJUST,
-        duration_ms=duration_ms,
-        message=(
-            f"tts_length_adjust (Phase 1 stub — real={ctx.tts_real_duration_sec:.1f}s, "
-            f"target={ctx.tts_target_duration_sec:.1f}s)"
-        ),
-        data={"stub": True},
-    )
+    return success_step(start, state=NarrationState.TTS_LENGTH_ADJUST, message=f'tts_length_adjust (Phase 1 stub — real={ctx.tts_real_duration_sec:.1f}s, target={ctx.tts_target_duration_sec:.1f}s)', data={'stub': True})
 
 
 def tts_step(ctx: NarrationContext) -> StepResult:
@@ -258,12 +211,10 @@ def tts_step(ctx: NarrationContext) -> StepResult:
             error=f"写入音频文件失败: {e}",
         )
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.TTS,
-        duration_ms=duration_ms,
-        message=f"tts 完成 (audio={ctx.tts_audio_path.name})",
+    return success_step(
+        start,
+        NarrationState.TTS,
+        f"tts 完成 (audio={ctx.tts_audio_path.name})",
     )
 
 

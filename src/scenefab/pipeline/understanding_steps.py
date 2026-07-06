@@ -34,7 +34,7 @@ from .narration_context import (
     NarrationContext,
     NarrationStyle,
 )
-from .narration_state_machine import NarrationState, StepResult
+from .narration_state_machine import NarrationState, StepResult, success_step
 
 if TYPE_CHECKING:
     from scenefab.services.ai.script_generator.script_generator import ScriptGenerator
@@ -124,20 +124,7 @@ def understand_step(ctx: NarrationContext) -> StepResult:
             logger.warning(f"[{ctx.trace_id[:8]}] 桥段检测失败, 跳过: {e}")
             ctx.bridges = []
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.UNDERSTAND,
-        duration_ms=duration_ms,
-        message=(
-            f"understand: {len(ctx.scenes)} 场景, "
-            f"{len(ctx.bridges)} 桥段"
-        ),
-        data={
-            "scenes": len(ctx.scenes),
-            "bridges": len(ctx.bridges),
-        },
-    )
+    return success_step(start, state=NarrationState.UNDERSTAND, message=f'understand: {len(ctx.scenes)} 场景, {len(ctx.bridges)} 桥段', data={'scenes': len(ctx.scenes), 'bridges': len(ctx.bridges)})
 
 
 # ============================================
@@ -162,17 +149,7 @@ def storygraph_step(ctx: NarrationContext) -> StepResult:
     # 短视频 (< 10 分钟) 跳过 LongVideoUnderstanding, 用 scenes 拼一份简化 story_graph
     if video_duration < 600:
         ctx.story_graph = _build_minimal_story_graph(ctx)
-        duration_ms = (time.time() - start) * 1000
-        return StepResult(
-            success=True,
-            state=NarrationState.STORYGRAPH,
-            duration_ms=duration_ms,
-            message=(
-                f"storygraph: 短视频 ({video_duration:.0f}s), "
-                f"跳过 LongVideoUnderstanding, 用 scenes 拼装"
-            ),
-            data={"duration_sec": video_duration, "skipped_long": True},
-        )
+        return success_step(start, state=NarrationState.STORYGRAPH, message=f'storygraph: 短视频 ({video_duration:.0f}s), 跳过 LongVideoUnderstanding, 用 scenes 拼装', data={'duration_sec': video_duration, 'skipped_long': True})
 
     # 长视频: 尝试 LongVideoUnderstanding
     try:
@@ -185,36 +162,13 @@ def storygraph_step(ctx: NarrationContext) -> StepResult:
             level=UnderstandingLevel.FLASH,  # Phase 2 默认 FLASH (省 token)
         )
         ctx.story_graph = result.story_graph
-        duration_ms = (time.time() - start) * 1000
-        return StepResult(
-            success=True,
-            state=NarrationState.STORYGRAPH,
-            duration_ms=duration_ms,
-            message=(
-                f"storygraph: 长视频 ({video_duration:.0f}s), "
-                f"LongVideoUnderstanding 完成"
-            ),
-            data={
-                "duration_sec": video_duration,
-                "characters": len(result.story_graph.characters),
-                "plot_events": len(result.story_graph.plot_events),
-            },
-        )
+        return success_step(start, state=NarrationState.STORYGRAPH, message=f'storygraph: 长视频 ({video_duration:.0f}s), LongVideoUnderstanding 完成', data={'duration_sec': video_duration, 'characters': len(result.story_graph.characters), 'plot_events': len(result.story_graph.plot_events)})
     except Exception as e:  # noqa: BLE001
         logger.warning(
             f"[{ctx.trace_id[:8]}] LongVideoUnderstanding 失败, 降级: {e}"
         )
         ctx.story_graph = _build_minimal_story_graph(ctx)
-        duration_ms = (time.time() - start) * 1000
-        return StepResult(
-            success=True,
-            state=NarrationState.STORYGRAPH,
-            duration_ms=duration_ms,
-            message=(
-                f"storygraph: 长视频 ({video_duration:.0f}s) 但理解失败, 降级"
-            ),
-            data={"duration_sec": video_duration, "fallback": True},
-        )
+        return success_step(start, state=NarrationState.STORYGRAPH, message=f'storygraph: 长视频 ({video_duration:.0f}s) 但理解失败, 降级', data={'duration_sec': video_duration, 'fallback': True})
 
 
 # ============================================
@@ -267,20 +221,7 @@ def draft_step(ctx: NarrationContext) -> StepResult:
         ctx.current_draft = _stub_draft(ctx, topic)
         ctx.current_segments = _stub_segments(ctx, ctx.current_draft)
 
-    duration_ms = (time.time() - start) * 1000
-    return StepResult(
-        success=True,
-        state=NarrationState.DRAFT,
-        duration_ms=duration_ms,
-        message=(
-            f"draft 完成 (attempt={ctx.draft_attempts + 1}, "
-            f"chars={len(ctx.current_draft)})"
-        ),
-        data={
-            "chars": len(ctx.current_draft),
-            "segments": len(ctx.current_segments),
-        },
-    )
+    return success_step(start, state=NarrationState.DRAFT, message=f'draft 完成 (attempt={ctx.draft_attempts + 1}, chars={len(ctx.current_draft)})', data={'chars': len(ctx.current_draft), 'segments': len(ctx.current_segments)})
 
 
 # ============================================
