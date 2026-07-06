@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Signal
 
-from scenefab.project_manager import Project, ProjectManager
 from scenefab.ui.viewmodels import ViewModelBase
 
 if TYPE_CHECKING:
@@ -89,29 +88,27 @@ class HomePageViewModel(ViewModelBase):
     def bind(self) -> None:
         if self._bound:
             return
-        pm = self._project_manager()
-        if pm is None:
-            return
-        pm.project_opened.connect(self._on_project_opened)
-        pm.project_closed.connect(self._on_project_closed)
-        pm.project_saved.connect(lambda _: self._refresh_from_project())
-        pm.recent_projects_updated.connect(self._on_recent_updated)
-        # Pull initial state
-        self._on_project_opened("")  # emit once with current_project
-        self._on_recent_updated(pm.recent_projects or [])
-        self._bound = True
+        self._connect_and_seed(
+            {
+                "project_opened": self._on_project_opened,
+                "project_closed": self._on_project_closed,
+                "project_saved": lambda _: self._refresh_from_project(),
+                "project_deleted": lambda _: self._set_media(0),
+                "recent_projects_updated": self._on_recent_updated,
+            },
+            initial_project_opened="",
+            initial_recent=self._recent_projects,
+        )
 
     def unbind(self) -> None:
         if not self._bound:
             return
-        pm = self._project_manager()
-        if pm is not None:
-            try:
-                pm.project_opened.disconnect(self._on_project_opened)
-                pm.project_closed.disconnect(self._on_project_closed)
-            except (RuntimeError, TypeError):
-                # Signal was never connected (no project_manager)
-                pass
+        self._unbind_pm_signals(
+            {
+                "project_opened": self._on_project_opened,
+                "project_closed": self._on_project_closed,
+            }
+        )
         self._bound = False
 
     # ──────────────────────────────────────────────────────────
@@ -135,17 +132,7 @@ class HomePageViewModel(ViewModelBase):
     # 内部辅助
     # ──────────────────────────────────────────────────────────
 
-    def _project_manager(self) -> ProjectManager | None:
-        app = self._application
-        if app is None:
-            return None
-        return app.get_service(ProjectManager)
-
-    def _current_project(self) -> Project | None:
-        pm = self._project_manager()
-        if pm is None:
-            return None
-        return pm.get_current_project()
+    # _project_manager / _current_project 继承自 ViewModelBase
 
     def _refresh_from_project(self) -> None:
         project = self._current_project()
