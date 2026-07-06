@@ -31,11 +31,11 @@ AI 文案生成器 (Script Generator)
     generator = ScriptGenerator(api_key="your-api-key")
 """
 
-import asyncio
 import logging
 import os
 from typing import Any
 
+from ....utils.async_bridge import run_async_safely
 from ..base_llm_provider import LLMRequest
 from ..llm_manager import LLMManager, load_llm_config
 from ..model_catalog import DEFAULT_MODELS
@@ -77,6 +77,19 @@ class ScriptGenerator:
         # 使用传统方式 (OpenAI) - 兼容
         generator = ScriptGenerator(api_key="sk-xxx")
     """
+
+    def _build_llm_request(self, topic: str, config: ScriptConfig) -> LLMRequest:
+        """构造单条脚本生成的 LLMRequest（generate_batch 内部两处共享）"""
+        system_prompt = self.STYLE_PROMPTS.get(
+            config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
+        )
+        return LLMRequest(
+            prompt=build_prompt(topic, config),
+            system_prompt=system_prompt,
+            model=config.model,
+            max_tokens=config.target_words * 2,  # 预留空间
+            temperature=0.7,
+        )
 
     # 风格对应的系统提示词（引用模块级常量）
     STYLE_PROMPTS = STYLE_PROMPTS
@@ -166,18 +179,7 @@ class ScriptGenerator:
                 await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
-            try:
-                asyncio.get_running_loop()
-                # 已有 loop，在新线程中运行
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(
-                        asyncio.run, _run()
-                    ).result()
-            except RuntimeError:
-                # 没有运行中的 loop
-                raw_content, provider_used = asyncio.run(_run())
+            raw_content, provider_used = run_async_safely(_run)
 
         else:
             # 传统方式
@@ -212,18 +214,7 @@ class ScriptGenerator:
                 logger.debug(f"Invalid provider '{config.provider}', using default")
 
         # 构建请求
-        system_prompt = self.STYLE_PROMPTS.get(
-            config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
-        )
-        user_prompt = build_prompt(topic, config)
-
-        request = LLMRequest(
-            prompt=user_prompt,
-            system_prompt=system_prompt,
-            model=config.model,
-            max_tokens=config.target_words * 2,  # 预留空间
-            temperature=0.7,
-        )
+        request = self._build_llm_request(topic, config)
 
         # 调用 LLMManager
         response = await self.llm_manager.generate(request, provider=provider_type)  # type: ignore[union-attr]
@@ -256,14 +247,7 @@ class ScriptGenerator:
                 await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return results
 
-            try:
-                asyncio.get_running_loop()
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    results = pool.submit(asyncio.run, _run()).result()
-            except RuntimeError:
-                results = asyncio.run(_run())
+            results = run_async_safely(_run)
         else:
             results = [self.generate(topic, config) for topic, config in requests]
 
@@ -298,18 +282,7 @@ class ScriptGenerator:
 
         # 处理长请求（单独调用）
         for topic, config in long_reqs:
-            system_prompt = self.STYLE_PROMPTS.get(
-                config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
-            )
-            user_prompt = build_prompt(topic, config)
-
-            request = LLMRequest(
-                prompt=user_prompt,
-                system_prompt=system_prompt,
-                model=config.model,
-                max_tokens=config.target_words * 2,
-                temperature=0.7,
-            )
+            request = self._build_llm_request(topic, config)
 
             try:
                 response = await self.llm_manager.generate(request)
@@ -401,16 +374,7 @@ class ScriptGenerator:
                 await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
-            try:
-                asyncio.get_running_loop()
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(
-                        asyncio.run, _run()
-                    ).result()
-            except RuntimeError:
-                raw_content, provider_used = asyncio.run(_run())
+            raw_content, provider_used = run_async_safely(_run)
 
             script = parse_response(raw_content, config)
             script.provider_used = provider_used

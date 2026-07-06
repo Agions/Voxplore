@@ -113,19 +113,7 @@ class SubtitleTranslator:
         else:
             raise ValueError(f"不支持的翻译引擎: {self._provider}")
 
-        # 构建翻译后的字幕片段
-        for i, seg in enumerate(subtitle_result.segments):
-            translated.segments.append(
-                SubtitleSegment(
-                    start=seg.start,
-                    end=seg.end,
-                    text=translated_texts[i] if i < len(translated_texts) else seg.text,
-                    confidence=seg.confidence,
-                    source=f"translated_{seg.source}",
-                )
-            )
-
-        translated.full_text = " ".join(t.text for t in translated.segments)
+        self._assemble_translated_segments(translated, subtitle_result, translated_texts)
         return translated
 
     async def translate_async(
@@ -180,7 +168,16 @@ class SubtitleTranslator:
             max_concurrent_batches,
         )
 
-        # 构建翻译后的字幕片段
+        self._assemble_translated_segments(translated, subtitle_result, translated_texts)
+        return translated
+
+    def _assemble_translated_segments(
+        self,
+        translated: object,
+        subtitle_result: object,
+        translated_texts: list[str],
+    ) -> None:
+        """把 translated_texts 组装到 translated.segments + full_text（sync/async 共享）"""
         for i, seg in enumerate(subtitle_result.segments):
             translated.segments.append(
                 SubtitleSegment(
@@ -191,9 +188,7 @@ class SubtitleTranslator:
                     source=f"translated_{seg.source}",
                 )
             )
-
         translated.full_text = " ".join(t.text for t in translated.segments)
-        return translated
 
     def _translate_openai(
         self,

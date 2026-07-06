@@ -32,6 +32,19 @@ logger = logging.getLogger(__name__)
 __all__ = ["SceneAnalyzer"]
 
 
+# 场景类型 → 中文名映射（format_scenes_for_llm 与 select_best_scenes 共享）
+_SCENE_TYPE_NAMES: dict = {
+    SceneType.LANDSCAPE: "风景画面",
+    SceneType.B_ROLL: "素材画面",
+    SceneType.ACTION: "动作场景",
+    SceneType.TALKING_HEAD: "人物讲话",
+    SceneType.TRANSITION: "转场",
+    SceneType.TITLE: "标题画面",
+    SceneType.PRODUCT: "产品展示",
+    SceneType.UNKNOWN: "未知",
+}
+
+
 class SceneAnalyzer:
     """
     场景分析器
@@ -455,22 +468,11 @@ class SceneAnalyzer:
         if not scenes:
             return "## 场景列表\n\n*暂无场景数据*"
 
-        type_names = {
-            SceneType.LANDSCAPE: "风景画面",
-            SceneType.B_ROLL: "素材画面",
-            SceneType.ACTION: "动作场景",
-            SceneType.TALKING_HEAD: "人物讲话",
-            SceneType.TRANSITION: "转场",
-            SceneType.TITLE: "标题画面",
-            SceneType.PRODUCT: "产品展示",
-            SceneType.UNKNOWN: "未知",
-        }
-
         lines = ["## 场景列表\n"]
         for i, scene in enumerate(scenes, 1):
             start_str = f"{int(scene.start // 60):02d}:{int(scene.start % 60):02d}"
             end_str = f"{int(scene.end // 60):02d}:{int(scene.end % 60):02d}"
-            type_name = type_names.get(scene.type, "未知")
+            type_name = _SCENE_TYPE_NAMES.get(scene.type, "未知")
 
             lines.append(f"{i}. **{start_str} - {end_str}** {type_name}")
             lines.append(f"   - 类型: `{scene.type.value}`")
@@ -506,20 +508,9 @@ class SceneAnalyzer:
             :max_scenes
         ]
 
-        type_names = {
-            SceneType.LANDSCAPE: "风景画面",
-            SceneType.B_ROLL: "素材画面",
-            SceneType.ACTION: "动作场景",
-            SceneType.TALKING_HEAD: "人物讲话",
-            SceneType.TRANSITION: "转场",
-            SceneType.TITLE: "标题画面",
-            SceneType.PRODUCT: "产品展示",
-            SceneType.UNKNOWN: "未知",
-        }
-
         parts = [f"视频共 {len(scenes)} 个场景，选取最重要的 {len(sorted_scenes)} 个：\n"]
         for scene in sorted_scenes:
             start_str = f"{int(scene.start // 60):02d}:{int(scene.start % 60):02d}"
-            type_name = type_names.get(scene.type, "未知")
+            type_name = _SCENE_TYPE_NAMES.get(scene.type, "未知")
             parts.append(f"- [{start_str}] {type_name} (评分:{scene.suitability_score:.0f})")
         return "\n".join(parts)

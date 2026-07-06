@@ -27,6 +27,8 @@ import logging
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
+from scenefab.utils.async_bridge import run_async_safely
+
 from .script_generator import ScriptGenerator
 from .script_models import (
     GeneratedScript,
@@ -146,14 +148,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                     topic, config, callback, sentiment_callback
                 )
 
-            try:
-                asyncio.get_running_loop()
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    result = pool.submit(asyncio.run, _run()).result()
-            except RuntimeError:
-                result = asyncio.run(_run())
+            result = run_async_safely(_run)
 
             return result  # type: ignore[no-any-return]
 
@@ -302,16 +297,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                 await self.llm_manager.close_all()  # type: ignore[union-attr]
                 return result
 
-            try:
-                asyncio.get_running_loop()
-                import concurrent.futures
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    raw_content, provider_used = pool.submit(
-                        asyncio.run, _run()
-                    ).result()
-            except RuntimeError:
-                raw_content, provider_used = asyncio.run(_run())
+            raw_content, provider_used = run_async_safely(_run)
         else:
             raw_content = self._generate_openai(topic, config)
             provider_used = "openai"

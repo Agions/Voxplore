@@ -71,21 +71,7 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "POST", f"{self.base_url}/v1/messages", json=payload
         )
 
-        if "error" in data:
-            raise ProviderError(data["error"]["message"])
-
-        content = ""
-        for block in data.get("content", []):
-            if block.get("type") == "text":
-                content += block.get("text", "")
-
-        return LLMResponse(
-            content=content,
-            model=model,
-            tokens_used=data.get("usage", {}).get("input_tokens", 0)
-            + data.get("usage", {}).get("output_tokens", 0),
-            finish_reason=data.get("stop_reason", "stop"),
-        )
+        return self._parse_anthropic_response(data, model)
 
     async def generate_with_image(
         self,
@@ -140,6 +126,11 @@ class ClaudeProvider(BaseLLMProvider, HTTPClientMixin, ModelManagerMixin):
             "POST", f"{self.base_url}/v1/messages", json=payload
         )
 
+        return self._parse_anthropic_response(data, model)
+
+    @staticmethod
+    def _parse_anthropic_response(data: dict, model: str) -> "LLMResponse":
+        """解析 Anthropic Messages API 响应（generate/generate_with_image 共享）"""
         if "error" in data:
             raise ProviderError(data["error"]["message"])
 

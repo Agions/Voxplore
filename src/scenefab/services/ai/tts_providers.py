@@ -4,13 +4,12 @@ TTS 提供者实现
 包含 EdgeTTS、OpenAI TTS、F5-TTS、PilotTTS、OmniVoice、IndexTTS2 等多种后端实现。
 """
 
-import asyncio
 import logging
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Coroutine
 from pathlib import Path
 from typing import Any
 
+from ...utils.async_bridge import run_async_safely
 from ...utils.security import SecurityError, get_ffmpeg_executor
 from .voice_models import (
     GeneratedVoice,
@@ -190,23 +189,13 @@ class EdgeTTSProvider(TTSProvider):
             for data in audio_chunks:
                 f.write(data)
 
-    def _run_async_safely(self, coro_factory: Callable[[], Coroutine[Any, Any, None]]) -> None:
+    def _run_async_safely(self, coro_factory: Any) -> Any:
         """在已有/无 event loop 下安全运行异步协程.
 
         EdgeTTS 必须运行在自己的 loop 中; 若调用方已持有 loop,
         用独立线程的 ThreadPoolExecutor 隔离. 否则 asyncio.run() 即可.
         """
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            asyncio.run(coro_factory())
-            return
-
-        # 调用方在事件循环中 — 隔离到独立线程
-        import concurrent.futures
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            pool.submit(asyncio.run, coro_factory()).result()
+        return run_async_safely(coro_factory)
 
     def _build_generated_voice(
         self,
@@ -345,21 +334,12 @@ class EdgeTTSProvider(TTSProvider):
             config: 语音配置
             progress_callback: 进度回调，signature: callback(done: bool, info: dict)
         """
-        import asyncio
-        import concurrent.futures
-
         async def _generate():
             return await self.generate_streaming(
                 text, output_path, config, progress_callback
             )
 
-        try:
-            asyncio.get_running_loop()
-            # 已有 loop，在新线程中运行
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                return pool.submit(asyncio.run, _generate()).result()  # type: ignore[no-any-return]
-        except RuntimeError:
-            return asyncio.run(_generate())  # type: ignore[no-any-return]
+        return run_async_safely(_generate)  # type: ignore[no-any-return]
 
     def _select_voice(self, config: VoiceConfig) -> str:
         """根据配置选择声音"""
