@@ -13,33 +13,22 @@ import threading
 
 import numpy as np
 
+from ...utils.singleton import SingletonMeta
 from .cache.frame_cache import VideoFrameCache
 
 logger = logging.getLogger(__name__)
 
 
-class FFmpegSession:
+class FFmpegSession(metaclass=SingletonMeta):
     """
     FFmpeg 会话管理
     复用 FFmpeg 进程避免重复启动开销
+
+    使用 SingletonMeta 替代手写 __new__ + _lock + _initialized 守卫模式.
+    只在首次实例化时 _init_singleton() 被调用, 后续调用返回同一实例.
     """
 
-    _instance = None
-    _lock = threading.Lock()
-
-    def __new__(cls):
-        if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False  # type: ignore[has-type]
-        return cls._instance
-
-    def __init__(self):
-        if self._initialized:  # type: ignore[has-type]
-            return
-
-        self._initialized = True
+    def _init_singleton(self) -> None:
         self._processes = {}
         self._session_lock = threading.Lock()
         self._frame_cache = VideoFrameCache.get_shared()

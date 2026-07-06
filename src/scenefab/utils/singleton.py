@@ -50,6 +50,10 @@ class SingletonMeta(type):
                 if cls not in cls._instances:
                     instance = super().__call__(*args, **kwargs)
                     cls._instances[cls] = instance
+                    # 触发一次性初始化钩子（子类可覆写 _init_singleton）
+                    init = getattr(instance, "_init_singleton", None)
+                    if callable(init):
+                        init()
         return cls._instances[cls]
 
 

@@ -43,18 +43,7 @@ async def list_plugins():
         plugins = []
         for pid in discovered:
             reg_entry = registry.get(pid, {})  # type: ignore[arg-type]
-            manifest = reg_entry.get("manifest", {})
-            plugins.append(
-                PluginInfo(
-                    id=pid,  # type: ignore[arg-type]
-                    name=manifest.get("name", pid),
-                    version=manifest.get("version", "0.0.0"),
-                    description=manifest.get("description", ""),
-                    plugin_type=manifest.get("plugin_type", "UNKNOWN"),
-                    enabled=reg_entry.get("enabled", False),
-                    capabilities=manifest.get("capabilities", []),
-                )
-            )
+            plugins.append(_plugin_info_from_registry(pid, reg_entry))
 
         return PluginListResponse(total=len(plugins), plugins=plugins)
 
@@ -96,17 +85,7 @@ async def get_plugin(plugin_id: str):
             )
 
         reg_entry = registry[plugin_id]  # type: ignore[index]
-        manifest = reg_entry.get("manifest", {})
-
-        return PluginInfo(
-            id=plugin_id,
-            name=manifest.get("name", plugin_id),
-            version=manifest.get("version", "0.0.0"),
-            description=manifest.get("description", ""),
-            plugin_type=manifest.get("plugin_type", "UNKNOWN"),
-            enabled=reg_entry.get("enabled", False),
-            capabilities=manifest.get("capabilities", []),
-        )
+        return _plugin_info_from_registry(plugin_id, reg_entry)
 
     except HTTPException:
         raise
@@ -147,8 +126,21 @@ def _type_description(plugin_type: str) -> str:
         "EXPORT_FORMAT": "视频导出格式插件",
         "UI_EXTENSION": "UI 扩展组件",
         "EFFECT_FILTER": "特效滤镜插件",
-        "SUBTITLE_STYLE": "字幕样式插件",
         "AUDIO_VOICE": "语音/配音插件",
         "VIDEO_DECODER": "视频解码插件",
     }
     return descriptions.get(plugin_type, "未知类型")
+
+
+def _plugin_info_from_registry(plugin_id: str, reg_entry: dict) -> PluginInfo:
+    """从 registry entry 构造 PluginInfo（list/single 共享）"""
+    manifest = reg_entry.get("manifest", {})
+    return PluginInfo(
+        id=plugin_id,
+        name=manifest.get("name", plugin_id),
+        version=manifest.get("version", "0.0.0"),
+        description=manifest.get("description", ""),
+        plugin_type=manifest.get("plugin_type", "UNKNOWN"),
+        enabled=reg_entry.get("enabled", False),
+        capabilities=manifest.get("capabilities", []),
+    )

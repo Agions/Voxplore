@@ -578,36 +578,44 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             if part in ("。", "！", "？"):
                 current_text += part
                 if len(current_text.strip()) >= 2:
-                    duration = (
-                        len(current_text) / segment_words
-                    ) * segment.audio_duration
-                    captions.append(
-                        self._build_fallback_caption(
-                            current_text,
-                            caption_cfg,
-                            current_start,
-                            duration,
-                            segment.emotion.value,
-                        )
+                    self._emit_fallback_caption(
+                        captions, current_text, segment, caption_cfg,
+                        segment_words, current_start,
                     )
+                    duration = len(current_text) / segment_words * segment.audio_duration
                     current_start += duration
                     current_text = ""
             else:
                 current_text += part
 
         if current_text.strip() and len(current_text.strip()) >= 2:
-            duration = (len(current_text) / segment_words) * segment.audio_duration
-            captions.append(
-                self._build_fallback_caption(
-                    current_text,
-                    caption_cfg,
-                    current_start,
-                    duration,
-                    segment.emotion.value,
-                )
+            self._emit_fallback_caption(
+                captions, current_text, segment, caption_cfg,
+                segment_words, current_start,
             )
 
         return captions
+
+    def _emit_fallback_caption(
+        self,
+        captions: list,
+        current_text: str,
+        segment,
+        caption_cfg,
+        segment_words: int,
+        current_start: float,
+    ) -> None:
+        """构造 fallback caption（loop 内 + 尾随双调用共享）"""
+        duration = (len(current_text) / segment_words) * segment.audio_duration
+        captions.append(
+            self._build_fallback_caption(
+                current_text,
+                caption_cfg,
+                current_start,
+                duration,
+                segment.emotion.value,
+            )
+        )
 
     def _build_fallback_caption(
         self,

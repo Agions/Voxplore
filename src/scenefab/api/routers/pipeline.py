@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from scenefab.api.schemas.models import NarrationRequest, PipelineStatus
 from scenefab.core.task_store import get_task_store
 from scenefab.services.video.pipeline_integrator import PipelineIntegrator
-from scenefab.utils.security import PathValidator, SecurityError
+from scenefab.utils.security import SecurityError
 
 logger = logging.getLogger(__name__)
 
@@ -31,26 +31,9 @@ _integrator_lock = threading.Lock()
 
 # 安全默认: output_dir 只允许落在项目工作区下的 outputs/ 或用户主目录下的 scenefab 导出目录,
 # 避免任意写 /etc /root /System32 等敏感位置. 用户可在 settings.allowed_base_dirs 扩展.
-# 与 api/routers/export.py:33 保持一致, 复用同一安全语义.
-_DEFAULT_ALLOWED_BASE_DIRS = (
-    os.path.join(os.getcwd(), "outputs"),
-    os.path.expanduser("~/.scenefab/exports"),
-    os.path.expanduser("~/Downloads"),
-    os.path.expanduser("~/.cache/scenefab/exports"),
-)
+# 复用 api/routers/export.py 的安全语义（共享同一 PathValidator 实例）.
 
-
-def _get_path_validator() -> PathValidator:
-    """获取路径校验器: 优先使用 settings 中的 allowed_base_dirs, 否则使用安全默认."""
-    try:
-        from scenefab.settings import get_config
-
-        configured = getattr(get_config(), "allowed_base_dirs", None)
-        base_dirs = list(configured) if configured else list(_DEFAULT_ALLOWED_BASE_DIRS)
-    except Exception:
-        # 配置加载失败时回退到安全默认
-        base_dirs = list(_DEFAULT_ALLOWED_BASE_DIRS)
-    return PathValidator(allowed_base_dirs=base_dirs)
+from .export import _get_path_validator  # noqa: F401  复用 export.py 的安全路径校验器
 
 
 def _validate_output_dir(output_dir: str | None) -> str | None:

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from typing import Any
+
+from scenefab.utils.lazy_imports import make_lazy_getattr
 
 _EXPORTS = {
     "BaseVideoMaker": ".base_maker",
@@ -49,13 +50,10 @@ _EXPORTS = {
 
 
 def __getattr__(name: str) -> Any:
-    module_name = _EXPORTS.get(name)
-    if module_name is None:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module = import_module(module_name, __name__)
-    value = getattr(module, name)
-    globals()[name] = value
-    return value
+    return _lazy_getattr(name)
+
+
+_lazy_getattr = make_lazy_getattr(_EXPORTS, package_name=__name__)
 
 
 __all__ = list(_EXPORTS)

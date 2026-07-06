@@ -416,6 +416,21 @@ class SecureFileHandler:
             "document": ALLOWED_DOCUMENT_EXTENSIONS,
         }
 
+    def _validate_path_and_ext(self, path: str, category: str) -> None:
+        """路径 + 扩展名验证（read/write 共享）
+
+        Raises:
+            SecurityError: 验证失败
+        """
+        result = self.path_validator.validate(path)
+        if not result.passed:
+            raise SecurityError(f"路径验证失败: {result.message}")
+
+        allowed = self.allowed_extensions.get(category, ALLOWED_DOCUMENT_EXTENSIONS)
+        ext_result = self.path_validator.validate_extension(path, allowed)
+        if not ext_result.passed:
+            raise SecurityError(f"扩展名验证失败: {ext_result.message}")
+
     def read(
         self,
         path: str,
@@ -438,16 +453,7 @@ class SecureFileHandler:
         Raises:
             SecurityError: 安全验证失败
         """
-        # 验证路径
-        result = self.path_validator.validate(path)
-        if not result.passed:
-            raise SecurityError(f"路径验证失败: {result.message}")
-
-        # 验证扩展名
-        allowed = self.allowed_extensions.get(category, ALLOWED_DOCUMENT_EXTENSIONS)
-        ext_result = self.path_validator.validate_extension(path, allowed)
-        if not ext_result.passed:
-            raise SecurityError(f"扩展名验证失败: {ext_result.message}")
+        self._validate_path_and_ext(path, category)
 
         # 检查文件大小
         try:
@@ -471,16 +477,7 @@ class SecureFileHandler:
         self, path: str, content: str, mode: str = "w", category: str = "document"
     ) -> None:
         """安全写入文件"""
-        # 验证路径
-        result = self.path_validator.validate(path)
-        if not result.passed:
-            raise SecurityError(f"路径验证失败: {result.message}")
-
-        # 验证扩展名
-        allowed = self.allowed_extensions.get(category, ALLOWED_DOCUMENT_EXTENSIONS)
-        ext_result = self.path_validator.validate_extension(path, allowed)
-        if not ext_result.passed:
-            raise SecurityError(f"扩展名验证失败: {ext_result.message}")
+        self._validate_path_and_ext(path, category)
 
         # 确保目录存在
         dir_path = os.path.dirname(path)

@@ -30,7 +30,13 @@ from scenefab.ui.main.main_window.top_bar import TopBar
 from scenefab.ui.main.page_router import PageRouter
 from scenefab.ui.main.registry import NAV_ITEMS, PAGE_TITLES
 from scenefab.ui.main.system_tray import SystemTrayController
-from scenefab.ui.theme.ds_tokens import _C, FontSizes, Radii, set_theme_mode
+from scenefab.ui.theme.ds_tokens import (
+    _C,
+    FontSizes,
+    QSSComponents,
+    Radii,
+    set_theme_mode,
+)
 from scenefab.ui.theme.runtime import ThemeAwareMixin, restyle_app
 
 if TYPE_CHECKING:
@@ -163,7 +169,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         is called (via :func:`restyle_app` triggered by SettingsPage),
         so colour literals stay in sync after :func:`set_theme_mode`.
         """
-        return f"""
+        prefix = f"""
             QMainWindow {{
                 background: {_C.BG_BASE};
                 outline: none;
@@ -189,37 +195,14 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 padding: 6px 10px;
                 font-size: {FontSizes.xs}px;
             }}
-            QScrollBar:vertical {{
-                background: transparent;
-                width: 6px;
-                margin: 0;
-            }}
-            QScrollBar::handle:vertical {{
-                background: {_C.BORDER_DEFAULT};
-                border-radius: 3px;
-                min-height: 40px;
-            }}
-            QScrollBar::handle:vertical:hover {{
-                background: {_C.BORDER_STRONG};
-            }}
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-                height: 0;
-            }}
-            QScrollBar:horizontal {{
-                background: transparent;
-                height: 6px;
-                margin: 0;
-            }}
-            QScrollBar::handle:horizontal {{
-                background: {_C.BORDER_DEFAULT};
-                border-radius: 3px;
-                min-width: 40px;
-            }}
+        """
+        suffix = f"""
             * {{
                 selection-background-color: {_C.PRIMARY};
                 selection-color: {_C.TEXT_INVERSE};
             }}
         """
+        return prefix + QSSComponents.scrollbar() + suffix
 
     # ThemeAwareMixin hook: route _build_stylesheet to the live builder above
     def _build_stylesheet(self) -> str:

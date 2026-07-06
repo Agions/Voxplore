@@ -65,8 +65,9 @@ class TaskStore(ABC):
     @abstractmethod
     def list_ids(self) -> list[str]: ...
 
-    @abstractmethod
-    def list_all(self) -> list[dict[str, Any]]: ...
+    def list_all(self) -> list[dict[str, Any]]:
+        """默认实现：基于 list_ids + get（SQLite/Redis 共享）"""
+        return [t for t in (self.get(tid) for tid in self.list_ids()) if t is not None]
 
     # v2.1 新增
     def update(self, task_id: str, **fields: Any) -> dict[str, Any] | None:
@@ -135,26 +136,25 @@ class InMemoryTaskStore(TaskStore):
         with self._lock:
             self._tasks.pop(task_id, None)
 
-    def list_ids(self) -> list[str]:
+    def _purge_expired(self) -> int:
+        """清理过期记录并返回清理条数（共享给 list_ids/list_all/cleanup_expired）"""
         with self._lock:
-            # 顺手清理过期
             now = time.time()
             expired = [
                 k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
             ]
             for k in expired:
                 self._tasks.pop(k, None)
+            return len(expired)
+
+    def list_ids(self) -> list[str]:
+        with self._lock:
+            self._purge_expired()
             return list(self._tasks.keys())
 
     def list_all(self) -> list[dict[str, Any]]:
         with self._lock:
-            # 顺手清理过期
-            now = time.time()
-            expired = [
-                k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
-            ]
-            for k in expired:
-                self._tasks.pop(k, None)
+            self._purge_expired()
             return [dict(v.data) for v in self._tasks.values()]
 
     def set_ttl(self, task_id: str, seconds: int) -> None:
@@ -165,13 +165,7 @@ class InMemoryTaskStore(TaskStore):
 
     def cleanup_expired(self) -> int:
         with self._lock:
-            now = time.time()
-            expired = [
-                k for k, v in self._tasks.items() if v.expires_at and now > v.expires_at
-            ]
-            for k in expired:
-                self._tasks.pop(k, None)
-            return len(expired)
+            return self._purge_expired()
 
 
 # ──────────────────────────────────────────────────────────
@@ -267,7 +261,8 @@ class SQLiteTaskStore(TaskStore):
             return [r[0] for r in rows]
 
     def list_all(self) -> list[dict[str, Any]]:
-        return [t for t in (self.get(tid) for tid in self.list_ids()) if t is not None]
+        # 由 TaskStore 基类 default impl 提供（基于 list_ids + get）
+        return super().list_all()
 
     def set_ttl(self, task_id: str, seconds: int) -> None:
         with self._lock, self._conn() as conn:
@@ -342,7 +337,8 @@ class RedisTaskStore(TaskStore):
         return [k.removeprefix(self._prefix) for k in keys]
 
     def list_all(self) -> list[dict[str, Any]]:
-        return [t for t in (self.get(tid) for tid in self.list_ids()) if t is not None]
+        # 由 TaskStore 基类 default impl 提供（基于 list_ids + get）
+        return super().list_all()
 
     def set_ttl(self, task_id: str, seconds: int) -> None:
         self._client.expire(self._key(task_id), seconds)

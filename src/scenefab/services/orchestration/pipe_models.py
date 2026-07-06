@@ -52,30 +52,29 @@ class ScriptSegmentInfo(BaseModel):
     emotion: str = Field(default="neutral", description="情感标签")
 
 
-class VideoTrackClip(BaseModel):
+class _BaseTrackClip(BaseModel):
+    """轨道片段基类（id/start/end 共用）"""
+
+    id: str = Field(default="", description="片段ID")
+    start: float = Field(ge=0, description="开始时间（秒）")
+    end: float = Field(ge=0, description="结束时间（秒）")
+
+
+class VideoTrackClip(_BaseTrackClip):
     """视频轨道片段"""
 
-    id: str = Field(default="", description="片段ID")
-    start: float = Field(ge=0, description="开始时间（秒）")
-    end: float = Field(ge=0, description="结束时间（秒）")
     source: str = Field(default="", description="素材路径")
 
 
-class AudioTrackClip(BaseModel):
+class AudioTrackClip(_BaseTrackClip):
     """音频轨道片段"""
 
-    id: str = Field(default="", description="片段ID")
-    start: float = Field(ge=0, description="开始时间（秒）")
-    end: float = Field(ge=0, description="结束时间（秒）")
     source: str = Field(default="", description="素材路径")
 
 
-class SubtitleTrackClip(BaseModel):
+class SubtitleTrackClip(_BaseTrackClip):
     """字幕轨道片段"""
 
-    id: str = Field(default="", description="片段ID")
-    start: float = Field(ge=0, description="开始时间（秒）")
-    end: float = Field(ge=0, description="结束时间（秒）")
     text: str = Field(default="", description="字幕文本")
 
 
