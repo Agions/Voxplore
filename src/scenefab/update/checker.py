@@ -98,7 +98,11 @@ def check_update() -> UpdateInfo | None:
         )
 
     except httpx.HTTPStatusError as e:
-        logger.warning("Update check failed (HTTP %d): %s", e.response.status_code, e)
+        if e.response.status_code == 403:
+            # GitHub API 限流 — 预期行为，静默跳过
+            logger.debug("Update check skipped (rate limited)")
+        else:
+            logger.warning("Update check failed (HTTP %d): %s", e.response.status_code, e)
         return None
     except httpx.RequestError as e:
         logger.warning("Update check failed (network): %s", e)
