@@ -25,7 +25,7 @@ class TestBaseWorker:
         from scenefab.core.base_worker import BaseWorker
 
         class TestWorker(BaseWorker):
-            def run(self):
+            def _run(self):
                 self.emit_status("running")
                 self.emit_progress(50, 100, "half")
                 return None
@@ -38,7 +38,7 @@ class TestBaseWorker:
         from scenefab.core.base_worker import BaseWorker
 
         class TestWorker(BaseWorker):
-            def run(self):
+            def _run(self):
                 if self.check_cancel_or_pause():
                     return
                 self.emit_status("after cancel check")
@@ -51,14 +51,14 @@ class TestBaseWorker:
         from scenefab.core.base_worker import BaseWorker
 
         class TestWorker(BaseWorker):
-            def run(self):
+            def _run(self):
                 self.pause()
                 assert self.is_paused()
                 self.resume()
                 assert not self.is_paused()
 
         w = TestWorker()
-        w.run()  # 同步测试
+        w.run()  # 同步测试（run → _execute → _run）
 
 
 # === AuditLogger ===

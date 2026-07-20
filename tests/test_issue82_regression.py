@@ -4,8 +4,9 @@
 The original bug report (No module named 'scenefab.icon_manager') was
 already fixed on main by commit 40070fd. But that exposed a SECOND
 startup failure: `Application.initialize()` crashed in
-`_load_configuration` because `Logger.info()` (custom wrapper) was called
-with 2 args (msg + format arg), which the wrapper does not accept.
+`_load_configuration` because the logger was called with 2 args
+(msg + format arg), which raised a TypeError inside the try/except
+and aborted startup.
 
 These tests exercise the *fixed* code paths so future refactors cannot
 silently reintroduce the regression. They deliberately avoid PySide6 so
@@ -79,42 +80,6 @@ class TestProjectManagerRecentProjectsIO:
         assert not cache_file.exists()
         # Mirror the early-return in _load_recent_projects.
         assert (cache_file.exists() and json.loads(cache_file.read_text())) or [] == []
-
-
-class TestApplicationLoggerInfoArity:
-    """Application._load_configuration previously called
-    ``self.logger.info("...%s...", value)`` with two args.
-
-    ``scenefab.logger.Logger.info`` has signature
-    ``info(message: str) -> None`` (single arg). Passing a 2nd arg
-    raised ``TypeError: takes 2 positional arguments but 3 were given``
-    inside the ``try/except`` in ``_load_configuration``, which then
-    logged a confusing "配置加载失败" message and aborted startup.
-    """
-
-    def test_logger_info_accepts_only_single_message(self) -> None:
-        from scenefab.logger import Logger
-
-        logger = Logger("test-issue82")
-        with pytest.raises(TypeError):
-            # Two-arg form (msg + format arg) must NOT be supported.
-            logger.info("hello %s", "world")  # type: ignore[call-arg]
-
-    def test_logger_info_accepts_single_string(self) -> None:
-        from scenefab.logger import Logger
-
-        logger = Logger("test-issue82")
-        # Single-arg form must work (and not raise).
-        logger.info("hello world")
-
-    def test_logger_info_accepts_fstring(self) -> None:
-        """The new code in _load_configuration uses f-strings; verify
-        that path round-trips a value through the wrapper."""
-        from scenefab.logger import Logger
-
-        logger = Logger("test-issue82")
-        n = 7
-        logger.info(f"config loaded: {n} keys")  # must not raise
 
 
 class TestApplicationStartSmoke:

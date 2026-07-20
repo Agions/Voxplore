@@ -85,11 +85,12 @@ class StreamingLLMWorker(BaseWorker):
         self._accumulated = ""
         self._audit = AuditLogger()
 
-    def run(self) -> None:
+    def _run(self) -> None:
         """
         子类实现：调用实际 LLM 流式接口
 
         使用注入的 generator_factory 创建生成器；未注入时回退到模拟流式。
+        由 BaseWorker.run() → _execute() 统一调度，无需自行处理异常包装。
         """
         # 标记为流式开始
         self.emit_status(f"开始流式生成 ({self.provider})")

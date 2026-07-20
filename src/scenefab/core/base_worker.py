@@ -13,7 +13,7 @@
     from scenefab.core.base_worker import BaseWorker, WorkerResult
 
     class MyWorker(BaseWorker):
-        def run(self):
+        def _run(self):
             for i in range(100):
                 if self.is_cancelled():
                     return
@@ -205,29 +205,42 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
     # 子类重写
     # ==============================================================
 
-    def run(self) -> None:
+    def _run(self) -> None:
         """
         子类应重写此方法实现具体逻辑
 
         通过 check_cancel_or_pause() 周期性检查取消/暂停状态
         通过 emit_progress(current, total, message) 报告进度
+
+        注意: 子类应重写 _run() 而非 run()。run() 是线程入口，由 start()
+        触发并统一转发到 _execute() 处理异常捕获/结果包装/Signal 发送。
         """
-        raise NotImplementedError("Subclasses must implement run()")
+        raise NotImplementedError("Subclasses must implement _run()")
 
     # ==============================================================
     # 内部执行循环
     # ==============================================================
 
+    def run(self) -> None:
+        """
+        线程入口 — 由 QThread.start() / threading.Thread.start() 调用
+
+        统一转发到 _execute()，确保 Qt 与 headless 两种模式下
+        异常捕获、结果包装与 Signal 发送逻辑一致生效。
+        子类不应重写此方法，而应重写 _run()。
+        """
+        self._execute()
+
     def _execute(self) -> None:
         """
-        QThread.run() / Thread.run() 的统一入口
+        统一执行入口
         负责异常捕获、结果包装、Signal 发送
         """
         import time
 
         self._start_time_ms = int(time.time() * 1000)
         try:
-            self.run()
+            self._run()
             duration = int(time.time() * 1000) - self._start_time_ms
             if self.is_cancelled():
                 self._result = WorkerResult(
@@ -264,16 +277,16 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
                     h(str(e))
 
     def start(self, *args, **kwargs) -> None:
-        """启动 Worker"""
+        """启动 Worker
+
+        Qt 模式下 QThread.start() 会调用 run()，headless 模式下
+        threading.Thread.start() 同样调用 run()。两者均经由
+        run() → _execute() → _run()，保证异常处理、结果包装与
+        Signal 发送在两种模式下行为一致。
+        """
         if _QT_AVAILABLE:
             QThread.start(self)
         else:
-            # 包装 run 调用，注入 _execute 异常处理
-            def wrapped_run():
-                # 用 _execute 的异常处理逻辑
-                self._execute()
-
-            self.run = wrapped_run  # type: ignore[method-assign]
             threading.Thread.start(self)
 
 

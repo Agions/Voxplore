@@ -68,7 +68,7 @@ class Resolution(Enum):
         return self.value[1]
 
     @property
-    def name(self) -> str:
+    def label(self) -> str:
         return f"{self.width}x{self.height}"
 
 
@@ -619,17 +619,17 @@ class DirectVideoExporter:
         results = {}
 
         for resolution in presets:
-            output_name = f"{project_name}_{resolution.name}.mp4"
+            output_name = f"{project_name}_{resolution.label}.mp4"
             output_path = output_dir / output_name  # type: ignore[operator]
 
-            logger.info(f"导出 {resolution.name}...")
+            logger.info(f"导出 {resolution.label}...")
             self.export_commentary(
                 project,
                 str(output_path),
                 resolution=resolution,
             )
 
-            results[resolution.name] = str(output_path)
+            results[resolution.label] = str(output_path)
 
         return results
 

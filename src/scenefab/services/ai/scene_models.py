@@ -62,7 +62,7 @@ class AnalysisConfig:
     keyframe_dir: str = ""  # 关键帧保存目录
     analyze_audio: bool = True  # 是否分析音频
     # PySceneDetect 专用配置
-    use_pyscenect: bool = True  # 是否优先使用 PySceneDetect
+    use_pyscenedetect: bool = True  # 是否优先使用 PySceneDetect
     detector_type: str = (
         "adaptive"  # 检测器类型: "content" 或 "adaptive" 或 "threshold"
     )

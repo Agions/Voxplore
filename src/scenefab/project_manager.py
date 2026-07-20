@@ -5,6 +5,7 @@ SceneFab 项目管理器
 提供完整的项目生命周期管理功能
 """
 
+import getpass
 import logging
 import os
 import shutil
@@ -27,11 +28,9 @@ from .models.project_models import (
     ProjectMedia,
     ProjectMetadata,
     ProjectSettings,
-    ProjectStatus,
     ProjectTimeline,
     ProjectType,
 )
-from .secure_key_manager import get_secure_key_manager
 from .settings import ConfigManager
 from .utils.json_io import read_json, write_json
 
@@ -55,14 +54,14 @@ class Project:
         """添加媒体文件"""
         self.media_files[media_file.id] = media_file
         self.is_modified = True
-        self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
+        self.metadata.modified_at = datetime.now().isoformat()
 
     def remove_media_file(self, media_id: str) -> bool:
         """移除媒体文件"""
         if media_id in self.media_files:
             del self.media_files[media_id]
             self.is_modified = True
-            self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
+            self.metadata.modified_at = datetime.now().isoformat()
             return True
         return False
 
@@ -82,12 +81,13 @@ class Project:
             else:
                 self.settings.custom_settings[key] = value
         self.is_modified = True
-        self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
+        self.metadata.modified_at = datetime.now().isoformat()
 
     def save(self) -> bool:
         """保存项目"""
         try:
             project_data = {
+                "id": self.id,
                 "metadata": self.metadata.to_dict(),
                 "settings": asdict(self.settings),
                 "media_files": {k: v.to_dict() for k, v in self.media_files.items()},
@@ -192,18 +192,14 @@ class ProjectManager(QObject):
 
     def __init__(self, config_manager: ConfigManager):
         super().__init__()
-        self.config_manager = config_manager
         self.logger = logging.getLogger(__name__)
-        self.secure_key_manager = get_secure_key_manager()
         self.projects: dict[str, Project] = {}
         self.current_project: Project | None = None
-        self.templates: dict[str, Project] = {}
         self.projects_dir = os.path.expanduser("~/SceneFab/Projects")
         self.templates_dir = os.path.expanduser("~/SceneFab/Templates")
         self.temp_dir = os.path.expanduser("~/SceneFab/Temp")
         self._ensure_directories()
         self.recent_projects: list[str] = self._load_recent_projects()
-        self._load_templates()
         self._setup_auto_save()
 
     def _ensure_directories(self) -> None:
@@ -239,7 +235,11 @@ class ProjectManager(QObject):
         self._save_recent_projects()
 
     def _setup_auto_save(self) -> None:
-        from PySide6.QtCore import QTimer
+        try:
+            from PySide6.QtCore import QTimer
+        except ImportError:
+            self.logger.debug("PySide6 not available, auto-save disabled")
+            return
 
         self.auto_save_timer = QTimer()
         self.auto_save_timer.timeout.connect(self._auto_save)
@@ -249,9 +249,11 @@ class ProjectManager(QObject):
         if self.current_project and self.current_project.is_modified:
             interval = self.current_project.settings.auto_save_interval
             if interval > 0:
-                elapsed = (
-                    datetime.now() - self.current_project.metadata.modified_at  # type: ignore[operator]
-                ).total_seconds()
+                modified_at_str = self.current_project.metadata.modified_at
+                if not modified_at_str:
+                    return
+                modified_at = datetime.fromisoformat(modified_at_str)
+                elapsed = (datetime.now() - modified_at).total_seconds()
                 if elapsed >= interval:
                     self.save_project(self.current_project.id, auto_save=True)
 
@@ -281,13 +283,9 @@ class ProjectManager(QObject):
             name=name,
             description=description,
             project_type=project_type,
-            author=os.getlogin(),
+            author=getpass.getuser(),
         )
         project = Project(project_id, project_path, metadata)
-        if template_id and template_id in self.templates:
-            template = self.templates[template_id]
-            project.settings = template.settings
-            project.timeline = template.timeline
         if project.save():
             self.projects[project_id] = project
             self.current_project = project
@@ -313,7 +311,8 @@ class ProjectManager(QObject):
                 return None
         project_data = read_json(project_file)
         metadata = ProjectMetadata.from_dict(project_data["metadata"])
-        project = Project(metadata.name, project_path, metadata)
+        project_id = project_data.get("id", metadata.name)
+        project = Project(project_id, project_path, metadata)
         if project.load():
             self.projects[project.id] = project
             self.current_project = project
@@ -428,30 +427,6 @@ class ProjectManager(QObject):
             self.logger.info(f"Imported project: {project_name} from {import_path}")
         return project_id  # type: ignore[no-any-return]
 
-    @_handle_project_error("CREATE", "创建模板")
-    def create_template(self, project_id: str, template_name: str) -> bool:
-        if project_id not in self.projects:
-            return False
-        project = self.projects[project_id]
-        template_path = os.path.join(self.templates_dir, template_name)
-        ensure_directories(template_path)
-        shutil.copy2(
-            os.path.join(project.path, "project.json"),
-            os.path.join(template_path, "project.json"),
-        )
-        template_file = os.path.join(template_path, "project.json")
-        template_data = read_json(template_file)
-        template_data["metadata"]["name"] = template_name
-        template_data["metadata"]["status"] = "template"
-        template_data["metadata"]["description"] = (
-            f"模板创建自项目: {project.metadata.name}"
-        )
-        template_data["metadata"]["modified_at"] = datetime.now().isoformat()
-        write_json(template_file, template_data)
-        self._load_templates()
-        self.logger.info(f"Created template: {template_name} from project {project_id}")
-        return True
-
     def get_project(self, project_id: str) -> Project | None:
         return self.projects.get(project_id)
 
@@ -463,9 +438,6 @@ class ProjectManager(QObject):
 
     def get_recent_projects(self) -> list[str]:
         return self.recent_projects.copy()
-
-    def get_templates(self) -> list[Project]:
-        return list(self.templates.values())
 
     def scan_projects(self) -> list[Project]:
         discovered = []
@@ -480,8 +452,9 @@ class ProjectManager(QObject):
                             metadata = ProjectMetadata.from_dict(
                                 project_data["metadata"]
                             )
+                            project_id = project_data.get("id", metadata.name)
                             discovered.append(
-                                Project(metadata.name, project_path, metadata)
+                                Project(project_id, project_path, metadata)
                             )
                         except Exception as e:
                             self.logger.warning(
@@ -490,32 +463,6 @@ class ProjectManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to scan projects: {e}")
         return discovered
-
-    def _load_templates(self) -> None:
-        try:
-            if not os.path.exists(self.templates_dir):
-                return
-            for template_dir in os.listdir(self.templates_dir):
-                template_path = os.path.join(self.templates_dir, template_dir)
-                if os.path.isdir(template_path):
-                    template_file = os.path.join(template_path, "project.json")
-                    if os.path.exists(template_file):
-                        try:
-                            template_data = read_json(template_file)
-                            metadata = ProjectMetadata.from_dict(
-                                template_data["metadata"]
-                            )
-                            metadata.status = ProjectStatus.TEMPLATE
-                            template = Project(metadata.name, template_path, metadata)
-                            template.load()
-                            self.templates[template_dir] = template
-                        except Exception as e:
-                            self.logger.warning(
-                                f"Failed to load template {template_dir}: {e}"
-                            )
-            self.logger.info(f"Loaded {len(self.templates)} templates")
-        except Exception as e:
-            self.logger.error(f"Failed to load templates: {e}")
 
     def cleanup(self) -> None:
         for project_id in list(self.projects.keys()):

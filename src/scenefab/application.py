@@ -309,14 +309,12 @@ class Application(QObject):
     def _init_logger(self) -> bool:
         """初始化日志系统"""
         try:
-            from .logger import Logger
-
-            # 创建日志服务
-            logger = Logger("SceneFab")
-            self.register_service("logger", logger)
+            # 使用标准库 logging
+            app_logger = logging.getLogger("SceneFab")
+            self.register_service("logger", app_logger)
 
             # 设置应用程序日志
-            self.logger = logger
+            self.logger = app_logger
             self.logger.info("日志系统初始化完成")
 
             return True
@@ -363,8 +361,8 @@ class Application(QObject):
         try:
             from .utils.error_handler import ErrorHandler
 
-            # 创建错误处理器（传入底层 logging.Logger）
-            error_handler = ErrorHandler(self.logger.logger)
+            # 创建错误处理器（传入 logging.Logger）
+            error_handler = ErrorHandler(self.logger)
             self.register_service("error_handler", error_handler)
 
             self.logger.info("错误处理器初始化完成")
