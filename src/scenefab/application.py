@@ -71,7 +71,7 @@ class Application(QObject):
         # 事件系统
 
         # 定时器和任务
-        self._timers: dict[str, object] = {}
+        self._timers: dict[str, Any] = {}
         self._tasks: list[Callable] = []
 
         # 初始化顺序
@@ -258,21 +258,21 @@ class Application(QObject):
 
     def subscribe(self, event_name: str, handler: Callable) -> None:
         """订阅事件"""
-        event_bus = self.get_service_by_name("event_bus")
+        event_bus: Any = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.subscribe(event_name, handler)  # type: ignore[attr-defined]
+            event_bus.subscribe(event_name, handler)
 
     def unsubscribe(self, event_name: str, handler: Callable) -> None:
         """取消订阅事件"""
-        event_bus = self.get_service_by_name("event_bus")
+        event_bus: Any = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.unsubscribe(event_name, handler)  # type: ignore[attr-defined]
+            event_bus.unsubscribe(event_name, handler)
 
     def publish(self, event_name: str, data: Any = None) -> None:
         """发布事件"""
-        event_bus = self.get_service_by_name("event_bus")
+        event_bus: Any = self.get_service_by_name("event_bus")
         if event_bus:
-            event_bus.publish(event_name, data)  # type: ignore[attr-defined]
+            event_bus.publish(event_name, data)
 
     def add_timer(
         self, name: str, interval: int, callback: Callable, single_shot: bool = False
@@ -298,7 +298,7 @@ class Application(QObject):
     def remove_timer(self, name: str) -> None:
         """移除定时器"""
         if name in self._timers:
-            self._timers[name].stop()  # type: ignore[attr-defined]
+            self._timers[name].stop()
             del self._timers[name]
 
     def _set_state(self, state: ApplicationState) -> None:
@@ -383,21 +383,21 @@ class Application(QObject):
             from .settings_manager import ProjectSettingsManager
 
             # 创建配置管理器实例（如果不存在）
-            config_manager = self.get_service_by_name("config_manager")
+            config_manager: Any = self.get_service_by_name("config_manager")
             if not config_manager:
                 config_manager = ConfigManager()
                 self.register_service("config_manager", config_manager)
 
             # 创建并注册项目管理器
-            project_manager = ProjectManager(config_manager)  # type: ignore[arg-type]
+            project_manager = ProjectManager(config_manager)
             self.register_service("project_manager", project_manager)
 
             # 创建并注册模板管理器
-            template_manager = ProjectTemplateManager(config_manager)  # type: ignore[arg-type]
+            template_manager = ProjectTemplateManager(config_manager)
             self.register_service("template_manager", template_manager)
 
             # 创建并注册设置管理器
-            settings_manager = ProjectSettingsManager(config_manager)  # type: ignore[arg-type]
+            settings_manager = ProjectSettingsManager(config_manager)
             self.register_service("settings_manager", settings_manager)
 
             # 创建并注册 MonologueMaker (Phase 2B — ProductionViewModel 需要)
@@ -432,14 +432,14 @@ class Application(QObject):
         """启动定时器"""
         # 启动所有定时器
         for timer in self._timers.values():
-            if not timer.isSingleShot():  # type: ignore[attr-defined]
-                timer.start()  # type: ignore[attr-defined]
+            if not timer.isSingleShot():
+                timer.start()
 
     def _stop_timers(self) -> None:
         """停止定时器"""
         # 停止所有定时器
         for timer in self._timers.values():
-            timer.stop()  # type: ignore[attr-defined]
+            timer.stop()
 
     def _start_tasks(self) -> None:
         """启动后台任务"""
