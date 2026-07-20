@@ -55,8 +55,15 @@ class Platform(str, Enum):
     KUAISHOU = "kuaishou"  # 快手: 30-90s, 1.1 倍速, 接地气
 
 
-class NarrationStyle(str, Enum):
-    """解说风格 (与现有 short_drama / monologue 解耦, 仅 v2.2 状态机使用)"""
+class ProductionStyle(str, Enum):
+    """v2.2 状态机解说制作风格 (Production Style)
+
+    用于 NarrationStateMachine 的解说生成风格选择，决定脚本语气与叙事策略。
+
+    注意: 此枚举与 ``scenefab.models.narration.NarrationStyle`` 是两个不同的枚举:
+    - ``models.narration.NarrationStyle`` — 通用解说风格 (HEALING/MYSTERIOUS/…)，用于 VideoProject。
+    - ``ProductionStyle`` (本枚举) — v2.2 状态机制作风格 (SUSPENSE/ROMANCE/…)，用于解说流水线。
+    """
 
     SUSPENSE = "suspense"  # 悬疑 (留白 + 反转 + 钩子)
     ROMANCE = "romance"  # 甜宠 (甜蜜 + 轻快)
@@ -151,7 +158,7 @@ class FewShot:
 
     scene_desc: str  # 场景描述
     narration: str  # 对应解说稿
-    style: NarrationStyle = NarrationStyle.NEUTRAL
+    style: ProductionStyle = ProductionStyle.NEUTRAL
 
 
 # ============================================
@@ -182,7 +189,7 @@ class NarrationContext:
         ctx = NarrationContext(
             source_video=Path("episode_01.mp4"),
             persona=Persona.SHORT_DRAMA_OBSERVER,
-            style=NarrationStyle.REVENGE,
+            style=ProductionStyle.REVENGE,
             platform=Platform.DOUYIN,
         )
         ctx.story_graph = await long_video_understander.understand(...)
@@ -197,7 +204,7 @@ class NarrationContext:
 
     # —— ① 指令上下文 ——
     persona: Persona = Persona.STORY_TELLER
-    style: NarrationStyle = NarrationStyle.NEUTRAL
+    style: ProductionStyle = ProductionStyle.NEUTRAL
     platform: Platform = Platform.BILIBILI
     short_drama_style: ShortDramaStyle | None = None  # 短剧联动 (v2.2 新增)
     content_tags: list[str] = field(default_factory=list)  # 题材/爽点标签

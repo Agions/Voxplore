@@ -24,7 +24,6 @@ from .narration import (
     NarrationStyle,
 )
 from .project import (
-    TaskProgress,
     VideoGroup,
     VideoProject,
 )
@@ -56,7 +55,6 @@ __all__ = [
     "AudioTrack",
     # project
     "VideoProject",
-    "TaskProgress",
     "VideoGroup",
     # project_models (existing)
     "ProjectStatus",

@@ -28,7 +28,6 @@ from .pipeline_project_manager import (
     ProjectManager,
     ProjectSource,
     SceneFabProject,
-    _ProjectFileVersion,  # 仅内部使用，不对外公开
     load_project,
     save_project,
 )
@@ -58,5 +57,4 @@ __all__ = [
     "SceneFabProject",
     "save_project",
     "load_project",
-    "_ProjectFileVersion",
 ]

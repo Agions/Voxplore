@@ -31,10 +31,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from scenefab.models.project_file_metadata import (
-    ProjectFileMetadata,
-    _ProjectFileVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
-)
+from scenefab.models.project_file_metadata import ProjectFileMetadata
 from scenefab.models.project_models import ProjectType
 from scenefab.services.ai.model_catalog import DEFAULT_MODELS
 from scenefab.services.export.export_utils import write_json_file

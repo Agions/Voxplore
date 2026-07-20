@@ -16,17 +16,10 @@
 提取为独立模型类。
 """
 
-from dataclasses import dataclass
-from enum import Enum
+import platform as _platform
+from dataclasses import dataclass, field
 
 from .serialization import SerializableDataclass
-
-
-class _ProjectFileVersion(Enum):
-    """.scenefab 项目文件版本（内部使用）"""
-
-    V1 = "1.0"
-    V2 = "2.0"  # 当前版本，支持更多元数据
 
 
 @dataclass
@@ -47,7 +40,7 @@ class ProjectFileMetadata(SerializableDataclass):
 
     # 软件信息
     app_version: str = "2.0.0"  # SceneFab 版本
-    platform: str = "windows"  # 平台
+    platform: str = field(default_factory=lambda: _platform.system().lower())  # 平台
 
     # 输出设置
     output_width: int = 1920
@@ -56,4 +49,4 @@ class ProjectFileMetadata(SerializableDataclass):
     output_format: str = "mp4"
 
 
-__all__ = ["ProjectFileMetadata", "_ProjectFileVersion"]
+__all__ = ["ProjectFileMetadata"]

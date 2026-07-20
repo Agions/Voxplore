@@ -2,7 +2,7 @@
 v2.2 解说生成状态机 — Phase 1 骨架 + Phase 2/3/4 真实实现
 
 公开 API:
-- NarrationContext / Persona / Platform / NarrationStyle / Bridge / BridgeType
+- NarrationContext / Persona / Platform / ProductionStyle / Bridge / BridgeType
 - NarrationState / NarrationStateMachine / NarrationConfig / StepResult
 - NarrationEvaluator / EvalResult / DimensionScore (Phase 3)
 - register_default_steps (Phase 1 骨架 Step)
@@ -34,7 +34,7 @@ from .narration_context import (
     FewShot,
     HistorySegment,
     NarrationContext,
-    NarrationStyle,
+    ProductionStyle,
     Persona,
     Platform,
     PlatformSpec,
@@ -68,7 +68,7 @@ __all__ = [
     "FewShot",
     "HistorySegment",
     "NarrationContext",
-    "NarrationStyle",
+    "ProductionStyle",
     "Persona",
     "Platform",
     "PLATFORM_SPECS",

@@ -26,7 +26,7 @@ from scenefab.pipeline.narration import (
     NarrationContext,
     NarrationState,
     NarrationStateMachine,
-    NarrationStyle,
+    ProductionStyle,
     Persona,
     Platform,
     _build_narration_prompt,
@@ -59,7 +59,7 @@ def ctx(fake_video: Path, tmp_path: Path) -> NarrationContext:
         source_video=fake_video,
         output_dir=tmp_path / "output",
         persona=Persona.SHORT_DRAMA_OBSERVER,
-        style=NarrationStyle.REVENGE,
+        style=ProductionStyle.REVENGE,
         platform=Platform.DOUYIN,
     )
 
@@ -145,13 +145,13 @@ class TestBuildNarrationPrompt:
     def test_narration_style_maps_to_script_style_and_tone(
         self, fake_video: Path, tmp_path: Path
     ) -> None:
-        """① 指令上下文: NarrationStyle → ScriptStyle + VoiceTone"""
+        """① 指令上下文: ProductionStyle → ScriptStyle + VoiceTone"""
         for style, expected_script in [
-            (NarrationStyle.SUSPENSE, "monologue"),
-            (NarrationStyle.REVENGE, "commentary"),
-            (NarrationStyle.COMEDY, "viral"),
-            (NarrationStyle.LITERARY, "narration"),
-            (NarrationStyle.NEUTRAL, "commentary"),
+            (ProductionStyle.SUSPENSE, "monologue"),
+            (ProductionStyle.REVENGE, "commentary"),
+            (ProductionStyle.COMEDY, "viral"),
+            (ProductionStyle.LITERARY, "narration"),
+            (ProductionStyle.NEUTRAL, "commentary"),
         ]:
             ctx = NarrationContext(
                 source_video=fake_video,
@@ -481,8 +481,8 @@ class TestPhase2EndToEnd:
         fake_video: Path,
         tmp_path: Path,
     ) -> None:
-        """不同 NarrationStyle 都能跑通"""
-        for style in NarrationStyle:
+        """不同 ProductionStyle 都能跑通"""
+        for style in ProductionStyle:
             ctx = NarrationContext(
                 source_video=fake_video,
                 output_dir=tmp_path / f"out_{style.value}",

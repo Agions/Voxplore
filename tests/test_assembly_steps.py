@@ -30,7 +30,7 @@ from scenefab.pipeline.narration import (
     NarrationContext,
     NarrationState,
     NarrationStateMachine,
-    NarrationStyle,
+    ProductionStyle,
     Persona,
     Platform,
     StepResult,
@@ -63,7 +63,7 @@ def ctx(fake_video: Path, tmp_path: Path) -> NarrationContext:
         source_video=fake_video,
         output_dir=tmp_path / "output",
         persona=Persona.STORY_TELLER,
-        style=NarrationStyle.SUSPENSE,
+        style=ProductionStyle.SUSPENSE,
         platform=Platform.BILIBILI,
     )
 

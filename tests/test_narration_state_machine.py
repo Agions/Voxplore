@@ -28,7 +28,7 @@ from scenefab.pipeline.narration import (
     NarrationContext,
     NarrationState,
     NarrationStateMachine,
-    NarrationStyle,
+    ProductionStyle,
     Persona,
     Platform,
     TransitionReason,
@@ -55,7 +55,7 @@ def ctx(fake_video: Path, tmp_path: Path) -> NarrationContext:
         source_video=fake_video,
         output_dir=tmp_path / "output",
         persona=Persona.SHORT_DRAMA_OBSERVER,
-        style=NarrationStyle.REVENGE,
+        style=ProductionStyle.REVENGE,
         platform=Platform.DOUYIN,
     )
 
@@ -79,7 +79,7 @@ class TestNarrationContext:
     def test_default_context_creation(self, ctx: NarrationContext) -> None:
         """默认上下文创建正确"""
         assert ctx.persona == Persona.SHORT_DRAMA_OBSERVER
-        assert ctx.style == NarrationStyle.REVENGE
+        assert ctx.style == ProductionStyle.REVENGE
         assert ctx.platform == Platform.DOUYIN
         assert ctx.platform_spec == PLATFORM_SPECS[Platform.DOUYIN]
         # 派生属性

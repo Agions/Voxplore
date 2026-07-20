@@ -70,40 +70,6 @@ class VideoProject:
         }
 
 
-@dataclass(slots=True)
-class TaskProgress:
-    """任务进度"""
-
-    task_id: str
-    task_name: str
-    status: str  # pending, running, paused, completed, failed, cancelled
-    progress: float  # 0.0 - 1.0
-    current_step: str = ""
-    steps_total: int = 0
-    steps_completed: int = 0
-    message: str = ""
-    result: Any | None = None
-    error: str | None = None
-
-    @property
-    def progress_percent(self) -> int:
-        return int(self.progress * 100)
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "task_id": self.task_id,
-            "task_name": self.task_name,
-            "status": self.status,
-            "progress": self.progress,
-            "progress_percent": self.progress_percent,
-            "current_step": self.current_step,
-            "steps_total": self.steps_total,
-            "steps_completed": self.steps_completed,
-            "message": self.message,
-            "error": self.error,
-        }
-
-
 @dataclass
 class VideoGroup:
     """视频分组（用于多视频混剪）"""
@@ -131,4 +97,4 @@ class VideoGroup:
         }
 
 
-__all__ = ["VideoProject", "TaskProgress", "VideoGroup"]
+__all__ = ["VideoProject", "VideoGroup"]

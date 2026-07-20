@@ -80,7 +80,7 @@ class Project:
             if hasattr(self.settings, key):
                 setattr(self.settings, key, value)
             else:
-                self.settings.custom_settings[key] = value  # type: ignore[attr-defined]
+                self.settings.custom_settings[key] = value
         self.is_modified = True
         self.metadata.modified_at = datetime.now()  # type: ignore[assignment]
 
@@ -247,7 +247,7 @@ class ProjectManager(QObject):
 
     def _auto_save(self) -> None:
         if self.current_project and self.current_project.is_modified:
-            interval = self.current_project.settings.auto_save_interval  # type: ignore[attr-defined]
+            interval = self.current_project.settings.auto_save_interval
             if interval > 0:
                 elapsed = (
                     datetime.now() - self.current_project.metadata.modified_at  # type: ignore[operator]
@@ -330,10 +330,10 @@ class ProjectManager(QObject):
         if project_id not in self.projects:
             return False
         project = self.projects[project_id]
-        if project.settings.backup_enabled and not auto_save:  # type: ignore[attr-defined]
+        if project.settings.backup_enabled and not auto_save:
             backup_path = project.create_backup()
             if backup_path:
-                project.cleanup_old_backups(project.settings.backup_count)  # type: ignore[attr-defined]
+                project.cleanup_old_backups(project.settings.backup_count)
         if project.save():
             self.project_saved.emit(project_id)
             if not auto_save:

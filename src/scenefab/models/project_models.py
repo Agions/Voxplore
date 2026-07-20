@@ -134,6 +134,11 @@ class ProjectSettings(SerializableDataclass):
     audio_codec: str = "aac"
     sample_rate: int = 44100
     channels: int = 2
+    # v2.2: 项目管理器所需字段（修复 AttributeError）
+    auto_save_interval: int = 300  # 自动保存间隔（秒）
+    backup_enabled: bool = True
+    backup_count: int = 10
+    custom_settings: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

@@ -29,7 +29,7 @@ from scenefab.pipeline.narration import (
     NarrationEvaluator,
     NarrationState,
     NarrationStateMachine,
-    NarrationStyle,
+    ProductionStyle,
     Persona,
     Platform,
     register_default_steps,
@@ -60,7 +60,7 @@ def ctx(fake_video: Path, tmp_path: Path) -> NarrationContext:
         source_video=fake_video,
         output_dir=tmp_path / "output",
         persona=Persona.SHORT_DRAMA_OBSERVER,
-        style=NarrationStyle.REVENGE,
+        style=ProductionStyle.REVENGE,
         platform=Platform.DOUYIN,
     )
 
@@ -246,7 +246,7 @@ class TestEvaluatorFiveDimensions:
             FewShot(
                 scene_desc="女主登场",
                 narration="林墨身穿红裙缓缓走来, 眼中满是决绝。",
-                style=NarrationStyle.REVENGE,
+                style=ProductionStyle.REVENGE,
             )
         ]
         # draft 包含 few_shot 关键词
