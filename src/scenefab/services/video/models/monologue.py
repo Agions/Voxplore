@@ -14,10 +14,10 @@ Monologue 数据模型
 from dataclasses import dataclass, field
 from enum import Enum
 
-from scenefab.models.narration import EmotionType
-
 # 延迟导入避免循环依赖
 from typing import TYPE_CHECKING
+
+from scenefab.models.narration import EmotionType
 
 if TYPE_CHECKING:
     from .perspective import TransitionType
