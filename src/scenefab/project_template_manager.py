@@ -21,13 +21,13 @@ from scenefab.utils.project_io import (
     import_from_zip,
 )
 
-_handle_template_error = handle_error
-
 from .project_manager import Project, ProjectType
 from .settings import ConfigManager
 from .template_models import TemplateCategory, TemplateInfo, TemplateMetadata
 from .utils.json_io import read_json, write_json
 from .utils.version import get_version_string
+
+_handle_template_error = handle_error
 
 
 class ProjectTemplateManager(QObject):
@@ -195,7 +195,7 @@ class ProjectTemplateManager(QObject):
         template_name: str,
         category: str,
         description: str = "",
-        tags: list[str] = None,
+        tags: list[str] | None = None,
     ) -> str | None:
         """从项目创建模板"""
         template_id = f"template_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -272,7 +272,7 @@ class ProjectTemplateManager(QObject):
         template_id: str,
         project_name: str,
         project_path: str,
-        variables: dict[str, Any] = None,  # type: ignore[assignment]
+        variables: dict[str, Any] | None = None,
     ) -> bool:
         """应用模板创建项目"""
         if template_id not in self.templates:
@@ -447,8 +447,8 @@ class ProjectTemplateManager(QObject):
     def search_templates(
         self,
         query: str,
-        category: str = None,
-        project_type: ProjectType = None,  # type: ignore[assignment]
+        category: str | None = None,
+        project_type: ProjectType | None = None,
     ) -> list[TemplateInfo]:
         """搜索模板"""
         results = []
