@@ -605,5 +605,5 @@ __all__ = [
     "get_event_bus",
     "set_event_bus",
     "create_event_bus",
-    "event_bus",
+    "event_bus",  # noqa: F822  # 通过 __getattr__ 懒加载
 ]

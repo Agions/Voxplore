@@ -11,7 +11,7 @@ from typing import Any
 # 基类和常量从 vision_base 导入，避免循环导入
 from .model_catalog import DEFAULT_MODELS
 from .vision_base import (
-    FIRST_PERSON_ANALYSIS_PROMPT,
+    FIRST_PERSON_ANALYSIS_PROMPT,  # noqa: F401  # re-exported via ai/__init__
     VISION_ANALYSIS_PROMPT,
     VisionProvider,
 )

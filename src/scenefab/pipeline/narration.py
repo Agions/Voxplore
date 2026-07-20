@@ -34,10 +34,10 @@ from .narration_context import (
     FewShot,
     HistorySegment,
     NarrationContext,
-    ProductionStyle,
     Persona,
     Platform,
     PlatformSpec,
+    ProductionStyle,
 )
 from .narration_evaluator import (
     DimensionScore,
