@@ -184,7 +184,7 @@ class LLMManager:
         """检查所有 Provider 健康状态"""
         return {p: provider.health_check() for p, provider in self.providers.items()}
 
-    async def stream_generate(
+    async def generate_stream(
         self,
         request: LLMRequest,
         provider: ProviderType | None = None,
@@ -209,7 +209,7 @@ class LLMManager:
             return
 
         p = self.providers[provider]
-        if not hasattr(p, "stream_generate"):
+        if not hasattr(p, "generate_stream"):
             active_request = self._apply_configured_model(request, provider)
             response = await p.generate(active_request)
             yield response.content
@@ -217,7 +217,7 @@ class LLMManager:
 
         try:
             active_request = self._apply_configured_model(request, provider)
-            async for chunk in p.stream_generate(active_request):
+            async for chunk in p.generate_stream(active_request):
                 yield chunk
         except Exception as e:
             logger.warning(f"Provider {provider} 流式生成失败: {e}")
@@ -235,8 +235,8 @@ class LLMManager:
                 try:
                     prov = self.providers[p]
                     active_request = self._apply_configured_model(request, p)
-                    if hasattr(prov, "stream_generate"):
-                        async for chunk in prov.stream_generate(active_request):
+                    if hasattr(prov, "generate_stream"):
+                        async for chunk in prov.generate_stream(active_request):
                             yield chunk
                     else:
                         resp = await prov.generate(active_request)

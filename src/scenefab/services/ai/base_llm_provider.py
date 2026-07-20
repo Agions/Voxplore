@@ -74,11 +74,6 @@ class RequestCache:
         content = f"{request.model}:{request.prompt[:100]}:{request.temperature}"
         return hashlib.md5(content.encode()).hexdigest()
 
-    async def get(self, request: LLMRequest) -> LLMResponse | None:
-        """获取缓存的响应（通过 request 对象）"""
-        key = self._make_key(request)
-        return await self.get_from_key(key)
-
     async def get_from_key(self, key: str) -> LLMResponse | None:
         """获取缓存的响应（通过缓存键）"""
         async with self._lock:
@@ -92,11 +87,6 @@ class RequestCache:
                     del self._cache[key]
         self._misses += 1
         return None
-
-    async def set(self, request: LLMRequest, response: LLMResponse) -> None:
-        """缓存响应（通过 request 对象）"""
-        key = self._make_key(request)
-        await self.set_from_key(key, response)
 
     async def set_from_key(self, key: str, response: LLMResponse) -> None:
         """缓存响应（通过缓存键）"""
@@ -125,17 +115,6 @@ class RequestCache:
         """清空缓存"""
         async with self._lock:
             self._cache.clear()
-
-    def get_stats(self) -> dict[str, int]:
-        """获取缓存统计"""
-        total = self._hits + self._misses
-        hit_rate = (self._hits / total * 100) if total > 0 else 0
-        return {
-            "hits": self._hits,
-            "misses": self._misses,
-            "size": len(self._cache),
-            "hit_rate": f"{hit_rate:.1f}%",  # type: ignore[dict-item]
-        }
 
 
 # ============ 混入类 (Mixins) ============
@@ -414,10 +393,6 @@ class BaseLLMProvider(ABC):
         self.api_key = api_key
         self.base_url = base_url
 
-        # 初始化安全组件
-        self._rate_limiter = RateLimiter(rate=10.0, capacity=20)
-        self._circuit_breaker = CircuitBreaker()
-
         # 初始化请求缓存（减少重复 API 调用，TTL=24h）
         self._cache = RequestCache(max_size=500, ttl=DEFAULT_LONG_CACHE_TTL)
 
@@ -493,65 +468,6 @@ class BaseLLMProvider(ABC):
         response = await self.generate(request)
         await self._cache.set_from_key(key, response)
         return response
-
-    async def generate_batch(
-        self,
-        requests: list[LLMRequest],
-        max_concurrency: int = 5,
-        use_cache: bool = True,
-        deduplicate: bool = True,
-    ) -> list[LLMResponse]:
-        """
-        批量生成文本 ✅ 优化：asyncio.gather 并发 + 请求缓存 + 请求去重
-
-        Args:
-            requests: LLM 请求列表
-            max_concurrency: 最大并发数（防止超出 API 限制）
-            use_cache: 是否启用缓存（默认启用，重复 prompt 直接返回）
-            deduplicate: 是否对重复请求去重（相同 prompt+model+temperature 只调用一次）
-
-        Returns:
-            响应列表（与输入顺序一致）
-        """
-        if deduplicate:
-            # 去重：记录每个唯一请求的首次出现索引
-            seen: dict[str, int] = {}
-            unique_requests: list[LLMRequest] = []
-            index_map: list[int] = []  # 结果列表中的位置映射
-
-            for req in requests:
-                key = self._make_cache_key(req)
-                if key not in seen:
-                    seen[key] = len(unique_requests)
-                    unique_requests.append(req)
-                index_map.append(seen[key])
-
-            # 对去重后的请求执行批量生成
-            if use_cache:
-                unique_results = await gather_with_concurrency(
-                    max_concurrency,
-                    *[self.generate_cached(req) for req in unique_requests],
-                )
-            else:
-                unique_results = await gather_with_concurrency(
-                    max_concurrency, *[self.generate(req) for req in unique_requests]
-                )
-
-            # 将结果映射回原始顺序
-            return [
-                unique_results[idx] if idx < len(unique_results) else None  # type: ignore[misc]
-                for idx in index_map
-            ]
-
-        if use_cache:
-            results = await gather_with_concurrency(
-                max_concurrency, *[self.generate_cached(req) for req in requests]
-            )
-        else:
-            results = await gather_with_concurrency(
-                max_concurrency, *[self.generate(req) for req in requests]
-            )
-        return [r if isinstance(r, LLMResponse) else None for r in results]  # type: ignore[misc]
 
     async def close(self) -> None:
         """关闭连接"""

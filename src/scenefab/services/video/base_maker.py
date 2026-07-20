@@ -15,15 +15,8 @@ from typing import Generic, TypeVar
 
 from ..ai.scene_analyzer import SceneAnalyzer, SceneInfo
 from ..export.jianying_adapter import (
-    AudioMaterial,
     JianyingConfig,
     JianyingDraft,
-    Segment,
-    TextMaterial,
-    TimeRange,
-    Track,
-    TrackType,
-    VideoMaterial,
 )
 from ..export.jianying_exporter import JianyingExporter
 
@@ -157,110 +150,6 @@ class BaseVideoMaker(ABC, Generic[T], ProgressMixin):
         """
         pass
 
-    def _create_video_track(
-        self,
-        draft: JianyingDraft,
-        source_video: str,
-        duration: float,
-        segments_data: list[dict] | None = None,
-    ) -> Track:
-        """创建视频轨道"""
-        video_track = Track(type=TrackType.VIDEO, attribute=1)
-        draft.add_track(video_track)
-
-        video_material = VideoMaterial(
-            path=source_video,
-            duration=TimeRange.from_seconds(duration).duration,  # type: ignore[call-arg]
-        )
-        draft.add_video(video_material)
-        _add_segments_to_track(video_track, video_material.id, segments_data)
-
-        return video_track
-
-    def _create_audio_track(
-        self,
-        draft: JianyingDraft,
-        audio_path: str,
-        duration: float,
-        segments_data: list[dict] | None = None,
-    ) -> Track:
-        """创建音频轨道"""
-        audio_track = Track(type=TrackType.AUDIO)
-        draft.add_track(audio_track)
-
-        audio_material = AudioMaterial(
-            path=audio_path,
-            duration=TimeRange.from_seconds(duration).duration,  # type: ignore[call-arg]
-            name=Path(audio_path).stem,
-        )
-        draft.add_audio(audio_material)
-        _add_segments_to_track(audio_track, audio_material.id, segments_data)
-
-        return audio_track
-
-
-def _add_segments_to_track(
-    track: Track, material_id: str, segments_data: list[dict] | None
-) -> None:
-    """Add segments to a track from segments_data dict"""
-    if not segments_data:
-        return
-    for seg in segments_data:
-        track.add_segment(
-            Segment(
-                material_id=material_id,
-                source_timerange=TimeRange.from_seconds(
-                    seg.get("source_start", 0),
-                    seg.get("duration", 0),
-                ),
-                target_timerange=TimeRange.from_seconds(
-                    seg.get("target_start", 0),
-                    seg.get("duration", 0),
-                ),
-            )
-        )
-
-    def _create_text_track(
-        self,
-        draft: JianyingDraft,
-        captions: list[dict],
-        caption_style: dict | None = None,
-    ) -> Track:
-        """创建字幕轨道"""
-        text_track = Track(type=TrackType.TEXT)
-        draft.add_track(text_track)
-
-        default_style = caption_style or {
-            "font_size": 6.0,
-            "font_color": "#FFFFFF",
-            "has_shadow": True,
-        }
-
-        for cap in captions:
-            text_material = TextMaterial(
-                content=cap.get("text", ""),
-                font_size=cap.get("font_size", default_style.get("font_size", 6.0)),
-                font_color=cap.get(
-                    "font_color", default_style.get("font_color", "#FFFFFF")
-                ),
-                has_shadow=cap.get("has_shadow", default_style.get("has_shadow", True)),
-            )
-            draft.add_text(text_material)
-
-            text_segment = Segment(
-                material_id=text_material.id,
-                source_timerange=TimeRange.from_seconds(0, cap.get("duration", 0)),
-                target_timerange=TimeRange.from_seconds(
-                    cap.get("start", 0),
-                    cap.get("duration", 0),
-                ),
-            )
-            text_track.add_segment(text_segment)
-
-        return text_track
-
-
-# =========== 便捷函数 ===========
 
 __all__ = [
     "BaseProject",

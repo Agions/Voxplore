@@ -89,7 +89,6 @@ class TestModuleExports:
         from scenefab.services.ai import script_stream as sg_streaming
 
         assert "StreamingScriptGenerator" in sg_streaming.__all__
-        assert "generate_script_streaming" in sg_streaming.__all__
 
     def test_import_from_package(self):
         """测试从包级别导入"""

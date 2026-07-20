@@ -22,7 +22,6 @@
 """
 
 import asyncio
-import json
 import logging
 from collections.abc import AsyncIterator, Callable
 from typing import Any
@@ -34,12 +33,11 @@ from .script_models import (
     GeneratedScript,
     ScriptConfig,
     ScriptStyle,
-    VoiceTone,
 )
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["StreamingScriptGenerator", "generate_script_streaming"]
+__all__ = ["StreamingScriptGenerator"]
 
 
 class StreamingScriptGenerator(ScriptGenerator):
@@ -182,7 +180,7 @@ class StreamingScriptGenerator(ScriptGenerator):
             full_content = ""
             last_sentiment = 0.0
 
-            async for chunk in self._stream_generate(request, provider_type):
+            async for chunk in self._generate_stream(request, provider_type):
                 if chunk:
                     full_content += chunk
                     if callback:
@@ -204,7 +202,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                 callback(full_content)
             return self._parse_response(full_content, config)
 
-    async def _stream_generate(
+    async def _generate_stream(
         self,
         request,
         provider_type: Any | None,
@@ -220,8 +218,8 @@ class StreamingScriptGenerator(ScriptGenerator):
             文本块字符串
         """
         try:
-            if hasattr(self.llm_manager, "stream_generate"):
-                async for chunk in self.llm_manager.stream_generate(  # type: ignore[union-attr]
+            if hasattr(self.llm_manager, "generate_stream"):
+                async for chunk in self.llm_manager.generate_stream(  # type: ignore[union-attr]
                     request, provider=provider_type
                 ):
                     yield chunk
@@ -311,96 +309,6 @@ class StreamingScriptGenerator(ScriptGenerator):
         script.provider_used = provider_used
         return script
 
-    def generate_streaming_async(
-        self,
-        topic: str,
-        config: ScriptConfig | None = None,
-        callback: Callable[[str], None] | None = None,
-        sentiment_callback: Callable[[str, float], None] | None = None,
-    ) -> asyncio.Future:
-        """异步流式生成（返回 Future）"""
-        loop = asyncio.get_event_loop()
-        return loop.run_in_executor(
-            None, self.generate_streaming, topic, config, callback, sentiment_callback
-        )
-
-    def generate_monologue_streaming(
-        self,
-        context: str,
-        emotion: str = "neutral",
-        duration: float = 30.0,
-        callback: Callable[[str], None] | None = None,
-    ) -> GeneratedScript:
-        """流式生成独白文案"""
-        config = ScriptConfig(
-            style=ScriptStyle.MONOLOGUE,
-            tone=VoiceTone.EMOTIONAL,
-            target_duration=duration,
-        )
-        topic = f"场景: {context}\n情感: {emotion}"
-        return self.generate_streaming(topic, config, callback=callback)
-
-    def generate_commentary_streaming(
-        self,
-        topic: str,
-        duration: float = 60.0,
-        tone: VoiceTone = VoiceTone.NEUTRAL,
-        callback: Callable[[str], None] | None = None,
-    ) -> GeneratedScript:
-        """流式生成解说文案"""
-        config = ScriptConfig(
-            style=ScriptStyle.COMMENTARY,
-            tone=tone,
-            target_duration=duration,
-            include_hook=True,
-        )
-        return self.generate_streaming(topic, config, callback=callback)
-
-    def generate_sse_stream(
-        self,
-        topic: str,
-        config: ScriptConfig | None = None,
-    ) -> AsyncIterator[str]:
-        """生成 SSE (Server-Sent Events) 格式的流"""
-        cfg = config if config is not None else ScriptConfig()
-
-        async def _sse_generator():
-            full_content = ""
-            async for chunk in self._stream_sse_content(topic, cfg):
-                if chunk:
-                    full_content += chunk
-                    yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
-            yield f"data: {json.dumps({'type': 'done', 'content': full_content})}\n\n"
-
-        return _sse_generator()  # type: ignore[no-any-return]
-
-    async def _stream_sse_content(
-        self,
-        topic: str,
-        config: ScriptConfig,
-    ) -> AsyncIterator[str]:
-        """内部方法: 生成 SSE 格式内容流"""
-        try:
-            if self.use_llm_manager and self.llm_manager:
-                request, provider_type = self._build_llm_request(topic, config)
-                if hasattr(self.llm_manager, "stream_generate"):
-                    async for chunk in self.llm_manager.stream_generate(
-                        request, provider=provider_type
-                    ):
-                        if chunk:
-                            yield chunk
-                else:
-                    response = await self.llm_manager.generate(
-                        request, provider=provider_type
-                    )
-                    yield response.content
-            else:
-                response = await self._generate_async(topic, config)  # type: ignore[assignment]
-                yield response[0] if isinstance(response, tuple) else response  # type: ignore[misc]
-        except Exception as e:
-            logger.error(f"SSE 流生成错误: {e}")
-            yield ""
-
     def _analyze_sentiment_fast(self, text: str) -> float:
         """快速情感分析 - 基于关键词估算情感值 (-1.0 到 1.0)"""
         positive_words = [
@@ -454,44 +362,3 @@ class StreamingScriptGenerator(ScriptGenerator):
             return 0.0
         return (pos_count - neg_count) / total
 
-    def stream_to_iterator(
-        self,
-        topic: str,
-        config: ScriptConfig | None = None,
-    ) -> AsyncIterator[dict[str, Any]]:
-        """生成流式输出的异步迭代器"""
-        cfg = config if config is not None else ScriptConfig()
-
-        async def _iter():
-            last_sentiment = 0.0
-            full_content = ""
-            # 直接调用 _stream_sse_content（内联 _stream_content 逻辑）
-            async for chunk in self._stream_sse_content(topic, cfg):
-                if chunk:
-                    full_content += chunk
-                    yield {"type": "chunk", "content": chunk}
-                    if len(full_content) % 50 < 10:
-                        sentiment = self._analyze_sentiment_fast(full_content)
-                        if abs(sentiment - last_sentiment) > 0.15:
-                            yield {
-                                "type": "sentiment",
-                                "value": sentiment,
-                                "text": full_content[-20:],
-                            }
-                            last_sentiment = sentiment
-            yield {"type": "done", "content": full_content}
-
-        return _iter()  # type: ignore[no-any-return]
-
-
-# =========== 便捷函数 ===========
-
-
-def generate_script_streaming(
-    topic: str,
-    config: ScriptConfig | None = None,
-    callback: Callable[[str], None] | None = None,
-) -> GeneratedScript:
-    """流式生成文案的便捷函数"""
-    generator = StreamingScriptGenerator(use_llm_manager=True)
-    return generator.generate_streaming(topic, config, callback)

@@ -1,29 +1,24 @@
 """
-视频导出器基类 (Base Exporter)
+视频导出共享工具与基础数据模型
 
-提供导出器的公共抽象:
-- JianyingExporter: 剪映草稿导出
-- PremiereExporter: Adobe Premiere 导出
-- FinalCutExporter: Final Cut Pro 导出
-- DaVinciExporter: DaVinci Resolve 导出
+提供各导出器（剪映草稿、直接视频导出等）共享的:
+- 时间处理工具（seconds_to_microseconds）
+- 文件名/目录工具（safe_filename/ensure_directory/ensure_parent_directory）
+- JSON 写入（write_json_file）
+- 视频信息工具（get_video_duration/get_video_resolution）
+- 项目基础数据模型（BaseProject）
 """
 
-import logging
 import uuid
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Generic, TypeVar
 
 from scenefab.models.constants import (
     DEFAULT_VIDEO_HEIGHT,
     DEFAULT_VIDEO_WIDTH,
-    PREMIERE_TICKS_PER_SECOND,
 )
 
 from ..video_tools.ffmpeg_tool import FFmpegTool
-
-logger = logging.getLogger(__name__)
 
 
 # ========== 时间处理工具 ==========
@@ -32,16 +27,6 @@ logger = logging.getLogger(__name__)
 def seconds_to_microseconds(seconds: float) -> int:
     """秒转微秒"""
     return int(seconds * 1_000_000)
-
-
-def microseconds_to_seconds(us: int) -> float:
-    """微秒转秒"""
-    return us / 1_000_000
-
-
-def seconds_to_ticks(seconds: float, fps: float = 30.0) -> int:
-    """秒转 ticks（Premiere/Final Cut 使用）"""
-    return int(seconds * PREMIERE_TICKS_PER_SECOND)
 
 
 def safe_filename(name: str) -> str:
@@ -77,34 +62,6 @@ def write_json_file(path: str | Path, data: dict, indent: int = 2) -> None:
 
 
 @dataclass
-class BaseTrack:
-    """轨道基类"""
-
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    type: str = "video"  # video, audio, text
-
-
-@dataclass
-class BaseSegment:
-    """片段基类"""
-
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    material_id: str = ""
-    start: float = 0.0  # 目标开始时间（秒）
-    duration: float = 0.0  # 持续时间（秒）
-    source_start: float = 0.0  # 源开始时间
-
-
-@dataclass
-class BaseMaterial:
-    """素材基类"""
-
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    path: str = ""
-    duration: float = 0.0  # 秒
-
-
-@dataclass
 class BaseProject:
     """项目基类"""
 
@@ -114,62 +71,6 @@ class BaseProject:
     width: int = DEFAULT_VIDEO_WIDTH
     height: int = DEFAULT_VIDEO_HEIGHT
     fps: float = 30.0
-
-
-# ========== 配置基类 ==========
-
-
-@dataclass
-class ExporterConfig:
-    """导出配置基类"""
-
-    copy_materials: bool = True
-    output_dir: str = "."
-
-
-# ========== 导出器基类 ==========
-
-T = TypeVar("T", bound=BaseProject)
-C = TypeVar("C", bound=ExporterConfig)
-
-
-class BaseExporter(ABC, Generic[T, C]):
-    """
-    视频导出器基类
-
-    提供公共功能:
-    - 配置管理
-    - 项目创建
-    - 素材处理
-    - 文件操作
-    """
-
-    def __init__(self, config: C | None = None):
-        self.config = config
-
-    @abstractmethod
-    def create_project(self, name: str) -> T:
-        """创建项目（子类实现）"""
-        pass
-
-    @abstractmethod
-    def export(self, project: T, output_dir: str) -> str:
-        """导出项目（子类实现）"""
-        pass
-
-    def _ensure_output_dir(self, output_dir: str) -> Path:
-        """确保输出目录存在"""
-        return ensure_directory(output_dir)
-
-    def _get_output_path(self, output_dir: str, name: str, extension: str) -> Path:
-        """获取输出文件路径"""
-        return (
-            self._ensure_output_dir(output_dir) / f"{safe_filename(name)}.{extension}"
-        )
-
-    def _write_json(self, path: Path, data: dict, indent: int = 2) -> None:
-        """写入 JSON 文件"""
-        write_json_file(path, data, indent=indent)
 
 
 # ========== 便捷工具函数 ==========
@@ -185,40 +86,15 @@ def get_video_resolution(video_path: str) -> tuple:
     return FFmpegTool.get_resolution(video_path)
 
 
-def copy_material_to_folder(material_path: str, dest_folder: Path) -> str:
-    """复制素材到目标文件夹，返回新路径"""
-    import shutil
-
-    src = Path(material_path)
-    if not src.exists():
-        return material_path
-
-    dest_folder.mkdir(parents=True, exist_ok=True)
-    dst = dest_folder / src.name
-
-    if not dst.exists():
-        shutil.copy2(src, dst)
-
-    return str(dst)
-
-
 __all__ = [
     # 工具函数
     "seconds_to_microseconds",
-    "microseconds_to_seconds",
-    "seconds_to_ticks",
     "safe_filename",
     "ensure_directory",
     "ensure_parent_directory",
     "write_json_file",
     "get_video_duration",
     "get_video_resolution",
-    "copy_material_to_folder",
     # 基础类
-    "BaseTrack",
-    "BaseSegment",
-    "BaseMaterial",
     "BaseProject",
-    "ExporterConfig",
-    "BaseExporter",
 ]

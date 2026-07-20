@@ -4,7 +4,6 @@
 视觉提供商测试
 """
 
-import os
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,8 +11,6 @@ import pytest
 from scenefab.services.ai.vision_providers import (
     GeminiVisionProvider,
     OpenAIVisionProvider,
-    Qwen37FrameProvider,
-    VisionAnalyzerFactory,
     VisionProvider,
 )
 
@@ -72,64 +69,6 @@ class TestOpenAIVisionProvider:
         """测试提供商名称"""
         provider = OpenAIVisionProvider(api_key="sk-test")
         assert "openai" in provider.get_name().lower()
-
-
-class TestQwen37FrameProvider:
-    """通义千问 3.7 帧分析提供商测试"""
-
-    def test_init(self):
-        """测试初始化"""
-        provider = Qwen37FrameProvider(api_key="test-key")
-
-        assert provider.api_key == "test-key"
-
-    @patch("openai.OpenAI")
-    def test_analyze_image(self, mock_openai):
-        """测试图像分析"""
-        mock_client = Mock()
-        mock_response = Mock()
-        mock_response.choices = [
-            Mock(message=Mock(content='{"description": "测试", "tags": ["test"]}'))
-        ]
-        mock_client.chat.completions.create.return_value = mock_response
-        mock_openai.return_value = mock_client
-
-        provider = Qwen37FrameProvider(api_key="test-key")
-
-        result = provider.analyze_image(b"fake_image")
-
-        assert result is not None
-
-
-class TestVisionAnalyzerFactory:
-    """视觉分析器工厂测试"""
-
-    @patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"})
-    def test_init_with_config(self):
-        """测试工厂初始化"""
-        config = {"LLM": {"openai": {"api_key": "sk-test", "vision_model": "gpt-5"}}}
-        factory = VisionAnalyzerFactory(config)
-        assert len(factory._providers) >= 0
-
-    def test_get_provider_preferred(self):
-        """测试获取偏好的提供商"""
-        config = {
-            "LLM": {
-                "openai": {"api_key": "sk-test"},
-                "qwen": {"api_key": "test"},
-            }
-        }
-        factory = VisionAnalyzerFactory(config)
-        _ = factory.get_provider(preferred="openai")
-        # 若无可用则返回 None
-        # 若有 openai key 则返回对应 provider
-
-    def test_get_available_providers(self):
-        """测试获取可用提供商列表"""
-        config = {"LLM": {}}
-        factory = VisionAnalyzerFactory(config)
-        providers = factory.get_available_providers()
-        assert isinstance(providers, list)
 
 
 class TestGeminiVisionProvider:

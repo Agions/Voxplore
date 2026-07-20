@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
-"""测试导出器基类"""
+"""测试导出工具函数"""
 
 from scenefab.services.export.export_utils import (
-    BaseExporter,
-    BaseSegment,
-    BaseTrack,
-    ExporterConfig,
     ensure_directory,
     ensure_parent_directory,
-    microseconds_to_seconds,
     safe_filename,
     seconds_to_microseconds,
-    seconds_to_ticks,
     write_json_file,
 )
 
@@ -24,24 +18,6 @@ class TestTimeConversion:
         assert seconds_to_microseconds(1.0) == 1_000_000
         assert seconds_to_microseconds(0.5) == 500_000
         assert seconds_to_microseconds(0) == 0
-
-    def test_microseconds_to_seconds(self):
-        """测试微秒转秒"""
-        assert microseconds_to_seconds(1_000_000) == 1.0
-        assert microseconds_to_seconds(500_000) == 0.5
-        assert microseconds_to_seconds(0) == 0.0
-
-    def test_seconds_to_ticks(self):
-        """测试秒转 ticks"""
-        ticks = seconds_to_ticks(1.0, fps=30.0)
-        assert ticks == 254016000000
-
-    def test_roundtrip_conversion(self):
-        """测试往返转换"""
-        original = 1.5
-        micro = seconds_to_microseconds(original)
-        back = microseconds_to_seconds(micro)
-        assert abs(back - original) < 0.0001
 
 
 class TestSafeFilename:
@@ -91,75 +67,3 @@ class TestFileHelpers:
         write_json_file(output, {"name": "测试"})
 
         assert output.read_text(encoding="utf-8") == '{\n  "name": "测试"\n}'
-
-
-class TestBaseTrack:
-    """测试轨道基类"""
-
-    def test_default_creation(self):
-        """测试默认创建"""
-        track = BaseTrack()
-
-        assert track.id != ""
-        assert track.type == "video"
-
-    def test_custom_creation(self):
-        """测试自定义创建"""
-        track = BaseTrack(type="audio")
-
-        assert track.type == "audio"
-
-
-class TestBaseSegment:
-    """测试片段基类"""
-
-    def test_default_creation(self):
-        """测试默认创建"""
-        segment = BaseSegment()
-
-        assert segment.id != ""
-        assert segment.material_id == ""
-        assert segment.start == 0.0
-
-    def test_custom_creation(self):
-        """测试自定义创建"""
-        segment = BaseSegment(
-            material_id="mat123",
-            start=1.5,
-            duration=2.0,
-        )
-
-        assert segment.material_id == "mat123"
-        assert segment.start == 1.5
-        assert segment.duration == 2.0
-
-
-class MockExporter(BaseExporter):
-    """模拟导出器用于测试"""
-
-    def create_project(self, name: str):
-        return {"name": name}
-
-    def export(self, project, output_dir: str, **kwargs) -> str:
-        return output_dir
-
-    def validate_project(self) -> bool:
-        return True
-
-
-class TestBaseExporter:
-    """测试导出器基类"""
-
-    def test_init(self):
-        """测试初始化"""
-        exporter = MockExporter()
-
-        # config 可以是 None 或 ExporterConfig 实例
-        assert exporter.config is None or isinstance(exporter.config, ExporterConfig)
-
-    def test_init_custom_output(self):
-        """测试自定义输出目录"""
-        config = ExporterConfig(output_dir="/output")
-        exporter = MockExporter(config=config)
-
-        assert exporter.config.output_dir == "/output"

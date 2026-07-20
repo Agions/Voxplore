@@ -354,9 +354,9 @@ class TestLLMManagerIntegration:
         """generate_sync 方法存在"""
         assert callable(manager.generate_sync)
 
-    def test_stream_generate_callable(self, manager: LLMManager):
-        """stream_generate 方法存在"""
-        assert callable(manager.stream_generate)
+    def test_generate_stream_callable(self, manager: LLMManager):
+        """generate_stream 方法存在"""
+        assert callable(manager.generate_stream)
 
 
 # ============ ScriptGenerator Tests ============

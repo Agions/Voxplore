@@ -4,7 +4,6 @@
 子模块：
 - enums.py        工作流枚举（WorkflowStep/CreationMode/WorkflowStatus/ExportFormat）
 - pipe_models.py  工作流数据模型（VideoSource/ScriptData/TimelineData 等）
-- pipeline_project_manager.py  项目管理
 """
 
 from .enums import (
@@ -22,17 +21,6 @@ from .pipe_models import (
     WorkflowCallbacks,
     WorkflowState,
 )
-from .pipeline_project_manager import (
-    ProjectConfig,
-    ProjectFileMetadata,
-    ProjectManager,
-    ProjectSource,
-    SceneFabProject,
-    load_project,
-    save_project,
-)
-
-ProjectMetadata = ProjectFileMetadata
 
 __all__ = [
     # 枚举
@@ -48,13 +36,4 @@ __all__ = [
     "VoiceoverData",
     "WorkflowState",
     "WorkflowCallbacks",
-    # 项目管理
-    "ProjectManager",
-    "ProjectFileMetadata",
-    "ProjectMetadata",
-    "ProjectSource",
-    "ProjectConfig",
-    "SceneFabProject",
-    "save_project",
-    "load_project",
 ]

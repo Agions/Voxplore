@@ -4,7 +4,6 @@ SceneFab 导出服务模块
 提供视频项目的导出能力:
 - JianyingExporter: 剪映草稿导出
 - DirectVideoExporter: MP4/MOV/GIF 视频文件导出
-- BaseExporter: 导出器基类
 """
 
 from .batch_export_manager import (
@@ -24,13 +23,7 @@ from .direct_video_exporter import (
 )
 from .export_manager import ExportManager
 from .export_utils import (
-    BaseExporter,
-    BaseMaterial,
     BaseProject,
-    BaseSegment,
-    BaseTrack,
-    ExporterConfig,
-    copy_material_to_folder,
     ensure_directory,
     ensure_parent_directory,
     get_video_duration,
@@ -64,20 +57,14 @@ from .presets import (
 )
 
 __all__ = [
-    # 基类
-    "BaseExporter",
+    # 基类与工具
     "BaseProject",
-    "BaseTrack",
-    "BaseSegment",
-    "BaseMaterial",
-    "ExporterConfig",
     "safe_filename",
     "ensure_directory",
     "ensure_parent_directory",
     "write_json_file",
     "get_video_duration",
     "get_video_resolution",
-    "copy_material_to_folder",
     # 剪映草稿导出
     "JianyingExporter",
     "JianyingDraft",
