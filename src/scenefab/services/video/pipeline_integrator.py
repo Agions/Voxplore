@@ -267,19 +267,19 @@ class PipelineIntegrator(MonologueMaker):
                 decision = timeline.decisions[i]
 
                 # 更新 segment 的穿插属性
-                segment.show_original = decision.show_original  # type: ignore[attr-defined]
-                segment.original_start = decision.original_start  # type: ignore[attr-defined]
-                segment.original_end = decision.original_end  # type: ignore[attr-defined]
-                segment.transition_type = decision.transition  # type: ignore[attr-defined]
-                segment.zoom_factor = decision.zoom_factor  # type: ignore[attr-defined]
-                segment.highlight_box = decision.highlight_box  # type: ignore[attr-defined]
-                segment.narration_volume = decision.narration_volume  # type: ignore[attr-defined]
-                segment.original_audio_volume = decision.original_audio_volume  # type: ignore[attr-defined]
+                segment.show_original = decision.show_original
+                segment.original_start = decision.original_start
+                segment.original_end = decision.original_end
+                segment.transition_type = decision.transition
+                segment.zoom_factor = decision.zoom_factor
+                segment.highlight_box = decision.highlight_box
+                segment.narration_volume = decision.narration_volume
+                segment.original_audio_volume = decision.original_audio_volume
 
                 # 如果有字幕更新
                 if decision.subtitle_text:
-                    segment.interleave_subtitle = decision.subtitle_text  # type: ignore[attr-defined]
-                segment.subtitle_style = decision.subtitle_style  # type: ignore[attr-defined]
+                    segment.interleave_subtitle = decision.subtitle_text
+                segment.subtitle_style = decision.subtitle_style
 
             self._report_progress("应用穿插", (i + 1) / len(project.segments))
 
@@ -496,31 +496,6 @@ class PipelineIntegrator(MonologueMaker):
 # ─────────────────────────────────────────────────────────────────────────────
 # 为 MonologueSegment 添加穿插属性（向后兼容）
 # ─────────────────────────────────────────────────────────────────────────────
-
-
-def _add_interleave_attributes():
-    """动态添加穿插相关属性到 MonologueSegment"""
-    from .models.monologue import MonologueSegment
-    from .models.perspective import TransitionType
-
-    # 检查是否已添加
-    if hasattr(MonologueSegment, "show_original"):
-        return
-
-    MonologueSegment.show_original: bool = False  # type: ignore[misc, attr-defined]
-    MonologueSegment.original_start: float | None = None  # type: ignore[misc, attr-defined]
-    MonologueSegment.original_end: float | None = None  # type: ignore[misc, attr-defined]
-    MonologueSegment.transition_type: TransitionType = TransitionType.CUT  # type: ignore[misc, attr-defined]
-    MonologueSegment.zoom_factor: float = 1.0  # type: ignore[misc, attr-defined]
-    MonologueSegment.highlight_box = None  # type: ignore[attr-defined]
-    MonologueSegment.narration_volume: float = 1.0  # type: ignore[misc, attr-defined]
-    MonologueSegment.original_audio_volume: float = 0.0  # type: ignore[misc, attr-defined]
-    MonologueSegment.interleave_subtitle: str = ""  # type: ignore[misc, attr-defined]
-    MonologueSegment.subtitle_style: str = "cinematic"  # type: ignore[misc, attr-defined]
-
-
-# 添加属性（模块加载时自动执行）
-_add_interleave_attributes()
 
 
 __all__ = [

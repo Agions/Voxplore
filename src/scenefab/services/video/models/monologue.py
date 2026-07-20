@@ -16,6 +16,12 @@ from enum import Enum
 
 from scenefab.models.narration import EmotionType
 
+# 延迟导入避免循环依赖
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .perspective import TransitionType
+
 
 class MonologueStyle(Enum):
     """独白风格"""
@@ -49,6 +55,24 @@ class MonologueSegment:
 
     # 字幕
     captions: list[dict] = field(default_factory=list)
+
+    # 穿插策略属性（由 PipelineIntegrator 填充）
+    show_original: bool = False
+    original_start: float | None = None
+    original_end: float | None = None
+    transition_type: "TransitionType" = None  # type: ignore[assignment]  # 默认 CUT，见 __post_init__
+    zoom_factor: float = 1.0
+    highlight_box: str | None = None
+    narration_volume: float = 1.0
+    original_audio_volume: float = 0.0
+    interleave_subtitle: str = ""
+    subtitle_style: str = "cinematic"
+
+    def __post_init__(self) -> None:
+        from .perspective import TransitionType
+
+        if self.transition_type is None:
+            self.transition_type = TransitionType.CUT
 
 
 __all__ = [
