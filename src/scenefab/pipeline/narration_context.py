@@ -22,12 +22,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # 复用现有模型, 避免重复定义
 from scenefab.pipeline.short_drama import ShortDramaStyle
-from scenefab.services.ai.scene_models import SceneInfo
-from scenefab.services.video_understanding.models import StoryGraph
+
+if TYPE_CHECKING:
+    from scenefab.services.ai.scene_models import SceneInfo
+    from scenefab.services.video_understanding.models import StoryGraph
 
 # ============================================
 # ① 指令上下文 — 人设 / 风格 / 平台
@@ -214,7 +216,11 @@ class NarrationContext:
     next_hook_hint: str = ""  # 下一集钩子提示
 
     # —— ② 数据上下文 (由 UNDERSTAND/STORYGRAPH 状态填充) ——
-    story_graph: StoryGraph = field(default_factory=StoryGraph)
+    story_graph: StoryGraph = field(
+        default_factory=lambda: __import__(
+            "scenefab.services.video_understanding.models", fromlist=["StoryGraph"]
+        ).StoryGraph()
+    )
     scenes: list[SceneInfo] = field(default_factory=list)
     bridges: list[Bridge] = field(default_factory=list)
 

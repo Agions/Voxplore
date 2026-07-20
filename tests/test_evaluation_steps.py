@@ -32,6 +32,7 @@ from scenefab.pipeline.narration import (
     ProductionStyle,
     Persona,
     Platform,
+    register_assembly_steps,
     register_default_steps,
     register_evaluation_steps,
     register_understanding_steps,
@@ -123,7 +124,7 @@ class TestEvalResultDataclass:
     def test_eval_result_post_init_reason(self) -> None:
         """reason 默认值"""
         r = EvalResult(total_score=8.0, accept=True)
-        assert r.reason == "总分 8.0 ≥ 7.5"
+        assert r.reason == "总分 8.0 → ACCEPT"
 
     def test_eval_result_custom_reason(self) -> None:
         r = EvalResult(total_score=5.0, accept=False, reason="自定义原因")
@@ -592,6 +593,7 @@ class TestEvaluationLoopReal:
         register_default_steps(sm)
         register_understanding_steps(sm)
         register_evaluation_steps(sm)
+        register_assembly_steps(sm)
         return sm
 
     def test_reject_then_retry_until_accept(
@@ -610,6 +612,7 @@ class TestEvaluationLoopReal:
         register_default_steps(sm)
         register_understanding_steps(sm)
         register_evaluation_steps(sm)
+        register_assembly_steps(sm)
 
         scores = [5.0, 8.0]  # 第 1 次 REJECT, 第 2 次 ACCEPT
 
@@ -661,6 +664,7 @@ class TestEvaluationLoopReal:
         register_default_steps(sm)
         register_understanding_steps(sm)
         register_evaluation_steps(sm)
+        register_assembly_steps(sm)
 
         def always_reject(ctx: NarrationContext):
             ctx.eval_score = 3.0
@@ -690,7 +694,7 @@ class TestEvaluationLoopReal:
 
 
 class TestPhase3EndToEnd:
-    """完整流程跑通 Phase 1 stub + Phase 2 真实 + Phase 3 真实"""
+    """完整流程跑通 (默认 Step + Phase 2/3/4 真实实现)"""
 
     @pytest.fixture
     def sm_full(self) -> NarrationStateMachine:
@@ -698,6 +702,7 @@ class TestPhase3EndToEnd:
         register_default_steps(sm)
         register_understanding_steps(sm)
         register_evaluation_steps(sm)
+        register_assembly_steps(sm)
         return sm
 
     def test_phase3_e2e_low_score_rejects(
@@ -727,7 +732,7 @@ class TestPhase3EndToEnd:
         sm_full: NarrationStateMachine,
         ctx_with_assets: NarrationContext,
     ) -> None:
-        """EVALUATE 默认通过 (Phase 1 stub 设 9.0) → 完整 DONE"""
+        """强制高分 EVALUATE → ACCEPT → 完整 DONE"""
         from scenefab.pipeline.narration_state_machine import StepResult
 
         # 配 fake_evaluate 设高分 (9.0) 强制 ACCEPT

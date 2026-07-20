@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-v2.2 Narration State Machine — Phase 1 骨架测试
+v2.2 Narration State Machine — 状态机测试
 
 覆盖:
 - 4 类上下文 (指令/数据/历史/工具) 创建正确
@@ -31,8 +31,12 @@ from scenefab.pipeline.narration import (
     ProductionStyle,
     Persona,
     Platform,
+    StepResult,
     TransitionReason,
+    register_assembly_steps,
     register_default_steps,
+    register_evaluation_steps,
+    register_understanding_steps,
 )
 
 # ============================================
@@ -62,9 +66,22 @@ def ctx(fake_video: Path, tmp_path: Path) -> NarrationContext:
 
 @pytest.fixture
 def sm_default() -> NarrationStateMachine:
-    """注册默认骨架 Step 的状态机"""
+    """注册全部真实 Step 的状态机 (默认 + Phase 2/3/4)"""
     sm = NarrationStateMachine()
     register_default_steps(sm)
+    register_understanding_steps(sm)
+    register_evaluation_steps(sm)
+    register_assembly_steps(sm)
+
+    # 强制 ACCEPT 跳过真实评估, 保证骨架流转测试确定性
+    def high_eval(c: NarrationContext) -> StepResult:
+        c.eval_score = 9.0
+        c.eval_issues = []
+        return StepResult(
+            success=True, state=NarrationState.EVALUATE, message="9.0 forced"
+        )
+
+    sm.register_step(NarrationState.EVALUATE, high_eval)
     return sm
 
 
@@ -184,11 +201,17 @@ class TestStateMachineMainFlow:
     """主路径: INGEST→...→DONE"""
 
     def test_default_register(self) -> None:
-        """默认 9 状态全部已注册 Step"""
+        """register_default_steps 注册 INGEST/ACCEPT/REJECT"""
         sm = NarrationStateMachine()
         register_default_steps(sm)
         for state in [
             NarrationState.INGEST,
+            NarrationState.ACCEPT,
+            NarrationState.REJECT,
+        ]:
+            assert state in sm._steps, f"State {state.value} 未注册"
+        # 其余状态由真实实现模块注册
+        for state in [
             NarrationState.UNDERSTAND,
             NarrationState.STORYGRAPH,
             NarrationState.DRAFT,
@@ -198,7 +221,7 @@ class TestStateMachineMainFlow:
             NarrationState.TTS,
             NarrationState.ASSEMBLE,
         ]:
-            assert state in sm._steps, f"State {state.value} 未注册"
+            assert state not in sm._steps, f"State {state.value} 不应由默认注册"
 
     def test_register_step_chainable(self) -> None:
         """register_step 支持链式调用"""
@@ -218,7 +241,7 @@ class TestStateMachineMainFlow:
     def test_full_flow_runs_to_done(
         self, sm_default: NarrationStateMachine, ctx: NarrationContext
     ) -> None:
-        """完整流程跑通到 DONE (Phase 1 stub 默认评估 PASS)"""
+        """完整流程跑通到 DONE (fixture 强制评估 PASS)"""
         result = sm_default.run(ctx)
         assert result.success
         assert result.state == NarrationState.DONE
@@ -251,8 +274,8 @@ class TestStateMachineMainFlow:
     ) -> None:
         """TTS_LENGTH_ADJUST 写入 real/target 时长"""
         sm_default.run(ctx)
-        # Phase 1 stub 写入 45.0
-        assert ctx.tts_real_duration_sec == 45.0
+        # 真实实现: target 来自平台规格, real 为估算/实测时长
+        assert ctx.tts_real_duration_sec > 0
         assert (
             ctx.tts_target_duration_sec
             == PLATFORM_SPECS[Platform.DOUYIN].target_duration_sec
@@ -284,15 +307,20 @@ class TestEvaluationLoop:
         self, tmp_path: Path, fake_video: Path
     ) -> None:
         """EVALUATE 拒绝时, 未达 max_attempts → 回 DRAFT"""
-        from scenefab.pipeline.narration_steps import (
-            draft_step,
-            reject_step,
-        )
+        from scenefab.pipeline.narration_steps import reject_step
+
+        # 简易 draft step: 仅生成占位文案
+        def stub_draft(ctx: NarrationContext) -> StepResult:
+            ctx.current_draft = f"stub draft {ctx.draft_attempts + 1}"
+            ctx.current_segments = [{"text": ctx.current_draft, "duration": 5.0}]
+            return StepResult(
+                success=True,
+                state=NarrationState.DRAFT,
+                message=f"draft (attempt={ctx.draft_attempts + 1})",
+            )
 
         # 自定义 evaluate_step: 强制 score=5.0 (低于阈值 7.5)
         def low_score_evaluate(ctx: NarrationContext) -> StepResult:
-            from scenefab.pipeline.narration import NarrationState, StepResult
-
             ctx.eval_score = 5.0
             ctx.eval_issues = ["hook 弱"]
             return StepResult(
@@ -300,8 +328,6 @@ class TestEvaluationLoop:
                 state=NarrationState.EVALUATE,
                 message=f"score={ctx.eval_score}",
             )
-
-        from scenefab.pipeline.narration_state_machine import StepResult
 
         sm = NarrationStateMachine(config=NarrationConfig(max_draft_attempts=1))
         sm.register_step(
@@ -322,7 +348,7 @@ class TestEvaluationLoop:
                 success=True, state=NarrationState.STORYGRAPH, message="storygraph"
             ),
         )
-        sm.register_step(NarrationState.DRAFT, draft_step)
+        sm.register_step(NarrationState.DRAFT, stub_draft)
         sm.register_step(NarrationState.EVALUATE, low_score_evaluate)
         sm.register_step(NarrationState.REJECT, reject_step)
         sm.register_step(
@@ -380,8 +406,6 @@ class TestErrorHandling:
 
     def test_unregistered_state_fails(self, tmp_path: Path, fake_video: Path) -> None:
         """未注册 Step 的状态失败"""
-        from scenefab.pipeline.narration import StepResult
-
         # 故意只注册 INGEST
         sm = NarrationStateMachine()
         sm.register_step(
@@ -398,7 +422,6 @@ class TestErrorHandling:
 
     def test_step_exception_caught(self, tmp_path: Path, fake_video: Path) -> None:
         """Step 抛异常被捕获, 转为 ERROR"""
-        from scenefab.pipeline.narration import StepResult
 
         def broken_step(ctx: NarrationContext) -> StepResult:
             raise RuntimeError("boom!")
@@ -481,7 +504,7 @@ class TestBridgeModels:
 
 
 class TestIntegration:
-    """完整流程集成测试 (Phase 1 stub)"""
+    """完整流程集成测试 (真实 Step + 降级路径)"""
 
     def test_end_to_end_pipeline(
         self, sm_default: NarrationStateMachine, ctx: NarrationContext
@@ -495,8 +518,8 @@ class TestIntegration:
         assert result.success
         # 2. 11 个转移
         assert len(sm_default.transitions()) == 11
-        # 3. 骨架版很快 (< 1s)
-        assert elapsed < 1.0
+        # 3. 降级路径较快 (< 30s; 真实 TTS/LLM 网络尝试有超时开销)
+        assert elapsed < 30.0
         # 4. 终态
         assert sm_default.current_state() == NarrationState.DONE
         # 5. 产物

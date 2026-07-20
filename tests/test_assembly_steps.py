@@ -473,30 +473,29 @@ class TestPhase4EndToEnd:
 
 
 # ============================================
-# 6. Phase 1 stub 兼容性
+# 6. 全量注册兼容性
 # ============================================
 
 
 class TestPhase4BackwardCompat:
-    """Phase 4 不破坏 Phase 1/2/3"""
+    """Phase 4 与默认/Phase 2/3 Step 兼容"""
 
-    def test_phase1_stub_still_works(self, fake_video: Path, tmp_path: Path) -> None:
-        """只注册 Phase 1 stub 仍能跑通"""
-        sm = NarrationStateMachine()
-        register_default_steps(sm)
+    def test_full_registration_runs_to_done(
+        self, sm_full: NarrationStateMachine, fake_video: Path, tmp_path: Path
+    ) -> None:
+        """全量注册真实 Step 仍能跑通"""
         ctx = NarrationContext(
             source_video=fake_video,
             output_dir=tmp_path / "out",
         )
-        result = sm.run(ctx)
+        result = sm_full.run(ctx)
         assert result.success
-        # stub 标记
-        assert "Phase 1 Stub" in ctx.current_draft
+        assert ctx.current_draft
 
     def test_phase4_register_replaces_three_steps(
         self, sm_full: NarrationStateMachine
     ) -> None:
-        """register_assembly_steps 替换 3 个状态"""
+        """register_assembly_steps 注册 3 个状态的真实实现"""
         from scenefab.pipeline.assembly_steps import (
             assemble_step as phase4_assemble,
         )
@@ -506,24 +505,11 @@ class TestPhase4BackwardCompat:
         from scenefab.pipeline.assembly_steps import (
             tts_step as phase4_tts,
         )
-        from scenefab.pipeline.narration_steps import (
-            assemble_step as stub_assemble,
-        )
-        from scenefab.pipeline.narration_steps import (
-            tts_length_adjust_step as stub_tts_la,
-        )
-        from scenefab.pipeline.narration_steps import (
-            tts_step as stub_tts,
-        )
 
-        # Phase 4 版本应该不同
-        assert phase4_tts_la is not stub_tts_la
-        assert phase4_tts is not stub_tts
-        assert phase4_assemble is not stub_assemble
-        # 全部已注册
-        assert NarrationState.TTS_LENGTH_ADJUST in sm_full._steps
-        assert NarrationState.TTS in sm_full._steps
-        assert NarrationState.ASSEMBLE in sm_full._steps
+        # 注册的是 Phase 4 真实实现
+        assert sm_full._steps[NarrationState.TTS_LENGTH_ADJUST] is phase4_tts_la
+        assert sm_full._steps[NarrationState.TTS] is phase4_tts
+        assert sm_full._steps[NarrationState.ASSEMBLE] is phase4_assemble
 
 
 # ============================================

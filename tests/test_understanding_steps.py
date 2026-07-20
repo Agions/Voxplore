@@ -29,8 +29,11 @@ from scenefab.pipeline.narration import (
     ProductionStyle,
     Persona,
     Platform,
+    StepResult,
     _build_narration_prompt,
+    register_assembly_steps,
     register_default_steps,
+    register_evaluation_steps,
     register_understanding_steps,
 )
 from scenefab.services.ai.scene_models import SceneInfo, SceneType
@@ -90,10 +93,22 @@ def ctx_with_story_graph(ctx: NarrationContext) -> NarrationContext:
 
 @pytest.fixture
 def sm_phase2() -> NarrationStateMachine:
-    """注册 Phase 1 stub + Phase 2 真实实现"""
+    """注册默认 Step + Phase 2/3/4 真实实现 (可跑完整流程)"""
     sm = NarrationStateMachine()
     register_default_steps(sm)
     register_understanding_steps(sm)
+    register_evaluation_steps(sm)
+    register_assembly_steps(sm)
+
+    # 强制 ACCEPT 跳过真实评估, 保证端到端测试确定性
+    def high_eval(c: NarrationContext) -> StepResult:
+        c.eval_score = 9.0
+        c.eval_issues = []
+        return StepResult(
+            success=True, state=NarrationState.EVALUATE, message="9.0 forced"
+        )
+
+    sm.register_step(NarrationState.EVALUATE, high_eval)
     return sm
 
 
@@ -459,7 +474,7 @@ class TestDraftStepFallback:
 
 
 class TestPhase2EndToEnd:
-    """完整流程跑通 Phase 1 stub + Phase 2 真实实现"""
+    """完整流程跑通 (默认 Step + Phase 2/3/4 真实实现, 全降级路径)"""
 
     def test_phase2_e2e_no_api_keys(
         self,
@@ -550,40 +565,50 @@ class TestTropeBridgeMapping:
 
 
 # ============================================
-# 7. Phase 2 集成度 — 与 Phase 1 stub 兼容
+# 7. Phase 2 集成度 — 与默认 Step 兼容
 # ============================================
 
 
 class TestPhase2BackwardCompat:
-    """Phase 2 不破坏 Phase 1 stub 测试"""
+    """Phase 2 真实实现与 register_default_steps 兼容"""
 
     def test_register_phase2_replaces_three_steps(
         self, sm_phase2: NarrationStateMachine
     ) -> None:
-        """register_understanding_steps 替换 UNDERSTAND/STORYGRAPH/DRAFT"""
-        from scenefab.pipeline.narration_steps import (
-            understand_step as stub_understand,
-        )
+        """register_understanding_steps 注册 UNDERSTAND/STORYGRAPH/DRAFT 真实实现"""
         from scenefab.pipeline.understanding_steps import (
             understand_step as phase2_understand,
         )
 
-        # Phase 2 版本应该不同
-        assert phase2_understand is not stub_understand
-        # 但都已注册
-        assert NarrationState.UNDERSTAND in sm_phase2._steps
+        # 注册的是 Phase 2 真实实现
+        assert sm_phase2._steps[NarrationState.UNDERSTAND] is phase2_understand
         assert NarrationState.STORYGRAPH in sm_phase2._steps
         assert NarrationState.DRAFT in sm_phase2._steps
 
-    def test_phase1_stub_still_works(self, fake_video: Path, tmp_path: Path) -> None:
-        """不调 register_understanding_steps, 仍用 stub 跑通"""
+    def test_full_registration_runs_to_done(
+        self, fake_video: Path, tmp_path: Path
+    ) -> None:
+        """默认 + Phase 2/3/4 全量注册能跑通完整流程"""
         sm = NarrationStateMachine()
-        register_default_steps(sm)  # 只注册 stub
+        register_default_steps(sm)
+        register_understanding_steps(sm)
+        register_evaluation_steps(sm)
+        register_assembly_steps(sm)
+
+        # 强制 ACCEPT 跳过真实评估, 保证测试确定性
+        def high_eval(c: NarrationContext) -> StepResult:
+            c.eval_score = 9.0
+            c.eval_issues = []
+            return StepResult(
+                success=True, state=NarrationState.EVALUATE, message="9.0 forced"
+            )
+
+        sm.register_step(NarrationState.EVALUATE, high_eval)
+
         ctx = NarrationContext(
             source_video=fake_video,
             output_dir=tmp_path / "out",
         )
         result = sm.run(ctx)
         assert result.success
-        # stub draft 有特殊标识
-        assert "Phase 1 Stub" in ctx.current_draft
+        assert ctx.current_draft
