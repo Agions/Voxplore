@@ -115,8 +115,8 @@ def main() -> None:
 
         sys.exit(exit_code)
 
-    except ImportError as e:
-        logger.warning(f"GUI 模块未找到: {e}")
+    except ImportError:
+        logger.warning("GUI 依赖不可用，已切换到命令行模式")
         logger.info("正在启动命令行模式...")
         run_cli_mode()
 
@@ -296,6 +296,7 @@ def run_export() -> None:
     draft_path = exporter.export(draft, output_dir)
 
     print(f"\n✅ 完成! 草稿路径: {draft_path}")
+
 
 if __name__ == "__main__":
     main()

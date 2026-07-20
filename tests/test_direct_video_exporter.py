@@ -2,12 +2,20 @@
 """Test Direct Video Exporter"""
 
 from scenefab.services.export.direct_video_exporter import (
+    AudioCodec,
     DirectVideoExporter,
     HWAccel,
     Resolution,
     VideoCodec,
     VideoExportConfig,
     VideoFormat,
+    build_burn_subtitles_command,
+    build_concat_command,
+    build_extract_segment_command,
+    build_merge_audio_command,
+    build_scale_pad_filter,
+    resolve_video_codec,
+    with_hw_accel_params,
 )
 
 
@@ -80,6 +88,111 @@ class TestVideoExportConfig:
 
         assert config.resolution == Resolution.VERTICAL_1080P
         assert config.fps == 60.0
+
+
+class TestFfmpegCommandHelpers:
+    """Test pure FFmpeg command helpers"""
+
+    def test_build_scale_pad_filter(self):
+        assert build_scale_pad_filter(Resolution.VERTICAL_1080P) == (
+            "scale=1080:1920:force_original_aspect_ratio=decrease,"
+            "pad=1080:1920:(ow-iw)/2:(oh-ih)/2"
+        )
+
+    def test_with_hw_accel_params_does_not_mutate_input(self):
+        config = VideoExportConfig(hw_accel=HWAccel.APPLE)
+        cmd = ["ffmpeg", "-y", "-i", "input.mp4"]
+
+        result = with_hw_accel_params(cmd, config)
+
+        assert result == [
+            "ffmpeg",
+            "-hwaccel",
+            "videotoolbox",
+            "-y",
+            "-i",
+            "input.mp4",
+        ]
+        assert cmd == ["ffmpeg", "-y", "-i", "input.mp4"]
+
+    def test_resolve_video_codec_uses_hw_encoder(self):
+        config = VideoExportConfig(hw_accel=HWAccel.APPLE, video_codec=VideoCodec.H265)
+
+        assert resolve_video_codec(config) == "hevc_videotoolbox"
+
+    def test_build_extract_segment_command(self):
+        config = VideoExportConfig(resolution=Resolution.HD_720P, hw_accel=HWAccel.NONE)
+
+        cmd = build_extract_segment_command(
+            "input.mp4",
+            1.5,
+            3.0,
+            "out.mp4",
+            config,
+        )
+
+        assert cmd[:8] == ["ffmpeg", "-y", "-ss", "1.5", "-t", "3.0", "-i", "input.mp4"]
+        assert build_scale_pad_filter(Resolution.HD_720P) in cmd
+        assert cmd[cmd.index("-c:v") + 1] == "libx264"
+        assert cmd[-1] == "out.mp4"
+
+    def test_build_merge_audio_command(self):
+        config = VideoExportConfig(audio_codec=AudioCodec.AAC)
+
+        cmd = build_merge_audio_command("video.mp4", "voice.wav", "out.mp4", config)
+
+        assert cmd == [
+            "ffmpeg",
+            "-y",
+            "-i",
+            "video.mp4",
+            "-i",
+            "voice.wav",
+            "-c:v",
+            "copy",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-shortest",
+            "out.mp4",
+        ]
+
+    def test_build_concat_command(self, tmp_path):
+        list_file = tmp_path / "concat.txt"
+
+        cmd = build_concat_command(list_file, "merged.mp4")
+
+        assert cmd == [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(list_file),
+            "-c",
+            "copy",
+            "merged.mp4",
+        ]
+
+    def test_build_burn_subtitles_command(self):
+        config = VideoExportConfig(crf=20, preset="slow")
+
+        cmd = build_burn_subtitles_command(
+            "video.mp4",
+            "subtitles.srt",
+            "out.mp4",
+            config,
+        )
+
+        assert (
+            cmd[cmd.index("-vf") + 1]
+            == "subtitles=subtitles.srt:force_style=FontSize=24"
+        )
+        assert cmd[cmd.index("-preset") + 1] == "slow"
+        assert cmd[cmd.index("-crf") + 1] == "20"
 
 
 class TestDirectVideoExporter:

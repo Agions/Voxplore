@@ -20,9 +20,13 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
-def _compute_delay(attempt: int, base_delay: float, backoff: float) -> float:
+def compute_delay_with_jitter(
+    attempt: int, base_delay: float, backoff: float, max_delay: float | None = None
+) -> float:
     """计算带抖动的指数退避延迟"""
     delay = base_delay * (backoff**attempt)
+    if max_delay is not None:
+        delay = min(delay, max_delay)
     return delay * (0.5 + random.random() * 0.5)
 
 
@@ -56,7 +60,7 @@ async def retry_async(
             if attempt == max_attempts:
                 logger.error(f"Retry failed after {max_attempts} attempts: {e}")
                 raise
-            wait = _compute_delay(attempt - 1, delay, backoff)
+            wait = compute_delay_with_jitter(attempt - 1, delay, backoff)
             logger.warning(
                 f"Attempt {attempt}/{max_attempts} failed: {e}, retrying in {wait:.1f}s"
             )
@@ -93,7 +97,7 @@ def retry_sync(
             if attempt == max_attempts:
                 logger.error(f"Retry failed after {max_attempts} attempts: {e}")
                 raise
-            wait = _compute_delay(attempt - 1, delay, backoff)
+            wait = compute_delay_with_jitter(attempt - 1, delay, backoff)
             logger.warning(
                 f"Attempt {attempt}/{max_attempts} failed: {e}, retrying in {wait:.1f}s"
             )
@@ -116,7 +120,7 @@ def async_retry_decorator(
                     return await func(*args, **kwargs)
                 except retryable_exceptions as e:
                     if attempt < max_attempts - 1:
-                        delay = _compute_delay(attempt, base_delay, 2.0)
+                        delay = compute_delay_with_jitter(attempt, base_delay, 2.0)
                         logger.warning(
                             f"{func.__name__} failed (attempt {attempt + 1}/{max_attempts}): {e}. "
                             f"{delay:.1f}s later retry..."
@@ -135,4 +139,5 @@ __all__ = [
     "retry_async",
     "retry_sync",
     "async_retry_decorator",
+    "compute_delay_with_jitter",
 ]

@@ -18,8 +18,9 @@
 
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
+from scenefab.models.serialization import SerializableDataclass
 from scenefab.utils.version import get_version_string
 
 
@@ -59,7 +60,7 @@ class ProjectType(Enum):
         return self._value_  # type: ignore[return-value]
 
     @classmethod
-    def _missing_(cls, value: Any) -> Optional["ProjectType"]:
+    def _missing_(cls, value: Any) -> "ProjectType | None":
         """支持通过字符串 ID 查找枚举成员（如 ProjectType('ai_enhancement')）"""
         for member in cls:
             if member._value_ == value:
@@ -68,7 +69,7 @@ class ProjectType(Enum):
 
 
 @dataclass
-class ProjectMetadata:
+class ProjectMetadata(SerializableDataclass):
     """项目元数据"""
 
     name: str = ""
@@ -123,7 +124,7 @@ class ProjectMetadata:
 
 
 @dataclass
-class ProjectSettings:
+class ProjectSettings(SerializableDataclass):
     """项目设置"""
 
     resolution: str = "1920x1080"
@@ -134,24 +135,9 @@ class ProjectSettings:
     sample_rate: int = 44100
     channels: int = 2
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectSettings":
-        return cls(
-            resolution=data.get("resolution", "1920x1080"),
-            fps=data.get("fps", 30),
-            bitrate=data.get("bitrate", "8000k"),
-            codec=data.get("codec", "h264"),
-            audio_codec=data.get("audio_codec", "aac"),
-            sample_rate=data.get("sample_rate", 44100),
-            channels=data.get("channels", 2),
-        )
-
 
 @dataclass
-class ProjectMedia:
+class ProjectMedia(SerializableDataclass):
     """项目媒体文件"""
 
     id: str = ""
@@ -166,46 +152,15 @@ class ProjectMedia:
     codec: str = ""
     created_at: str = ""
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectMedia":
-        return cls(
-            id=data.get("id", ""),
-            name=data.get("name", ""),
-            type=data.get("type", ""),
-            path=data.get("path", ""),
-            duration=data.get("duration", 0.0),
-            size=data.get("size", 0),
-            width=data.get("width", 0),
-            height=data.get("height", 0),
-            fps=data.get("fps", 0.0),
-            codec=data.get("codec", ""),
-            created_at=data.get("created_at", ""),
-        )
-
 
 @dataclass
-class ProjectTimeline:
+class ProjectTimeline(SerializableDataclass):
     """项目时间线"""
 
     tracks: list[dict[str, Any]] = field(default_factory=list)
     duration: float = 0.0  # 总时长（秒）
     in_point: float = 0.0
     out_point: float = 0.0
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectTimeline":
-        return cls(
-            tracks=data.get("tracks", []),
-            duration=data.get("duration", 0.0),
-            in_point=data.get("in_point", 0.0),
-            out_point=data.get("out_point", 0.0),
-        )
 
 
 __all__ = [

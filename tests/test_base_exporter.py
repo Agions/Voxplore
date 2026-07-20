@@ -6,10 +6,13 @@ from scenefab.services.export.export_utils import (
     BaseSegment,
     BaseTrack,
     ExporterConfig,
+    ensure_directory,
+    ensure_parent_directory,
     microseconds_to_seconds,
     safe_filename,
     seconds_to_microseconds,
     seconds_to_ticks,
+    write_json_file,
 )
 
 
@@ -61,6 +64,33 @@ class TestSafeFilename:
     def test_strip_whitespace(self):
         """测试去除空白"""
         assert safe_filename("  file  ") == "file"
+
+
+class TestFileHelpers:
+    """测试导出文件工具"""
+
+    def test_ensure_directory_creates_nested_path(self, tmp_path):
+        target = tmp_path / "exports" / "nested"
+
+        result = ensure_directory(target)
+
+        assert result == target
+        assert target.is_dir()
+
+    def test_ensure_parent_directory_creates_parent(self, tmp_path):
+        output_path = tmp_path / "exports" / "video.mp4"
+
+        result = ensure_parent_directory(output_path)
+
+        assert result == output_path
+        assert output_path.parent.is_dir()
+
+    def test_write_json_file(self, tmp_path):
+        output = tmp_path / "data.json"
+
+        write_json_file(output, {"name": "测试"})
+
+        assert output.read_text(encoding="utf-8") == '{\n  "name": "测试"\n}'
 
 
 class TestBaseTrack:

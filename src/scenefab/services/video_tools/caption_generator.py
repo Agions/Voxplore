@@ -183,7 +183,8 @@ class CaptionGenerator:
         )
 
     def generate_from_transcript(
-        self, transcript: list[dict[str, any]]  # type: ignore[valid-type]
+        self,
+        transcript: list[dict[str, any]],  # type: ignore[valid-type]
     ) -> list[Caption]:
         """
         从转录结果生成字幕

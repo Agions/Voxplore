@@ -74,6 +74,14 @@ class DIContainer:
         # 解析后钩子
         self._resolve_hooks: list[Callable[[str, Any], None]] = []
 
+    def _register_entry(self, service_key: type | str, entry: _ServiceEntry) -> None:
+        if isinstance(service_key, str):
+            entry.name = service_key
+            self._by_name[service_key] = entry
+        else:
+            entry.service_type = service_key
+            self._services[service_key] = entry
+
     # ────────────────────────────────────────────────
     # 注册
     # ────────────────────────────────────────────────
@@ -81,19 +89,17 @@ class DIContainer:
     def register(self, service_type: type, instance: Any) -> None:
         """注册服务实例（默认 SINGLETON）- 兼容 v1.x"""
         with self._lock:
-            self._services[service_type] = _ServiceEntry(
-                lifetime=ServiceLifetime.SINGLETON,
-                instance=instance,
-                service_type=service_type,
+            self._register_entry(
+                service_type,
+                _ServiceEntry(lifetime=ServiceLifetime.SINGLETON, instance=instance),
             )
 
     def register_by_name(self, name: str, instance: Any) -> None:
         """按名称注册实例 - 兼容 v1.x"""
         with self._lock:
-            self._by_name[name] = _ServiceEntry(
-                lifetime=ServiceLifetime.SINGLETON,
-                instance=instance,
-                name=name,
+            self._register_entry(
+                name,
+                _ServiceEntry(lifetime=ServiceLifetime.SINGLETON, instance=instance),
             )
 
     def register_singleton(
@@ -103,18 +109,13 @@ class DIContainer:
     ) -> None:
         """注册单例 - 兼容 v1.x"""
         with self._lock:
-            if isinstance(service_type, str):
-                self._by_name[service_type] = _ServiceEntry(
+            self._register_entry(
+                service_type,
+                _ServiceEntry(
                     lifetime=ServiceLifetime.SINGLETON,
                     instance=instance_or_type,
-                    name=service_type,
-                )
-            else:
-                self._services[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.SINGLETON,
-                    instance=instance_or_type,
-                    service_type=service_type,
-                )
+                ),
+            )
 
     def register_transient(
         self,
@@ -122,23 +123,13 @@ class DIContainer:
         factory_or_type: type | Callable,
     ) -> None:
         """注册 TRANSIENT - 兼容 v1.x"""
+        entry = _ServiceEntry(lifetime=ServiceLifetime.TRANSIENT)
+        if isinstance(factory_or_type, type):
+            entry.service_type = factory_or_type
+        else:
+            entry.factory = factory_or_type
         with self._lock:
-            if isinstance(service_type, str):
-                self._by_name[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.TRANSIENT,
-                    factory=factory_or_type,
-                    name=service_type,
-                )
-            else:
-                self._services[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.TRANSIENT,
-                    service_type=factory_or_type
-                    if isinstance(factory_or_type, type)
-                    else None,
-                    factory=factory_or_type
-                    if not isinstance(factory_or_type, type)
-                    else None,
-                )
+            self._register_entry(service_type, entry)
 
     def register_scoped(
         self,
@@ -147,18 +138,10 @@ class DIContainer:
     ) -> None:
         """注册作用域单例（v2.1 新增）"""
         with self._lock:
-            if isinstance(service_type, str):
-                self._by_name[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.SCOPED,
-                    factory=factory,
-                    name=service_type,
-                )
-            else:
-                self._services[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.SCOPED,
-                    service_type=service_type,
-                    factory=factory,
-                )
+            self._register_entry(
+                service_type,
+                _ServiceEntry(lifetime=ServiceLifetime.SCOPED, factory=factory),
+            )
 
     def register_factory(
         self,
@@ -167,17 +150,10 @@ class DIContainer:
     ) -> None:
         """注册工厂 - 兼容 v1.x"""
         with self._lock:
-            if isinstance(service_type, str):
-                self._by_name[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.FACTORY,
-                    factory=factory,
-                    name=service_type,
-                )
-            else:
-                self._services[service_type] = _ServiceEntry(
-                    lifetime=ServiceLifetime.FACTORY,
-                    factory=factory,
-                )
+            self._register_entry(
+                service_type,
+                _ServiceEntry(lifetime=ServiceLifetime.FACTORY, factory=factory),
+            )
 
     # ────────────────────────────────────────────────
     # 解析
@@ -243,12 +219,15 @@ class DIContainer:
         if not self._scope_stack:
             return self._fresh_instance(entry)
         scope = self._scope_stack[-1]
-        key: Any = entry.name if entry.name is not None else entry.service_type
+        key = self._scope_key(entry)
         if key in scope:
             return scope[key]
         instance = self._fresh_instance(entry)
         scope[key] = instance
         return instance
+
+    def _scope_key(self, entry: _ServiceEntry) -> str | type | None:
+        return entry.name if entry.name is not None else entry.service_type
 
     def _fresh_instance(self, entry: _ServiceEntry) -> Any:
         if entry.service_type is not None and isinstance(entry.service_type, type):
@@ -329,7 +308,6 @@ class DIContainer:
 
     def all_types(self) -> list[type]:
         return list(self._services.keys())
-
 
 
 # ──────────────────────────────────────────────────────────

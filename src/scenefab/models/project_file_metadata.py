@@ -16,9 +16,10 @@
 提取为独立模型类。
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+
+from .serialization import SerializableDataclass
 
 
 class _ProjectFileVersion(Enum):
@@ -29,7 +30,7 @@ class _ProjectFileVersion(Enum):
 
 
 @dataclass
-class ProjectFileMetadata:
+class ProjectFileMetadata(SerializableDataclass):
     """.scenefab 项目文件元数据
 
     用于 .scenefab 项目文件的持久化与交换。
@@ -53,15 +54,6 @@ class ProjectFileMetadata:
     output_height: int = 1080
     output_fps: float = 30.0
     output_format: str = "mp4"
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectFileMetadata":
-        # 忽略未知字段，保持前向兼容
-        valid_fields = set(cls.__dataclass_fields__.keys())
-        return cls(**{k: v for k, v in data.items() if k in valid_fields})
 
 
 __all__ = ["ProjectFileMetadata", "_ProjectFileVersion"]

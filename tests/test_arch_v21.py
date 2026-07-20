@@ -412,5 +412,3 @@ class TestPipelineEngineV21Integration:
         assert "pipeline.started" in events
         assert events.count("pipeline.step.completed") == 2
         assert "pipeline.completed" in events
-
-

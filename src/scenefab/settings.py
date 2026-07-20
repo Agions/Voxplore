@@ -103,9 +103,11 @@ class ConfigManager(metaclass=SingletonMeta):
     @staticmethod
     def _substitute_env_vars(value: str) -> str:
         """替换字符串中的 ${ENV_VAR} 为环境变量值"""
+
         def _replace(match: re.Match) -> str:
             var_name = match.group(1)
             return os.getenv(var_name, "")
+
         return re.sub(r"\$\{(\w+)\}", _replace, value)
 
     def _load_config(self):

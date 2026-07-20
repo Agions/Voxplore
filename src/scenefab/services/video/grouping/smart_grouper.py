@@ -171,7 +171,11 @@ class SmartGrouper:
 
         # 4. 构建分组
         return self._build_groups(
-            clusters, video_paths, similarity_matrix, vision_embeddings, audio_embeddings
+            clusters,
+            video_paths,
+            similarity_matrix,
+            vision_embeddings,
+            audio_embeddings,
         )
 
     def _extract_embeddings(
@@ -247,7 +251,11 @@ class SmartGrouper:
                 continue
             groups.append(
                 self._cluster_to_group(
-                    cluster, video_paths, similarity_matrix, vision_embeddings, audio_embeddings
+                    cluster,
+                    video_paths,
+                    similarity_matrix,
+                    vision_embeddings,
+                    audio_embeddings,
                 )
             )
         return groups

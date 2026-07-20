@@ -159,7 +159,8 @@ class TestEvaluatorFiveDimensions:
             "真相是, 上一世苏婉背后捅刀陷害她, 如今身份揭露。"
             "最后林墨霸气出手, 跪地求饶的苏婉迎来反转结局, "
             "令人震惊的真相让她无地自容, 这一切才刚刚开始。\n"
-            + "（补足字数到目标）" * 5  # 凑到 ~200 字
+            + "（补足字数到目标）"
+            * 5  # 凑到 ~200 字
         )
         # 截断到 200 字
         ctx_with_assets.current_draft = ctx_with_assets.current_draft[:target]
@@ -176,9 +177,7 @@ class TestEvaluatorFiveDimensions:
         ctx_with_assets.current_draft = "林墨重生了, 打脸反派!"  # ~12 字
         result = evaluator.evaluate(ctx_with_assets)
         # platform 维度应触发"文案过短"
-        platform_dim = next(
-            d for d in result.dimension_scores if d.name == "platform"
-        )
+        platform_dim = next(d for d in result.dimension_scores if d.name == "platform")
         assert platform_dim.score <= 5.0
         assert any("过短" in issue or "缺少" in issue for issue in platform_dim.issues)
 
@@ -187,13 +186,10 @@ class TestEvaluatorFiveDimensions:
     ) -> None:
         """桥段关键词命中 → bridge 维度高分"""
         ctx_with_assets.current_draft = (
-            "林墨重生, 决定打脸苏婉! 跪地求饶的苏婉迎来反转,"
-            "这就是背叛的代价。" * 3
+            "林墨重生, 决定打脸苏婉! 跪地求饶的苏婉迎来反转,这就是背叛的代价。" * 3
         )
         result = evaluator.evaluate(ctx_with_assets)
-        bridge_dim = next(
-            d for d in result.dimension_scores if d.name == "bridge"
-        )
+        bridge_dim = next(d for d in result.dimension_scores if d.name == "bridge")
         assert bridge_dim.score >= 8.0  # 2 桥段关键词都命中
 
     def test_no_bridges_default_score(
@@ -202,9 +198,7 @@ class TestEvaluatorFiveDimensions:
         """无 bridges → bridge 维度默认 8 分 (不扣分)"""
         ctx.current_draft = "这是一个普通的解说。" * 10
         result = evaluator.evaluate(ctx)
-        bridge_dim = next(
-            d for d in result.dimension_scores if d.name == "bridge"
-        )
+        bridge_dim = next(d for d in result.dimension_scores if d.name == "bridge")
         assert bridge_dim.score == 8.0
 
     def test_consistency_mentions_characters(
@@ -241,9 +235,7 @@ class TestEvaluatorFiveDimensions:
         ctx.current_draft = "完美" * (target_chars // 2 + 1)
         ctx.current_draft = ctx.current_draft[:target_chars]
         result = evaluator.evaluate(ctx)
-        platform_dim = next(
-            d for d in result.dimension_scores if d.name == "platform"
-        )
+        platform_dim = next(d for d in result.dimension_scores if d.name == "platform")
         assert platform_dim.score >= 8.0  # ±15% 内 → 8-10 分
 
     def test_few_shots_boost_style(
@@ -278,8 +270,7 @@ class TestEvaluatorFiveDimensions:
         """连续短剧生产模式必须具备标签、关系和下一集钩子。"""
         ctx_with_assets.episode_index = 3
         ctx_with_assets.current_draft = (
-            "没想到! 林墨重生后决定打脸苏婉。"
-            "真相揭开后, 苏婉终于跪地求饶。" * 6
+            "没想到! 林墨重生后决定打脸苏婉。真相揭开后, 苏婉终于跪地求饶。" * 6
         )
 
         result = evaluator.evaluate(ctx_with_assets)
@@ -321,6 +312,49 @@ class TestEvaluatorFiveDimensions:
         assert not any("题材/爽点标签" in issue for issue in bridge_dim.issues)
         assert not any("人物关系" in issue for issue in consistency_dim.issues)
         assert not any("下一集钩子" in issue for issue in style_dim.issues)
+
+    def test_first_person_context_requires_stable_viewpoint(
+        self, evaluator: NarrationEvaluator, ctx_with_assets: NarrationContext
+    ) -> None:
+        """第一人称生产语境下, 非我视角文案必须触发风格门禁。"""
+        ctx_with_assets.episode_index = 1
+        ctx_with_assets.content_tags = ["重生复仇", "打脸"]
+        ctx_with_assets.relationship_notes = ["林墨和苏婉是宿敌"]
+        ctx_with_assets.next_hook_hint = "苏婉背后的真凶现身"
+        ctx_with_assets.current_draft = (
+            "没想到! 林墨重生复仇, 第一件事就是当众打脸苏婉。"
+            "林墨和苏婉是宿敌, 上一世的背叛让她再也不会心软。"
+            "真相揭开后, 苏婉跪地求饶, 反转才刚刚开始。"
+            "但更可怕的是, 苏婉背后的真凶现身。" * 3
+        )
+
+        result = evaluator.evaluate(ctx_with_assets)
+        style_dim = next(d for d in result.dimension_scores if d.name == "style")
+
+        assert style_dim.score <= 6.5
+        assert any("第一人称" in issue for issue in style_dim.issues)
+        assert any("我视角" in suggestion for suggestion in style_dim.suggestions)
+
+    def test_first_person_hook_requires_crisis_or_result_in_opening(
+        self, evaluator: NarrationEvaluator, ctx: NarrationContext
+    ) -> None:
+        """第一人称开场不能只有我, 还要在 3 秒内给出危机或结果预告。"""
+        ctx.episode_index = 1
+        ctx.content_tags = ["逆袭"]
+        ctx.relationship_notes = ["我和反派是死敌"]
+        ctx.next_hook_hint = "真凶现身"
+        ctx.current_draft = (
+            "我站在门口看着他们。我低头听着旁边的人说话。"
+            "我和反派是死敌, 这场逆袭让我一步步接近真相。"
+            "后来所有人都知道真凶现身。" * 5
+        )
+
+        result = evaluator.evaluate(ctx)
+        hook_dim = next(d for d in result.dimension_scores if d.name == "hook")
+
+        assert hook_dim.score <= 6.5
+        assert any("人物目标、危机或结果预告" in issue for issue in hook_dim.issues)
+        assert any("3 秒" in suggestion for suggestion in hook_dim.suggestions)
 
 
 # ============================================
@@ -387,11 +421,15 @@ class TestHookKeywordScorer:
 
         ctx.current_draft = strong_hook * 5  # 凑到 200 字
         strong_result = evaluator.evaluate(ctx)
-        strong_hook_dim = next(d for d in strong_result.dimension_scores if d.name == "hook")
+        strong_hook_dim = next(
+            d for d in strong_result.dimension_scores if d.name == "hook"
+        )
 
         ctx.current_draft = weak_hook * 5
         weak_result = evaluator.evaluate(ctx)
-        weak_hook_dim = next(d for d in weak_result.dimension_scores if d.name == "hook")
+        weak_hook_dim = next(
+            d for d in weak_result.dimension_scores if d.name == "hook"
+        )
 
         # 强 Hook 应更高分 (无论 v2.1 还是降级)
         assert strong_hook_dim.score >= weak_hook_dim.score
@@ -414,9 +452,7 @@ class TestHookKeywordScorer:
 class TestEvaluateStepReal:
     """evaluate_step 真实实现 (Phase 3)"""
 
-    def test_evaluate_step_success(
-        self, ctx_with_assets: NarrationContext
-    ) -> None:
+    def test_evaluate_step_success(self, ctx_with_assets: NarrationContext) -> None:
         """evaluate_step 正常调用, 填充 ctx.eval_*"""
         from scenefab.pipeline.evaluation_steps import evaluate_step
 
@@ -428,9 +464,7 @@ class TestEvaluateStepReal:
         assert ctx_with_assets.eval_score > 0
         assert isinstance(ctx_with_assets.eval_issues, list)
 
-    def test_evaluate_step_empty_draft(
-        self, ctx_with_assets: NarrationContext
-    ) -> None:
+    def test_evaluate_step_empty_draft(self, ctx_with_assets: NarrationContext) -> None:
         """空 draft 也返回 success=True (评估器自己处理空)"""
         from scenefab.pipeline.evaluation_steps import evaluate_step
 
@@ -467,9 +501,7 @@ class TestEvaluateStepReal:
 class TestHookRewriteStepReal:
     """hook_rewrite_step 真实实现 (Phase 3)"""
 
-    def test_hook_rewrite_no_draft(
-        self, ctx_with_assets: NarrationContext
-    ) -> None:
+    def test_hook_rewrite_no_draft(self, ctx_with_assets: NarrationContext) -> None:
         """空 draft → fail"""
         from scenefab.pipeline.evaluation_steps import hook_rewrite_step
 
@@ -487,9 +519,7 @@ class TestHookRewriteStepReal:
 
         ctx_with_assets.current_draft = "这是一个普通的故事, 讲一个女主。" * 10
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API key")
             result = hook_rewrite_step(ctx_with_assets)
 
@@ -507,9 +537,7 @@ class TestHookRewriteStepReal:
         original = "原 Hook 第一句。原 Hook 第二句。后面是主体内容。" * 10
         ctx_with_assets.current_draft = original
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API key")
             result = hook_rewrite_step(ctx_with_assets)
 

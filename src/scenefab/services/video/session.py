@@ -138,8 +138,8 @@ class FFmpegSession(metaclass=SingletonMeta):
                 return self._extract_frames_decord(
                     video_path, timestamps, progress_callback
                 )
-        except ImportError:
-            pass
+        except ImportError as exc:
+            logger.debug("decord detection skipped: %s", exc)
 
         # 回退到 OpenCV
         return self._extract_frames_opencv(video_path, timestamps, progress_callback)

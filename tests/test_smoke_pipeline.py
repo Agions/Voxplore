@@ -94,15 +94,23 @@ def sample_subtitle_result() -> SubtitleExtractionResult:
         language="zh",
         method="ocr",
         segments=[
-            SubtitleSegment(start=0.0, end=2.0, text="你好世界", confidence=0.9, source="ocr"),
-            SubtitleSegment(start=2.0, end=4.0, text="这是一个测试", confidence=0.85, source="ocr"),
-            SubtitleSegment(start=4.0, end=6.0, text="字幕翻译", confidence=0.8, source="ocr"),
+            SubtitleSegment(
+                start=0.0, end=2.0, text="你好世界", confidence=0.9, source="ocr"
+            ),
+            SubtitleSegment(
+                start=2.0, end=4.0, text="这是一个测试", confidence=0.85, source="ocr"
+            ),
+            SubtitleSegment(
+                start=4.0, end=6.0, text="字幕翻译", confidence=0.8, source="ocr"
+            ),
         ],
         full_text="你好世界 这是一个测试 字幕翻译",
     )
 
 
-def _make_llm_response(content: str = "mock", model: str = "qwen3.7-max") -> LLMResponse:
+def _make_llm_response(
+    content: str = "mock", model: str = "qwen3.7-max"
+) -> LLMResponse:
     return LLMResponse(
         content=content,
         model=model,
@@ -130,9 +138,7 @@ class _StubLLMManager:
     def __init__(self, response_content: str = "生成的文案内容"):
         self._content = response_content
 
-    async def generate(
-        self, request: LLMRequest, provider=None
-    ) -> LLMResponse:
+    async def generate(self, request: LLMRequest, provider=None) -> LLMResponse:
         return _make_llm_response(content=self._content, model="qwen3.7-max")
 
     async def close_all(self):
@@ -164,14 +170,19 @@ class TestScriptGeneratorSmoke:
         """generate() returns a GeneratedScript with non-empty content."""
         from scenefab.services.ai.script_generator import ScriptGenerator
 
-        stub_manager = _StubLLMManager(response_content="这是一段测试文案，用于验证脚本生成功能。")
+        stub_manager = _StubLLMManager(
+            response_content="这是一段测试文案，用于验证脚本生成功能。"
+        )
 
-        with patch(
-            "scenefab.services.ai.script_generator.script_generator.LLMManager",
-            return_value=stub_manager,
-        ), patch(
-            "scenefab.services.ai.script_generator.script_generator.load_llm_config",
-            return_value=llm_config,
+        with (
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.LLMManager",
+                return_value=stub_manager,
+            ),
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.load_llm_config",
+                return_value=llm_config,
+            ),
         ):
             gen = ScriptGenerator(use_llm_manager=True)
             gen.llm_manager = stub_manager
@@ -191,12 +202,15 @@ class TestScriptGeneratorSmoke:
 
         stub_manager = _StubLLMManager("解说风格的文案内容。")
 
-        with patch(
-            "scenefab.services.ai.script_generator.script_generator.LLMManager",
-            return_value=stub_manager,
-        ), patch(
-            "scenefab.services.ai.script_generator.script_generator.load_llm_config",
-            return_value=llm_config,
+        with (
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.LLMManager",
+                return_value=stub_manager,
+            ),
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.load_llm_config",
+                return_value=llm_config,
+            ),
         ):
             gen = ScriptGenerator(use_llm_manager=True)
             gen.llm_manager = stub_manager
@@ -212,16 +226,21 @@ class TestScriptGeneratorSmoke:
         from scenefab.services.ai.script_generator import ScriptGenerator
 
         failing_manager = MagicMock()
-        failing_manager.generate = AsyncMock(side_effect=ProviderError("所有 Provider 都失败"))
+        failing_manager.generate = AsyncMock(
+            side_effect=ProviderError("所有 Provider 都失败")
+        )
         failing_manager.close_all = AsyncMock()
         failing_manager.get_available_providers = MagicMock(return_value=[])
 
-        with patch(
-            "scenefab.services.ai.script_generator.script_generator.LLMManager",
-            return_value=failing_manager,
-        ), patch(
-            "scenefab.services.ai.script_generator.script_generator.load_llm_config",
-            return_value=llm_config,
+        with (
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.LLMManager",
+                return_value=failing_manager,
+            ),
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.load_llm_config",
+                return_value=llm_config,
+            ),
         ):
             gen = ScriptGenerator(use_llm_manager=True)
             gen.llm_manager = failing_manager
@@ -297,7 +316,9 @@ class TestSubtitleTranslatorSmoke:
         """Translating an empty result returns it unchanged."""
         from scenefab.services.ai.subtitle_translator import SubtitleTranslator
 
-        empty = SubtitleExtractionResult(video_path="/tmp/x.mp4", duration=0.0, segments=[])
+        empty = SubtitleExtractionResult(
+            video_path="/tmp/x.mp4", duration=0.0, segments=[]
+        )
         translator = SubtitleTranslator(api_key="k", provider="openai")
         result = translator.translate(empty, target_lang="en")
         assert result.segments == []
@@ -320,16 +341,22 @@ class TestSubtitleTranslatorSmoke:
             translator = SubtitleTranslator(api_key="test-key", provider="openai")
             result = translator.translate(sample_subtitle_result, target_lang="en")
 
-        for orig, translated in zip(sample_subtitle_result.segments, result.segments, strict=True):
+        for orig, translated in zip(
+            sample_subtitle_result.segments, result.segments, strict=True
+        ):
             assert translated.start == orig.start
             assert translated.end == orig.end
 
-    def test_translate_openai_failure_falls_back_to_original(self, sample_subtitle_result):
+    def test_translate_openai_failure_falls_back_to_original(
+        self, sample_subtitle_result
+    ):
         """When OpenAI translation fails, original text is preserved as fallback."""
         from scenefab.services.ai.subtitle_translator import SubtitleTranslator
 
         mock_client = MagicMock()
-        mock_client.chat.completions.create.side_effect = ConnectionError("network error")
+        mock_client.chat.completions.create.side_effect = ConnectionError(
+            "network error"
+        )
 
         with patch("openai.OpenAI", return_value=mock_client):
             translator = SubtitleTranslator(api_key="test-key", provider="openai")
@@ -348,7 +375,9 @@ class TestSubtitleTranslatorSmoke:
 
         with patch("openai.OpenAI", return_value=mock_client):
             translator = SubtitleTranslator(api_key="test-key", provider="openai")
-            result = await translator.translate_async(sample_subtitle_result, target_lang="en")
+            result = await translator.translate_async(
+                sample_subtitle_result, target_lang="en"
+            )
 
         assert result is not None
         assert len(result.segments) == 3
@@ -479,9 +508,9 @@ class TestDirectVideoExporterSmoke:
         # Resolution appears inside the -vf scale string
         vf_idx = first_call_args.index("-vf")
         vf_value = first_call_args[vf_idx + 1]
-        assert "1280" in vf_value   # HD_720P width
-        assert "720" in vf_value    # HD_720P height
-        assert "28" in first_call_args    # crf
+        assert "1280" in vf_value  # HD_720P width
+        assert "720" in vf_value  # HD_720P height
+        assert "28" in first_call_args  # crf
         assert "fast" in first_call_args  # preset
 
     def test_export_commentary_with_subtitles(self):
@@ -493,18 +522,26 @@ class TestDirectVideoExporterSmoke:
 
         cap = SimpleNamespace(text="Hello", start_time=0.0, end_time=2.0)
         segment = SimpleNamespace(
-            video_start=0.0, video_end=5.0, audio_path=None, captions=[cap],
+            video_start=0.0,
+            video_end=5.0,
+            audio_path=None,
+            captions=[cap],
         )
         project = SimpleNamespace(source_video="/tmp/source.mp4", segments=[segment])
 
         cfg = VideoExportConfig(include_subtitles=True)
 
-        with patch(
-            "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
-            return_value=mock_executor,
-        ), patch(
-            "scenefab.services.export.subtitle_exporter.SubtitleExporter.export_srt",
-        ), patch.object(shutil, "copy"), patch.object(shutil, "copy2"):
+        with (
+            patch(
+                "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+                return_value=mock_executor,
+            ),
+            patch(
+                "scenefab.services.export.subtitle_exporter.SubtitleExporter.export_srt",
+            ),
+            patch.object(shutil, "copy"),
+            patch.object(shutil, "copy2"),
+        ):
             exporter = DirectVideoExporter(config=cfg)
             exporter.export_commentary(project, "/tmp/output_subs.mp4")
 
@@ -517,7 +554,10 @@ class TestDirectVideoExporterSmoke:
         mock_executor.run.side_effect = RuntimeError("ffmpeg failed: exit 1")
 
         segment = SimpleNamespace(
-            video_start=0.0, video_end=5.0, audio_path=None, captions=[],
+            video_start=0.0,
+            video_end=5.0,
+            audio_path=None,
+            captions=[],
         )
         project = SimpleNamespace(source_video="/tmp/source.mp4", segments=[segment])
 
@@ -538,7 +578,10 @@ class TestDirectVideoExporterSmoke:
         mock_executor.run.return_value = mock_result
 
         segment = SimpleNamespace(
-            video_start=0.0, video_end=5.0, audio_path=None, captions=[],
+            video_start=0.0,
+            video_end=5.0,
+            audio_path=None,
+            captions=[],
         )
         project = SimpleNamespace(source_video="/tmp/source.mp4", segments=[segment])
 
@@ -549,7 +592,9 @@ class TestDirectVideoExporterSmoke:
             return_value=mock_executor,
         ):
             exporter = DirectVideoExporter()
-            exporter.set_progress_callback(lambda stage, pct: progress_calls.append((stage, pct)))
+            exporter.set_progress_callback(
+                lambda stage, pct: progress_calls.append((stage, pct))
+            )
             _run_export(exporter, project, "/tmp/output.mp4", mock_executor)
 
         assert len(progress_calls) >= 3
@@ -603,15 +648,20 @@ class TestPipelineSmokeIntegration:
         from scenefab.services.ai.script_generator import ScriptGenerator
 
         scene_description = "城市街头场景，第一人称视角漫步"
-        script_content = "在这段视频中，我们看到一个城市街头的场景。第一人称视角带领观众漫步其中。"
+        script_content = (
+            "在这段视频中，我们看到一个城市街头的场景。第一人称视角带领观众漫步其中。"
+        )
         stub_manager = _StubLLMManager(response_content=script_content)
 
-        with patch(
-            "scenefab.services.ai.script_generator.script_generator.LLMManager",
-            return_value=stub_manager,
-        ), patch(
-            "scenefab.services.ai.script_generator.script_generator.load_llm_config",
-            return_value=llm_config,
+        with (
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.LLMManager",
+                return_value=stub_manager,
+            ),
+            patch(
+                "scenefab.services.ai.script_generator.script_generator.load_llm_config",
+                return_value=llm_config,
+            ),
         ):
             generator = ScriptGenerator(use_llm_manager=True)
             generator.llm_manager = stub_manager
@@ -653,7 +703,10 @@ class TestPipelineSmokeIntegration:
             end_time=translated.segments[0].end,
         )
         segment = SimpleNamespace(
-            video_start=0.0, video_end=6.0, audio_path=None, captions=[cap],
+            video_start=0.0,
+            video_end=6.0,
+            audio_path=None,
+            captions=[cap],
         )
         project = SimpleNamespace(source_video="/tmp/source.mp4", segments=[segment])
 
@@ -662,12 +715,17 @@ class TestPipelineSmokeIntegration:
             include_subtitles=True,
         )
 
-        with patch(
-            "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
-            return_value=mock_executor,
-        ), patch(
-            "scenefab.services.export.subtitle_exporter.SubtitleExporter.export_srt",
-        ), patch.object(shutil, "copy"), patch.object(shutil, "copy2"):
+        with (
+            patch(
+                "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+                return_value=mock_executor,
+            ),
+            patch(
+                "scenefab.services.export.subtitle_exporter.SubtitleExporter.export_srt",
+            ),
+            patch.object(shutil, "copy"),
+            patch.object(shutil, "copy2"),
+        ):
             exporter = DirectVideoExporter(config=export_cfg)
             output_path = exporter.export_commentary(project, "/tmp/final.mp4")
 

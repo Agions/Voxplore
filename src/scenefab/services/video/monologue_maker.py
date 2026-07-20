@@ -36,7 +36,7 @@ from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceConfig, VoiceGenerator
 from ..ai.voice_models import VoiceStyle
 from ..export.jianying_adapter import JianyingDraft
-from ..video_tools.caption_gen import CaptionGenerator
+from ..video_tools.caption_generator import CaptionGenerator
 from ..video_tools.ffmpeg_tool import FFmpegTool
 from .base_maker import BaseProject, BaseVideoMaker
 from .models.monologue import EmotionType, MonologueSegment, MonologueStyle
@@ -86,7 +86,6 @@ class MonologueProject(BaseProject):
         Returns:
             实际保存的文件路径
         """
-        import json
 
         save_path = (
             Path(path) if path else Path(self.output_dir) / f"{self.name}.scenefab"
@@ -122,8 +121,9 @@ class MonologueProject(BaseProject):
             ],
         }
 
-        with open(save_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        from ...utils.json_io import write_json
+
+        write_json(save_path, data, indent=2)
 
         return str(save_path)
 
@@ -138,10 +138,9 @@ class MonologueProject(BaseProject):
         Returns:
             MonologueProject 实例
         """
-        import json
+        from ...utils.json_io import read_json
 
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
+        data = read_json(path)
 
         segments = [
             MonologueSegment(

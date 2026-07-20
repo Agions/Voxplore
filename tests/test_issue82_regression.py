@@ -73,9 +73,7 @@ class TestProjectManagerRecentProjectsIO:
         loaded = json.loads(cache_file.read_text(encoding="utf-8"))
         assert [str(p) for p in loaded if isinstance(p, str)] == sample
 
-    def test_load_missing_recent_projects_returns_empty(
-        self, tmp_path: Path
-    ) -> None:
+    def test_load_missing_recent_projects_returns_empty(self, tmp_path: Path) -> None:
         """A missing cache file must yield [] — same as the old default."""
         cache_file = tmp_path / ".recent_projects.json"
         assert not cache_file.exists()
@@ -163,6 +161,10 @@ class TestApplicationStartSmoke:
         # Feed an empty stdin so the CLI menu (if fallback triggers)
         # doesn't block waiting for user input.
         env["PYTHONUNBUFFERED"] = "1"
+        src_dir = str(Path(__file__).resolve().parents[1] / "src")
+        env["PYTHONPATH"] = os.pathsep.join(
+            [src_dir, env["PYTHONPATH"]] if env.get("PYTHONPATH") else [src_dir]
+        )
 
         proc = subprocess.Popen(
             [sys.executable, "-m", "scenefab"],

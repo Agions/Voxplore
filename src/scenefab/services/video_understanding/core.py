@@ -225,7 +225,9 @@ class LongVideoUnderstanding(APIAdapterMixin, StoryBuilderMixin):
             understanding = self._understand_with_gemini(segment, key_frames)
         elif self.qwen_client:
             understanding = self._understand_with_qwen(
-                segment, key_frames, config["model"]  # type: ignore[arg-type]
+                segment,
+                key_frames,
+                config["model"],  # type: ignore[arg-type]
             )
         else:
             understanding = self._understand_locally(segment, key_frames)

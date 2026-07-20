@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test Caption Generator"""
 
-from scenefab.services.video_tools.caption_gen import (
+from scenefab.services.video_tools.caption_generator import (
     Caption,
     CaptionConfig,
     CaptionGenerator,

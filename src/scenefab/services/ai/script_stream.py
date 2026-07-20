@@ -220,8 +220,8 @@ class StreamingScriptGenerator(ScriptGenerator):
             文本块字符串
         """
         try:
-            if hasattr(self.llm_manager, "generate_streaming"):
-                async for chunk in self.llm_manager.generate_streaming(  # type: ignore[union-attr]
+            if hasattr(self.llm_manager, "stream_generate"):
+                async for chunk in self.llm_manager.stream_generate(  # type: ignore[union-attr]
                     request, provider=provider_type
                 ):
                     yield chunk
@@ -383,8 +383,8 @@ class StreamingScriptGenerator(ScriptGenerator):
         try:
             if self.use_llm_manager and self.llm_manager:
                 request, provider_type = self._build_llm_request(topic, config)
-                if hasattr(self.llm_manager, "generate_streaming"):
-                    async for chunk in self.llm_manager.generate_streaming(
+                if hasattr(self.llm_manager, "stream_generate"):
+                    async for chunk in self.llm_manager.stream_generate(
                         request, provider=provider_type
                     ):
                         if chunk:

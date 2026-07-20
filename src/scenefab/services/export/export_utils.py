@@ -8,7 +8,6 @@
 - DaVinciExporter: DaVinci Resolve 导出
 """
 
-import json
 import logging
 import uuid
 from abc import ABC, abstractmethod
@@ -51,6 +50,27 @@ def safe_filename(name: str) -> str:
     for char in invalid_chars:
         name = name.replace(char, "_")
     return name.strip()
+
+
+def ensure_directory(path: str | Path) -> Path:
+    """确保目录存在并返回 Path。"""
+    directory = Path(path)
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
+def ensure_parent_directory(path: str | Path) -> Path:
+    """确保文件路径的父目录存在并返回文件 Path。"""
+    file_path = Path(path)
+    ensure_directory(file_path.parent)
+    return file_path
+
+
+def write_json_file(path: str | Path, data: dict, indent: int = 2) -> None:
+    """写入 UTF-8 JSON 文件。"""
+    from ...utils.json_io import write_json
+
+    write_json(path, data, indent=indent)
 
 
 # ========== 基础数据模型 ==========
@@ -139,9 +159,7 @@ class BaseExporter(ABC, Generic[T, C]):
 
     def _ensure_output_dir(self, output_dir: str) -> Path:
         """确保输出目录存在"""
-        path = Path(output_dir)
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        return ensure_directory(output_dir)
 
     def _get_output_path(self, output_dir: str, name: str, extension: str) -> Path:
         """获取输出文件路径"""
@@ -151,8 +169,7 @@ class BaseExporter(ABC, Generic[T, C]):
 
     def _write_json(self, path: Path, data: dict, indent: int = 2) -> None:
         """写入 JSON 文件"""
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=indent)
+        write_json_file(path, data, indent=indent)
 
 
 # ========== 便捷工具函数 ==========
@@ -191,6 +208,9 @@ __all__ = [
     "microseconds_to_seconds",
     "seconds_to_ticks",
     "safe_filename",
+    "ensure_directory",
+    "ensure_parent_directory",
+    "write_json_file",
     "get_video_duration",
     "get_video_resolution",
     "copy_material_to_folder",

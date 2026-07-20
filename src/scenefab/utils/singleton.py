@@ -55,5 +55,3 @@ class SingletonMeta(type):
                     if callable(init):
                         init()
         return cls._instances[cls]
-
-

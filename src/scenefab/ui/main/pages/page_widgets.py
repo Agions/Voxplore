@@ -35,19 +35,21 @@ def scroll_area() -> QScrollArea:
 def page_container() -> QWidget:
     container = QWidget()
     layout = QVBoxLayout(container)
-    layout.setContentsMargins(32, 28, 32, 28)
-    layout.setSpacing(18)
+    layout.setContentsMargins(34, 30, 34, 30)
+    layout.setSpacing(20)
     return container
 
 
-def panel(name: str) -> QFrame:
+def panel(name: str, elevated: bool = False) -> QFrame:
     frame = QFrame()
     frame.setObjectName(name)
+    bg = _C.BG_SURFACE if not elevated else _C.BG_ELEVATED
+    border = _C.BORDER_SUBTLE if not elevated else _C.BORDER_DEFAULT
     frame.setStyleSheet(f"""
         QFrame#{name} {{
-            background: {_C.BG_SURFACE};
-            border: 1px solid {_C.BORDER_SUBTLE};
-            border-radius: {Radii.lg};
+            background: {bg};
+            border: 1px solid {border};
+            border-radius: {Radii.base};
         }}
     """)
     return frame
@@ -56,19 +58,19 @@ def panel(name: str) -> QFrame:
 def header_panel(name: str, title: str, subtitle: str, *actions: QWidget) -> QFrame:
     frame = panel(name)
     layout = QHBoxLayout(frame)
-    layout.setContentsMargins(22, 18, 22, 18)
-    layout.setSpacing(18)
+    layout.setContentsMargins(24, 20, 24, 20)
+    layout.setSpacing(20)
 
     text = QVBoxLayout()
     text.setSpacing(5)
     title_label = QLabel(title)
     title_label.setFont(QFont("", FontSizes.xxl, QFont.Weight.Bold))
-    title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
+    title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY}; letter-spacing: 0px;")
     text.addWidget(title_label)
 
     subtitle_label = QLabel(subtitle)
     subtitle_label.setFont(QFont("", FontSizes.sm))
-    subtitle_label.setStyleSheet(f"color: {_C.TEXT_MUTED};")
+    subtitle_label.setStyleSheet(f"color: {_C.TEXT_MUTED}; line-height: 18px;")
     text.addWidget(subtitle_label)
     layout.addLayout(text, 1)
 
@@ -80,7 +82,7 @@ def header_panel(name: str, title: str, subtitle: str, *actions: QWidget) -> QFr
 def section_title(text: str) -> QLabel:
     label = QLabel(text)
     label.setFont(QFont("", FontSizes.md, QFont.Weight.DemiBold))
-    label.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
+    label.setStyleSheet(f"color: {_C.TEXT_PRIMARY}; letter-spacing: 0px;")
     return label
 
 
@@ -98,19 +100,24 @@ def action_button_style(primary: bool = False, padding: int = 14) -> str:
     border = _C.PRIMARY if primary else _C.BORDER_DEFAULT
     hover = _C.PRIMARY_DARK if primary else _C.BG_ELEVATED
     hover_color = "#ffffff" if primary else _C.TEXT_PRIMARY
+    pressed = _C.PRIMARY_DARKER if primary else _C.BG_OVERLAY
     return f"""
         QPushButton {{
             background: {bg};
             color: {color};
             border: 1px solid {border};
-            border-radius: {Radii.sm};
+            border-radius: {Radii.base};
             padding: 0 {padding}px;
             font-size: {FontSizes.xs}px;
-            font-weight: {FontWeights.Medium};
+            font-weight: {FontWeights.SemiBold};
         }}
         QPushButton:hover {{
             background: {hover};
             color: {hover_color};
+            border-color: {_C.PRIMARY if not primary else _C.PRIMARY_DARK};
+        }}
+        QPushButton:pressed {{
+            background: {pressed};
         }}
     """
 
@@ -129,7 +136,7 @@ def key_value_row(label: str, value: str) -> QFrame:
 
     val = QLabel(value)
     val.setFont(QFont("", FontSizes.xs, QFont.Weight.Medium))
-    val.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
+    val.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
     layout.addWidget(val)
     return row
 
@@ -142,7 +149,7 @@ def empty_state(text: str, min_height: int, padding: int = 0) -> QLabel:
     label.setStyleSheet(f"""
         QLabel {{
             color: {_C.TEXT_DISABLED};
-            background: {_C.BG_BASE};
+            background: {_C.BG_ELEVATED};
             border: 1px dashed {_C.BORDER_DEFAULT};
             border-radius: {Radii.base};
             padding: {padding}px;

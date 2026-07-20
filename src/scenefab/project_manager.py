@@ -5,7 +5,6 @@ SceneFab 项目管理器
 提供完整的项目生命周期管理功能
 """
 
-import json
 import logging
 import os
 import shutil
@@ -18,6 +17,7 @@ from typing import Any
 from scenefab.signals_bridge import QObject, Signal
 from scenefab.utils.project_io import (
     PROJECT_SUBDIRS,
+    ensure_directories,
     export_to_zip,
     handle_error,
     import_from_zip,
@@ -33,6 +33,7 @@ from .models.project_models import (
 )
 from .secure_key_manager import get_secure_key_manager
 from .settings import ConfigManager
+from .utils.json_io import read_json, write_json
 
 _handle_project_error = handle_error
 
@@ -49,7 +50,6 @@ class Project:
         self.timeline = ProjectTimeline()
         self.is_modified = False
         self.is_loaded = False
-        self._auto_save_timer = None
 
     def add_media_file(self, media_file: ProjectMedia) -> None:
         """添加媒体文件"""
@@ -95,8 +95,7 @@ class Project:
                 "version": "2.0.0",
             }
             project_file = os.path.join(self.path, "project.json")
-            with open(project_file, "w", encoding="utf-8") as f:
-                json.dump(project_data, f, indent=2, ensure_ascii=False)
+            write_json(project_file, project_data)
             lock_file = os.path.join(self.path, ".lock")
             with open(lock_file, "w") as f:
                 f.write(str(os.getpid()))
@@ -114,8 +113,7 @@ class Project:
             project_file = os.path.join(self.path, "project.json")
             if not os.path.exists(project_file):
                 return False
-            with open(project_file, encoding="utf-8") as f:
-                project_data = json.load(f)
+            project_data = read_json(project_file)
             self.metadata = ProjectMetadata.from_dict(project_data["metadata"])
             self.settings = ProjectSettings(**project_data.get("settings", {}))
             self.media_files.clear()
@@ -137,7 +135,7 @@ class Project:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_name = f"backup_{timestamp}"
             backup_path = os.path.join(self.path, "backups", backup_name)
-            os.makedirs(backup_path, exist_ok=True)
+            ensure_directories(backup_path)
             shutil.copy2(
                 os.path.join(self.path, "project.json"),
                 os.path.join(backup_path, "project.json"),
@@ -148,8 +146,7 @@ class Project:
                 "project_version": self.metadata.version,
                 "description": f"自动备份 - {timestamp}",
             }
-            with open(os.path.join(backup_path, "backup_info.json"), "w") as f:
-                json.dump(backup_info, f, indent=2)
+            write_json(os.path.join(backup_path, "backup_info.json"), backup_info)
             return backup_path
         except (OSError, TypeError, ValueError) as e:
             # 目录创建失败/文件写入失败 / backup_info 字段类型错
@@ -169,9 +166,8 @@ class Project:
                 if os.path.isdir(backup_path):
                     backup_info_file = os.path.join(backup_path, "backup_info.json")
                     if os.path.exists(backup_info_file):
-                        with open(backup_info_file) as f:
-                            backup_info = json.load(f)
-                            backups.append((backup_path, backup_info["timestamp"]))
+                        backup_info = read_json(backup_info_file)
+                        backups.append((backup_path, backup_info["timestamp"]))
             backups.sort(key=lambda x: x[1], reverse=True)
             for backup_path, _ in backups[keep_count:]:
                 shutil.rmtree(backup_path)
@@ -211,8 +207,7 @@ class ProjectManager(QObject):
         self._setup_auto_save()
 
     def _ensure_directories(self) -> None:
-        for directory in [self.projects_dir, self.templates_dir, self.temp_dir]:
-            os.makedirs(directory, exist_ok=True)
+        ensure_directories(self.projects_dir, self.templates_dir, self.temp_dir)
 
     def _load_recent_projects(self) -> list[str]:
         # NOTE: recent_projects 持久化改用本地文件 + 在 _save_recent_projects 中处理.
@@ -223,9 +218,7 @@ class ProjectManager(QObject):
         if not cache_file.exists():
             return []
         try:
-            import json
-
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
+            data = read_json(cache_file)
             return [str(p) for p in data if isinstance(p, str)]
         except (OSError, ValueError) as e:
             self.logger.warning(f"无法加载最近项目列表: {e}")
@@ -234,12 +227,7 @@ class ProjectManager(QObject):
     def _save_recent_projects(self) -> None:
         cache_file = Path(self.projects_dir) / ".recent_projects.json"
         try:
-            import json
-
-            cache_file.write_text(
-                json.dumps(self.recent_projects[:10], ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+            write_json(cache_file, self.recent_projects[:10])
         except OSError as e:
             self.logger.warning(f"无法保存最近项目列表: {e}")
         self.recent_projects_updated.emit(self.recent_projects[:10])
@@ -285,9 +273,10 @@ class ProjectManager(QObject):
     ) -> str | None:
         project_id = str(uuid.uuid4())
         project_path = os.path.join(self.projects_dir, f"{name}_{project_id[:8]}")
-        os.makedirs(project_path, exist_ok=True)
-        for subdir in PROJECT_SUBDIRS:
-            os.makedirs(os.path.join(project_path, subdir), exist_ok=True)
+        ensure_directories(project_path)
+        ensure_directories(
+            *(os.path.join(project_path, subdir) for subdir in PROJECT_SUBDIRS)
+        )
         metadata = ProjectMetadata(
             name=name,
             description=description,
@@ -322,8 +311,7 @@ class ProjectManager(QObject):
             if self._is_process_running(pid):
                 self.error_occurred.emit("OPEN_ERROR", "项目已被其他进程打开")
                 return None
-        with open(project_file, encoding="utf-8") as f:
-            project_data = json.load(f)
+        project_data = read_json(project_file)
         metadata = ProjectMetadata.from_dict(project_data["metadata"])
         project = Project(metadata.name, project_path, metadata)
         if project.load():
@@ -418,7 +406,9 @@ class ProjectManager(QObject):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         temp_dir = Path(self.temp_dir) / f"import_{timestamp}"
         project_name = f"imported_{timestamp}"
-        project_path = Path(self.projects_dir) / f"{project_name}_{uuid.uuid4().hex[:8]}"
+        project_path = (
+            Path(self.projects_dir) / f"{project_name}_{uuid.uuid4().hex[:8]}"
+        )
 
         result = import_from_zip(import_path, temp_dir, project_path, "project.json")
         if result is None:
@@ -427,12 +417,10 @@ class ProjectManager(QObject):
 
         # 更新项目名称
         project_file = result / "project.json"
-        with open(project_file, encoding="utf-8") as f:
-            project_data = json.load(f)
+        project_data = read_json(project_file)
         project_data["metadata"]["name"] = project_name
         project_data["metadata"]["modified_at"] = datetime.now().isoformat()
-        with open(project_file, "w", encoding="utf-8") as f:
-            json.dump(project_data, f, indent=2, ensure_ascii=False)
+        write_json(project_file, project_data)
 
         project_id = self.open_project(str(result))
         if project_id:
@@ -446,22 +434,20 @@ class ProjectManager(QObject):
             return False
         project = self.projects[project_id]
         template_path = os.path.join(self.templates_dir, template_name)
-        os.makedirs(template_path, exist_ok=True)
+        ensure_directories(template_path)
         shutil.copy2(
             os.path.join(project.path, "project.json"),
             os.path.join(template_path, "project.json"),
         )
         template_file = os.path.join(template_path, "project.json")
-        with open(template_file, encoding="utf-8") as f:
-            template_data = json.load(f)
+        template_data = read_json(template_file)
         template_data["metadata"]["name"] = template_name
         template_data["metadata"]["status"] = "template"
         template_data["metadata"]["description"] = (
             f"模板创建自项目: {project.metadata.name}"
         )
         template_data["metadata"]["modified_at"] = datetime.now().isoformat()
-        with open(template_file, "w", encoding="utf-8") as f:
-            json.dump(template_data, f, indent=2, ensure_ascii=False)
+        write_json(template_file, template_data)
         self._load_templates()
         self.logger.info(f"Created template: {template_name} from project {project_id}")
         return True
@@ -490,8 +476,7 @@ class ProjectManager(QObject):
                     project_file = os.path.join(project_path, "project.json")
                     if os.path.exists(project_file):
                         try:
-                            with open(project_file, encoding="utf-8") as f:
-                                project_data = json.load(f)
+                            project_data = read_json(project_file)
                             metadata = ProjectMetadata.from_dict(
                                 project_data["metadata"]
                             )
@@ -516,8 +501,7 @@ class ProjectManager(QObject):
                     template_file = os.path.join(template_path, "project.json")
                     if os.path.exists(template_file):
                         try:
-                            with open(template_file, encoding="utf-8") as f:
-                                template_data = json.load(f)
+                            template_data = read_json(template_file)
                             metadata = ProjectMetadata.from_dict(
                                 template_data["metadata"]
                             )

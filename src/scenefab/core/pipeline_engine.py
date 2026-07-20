@@ -510,9 +510,7 @@ class PipelineEngine:
         """构造传给 step 的不可变输入视图（提交时刻快照）。"""
         with self._lock:
             steps_snapshot = MappingProxyType(dict(self._completed_outputs))
-        step_ctx = {
-            k: v for k, v in context.items() if k != "steps"
-        }
+        step_ctx = {k: v for k, v in context.items() if k != "steps"}
         step_ctx["steps"] = steps_snapshot
         return step_ctx
 
@@ -605,9 +603,7 @@ class PipelineEngine:
                 kwargs["error"] = error
             self._event_bus.publish_event(PipelineStepCompleted(**kwargs))
         except Exception:
-            logger.debug(
-                "PipelineStepCompleted event publish failed", exc_info=True
-            )
+            logger.debug("PipelineStepCompleted event publish failed", exc_info=True)
 
     def _mark_skipped(self) -> None:
         """将所有 PENDING 步骤标记为 SKIPPED（保留 always_run 步骤以便执行）"""

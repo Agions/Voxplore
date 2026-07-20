@@ -267,6 +267,28 @@ class HTTPClientMixin:
         except (json.JSONDecodeError, ValueError) as e:
             raise ProviderError(f"API 调用失败 (响应解析): {e}") from e
 
+    async def _call_api_with_retry(
+        self, method: str, endpoint: str, **kwargs
+    ) -> dict[str, Any]:
+        """带重试的通用 API 调用。"""
+
+        async def _call() -> dict[str, Any]:
+            return await self._call_api(method, endpoint, **kwargs)
+
+        return await self._retry_handler.execute(_call)
+
+    def _provider_error(self, action: str, error: Exception) -> ProviderError:
+        """统一 provider 业务错误文案。"""
+        if isinstance(error, httpx.HTTPStatusError):
+            return self._handle_http_error(error)
+        if isinstance(error, ProviderError):
+            return error
+        return ProviderError(f"{action}失败: {str(error)}")
+
+    def _stream_provider_error(self, error: Exception) -> ProviderError:
+        """统一流式生成错误文案。"""
+        return self._provider_error("流式生成", error)
+
     async def _generate_openai_compatible(
         self,
         request: "LLMRequest",
@@ -279,18 +301,23 @@ class HTTPClientMixin:
 
         差异仅在 endpoint 路径，已在调用处传入。
         """
-        data = await self._call_api(
-            "POST",
-            f"{self.base_url}{endpoint}",
-            json={
-                "model": model,
-                "messages": messages,
-                "max_tokens": request.max_tokens,
-                "temperature": request.temperature,
-                "top_p": request.top_p,
-            },
-        )
-        return self._parse_response(data, model)
+        start_time = time.monotonic()
+        try:
+            data = await self._call_api_with_retry(
+                "POST",
+                f"{self.base_url}{endpoint}",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "max_tokens": request.max_tokens,
+                    "temperature": request.temperature,
+                    "top_p": request.top_p,
+                },
+            )
+            latency_ms = (time.monotonic() - start_time) * 1000
+            return self._parse_response(data, model, latency_ms)
+        except Exception as e:
+            raise self._provider_error("生成", e)
 
     async def _parse_sse_stream(
         self,
@@ -306,19 +333,34 @@ class HTTPClientMixin:
             delta_key: delta 字段的键名（OpenAI 用 "delta"，混元用 "Delta"）
             content_key: content 字段的键名（OpenAI 用 "content"，混元用 "Content"）
         """
+        async for data in self._iter_json_stream_payloads(response, sse=True):
+            choices = data.get("choices", [])
+            if choices:
+                delta = choices[0].get(delta_key, {})
+                if content_key in delta:
+                    yield delta[content_key]
+
+    async def _iter_json_stream_payloads(
+        self,
+        response,
+        *,
+        sse: bool,
+    ) -> AsyncIterator[dict[str, Any]]:
+        """从流式响应中解析 JSON payload，兼容 SSE 和裸 JSON 行。"""
         async for line in response.aiter_lines():
-            if line.startswith("data: "):
-                if line.strip() == "data: [DONE]":
+            line = line.strip()
+            if not line or line.startswith(":"):
+                continue
+            if sse:
+                if not line.startswith("data: "):
+                    continue
+                line = line[6:]
+                if line == "[DONE]":
                     break
-                try:
-                    data = json.loads(line[6:])
-                except json.JSONDecodeError:
-                    continue  # Skip malformed JSON lines
-                choices_key = "choices"
-                if choices_key in data and len(data[choices_key]) > 0:
-                    delta = data[choices_key][0].get(delta_key, {})
-                    if content_key in delta:
-                        yield delta[content_key]
+            try:
+                yield json.loads(line)
+            except json.JSONDecodeError:
+                continue
 
 
 class ModelManagerMixin:

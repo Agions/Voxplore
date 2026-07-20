@@ -174,9 +174,6 @@ class EmotionCurveGenerator:
     # 默认强度（未知情感）
     DEFAULT_INTENSITY: float = 0.3
 
-    def __init__(self):
-        pass
-
     def get_segment_emotions(
         self,
         segments: list[MonologueSegment],
@@ -189,8 +186,8 @@ class EmotionCurveGenerator:
             与输入片段一一对应的强度值列表
         """
         return [
-            self.EMOTION_INTENSITY_MAP.get(seg.emotion, self.DEFAULT_INTENSITY)
-            for seg in segments
+            self.EMOTION_INTENSITY_MAP.get(segment.emotion, self.DEFAULT_INTENSITY)
+            for segment in segments
         ]
 
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """测试 LLM 提供商基类和混入"""
 
+import httpx
+import pytest
+
 from scenefab.services.ai.base_llm_provider import (
     HTTPClientMixin,
     LLMRequest,
@@ -9,6 +12,11 @@ from scenefab.services.ai.base_llm_provider import (
     ProviderError,
     ProviderType,
 )
+
+
+@pytest.fixture(params=["asyncio"])
+def anyio_backend(request):
+    return request.param
 
 
 class TestLLMDataClasses:
@@ -95,6 +103,28 @@ class MockHTTPClient:
     pass
 
 
+class MockStreamResponse:
+    """模拟流式响应"""
+
+    def __init__(self, lines):
+        self._lines = lines
+
+    async def aiter_lines(self):
+        for line in self._lines:
+            yield line
+
+
+class MockRetryHandler:
+    """记录调用次数的重试处理器"""
+
+    def __init__(self):
+        self.calls = 0
+
+    async def execute(self, func, *args, **kwargs):
+        self.calls += 1
+        return await func(*args, **kwargs)
+
+
 class TestProviderWithMixins:
     """测试带有混入的提供商"""
 
@@ -139,3 +169,135 @@ class TestProviderWithMixins:
         result = provider.get_model_info("nonexistent")
 
         assert result == {}
+
+    @pytest.mark.anyio
+    async def test_parse_sse_stream(self):
+        """测试 OpenAI SSE 流解析"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        response = MockStreamResponse(
+            [
+                ": keepalive",
+                "data: {bad json}",
+                'data: {"choices":[{"delta":{"content":"你"}}]}',
+                'data: {"choices":[{"delta":{"content":"好"}}]}',
+                "data: [DONE]",
+                'data: {"choices":[{"delta":{"content":"忽略"}}]}',
+            ]
+        )
+
+        chunks = [chunk async for chunk in provider._parse_sse_stream(response)]
+
+        assert chunks == ["你", "好"]
+
+    @pytest.mark.anyio
+    async def test_iter_json_stream_payloads_plain_json(self):
+        """测试裸 JSON 行流解析"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        response = MockStreamResponse(
+            [
+                "",
+                "{bad json}",
+                '{"Choices":[{"Delta":{"Content":"混"}}]}',
+                '{"Choices":[{"Delta":{"Content":"元"}}]}',
+            ]
+        )
+
+        payloads = [
+            payload
+            async for payload in provider._iter_json_stream_payloads(
+                response,
+                sse=False,
+            )
+        ]
+
+        assert [p["Choices"][0]["Delta"]["Content"] for p in payloads] == ["混", "元"]
+
+    @pytest.mark.anyio
+    async def test_generate_openai_compatible_uses_retry_and_latency(self):
+        """测试 OpenAI 兼容生成统一使用重试并记录延迟"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        retry_handler = MockRetryHandler()
+        provider._retry_handler = retry_handler
+
+        async def fake_call_api(method, endpoint, **kwargs):
+            assert method == "POST"
+            assert endpoint == "https://api.example.com/chat/completions"
+            assert kwargs["json"]["model"] == "test-model"
+            return {
+                "choices": [
+                    {
+                        "message": {"content": "ok"},
+                        "finish_reason": "stop",
+                    }
+                ],
+                "usage": {"total_tokens": 7},
+            }
+
+        provider._call_api = fake_call_api
+
+        response = await provider._generate_openai_compatible(
+            request=LLMRequest(prompt="hello"),
+            model="test-model",
+            messages=[{"role": "user", "content": "hello"}],
+        )
+
+        assert response.content == "ok"
+        assert response.tokens_used == 7
+        assert response.latency_ms >= 0
+        assert retry_handler.calls == 1
+
+    def test_provider_error_preserves_existing_provider_error(self):
+        """测试统一错误包装不会重复包裹 ProviderError"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        error = ProviderError("认证失败")
+
+        assert provider._provider_error("生成", error) is error
+
+    def test_stream_provider_error_wraps_regular_exception(self):
+        """测试流式错误包装普通异常"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        error = provider._stream_provider_error(RuntimeError("boom"))
+
+        assert isinstance(error, ProviderError)
+        assert "流式生成失败: boom" in str(error)
+
+    def test_provider_error_handles_http_status_error(self):
+        """测试统一错误包装 HTTP 状态异常"""
+
+        class TestProvider(HTTPClientMixin):
+            pass
+
+        provider = TestProvider(api_key="key", base_url="https://api.example.com")
+        request = httpx.Request("POST", "https://api.example.com")
+        response = httpx.Response(
+            401,
+            request=request,
+            json={"error": {"message": "bad key"}},
+        )
+        error = httpx.HTTPStatusError("bad", request=request, response=response)
+
+        wrapped = provider._stream_provider_error(error)
+
+        assert isinstance(wrapped, ProviderError)
+        assert "认证失败" in str(wrapped)
+        assert "bad key" in str(wrapped)

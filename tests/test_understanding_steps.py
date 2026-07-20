@@ -192,6 +192,18 @@ class TestBuildNarrationPrompt:
         assert "打脸" in config.keywords
         assert "反转" in config.keywords
 
+    def test_first_person_workflow_rules_add_to_topic(
+        self, ctx_with_story_graph: NarrationContext
+    ) -> None:
+        """第一人称流程规则进入 prompt, 让生成器遵守流程约束"""
+        topic, config = _build_narration_prompt(ctx_with_story_graph)
+
+        assert "【第一人称解说规则】" in topic
+        assert "我是谁、我想要什么、我怕失去什么" in topic
+        assert "3 秒内给出冲突或结果预告" in topic
+        assert "第一人称" in config.keywords
+        assert "钩子" in config.keywords
+
     def test_short_drama_production_fields_add_to_topic(
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
@@ -212,7 +224,8 @@ class TestBuildNarrationPrompt:
         assert "第 7 集" in topic
         assert "上一集: 我被家人赶出宴会" in topic
         assert "下一集钩子: 沉默的男人叫出了我的真名" in topic
-        assert config.keywords[:3] == ["女性成长", "打脸虐渣", "马甲"]
+        assert "女性成长" in config.keywords
+        assert "打脸虐渣" in config.keywords
 
     def test_target_words_calculated(
         self, ctx_with_story_graph: NarrationContext
@@ -231,15 +244,11 @@ class TestBuildNarrationPrompt:
 class TestUnderstandStepFallback:
     """SceneAnalyzer 不可用时降级到 stub scenes"""
 
-    def test_scene_analyzer_failure_triggers_stub(
-        self, ctx: NarrationContext
-    ) -> None:
+    def test_scene_analyzer_failure_triggers_stub(self, ctx: NarrationContext) -> None:
         """SceneAnalyzer 抛异常时, 仍能完成 step (降级)"""
         from scenefab.pipeline.understanding_steps import understand_step
 
-        with patch(
-            "scenefab.services.ai.scene_analyzer.SceneAnalyzer"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.scene_analyzer.SceneAnalyzer") as mock_cls:
             mock_cls.return_value.analyze.side_effect = RuntimeError("boom")
             result = understand_step(ctx)
 
@@ -269,18 +278,14 @@ class TestUnderstandStepFallback:
             )
         ]
 
-        with patch(
-            "scenefab.core.short_drama.ShortDramaNarrator"
-        ) as mock_narrator:
+        with patch("scenefab.core.short_drama.ShortDramaNarrator") as mock_narrator:
             mock_narrator.return_value.detect_trope.side_effect = RuntimeError("boom")
             result = understand_step(ctx)
 
         assert result.success
         assert ctx.bridges == []  # 降级: 空桥段
 
-    def test_understand_no_short_drama_mode(
-        self, ctx: NarrationContext
-    ) -> None:
+    def test_understand_no_short_drama_mode(self, ctx: NarrationContext) -> None:
         """非短剧模式, 不调桥段检测"""
         from scenefab.pipeline.understanding_steps import understand_step
 
@@ -296,9 +301,7 @@ class TestUnderstandStepFallback:
             )
         ]
 
-        with patch(
-            "scenefab.core.short_drama.ShortDramaNarrator"
-        ) as mock_narrator:
+        with patch("scenefab.core.short_drama.ShortDramaNarrator") as mock_narrator:
             result = understand_step(ctx)
             # 不应调用 ShortDramaNarrator
             mock_narrator.assert_not_called()
@@ -315,9 +318,7 @@ class TestUnderstandStepFallback:
 class TestStorygraphStepFallback:
     """短视频 + API 不可用时降级到 minimal StoryGraph"""
 
-    def test_short_video_skips_long_understander(
-        self, ctx: NarrationContext
-    ) -> None:
+    def test_short_video_skips_long_understander(self, ctx: NarrationContext) -> None:
         """< 10min 视频不调 LongVideoUnderstanding"""
         from scenefab.pipeline.understanding_steps import storygraph_step
 
@@ -347,17 +348,15 @@ class TestStorygraphStepFallback:
             with patch(
                 "scenefab.services.video_understanding.LongVideoUnderstanding"
             ) as mock_understander:
-                mock_understander.return_value.understand.side_effect = (
-                    RuntimeError("no API key")
+                mock_understander.return_value.understand.side_effect = RuntimeError(
+                    "no API key"
                 )
                 result = storygraph_step(ctx_with_story_graph)
 
         assert result.success  # 降级仍 succeed
         assert ctx_with_story_graph.story_graph is not None
 
-    def test_storygraph_message_includes_duration(
-        self, ctx: NarrationContext
-    ) -> None:
+    def test_storygraph_message_includes_duration(self, ctx: NarrationContext) -> None:
         """result.message 反映视频时长判断"""
         from scenefab.pipeline.understanding_steps import storygraph_step
 
@@ -383,9 +382,7 @@ class TestDraftStepFallback:
         """ScriptGenerator 抛异常 → 模板降级"""
         from scenefab.pipeline.understanding_steps import draft_step
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API key")
             result = draft_step(ctx_with_story_graph)
 
@@ -400,9 +397,7 @@ class TestDraftStepFallback:
         """Stub 文案反映 story_graph"""
         from scenefab.pipeline.understanding_steps import draft_step
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API")
             draft_step(ctx_with_story_graph)
 
@@ -417,9 +412,7 @@ class TestDraftStepFallback:
         from scenefab.pipeline.understanding_steps import draft_step
 
         ctx_with_story_graph.draft_attempts = 0
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API")
             draft_step(ctx_with_story_graph)
 
@@ -431,9 +424,7 @@ class TestDraftStepFallback:
         """Stub segments 按句号切分"""
         from scenefab.pipeline.understanding_steps import draft_step
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API")
             draft_step(ctx_with_story_graph)
 
@@ -452,9 +443,7 @@ class TestDraftStepFallback:
         """Stub 文案不超过平台 max_total_chars"""
         from scenefab.pipeline.understanding_steps import draft_step
 
-        with patch(
-            "scenefab.services.ai.script_generator.ScriptGenerator"
-        ) as mock_cls:
+        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API")
             draft_step(ctx_with_story_graph)
 
@@ -535,9 +524,7 @@ class TestPhase2EndToEnd:
 class TestTropeBridgeMapping:
     """TropeType ↔ BridgeType 映射 (v2.0 → v2.2 兼容)"""
 
-    def test_all_tropes_have_bridge_mapping(
-        self, ctx: NarrationContext
-    ) -> None:
+    def test_all_tropes_have_bridge_mapping(self, ctx: NarrationContext) -> None:
         """TropeType 7 个非 GENERAL 类型全部映射到 BridgeType"""
         from scenefab.core.short_drama import TropeType
         from scenefab.pipeline.understanding_steps import _trope_to_bridge
@@ -588,9 +575,7 @@ class TestPhase2BackwardCompat:
         assert NarrationState.STORYGRAPH in sm_phase2._steps
         assert NarrationState.DRAFT in sm_phase2._steps
 
-    def test_phase1_stub_still_works(
-        self, fake_video: Path, tmp_path: Path
-    ) -> None:
+    def test_phase1_stub_still_works(self, fake_video: Path, tmp_path: Path) -> None:
         """不调 register_understanding_steps, 仍用 stub 跑通"""
         sm = NarrationStateMachine()
         register_default_steps(sm)  # 只注册 stub

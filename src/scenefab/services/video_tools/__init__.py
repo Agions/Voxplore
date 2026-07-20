@@ -16,7 +16,7 @@ from .base import (
     ProcessingResult,
     VideoMetadata,
 )
-from .caption_gen import Caption, CaptionConfig, CaptionGenerator, CaptionStyle
+from .caption_generator import Caption, CaptionConfig, CaptionGenerator, CaptionStyle
 from .ffmpeg_tool import FFmpegTool, HWAccelType
 
 __all__ = [

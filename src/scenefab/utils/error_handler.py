@@ -88,11 +88,14 @@ class RetryStrategy:
 
     def get_delay(self, attempt: int) -> float:
         """计算延迟时间"""
-        import random
+        from scenefab.utils.retry import compute_delay_with_jitter
 
-        delay = min(self.base_delay * (self.exponential_base**attempt), self.max_delay)
-        # 添加 jitter
-        return delay * (0.5 + random.random() * 0.5)
+        return compute_delay_with_jitter(
+            attempt,
+            self.base_delay,
+            self.exponential_base,
+            self.max_delay,
+        )
 
 
 # ============ 异步错误处理 ============
@@ -321,7 +324,13 @@ def sync_retry(
         @_wraps(func)
         def wrapper(*args, **kwargs):
             return retry_sync(
-                func, max_attempts, base_delay, 2.0, retryable_exceptions, *args, **kwargs
+                func,
+                max_attempts,
+                base_delay,
+                2.0,
+                retryable_exceptions,
+                *args,
+                **kwargs,
             )
 
         return wrapper

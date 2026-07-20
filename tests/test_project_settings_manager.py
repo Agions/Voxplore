@@ -1,10 +1,29 @@
 #!/usr/bin/env python3
 """测试项目设置管理器"""
 
+import logging
+from pathlib import Path
+
 from scenefab.settings_manager import (
+    ProjectSettingsManager,
     SettingDefinition,
     SettingType,
 )
+from scenefab.settings_types import ProjectSettingsProfile
+from scenefab.utils.json_io import read_json, write_json
+
+
+def _settings_manager(tmp_path: Path) -> ProjectSettingsManager:
+    manager = ProjectSettingsManager.__new__(ProjectSettingsManager)
+    manager.config_manager = None
+    manager.logger = logging.getLogger(__name__)
+    manager.settings = {}
+    manager.settings_definitions = {}
+    manager.profiles = {}
+    manager.settings_file = str(tmp_path / "project_settings.json")
+    manager.profiles_file = str(tmp_path / "profiles.json")
+    manager._init_settings_definitions()
+    return manager
 
 
 class TestSettingType:
@@ -92,3 +111,50 @@ class TestSettingDefinition:
 
         assert definition.min_value == 0.1
         assert definition.max_value == 1.0
+
+
+class TestProjectSettingsManagerIO:
+    """测试设置管理器 JSON 读写路径"""
+
+    def test_load_settings_reads_json_and_ignores_unknown_keys(self, tmp_path: Path):
+        manager = _settings_manager(tmp_path)
+        write_json(
+            manager.settings_file,
+            {
+                "video.bitrate": "12000k",
+                "unknown.setting": "ignored",
+            },
+        )
+
+        manager._load_settings()
+
+        assert manager.settings["video.bitrate"] == "12000k"
+        assert "unknown.setting" not in manager.settings
+
+    def test_save_profiles_writes_json(self, tmp_path: Path):
+        manager = _settings_manager(tmp_path)
+        manager.profiles["自定义"] = ProjectSettingsProfile(
+            name="自定义",
+            description="测试配置",
+            settings={"video.bitrate": "12000k"},
+            created_at="2026-01-01T00:00:00",
+            modified_at="2026-01-01T00:00:00",
+        )
+
+        manager._save_profiles()
+
+        profiles_data = read_json(manager.profiles_file)
+        assert profiles_data["自定义"]["settings"]["video.bitrate"] == "12000k"
+
+    def test_export_and_import_settings_roundtrip(self, tmp_path: Path):
+        manager = _settings_manager(tmp_path)
+        manager._load_settings()
+        assert manager.set_setting("video.bitrate", "12000k") is True
+
+        export_path = tmp_path / "settings_export.json"
+        assert manager.export_settings(str(export_path)) is True
+
+        imported_manager = _settings_manager(tmp_path / "imported")
+        imported_manager._load_settings()
+        assert imported_manager.import_settings(str(export_path), merge=False) is True
+        assert imported_manager.settings["video.bitrate"] == "12000k"

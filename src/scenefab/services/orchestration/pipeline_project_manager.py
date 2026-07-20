@@ -32,25 +32,18 @@ from pathlib import Path
 from typing import Any
 
 from scenefab.models.project_file_metadata import (
-    ProjectFileMetadata as ProjectMetadata,
-)
-from scenefab.models.project_file_metadata import (
+    ProjectFileMetadata,
     _ProjectFileVersion,  # noqa: F401  # re-exported via services.orchestration.__init__
 )
 from scenefab.models.project_models import ProjectType
 from scenefab.services.ai.model_catalog import DEFAULT_MODELS
+from scenefab.services.export.export_utils import write_json_file
 
 # 获取 logger
 logger = logging.getLogger(__name__)
 
 # ============ 常量 ============
 HASH_CHUNK_SIZE = 1024 * 1024  # 文件哈希计算 chunk 大小: 1MB
-
-
-# 模块内别名：旧名 ProjectMetadata = 新名 ProjectFileMetadata（仅本文件内）
-# 注意：models.project_models.ProjectMetadata 是不同的类（运行时项目元数据），
-# 而本文件历史上的 ProjectMetadata 是文件持久化元数据。重构后已重命名为
-# ProjectFileMetadata 以避免歧义，旧名仅在本模块内保留为兼容别名。
 
 
 @dataclass
@@ -98,7 +91,7 @@ class SceneFabProject:
     完整的项目数据结构
     """
 
-    metadata: ProjectMetadata = field(default_factory=ProjectMetadata)
+    metadata: ProjectFileMetadata = field(default_factory=ProjectFileMetadata)
     sources: list[ProjectSource] = field(default_factory=list)
     config: ProjectConfig = field(default_factory=ProjectConfig)
 
@@ -149,7 +142,7 @@ class ProjectManager:
             新项目对象
         """
         project = SceneFabProject(
-            metadata=ProjectMetadata(
+            metadata=ProjectFileMetadata(
                 name=name,
                 project_type=project_type.value,
             )
@@ -234,7 +227,7 @@ class ProjectManager:
 
     def _dict_to_project(self, data: dict) -> SceneFabProject:
         """将字典转换为项目"""
-        metadata = ProjectMetadata(**data.get("metadata", {}))
+        metadata = ProjectFileMetadata.from_dict(data.get("metadata", {}))
         sources = [ProjectSource(**s) for s in data.get("sources", [])]
         config = ProjectConfig(**data.get("config", {}))
 
@@ -249,16 +242,16 @@ class ProjectManager:
 
     def _save_json(self, data: dict, output_path: Path) -> str:
         """保存为 JSON 文件"""
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        write_json_file(output_path, data)
 
         self._last_save_path = output_path
         return str(output_path)
 
     def _load_json(self, project_path: Path) -> dict:
         """从 JSON 文件加载"""
-        with open(project_path, encoding="utf-8") as f:
-            data = json.load(f)
+        from scenefab.utils.json_io import read_json
+
+        data = read_json(project_path)
 
         # 版本兼容性处理
         data = self._migrate_if_needed(data)
@@ -297,7 +290,7 @@ class ProjectManager:
         try:
             return zipfile.is_zipfile(path)
         except Exception as e:
-            self.logger.debug(f"Zipfile check failed: {e}")  # type: ignore[attr-defined]
+            logger.debug(f"Zipfile check failed: {e}")
             return False
 
     def _migrate_if_needed(self, data: dict) -> dict:
@@ -376,7 +369,7 @@ class ProjectManager:
                 chunk = f.read(HASH_CHUNK_SIZE)
                 return hashlib.md5(chunk).hexdigest()
         except Exception as e:
-            self.logger.debug(f"Hash computation failed: {e}")  # type: ignore[attr-defined]
+            logger.debug(f"Hash computation failed: {e}")
             return ""
 
     def get_recent_projects(self, count: int = 10) -> list[dict]:
@@ -411,7 +404,7 @@ class ProjectManager:
         """
         # 创建模板项目（复制配置，清除敏感信息）
         template = SceneFabProject(
-            metadata=ProjectMetadata(
+            metadata=ProjectFileMetadata(
                 name=f"{project.metadata.name} (模板)",
                 project_type=project.metadata.project_type,
                 description=f"从 {project.metadata.name} 导出的模板",

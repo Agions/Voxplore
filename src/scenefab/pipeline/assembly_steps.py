@@ -10,7 +10,7 @@
 
 降级策略:
 - 无 edge-tts 包: 跳过真实 TTS, 用占位音频
-- 无 video_tools.caption_gen: 用 stub 字幕
+- 无 video_tools.caption_generator: 用 stub 字幕
 - 无 jianying_adapter: 只导出 SRT 字幕 + 草稿元数据 JSON
 - LLM 不可用: TTS_LENGTH_ADJUST 跳过"调 LLM 压缩"步骤, 保留原始 draft
 """
@@ -238,9 +238,7 @@ def tts_step(ctx: NarrationContext) -> StepResult:
         return _tts_stub(ctx, audio_path, start)
 
 
-def _tts_stub(
-    ctx: NarrationContext, audio_path: Path, start: float
-) -> StepResult:
+def _tts_stub(ctx: NarrationContext, audio_path: Path, start: float) -> StepResult:
     """TTS 降级: 写空 WAV 文件 + 估算时长"""
     try:
         # 写一个 0.1s 的静音 WAV
@@ -280,7 +278,7 @@ def assemble_step(ctx: NarrationContext) -> StepResult:
     3. 调 JianyingDraft 创建剪映草稿元数据
     4. 写入 ctx.final_subtitle_path / final_video_path
 
-    降级: caption_gen 不可用 → 写空 SRT (Phase 1 行为)
+    降级: caption_generator 不可用 → 写空 SRT (Phase 1 行为)
     """
     start = time.time()
 
@@ -300,7 +298,7 @@ def assemble_step(ctx: NarrationContext) -> StepResult:
     # 1. 字幕生成
     ass_success = False
     try:
-        from scenefab.services.video_tools.caption_gen import CaptionGenerator
+        from scenefab.services.video_tools.caption_generator import CaptionGenerator
 
         generator = CaptionGenerator()
         caption = generator.generate_from_text(
@@ -410,7 +408,9 @@ def _write_jianying_metadata(ctx: NarrationContext, output_path: Path) -> None:
             "persona": ctx.persona.value,
             "style": ctx.style.value,
             "platform": ctx.platform.value,
-            "short_drama_style": ctx.short_drama_style.value if ctx.short_drama_style else None,
+            "short_drama_style": ctx.short_drama_style.value
+            if ctx.short_drama_style
+            else None,
         },
         "duration": {
             "target_sec": ctx.tts_target_duration_sec,

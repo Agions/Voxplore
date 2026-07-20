@@ -239,7 +239,9 @@ class TestStateMachineMainFlow:
         sm_default.run(ctx)
         assert ctx.final_narration == ctx.current_draft
         assert ctx.final_subtitle_path is not None
-        assert ctx.final_subtitle_path.exists() or ctx.final_subtitle_path.parent.exists()
+        assert (
+            ctx.final_subtitle_path.exists() or ctx.final_subtitle_path.parent.exists()
+        )
         assert ctx.final_video_path is not None
         assert ctx.tts_audio_path is not None
         assert ctx.tts_audio_path.exists()
@@ -251,7 +253,10 @@ class TestStateMachineMainFlow:
         sm_default.run(ctx)
         # Phase 1 stub 写入 45.0
         assert ctx.tts_real_duration_sec == 45.0
-        assert ctx.tts_target_duration_sec == PLATFORM_SPECS[Platform.DOUYIN].target_duration_sec
+        assert (
+            ctx.tts_target_duration_sec
+            == PLATFORM_SPECS[Platform.DOUYIN].target_duration_sec
+        )
 
     def test_transitions_recorded(
         self, sm_default: NarrationStateMachine, ctx: NarrationContext
@@ -299,15 +304,43 @@ class TestEvaluationLoop:
         from scenefab.pipeline.narration_state_machine import StepResult
 
         sm = NarrationStateMachine(config=NarrationConfig(max_draft_attempts=1))
-        sm.register_step(NarrationState.INGEST, lambda c: StepResult(success=True, state=NarrationState.INGEST, message="ingest"))
-        sm.register_step(NarrationState.UNDERSTAND, lambda c: StepResult(success=True, state=NarrationState.UNDERSTAND, message="understand"))
-        sm.register_step(NarrationState.STORYGRAPH, lambda c: StepResult(success=True, state=NarrationState.STORYGRAPH, message="storygraph"))
+        sm.register_step(
+            NarrationState.INGEST,
+            lambda c: StepResult(
+                success=True, state=NarrationState.INGEST, message="ingest"
+            ),
+        )
+        sm.register_step(
+            NarrationState.UNDERSTAND,
+            lambda c: StepResult(
+                success=True, state=NarrationState.UNDERSTAND, message="understand"
+            ),
+        )
+        sm.register_step(
+            NarrationState.STORYGRAPH,
+            lambda c: StepResult(
+                success=True, state=NarrationState.STORYGRAPH, message="storygraph"
+            ),
+        )
         sm.register_step(NarrationState.DRAFT, draft_step)
         sm.register_step(NarrationState.EVALUATE, low_score_evaluate)
         sm.register_step(NarrationState.REJECT, reject_step)
-        sm.register_step(NarrationState.TTS_LENGTH_ADJUST, lambda c: StepResult(success=True, state=NarrationState.TTS_LENGTH_ADJUST, message="tla"))
-        sm.register_step(NarrationState.TTS, lambda c: StepResult(success=True, state=NarrationState.TTS, message="tts"))
-        sm.register_step(NarrationState.ASSEMBLE, lambda c: StepResult(success=True, state=NarrationState.ASSEMBLE, message="assemble"))
+        sm.register_step(
+            NarrationState.TTS_LENGTH_ADJUST,
+            lambda c: StepResult(
+                success=True, state=NarrationState.TTS_LENGTH_ADJUST, message="tla"
+            ),
+        )
+        sm.register_step(
+            NarrationState.TTS,
+            lambda c: StepResult(success=True, state=NarrationState.TTS, message="tts"),
+        )
+        sm.register_step(
+            NarrationState.ASSEMBLE,
+            lambda c: StepResult(
+                success=True, state=NarrationState.ASSEMBLE, message="assemble"
+            ),
+        )
 
         ctx = NarrationContext(
             source_video=fake_video,
@@ -351,7 +384,12 @@ class TestErrorHandling:
 
         # 故意只注册 INGEST
         sm = NarrationStateMachine()
-        sm.register_step(NarrationState.INGEST, lambda c: StepResult(success=True, state=NarrationState.INGEST, message="ingest"))
+        sm.register_step(
+            NarrationState.INGEST,
+            lambda c: StepResult(
+                success=True, state=NarrationState.INGEST, message="ingest"
+            ),
+        )
         ctx = NarrationContext(source_video=fake_video, output_dir=tmp_path / "out")
 
         result = sm.run(ctx)
@@ -445,7 +483,9 @@ class TestBridgeModels:
 class TestIntegration:
     """完整流程集成测试 (Phase 1 stub)"""
 
-    def test_end_to_end_pipeline(self, sm_default: NarrationStateMachine, ctx: NarrationContext) -> None:
+    def test_end_to_end_pipeline(
+        self, sm_default: NarrationStateMachine, ctx: NarrationContext
+    ) -> None:
         """端到端跑一遍"""
         start = time.time()
         result = sm_default.run(ctx)
@@ -476,4 +516,7 @@ class TestIntegration:
             )
             result = sm_default.run(ctx)
             assert result.success, f"平台 {platform.value} 跑失败"
-            assert ctx.tts_target_duration_sec == PLATFORM_SPECS[platform].target_duration_sec
+            assert (
+                ctx.tts_target_duration_sec
+                == PLATFORM_SPECS[platform].target_duration_sec
+            )

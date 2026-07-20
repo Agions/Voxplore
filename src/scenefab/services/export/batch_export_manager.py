@@ -11,9 +11,11 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 from scenefab.exceptions import ExportError
+from scenefab.utils.json_io import read_json
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +88,6 @@ class BatchExportManager:
         self.on_complete = on_complete
         self._tasks: dict[str, ExportTask] = {}
         self._executor = ThreadPoolExecutor(max_workers=max_parallel)
-        self._running_tasks: dict[str, Any] = {}
         self._cancelled: set = set()
 
     def add_task(
@@ -152,7 +153,9 @@ class BatchExportManager:
         start_time = time.time()
         pending_tasks = self._collect_pending_tasks()
         completed, failed, cancelled, results = self._submit_and_collect(pending_tasks)
-        return self._build_result(pending_tasks, completed, failed, cancelled, results, start_time)
+        return self._build_result(
+            pending_tasks, completed, failed, cancelled, results, start_time
+        )
 
     def _collect_pending_tasks(self) -> list[ExportTask]:
         """收集待执行任务 (status == PENDING)."""
@@ -178,14 +181,18 @@ class BatchExportManager:
 
         for future in as_completed(futures):
             task = futures[future]
-            task_completed, task_failed, task_cancelled = self._process_future(task, future, results)
+            task_completed, task_failed, task_cancelled = self._process_future(
+                task, future, results
+            )
             completed += task_completed
             failed += task_failed
             cancelled += task_cancelled
 
             # 完成回调
             if self.on_complete:
-                self.on_complete(task.id, task.status == ExportStatus.COMPLETED, task.error)
+                self.on_complete(
+                    task.id, task.status == ExportStatus.COMPLETED, task.error
+                )
 
         return completed, failed, cancelled, results
 
@@ -210,18 +217,26 @@ class BatchExportManager:
 
         if success:
             task.status = ExportStatus.COMPLETED
-            results.append({
-                "task_id": task.id, "name": task.name,
-                "output_path": task.output_path, "success": True,
-            })
+            results.append(
+                {
+                    "task_id": task.id,
+                    "name": task.name,
+                    "output_path": task.output_path,
+                    "success": True,
+                }
+            )
             return 1, 0, 0
         else:
             task.status = ExportStatus.FAILED
             task.error = error
-            results.append({
-                "task_id": task.id, "name": task.name,
-                "success": False, "error": error,
-            })
+            results.append(
+                {
+                    "task_id": task.id,
+                    "name": task.name,
+                    "success": False,
+                    "error": error,
+                }
+            )
             return 0, 1, 0
 
     @staticmethod
@@ -252,21 +267,7 @@ class BatchExportManager:
             logger.info(f"开始导出: {task.name} → {task.output_path}")
 
             # 加载项目数据
-            import json
-            from pathlib import Path
-
-            project_path = Path(task.project_path)
-            if project_path.exists() and project_path.suffix == ".json":
-                with open(project_path, encoding="utf-8") as f:
-                    project_data = json.load(f)
-            else:
-                # 如果是目录，尝试读取 project.json
-                proj_file = project_path / "project.json"
-                if proj_file.exists():
-                    with open(proj_file, encoding="utf-8") as f:
-                        project_data = json.load(f)
-                else:
-                    project_data = {"source": str(project_path)}
+            project_data = self._load_project_data(task.project_path)
 
             # 构建导出配置
             from .export_manager import ExportConfig, ExportFormat, ExportManager
@@ -312,6 +313,19 @@ class BatchExportManager:
             task.completed_at = time.time()
             logger.error(f"导出失败: {task.name}, {e}")
             raise ExportError(f"导出失败: {e}")
+
+    @staticmethod
+    def _load_project_data(project_path: str) -> dict[str, Any]:
+        """Load project data from a JSON file, project directory, or raw source path."""
+        path = Path(project_path)
+        if path.exists() and path.suffix == ".json":
+            return read_json(path)
+
+        project_file = path / "project.json"
+        if project_file.exists():
+            return read_json(project_file)
+
+        return {"source": str(path)}
 
     def cancel_task(self, task_id: str) -> bool:
         """取消单个任务"""

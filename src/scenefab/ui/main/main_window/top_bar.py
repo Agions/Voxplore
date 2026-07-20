@@ -25,14 +25,14 @@ class TopBar(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #topbar {{
-                background: {_C.BG_SURFACE};
+                background: {_C.BG_ELEVATED};
                 border-bottom: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
 
     def _setup_ui(self):
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(20, 0, 12, 0)
+        layout.setContentsMargins(24, 0, 16, 0)
         layout.setSpacing(12)
 
         # 左侧：标题 + 面包屑

@@ -300,9 +300,7 @@ class TestPipelineEngine:
             return "down_value"
 
         engine.add_step(PipelineStep(id="up", func=upstream))
-        engine.add_step(
-            PipelineStep(id="down", func=downstream, dependencies=["up"])
-        )
+        engine.add_step(PipelineStep(id="down", func=downstream, dependencies=["up"]))
 
         result = engine.run({})
 

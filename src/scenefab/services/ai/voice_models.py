@@ -87,7 +87,9 @@ class GeneratedVoice:
     sample_rate: int = 24000
     format: str = "mp3"
     start_time: float = 0.0  # 片段起始时间(用于批量生成)
-    sentence_timestamps: list[dict[str, Any]] = None  # 句子级时间戳  # type: ignore[assignment]
+    sentence_timestamps: list[dict[str, Any]] = (
+        None  # 句子级时间戳  # type: ignore[assignment]
+    )
 
     def __post_init__(self) -> None:
         if self.sentence_timestamps is None:

@@ -99,7 +99,9 @@ class TestQwenProviderIntegration:
             tokens_used=25,
         )
 
-        with patch.object(provider, "generate", new_callable=AsyncMock, return_value=mock_resp):
+        with patch.object(
+            provider, "generate", new_callable=AsyncMock, return_value=mock_resp
+        ):
             response: LLMResponse = await provider.generate(request)
 
         assert response.content is not None
@@ -118,7 +120,9 @@ class TestQwenProviderIntegration:
 
         mock_resp = _make_response(content="从前有座山...", model="qwen3.7-max")
 
-        with patch.object(provider, "generate", new_callable=AsyncMock, return_value=mock_resp):
+        with patch.object(
+            provider, "generate", new_callable=AsyncMock, return_value=mock_resp
+        ):
             response = await provider.generate(request)
 
         assert response.content is not None
@@ -175,7 +179,9 @@ class TestKimiProviderIntegration:
             model="moonshot-v1-8k",
         )
 
-        with patch.object(provider, "generate", new_callable=AsyncMock, return_value=mock_resp):
+        with patch.object(
+            provider, "generate", new_callable=AsyncMock, return_value=mock_resp
+        ):
             response: LLMResponse = await provider.generate(request)
 
         assert response.content is not None
@@ -215,7 +221,9 @@ class TestGLM5ProviderIntegration:
             model="glm-5",
         )
 
-        with patch.object(provider, "generate", new_callable=AsyncMock, return_value=mock_resp):
+        with patch.object(
+            provider, "generate", new_callable=AsyncMock, return_value=mock_resp
+        ):
             response: LLMResponse = await provider.generate(request)
 
         assert response.content is not None
@@ -252,7 +260,9 @@ class TestLLMManagerIntegration:
             max_tokens=100,
         )
 
-        mock_resp = _make_response(content="你好！有什么可以帮你的？", model="qwen3.7-max")
+        mock_resp = _make_response(
+            content="你好！有什么可以帮你的？", model="qwen3.7-max"
+        )
 
         with patch.object(
             manager.providers[ProviderType.QWEN],
@@ -423,7 +433,9 @@ class TestScriptGeneratorIntegration:
 
         script = GeneratedScript(content="测试内容")
         assert script.content == "测试内容"
-        assert not hasattr(script, "text") or script.text is script.content  # no 'text' alias
+        assert (
+            not hasattr(script, "text") or script.text is script.content
+        )  # no 'text' alias
 
 
 # ============ LLMRequest / LLMResponse Field Tests ============

@@ -34,6 +34,7 @@ from typing import Any
 
 from ...utils.security import get_ffmpeg_executor
 from ..video_tools.ffmpeg_tool import FFmpegTool
+from .export_utils import ensure_directory, ensure_parent_directory
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +139,155 @@ class VideoExportConfig:
     audio_normalize: bool = True  # 音频归一化
 
 
+def build_scale_pad_filter(resolution: Resolution) -> str:
+    """构建保持比例并补边到目标分辨率的 FFmpeg 滤镜。"""
+    return (
+        f"scale={resolution.width}:{resolution.height}:"
+        "force_original_aspect_ratio=decrease,"
+        f"pad={resolution.width}:{resolution.height}:(ow-iw)/2:(oh-ih)/2"
+    )
+
+
+_HWACCEL_ARG: dict[HWAccel, str] = {
+    HWAccel.NVIDIA: "cuda",
+    HWAccel.APPLE: "videotoolbox",
+    HWAccel.INTEL: "qsv",
+    HWAccel.AMD: "amf",
+    HWAccel.VAAPI: "vaapi",
+}
+
+_CODEC_MAP: dict[HWAccel, dict[VideoCodec, str]] = {
+    HWAccel.NVIDIA: {VideoCodec.H265: "hevc_nvenc", VideoCodec.H264: "h264_nvenc"},
+    HWAccel.APPLE: {
+        VideoCodec.H265: "hevc_videotoolbox",
+        VideoCodec.H264: "h264_videotoolbox",
+    },
+    HWAccel.INTEL: {VideoCodec.H265: "hevc_qsv", VideoCodec.H264: "h264_qsv"},
+}
+
+
+def resolve_video_codec(config: VideoExportConfig) -> str:
+    """根据硬件加速配置解析视频编码器。"""
+    return (
+        _CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec)
+        or config.video_codec.value
+    )
+
+
+def with_hw_accel_params(cmd: list[str], config: VideoExportConfig) -> list[str]:
+    """为 FFmpeg 命令添加硬件加速参数，不修改原列表。"""
+    hwaccel_arg = _HWACCEL_ARG.get(config.hw_accel)
+    if hwaccel_arg:
+        return [cmd[0], "-hwaccel", hwaccel_arg, *cmd[1:]]
+    return cmd
+
+
+def build_extract_segment_command(
+    video_path: str,
+    start: float,
+    duration: float,
+    output_path: str,
+    config: VideoExportConfig,
+) -> list[str]:
+    """构建提取视频片段命令。"""
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-ss",
+        str(start),
+        "-t",
+        str(duration),
+        "-i",
+        video_path,
+        "-vf",
+        build_scale_pad_filter(config.resolution),
+        "-c:v",
+        resolve_video_codec(config),
+        "-preset",
+        config.preset,
+        "-crf",
+        str(config.crf),
+        "-c:a",
+        "aac",
+        "-b:a",
+        config.audio_bitrate,
+        "-ar",
+        "48000",
+        "-pix_fmt",
+        "yuv420p",
+        output_path,
+    ]
+    return with_hw_accel_params(cmd, config)
+
+
+def build_merge_audio_command(
+    video_path: str,
+    audio_path: str,
+    output_path: str,
+    config: VideoExportConfig,
+) -> list[str]:
+    """构建音视频合并命令。"""
+    return [
+        "ffmpeg",
+        "-y",
+        "-i",
+        video_path,
+        "-i",
+        audio_path,
+        "-c:v",
+        "copy",
+        "-c:a",
+        config.audio_codec.value,
+        "-b:a",
+        config.audio_bitrate,
+        "-shortest",
+        output_path,
+    ]
+
+
+def build_concat_command(list_file: Path, output_path: str) -> list[str]:
+    """构建视频拼接命令。"""
+    return [
+        "ffmpeg",
+        "-y",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        str(list_file),
+        "-c",
+        "copy",
+        output_path,
+    ]
+
+
+def build_burn_subtitles_command(
+    video_path: str,
+    subtitle_file: str,
+    output_path: str,
+    config: VideoExportConfig,
+) -> list[str]:
+    """构建字幕烧录命令。"""
+    return [
+        "ffmpeg",
+        "-y",
+        "-i",
+        video_path,
+        "-vf",
+        f"subtitles={subtitle_file}:force_style=FontSize=24",
+        "-c:v",
+        resolve_video_codec(config),
+        "-preset",
+        config.preset,
+        "-crf",
+        str(config.crf),
+        "-c:a",
+        "copy",
+        output_path,
+    ]
+
+
 class DirectVideoExporter:
     """
     直接视频导出器
@@ -208,8 +358,7 @@ class DirectVideoExporter:
 
         self._report_progress("准备导出", 0.0)
 
-        output = Path(output_path)
-        output.parent.mkdir(parents=True, exist_ok=True)
+        ensure_parent_directory(output_path)
 
         # 创建临时目录
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -295,37 +444,13 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> None:
         """提取视频片段"""
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-ss",
-            str(start),
-            "-t",
-            str(duration),
-            "-i",
+        cmd = build_extract_segment_command(
             video_path,
-            "-vf",
-            f"scale={config.resolution.width}:{config.resolution.height}:force_original_aspect_ratio=decrease,pad={config.resolution.width}:{config.resolution.height}:(ow-iw)/2:(oh-ih)/2",
-            "-c:v",
-            self._get_video_codec(config),
-            "-preset",
-            config.preset,
-            "-crf",
-            str(config.crf),
-            "-c:a",
-            "aac",
-            "-b:a",
-            config.audio_bitrate,
-            "-ar",
-            "48000",
-            "-pix_fmt",
-            "yuv420p",
+            start,
+            duration,
             output_path,
-        ]
-
-        # 添加硬件加速参数
-        cmd = self._add_hw_accel_params(cmd, config)
-
+            config,
+        )
         self._executor.run(cmd, timeout=600)
 
     def _merge_video_audio(
@@ -336,23 +461,7 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> None:
         """合并视频和音频"""
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-i",
-            video_path,
-            "-i",
-            audio_path,
-            "-c:v",
-            "copy",
-            "-c:a",
-            config.audio_codec.value,
-            "-b:a",
-            config.audio_bitrate,
-            "-shortest",
-            output_path,
-        ]
-
+        cmd = build_merge_audio_command(video_path, audio_path, output_path, config)
         self._executor.run(cmd, timeout=300)
 
     def _create_concat_list(
@@ -376,20 +485,7 @@ class DirectVideoExporter:
         config: VideoExportConfig,
     ) -> None:
         """拼接视频"""
-        cmd = [
-            "ffmpeg",
-            "-y",
-            "-f",
-            "concat",
-            "-safe",
-            "0",
-            "-i",
-            str(list_file),
-            "-c",
-            "copy",
-            output_path,
-        ]
-
+        cmd = build_concat_command(list_file, output_path)
         self._executor.run(cmd, timeout=600)
 
     def _add_subtitles(
@@ -433,64 +529,27 @@ class DirectVideoExporter:
             subtitle_file = str(tmpdir / "subtitles.srt")
             SubtitleExporter.export_srt(all_subtitles, subtitle_file)
 
-            cmd = [
-                "ffmpeg",
-                "-y",
-                "-i",
+            cmd = build_burn_subtitles_command(
                 video_path,
-                "-vf",
-                f"subtitles={subtitle_file}:force_style=FontSize=24",
-                "-c:v",
-                self._get_video_codec(config),
-                "-preset",
-                config.preset,
-                "-crf",
-                str(config.crf),
-                "-c:a",
-                "copy",
+                subtitle_file,
                 output_path,
-            ]
+                config,
+            )
             self._executor.run(cmd, timeout=600)
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
         return output_path
 
-    # 硬件加速 → ffmpeg -hwaccel 参数值
-    _HWACCEL_ARG: dict = {
-        HWAccel.NVIDIA: "cuda",
-        HWAccel.APPLE: "videotoolbox",
-        HWAccel.INTEL: "qsv",
-        HWAccel.AMD: "amf",
-        HWAccel.VAAPI: "vaapi",
-    }
-
-    # 硬件加速 + 编码器 → ffmpeg 编码器名称
-    _CODEC_MAP: dict = {
-        HWAccel.NVIDIA: {VideoCodec.H265: "hevc_nvenc", VideoCodec.H264: "h264_nvenc"},
-        HWAccel.APPLE: {
-            VideoCodec.H265: "hevc_videotoolbox",
-            VideoCodec.H264: "h264_videotoolbox",
-        },
-        HWAccel.INTEL: {VideoCodec.H265: "hevc_qsv", VideoCodec.H264: "h264_qsv"},
-    }
-
     def _get_video_codec(self, config: VideoExportConfig) -> str:
         """获取视频编码器"""
-        return (
-            self._CODEC_MAP.get(config.hw_accel, {}).get(config.video_codec)
-            or config.video_codec.value
-        )
+        return resolve_video_codec(config)
 
-    def _add_hw_accel_params(
+    def _with_hw_accel_params(
         self, cmd: list[str], config: VideoExportConfig
     ) -> list[str]:
         """添加硬件加速参数"""
-        hwaccel_arg = self._HWACCEL_ARG.get(config.hw_accel)
-        if hwaccel_arg:
-            cmd.insert(1, "-hwaccel")
-            cmd.insert(2, hwaccel_arg)
-        return cmd
+        return with_hw_accel_params(cmd, config)
 
     def export(
         self,
@@ -555,8 +614,7 @@ class DirectVideoExporter:
         if presets is None:
             presets = [Resolution.FHD_1080P, Resolution.VERTICAL_1080P]  # type: ignore[unreachable]
 
-        output_dir = Path(output_dir)  # type: ignore[assignment]
-        output_dir.mkdir(parents=True, exist_ok=True)  # type: ignore[attr-defined]
+        output_dir = ensure_directory(output_dir)
 
         results = {}
 

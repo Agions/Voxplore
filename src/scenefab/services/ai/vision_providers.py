@@ -259,9 +259,7 @@ class Qwen37FrameProvider(VisionProvider):
 class GeminiVisionProvider(VisionProvider):
     """Google Gemini 3.x Vision"""
 
-    def __init__(
-        self, api_key: str, model: str = DEFAULT_MODELS["gemini"]
-    ) -> None:
+    def __init__(self, api_key: str, model: str = DEFAULT_MODELS["gemini"]) -> None:
         self.api_key = api_key
         self.model = model
 

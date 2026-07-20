@@ -31,9 +31,12 @@ from .export_utils import (
     BaseTrack,
     ExporterConfig,
     copy_material_to_folder,
+    ensure_directory,
+    ensure_parent_directory,
     get_video_duration,
     get_video_resolution,
     safe_filename,
+    write_json_file,
 )
 from .jianying_adapter import (
     AudioMaterial,
@@ -69,6 +72,9 @@ __all__ = [
     "BaseMaterial",
     "ExporterConfig",
     "safe_filename",
+    "ensure_directory",
+    "ensure_parent_directory",
+    "write_json_file",
     "get_video_duration",
     "get_video_resolution",
     "copy_material_to_folder",

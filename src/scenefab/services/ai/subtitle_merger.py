@@ -39,7 +39,9 @@ class SubtitleMerger:
         - 仅 OCR 有 → 保留（可能是画面中的标题/注释）
         - 仅语音有 → 保留（可能是画外音）
         """
-        merged, speech_segs, ocr_segs = SubtitleMerger._prepare(ocr_result, speech_result)
+        merged, speech_segs, ocr_segs = SubtitleMerger._prepare(
+            ocr_result, speech_result
+        )
         used_ocr = SubtitleMerger._merge_speech_with_ocr_overlap(
             merged, speech_segs, ocr_segs, overlap_threshold
         )
@@ -125,10 +127,7 @@ class SubtitleMerger:
         hi = bisect.bisect_right(ocr_starts, sp_seg.end + max_span)
         for idx in range(lo, hi):
             orig_idx, ocr_seg = ocr_sorted[idx]
-            if (
-                SubtitleMerger._overlap_ratio(sp_seg, ocr_seg)
-                > overlap_threshold
-            ):
+            if SubtitleMerger._overlap_ratio(sp_seg, ocr_seg) > overlap_threshold:
                 used_ocr.add(orig_idx)
 
     @staticmethod

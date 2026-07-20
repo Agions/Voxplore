@@ -27,24 +27,26 @@ class SideNavBtn(QToolButton):
         self._apply_style(False)
 
     def _apply_style(self, active: bool):
-        bg = _C.BG_ELEVATED if active else "transparent"
+        bg = _C.PRIMARY_LIGHTEST if active else "transparent"
         border = _C.PRIMARY if active else "transparent"
-        color = _C.TEXT_PRIMARY if active else _C.TEXT_MUTED
+        color = _C.PRIMARY_DARKER if active else _C.TEXT_MUTED
         self.setStyleSheet(f"""
             QToolButton#side_nav_btn {{
                 background: {bg};
-                border: none;
+                border: 1px solid {border};
                 border-left: 3px solid {border};
-                border-radius: {Radii.sm};
+                border-radius: {Radii.base};
                 color: {color};
                 font-size: {FontSizes.sm}px;
                 font-weight: 600;
-                padding: 0 12px;
+                padding: 0 13px;
                 text-align: left;
             }}
             QToolButton#side_nav_btn:hover {{
-                background: {_C.BG_ELEVATED};
+                background: {_C.PRIMARY_LIGHTEST};
                 color: {_C.TEXT_PRIMARY};
+                border-color: {_C.BORDER_DEFAULT};
+                border-left-color: {_C.PRIMARY};
             }}
         """)
 
@@ -71,7 +73,12 @@ class Sidebar(QFrame):
     def _setup_style(self):
         self.setStyleSheet(f"""
             #sidebar {{
-                background: {_C.BG_SURFACE};
+                background: qlineargradient(
+                    x1:0, y1:0, x2:0, y2:1,
+                    stop:0 {_C.SIDEBAR_TOP},
+                    stop:0.55 {_C.SIDEBAR_MID},
+                    stop:1 {_C.SIDEBAR_BOTTOM}
+                );
                 border-right: 1px solid {_C.BORDER_SUBTLE};
             }}
         """)
@@ -97,7 +104,7 @@ class Sidebar(QFrame):
                 background: qlineargradient(
                     x1:0, y1:0, x2:1, y2:1,
                     stop:0 {_C.PRIMARY},
-                    stop:1 {_C.ACCENT}
+                    stop:1 {_C.PRIMARY_DARKER}
                 );
             }}
         """)

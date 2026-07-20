@@ -216,9 +216,7 @@ class TestModelCatalog:
     def test_unique_model_ids_within_provider(self) -> None:
         for provider, profiles in MODEL_CATALOG.items():
             ids = [p.model for p in profiles]
-            assert len(ids) == len(set(ids)), (
-                f"{provider}: duplicate model ids {ids}"
-            )
+            assert len(ids) == len(set(ids)), f"{provider}: duplicate model ids {ids}"
 
     def test_positive_token_limits(self) -> None:
         for provider, profiles in MODEL_CATALOG.items():

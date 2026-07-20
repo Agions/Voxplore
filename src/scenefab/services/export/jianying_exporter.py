@@ -22,7 +22,6 @@
 数据模型已拆分到 jianying_adapter.py，导出器保持单一职责。
 """
 
-import json
 import logging
 import shutil
 import subprocess
@@ -31,7 +30,7 @@ from typing import Any
 
 from ..video_tools.base import extract_video_metadata
 from ..video_tools.ffmpeg_tool import FFmpegTool
-from .export_utils import safe_filename
+from .export_utils import ensure_directory, safe_filename, write_json_file
 from .jianying_adapter import (
     AudioMaterial,
     CanvasConfig,
@@ -138,8 +137,7 @@ class JianyingExporter:
 
         # 创建草稿文件夹（使用项目名称）
         safe_name = safe_filename(draft.name)
-        draft_folder = output_path / safe_name
-        draft_folder.mkdir(parents=True, exist_ok=True)
+        draft_folder = ensure_directory(output_path / safe_name)
 
         # 复制素材（如果启用）
         if self.config.copy_materials:
@@ -286,8 +284,7 @@ class JianyingExporter:
 
     def _write_json(self, path: Path, data: dict) -> None:
         """写入 JSON 文件"""
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        write_json_file(path, data)
 
     # =========== 便捷方法 ===========
 

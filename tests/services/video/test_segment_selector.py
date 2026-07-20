@@ -2,7 +2,7 @@
 """测试片段选择服务"""
 
 from scenefab.services.video.extraction.first_person import VideoSegment
-from scenefab.services.video.selection.seg_selector import (
+from scenefab.services.video.selection.segment_selector import (
     SegmentSelector,
     SelectionStrategy,
 )
@@ -120,8 +120,8 @@ class TestSegmentSelector:
         # 虽然情感峰值置信度更高，但叙事优先会选择 narrative 片段
         if len(selected) >= 1:
             # 如果选择了情感峰值片段，时间要符合要求
-            for seg in selected:
-                duration = seg.end_time - seg.start_time
+            for segment in selected:
+                duration = segment.end_time - segment.start_time
                 assert duration > 0
 
     def test_select_respects_max_duration(self):

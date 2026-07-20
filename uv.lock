@@ -973,20 +973,6 @@ wheels = [
 ]
 
 [[package]]
-name = "flake8"
-version = "7.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "mccabe" },
-    { name = "pycodestyle" },
-    { name = "pyflakes" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9b/af/fbfe3c4b5a657d79e5c47a2827a362f9e1b763336a52f926126aa6dc7123/flake8-7.3.0.tar.gz", hash = "sha256:fe044858146b9fc69b551a4b490d69cf960fcb78ad1edcb84e7fbb1b4a8e3872", size = 48326, upload-time = "2025-06-20T19:31:35.838Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/56/13ab06b4f93ca7cac71078fbe37fcea175d3216f31f85c3168a6bbd0bb9a/flake8-7.3.0-py2.py3-none-any.whl", hash = "sha256:b9696257b9ce8beb888cdbe31cf885c90d31928fe202be0889a7cdafad32f01e", size = 57922, upload-time = "2025-06-20T19:31:34.425Z" },
-]
-
-[[package]]
 name = "flatbuffers"
 version = "25.12.19"
 source = { registry = "https://pypi.org/simple" }
@@ -1930,15 +1916,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/df/5bd7a48c256faecd1d36edc13133e51397e41b73bb77e1a69deab746ebac/markupsafe-3.0.3-cp314-cp314t-win32.whl", hash = "sha256:915c04ba3851909ce68ccc2b8e2cd691618c4dc4c4232fb7982bca3f41fd8c3d", size = 14819, upload-time = "2025-09-27T18:37:26.285Z" },
     { url = "https://files.pythonhosted.org/packages/1a/8a/0402ba61a2f16038b48b39bccca271134be00c5c9f0f623208399333c448/markupsafe-3.0.3-cp314-cp314t-win_amd64.whl", hash = "sha256:4faffd047e07c38848ce017e8725090413cd80cbc23d86e55c587bf979e579c9", size = 15426, upload-time = "2025-09-27T18:37:27.316Z" },
     { url = "https://files.pythonhosted.org/packages/70/bc/6f1c2f612465f5fa89b95bead1f44dcb607670fd42891d8fdcd5d039f4f4/markupsafe-3.0.3-cp314-cp314t-win_arm64.whl", hash = "sha256:32001d6a8fc98c8cb5c947787c5d08b0a50663d139f1305bac5885d98d9b40fa", size = 14146, upload-time = "2025-09-27T18:37:28.327Z" },
-]
-
-[[package]]
-name = "mccabe"
-version = "0.7.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e7/ff/0ffefdcac38932a54d2b5eed4e0ba8a408f215002cd178ad1df0f2806ff8/mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325", size = 9658, upload-time = "2022-01-24T01:14:51.113Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/1a/1f68f9ba0c207934b35b86a8ca3aad8395a3d6dd7921c0686e23853ff5a9/mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e", size = 7350, upload-time = "2022-01-24T01:14:49.62Z" },
 ]
 
 [[package]]
@@ -3086,15 +3063,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pycodestyle"
-version = "2.14.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/11/e0/abfd2a0d2efe47670df87f3e3a0e2edda42f055053c85361f19c0e2c1ca8/pycodestyle-2.14.0.tar.gz", hash = "sha256:c4b5b517d278089ff9d0abdec919cd97262a3367449ea1c8b49b91529167b783", size = 39472, upload-time = "2025-06-20T18:49:48.75Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/27/a58ddaf8c588a3ef080db9d0b7e0b97215cee3a45df74f3a94dbbf5c893a/pycodestyle-2.14.0-py2.py3-none-any.whl", hash = "sha256:dd6bf7cb4ee77f8e016f9c8e74a35ddd9f67e1d5fd4184d86c3b98e07099f42d", size = 31594, upload-time = "2025-06-20T18:49:47.491Z" },
-]
-
-[[package]]
 name = "pycparser"
 version = "3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3237,21 +3205,26 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.14.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/b5/8f48e906c3e0205276e8bd8cb7512217a87b2685304d64be27cad5b3019f/pydantic_settings-2.14.2.tar.gz", hash = "sha256:c19dd64b19097f1de80184f0cc7b0272a13ae6e170cbf240a3e27e381ed14a5f", size = 237700, upload-time = "2026-06-19T13:44:56.324Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/c1/6e422f34e569cf8e18df68d1939c81c099d2b61e4f7d9621c8a77560799c/pydantic_settings-2.14.2-py3-none-any.whl", hash = "sha256:a20c97b37910b6550d5ea50fbcc2d4187defe58cd57070b73863d069419c9440", size = 61715, upload-time = "2026-06-19T13:44:55.02Z" },
+]
+
+[[package]]
 name = "pydub"
 version = "0.25.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fe/9a/e6bca0eed82db26562c73b5076539a4a08d3cffd19c3cc5913a3e61145fd/pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f", size = 38326, upload-time = "2021-03-10T02:09:54.659Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a6/53/d78dc063216e62fc55f6b2eebb447f6a4b0a59f55c8406376f76bf959b08/pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6", size = 32327, upload-time = "2021-03-10T02:09:53.503Z" },
-]
-
-[[package]]
-name = "pyflakes"
-version = "3.4.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/45/dc/fd034dc20b4b264b3d015808458391acbf9df40b1e54750ef175d39180b1/pyflakes-3.4.0.tar.gz", hash = "sha256:b24f96fafb7d2ab0ec5075b7350b3d2d2218eab42003821c06344973d3ea2f58", size = 64669, upload-time = "2025-06-20T18:45:27.834Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c2/2f/81d580a0fb83baeb066698975cb14a618bdbed7720678566f1b046a95fe8/pyflakes-3.4.0-py2.py3-none-any.whl", hash = "sha256:f742a7dbd0d9cb9ea41e9a24a918996e8170c799fa528688d40dd582c8265f4f", size = 63551, upload-time = "2025-06-20T18:45:26.937Z" },
 ]
 
 [[package]]
@@ -3567,6 +3540,114 @@ sdist = { url = "https://files.pythonhosted.org/packages/f0/b4/e77e1812ae89bc486
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b1/5b/2294ea44b3b2264a50b82a55a3822837a04cb779c873fc168844f36f5b46/scenedetect-0.6.7.1-py3-none-any.whl", hash = "sha256:3808ef4436ab0fc6fee8a155e95759b42e2446c925c45746a82ff119be4eb3e1", size = 130860, upload-time = "2025-09-25T03:18:58.43Z" },
 ]
+
+[[package]]
+name = "scenefab"
+version = "2.1.2"
+source = { editable = "." }
+dependencies = [
+    { name = "cryptography" },
+    { name = "edge-tts" },
+    { name = "google-generativeai" },
+    { name = "httpx" },
+    { name = "keyring" },
+    { name = "moviepy" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "openai" },
+    { name = "opencv-python" },
+    { name = "packaging" },
+    { name = "pillow" },
+    { name = "psutil" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "pydub" },
+    { name = "pyside6" },
+    { name = "python-dotenv" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "scenedetect" },
+    { name = "shiboken6" },
+    { name = "soundfile" },
+]
+
+[package.optional-dependencies]
+ai-full = [
+    { name = "faster-whisper" },
+    { name = "librosa" },
+    { name = "torch" },
+]
+all = [
+    { name = "deepl" },
+    { name = "fastapi" },
+    { name = "faster-whisper" },
+    { name = "librosa" },
+    { name = "torch" },
+    { name = "uvicorn" },
+]
+api = [
+    { name = "fastapi" },
+    { name = "uvicorn" },
+]
+dev = [
+    { name = "black" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-timeout" },
+    { name = "ruff" },
+    { name = "types-pyside6" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+translation = [
+    { name = "deepl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=23.11.0" },
+    { name = "cryptography", specifier = ">=41.0.0" },
+    { name = "deepl", marker = "extra == 'translation'", specifier = ">=1.18.0" },
+    { name = "edge-tts", specifier = ">=6.1.0" },
+    { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.109.0" },
+    { name = "faster-whisper", marker = "extra == 'ai-full'", specifier = ">=1.0.0" },
+    { name = "google-generativeai", specifier = ">=0.8.0" },
+    { name = "httpx", specifier = ">=0.25.0" },
+    { name = "keyring", specifier = ">=24.0.0" },
+    { name = "librosa", marker = "extra == 'ai-full'", specifier = ">=0.10.0" },
+    { name = "moviepy", specifier = ">=1.0.3" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
+    { name = "numpy", specifier = ">=1.26.0" },
+    { name = "openai", specifier = ">=1.0.0" },
+    { name = "opencv-python", specifier = ">=4.8.1" },
+    { name = "packaging", specifier = ">=21.0" },
+    { name = "pillow", specifier = ">=10.1.0" },
+    { name = "psutil", specifier = ">=5.9.6" },
+    { name = "pydantic", specifier = ">=2.5.0" },
+    { name = "pydantic-settings", specifier = ">=2.0.0" },
+    { name = "pydub", specifier = ">=0.25.0" },
+    { name = "pyside6", specifier = ">=6.9.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
+    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
+    { name = "pytest-timeout", marker = "extra == 'dev'", specifier = ">=2.1.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "pyyaml", specifier = ">=6.0.1" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+    { name = "scenedetect", specifier = ">=0.6.0" },
+    { name = "scenefab", extras = ["ai-full", "translation", "api"], marker = "extra == 'all'" },
+    { name = "shiboken6", specifier = ">=6.9.0" },
+    { name = "soundfile", specifier = ">=0.12.0" },
+    { name = "torch", marker = "extra == 'ai-full'", specifier = ">=2.0.0" },
+    { name = "types-pyside6", marker = "extra == 'dev'", specifier = ">=6.6.0" },
+    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "types-requests", marker = "extra == 'dev'", specifier = ">=2.31.0" },
+    { name = "uvicorn", marker = "extra == 'api'", specifier = ">=0.27.0" },
+]
+provides-extras = ["ai-full", "translation", "api", "all", "dev"]
 
 [[package]]
 name = "scikit-learn"
@@ -4251,105 +4332,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/eb/2e/62b0d9a2cfc8b4de6
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/88/d0f7512465b166a4e931ccf7e77792be60fb88466a43964c7566cbaff752/uvicorn-0.45.0-py3-none-any.whl", hash = "sha256:2db26f588131aeec7439de00f2dd52d5f210710c1f01e407a52c90b880d1fd4f", size = 69838, upload-time = "2026-04-21T10:43:45.029Z" },
 ]
-
-[[package]]
-name = "scenefab"
-version = "4.0.0"
-source = { editable = "." }
-dependencies = [
-    { name = "cryptography" },
-    { name = "deepl" },
-    { name = "edge-tts" },
-    { name = "fastapi" },
-    { name = "faster-whisper" },
-    { name = "google-generativeai" },
-    { name = "httpx" },
-    { name = "keyring" },
-    { name = "librosa" },
-    { name = "moviepy" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "openai" },
-    { name = "opencv-python" },
-    { name = "packaging" },
-    { name = "pillow" },
-    { name = "psutil" },
-    { name = "pydantic" },
-    { name = "pydub" },
-    { name = "pyside6" },
-    { name = "python-dotenv" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "scenedetect" },
-    { name = "shiboken6" },
-    { name = "soundfile" },
-    { name = "torch" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-all = [
-    { name = "deepl" },
-    { name = "moviepy" },
-]
-dev = [
-    { name = "black" },
-    { name = "flake8" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-timeout" },
-    { name = "ruff" },
-    { name = "types-pyside6" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=23.11.0" },
-    { name = "cryptography", specifier = ">=41.0.0" },
-    { name = "deepl", specifier = ">=1.18.0" },
-    { name = "deepl", marker = "extra == 'all'", specifier = ">=1.18.0" },
-    { name = "edge-tts", specifier = ">=6.1.0" },
-    { name = "fastapi", specifier = ">=0.109.0" },
-    { name = "faster-whisper", specifier = ">=1.0.0" },
-    { name = "flake8", marker = "extra == 'dev'", specifier = ">=6.1.0" },
-    { name = "google-generativeai", specifier = ">=0.8.0" },
-    { name = "httpx", specifier = ">=0.25.0" },
-    { name = "keyring", specifier = ">=24.0.0" },
-    { name = "librosa", specifier = ">=0.10.0" },
-    { name = "moviepy", specifier = ">=1.0.3" },
-    { name = "moviepy", marker = "extra == 'all'", specifier = ">=1.0.3" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
-    { name = "numpy", specifier = ">=1.26.0" },
-    { name = "openai", specifier = ">=1.0.0" },
-    { name = "opencv-python", specifier = ">=4.8.1" },
-    { name = "packaging", specifier = ">=21.0" },
-    { name = "pillow", specifier = ">=10.1.0" },
-    { name = "psutil", specifier = ">=5.9.6" },
-    { name = "pydantic", specifier = ">=2.5.0" },
-    { name = "pydub", specifier = ">=0.25.0" },
-    { name = "pyside6", specifier = ">=6.9.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "pytest-timeout", marker = "extra == 'dev'", specifier = ">=2.1.0" },
-    { name = "python-dotenv", specifier = ">=1.0.0" },
-    { name = "pyyaml", specifier = ">=6.0.1" },
-    { name = "requests", specifier = ">=2.31.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
-    { name = "scenedetect", specifier = ">=0.6.0" },
-    { name = "shiboken6", specifier = ">=6.9.0" },
-    { name = "soundfile", specifier = ">=0.12.0" },
-    { name = "torch", specifier = ">=2.0.0" },
-    { name = "types-pyside6", marker = "extra == 'dev'", specifier = ">=6.6.0" },
-    { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.0" },
-    { name = "types-requests", marker = "extra == 'dev'", specifier = ">=2.31.0" },
-    { name = "uvicorn", specifier = ">=0.27.0" },
-]
-provides-extras = ["dev", "all"]
 
 [[package]]
 name = "yarl"

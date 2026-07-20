@@ -73,7 +73,9 @@ class VideoInterleaver:
         """
         ctx = context or InterleaveContext()
         decisions = [
-            self._decide_for_narration(narration, i, perspective_shots, emotion_curve, original_clips, ctx)
+            self._decide_for_narration(
+                narration, i, perspective_shots, emotion_curve, original_clips, ctx
+            )
             for i, narration in enumerate(narration_timeline)
         ]
         return self._build_timeline_result(decisions, original_clips, emotion_curve)
@@ -89,7 +91,9 @@ class VideoInterleaver:
     ) -> InterleaveDecision:
         """为单个解说片段决定穿插策略: 查找重叠原片 → 选择最佳 → 生成决策."""
         shot = perspective_shots[index] if index < len(perspective_shots) else None
-        emotional_intensity = emotion_curve[index] if index < len(emotion_curve) else 0.5
+        emotional_intensity = (
+            emotion_curve[index] if index < len(emotion_curve) else 0.5
+        )
         overlapping_clips = self._find_overlapping_clips(
             narration.start_time, narration.end_time, original_clips
         )
@@ -120,9 +124,13 @@ class VideoInterleaver:
         return InterleaveTimeline(
             decisions=decisions,
             total_duration=total_duration,
-            original_video_duration=original_clips[-1].end_time if original_clips else 0,
+            original_video_duration=original_clips[-1].end_time
+            if original_clips
+            else 0,
             narration_duration=total_duration,
-            original_coverage_percent=original_duration / total_duration if total_duration > 0 else 0,
+            original_coverage_percent=original_duration / total_duration
+            if total_duration > 0
+            else 0,
             narration_coverage_percent=100.0,
             interleave_mode=self._infer_interleave_mode(emotion_curve),
             emotion_curve=emotion_curve,
