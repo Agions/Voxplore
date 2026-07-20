@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 512 160"
+     viewBox="0 0 520 160"
      role="img"
-     aria-label="SceneFab — AI 影视解说视频创作工具">
-  <title>SceneFab</title>
+     aria-label="SceneFab - AI 影视解说视频创作工具">
   <defs>
     <linearGradient id="bgH" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050816"/>
-      <stop offset="100%" stop-color="#0f172a"/>
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#0f1629"/>
     </linearGradient>
-    <linearGradient id="brandH" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="accentH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="playH" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="55%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
     </linearGradient>
-    <linearGradient id="hiH" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#67e8f9"/>
-      <stop offset="100%" stop-color="#22d3ee"/>
-    </linearGradient>
-    <radialGradient id="coreH" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </radialGradient>
     <filter id="glowH" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -31,64 +25,47 @@
     </filter>
   </defs>
 
-  <!-- ===== Logo mark (left, 128x128 in 160 height) ===== -->
+  <!-- Logo mark (left, 128x128 centered in 160 height) -->
   <g transform="translate(16 16)">
     <rect width="128" height="128" rx="28" fill="url(#bgH)"/>
-    <rect x="0.5" y="0.5" width="127" height="127" rx="27.5" fill="none"
-          stroke="url(#brandH)" stroke-width="0.6" opacity="0.3"/>
+    <rect x="4" y="4" width="120" height="120" rx="24" stroke="url(#accentH)" stroke-width="1" opacity="0.2"/>
 
-    <!-- 大外环 (虚线, 流水线) -->
-    <circle cx="64" cy="64" r="46" fill="none"
-            stroke="url(#brandH)" stroke-width="1.4"
-            stroke-dasharray="2 4" opacity="0.55"/>
-
-    <!-- 中环 -->
-    <circle cx="64" cy="64" r="34" fill="none"
-            stroke="url(#brandH)" stroke-width="0.8" opacity="0.6"/>
-
-    <!-- 4 个 tick -->
-    <g fill="url(#hiH)">
-      <circle cx="64" cy="18"  r="1.4"/>
-      <circle cx="110" cy="64" r="1.4"/>
-      <circle cx="64" cy="110" r="1.4"/>
-      <circle cx="18" cy="64"  r="1.4"/>
+    <!-- Viewfinder corners -->
+    <g transform="translate(64, 58)">
+      <path d="M-22 -22 L-22 -15 M-22 -22 L-15 -22" stroke="url(#accentH)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 -22 L22 -15 M22 -22 L15 -22" stroke="url(#accentH)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M-22 22 L-22 15 M-22 22 L-15 22" stroke="url(#accentH)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 22 L22 15 M22 22 L15 22" stroke="url(#accentH)" stroke-width="2.5" stroke-linecap="round"/>
     </g>
 
-    <!-- 中心圆盘 + AI 弧线 -->
-    <g transform="translate(64 64)">
-      <circle r="22" fill="#050816"/>
-      <circle r="22" fill="none" stroke="url(#brandH)" stroke-width="0.8" opacity="0.55"/>
-      <path d="M -14 0 A 14 14 0 0 1 0 -14" fill="none"
-            stroke="url(#hiH)" stroke-width="1.2" stroke-linecap="round" opacity="0.85"/>
-      <path d="M 14 0 A 14 14 0 0 1 0 14" fill="none"
-            stroke="url(#hiH)" stroke-width="1.2" stroke-linecap="round" opacity="0.85"/>
-      <!-- Play 三角 -->
-      <path d="M -5 -8 L 9 0 L -5 8 Z" fill="url(#coreH)" filter="url(#glowH)"/>
+    <!-- Play button -->
+    <g filter="url(#glowH)">
+      <path d="M54 42 L54 74 L80 58 Z" fill="url(#playH)" opacity="0.9"/>
     </g>
 
-    <!-- sparkle -->
-    <path d="M 98 30 L 99.5 33 L 103 34.5 L 99.5 36 L 98 39 L 96.5 36 L 93 34.5 L 96.5 33 Z"
-          fill="url(#hiH)" opacity="0.9"/>
-    <path d="M 105 44 L 105.7 45.5 L 107.2 46.2 L 105.7 46.9 L 105 48.4 L 104.3 46.9 L 102.8 46.2 L 104.3 45.5 Z"
-          fill="#a855f7" opacity="0.7"/>
+    <!-- AI sparkle -->
+    <g transform="translate(100, 36)">
+      <path d="M0 -6 L2 -2 L6 0 L2 2 L0 6 L-2 2 L-6 0 L-2 -2 Z" fill="#22d3ee" opacity="0.85"/>
+    </g>
+    <g transform="translate(108, 48) scale(0.5)">
+      <path d="M0 -6 L2 -2 L6 0 L2 2 L0 6 L-2 2 L-6 0 L-2 -2 Z" fill="#a78bfa" opacity="0.6"/>
+    </g>
   </g>
 
-  <!-- ===== Wordmark (right, 文字 + 中文) ===== -->
+  <!-- Wordmark (right) -->
   <g transform="translate(168 0)">
-    <!-- SceneFab (大标题) -->
-    <text x="0" y="78"
-          font-family="Inter, 'SF Pro Display', 'Helvetica Neue', system-ui, -apple-system, 'PingFang SC', sans-serif"
-          font-size="50"
+    <text x="0" y="68"
+          font-family="Inter, 'Helvetica Neue', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+          font-size="48"
           font-weight="800"
-          fill="#f8fafc"
-          letter-spacing="-1.8">Scene<tspan fill="url(#brandH)">Fab</tspan></text>
-
-    <!-- 中文副标 (小字, 紧凑) -->
-    <text x="2" y="108"
-          font-family="'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', system-ui, sans-serif"
-          font-size="14"
-          font-weight="500"
-          fill="#94a3b8"
-          letter-spacing="2.4">AI 影视解说视频创作工具</text>
+          fill="#FFFFFF"
+          letter-spacing="-1">Scene<tspan fill="url(#accentH)">Fab</tspan></text>
+    <text x="2" y="100"
+          font-family="'SF Mono', 'JetBrains Mono', 'Fira Code', monospace"
+          font-size="13"
+          font-weight="600"
+          fill="url(#accentH)"
+          letter-spacing="3"
+          opacity="0.85">AI 影视解说视频创作工具</text>
   </g>
 </svg>
