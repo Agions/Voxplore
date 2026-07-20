@@ -100,7 +100,7 @@ EXPORT_QUALITY_CHECKS = (
     f"成片默认 {DEFAULT_VERTICAL_RESOLUTION}",
 )
 
-ASSET_TABLE_COLUMNS = ("类型", "名称", "状态")
+ASSET_TABLE_COLUMNS = ("类型", "名称", "创建日期")
 
 ASSET_SOURCE_ITEMS = (
     KeyValueView("素材目录", "未设置"),
