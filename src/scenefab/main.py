@@ -12,9 +12,15 @@ from pathlib import Path
 
 # 自动检测无头环境，设置 Qt 平台
 def _setup_headless_platform():
-    """检测无头环境并设置合适的 Qt 平台。"""
+    """检测无头环境并设置合适的 Qt 平台。
+
+    注意: macOS 使用 Quartz/WindowServer，不依赖 DISPLAY 环境变量，
+    因此必须跳过 macOS 的无头检测，否则会错误启用 offscreen 模式。
+    """
+    if sys.platform == "darwin":
+        return  # macOS 始终有显示器 (WindowServer)
     if not os.environ.get("DISPLAY") and not os.environ.get("WAYLAND_DISPLAY"):
-        # 无显示器环境，使用 offscreen 平台
+        # Linux 无显示器环境，使用 offscreen 平台
         os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
         # 禁用多媒体 pipewire 警告
         os.environ.setdefault("QT_LOGGING_TO_STDOUT", "1")
