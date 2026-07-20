@@ -1,6 +1,5 @@
 """text_utils 模块测试 — 句子分割与风格映射。"""
 
-import pytest
 
 from scenefab.pipeline.narration_context import ProductionStyle
 from scenefab.pipeline.text_utils import (
