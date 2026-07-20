@@ -22,6 +22,9 @@ def _setup_headless_platform():
 
 _setup_headless_platform()
 
+# 抑制 Qt 内部字体别名解析警告 (macOS "Sans Serif" 别名, 非应用代码触发)
+os.environ.setdefault("QT_LOGGING_RULES", "qt.qpa.fonts=false")
+
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))

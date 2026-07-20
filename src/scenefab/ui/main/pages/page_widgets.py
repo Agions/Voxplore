@@ -2,7 +2,6 @@
 """Shared widgets for the production workspace pages."""
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -13,7 +12,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii
+from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, ui_font
 
 
 def page_background_style(object_name: str) -> str:
@@ -64,12 +63,12 @@ def header_panel(name: str, title: str, subtitle: str, *actions: QWidget) -> QFr
     text = QVBoxLayout()
     text.setSpacing(5)
     title_label = QLabel(title)
-    title_label.setFont(QFont("", FontSizes.xxl, QFont.Weight.Bold))
+    title_label.setFont(ui_font(FontSizes.xxl, FontWeights.Bold))
     title_label.setStyleSheet(f"color: {_C.TEXT_PRIMARY}; letter-spacing: 0px;")
     text.addWidget(title_label)
 
     subtitle_label = QLabel(subtitle)
-    subtitle_label.setFont(QFont("", FontSizes.sm))
+    subtitle_label.setFont(ui_font(FontSizes.sm))
     subtitle_label.setStyleSheet(f"color: {_C.TEXT_MUTED}; line-height: 18px;")
     text.addWidget(subtitle_label)
     layout.addLayout(text, 1)
@@ -81,7 +80,7 @@ def header_panel(name: str, title: str, subtitle: str, *actions: QWidget) -> QFr
 
 def section_title(text: str) -> QLabel:
     label = QLabel(text)
-    label.setFont(QFont("", FontSizes.md, QFont.Weight.DemiBold))
+    label.setFont(ui_font(FontSizes.md, FontWeights.SemiBold))
     label.setStyleSheet(f"color: {_C.TEXT_PRIMARY}; letter-spacing: 0px;")
     return label
 
@@ -129,13 +128,13 @@ def key_value_row(label: str, value: str) -> QFrame:
     layout.setSpacing(10)
 
     key = QLabel(label)
-    key.setFont(QFont("", FontSizes.xs))
+    key.setFont(ui_font(FontSizes.xs))
     key.setStyleSheet(f"color: {_C.TEXT_MUTED};")
     layout.addWidget(key)
     layout.addStretch()
 
     val = QLabel(value)
-    val.setFont(QFont("", FontSizes.xs, QFont.Weight.Medium))
+    val.setFont(ui_font(FontSizes.xs, FontWeights.Medium))
     val.setStyleSheet(f"color: {_C.TEXT_PRIMARY};")
     layout.addWidget(val)
     return row
