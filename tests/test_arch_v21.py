@@ -382,33 +382,3 @@ class TestTaskStore:
         assert s.get("t1") == {"a": 1, "b": 99, "c": 3}
 
 
-# ══════════════════════════════════════════════════════════
-# 集成测试：v2.0 PipelineEngine + v2.1 事件总线
-# ══════════════════════════════════════════════════════════
-
-
-class TestPipelineEngineV21Integration:
-    """v2.0 PipelineEngine 通过 v2.1 事件总线发布事件"""
-
-    def test_pipeline_publishes_events(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-        from scenefab.core.unified_event_bus import UnifiedEventBus
-
-        bus = UnifiedEventBus()
-        bus.clear_log()
-        bus.clear_handlers()
-        from scenefab.core.unified_event_bus import set_event_bus
-
-        set_event_bus(bus)
-
-        engine = PipelineEngine(event_bus=bus, pipeline_id="integration-test")
-        engine.add_step(PipelineStep(id="a", func=lambda c: 1))
-        engine.add_step(PipelineStep(id="b", func=lambda c: 2, dependencies=["a"]))
-        engine.run({})
-
-        log = bus.log()
-        assert log is not None
-        events = [r.event_name for r in log.all()]
-        assert "pipeline.started" in events
-        assert events.count("pipeline.step.completed") == 2
-        assert "pipeline.completed" in events

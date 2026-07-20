@@ -8,13 +8,20 @@ LLM 流式输出 UI Worker — v2.0 重构
 - 错误处理
 - 取消支持
 
+依赖注入:
+    本模块位于 core 层，不直接依赖 services 层。
+    调用方（UI 层）通过 generator_factory 参数注入流式生成器实例，
+    实现依赖反转，保持 core → services 的单向依赖。
+
 使用示例:
     from scenefab.core.streaming_llm_worker import StreamingLLMWorker
+    from scenefab.services.ai.script_stream import StreamingScriptGenerator
 
     worker = StreamingLLMWorker(
         prompt="生成《流浪地球》的解说文案",
         provider="deepseek",
         style="documentary",
+        generator_factory=StreamingScriptGenerator,
     )
     worker.token_received.connect(lambda t: text_edit.insertPlainText(t))
     worker.finished.connect(lambda s: status_label.setText("完成"))
@@ -61,6 +68,7 @@ class StreamingLLMWorker(BaseWorker):
         max_tokens: int = 2000,
         on_token: Callable[[str], None] | None = None,
         on_sentence: Callable[[str], None] | None = None,
+        generator_factory: Callable[[], Any] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(name=f"StreamingLLMWorker[{provider}]", cancellable=True)
@@ -73,6 +81,7 @@ class StreamingLLMWorker(BaseWorker):
         self.max_tokens = max_tokens
         self._on_token = on_token
         self._on_sentence = on_sentence
+        self._generator_factory = generator_factory
         self._accumulated = ""
         self._audit = AuditLogger()
 
@@ -80,7 +89,7 @@ class StreamingLLMWorker(BaseWorker):
         """
         子类实现：调用实际 LLM 流式接口
 
-        默认使用 StreamingScriptGenerator；可被子类覆盖
+        使用注入的 generator_factory 创建生成器；未注入时回退到模拟流式。
         """
         # 标记为流式开始
         self.emit_status(f"开始流式生成 ({self.provider})")
@@ -94,13 +103,8 @@ class StreamingLLMWorker(BaseWorker):
         )
 
         try:
-            # 尝试使用项目内的 StreamingScriptGenerator
-            try:
-                from scenefab.services.ai.script_stream import (
-                    StreamingScriptGenerator,
-                )
-
-                gen = StreamingScriptGenerator()
+            if self._generator_factory is not None:
+                gen = self._generator_factory()
                 # 同步包装异步流式
                 for token in self._consume_streaming(gen):
                     if self.is_cancelled():
@@ -108,8 +112,8 @@ class StreamingLLMWorker(BaseWorker):
                         return
                     self._accumulated += token
                     self._dispatch_token(token)
-            except ImportError:
-                # Fallback: 模拟流式（用于测试/无 LLM 环境）
+            else:
+                # 未注入生成器工厂，使用模拟流式（测试/无 LLM 环境）
                 self._mock_streaming()
 
         except Exception as e:
@@ -130,19 +134,10 @@ class StreamingLLMWorker(BaseWorker):
                 chunks_received.append(chunk)
 
         # 实际生成（同步等待）
-        try:
-            gen.generate_streaming(
-                topic=self.prompt,
-                style=self.style,
-                on_chunk=callback,
-                system_prompt=self.system_prompt,
-            )
-        except TypeError:
-            # 兼容旧接口
-            gen.generate_streaming(
-                topic=self.prompt,
-                on_chunk=callback,
-            )
+        gen.generate_streaming(
+            topic=self.prompt,
+            callback=callback,
+        )
 
         return iter(chunks_received)
 

@@ -1,7 +1,9 @@
-"""SceneFab 核心模块导出层。
+"""SceneFab 核心模块导出层（纯基础设施）。
 
 所有导出通过 lazy import 实现，避免循环依赖。
-直接导入子模块更推荐：from scenefab.core.pipeline_engine import PipelineEngine
+直接导入子模块更推荐：from scenefab.core.base_worker import BaseWorker
+
+注意：core 层禁止导入 services / pipeline / ui / application。
 """
 
 from __future__ import annotations
@@ -10,26 +12,14 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS = {
-    "ApplicationState": ("scenefab.application", "ApplicationState"),
     "BaseWorker": ("scenefab.core.base_worker", "BaseWorker"),
     "WorkerResult": ("scenefab.core.base_worker", "WorkerResult"),
     "AuditLogger": ("scenefab.core.audit", "AuditLogger"),
     "AuditEntry": ("scenefab.core.audit", "AuditEntry"),
-    "PipelineEngine": ("scenefab.core.pipeline_engine", "PipelineEngine"),
-    "PipelineStep": ("scenefab.core.pipeline_engine", "PipelineStep"),
-    "PipelineConfig": ("scenefab.core.pipeline_engine", "PipelineConfig"),
-    "StepStatus": ("scenefab.core.pipeline_engine", "StepStatus"),
-    "StepResult": ("scenefab.core.pipeline_engine", "StepResult"),
     "SafeFFmpegCommand": ("scenefab.core.ffmpeg_safe", "SafeFFmpegCommand"),
     "FFmpegResult": ("scenefab.core.ffmpeg_safe", "FFmpegResult"),
     "FFmpegSecurityError": ("scenefab.core.ffmpeg_safe", "FFmpegSecurityError"),
     "is_safe_path": ("scenefab.core.ffmpeg_safe", "is_safe_path"),
-    "ShortDramaStyle": ("scenefab.core.short_drama", "ShortDramaStyle"),
-    "ShortDramaPreset": ("scenefab.core.short_drama", "ShortDramaPreset"),
-    "ShortDramaNarrator": ("scenefab.core.short_drama", "ShortDramaNarrator"),
-    "TropeType": ("scenefab.core.short_drama", "TropeType"),
-    "EpisodeInfo": ("scenefab.core.short_drama", "EpisodeInfo"),
-    "SeriesContext": ("scenefab.core.short_drama", "SeriesContext"),
     "StreamingLLMWorker": ("scenefab.core.streaming_llm_worker", "StreamingLLMWorker"),
     "UnifiedEventBus": ("scenefab.core.unified_event_bus", "UnifiedEventBus"),
     "EventHandler": ("scenefab.core.unified_event_bus", "EventHandler"),
@@ -38,7 +28,6 @@ _EXPORTS = {
     "set_event_bus": ("scenefab.core.unified_event_bus", "set_event_bus"),
     "DomainEvent": ("scenefab.core.event_types", "DomainEvent"),
     "PipelineStarted": ("scenefab.core.event_types", "PipelineStarted"),
-    "PipelineStepStarted": ("scenefab.core.event_types", "PipelineStepStarted"),
     "PipelineStepCompleted": ("scenefab.core.event_types", "PipelineStepCompleted"),
     "PipelineCompleted": ("scenefab.core.event_types", "PipelineCompleted"),
     "TaskCreated": ("scenefab.core.event_types", "TaskCreated"),
@@ -75,7 +64,4 @@ def __getattr__(name: str) -> Any:
     return value
 
 
-__all__ = [
-    "ApplicationState",
-    *_EXPORTS.keys(),
-]
+__all__ = [*_EXPORTS.keys()]

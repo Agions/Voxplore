@@ -76,23 +76,6 @@ class PipelineStarted(DomainEvent):
 
 
 @dataclass
-class PipelineStepStarted(DomainEvent):
-    event_name: ClassVar[str] = "pipeline.step.started"
-    pipeline_id: str = ""
-    step_id: str = ""
-    step_name: str = ""
-    parallel_group: str | None = None
-
-    def _payload_dict(self) -> dict[str, Any]:
-        return {
-            "pipeline_id": self.pipeline_id,
-            "step_id": self.step_id,
-            "step_name": self.step_name,
-            "parallel_group": self.parallel_group,
-        }
-
-
-@dataclass
 class PipelineStepCompleted(DomainEvent):
     event_name: ClassVar[str] = "pipeline.step.completed"
     pipeline_id: str = ""
@@ -218,7 +201,6 @@ class FFmpegExecuted(DomainEvent):
 __all__ = [
     "DomainEvent",
     "PipelineStarted",
-    "PipelineStepStarted",
     "PipelineStepCompleted",
     "PipelineCompleted",
     "TaskCreated",

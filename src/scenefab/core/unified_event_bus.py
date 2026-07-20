@@ -569,10 +569,6 @@ class UnifiedEventBus:
 # ──────────────────────────────────────────────────────────
 
 
-_global_bus: UnifiedEventBus | None = None
-_global_lock = threading.Lock()
-
-
 def get_event_bus() -> UnifiedEventBus:
     """获取全局事件总线（v2.1 单源真相，等价于 UnifiedEventBus.get_default()）"""
     return UnifiedEventBus.get_default()
@@ -581,13 +577,9 @@ def get_event_bus() -> UnifiedEventBus:
 def set_event_bus(bus: UnifiedEventBus) -> None:
     """注入自定义事件总线（v2.1 测试 / DI 友好）
 
-    同时更新函数级单例 + 类级单例，确保 get_event_bus() 和
+    更新类级单例，确保 get_event_bus() 和
     UnifiedEventBus.get_default() 都返回新实例。
     """
-    global _global_bus
-    with _global_lock:
-        _global_bus = bus
-    # 同步类级单例
     UnifiedEventBus.set_default(bus)
 
 
@@ -596,8 +588,11 @@ def create_event_bus(**kwargs) -> UnifiedEventBus:
     return UnifiedEventBus(**kwargs)
 
 
-# v1.x 别名（保持 import 兼容）
-event_bus = get_event_bus()  # 懒加载
+def __getattr__(name: str):
+    """模块级懒加载：event_bus 在首次访问时才实例化"""
+    if name == "event_bus":
+        return get_event_bus()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = [

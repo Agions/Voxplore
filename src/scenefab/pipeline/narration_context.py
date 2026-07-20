@@ -13,7 +13,7 @@ v2.2 解说生成上下文 — 4 类上下文 (Context Engineering)
 - dataclass(slots=True) 零开销
 - 与现有 services.video_understanding.models.StoryGraph 复用
 - 与 services.ai.scene_models.SceneInfo 复用
-- 与 core.short_drama.ShortDramaNarrator.detect_bridges() 复用
+- 与 pipeline.short_drama.ShortDramaNarrator.detect_bridges() 复用
 - 不引入新依赖
 """
 
@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any
 
 # 复用现有模型, 避免重复定义
-from scenefab.core.short_drama import ShortDramaStyle
+from scenefab.pipeline.short_drama import ShortDramaStyle
 from scenefab.services.ai.scene_models import SceneInfo
 from scenefab.services.video_understanding.models import StoryGraph
 

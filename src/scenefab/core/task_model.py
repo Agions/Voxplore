@@ -1,7 +1,7 @@
 """
 SceneFab 统一任务模型 v2.1
 
-目标：让 PipelineEngine 共享统一的任务状态机。
+目标：让 Pipeline 状态机共享统一的任务状态机。
 v2.1 新增：
 - 标准状态机：PENDING → RUNNING → (PAUSED ↔ RUNNING) → (COMPLETED | FAILED | CANCELLED)
 - 任务来源标识：batch / pipeline / api / cli 四种来源
@@ -84,7 +84,7 @@ class TaskSource(str, enum.Enum):
     """任务来源（v2.1）"""
 
     BATCH = "batch"  # 批量处理器
-    PIPELINE = "pipeline"  # PipelineEngine
+    PIPELINE = "pipeline"  # Pipeline 状态机
     API = "api"  # FastAPI endpoint
     CLI = "cli"  # CLI 命令
     MANUAL = "manual"  # 直接调用

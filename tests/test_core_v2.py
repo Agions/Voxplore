@@ -4,9 +4,8 @@ v2.0 核心模块测试 — BaseWorker / Audit / Pipeline / FFmpeg / Batch / Sho
 """
 
 import tempfile
-import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -122,195 +121,6 @@ class TestAuditLogger:
             entries = logger.query(action="test_exc", result="failure")
             assert len(entries) == 1
             assert "test error" in entries[0].error_message
-
-
-# === PipelineEngine (DAG) ===
-
-
-class TestPipelineEngine:
-    def test_simple_pipeline(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine(max_workers=2)
-        results_holder = {}
-
-        def step_a(ctx):
-            results_holder["a"] = "a_result"
-            return "a_out"
-
-        def step_b(ctx):
-            results_holder["b"] = "b_result"
-            return "b_out"
-
-        engine.add_step(PipelineStep(id="a", func=step_a))
-        engine.add_step(PipelineStep(id="b", func=step_b, dependencies=["a"]))
-
-        result = engine.run({})
-        assert "a" in result["steps"]
-        assert "b" in result["steps"]
-        assert results_holder["a"] == "a_result"
-        assert results_holder["b"] == "b_result"
-
-    def test_parallel_pipeline(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine(max_workers=4)
-        timings = {}
-
-        def slow_step(name, duration):
-            def _step(ctx):
-                start = time.time()
-                time.sleep(duration)
-                timings[name] = time.time() - start
-                return name
-
-            return _step
-
-        engine.add_step(PipelineStep(id="base", func=slow_step("base", 0.1)))
-        engine.add_step(
-            PipelineStep(
-                id="branch_a",
-                func=slow_step("branch_a", 0.2),
-                dependencies=["base"],
-                parallel_group="group1",
-            )
-        )
-        engine.add_step(
-            PipelineStep(
-                id="branch_b",
-                func=slow_step("branch_b", 0.2),
-                dependencies=["base"],
-                parallel_group="group1",
-            )
-        )
-        engine.add_step(
-            PipelineStep(
-                id="final",
-                func=slow_step("final", 0.1),
-                dependencies=["branch_a", "branch_b"],
-            )
-        )
-
-        start = time.time()
-        result = engine.run({})
-        total = time.time() - start
-
-        # 串行需要 0.6s (0.1+0.2+0.2+0.1)，并行应 < 0.55s（允许调度开销）
-        assert total < 0.55, f"Parallel pipeline too slow: {total}s"
-        assert "final" in result["steps"]
-
-    def test_circular_dependency_detection(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine()
-        engine.add_step(PipelineStep(id="a", func=lambda c: None, dependencies=["b"]))
-        engine.add_step(PipelineStep(id="b", func=lambda c: None, dependencies=["a"]))
-
-        with pytest.raises(ValueError, match="Circular dependency"):
-            engine.run({})
-
-    def test_unknown_dependency(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine()
-        engine.add_step(
-            PipelineStep(id="a", func=lambda c: None, dependencies=["nonexistent"])
-        )
-        with pytest.raises(ValueError, match="unknown dependency"):
-            engine.run({})
-
-    def test_skip_on_failure(self):
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine(fail_fast=True)
-
-        def fail_func(ctx):
-            raise RuntimeError("intentional")
-
-        def should_skip(ctx):
-            raise AssertionError("should not be called")
-
-        engine.add_step(PipelineStep(id="fail", func=fail_func))
-        engine.add_step(
-            PipelineStep(id="after", func=should_skip, dependencies=["fail"])
-        )
-
-        engine.run({})
-        summary = engine.summary()
-        assert summary["failed"] == 1
-        assert summary["skipped"] == 1
-
-    def test_always_run_step(self):
-        from scenefab.core.pipeline_engine import (
-            PipelineEngine,
-            PipelineStep,
-            StepStatus,
-        )
-
-        engine = PipelineEngine(fail_fast=True)
-        cleanup_ran = []
-
-        def fail_func(ctx):
-            raise RuntimeError("intentional")
-
-        def cleanup(ctx):
-            cleanup_ran.append(True)
-
-        engine.add_step(PipelineStep(id="fail", func=fail_func))
-        engine.add_step(
-            PipelineStep(
-                id="cleanup",
-                func=cleanup,
-                dependencies=["fail"],
-                always_run=True,
-            )
-        )
-
-        # 拦截 audit 调用，专注于行为验证
-        with patch("scenefab.core.pipeline_engine.AuditLogger") as mock_audit_cls:
-            mock_audit = MagicMock()
-            mock_audit_cls.return_value = mock_audit
-            engine.run({})
-
-        assert cleanup_ran == [True]
-        # 验证 fail 步骤被标记为 FAILED
-        assert engine.get_state("fail") == StepStatus.FAILED
-        # 验证 cleanup 步骤被标记为 COMPLETED
-        assert engine.get_state("cleanup") == StepStatus.COMPLETED
-
-    def test_step_receives_immutable_steps_snapshot(self):
-        """step 收到只读 steps 快照：可读已完成依赖结果，写入抛错。"""
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        engine = PipelineEngine(max_workers=2)
-        captured = {}
-
-        def upstream(ctx):
-            return "up_value"
-
-        def downstream(ctx):
-            # 可读到已完成依赖的结果
-            captured["dep"] = ctx["steps"]["up"]
-            # 写只读快照应抛 TypeError（MappingProxyType）
-            try:
-                ctx["steps"]["x"] = 1
-                captured["write_blocked"] = False
-            except TypeError:
-                captured["write_blocked"] = True
-            return "down_value"
-
-        engine.add_step(PipelineStep(id="up", func=upstream))
-        engine.add_step(PipelineStep(id="down", func=downstream, dependencies=["up"]))
-
-        result = engine.run({})
-
-        assert captured["dep"] == "up_value"  # 中央归并的依赖结果可读
-        assert captured["write_blocked"] is True  # 只读快照禁止写
-        # 公开输出契约不变
-        assert result["steps"]["up"] == "up_value"
-        assert result["steps"]["down"] == "down_value"
-        # step 写 ctx["steps"] 未污染权威结果
-        assert "x" not in result["steps"]
 
 
 # === SafeFFmpegCommand ===
@@ -463,14 +273,14 @@ class TestSafeFFmpegCommand:
 
 class TestShortDrama:
     def test_preset_suspense(self):
-        from scenefab.core.short_drama import ShortDramaPreset, ShortDramaStyle
+        from scenefab.pipeline.short_drama import ShortDramaPreset, ShortDramaStyle
 
         p = ShortDramaPreset.suspense()
         assert p.style == ShortDramaStyle.SUSPENSE
         assert "悬疑" in p.name
 
     def test_trope_detection(self):
-        from scenefab.core.short_drama import (
+        from scenefab.pipeline.short_drama import (
             ShortDramaNarrator,
             ShortDramaPreset,
             TropeType,
@@ -486,7 +296,7 @@ class TestShortDrama:
         assert narrator.detect_trope("普通场景") == TropeType.GENERAL
 
     def test_episode_scanning(self):
-        from scenefab.core.short_drama import ShortDramaNarrator, ShortDramaPreset
+        from scenefab.pipeline.short_drama import ShortDramaNarrator, ShortDramaPreset
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
@@ -501,7 +311,7 @@ class TestShortDrama:
             assert episodes[2].episode_number == 10
 
     def test_chinese_episode_pattern(self):
-        from scenefab.core.short_drama import ShortDramaNarrator, ShortDramaPreset
+        from scenefab.pipeline.short_drama import ShortDramaNarrator, ShortDramaPreset
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
@@ -513,37 +323,6 @@ class TestShortDrama:
             assert len(episodes) == 2
             assert episodes[0].episode_number == 1
             assert episodes[1].episode_number == 15
-
-
-# === 集成测试 ===
-
-
-class TestIntegration:
-    def test_audit_during_pipeline(self):
-        """Pipeline 执行的每步都应记录到审计日志"""
-        from scenefab.core.audit import AuditLogger
-        from scenefab.core.pipeline_engine import PipelineEngine, PipelineStep
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            db_path = Path(tmpdir) / "audit.db"
-            audit = AuditLogger(db_path=db_path)
-
-            engine = PipelineEngine(max_workers=1)
-            engine.add_step(PipelineStep(id="step1", func=lambda c: "result1"))
-            engine.add_step(
-                PipelineStep(
-                    id="step2",
-                    func=lambda c: "result2",
-                    dependencies=["step1"],
-                )
-            )
-
-            engine.run({})
-
-            # 应有 pipeline_run + 2 step records
-            assert audit.count(action="pipeline_run") >= 1
-            assert audit.count(action="pipeline_step_start") >= 2
-            assert audit.count(action="pipeline_step_done") >= 2
 
 
 if __name__ == "__main__":

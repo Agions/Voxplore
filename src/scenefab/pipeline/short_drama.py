@@ -9,7 +9,7 @@
 - 集数水印 + 下集预告钩子
 
 使用示例:
-    from scenefab.core.short_drama import ShortDramaNarrator, ShortDramaPreset
+    from scenefab.pipeline.short_drama import ShortDramaNarrator, ShortDramaPreset
 
     preset = ShortDramaPreset.suspense()  # 短剧悬疑风
     narrator = ShortDramaNarrator(preset=preset)
