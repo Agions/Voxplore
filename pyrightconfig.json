@@ -1,8 +1,0 @@
-{
-  "include": ["src/scenefab"],
-  "exclude": ["tests/**", "**/__pycache__/**"],
-  "pythonVersion": "3.10",
-  "typeCheckingMode": "basic",
-  "stubPath": "",
-  "reportMissingImports": false
-}
