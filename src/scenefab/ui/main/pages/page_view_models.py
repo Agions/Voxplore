@@ -171,6 +171,13 @@ SETTINGS_GROUPS = (
         "应用行为",
         (
             SettingRowView(
+                "theme",
+                "主题",
+                "combo",
+                "切换浅色或深色外观",
+                options=("浅色", "深色"),
+            ),
+            SettingRowView(
                 "auto_save",
                 "自动保存",
                 "toggle",
