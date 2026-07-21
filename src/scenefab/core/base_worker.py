@@ -212,6 +212,9 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
         通过 check_cancel_or_pause() 周期性检查取消/暂停状态
         通过 emit_progress(current, total, message) 报告进度
 
+        返回值会被存入 WorkerResult.data，供 finished 信号的消费者读取
+        （无需返回时返回 None 即可）。
+
         注意: 子类应重写 _run() 而非 run()。run() 是线程入口，由 start()
         触发并统一转发到 _execute() 处理异常捕获/结果包装/Signal 发送。
         """
@@ -240,7 +243,7 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
 
         self._start_time_ms = int(time.time() * 1000)
         try:
-            self._run()
+            result_data = self._run()
             duration = int(time.time() * 1000) - self._start_time_ms
             if self.is_cancelled():
                 self._result = WorkerResult(
@@ -252,6 +255,7 @@ class BaseWorker(QThread if _QT_AVAILABLE else threading.Thread):  # type: ignor
             else:
                 self._result = WorkerResult(
                     success=True,
+                    data=result_data,
                     duration_ms=duration,
                 )
                 if _QT_AVAILABLE:

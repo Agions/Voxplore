@@ -295,10 +295,15 @@ def run_export() -> None:
     video_material = VideoMaterial(path=video_path)
     draft.add_video(video_material)
 
+    # Probe actual video duration instead of hardcoding 30s
+    from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+
+    duration = FFmpegTool.get_duration(video_path) or 30.0
+
     segment = Segment(
         material_id=video_material.id,
-        source_timerange=TimeRange.from_seconds(0, 30),
-        target_timerange=TimeRange.from_seconds(0, 30),
+        source_timerange=TimeRange.from_seconds(0, duration),
+        target_timerange=TimeRange.from_seconds(0, duration),
     )
     video_track.add_segment(segment)
 
