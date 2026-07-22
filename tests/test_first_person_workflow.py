@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tests for reusable first-person narration workflow definitions."""
 
-from scenefab.pipeline.first_person_workflow import (
+from scenefab.pipeline.fp_workflow import (
     FIRST_PERSON_QUALITY_GATES,
     FIRST_PERSON_SCRIPT_RULES,
     FIRST_PERSON_WORKFLOW,

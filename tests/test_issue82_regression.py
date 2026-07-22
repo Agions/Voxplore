@@ -36,7 +36,7 @@ class TestProjectManagerRecentProjectsIO:
 
     def test_config_manager_has_no_dict_like_get(self) -> None:
         """ConfigManager intentionally removed dict-like get()."""
-        from scenefab.settings import ConfigManager
+        from scenefab.settings.config import ConfigManager
 
         assert not hasattr(ConfigManager, "get"), (
             "ConfigManager.get() was re-introduced; this is the API that "

@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scenefab.pipeline.narration import (
+from scenefab.pipeline.narration.engine import (
     PLATFORM_SPECS,
     Bridge,
     BridgeType,
@@ -377,7 +377,7 @@ class TestWeightedScoring:
 
     def test_dimensions_weights_sum_to_one(self) -> None:
         """5 维权重和 = 1.0 (锁死)"""
-        from scenefab.pipeline.narration_evaluator import DIMENSION_WEIGHTS
+        from scenefab.pipeline.narration.evaluator import DIMENSION_WEIGHTS
 
         total_w = sum(DIMENSION_WEIGHTS.values())
         assert abs(total_w - 1.0) < 0.001
@@ -484,7 +484,7 @@ class TestEvaluateStepReal:
         ctx_with_assets.current_draft = "test" * 30
 
         with patch(
-            "scenefab.pipeline.narration_evaluator.NarrationEvaluator.evaluate",
+            "scenefab.pipeline.narration.evaluator.NarrationEvaluator.evaluate",
             side_effect=RuntimeError("boom"),
         ):
             result = evaluate_step(ctx_with_assets)
@@ -602,7 +602,7 @@ class TestEvaluationLoopReal:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """首次 REJECT 后, 通过 ctx.eval_score 抬升触发 ACCEPT"""
-        from scenefab.pipeline.narration_state_machine import (
+        from scenefab.pipeline.narration.state_machine import (
             NarrationConfig,
             StepResult,
         )
@@ -655,7 +655,7 @@ class TestEvaluationLoopReal:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """连续 REJECT → max_attempts → ERROR"""
-        from scenefab.pipeline.narration_state_machine import (
+        from scenefab.pipeline.narration.state_machine import (
             NarrationConfig,
             StepResult,
         )

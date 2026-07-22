@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from scenefab.services.export.batch_export_manager import BatchExportManager
+from scenefab.services.export.batch_export import BatchExportManager
 from scenefab.utils.json_io import write_json
 
 

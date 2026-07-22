@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试项目管理器"""
 
-from scenefab.project_manager import (
+from scenefab.project.manager import (
     ProjectMetadata,
     ProjectStatus,
     ProjectType,

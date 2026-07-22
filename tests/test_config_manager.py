@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试配置管理器"""
 
-from scenefab.settings import (
+from scenefab.settings.config import (
     CacheConfig,
     LLMConfig,
 )

@@ -5,7 +5,7 @@ import os
 import tempfile
 from unittest.mock import Mock, patch
 
-from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+from scenefab.services.video.ffmpeg_tool import FFmpegTool
 from scenefab.utils.security import SecurityError
 
 
@@ -310,7 +310,7 @@ class TestSplitModules:
     """硬件检测 / ffprobe 已拆为独立模块，验证可直接调用 + 委托一致。"""
 
     def test_hardware_module_functions(self):
-        from scenefab.services.video_tools import hardware
+        from scenefab.services.video import hardware
 
         for fn in (
             "detect_hw_accel",
@@ -322,13 +322,13 @@ class TestSplitModules:
         ):
             assert callable(getattr(hardware, fn)), f"hardware.{fn} 缺失"
         # HWAccelType 权威定义在 hardware，FFmpegTool 再导出同一对象
-        from scenefab.services.video_tools.ffmpeg_tool import HWAccelType
+        from scenefab.services.video.ffmpeg_tool import HWAccelType
 
         assert HWAccelType is hardware.HWAccelType
 
     @patch("scenefab.utils.security.SecureExecutor.run")
     def test_probe_module_delegation(self, mock_run):
-        from scenefab.services.video_tools import probe
+        from scenefab.services.video import probe
 
         mock_run.return_value = Mock(
             returncode=0, stdout='{"format": {"duration": "12.5"}}'

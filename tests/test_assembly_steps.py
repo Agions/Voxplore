@@ -25,7 +25,7 @@ from scenefab.pipeline.assembly_steps import (
     tts_length_adjust_step,
     tts_step,
 )
-from scenefab.pipeline.narration import (
+from scenefab.pipeline.narration.engine import (
     PLATFORM_SPECS,
     NarrationContext,
     NarrationState,

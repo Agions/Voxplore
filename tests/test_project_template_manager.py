@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 
 from scenefab.models.project_models import ProjectMetadata, ProjectType
-from scenefab.project_manager import Project
-from scenefab.project_template_manager import (
+from scenefab.project.manager import Project
+from scenefab.project.template_mgr import (
     ProjectTemplateManager,
     TemplateCategory,
     TemplateInfo,

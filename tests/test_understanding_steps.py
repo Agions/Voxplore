@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scenefab.pipeline.narration import (
+from scenefab.pipeline.narration.engine import (
     PLATFORM_SPECS,
     BridgeType,
     NarrationContext,
@@ -182,7 +182,7 @@ class TestBuildNarrationPrompt:
         self, ctx_with_story_graph: NarrationContext
     ) -> None:
         """③ 历史上下文: 之前提过的角色名进 topic 防重复"""
-        from scenefab.pipeline.narration import HistorySegment
+        from scenefab.pipeline.narration.engine import HistorySegment
 
         ctx_with_story_graph.add_history(
             HistorySegment(

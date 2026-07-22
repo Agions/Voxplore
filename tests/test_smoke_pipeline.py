@@ -31,7 +31,7 @@ from scenefab.services.ai.subtitle_types import (
     SubtitleExtractionResult,
     SubtitleSegment,
 )
-from scenefab.services.export.direct_video_exporter import (
+from scenefab.services.export.video_exporter import (
     DirectVideoExporter,
     Resolution,
     VideoExportConfig,
@@ -405,7 +405,7 @@ def _create_exporter(config: VideoExportConfig | None = None) -> DirectVideoExpo
     mock_result.returncode = 0
     mock_executor.run.return_value = mock_result
     with patch(
-        "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+        "scenefab.services.export.video_exporter.get_ffmpeg_executor",
         return_value=mock_executor,
     ):
         return DirectVideoExporter(config=config)
@@ -492,7 +492,7 @@ class TestDirectVideoExporterSmoke:
         )
 
         with patch(
-            "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+            "scenefab.services.export.video_exporter.get_ffmpeg_executor",
             return_value=mock_executor,
         ):
             exporter = DirectVideoExporter(config=cfg)
@@ -533,7 +533,7 @@ class TestDirectVideoExporterSmoke:
 
         with (
             patch(
-                "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+                "scenefab.services.export.video_exporter.get_ffmpeg_executor",
                 return_value=mock_executor,
             ),
             patch(
@@ -562,7 +562,7 @@ class TestDirectVideoExporterSmoke:
         project = SimpleNamespace(source_video="/tmp/source.mp4", segments=[segment])
 
         with patch(
-            "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+            "scenefab.services.export.video_exporter.get_ffmpeg_executor",
             return_value=mock_executor,
         ):
             exporter = DirectVideoExporter()
@@ -588,7 +588,7 @@ class TestDirectVideoExporterSmoke:
         progress_calls: list[tuple[str, float]] = []
 
         with patch(
-            "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+            "scenefab.services.export.video_exporter.get_ffmpeg_executor",
             return_value=mock_executor,
         ):
             exporter = DirectVideoExporter()
@@ -611,7 +611,7 @@ class TestDirectVideoExporterSmoke:
 
     def test_hw_accel_apple_codec_mapping(self):
         """On macOS, hardware-accelerated codec mapping works."""
-        from scenefab.services.export.direct_video_exporter import HWAccel, VideoCodec
+        from scenefab.services.export.video_exporter import HWAccel, VideoCodec
 
         cfg = VideoExportConfig(hw_accel=HWAccel.APPLE, video_codec=VideoCodec.H264)
         exporter = _create_exporter(config=cfg)
@@ -717,7 +717,7 @@ class TestPipelineSmokeIntegration:
 
         with (
             patch(
-                "scenefab.services.export.direct_video_exporter.get_ffmpeg_executor",
+                "scenefab.services.export.video_exporter.get_ffmpeg_executor",
                 return_value=mock_executor,
             ),
             patch(
