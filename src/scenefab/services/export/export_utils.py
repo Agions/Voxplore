@@ -18,7 +18,7 @@ from scenefab.models.constants import (
     DEFAULT_VIDEO_WIDTH,
 )
 
-from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video.ffmpeg_tool import FFmpegTool
 
 # ========== 时间处理工具 ==========
 

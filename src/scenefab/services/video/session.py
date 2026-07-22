@@ -43,7 +43,7 @@ class FFmpegSession(metaclass=SingletonMeta):
             return self._info_cache[cache_key]
 
         try:
-            from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+            from scenefab.services.video.ffmpeg_tool import FFmpegTool
 
             data = FFmpegTool.get_video_info(video_path)
 
@@ -221,7 +221,7 @@ class FFmpegSession(metaclass=SingletonMeta):
         if output_path is None:
             output_path = video_path.rsplit(".", 1)[0] + ".wav"  # type: ignore[unreachable]
 
-        from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+        from scenefab.services.video.ffmpeg_tool import FFmpegTool
 
         ok = FFmpegTool.extract_audio(
             video_path,

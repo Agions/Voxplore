@@ -20,7 +20,7 @@ _EXPORTS = {
     "FFmpegResult": ("scenefab.core.ffmpeg_safe", "FFmpegResult"),
     "FFmpegSecurityError": ("scenefab.core.ffmpeg_safe", "FFmpegSecurityError"),
     "is_safe_path": ("scenefab.core.ffmpeg_safe", "is_safe_path"),
-    "StreamingLLMWorker": ("scenefab.core.streaming_llm_worker", "StreamingLLMWorker"),
+    "StreamingLLMWorker": ("scenefab.core.stream_worker", "StreamingLLMWorker"),
     "UnifiedEventBus": ("scenefab.core.unified_event_bus", "UnifiedEventBus"),
     "EventHandler": ("scenefab.core.unified_event_bus", "EventHandler"),
     "AsyncEventHandler": ("scenefab.core.unified_event_bus", "AsyncEventHandler"),

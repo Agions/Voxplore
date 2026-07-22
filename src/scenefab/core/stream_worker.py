@@ -14,7 +14,7 @@ LLM 流式输出 UI Worker — v2.0 重构
     实现依赖反转，保持 core → services 的单向依赖。
 
 使用示例:
-    from scenefab.core.streaming_llm_worker import StreamingLLMWorker
+    from scenefab.core.stream_worker import StreamingLLMWorker
     from scenefab.services.ai.script_stream import StreamingScriptGenerator
 
     worker = StreamingLLMWorker(

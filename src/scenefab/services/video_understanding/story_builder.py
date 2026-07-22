@@ -7,7 +7,7 @@ SceneFab 剧情图谱构建混入
 import logging
 from typing import Any
 
-from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+from scenefab.services.video.ffmpeg_tool import FFmpegTool
 from scenefab.services.video_understanding.models import (
     Character,
     PlotEvent,

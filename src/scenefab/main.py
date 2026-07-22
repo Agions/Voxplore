@@ -296,7 +296,7 @@ def run_export() -> None:
     draft.add_video(video_material)
 
     # Probe actual video duration instead of hardcoding 30s
-    from scenefab.services.video_tools.ffmpeg_tool import FFmpegTool
+    from scenefab.services.video.ffmpeg_tool import FFmpegTool
 
     duration = FFmpegTool.get_duration(video_path) or 30.0
 

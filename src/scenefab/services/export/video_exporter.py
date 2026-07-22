@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Any
 
 from ...utils.security import get_ffmpeg_executor
-from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video.ffmpeg_tool import FFmpegTool
 from .export_utils import ensure_directory, ensure_parent_directory
 
 logger = logging.getLogger(__name__)

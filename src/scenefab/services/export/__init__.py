@@ -6,14 +6,14 @@ SceneFab 导出服务模块
 - DirectVideoExporter: MP4/MOV/GIF 视频文件导出
 """
 
-from .batch_export_manager import (
+from .batch_export import (
     BatchExportManager,
     BatchExportResult,
     ExportStatus,
     ExportTask,
     get_batch_export_manager,
 )
-from .direct_video_exporter import (
+from .video_exporter import (
     DirectVideoExporter,
     HWAccel,
     Resolution,

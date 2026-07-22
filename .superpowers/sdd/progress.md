@@ -4,10 +4,8 @@ Base commit: 58c3786
 
 ## Task Status
 
-- Task 1: complete (commits 58c3786..501dfad, review clean)
-- Task 2: pending
-- Task 3: pending
-- Task 4: pending
+- Task 3: complete (commits 58c3786..598c1e4, review clean)
+- Task 4: in_progress
 - Task 5: pending
 - Task 6: pending
 - Task 7: pending

@@ -13,7 +13,7 @@ _SUBMODULES = {
     "export",
     "orchestration",
     "video",
-    "video_tools",
+    "video",
 }
 
 # Lazy-loaded names sourced from the canonical AI modules.
@@ -43,7 +43,7 @@ __all__ = [
     "ai",
     "video",
     "export",
-    "video_tools",
+    "video",
     "orchestration",
     "ServiceStatus",
     "ServiceHealth",

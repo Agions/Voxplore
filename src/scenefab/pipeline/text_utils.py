@@ -2,7 +2,7 @@
 
 import re
 
-from scenefab.pipeline.narration_context import ProductionStyle
+from scenefab.pipeline.narration.context import ProductionStyle
 
 
 def split_sentences(text: str) -> list[str]:

@@ -15,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 from ...utils.security import get_ffmpeg_executor
-from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video.ffmpeg_tool import FFmpegTool
 from .subtitle_merger import SubtitleMerger
 from .subtitle_speech import SpeechSubtitleExtractor
 from .subtitle_translator import SubtitleTranslator

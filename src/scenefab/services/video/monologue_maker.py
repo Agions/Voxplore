@@ -36,8 +36,8 @@ from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceConfig, VoiceGenerator
 from ..ai.voice_models import VoiceStyle
 from ..export.jianying_adapter import JianyingDraft
-from ..video_tools.caption_generator import CaptionGenerator
-from ..video_tools.ffmpeg_tool import FFmpegTool
+from ..video.caption_gen import CaptionGenerator
+from ..video.ffmpeg_tool import FFmpegTool
 from .base_maker import BaseProject, BaseVideoMaker
 from .models.monologue import EmotionType, MonologueSegment, MonologueStyle
 from .track_builder import CAPTION_STYLES, build_monologue_tracks
@@ -264,7 +264,7 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
         self.voice_generator = VoiceGenerator(provider=voice_provider)
         self.script_generator = ScriptGenerator(use_llm_manager=True)
-        self.caption_generator = CaptionGenerator()
+        self.caption_gen = CaptionGenerator()
 
     def create_project(  # type: ignore[override]
         self,

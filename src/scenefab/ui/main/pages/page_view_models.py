@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 
-from scenefab.pipeline.first_person_workflow import (
+from scenefab.pipeline.fp_workflow import (
     FIRST_PERSON_QUALITY_GATES,
     FIRST_PERSON_SCRIPT_RULES,
     numbered_workflow,
