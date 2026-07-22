@@ -119,7 +119,7 @@ class TestMonologueMaker:
         assert maker.scene_analyzer is not None
         assert isinstance(maker.voice_generator, DummyVoiceGenerator)
         assert isinstance(maker.script_generator, DummyScriptGenerator)
-        assert isinstance(maker.caption_generator, DummyCaptionGenerator)
+        assert isinstance(maker.caption_gen, DummyCaptionGenerator)
 
     def test_init_custom_voice_provider(self, offline_dependencies):
         """测试自定义语音提供者"""

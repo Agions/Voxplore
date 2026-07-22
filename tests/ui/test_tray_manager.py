@@ -8,7 +8,7 @@ from pathlib import Path
 
 from scenefab.settings.definitions import get_all_settings_definitions
 
-_SRC = Path(__file__).resolve().parent.parent / "src" / "scenefab"
+_SRC = Path(__file__).resolve().parent.parent.parent / "src" / "scenefab"
 
 
 def test_tray_setting_default_is_false():
