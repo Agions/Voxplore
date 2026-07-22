@@ -13,23 +13,23 @@ v2.2 解说生成状态机 — Phase 1 骨架 + Phase 2/3/4 真实实现
 v2.2 决策: 见 docs/adr/007-narration-state-machine.md
 """
 
-from .assembly_steps import (
+from ..assembly_steps import (
     assemble_step,
     probe_audio_duration,
     register_assembly_steps,
     tts_length_adjust_step,
     tts_step,
 )
-from .evaluation_steps import (
+from ..evaluation_steps import (
     evaluate_step as evaluate_step_phase3,
 )
-from .evaluation_steps import (
+from ..evaluation_steps import (
     hook_rewrite_step as hook_rewrite_step_phase3,
 )
-from .evaluation_steps import (
+from ..evaluation_steps import (
     register_evaluation_steps,
 )
-from .narration_context import (
+from .context import (
     PLATFORM_SPECS,
     Bridge,
     BridgeType,
@@ -41,12 +41,12 @@ from .narration_context import (
     PlatformSpec,
     ProductionStyle,
 )
-from .narration_evaluator import (
+from .evaluator import (
     DimensionScore,
     EvalResult,
     NarrationEvaluator,
 )
-from .narration_state_machine import (
+from .state_machine import (
     NarrationConfig,
     NarrationState,
     NarrationStateMachine,
@@ -54,8 +54,8 @@ from .narration_state_machine import (
     StepResult,
     TransitionReason,
 )
-from .narration_steps import register_default_steps
-from .understanding_steps import (
+from .steps import register_default_steps
+from ..understanding_steps import (
     _build_narration_prompt,
     draft_step,
     register_understanding_steps,

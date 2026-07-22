@@ -22,11 +22,11 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .narration_context import NarrationContext
-from .narration_state_machine import NarrationState, StepResult
+from .context import NarrationContext
+from .state_machine import NarrationState, StepResult
 
 if TYPE_CHECKING:
-    from .narration_state_machine import NarrationStateMachine
+    from .state_machine import NarrationStateMachine
 
 
 # ============================================
@@ -125,7 +125,7 @@ def register_default_steps(sm: NarrationStateMachine) -> None:
         register_assembly_steps(sm)
         result = sm.run(ctx)
     """
-    from .narration_state_machine import NarrationStateMachine
+    from .state_machine import NarrationStateMachine
 
     assert isinstance(sm, NarrationStateMachine)
 

@@ -4,12 +4,12 @@
 import logging
 from pathlib import Path
 
-from scenefab.settings_manager import (
+from scenefab.settings.manager import (
     ProjectSettingsManager,
     SettingDefinition,
     SettingType,
 )
-from scenefab.settings_types import ProjectSettingsProfile
+from scenefab.settings.types import ProjectSettingsProfile
 from scenefab.utils.json_io import read_json, write_json
 
 

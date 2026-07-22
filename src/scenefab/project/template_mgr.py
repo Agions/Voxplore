@@ -21,11 +21,11 @@ from scenefab.utils.project_io import (
     import_from_zip,
 )
 
-from .project_manager import Project, ProjectType
-from .settings import ConfigManager
+from .manager import Project, ProjectType
+from scenefab.settings.config import ConfigManager
 from .template_models import TemplateCategory, TemplateInfo, TemplateMetadata
-from .utils.json_io import read_json, write_json
-from .utils.version import get_version_string
+from ..utils.json_io import read_json, write_json
+from ..utils.version import get_version_string
 
 _handle_template_error = handle_error
 
@@ -626,3 +626,7 @@ class ProjectTemplateManager(QObject):
         except Exception as e:
             self.logger.error(f"Failed to validate template {template_id}: {e}")
             return {"valid": False, "errors": [f"验证失败: {str(e)}"]}
+
+
+# Backward compatibility alias
+TemplateManager = ProjectTemplateManager

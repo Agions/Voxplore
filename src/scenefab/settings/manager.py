@@ -15,12 +15,12 @@ from typing import Any
 from scenefab.signals_bridge import QObject, Signal
 from scenefab.utils.project_io import ensure_directories
 
-from .secure_key_manager import get_secure_key_manager
-from .settings import ConfigManager
-from .settings_data import get_all_settings_definitions
-from .settings_types import ProjectSettingsProfile, SettingDefinition, SettingType
-from .utils.json_io import read_json, write_json
-from .utils.version import get_version_string
+from scenefab.secure_key_manager import get_secure_key_manager
+from .config import ConfigManager
+from .definitions import get_all_settings_definitions
+from .types import ProjectSettingsProfile, SettingDefinition, SettingType
+from ..utils.json_io import read_json, write_json
+from ..utils.version import get_version_string
 
 
 class ProjectSettingsManager(QObject):

@@ -714,7 +714,7 @@ class TestPhase3EndToEnd:
     ) -> None:
         """低分 draft → REJECT → 回到 DRAFT (max_attempts 兜底)"""
         # 配 draft_step 让它总是产生低分 (极短)
-        from scenefab.pipeline.narration_state_machine import StepResult
+        from scenefab.pipeline.narration.state_machine import StepResult
 
         def short_draft(ctx: NarrationContext):
             ctx.reset_draft()
@@ -735,7 +735,7 @@ class TestPhase3EndToEnd:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """强制高分 EVALUATE → ACCEPT → 完整 DONE"""
-        from scenefab.pipeline.narration_state_machine import StepResult
+        from scenefab.pipeline.narration.state_machine import StepResult
 
         # 配 fake_evaluate 设高分 (9.0) 强制 ACCEPT
         def high_score_evaluate(ctx: NarrationContext):

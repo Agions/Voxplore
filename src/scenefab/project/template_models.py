@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from .project_manager import ProjectType
+from .manager import ProjectType
 
 
 @dataclass

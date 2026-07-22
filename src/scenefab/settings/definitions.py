@@ -16,8 +16,8 @@
 - export: 导出设置
 """
 
-from .services.ai.model_catalog import DEFAULT_MODELS, settings_model_options
-from .settings_types import SettingDefinition, SettingType
+from scenefab.services.ai.model_catalog import DEFAULT_MODELS, settings_model_options
+from .types import SettingDefinition, SettingType
 
 
 def _get_video_settings() -> dict[str, SettingDefinition]:

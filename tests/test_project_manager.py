@@ -3,9 +3,9 @@
 
 from scenefab.project.manager import (
     ProjectMetadata,
-    ProjectStatus,
     ProjectType,
 )
+from scenefab.models.project_models import ProjectStatus
 
 
 class TestProjectStatus:

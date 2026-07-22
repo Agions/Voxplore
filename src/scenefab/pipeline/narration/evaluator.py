@@ -20,8 +20,8 @@ import logging
 import re
 from dataclasses import dataclass, field
 
-from .fp_workflow import FIRST_PERSON_QUALITY_GATES
-from .narration_context import (
+from ..fp_workflow import FIRST_PERSON_QUALITY_GATES
+from .context import (
     BridgeType,
     NarrationContext,
 )

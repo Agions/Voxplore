@@ -28,7 +28,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from ..video.base import extract_video_metadata
+from ..video.tool_base import extract_video_metadata
 from ..video.ffmpeg_tool import FFmpegTool
 from .export_utils import ensure_directory, safe_filename, write_json_file
 from .jianying_adapter import (

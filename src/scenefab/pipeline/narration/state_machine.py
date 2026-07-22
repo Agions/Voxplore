@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from .narration_context import NarrationContext
+from .context import NarrationContext
 
 logger = logging.getLogger(__name__)
 

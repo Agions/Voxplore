@@ -15,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 from ...utils.security import get_ffmpeg_executor
-from ..video.base import get_seg_attr
+from ..video.tool_base import get_seg_attr
 from ..video.ffmpeg_tool import FFmpegTool
 from .subtitle_types import SubtitleExtractionResult, SubtitleSegment
 

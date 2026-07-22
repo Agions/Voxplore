@@ -24,15 +24,15 @@ from scenefab.utils.project_io import (
     import_from_zip,
 )
 
-from .models.project_models import (
+from scenefab.models.project_models import (
     ProjectMedia,
     ProjectMetadata,
     ProjectSettings,
     ProjectTimeline,
     ProjectType,
 )
-from .settings import ConfigManager
-from .utils.json_io import read_json, write_json
+from scenefab.settings.config import ConfigManager
+from ..utils.json_io import read_json, write_json
 
 _handle_project_error = handle_error
 

@@ -6,7 +6,7 @@
 import py_compile
 from pathlib import Path
 
-from scenefab.settings_data import get_all_settings_definitions
+from scenefab.settings.definitions import get_all_settings_definitions
 
 _SRC = Path(__file__).resolve().parent.parent / "src" / "scenefab"
 
