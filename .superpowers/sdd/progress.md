@@ -5,8 +5,8 @@ Base commit: 58c3786
 ## Task Status
 
 - Task 3: complete (commits 58c3786..598c1e4, review clean)
-- Task 8: complete (commit a28f165, review clean)
-- Task 9: in_progress
+- Task 9: complete (commit dd10dd7, review clean)
+- Task 10: in_progress
 - Task 5: pending
 - Task 6: pending
 - Task 7: pending
