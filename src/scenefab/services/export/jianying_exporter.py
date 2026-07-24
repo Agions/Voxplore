@@ -22,6 +22,7 @@
 数据模型已拆分到 jianying_adapter.py，导出器保持单一职责。
 """
 
+import json
 import logging
 import shutil
 import subprocess

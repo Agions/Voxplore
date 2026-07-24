@@ -20,3 +20,8 @@ except ImportError:
 def mock_ffmpeg_check():
     with patch("scenefab.services.video.ffmpeg_tool.FFmpegTool.check_ffmpeg"):
         yield
+
+
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"

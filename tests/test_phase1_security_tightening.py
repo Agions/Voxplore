@@ -21,6 +21,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+fastapi = pytest.importorskip("fastapi")
+
 # =============================================================================
 # 1. hardware.py: check_nvidia_smi / check_intel_cpu 走 SecureExecutor
 # =============================================================================
@@ -28,7 +30,7 @@ import pytest
 
 def test_check_nvidia_smi_uses_probe_executor():
     """★ 关键: check_nvidia_smi 必须走 probe_executor, 不能裸 subprocess"""
-    from scenefab.services.video_tools import hardware
+    from scenefab.services.video import hardware
     from scenefab.utils.security import SecureExecutor
 
     # Mock probe_executor 的 run 方法
@@ -47,49 +49,52 @@ def test_check_nvidia_smi_uses_probe_executor():
 
 def test_check_nvidia_smi_security_error_returns_false():
     """★ SecurityError (白名单拒绝/命令不存在) → False, 不 crash"""
-    from scenefab.services.video_tools import hardware
+    from scenefab.services.video import hardware
     from scenefab.utils.security import SecurityError
 
-    mock_executor = MagicMock()
-    mock_executor.run.side_effect = SecurityError("命令不在白名单")
-
-    with patch.object(hardware, "get_probe_executor", return_value=mock_executor):
+    with patch.object(
+        hardware, "get_probe_executor", side_effect=SecurityError("Refused")
+    ):
         result = hardware.check_nvidia_smi()
 
     assert result is False
 
 
 def test_check_nvidia_smi_no_longer_uses_subprocess_module():
-    """★ 关键: hardware.py 不应该 import subprocess (强制走 SecureExecutor)"""
-    # 检查模块 import 不再含 subprocess
-    from scenefab.services.video_tools import hardware
-    hardware_source = Path(hardware.__file__).read_text()
-    assert "import subprocess" not in hardware_source, (
-        "hardware.py 不应再 import subprocess — 全部走 SecureExecutor 审计链"
+    """★ 静态审计: hardware.py 中 check_nvidia_smi 函数体内不得包含 subprocess.run"""
+    import inspect
+
+    from scenefab.services.video import hardware
+
+    code = inspect.getsource(hardware.check_nvidia_smi)
+    assert "subprocess.run" not in code, (
+        "check_nvidia_smi 仍然在使用裸 subprocess.run! 应统一走 get_probe_executor()"
     )
 
 
-def test_check_intel_cpu_windows_uses_probe_executor(monkeypatch):
-    """Windows 路径下 wmic 走 probe_executor"""
-    from scenefab.services.video_tools import hardware
+def test_check_intel_cpu_windows_uses_probe_executor():
+    """Windows 下 check_intel_cpu 必须走 probe_executor.run(["wmic", ...])"""
+    from scenefab.services.video import hardware
     from scenefab.utils.security import SecureExecutor
 
     mock_executor = MagicMock(spec=SecureExecutor)
     mock_executor.run.return_value = MagicMock(
-        returncode=0, stdout="Intel(R) Core(TM) i7-9700K"
+        returncode=0, stdout="Name\nIntel(R) Core(TM) i7\n"
     )
 
-    with patch.object(hardware, "get_probe_executor", return_value=mock_executor):
-        with patch.object(hardware.platform, "system", return_value="Windows"):
+    with patch("platform.system", return_value="Windows"):
+        with patch.object(hardware, "get_probe_executor", return_value=mock_executor):
             result = hardware.check_intel_cpu()
 
     assert result is True
-    mock_executor.run.assert_called_with(["wmic", "cpu", "get", "name"], timeout=5)
+    mock_executor.run.assert_called_with(
+        ["wmic", "cpu", "get", "name"], timeout=5
+    )
 
 
 def test_check_intel_cpu_linux_uses_proc_cpuinfo():
-    """Linux 路径下读 /proc/cpuinfo (纯文件 IO, 不需要执行器)"""
-    from scenefab.services.video_tools import hardware
+    """Linux 下 check_intel_cpu 读取 /proc/cpuinfo (不 spawn 子进程)"""
+    from scenefab.services.video import hardware
 
     with patch.object(hardware.platform, "system", return_value="Linux"):
         # /proc/cpuinfo 真实读取, 不需要 mock

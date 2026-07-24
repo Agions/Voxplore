@@ -260,6 +260,8 @@ class HTTPClientMixin:
         """统一 provider 业务错误文案。"""
         if isinstance(error, httpx.HTTPStatusError):
             return self._handle_http_error(error)
+        if isinstance(error, httpx.HTTPError):
+            return ProviderError(f"{action}失败 (网络错误): {error}")
         if isinstance(error, ProviderError):
             return error
         return ProviderError(f"{action}失败: {str(error)}")
@@ -295,7 +297,9 @@ class HTTPClientMixin:
             )
             latency_ms = (time.monotonic() - start_time) * 1000
             return self._parse_response(data, model, latency_ms)
-        except Exception as e:
+        except ProviderError:
+            raise
+        except (httpx.HTTPError, json.JSONDecodeError, KeyError, ValueError) as e:
             raise self._provider_error("生成", e)
 
     async def _parse_sse_stream(

@@ -166,6 +166,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+asyncio_mode = "auto"
 # 默认关闭 pytest-qt 插件：无 Qt binding 时它会 abort 整个 session。
 # UI 测试通过根 conftest 在 PySide6 缺失时自动跳过；需要跑 UI 测试时用
 # `pytest -p pytest-qt ...` 重新启用。

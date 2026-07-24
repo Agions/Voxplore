@@ -21,6 +21,8 @@ import os
 import time
 
 import pytest
+
+PySide6 = pytest.importorskip("PySide6")
 from PySide6.QtCore import QCoreApplication
 
 from scenefab.ui.viewmodels.production_viewmodel import (

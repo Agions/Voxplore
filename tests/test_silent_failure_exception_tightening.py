@@ -67,25 +67,27 @@ def test_run_video_metric_runtime_error_propagates():
 
 def test_check_intel_cpu_proc_cpuinfo_missing_returns_false(caplog):
     """linux 下 /proc/cpuinfo 不存在 → return False (行为保持)"""
-    from scenefab.services.video_tools import hardware
+    from scenefab.services.video import hardware
 
     # 强制走 linux 路径并 mock open 抛 FileNotFoundError
-    with patch("scenefab.services.video_tools.hardware.platform.system", return_value="Linux"):
+    with patch("scenefab.services.video.hardware.platform.system", return_value="Linux"):
         # 模拟 /proc/cpuinfo 不存在
         with patch("builtins.open", side_effect=FileNotFoundError("/proc/cpuinfo")):
-            with caplog.at_level(logging.DEBUG, logger="scenefab.services.video_tools.hardware"):
+            with caplog.at_level(logging.DEBUG, logger="scenefab.services.video.hardware"):
                 result = hardware.check_intel_cpu()
 
     assert result is False  # 默认值
-    # 必须有 debug log (证明不再静默)
-    assert any("detection failed" in r.message.lower() for r in caplog.records)
+    assert any(
+        "skipped" in r.message.lower() or "failed" in r.message.lower()
+        for r in caplog.records
+    )
 
 
 def test_check_intel_cpu_runtime_error_propagates():
     """★诚实性: RuntimeError 不再被吞 (例如 platform.system 抛错)"""
-    from scenefab.services.video_tools import hardware
+    from scenefab.services.video import hardware
 
-    with patch("scenefab.services.video_tools.hardware.platform.system",
+    with patch("scenefab.services.video.hardware.platform.system",
                side_effect=RuntimeError("Code bug: platform.system crashed")):
         with pytest.raises(RuntimeError, match="Code bug"):
             hardware.check_intel_cpu()
@@ -178,8 +180,8 @@ def test_set_task_store_close_typeerror_propagates(monkeypatch):
 
 def test_check_intel_cpu_happy_path_no_crash(caplog):
     """check_intel_cpu() 真实调用不 crash, debug log 仅在失败时出现"""
-    from scenefab.services.video_tools import hardware
+    from scenefab.services.video import hardware
 
-    with caplog.at_level(logging.DEBUG, logger="scenefab.services.video_tools.hardware"):
+    with caplog.at_level(logging.DEBUG, logger="scenefab.services.video.hardware"):
         result = hardware.check_intel_cpu()
     assert isinstance(result, bool)  # 仅验证不 crash

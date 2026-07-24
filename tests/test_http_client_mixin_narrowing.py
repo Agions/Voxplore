@@ -23,6 +23,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
+pytestmark = pytest.mark.anyio
+
 from scenefab.exceptions import ProviderError
 
 # =============================================================================

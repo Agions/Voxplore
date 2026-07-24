@@ -19,7 +19,7 @@ import pytest
 
 def test_load_templates_json_decode_error_logs_error(tmp_path):
     """JSON 解析失败 → log error, 不 crash"""
-    from scenefab.project_template_manager import ProjectTemplateManager
+    from scenefab.project.template_mgr import ProjectTemplateManager
 
     mgr = ProjectTemplateManager.__new__(ProjectTemplateManager)
     mgr.logger = MagicMock()
@@ -36,7 +36,7 @@ def test_load_templates_json_decode_error_logs_error(tmp_path):
 
 def test_load_templates_runtime_error_propagates(tmp_path):
     """★诚实性: _load_templates 中 RuntimeError 不再被吞"""
-    from scenefab.project_template_manager import ProjectTemplateManager
+    from scenefab.project.template_mgr import ProjectTemplateManager
 
     mgr = ProjectTemplateManager.__new__(ProjectTemplateManager)
     mgr.logger = MagicMock()
@@ -44,7 +44,7 @@ def test_load_templates_runtime_error_propagates(tmp_path):
     mgr.templates_dir = tmp_path
 
     # 模拟 TemplateInfo.from_dict 抛 RuntimeError
-    with patch("scenefab.project_template_manager.TemplateInfo.from_dict",
+    with patch("scenefab.project.template_mgr.TemplateInfo.from_dict",
                side_effect=RuntimeError("Code bug: bad template schema")):
         index_file = tmp_path / "templates.json"
         index_file.write_text('{"tpl1": {"id": "tpl1", "name": "test"}}')
@@ -60,7 +60,7 @@ def test_load_templates_runtime_error_propagates(tmp_path):
 
 def test_calculate_directory_size_oserror_returns_zero(tmp_path):
     """os.walk OSError → return 0 (行为保持)"""
-    from scenefab.project_template_manager import ProjectTemplateManager
+    from scenefab.project.template_mgr import ProjectTemplateManager
 
     mgr = ProjectTemplateManager.__new__(ProjectTemplateManager)
     mgr.logger = MagicMock()
@@ -72,7 +72,7 @@ def test_calculate_directory_size_oserror_returns_zero(tmp_path):
 
 def test_calculate_directory_size_runtime_error_propagates(tmp_path):
     """★诚实性: _calculate_directory_size 中 RuntimeError 不再被吞"""
-    from scenefab.project_template_manager import ProjectTemplateManager
+    from scenefab.project.template_mgr import ProjectTemplateManager
 
     mgr = ProjectTemplateManager.__new__(ProjectTemplateManager)
     mgr.logger = MagicMock()
@@ -89,7 +89,7 @@ def test_calculate_directory_size_runtime_error_propagates(tmp_path):
 
 def test_apply_variables_runtime_error_propagates():
     """★诚实性: replace_variables 中 RuntimeError 不再被吞"""
-    from scenefab.project_template_manager import ProjectTemplateManager
+    from scenefab.project.template_mgr import ProjectTemplateManager
 
     mgr = ProjectTemplateManager.__new__(ProjectTemplateManager)
     mgr.logger = MagicMock()

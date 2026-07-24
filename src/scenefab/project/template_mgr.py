@@ -5,6 +5,7 @@
 提供项目模板的创建、管理和应用功能
 """
 
+import json
 import logging
 import os
 import shutil

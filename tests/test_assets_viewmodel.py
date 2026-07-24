@@ -17,6 +17,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+
+PySide6 = pytest.importorskip("PySide6")
 from PySide6.QtCore import QCoreApplication
 
 from scenefab.ui.viewmodels.assets_viewmodel import (

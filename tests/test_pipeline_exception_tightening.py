@@ -28,7 +28,7 @@ def test_probe_audio_duration_ffmpeg_subprocess_error_falls_through(tmp_path):
     audio_path.write_bytes(b"x" * 2048)  # 2KB
 
     # Mock FFmpegTool.get_duration 抛 SubprocessError
-    with patch("scenefab.services.video_tools.ffmpeg_tool.FFmpegTool.get_duration",
+    with patch("scenefab.services.video.ffmpeg_tool.FFmpegTool.get_duration",
                side_effect=subprocess.SubprocessError("ffprobe failed")):
         result = probe_audio_duration(audio_path)
         # 走 fallback (文件大小估算): size_bytes / 2048.0
@@ -42,7 +42,7 @@ def test_probe_audio_duration_filenotfound_falls_through(tmp_path):
     audio_path = tmp_path / "audio.mp3"
     audio_path.write_bytes(b"x" * 4096)  # 4KB
 
-    with patch("scenefab.services.video_tools.ffmpeg_tool.FFmpegTool.get_duration",
+    with patch("scenefab.services.video.ffmpeg_tool.FFmpegTool.get_duration",
                side_effect=FileNotFoundError("ffmpeg not in PATH")):
         result = probe_audio_duration(audio_path)
         assert result == pytest.approx(2.0, abs=0.01)
@@ -55,7 +55,7 @@ def test_probe_audio_duration_runtime_error_propagates(tmp_path):
     audio_path = tmp_path / "audio.mp3"
     audio_path.write_bytes(b"x" * 100)
 
-    with patch("scenefab.services.video_tools.ffmpeg_tool.FFmpegTool.get_duration",
+    with patch("scenefab.services.video.ffmpeg_tool.FFmpegTool.get_duration",
                side_effect=RuntimeError("Code bug: bad ffprobe logic")):
         with pytest.raises(RuntimeError, match="Code bug"):
             probe_audio_duration(audio_path)
@@ -69,8 +69,8 @@ def test_probe_audio_duration_runtime_error_propagates(tmp_path):
 def test_tts_stub_wave_oserror_returns_failure():
     """_tts_stub 写 WAV 失败 (OSError) → return failure StepResult"""
     from scenefab.pipeline.assembly_steps import _tts_stub
-    from scenefab.pipeline.narration_context import NarrationContext
-    from scenefab.pipeline.narration_state_machine import NarrationState
+    from scenefab.pipeline.narration.context import NarrationContext
+    from scenefab.pipeline.narration.state_machine import NarrationState
 
     ctx = MagicMock(spec=NarrationContext)
     ctx.trace_id = "trace-abc-12345"
@@ -89,7 +89,7 @@ def test_tts_stub_wave_oserror_returns_failure():
 def test_tts_stub_wave_type_error_propagates():
     """★诚实性: wave.open 中 TypeError (e.g. 参数错) 不再被返回 failure 掩盖"""
     from scenefab.pipeline.assembly_steps import _tts_stub
-    from scenefab.pipeline.narration_context import NarrationContext
+    from scenefab.pipeline.narration.context import NarrationContext
 
     ctx = MagicMock(spec=NarrationContext)
     ctx.trace_id = "trace-abc-12345"
@@ -108,7 +108,7 @@ def test_tts_stub_wave_type_error_propagates():
 def test_jianying_metadata_runtime_error_propagates(tmp_path):
     """★诚实性: _write_jianying_metadata 中 RuntimeError 不再被吞"""
     from scenefab.pipeline.assembly_steps import _write_jianying_metadata
-    from scenefab.pipeline.narration_context import NarrationContext
+    from scenefab.pipeline.narration.context import NarrationContext
 
     ctx = MagicMock(spec=NarrationContext)
     ctx.trace_id = "trace-jy"
@@ -138,7 +138,7 @@ def test_jianying_metadata_oserror_logs_warning(tmp_path):
 def test_placeholder_video_runtime_error_propagates(tmp_path):
     """★诚实性: _write_placeholder_video 中 RuntimeError 不再被吞"""
     from scenefab.pipeline.assembly_steps import _write_placeholder_video
-    from scenefab.pipeline.narration_context import NarrationContext
+    from scenefab.pipeline.narration.context import NarrationContext
 
     ctx = MagicMock(spec=NarrationContext)
     ctx.trace_id = "trace-placeholder"
@@ -156,7 +156,7 @@ def test_placeholder_video_runtime_error_propagates(tmp_path):
 
 def test_detect_bridges_scene_attribute_error_continues():
     """_detect_bridges 单 scene AttributeError → continue, 不影响其他 scene"""
-    from scenefab.core.short_drama import TropeType
+    from scenefab.pipeline.short_drama import TropeType
     from scenefab.pipeline.understanding_steps import _detect_bridges
 
     narrator = MagicMock()
@@ -195,7 +195,7 @@ def test_detect_bridges_runtime_error_propagates():
 
 def test_detect_bridges_empty_description_skipped():
     """scene.description 为空 → skip (行为保持)"""
-    from scenefab.core.short_drama import TropeType
+    from scenefab.pipeline.short_drama import TropeType
     from scenefab.pipeline.understanding_steps import _detect_bridges
 
     narrator = MagicMock()

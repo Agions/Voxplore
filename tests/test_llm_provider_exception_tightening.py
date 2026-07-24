@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
+pytestmark = pytest.mark.anyio
+
 from scenefab.services.ai.base_llm_provider import ProviderError
 from scenefab.services.ai.providers.deepseek import DeepSeekProvider
 from scenefab.services.ai.providers.doubao import DoubaoProvider
