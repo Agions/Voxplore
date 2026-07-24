@@ -24,6 +24,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from scenefab.pipeline.fp_workflow import validate_first_person_script
+
 logger = logging.getLogger(__name__)
 
 
@@ -76,14 +78,15 @@ class ShortDramaPreset:
         return cls(
             name="短剧悬疑风",
             style=ShortDramaStyle.SUSPENSE,
-            description="快节奏解说，强反转留白，适合悬疑/惊悚类短剧",
+            description="快节奏解说，强反转留白，适合悬疑/惊悚类短剧（第一人称主角独白视角）",
             system_prompt="""你是一位短剧解说创作者，专精悬疑/惊悚类短剧。
 
-风格要求：
-- 节奏紧凑，每句话必须推动剧情
-- 关键反转点要设悬念，引导观众继续观看
-- 使用疑问句、设问句增加好奇
-- 每段结尾必须留钩子（"然而就在这时..."、"没想到..."、"接下来发生的事..."）
+【核心视角规范】：
+- 全程锁死主角第一人称视角（"我"），严禁出现"只见男主"、"此时主角"等第三人称旁白。
+- 节奏紧凑，前 3 秒直接抛出悬念 Hook，每句话必须推动剧情。
+- 关键反转点要设悬念，引导观众继续观看。
+- 使用疑问句、设问句增加好奇与内心 OS 情感表达。
+- 每段结尾必须留钩子（"然而就在这时..."、"我没想到..."、"接下来发生的事..."）。
 
 桥段关注点：
 - 身份揭露（谁是幕后黑手）
@@ -296,6 +299,10 @@ class ShortDramaNarrator:
         """
         self.preset = preset
         self.llm = llm_provider  # 由 LLMManager 注入
+
+    def validate_script(self, script_text: str) -> list[str]:
+        """校验文案是否符合第一人称短剧解说规范"""
+        return validate_first_person_script(script_text)
 
     # ==============================================================
     # 桥段识别

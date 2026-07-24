@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
-"""First-person narration workflow definitions."""
+"""First-person narration workflow definitions and validation rules."""
 
 from dataclasses import dataclass
+import re
+
+THIRD_PERSON_LEAK_PATTERNS = (
+    r"只见男主",
+    r"只见女主",
+    r"此时主角",
+    r"男主角",
+    r"女主角",
+    r"画面中的他",
+    r"画面中的她",
+    r"旁白说道",
+    r"镜头转到",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,11 +66,58 @@ def numbered_workflow(
     return tuple((f"{index:02d}", stage) for index, stage in enumerate(stages, start=1))
 
 
+def validate_first_person_script(script_text: str) -> list[str]:
+    """校验解说文案是否符合第一人称规范。
+
+    Returns:
+        包含所有不合规问题描述的列表；若为空则表示完全合规。
+    """
+    violations: list[str] = []
+
+    if not script_text or not script_text.strip():
+        return ["文案内容为空"]
+
+    # 1. 第一人称视角主语检查
+    if "我" not in script_text:
+        violations.append("文案缺少第一人称主语 '我'，请确保以主角第一人称独白展开")
+
+    # 2. 第三人称混入泄漏检测
+    for pattern in THIRD_PERSON_LEAK_PATTERNS:
+        if re.search(pattern, script_text):
+            violations.append(f"发现第三人称旁白词汇汇出: '{pattern.replace('r', '')}'，必须使用第一人称主角视角")
+
+    # 3. 黄金 Hook 校验（前 30 字内是否有危机/反转悬念）
+    first_30_chars = script_text[:30]
+    hook_keywords = ("我", "没想", "居然", "死", "逃", "发现", "居然", "如果", "以为", "陷阱", "最后", "竟然")
+    if not any(kw in first_30_chars for kw in hook_keywords):
+        violations.append("开头 3 秒Hook弱：建议前 30 字内直接包含冲突、危机或悬念结果")
+
+    return violations
+
+
+def build_first_person_system_prompt(character_name: str = "主角", style_name: str = "短剧高能解说") -> str:
+    """构建严格遵循第一人称解说规范的 LLM System Prompt。"""
+    return f"""你是一位资深短剧/影视第一人称解说创作者，当前代入的角色是【{character_name}】。
+
+解说风格：{style_name}
+
+【核心撰写规范】：
+1. **视角锁死**：必须全程以【{character_name}】的第一人称视角("我")讲述。严禁使用"只见男主"、"此时主角"、"画面中"等第三人称旁白词汇。
+2. **黄金 3 秒 Hook**：开场前 1-2 句话（3 秒内）必须直接抛出重大危机、反转结果或艰难选择，吸引观众驻留。
+3. **内心 OS 情绪渲染**：结合画面镜头，重点描写我当时的内心独白（OS）、恐惧、愤怒或复仇快感。
+4. **爽点与节奏**：每 6-10 秒必须推动一次剧情进展、信息暴露或情感反转。
+5. **简洁口语化**：使用适合短视频口播的短句，剔除所有冗长繁琐的环境描述。
+"""
+
+
 __all__ = [
     "FIRST_PERSON_QUALITY_GATES",
     "FIRST_PERSON_SCRIPT_RULES",
     "FIRST_PERSON_WORKFLOW",
+    "THIRD_PERSON_LEAK_PATTERNS",
     "ScriptRule",
     "WorkflowStage",
+    "build_first_person_system_prompt",
     "numbered_workflow",
+    "validate_first_person_script",
 ]
