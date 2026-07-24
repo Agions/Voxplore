@@ -153,5 +153,5 @@ v2.4.0 支持运行时主题切换：
 ## 相关文档
 
 - [快速开始](/guide/quick-start) — 3 步上手
-- [第一人称生产规范](/guide/first-person-narration-production) — 完整生产流程
+- [第一人称生产规范](/guide/narration-spec) — 完整生产流程
 - [CLI 参考](/guide/cli-reference) — 命令行使用说明

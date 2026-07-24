@@ -4,14 +4,11 @@
 
 set -e
 
-# ── 版本号（单一真相来源：src/scenefab/utils/version.py & pyproject.toml）─
-VERSION=$(python3 -c "import sys; sys.path.insert(0, 'src'); from scenefab.utils.version import get_version_string; print(get_version_string())" 2>/dev/null)
-if [ -z "$VERSION" ]; then
-    VERSION=$(grep -E '^version = ' pyproject.toml 2>/dev/null | sed 's/.*"\(.*\)".*/\1/')
-fi
+# ── 版本号（单一真相来源：src/scenefab/__init__.py）─────────────
+VERSION=$(python3 -c "import sys; sys.path.insert(0, 'src'); from scenefab import __version__; print(__version__)" 2>/dev/null)
 
 if [ -z "$VERSION" ]; then
-    echo "❌ 无法从 python 或 pyproject.toml 读取版本号"
+    echo "❌ 无法从 src/scenefab/__init__.py 读取版本号"
     exit 1
 fi
 
