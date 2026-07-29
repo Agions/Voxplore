@@ -13,9 +13,9 @@ from typing import Any
 
 from scenefab.exceptions import ExportError
 
-from .video_exporter import DirectVideoExporter
 from .jianying_adapter import JianyingDraft
 from .jianying_exporter import JianyingExporter
+from .video_exporter import DirectVideoExporter
 
 logger = logging.getLogger(__name__)
 

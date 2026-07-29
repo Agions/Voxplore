@@ -17,7 +17,6 @@ from PySide6.QtWidgets import (
 from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, ui_font
 from .page_view_models import (
     EXPORT_QUALITY_CHECKS,
-    PRODUCTION_STEPS,
     SCRIPT_BRIEF_RULES,
 )
 from .page_widgets import (

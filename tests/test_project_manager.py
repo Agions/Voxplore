@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """测试项目管理器"""
 
+from scenefab.models.project_models import ProjectStatus
 from scenefab.project.manager import (
     ProjectMetadata,
     ProjectType,
 )
-from scenefab.models.project_models import ProjectStatus
 
 
 class TestProjectStatus:

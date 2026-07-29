@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """First-person narration workflow definitions and validation rules."""
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 THIRD_PERSON_LEAK_PATTERNS = (
     r"只见男主",

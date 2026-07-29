@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from scenefab.utils.lazy_imports import make_lazy_getattr
+
 # 视频工具（原 video/__init__.py）
 from . import hardware, probe
 from .caption_gen import Caption, CaptionConfig, CaptionGenerator, CaptionStyle
@@ -23,7 +25,7 @@ from .tool_base import (
     ProcessingResult,
     VideoMetadata,
 )
-from scenefab.utils.lazy_imports import make_lazy_getattr
+
 _EXPORTS = {
     "BaseVideoMaker": ".base_maker",
     "MonologueMaker": ".monologue_maker",

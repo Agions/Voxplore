@@ -22,6 +22,7 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
+from ..services.ai.script_models import ScriptConfig, ScriptStyle, VoiceTone
 from .fp_workflow import FIRST_PERSON_SCRIPT_RULES
 from .narration.context import (
     Bridge,
@@ -30,7 +31,6 @@ from .narration.context import (
     ProductionStyle,
 )
 from .narration.state_machine import NarrationState, StepResult, success_step
-from ..services.ai.script_models import ScriptConfig, ScriptStyle, VoiceTone
 from .text_utils import PRODUCTION_TO_SCRIPT_STYLE
 
 if TYPE_CHECKING:

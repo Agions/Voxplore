@@ -6,6 +6,24 @@
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-07-29
+
+### 🧹 Lint & Cleanup
+
+- **fix(ci): 修复 ruff lint 检查失败 30 处**
+  - 24 处 import 排序（I001）：自动修复
+  - 4 处未定义变量（F821）：为 `project/manager.py` 和 `settings/manager.py` 添加缺失的 `json` import
+  - 2 处方法重定义（F811）：移除 `main_window` 末尾重复的 `show_message`/`show_loading`
+  - 4 处无用 import（F401）：清理 `script_stream`/`assets_page`/`home_page`/`production_page`
+  - 1 处无用 dict 字面量（B033）：移除 `services/__init__.py` 中冗余定义
+  - 1 处过时语法（UP035）：更新 `tts_providers.py`
+
+### 🛠️ CI
+
+- 同步 `uv.lock` 版本号至 2.4.2
+
+---
+
 ## [2.4.1] - 2026-07-29
 
 ### 🐛 Bug Fixes

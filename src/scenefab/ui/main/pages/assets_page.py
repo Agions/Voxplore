@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, QUrl, Signal
-from PySide6.QtGui import QDesktopServices, QFont
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QFileDialog,
     QFrame,
@@ -34,6 +34,7 @@ from .page_widgets import (
 
 if TYPE_CHECKING:
     from scenefab.project.manager import ProjectManager
+
     from ...viewmodels.assets_viewmodel import AssetsPageViewModel
 
 

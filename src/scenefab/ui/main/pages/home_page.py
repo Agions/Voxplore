@@ -15,7 +15,6 @@ from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, ui_font
 from .page_defaults import default_delivery_summary
 from .page_view_models import (
     DELIVERY_PARAMETERS,
-    HOME_STATUS_CARDS,
     HOME_WORKFLOW_STEPS,
 )
 from .page_widgets import (

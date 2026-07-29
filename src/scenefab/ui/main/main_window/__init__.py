@@ -286,7 +286,6 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         restyle_app()
     def show_message(self, message: str, level: str = "info"):
         """显示消息提示"""
-        from PySide6.QtWidgets import QMessageBox
 
         if level == "error":
             QMessageBox.critical(self, "错误", message)
@@ -305,7 +304,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
     def _on_export(self):
         """导出对话框：选择格式和输出目录，执行导出"""
-        from PySide6.QtWidgets import QFileDialog, QInputDialog, QMessageBox
+        from PySide6.QtWidgets import QFileDialog, QInputDialog
 
         # 必须已完成生产流程，才有真实项目数据可供导出
         if self._last_project is None:
@@ -489,7 +488,6 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             page.update_step_status(next_step, "进行中", _C.PRIMARY)
 
     def _on_production_finished(self, result):
-        from PySide6.QtWidgets import QMessageBox
 
         self.show_loading(False)
         self.statusbar.hide_progress()
@@ -572,7 +570,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
     def _on_open_project(self, path: str = ""):
         """打开已有的 .scenefab 项目文件"""
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
+        from PySide6.QtWidgets import QFileDialog
 
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -605,7 +603,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
     def _on_save_project(self):
         """将当前项目另存为 .scenefab 文件"""
-        from PySide6.QtWidgets import QFileDialog, QMessageBox
+        from PySide6.QtWidgets import QFileDialog
 
         if self._last_project is None:
             QMessageBox.warning(self, "无法保存", "请先完成生产流程")
@@ -766,17 +764,6 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
     @property
     def application(self) -> Application | None:
         return self._application
-
-    def show_message(self, message: str, level: str = "info") -> None:
-        if level == "error":
-            QMessageBox.critical(self, "错误", message)
-        elif level == "warning":
-            QMessageBox.warning(self, "警告", message)
-        else:
-            QMessageBox.information(self, "提示", message)
-
-    def show_loading(self, show: bool = True) -> None:
-        self.statusbar.set_status("加载中..." if show else "就绪")
 
     def _apply_saved_theme(self):
         """Read the persisted theme mode from QSettings and apply it."""

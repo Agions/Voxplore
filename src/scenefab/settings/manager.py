@@ -5,6 +5,7 @@
 提供项目设置的统一管理和配置功能
 """
 
+import json
 import logging
 import os
 from dataclasses import asdict
@@ -12,15 +13,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scenefab.secure_key_manager import get_secure_key_manager
 from scenefab.signals_bridge import QObject, Signal
 from scenefab.utils.project_io import ensure_directories
 
-from scenefab.secure_key_manager import get_secure_key_manager
+from ..utils.json_io import read_json, write_json
+from ..utils.version import get_version_string
 from .config import ConfigManager
 from .definitions import get_all_settings_definitions
 from .types import ProjectSettingsProfile, SettingDefinition, SettingType
-from ..utils.json_io import read_json, write_json
-from ..utils.version import get_version_string
 
 
 class ProjectSettingsManager(QObject):

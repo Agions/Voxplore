@@ -6,6 +6,7 @@ SceneFab 项目管理器
 """
 
 import getpass
+import json
 import logging
 import os
 import shutil
@@ -15,6 +16,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scenefab.models.project_models import (
+    ProjectMedia,
+    ProjectMetadata,
+    ProjectSettings,
+    ProjectTimeline,
+    ProjectType,
+)
+from scenefab.settings.config import ConfigManager
 from scenefab.signals_bridge import QObject, Signal
 from scenefab.utils.project_io import (
     PROJECT_SUBDIRS,
@@ -24,14 +33,6 @@ from scenefab.utils.project_io import (
     import_from_zip,
 )
 
-from scenefab.models.project_models import (
-    ProjectMedia,
-    ProjectMetadata,
-    ProjectSettings,
-    ProjectTimeline,
-    ProjectType,
-)
-from scenefab.settings.config import ConfigManager
 from ..utils.json_io import read_json, write_json
 
 _handle_project_error = handle_error

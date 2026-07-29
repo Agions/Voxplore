@@ -8,9 +8,9 @@
 """
 
 from .config import ConfigManager
-from .manager import ProjectSettingsManager
 from .definitions import get_all_settings_definitions
-from .types import SettingDefinition, SettingType, ProjectSettingsProfile
+from .manager import ProjectSettingsManager
+from .types import ProjectSettingsProfile, SettingDefinition, SettingType
 
 __all__ = [
     "ConfigManager",
