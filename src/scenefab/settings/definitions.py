@@ -17,6 +17,7 @@
 """
 
 from scenefab.services.ai.model_catalog import DEFAULT_MODELS, settings_model_options
+
 from .types import SettingDefinition, SettingType
 
 

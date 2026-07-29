@@ -1,6 +1,7 @@
 """Shared pytest fixtures and configuration."""
 
 from unittest.mock import patch
+
 import pytest
 
 # ── PySide6 GUI 测试跳过 ──────────────────────────────────────

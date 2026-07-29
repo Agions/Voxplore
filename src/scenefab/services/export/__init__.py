@@ -13,14 +13,6 @@ from .batch_export import (
     ExportTask,
     get_batch_export_manager,
 )
-from .video_exporter import (
-    DirectVideoExporter,
-    HWAccel,
-    Resolution,
-    VideoCodec,
-    VideoExportConfig,
-    VideoFormat,
-)
 from .export_manager import ExportManager
 from .export_utils import (
     BaseProject,
@@ -54,6 +46,14 @@ from .presets import (
     normalize_bitrate,
     normalize_resolution,
     parse_bitrate_kbps,
+)
+from .video_exporter import (
+    DirectVideoExporter,
+    HWAccel,
+    Resolution,
+    VideoCodec,
+    VideoExportConfig,
+    VideoFormat,
 )
 
 __all__ = [

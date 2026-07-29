@@ -29,6 +29,13 @@ from ..evaluation_steps import (
 from ..evaluation_steps import (
     register_evaluation_steps,
 )
+from ..understanding_steps import (
+    _build_narration_prompt,
+    draft_step,
+    register_understanding_steps,
+    storygraph_step,
+    understand_step,
+)
 from .context import (
     PLATFORM_SPECS,
     Bridge,
@@ -55,13 +62,6 @@ from .state_machine import (
     TransitionReason,
 )
 from .steps import register_default_steps
-from ..understanding_steps import (
-    _build_narration_prompt,
-    draft_step,
-    register_understanding_steps,
-    storygraph_step,
-    understand_step,
-)
 
 __all__ = [
     # Context

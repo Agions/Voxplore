@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from scenefab.settings.config import ConfigManager
 from scenefab.signals_bridge import QObject, Signal
 from scenefab.utils.project_io import (
     PROJECT_SUBDIRS,
@@ -22,11 +23,10 @@ from scenefab.utils.project_io import (
     import_from_zip,
 )
 
-from .manager import Project, ProjectType
-from scenefab.settings.config import ConfigManager
-from .template_models import TemplateCategory, TemplateInfo, TemplateMetadata
 from ..utils.json_io import read_json, write_json
 from ..utils.version import get_version_string
+from .manager import Project, ProjectType
+from .template_models import TemplateCategory, TemplateInfo, TemplateMetadata
 
 _handle_template_error = handle_error
 

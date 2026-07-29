@@ -382,8 +382,7 @@ class Application(QObject):
             # 引入，保持下方实例化代码不变。
             from .project import ProjectManager
             from .project import TemplateManager as ProjectTemplateManager
-            from .settings import ConfigManager
-            from .settings import ProjectSettingsManager
+            from .settings import ConfigManager, ProjectSettingsManager
 
             # 创建配置管理器实例（如果不存在）
             config_manager: Any = self.get_service_by_name("config_manager")

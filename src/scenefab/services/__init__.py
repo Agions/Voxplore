@@ -13,7 +13,6 @@ _SUBMODULES = {
     "export",
     "orchestration",
     "video",
-    "video",
 }
 
 # Lazy-loaded names sourced from the canonical AI modules.
