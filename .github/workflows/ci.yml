@@ -74,7 +74,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libegl1 libgl1
       - run: uv sync --extra all --extra dev --frozen
-      # PySide6 相关测试需要 GUI 环境，CI 中跳过
+      # Headless Linux widgets are gated via @pytest.mark.skipif in each test file
       - run: |
           uv run pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=xml --cov-report=term-missing \
             --ignore=tests/test_project_manager.py \

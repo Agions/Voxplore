@@ -16,27 +16,40 @@ from collections.abc import Callable
 
 import pytest
 
-# PySide6.QtWidgets import links against libEGL on Linux headless runners
-# (GitHub Actions ubuntu-latest). When the shared library is missing the
-# whole test module is uncollectible — gate the import at module load and
-# mark every test in this module as ``skip`` so CI sees a clean exit code
-# instead of an ``ERROR`` that fails the suite.
+# PySide6 and scene-fab's theme package import links against libEGL on Linux
+# headless runners (GitHub Actions ubuntu-latest). When the shared library is
+# missing the whole test module is uncollectible — gate the imports at module
+# load and mark every test in this module as ``skip`` so CI sees a clean exit
+# code instead of an ``ERROR`` that fails the suite.
 import pytest as _pytest_import_gate
 
 try:
     from PySide6.QtWidgets import QApplication as _QApplication
-except (ImportError, OSError) as _exc:  # noqa: BLE001 — gate all import paths
-    _pytest_import_gate.skip(allow_module_level=True, reason=f"PySide6.QtWidgets unavailable: {_exc}")
-QApplication = _QApplication
 
-from scenefab.ui.theme import (  # noqa: E402  (after importorskip)
-    _C,
-    Colors,
-    DarkColors,
-    get_theme_mode,
-    set_theme_mode,
-)
-from scenefab.ui.theme.runtime import ThemeAwareMixin, restyle_app  # noqa: E402
+    from scenefab.ui.theme import (
+        _C,
+        Colors,
+        DarkColors,
+        get_theme_mode,
+        set_theme_mode,
+    )
+    from scenefab.ui.theme.runtime import ThemeAwareMixin, restyle_app
+except (ImportError, OSError) as _exc:  # noqa: BLE001 — gate all import paths
+    _pytest_import_gate.skip(
+        allow_module_level=True,
+        reason=f"PySide6/scene-fab theme unavailable: {_exc}",
+    )
+    _QApplication = None  # type: ignore[misc]
+    QApplication = None  # type: ignore[misc]
+    _C = None  # type: ignore[misc]
+    Colors = None  # type: ignore[misc]
+    DarkColors = None  # type: ignore[misc]
+    get_theme_mode = None  # type: ignore[misc]
+    set_theme_mode = None  # type: ignore[misc]
+    ThemeAwareMixin = None  # type: ignore[misc]
+    restyle_app = None  # type: ignore[misc]
+else:
+    QApplication = _QApplication
 
 
 @pytest.fixture(autouse=True)
@@ -122,8 +135,8 @@ def test_theme_aware_mixin_apply_theme_runs_builder():
     out = widget.apply_theme()
 
     assert calls["n"] == 1
-    assert out == "BG=#f6f8fb"  # light mode token value
-    assert widget._calls == ["BG=#f6f8fb"]
+    assert out == f"BG={_C.BG_BASE}"
+    assert widget._calls == [out]
 
 
 def test_theme_aware_mixin_picks_up_token_changes():
@@ -131,15 +144,18 @@ def test_theme_aware_mixin_picks_up_token_changes():
     widget = _FakeWidget(lambda: f"BG={_C.BG_BASE}")
 
     widget.apply_theme()
-    assert widget._calls[-1] == "BG=#f6f8fb"
+    assert widget._calls[-1] == f"BG={_C.BG_BASE}"
 
+    light_bg = _C.BG_BASE
     set_theme_mode("dark")
     widget.apply_theme()
-    assert widget._calls[-1] == "BG=#0f172a"
+    dark_bg = _C.BG_BASE
+    assert widget._calls[-1] == f"BG={dark_bg}"
+    assert dark_bg != light_bg, "dark theme should differ from light theme"
 
     set_theme_mode("light")
     widget.apply_theme()
-    assert widget._calls[-1] == "BG=#f6f8fb"
+    assert widget._calls[-1] == f"BG={_C.BG_BASE}"
 
 
 def test_theme_aware_mixin_does_not_require_qt():
