@@ -6,6 +6,25 @@
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-07-29
+
+### 🐛 Bug Fixes
+
+- **fix(ui): 修复 UI 页面加载崩溃导致交互无响应** (issue #96, commit `6b9c39f`)
+  - `application.py`: 修正重构后遗留的 `project_manager`/`settings_manager` 导入路径，应用初始化成功
+  - `viewmodels/__init__.py`: 修复 `scenefab.project_manager` 导入为 `scenefab.project.manager`
+  - `settings_page.py`: 补充缺失的 `_QSETTINGS_ORG` / `_QSETTINGS_APP` 常量，设置页可正常打开
+  - `main_window/__init__.py`: 修复 `QShortcut` 导入位置（QtGui），补充 `SystemTrayController` 实例化
+  - `page_router.py`: 页面构造异常时显示可见的错误占位页，不再被 Qt 静默吞掉
+  - `assets_page.py`: "素材目录"/"输出目录" 卡片新增"选择目录"按钮，跳转至系统设置页
+
+### 🧹 Chore
+
+- 移除 `state_machine.py` 中已废弃的 `_build_flow_table()` 函数及死代码（52 行）
+- 同步 `uv.lock` 开发包版本号至 2.4.0
+
+---
+
 ### 🎨 Brand & Docs (v2.4.0 品牌重塑 + 文档升级, 6 commits)
 
 **触发**: "作为资深架构师，帮我完全重写 scene-fab 项目的 docs 下的在线文档、README.md、logo 和资源图片，设计必须好看专业，使用，大气、美观" (2026-07-03)
