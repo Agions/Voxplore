@@ -9,6 +9,7 @@ Covers:
 from __future__ import annotations
 
 import os
+import sys
 
 import pytest
 
@@ -17,6 +18,17 @@ PySide6 = pytest.importorskip("PySide6")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QObject, Signal  # noqa: E402  (after pytest.importorskip)
+
+# 是否在 CI 中运行 (GitHub Actions / GitLab CI 等)
+_IN_CI = os.environ.get("CI", "").lower() == "true"
+
+# 无头 Linux CI runner 上 Qt offscreen 的 QWidget 构造会触发
+# "Fatal Python error: Aborted"（解释器崩溃，不是普通异常），
+# 因此需要跳过所有构造 QWidget 的测试。
+_SKIP_HEADLESS_WIDGET_TESTS = _IN_CI and (
+    sys.platform == "linux"
+    or os.environ.get("QT_QPA_PLATFORM") == "offscreen"
+)
 
 
 class _MockProjectManager(QObject):
@@ -77,6 +89,10 @@ def test_vm_creation_with_application_does_not_crash() -> None:
         vm.unbind()
 
 
+@pytest.mark.skipif(
+    _SKIP_HEADLESS_WIDGET_TESTS,
+    reason="QWidget 构造在无头 Linux CI (Qt offscreen) 下触发解释器崩溃",
+)
 def test_home_page_with_viewmodel_renders_status_cards() -> None:
     """HomePage(viewmodel=vm) shows VM state in its 4 status cards."""
     from PySide6.QtWidgets import QApplication  # type: ignore[attr-defined]
@@ -109,6 +125,10 @@ def test_home_page_with_viewmodel_renders_status_cards() -> None:
         page.deleteLater()
 
 
+@pytest.mark.skipif(
+    _SKIP_HEADLESS_WIDGET_TESTS,
+    reason="QWidget 构造在无头 Linux CI (Qt offscreen) 下触发解释器崩溃",
+)
 def test_home_page_without_viewmodel_uses_static_defaults() -> None:
     """Backward compat: HomePage() with no VM still renders the original look."""
     from PySide6.QtWidgets import QApplication  # type: ignore[attr-defined]
