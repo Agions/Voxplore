@@ -69,6 +69,10 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
           cache-dependency-glob: 'pyproject.toml'
+      - name: Install system dependencies (PySide6 EGL/GL)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1-mesa libgl1-mesa-glx
       - run: uv sync --extra all --extra dev --frozen
       # PySide6 相关测试需要 GUI 环境，CI 中跳过
       - run: |
