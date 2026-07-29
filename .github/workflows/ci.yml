@@ -72,7 +72,7 @@ jobs:
       - name: Install system dependencies (PySide6 EGL/GL)
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1-mesa libgl1
+          sudo apt-get install -y libegl1 libgl1
       - run: uv sync --extra all --extra dev --frozen
       # PySide6 相关测试需要 GUI 环境，CI 中跳过
       - run: |
