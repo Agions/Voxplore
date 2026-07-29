@@ -315,7 +315,6 @@ class NarrationStateMachine:
             最终 StepResult (DONE 成功 / ERROR 失败)
 
         主循环已拆分:
-        - _build_flow_table() 状态流转表
         - _execute_step() 单步执行
         - _select_next_state() 决定下一步
         - _build_final_result() 包装终态返回
@@ -532,53 +531,3 @@ class NarrationStateMachine:
         )
 
 
-# ============================================================
-# 状态流转表 (独立 module-level 函数, 便于 Phase 3 改为声明式 YAML)
-# ============================================================
-
-
-def _build_flow_table() -> dict[NarrationState, list[tuple[NarrationState, TransitionReason, Any]]]:
-    """状态流转表 — 硬编码, v2.2 范围内足够, Phase 3 可改为声明式 YAML
-
-    state -> [(next_state, reason, condition_fn)]
-    condition_fn: (ctx, step_result) -> bool
-    """
-    return {
-        NarrationState.INGEST: [
-            (NarrationState.UNDERSTAND, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.UNDERSTAND: [
-            (NarrationState.STORYGRAPH, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.STORYGRAPH: [
-            (NarrationState.DRAFT, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.DRAFT: [
-            (NarrationState.EVALUATE, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.EVALUATE: [
-            (NarrationState.ACCEPT, TransitionReason.EVAL_ACCEPT, None),
-            (NarrationState.REJECT, TransitionReason.EVAL_REJECT, None),
-        ],
-        NarrationState.ACCEPT: [
-            (NarrationState.HOOK_REWRITE, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.HOOK_REWRITE: [
-            (NarrationState.TTS_LENGTH_ADJUST, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.REJECT: [
-            (NarrationState.DRAFT, TransitionReason.EVAL_REJECT, None),
-            (NarrationState.ERROR, TransitionReason.MAX_ATTEMPTS, None),
-        ],
-        NarrationState.TTS_LENGTH_ADJUST: [
-            (NarrationState.TTS, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.TTS: [
-            (NarrationState.ASSEMBLE, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.ASSEMBLE: [
-            (NarrationState.DONE, TransitionReason.SUCCESS, None),
-        ],
-        NarrationState.DONE: [],
-        NarrationState.ERROR: [],
-    }

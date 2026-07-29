@@ -3543,7 +3543,7 @@ wheels = [
 
 [[package]]
 name = "scenefab"
-version = "2.1.2"
+version = "2.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
