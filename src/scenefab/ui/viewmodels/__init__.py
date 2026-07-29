@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject
 
-from scenefab.project_manager import Project, ProjectManager
+from scenefab.project.manager import Project, ProjectManager
 
 if TYPE_CHECKING:
     from scenefab.application import Application
