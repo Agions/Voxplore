@@ -15,13 +15,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSettings, Qt
-from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtGui import QAction, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QMainWindow,
     QMessageBox,
-    QShortcut,
     QVBoxLayout,
     QWidget,
 )
@@ -102,6 +101,10 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             self.restoreGeometry(geometry)
         else:
             self.resize(1200, 720)
+
+        # 系统托盘控制器（必须在 _connect_signals 之前创建，
+        # 后者会连接 self.tray 的信号）
+        self.tray = SystemTrayController(self)
 
         self._connect_signals()
 
@@ -212,6 +215,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
         assets = AssetsPage(project_manager=project_manager)
         assets.import_requested.connect(self._on_import_assets)
+        assets.navigate.connect(self._on_navigate)
         self._assets_page = assets
         self._project_manager = project_manager
 

@@ -377,10 +377,13 @@ class Application(QObject):
         """初始化其他服务"""
         try:
             # 初始化项目管理相关服务
-            from .project_manager import ProjectManager
-            from .project_template_manager import ProjectTemplateManager
+            # 注：模块在 058d6ca 重构后迁入子包（project/ 、settings/），
+            # 这里使用新路径；TemplateManager 以 ProjectTemplateManager 别名
+            # 引入，保持下方实例化代码不变。
+            from .project import ProjectManager
+            from .project import TemplateManager as ProjectTemplateManager
             from .settings import ConfigManager
-            from .settings_manager import ProjectSettingsManager
+            from .settings import ProjectSettingsManager
 
             # 创建配置管理器实例（如果不存在）
             config_manager: Any = self.get_service_by_name("config_manager")

@@ -49,6 +49,11 @@ _THEME_MODE_TO_LABEL = {v: k for k, v in _THEME_LABEL_TO_MODE.items()}
 THEME_OPTIONS = ("浅色", "深色")
 THEME_MODES = ("light", "dark")
 
+# QSettings 组织/应用名 — 与 main_window / application 保持一致，
+# 确保工作区路径等设置在所有页面间共享同一存储。
+_QSETTINGS_ORG = "SceneFab"
+_QSETTINGS_APP = "Application"
+
 
 class SettingsPage(QFrame, ThemeAwareMixin):
     """Application settings page."""

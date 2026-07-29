@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMenu,
     QMessageBox,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -40,6 +41,7 @@ class AssetsPage(QFrame):
     """Project and media assets workspace."""
 
     import_requested = Signal()
+    navigate = Signal(str)
 
     def __init__(self, viewmodel: AssetsPageViewModel | None = None, parent=None, *, project_manager: ProjectManager | None = None):
         super().__init__(parent)
@@ -210,6 +212,9 @@ class AssetsPage(QFrame):
             )
         return row
 
+    # 卡片标题 → 对应设置项，点击后跳转到系统设置页面
+    _NAVIGATE_ON_CLICK = {"素材目录", "输出目录"}
+
     def _source_item(self, title: str, desc: str) -> QFrame:
         item = QFrame()
         item.setObjectName("source_item")
@@ -233,6 +238,30 @@ class AssetsPage(QFrame):
         desc_label.setFont(ui_font(FontSizes.sm, FontWeights.Medium))
         desc_label.setStyleSheet(f"color: {_C.TEXT_SECONDARY};")
         layout.addWidget(desc_label)
+
+        # "素材目录"/"输出目录" 卡片：提供选择按钮，点击跳转到系统设置
+        if title in self._NAVIGATE_ON_CLICK:
+            layout.addStretch(1)
+            btn = QPushButton("选择目录")
+            btn.setFixedHeight(28)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: {_C.BG_ELEVATED};
+                    color: {_C.TEXT_PRIMARY};
+                    border: 1px solid {_C.BORDER_DEFAULT};
+                    border-radius: {Radii.sm};
+                    padding: 4px 10px;
+                    font-size: {FontSizes.xs}px;
+                }}
+                QPushButton:hover {{
+                    background: {_C.PRIMARY};
+                    color: #ffffff;
+                }}
+            """)
+            btn.clicked.connect(lambda: self.navigate.emit("settings"))
+            layout.addWidget(btn)
+
         return item
 
     def _show_row_context_menu(self, pos, row: QFrame):
