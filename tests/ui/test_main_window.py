@@ -7,10 +7,21 @@ run in desktop/CI images that provide the Qt runtime.
 from __future__ import annotations
 
 import os
+import sys
 
 import pytest
 
+_IN_CI = os.environ.get("CI", "").lower() == "true"
+_SKIP_HEADLESS_WIDGET_TESTS = _IN_CI and (
+    sys.platform == "linux"
+    or os.environ.get("QT_QPA_PLATFORM") == "offscreen"
+)
 
+
+@pytest.mark.skipif(
+    _SKIP_HEADLESS_WIDGET_TESTS,
+    reason="SceneFabMainWindow(QWidget) 构造在无头 Linux CI 下触发解释器崩溃",
+)
 def test_main_window_registers_production_pages() -> None:
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     pytest.importorskip("PySide6")
