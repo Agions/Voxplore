@@ -4,7 +4,7 @@
 单元测试 - LLM 提供商
 """
 
-from scenefab.services.ai.base_llm_provider import LLMRequest, LLMResponse
+from app.services.ai.base_llm_provider import LLMRequest, LLMResponse
 
 
 class TestLLMRequest:

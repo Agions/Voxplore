@@ -24,50 +24,72 @@ import pytest
 
 
 def test_asset_source_items_contract():
-    """ASSET_SOURCE_ITEMS exposes exactly 3 sources with expected labels."""
-    from scenefab.ui.main.pages.page_view_models import ASSET_SOURCE_ITEMS
+    """ASSET_SOURCE_ITEMS exposes exactly 3 sources with expected structure.
+
+    Each tuple is ``(label_key, navigate_to, value_key)`` so the view can
+    retranslate without depending on hard-coded Chinese labels.
+    """
+    from app.ui.main.pages.page_view_models import ASSET_SOURCE_ITEMS
 
     assert len(ASSET_SOURCE_ITEMS) == 3
-    labels = [item.label for item in ASSET_SOURCE_ITEMS]
-    assert labels == ["素材目录", "输出目录", "资源规范"]
+    label_keys = [item[0] for item in ASSET_SOURCE_ITEMS]
+    assert label_keys == [
+        "assets.source.media_dir",
+        "assets.source.export_dir",
+        "assets.source.resources",
+    ]
+    # First two are navigable (settings), third is informational
+    nav_targets = [item[1] for item in ASSET_SOURCE_ITEMS]
+    assert nav_targets == ["settings", "settings", None]
+    # Value keys are distinct
+    assert len({item[2] for item in ASSET_SOURCE_ITEMS}) == 3
 
 
 def test_asset_table_columns_contract():
-    """ASSET_TABLE_COLUMNS is the documented 3-column header."""
-    from scenefab.ui.main.pages.page_view_models import ASSET_TABLE_COLUMNS
+    """ASSET_TABLE_COLUMNS maps header cells to i18n keys (3-column table)."""
+    from app.ui.main.pages.page_view_models import ASSET_TABLE_COLUMNS
 
-    assert ASSET_TABLE_COLUMNS == ("类型", "名称", "创建日期")
+    assert ASSET_TABLE_COLUMNS == (
+        "assets.table.column.kind",
+        "assets.table.column.name",
+        "assets.table.column.created",
+    )
 
 
-def test_key_value_view_contract():
-    """KeyValueView carries a label and a value."""
-    from scenefab.ui.main.pages.page_view_models import (
-        ASSET_SOURCE_ITEMS,
+def test_key_value_view_still_exported():
+    """KeyValueView continues to exist for delivery / brief rows.
+
+    The view now prefers ``label_key`` so consumers get re-translated
+    text on language flips; the legacy ``label`` field is kept as a
+    backwards-compat fallback for callers building the row from a raw
+    string.
+    """
+    from app.ui.main.pages.page_view_models import (
         KeyValueView,
     )
 
-    item = ASSET_SOURCE_ITEMS[0]
-    assert isinstance(item, KeyValueView)
-    assert item.label == "素材目录"
-    assert item.value == "未设置"
+    item = KeyValueView(label="foo", value="bar")
+    assert item.label == "foo"
+    assert item.value == "bar"
+
+    item_with_key = KeyValueView(label_key="home.delivery.resolution",
+                                 value="1080x1920")
+    assert item_with_key.label_key == "home.delivery.resolution"
+    assert item_with_key.label == ""
 
 
 def test_assets_page_navigate_on_click_set():
-    """AssetsPage._NAVIGATE_ON_CLICK lists exactly the two configurable dirs."""
-    _src = (
-        __import__("pathlib").Path(__file__).resolve()
-        .parents[2]
-        / "src"
-        / "scenefab"
-        / "ui"
-        / "main"
-        / "pages"
-        / "assets_page.py"
-    )
-    # We can't execute the module (it imports PySide6), so verify the
-    # constant contract by grepping the source.
-    source = _src.read_text(encoding="utf-8")
-    assert '_NAVIGATE_ON_CLICK = {"素材目录", "输出目录"}' in source
+    """ASSET_SOURCE_ITEMS flags the first two rows as navigating to settings.
+
+    The previous ``_NAVIGATE_ON_CLICK`` class attribute has been replaced
+    with a structured ``navigate_to`` field on the tuple so the page no
+    longer depends on hard-coded Chinese titles.
+    """
+    from app.ui.main.pages.page_view_models import ASSET_SOURCE_ITEMS
+
+    navigate_targets = [item[1] for item in ASSET_SOURCE_ITEMS]
+    assert navigate_targets[:2] == ["settings", "settings"]
+    assert navigate_targets[2] is None
 
 
 # ── PySide6 tests ───────────────────────────────────────────────────────
@@ -96,16 +118,16 @@ def _qt_app():
 )
 def test_assets_page_renders_three_source_cards():
     """AssetsPage builds exactly 3 source-panel cards."""
-    from scenefab.ui.main.pages.assets_page import AssetsPage
+    from PySide6.QtWidgets import QFrame
+
+    from app.ui.main.pages.assets_page import AssetsPage
 
     _qt_app()  # noqa: F841
     page = AssetsPage()
     try:
         cards = [
             child
-            for child in page.findChildren(  # type: ignore[attr-defined]
-                "QFrame"
-            )
+            for child in page.findChildren(QFrame)
             if child.objectName() == "source_item"
         ]
         assert len(cards) == 3
@@ -118,33 +140,35 @@ def test_assets_page_renders_three_source_cards():
     reason="AssetsPage(QWidget) 构造在无头 Linux CI 下触发解释器崩溃",
 )
 def test_assets_page_navigable_cards_have_button():
-    """素材目录 and 输出目录 cards include a '选择目录' QPushButton."""
-    from scenefab.ui.main.pages.assets_page import AssetsPage
+    """The first two source cards (media_dir / export_dir) include a button."""
+    from PySide6.QtWidgets import QFrame, QPushButton
+
+    from app.ui.main.pages.assets_page import AssetsPage
+    from app.ui.main.pages.page_view_models import ASSET_SOURCE_ITEMS
+    from app.ui.i18n import t
 
     _qt_app()  # noqa: F841
     page = AssetsPage()
     try:
         cards = [
             child
-            for child in page.findChildren(  # type: ignore[attr-defined]
-                "QFrame"
-            )
+            for child in page.findChildren(QFrame)
             if child.objectName() == "source_item"
         ]
-        from PySide6.QtWidgets import QPushButton
 
-        has_button = {
-            [c.text() for c in card.findChildren("QLabel")][0]: card.findChildren(  # type: ignore[attr-defined]
-                QPushButton
-            )
-            for card in cards
-        }
+        for index, card in enumerate(cards):
+            label_key, nav, _value = ASSET_SOURCE_ITEMS[index]
+            buttons = card.findChildren(QPushButton)
+            if nav:
+                assert buttons, f"{label_key} must have a Choose Folder button"
+            else:
+                assert not buttons, (
+                    f"{label_key} must NOT have a Choose Folder button"
+                )
 
-        assert has_button["素材目录"], "素材目录 must have 选择目录 button"
-        assert has_button["输出目录"], "输出目录 must have 选择目录 button"
-        assert not has_button.get("资源规范", []), (
-            "资源规范 must NOT have 选择目录 button"
-        )
+        # Spot-check that labels are actually translated
+        first_label = t(ASSET_SOURCE_ITEMS[0][0])
+        assert isinstance(first_label, str) and first_label
     finally:
         page.deleteLater()
 
@@ -155,13 +179,13 @@ def test_assets_page_navigable_cards_have_button():
 )
 def test_assets_page_button_click_emits_navigate_settings():
     """Clicking '选择目录' emits navigate('settings')."""
-    from scenefab.ui.main.pages.assets_page import AssetsPage
+    from PySide6.QtWidgets import QFrame, QPushButton
+
+    from app.ui.main.pages.assets_page import AssetsPage
 
     _qt_app()  # noqa: F841
     page = AssetsPage()
     try:
-        from PySide6.QtWidgets import QPushButton
-
         emitted = []
 
         def on_nav(val: str) -> None:
@@ -169,9 +193,7 @@ def test_assets_page_button_click_emits_navigate_settings():
 
         page.navigate.connect(on_nav)
 
-        card = page.findChild(  # type: ignore[attr-defined]
-            "QFrame", "source_item"
-        )
+        card = page.findChild(QFrame, "source_item")
         assert card is not None
         btn = card.findChild(QPushButton)
         assert btn is not None, "素材目录 card must contain a QPushButton"
@@ -187,12 +209,12 @@ def test_assets_page_button_click_emits_navigate_settings():
 )
 def test_assets_page_rows_empty_without_project_manager():
     """Without a ProjectManager the page shows an empty state."""
-    from scenefab.ui.main.pages.assets_page import AssetsPage
+    from app.ui.main.pages.assets_page import AssetsPage
 
     _qt_app()  # noqa: F841
     page = AssetsPage()
     try:
-        assert page._empty_state.isVisible()
-        assert not page._rows_container.isVisible()
+        assert not page._empty_state_widget.isHidden()
+        assert page._rows_container.isHidden()
     finally:
         page.deleteLater()

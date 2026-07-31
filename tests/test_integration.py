@@ -9,16 +9,16 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from scenefab.services.ai.base_llm_provider import (
+from app.services.ai.base_llm_provider import (
     LLMRequest,
     LLMResponse,
     ProviderError,
 )
-from scenefab.services.ai.llm_manager import LLMManager
-from scenefab.services.ai.provider_types import ProviderType
-from scenefab.services.ai.providers.glm5 import GLM5Provider
-from scenefab.services.ai.providers.kimi import KimiProvider
-from scenefab.services.ai.providers.qwen import QwenProvider
+from app.services.ai.llm_manager import LLMManager
+from app.services.ai.provider_types import ProviderType
+from app.services.ai.providers.glm5 import GLM5Provider
+from app.services.ai.providers.kimi import KimiProvider
+from app.services.ai.providers.qwen import QwenProvider
 
 
 # Restrict anyio tests to asyncio only (trio is not installed)
@@ -373,8 +373,8 @@ class TestScriptGeneratorIntegration:
 
     def test_generate_commentary(self, mock_llm_manager: LLMManager):
         """测试生成解说文案"""
-        from scenefab.services.ai.script_generator import ScriptGenerator
-        from scenefab.services.ai.script_models import GeneratedScript, ScriptStyle
+        from app.services.ai.script_generator import ScriptGenerator
+        from app.services.ai.script_models import GeneratedScript, ScriptStyle
 
         mock_script = GeneratedScript(
             content="这是一部关于科幻的解说文案...",
@@ -402,8 +402,8 @@ class TestScriptGeneratorIntegration:
 
     def test_generate_monologue(self, mock_llm_manager: LLMManager):
         """测试生成独白文案"""
-        from scenefab.services.ai.script_generator import ScriptGenerator
-        from scenefab.services.ai.script_models import GeneratedScript, ScriptStyle
+        from app.services.ai.script_generator import ScriptGenerator
+        from app.services.ai.script_models import GeneratedScript, ScriptStyle
 
         mock_script = GeneratedScript(
             content="深夜走在城市街头，路灯拉长了影子...",
@@ -429,7 +429,7 @@ class TestScriptGeneratorIntegration:
 
     def test_script_uses_content_not_text(self):
         """GeneratedScript 使用 content 字段，不是 text"""
-        from scenefab.services.ai.script_models import GeneratedScript
+        from app.services.ai.script_models import GeneratedScript
 
         script = GeneratedScript(content="测试内容")
         assert script.content == "测试内容"

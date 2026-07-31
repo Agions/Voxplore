@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from scenefab.services.ai import voice_generator as voice_module
-from scenefab.services.ai.voice_generator import VoiceGenerator, generate_voice
-from scenefab.services.ai.voice_models import (
+from app.services.ai import voice_generator as voice_module
+from app.services.ai.voice_generator import VoiceGenerator, generate_voice
+from app.services.ai.voice_models import (
     GeneratedVoice,
     VoiceConfig,
     VoiceGender,

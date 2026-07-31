@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试服务容器（DIContainer）"""
 
-from scenefab.core.di_container import DIContainer as ServiceContainer
+from app.core.di_container import DIContainer as ServiceContainer
 
 
 class TestServiceContainer:

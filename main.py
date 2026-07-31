@@ -21,7 +21,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(SRC_DIR))
 
 # 引导到真正的入口
-from scenefab.main import main as app_main
+from app.main import main as app_main
 
 if __name__ == "__main__":
     sys.exit(app_main())

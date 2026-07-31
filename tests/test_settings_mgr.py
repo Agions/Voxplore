@@ -4,17 +4,17 @@
 import logging
 from pathlib import Path
 
-from scenefab.settings.manager import (
+from app.config.manager import (
+    ConfigDefinition,
     ProjectSettingsManager,
-    SettingDefinition,
     SettingType,
 )
-from scenefab.settings.types import ProjectSettingsProfile
-from scenefab.utils.json_io import read_json, write_json
+from app.config.types import ProjectSettingsProfile
+from app.utils.json_io import read_json, write_json
 
 
 def _settings_manager(tmp_path: Path) -> ProjectSettingsManager:
-    manager = ProjectSettingsManager.__new__(ProjectSettingsManager)
+    manager = ProjectSettingsManager(config_manager=None)
     manager.config_manager = None
     manager.logger = logging.getLogger(__name__)
     manager.settings = {}
@@ -57,11 +57,11 @@ class TestSettingType:
         assert SettingType.RESOLUTION.value == "resolution"
 
 
-class TestSettingDefinition:
+class TestConfigDefinition:
     """测试设置定义"""
 
     def test_creation(self):
-        definition = SettingDefinition(
+        definition = ConfigDefinition(
             key="test_key",
             name="测试设置",
             description="这是一个测试设置",
@@ -74,7 +74,7 @@ class TestSettingDefinition:
         assert definition.setting_type == SettingType.STRING
 
     def test_default_values(self):
-        definition = SettingDefinition(
+        definition = ConfigDefinition(
             key="test",
             name="测试",
             description="描述",
@@ -87,7 +87,7 @@ class TestSettingDefinition:
         assert definition.advanced is False
 
     def test_with_options(self):
-        definition = SettingDefinition(
+        definition = ConfigDefinition(
             key="theme",
             name="主题",
             description="应用主题",
@@ -99,7 +99,7 @@ class TestSettingDefinition:
         assert definition.options == ["light", "dark", "auto"]
 
     def test_with_range(self):
-        definition = SettingDefinition(
+        definition = ConfigDefinition(
             key="opacity",
             name="不透明度",
             description="窗口不透明度",

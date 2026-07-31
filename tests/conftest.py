@@ -19,7 +19,7 @@ except ImportError:
 # ── FFmpeg mock ───────────────────────────────────────────────
 @pytest.fixture(autouse=True)
 def mock_ffmpeg_check():
-    with patch("scenefab.services.video.ffmpeg_tool.FFmpegTool.check_ffmpeg"):
+    with patch("app.services.video.ffmpeg_tool.FFmpegTool.check_ffmpeg"):
         yield
 
 

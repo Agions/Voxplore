@@ -19,9 +19,9 @@ from pathlib import Path
 import pytest
 
 PySide6 = pytest.importorskip("PySide6")
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
 
-from scenefab.ui.viewmodels.assets_viewmodel import (
+from app.ui.viewmodels.assets_viewmodel import (
     AssetsPageViewModel,
     AssetSummary,
     _build_recent_info,
@@ -30,7 +30,7 @@ from scenefab.ui.viewmodels.assets_viewmodel import (
 
 @pytest.fixture
 def qapp():
-    app = QCoreApplication.instance() or QCoreApplication([])
+    app = QApplication.instance() or QApplication([])
     yield app
 
 

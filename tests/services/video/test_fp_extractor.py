@@ -4,7 +4,7 @@
 from dataclasses import asdict
 from unittest.mock import MagicMock
 
-from scenefab.services.video.extraction.first_person import (
+from app.services.video.extraction.first_person import (
     FirstPersonExtractor,
     VideoSegment,
 )

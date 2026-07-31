@@ -3,7 +3,7 @@
 
 import pytest
 
-from scenefab.services.video import (
+from app.services.video import (
     HighlightDetector,
     HighlightDetectorConfig,
     HighlightReason,

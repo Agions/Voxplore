@@ -37,7 +37,7 @@ class TestPerformanceBenchmarks:
 
     def test_task_creation(self):
         """任务创建性能（v2.1 - 用 scenefab.core.task_model.UnifiedTask）"""
-        from scenefab.core.task_model import UnifiedTask
+        from app.core.task_model import UnifiedTask
 
         start = time.perf_counter()
         for i in range(1000):

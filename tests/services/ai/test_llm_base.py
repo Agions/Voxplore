@@ -4,7 +4,7 @@
 import httpx
 import pytest
 
-from scenefab.services.ai.base_llm_provider import (
+from app.services.ai.base_llm_provider import (
     HTTPClientMixin,
     LLMRequest,
     LLMResponse,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试异常模块"""
 
-from scenefab.exceptions import (
+from app.core.exceptions import (
     ConfigError,
     ErrorCode,
     FileError,
@@ -145,49 +145,39 @@ class TestFormatErrorMessage:
         assert "API调用失败" in result
 
     def test_generic_exception_with_connection(self):
-        """测试通用异常含 connection"""
         err = ConnectionError("connection refused")
         result = format_error_message(err)
-        assert "❌ ConnectionError" in result
-        assert "请检查网络连接" in result
-        assert "请检查网络连接" in result
+        assert "ConnectionError" in result
+        assert "Check network connection" in result
 
     def test_generic_exception_with_file(self):
-        """测试通用异常含 file"""
         err = FileNotFoundError("file not found: video.mp4")
         result = format_error_message(err)
-        assert "❌ FileNotFoundError" in result
-        assert "请检查文件路径和权限" in result
+        assert "FileNotFoundError" in result
+        assert "Check file path" in result
 
     def test_generic_exception_other(self):
-        """测试其他通用异常"""
         err = ValueError("invalid value")
         result = format_error_message(err)
-        assert "❌ ValueError" in result
+        assert "ValueError" in result
         assert "invalid value" in result
-        assert "如问题持续" in result
+        assert "Check logs" in result
 
 
 class TestGetErrorHint:
-    """测试 get_error_hint 函数"""
 
     def test_llm_api_error_hint(self):
-        """测试 LLM API 错误提示"""
         assert "LLM API" in get_error_hint(ErrorCode.LLM_API_ERROR)
 
     def test_llm_rate_limit_hint(self):
-        """测试频率超限提示"""
-        assert "频率" in get_error_hint(ErrorCode.LLM_RATE_LIMIT)
+        assert "rate limit" in get_error_hint(ErrorCode.LLM_RATE_LIMIT)
 
     def test_file_not_found_hint(self):
-        """测试文件不存在提示"""
-        assert "文件不存在" in get_error_hint(ErrorCode.FILE_NOT_FOUND)
+        assert "not found" in get_error_hint(ErrorCode.FILE_NOT_FOUND)
 
     def test_video_process_hint(self):
-        """测试视频处理失败提示"""
-        assert "FFmpeg" in get_error_hint(ErrorCode.VIDEO_PROCESS_ERROR)
+        assert "processing" in get_error_hint(ErrorCode.VIDEO_PROCESS_ERROR)
 
     def test_unknown_code_returns_default(self):
-        """测试未知错误码返回默认提示"""
         result = get_error_hint(ErrorCode.UNKNOWN_ERROR)
-        assert "日志" in result
+        assert "Unknown" in result

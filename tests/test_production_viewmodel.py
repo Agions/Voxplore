@@ -23,9 +23,9 @@ import time
 import pytest
 
 PySide6 = pytest.importorskip("PySide6")
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
 
-from scenefab.ui.viewmodels.production_viewmodel import (
+from app.ui.viewmodels.production_viewmodel import (
     STEP_DEFINITIONS,
     ProductionPageViewModel,
     _has_runtime_keys,
@@ -34,7 +34,7 @@ from scenefab.ui.viewmodels.production_viewmodel import (
 
 @pytest.fixture
 def qapp():
-    app = QCoreApplication.instance() or QCoreApplication([])
+    app = QApplication.instance() or QApplication([])
     yield app
 
 
@@ -145,7 +145,7 @@ def test_runner_mode_live_with_env_keys(qapp, monkeypatch):
     """When SCENEFAB_TTS_KEY is set + MonologueMaker registered, mode is 'live'."""
     monkeypatch.setenv("SCENEFAB_TTS_KEY", "test-key-not-real")
 
-    from scenefab.services.video.monologue_maker import MonologueMaker
+    from app.services.video.monologue_maker import MonologueMaker
 
     class _FakeProject:
         def save(self, path=None):  # noqa: ARG002
@@ -213,7 +213,7 @@ def test_live_mode_fallback_to_noop_when_create_fails(qapp, monkeypatch):
     """If MonologueMaker.create_project raises, VM downgrades to noop."""
     monkeypatch.setenv("SCENEFAB_TTS_KEY", "test-key")
 
-    from scenefab.services.video.monologue_maker import MonologueMaker
+    from app.services.video.monologue_maker import MonologueMaker
 
     class _BrokenMaker:
         def create_project(self, **kwargs):  # noqa: ARG002

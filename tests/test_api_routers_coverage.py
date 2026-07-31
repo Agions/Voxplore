@@ -25,7 +25,7 @@ import pytest
 try:
     from fastapi.testclient import TestClient
 
-    from scenefab.api.main import create_app
+    from app.api.main import create_app
     HAS_TESTCLIENT = True
 except ImportError:
     HAS_TESTCLIENT = False
@@ -208,7 +208,7 @@ def test_plugins_list_returns_200(client):
     assert response.status_code == 200
     # 真实调用可能返回空列表, 只验证结构
     data = response.json()
-    assert isinstance(data, (list, dict))
+    assert isinstance(data, list | dict)
 
 
 def test_plugins_types_returns_200(client):
@@ -216,7 +216,7 @@ def test_plugins_types_returns_200(client):
     response = client.get("/api/v1/plugins/types")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, (list, dict))
+    assert isinstance(data, list | dict)
 
 
 # =============================================================================
@@ -246,10 +246,34 @@ def test_405_method_not_allowed():
 # =============================================================================
 
 
+def _iter_app_route_paths(app) -> set[str]:
+    """收集中所有 API path，兼容新版 Starlette 的 ``_IncludedRouter`` wrapper。
+
+    新版 Starlette 不再让 ``_IncludedRouter`` 暴露 ``routes`` 属性，
+    真实路由隐藏在 ``effective_route_contexts()`` 生成器里。
+    """
+    collected: set[str] = set()
+    for route in app.routes:
+        path = getattr(route, "path", None)
+        if isinstance(path, str):
+            collected.add(path)
+        contexts = getattr(route, "effective_route_contexts", None)
+        if callable(contexts):
+            try:
+                for ctx in contexts():
+                    sub_path = getattr(ctx, "path", None)
+                    if isinstance(sub_path, str):
+                        collected.add(sub_path)
+            except Exception:
+                # 容错：某些 wrapper 调用方式不同，跳过即可。
+                pass
+    return collected
+
+
 def test_all_routers_registered():
     """验证 5 个 router 都注册到 app"""
     app = create_app()
-    paths = {route.path for route in app.routes}
+    paths = _iter_app_route_paths(app)
     # 至少 5 个 router 路径前缀应出现
     for prefix in ["/api/v1/health", "/api/v1/pipeline", "/api/v1/export", "/api/v1/plugins", "/api/v1/projects"]:
         assert any(p.startswith(prefix) for p in paths), f"Router {prefix} 未注册"

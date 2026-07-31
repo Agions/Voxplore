@@ -64,7 +64,7 @@ class _MockApplication:
 
 def test_vm_default_state_without_application() -> None:
     """No application injected → graceful fallback to 'no project' defaults."""
-    from scenefab.ui.viewmodels.home_viewmodel import HomePageViewModel
+    from app.ui.viewmodels.home_viewmodel import HomePageViewModel
 
     vm = HomePageViewModel(application=None)
     assert vm.media_count == 0
@@ -76,7 +76,7 @@ def test_vm_default_state_without_application() -> None:
 
 def test_vm_creation_with_application_does_not_crash() -> None:
     """Application is injected but PM has no project → fallback to defaults."""
-    from scenefab.ui.viewmodels.home_viewmodel import HomePageViewModel
+    from app.ui.viewmodels.home_viewmodel import HomePageViewModel
 
     app = _MockApplication()
     vm = HomePageViewModel(application=app)  # type: ignore[arg-type]
@@ -97,8 +97,8 @@ def test_home_page_with_viewmodel_renders_status_cards() -> None:
     """HomePage(viewmodel=vm) shows VM state in its 4 status cards."""
     from PySide6.QtWidgets import QApplication  # type: ignore[attr-defined]
 
-    from scenefab.ui.main.pages.home_page import HomePage
-    from scenefab.ui.viewmodels.home_viewmodel import HomePageViewModel
+    from app.ui.main.pages.home_page import HomePage
+    from app.ui.viewmodels.home_viewmodel import HomePageViewModel
 
     qt_app = QApplication.instance() or QApplication([])  # noqa: F841
     app = _MockApplication()
@@ -107,18 +107,28 @@ def test_home_page_with_viewmodel_renders_status_cards() -> None:
     try:
         # 4 cards present
         assert len(page._status_cards) == 4
-        # Default state propagates
-        for _card, val, state, title in page._status_cards:
-            if title == "素材":
+        # Default state propagates. ``_status_cards`` now stores
+        # ``(card, val_lbl, state_lbl, title_key, status_key, title)``
+        # so the retranslate pass can refresh from the key. The visible
+        # title lives on the *first* QLabel child of the card frame.
+        for entry in page._status_cards:
+            assert len(entry) == 6
+            _card, val, state, _title_key, _status_key, _title_text = entry
+            title_lbl = _card.findChild(type(_card).__mro__[0])  # placeholder
+            from PySide6.QtWidgets import QLabel  # type: ignore[attr-defined]
+            labels = _card.findChildren(QLabel)
+            title_lbl = labels[0] if labels else None
+            title_text = title_lbl.text() if title_lbl is not None else ""
+            if title_text == "素材":
                 assert val.text() == "0"
                 assert state.text() == "未导入"
-            elif title == "场景":
+            elif title_text == "场景":
                 assert val.text() == "0"
                 assert state.text() == "未拆分"
-            elif title == "脚本":
+            elif title_text == "脚本":
                 assert val.text() == "--"
                 assert state.text() == "待生成"
-            elif title == "导出":
+            elif title_text == "导出":
                 assert val.text() == "1080x1920"
                 assert state.text() == "已配置"
     finally:
@@ -133,14 +143,22 @@ def test_home_page_without_viewmodel_uses_static_defaults() -> None:
     """Backward compat: HomePage() with no VM still renders the original look."""
     from PySide6.QtWidgets import QApplication  # type: ignore[attr-defined]
 
-    from scenefab.ui.main.pages.home_page import HomePage
+    from app.ui.main.pages.home_page import HomePage
 
     qt_app = QApplication.instance() or QApplication([])  # noqa: F841
     page = HomePage()
     try:
         assert len(page._status_cards) == 4
-        for _card, val, state, title in page._status_cards:
-            if title == "素材":
+        # Same tuple shape as the VM-backed variant — see comment in
+        # ``test_home_page_with_viewmodel_renders_status_cards``.
+        for entry in page._status_cards:
+            assert len(entry) == 6
+            _card, val, state, _title_key, _status_key, _title_text = entry
+            from PySide6.QtWidgets import QLabel  # type: ignore[attr-defined]
+            labels = _card.findChildren(QLabel)
+            title_lbl = labels[0] if labels else None
+            title_text = title_lbl.text() if title_lbl is not None else ""
+            if title_text == "素材":
                 assert val.text() == "0"
                 assert state.text() == "未导入"
     finally:

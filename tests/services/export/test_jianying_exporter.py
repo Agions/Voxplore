@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """测试剪映导出器"""
 
-from scenefab.services.export.jianying_adapter import (
+from app.services.export.jianying_adapter import (
     AudioMaterial,
     JianyingMaterials,
     TextMaterial,
     VideoMaterial,
 )
-from scenefab.services.export.jianying_exporter import (
+from app.services.export.jianying_exporter import (
     JianyingDraft,
     JianyingExporter,
     MaterialType,
