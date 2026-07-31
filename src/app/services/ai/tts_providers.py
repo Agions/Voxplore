@@ -1,0 +1,574 @@
+"""
+TTS 提供者实现
+
+包含 EdgeTTS、OpenAI TTS、F5-TTS、PilotTTS、OmniVoice、IndexTTS2 等多种后端实现。
+"""
+
+import logging
+from abc import ABC, abstractmethod
+from collections.abc import Callable, Coroutine
+from pathlib import Path
+from typing import Any
+
+from ...utils.async_bridge import run_async_safely
+from ...utils.security import SecurityError, get_ffmpeg_executor
+from .voice_models import (
+    GeneratedVoice,
+    VoiceConfig,
+    VoiceGender,
+    VoiceInfo,
+    VoiceStyle,
+)
+
+logger = logging.getLogger(__name__)
+_audio_executor = get_ffmpeg_executor()
+
+
+class TTSProvider(ABC):
+    """TTS 提供者抽象基类"""
+
+    @abstractmethod
+    def generate(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+    ) -> GeneratedVoice:
+        """生成配音"""
+        pass
+
+    @abstractmethod
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
+        """列出可用声音"""
+        pass
+
+    def _get_audio_duration(self, audio_path: str) -> float:
+        """统一获取音频时长（子模块如有更优实现可覆盖）"""
+        # 优先用 pydub（适合本地 wav/mp3）
+        try:
+            from pydub import AudioSegment
+
+            audio = AudioSegment.from_file(audio_path)
+            return len(audio) / 1000.0
+        except ImportError:
+            logger.debug("pydub not available, falling back to ffprobe")
+        except Exception as e:
+            logger.debug(f"pydub failed for {audio_path}: {e}")
+
+        # ffprobe 兜底
+        try:
+            cmd = [
+                "ffprobe",
+                "-v",
+                "quiet",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "csv=p=0",
+                audio_path,
+            ]
+            result = _audio_executor.run(cmd, timeout=30)
+            if result.returncode == 0:
+                return float(result.stdout.strip())
+        except FileNotFoundError:
+            logger.debug("ffprobe not found")
+        except SecurityError as e:
+            logger.warning(f"ffprobe failed: {e}")
+        except Exception as e:
+            logger.debug(f"Getting audio duration failed: {e}")
+        return 0.0
+
+
+class EdgeTTSProvider(TTSProvider):
+    """
+    Edge TTS 提供者(免费)
+
+    使用微软 Edge 的 TTS 服务,无需 API Key
+
+    安装: pip install edge-tts
+    """
+
+    # 中文推荐声音
+    CHINESE_VOICES = {
+        "female": [
+            ("zh-CN-XiaoxiaoNeural", "晓晓 - 温柔女声"),
+            ("zh-CN-XiaoyiNeural", "晓依 - 知性女声"),
+            ("zh-CN-XiaohanNeural", "晓涵 - 甜美女声"),
+            ("zh-CN-XiaomoNeural", "晓墨 - 成熟女声"),
+            ("zh-CN-XiaoxuanNeural", "晓萱 - 活泼女声"),
+            ("zh-CN-XiaoruiNeural", "晓睿 - 少女音"),
+        ],
+        "male": [
+            ("zh-CN-YunxiNeural", "云希 - 阳光男声"),
+            ("zh-CN-YunjianNeural", "云健 - 磁性男声"),
+            ("zh-CN-YunyangNeural", "云扬 - 新闻播报"),
+        ],
+    }
+
+    def __init__(self) -> None:
+        try:
+            import edge_tts
+
+            self.edge_tts = edge_tts
+        except ImportError:
+            raise ImportError("请安装 edge-tts: pip install edge-tts")
+
+    def generate(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+    ) -> GeneratedVoice:
+        """生成配音, 并捕获句子级时间戳 — 编排器, 委派到 SRP 方法"""
+        voice = config.voice_id or self._select_voice(config)
+        rate_str, pitch_str = self._build_prosody_params(config)
+        sentence_timestamps: list[dict[str, Any]] = []
+
+        async def _stream() -> None:
+            await self._stream_tts_chunks(
+                text=text,
+                voice=voice,
+                rate_str=rate_str,
+                pitch_str=pitch_str,
+                output_path=output_path,
+                sentence_timestamps=sentence_timestamps,
+            )
+
+        self._run_async_safely(_stream)
+
+        return self._build_generated_voice(
+            output_path=output_path,
+            text=text,
+            voice=voice,
+            config=config,
+            sentence_timestamps=sentence_timestamps,
+        )
+
+    def _build_prosody_params(self, config: VoiceConfig) -> tuple[str, str]:
+        """构建 Edge-TTS 语速/音调 SSML 参数字符串.
+
+        rate: 百分比相对 1.0 (e.g. 1.2 -> +20%, 0.8 -> -20%).
+        pitch: 赫兹相对 1.0 (e.g. 1.0 -> +0Hz baseline).
+        """
+        rate_offset = int((config.rate - 1) * 100)
+        pitch_offset = int((config.pitch - 1) * 50)
+        rate_str = f"+{rate_offset}%" if rate_offset >= 0 else f"{rate_offset}%"
+        pitch_str = f"+{pitch_offset}Hz" if pitch_offset >= 0 else f"{pitch_offset}Hz"
+        return rate_str, pitch_str
+
+    async def _stream_tts_chunks(
+        self,
+        *,
+        text: str,
+        voice: str,
+        rate_str: str,
+        pitch_str: str,
+        output_path: str,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> None:
+        """流式拉取 Edge-TTS chunks: 收集时间戳 + 写音频文件.
+
+        单一职责: 只负责 chunk 解析与落盘, 不做 loop 调度.
+        """
+        communicate = self.edge_tts.Communicate(
+            text, voice, rate=rate_str, pitch=pitch_str
+        )
+        audio_chunks: list[bytes] = []
+
+        async for chunk in communicate.stream():
+            if chunk["type"] == "SentenceBoundary":
+                # 100-nanosecond ticks -> 秒
+                start_s = chunk["offset"] / 10_000_000
+                end_s = (chunk["offset"] + chunk["duration"]) / 10_000_000
+                sentence_timestamps.append(
+                    {"text": chunk["text"], "start": start_s, "end": end_s}
+                )
+            elif chunk["type"] == "audio":
+                audio_chunks.append(chunk["data"])
+
+        with open(output_path, "wb") as f:
+            for data in audio_chunks:
+                f.write(data)
+
+    def _run_async_safely(
+        self, coro_factory: Callable[[], Coroutine[Any, Any, None]]
+    ) -> Any:
+        """在已有/无 event loop 下安全运行异步协程.
+
+        EdgeTTS 必须运行在自己的 loop 中; 若调用方已持有 loop,
+        用独立线程的 ThreadPoolExecutor 隔离. 否则 asyncio.run() 即可.
+        """
+        return run_async_safely(coro_factory)
+
+    def _build_generated_voice(
+        self,
+        *,
+        output_path: str,
+        text: str,
+        voice: str,
+        config: VoiceConfig,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> GeneratedVoice:
+        """组装 GeneratedVoice 结果对象, 含音频时长探测."""
+        duration = self._get_audio_duration(output_path)
+        return GeneratedVoice(
+            audio_path=output_path,
+            duration=duration,
+            text=text,
+            voice_id=voice,
+            format=config.output_format,
+            sentence_timestamps=sentence_timestamps,
+        )
+
+    async def generate_streaming(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+        progress_callback=None,
+    ) -> GeneratedVoice:
+        """流式异步生成配音，边生成边写入文件
+
+        progress_callback 签名: callback(completed: bool, timestamp: dict)
+        """
+        voice, rate_str, pitch_str = self._build_streaming_params(config)
+        communicate = self._build_communicate(text, voice, rate_str, pitch_str)
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+        sentence_timestamps: list[dict[str, Any]] = []
+        await self._stream_chunks_to_file(
+            communicate, output_path, sentence_timestamps, progress_callback
+        )
+
+        if progress_callback:
+            progress_callback(True, None)
+
+        duration = self._get_audio_duration(output_path)
+        return self._build_voice_result(
+            text, output_path, config, voice, duration, sentence_timestamps,
+        )
+
+    def _build_streaming_params(self, config: VoiceConfig) -> tuple[str, str, str]:
+        """选择声音并构造语速/音调参数字符串"""
+        voice = config.voice_id or self._select_voice(config)
+
+        rate_str = (
+            f"+{int((config.rate - 1) * 100)}%"
+            if config.rate >= 1
+            else f"{int((config.rate - 1) * 100)}%"
+        )
+        pitch_str = (
+            f"+{int((config.pitch - 1) * 50)}Hz"
+            if config.pitch >= 1
+            else f"{int((config.pitch - 1) * 50)}Hz"
+        )
+        return voice, rate_str, pitch_str
+
+    def _build_communicate(
+        self, text: str, voice: str, rate_str: str, pitch_str: str,
+    ) -> Any:
+        """构造 edge-tts Communicate 对象（集中惰性导入）"""
+        import edge_tts
+
+        return edge_tts.Communicate(text, voice, rate=rate_str, pitch=pitch_str)
+
+    async def _stream_chunks_to_file(
+        self,
+        communicate: Any,
+        output_path: str,
+        sentence_timestamps: list[dict[str, Any]],
+        progress_callback=None,
+    ) -> None:
+        """遍历 edge-tts 流，写入音频并收集时间戳，回调每句进度"""
+        submaker = self.edge_tts.SubMaker()
+
+        with open(output_path, "wb") as f:
+            async for chunk in communicate.stream():
+                if chunk["type"] == "SentenceBoundary":
+                    submaker.feed(chunk)
+                    start_s = chunk["offset"] / 10_000_000
+                    end_s = (chunk["offset"] + chunk["duration"]) / 10_000_000
+                    ts_entry = {
+                        "text": chunk["text"],
+                        "start": start_s,
+                        "end": end_s,
+                    }
+                    sentence_timestamps.append(ts_entry)
+
+                    if progress_callback:
+                        progress_callback(False, ts_entry)
+
+                elif chunk["type"] == "audio":
+                    f.write(chunk["data"])
+
+    def _build_voice_result(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+        voice: str,
+        duration: float,
+        sentence_timestamps: list[dict[str, Any]],
+    ) -> GeneratedVoice:
+        """构造 GeneratedVoice 返回对象"""
+        return GeneratedVoice(
+            audio_path=output_path,
+            duration=duration,
+            text=text,
+            voice_id=voice,
+            format=config.output_format,
+            sentence_timestamps=sentence_timestamps,
+        )
+
+    def generate_with_callback(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+        progress_callback=None,
+    ) -> GeneratedVoice:
+        """
+        带进度回调的同步生成方法（兼容现有接口）
+
+        Args:
+            text: 要生成的文本
+            output_path: 输出文件路径
+            config: 语音配置
+            progress_callback: 进度回调，signature: callback(done: bool, info: dict)
+        """
+        async def _generate():
+            return await self.generate_streaming(
+                text, output_path, config, progress_callback
+            )
+
+        return run_async_safely(_generate)  # type: ignore[no-any-return]
+
+    def _select_voice(self, config: VoiceConfig) -> str:
+        """根据配置选择声音"""
+        gender_key = config.gender.value
+        voices = self.CHINESE_VOICES.get(gender_key, self.CHINESE_VOICES["female"])
+
+        # 根据风格选择
+        _STYLE_VOICE_MAP = {
+            VoiceStyle.NEWSCAST: "zh-CN-YunyangNeural",
+            VoiceStyle.CHEERFUL: "zh-CN-XiaoxuanNeural",
+            VoiceStyle.CONVERSATIONAL: "zh-CN-XiaoxiaoNeural",
+        }
+        return _STYLE_VOICE_MAP.get(config.style, voices[0][0])
+
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
+        """列出可用声音"""
+        voices = []
+
+        for voice_id, name in self.CHINESE_VOICES["female"]:
+            voices.append(
+                VoiceInfo(
+                    id=voice_id,
+                    name=name,
+                    gender=VoiceGender.FEMALE,
+                    language=language,
+                )
+            )
+
+        for voice_id, name in self.CHINESE_VOICES["male"]:
+            voices.append(
+                VoiceInfo(
+                    id=voice_id,
+                    name=name,
+                    gender=VoiceGender.MALE,
+                    language=language,
+                )
+            )
+
+        return voices
+
+
+class OpenAITTSProvider(TTSProvider):
+    """
+    OpenAI TTS 提供者
+
+    使用 OpenAI 的 TTS API
+    """
+
+    VOICES = {
+        "alloy": "Alloy - 中性",
+        "echo": "Echo - 男声",
+        "fable": "Fable - 英式男声",
+        "onyx": "Onyx - 低沉男声",
+        "nova": "Nova - 温柔女声",
+        "shimmer": "Shimmer - 清脆女声",
+    }
+
+    def __init__(self, api_key: str) -> None:
+        self.api_key = api_key
+        try:
+            from openai import OpenAI
+
+            self.client = OpenAI(api_key=api_key)
+        except ImportError:
+            raise ImportError("请安装 openai: pip install openai")
+
+    def generate(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+    ) -> GeneratedVoice:
+        """生成配音"""
+        voice = config.voice_id or "nova"  # 默认 nova
+
+        # 语速映射 (OpenAI TTS 不支持精确控制,只能通过 SSML 或模型选择)
+        speed = min(max(config.rate, 0.25), 4.0)
+
+        response = self.client.audio.speech.create(
+            model="tts-1-hd",
+            voice=voice,
+            input=text,
+            speed=speed,
+        )
+
+        # 保存文件
+        response.stream_to_file(output_path)
+
+        # 获取时长
+        duration = self._get_audio_duration(output_path)
+
+        return GeneratedVoice(
+            audio_path=output_path,
+            duration=duration,
+            text=text,
+            voice_id=voice,
+            format=config.output_format,
+            sentence_timestamps=[],
+        )
+
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
+        """列出可用声音"""
+        return [
+            VoiceInfo(id=vid, name=name, gender=VoiceGender.FEMALE, language="en-US")
+            for vid, name in self.VOICES.items()
+        ]
+
+
+class F5TTSProvider(TTSProvider):
+    """
+    F5-TTS 提供者(零样本音色克隆)
+
+    基于开源 F5-TTS 模型,支持从 15-30 秒参考音频克隆任意音色。
+
+    安装: pip install f5-tts
+    设备: 自动检测 CUDA / CPU
+
+    使用示例:
+        provider = F5TTSProvider()
+        result = provider.generate(
+            text="这是一段新生成的语音",
+            output_path="output.wav",
+            config=VoiceConfig(
+                ref_audio="/path/to/reference.wav",
+                ref_text="这是参考音频中的原始文本内容",
+            ),
+        )
+    """
+
+    def __init__(self) -> None:
+        self._f5_tts = None
+        self._available = False
+        try:
+            # 自动检测设备
+            import torch
+            from f5_tts import F5TTS  # type: ignore[import-not-found]
+
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            self._f5_tts = F5TTS(device=device)
+            self._available = True
+            logger.info(f"F5-TTS initialized on {device}")
+        except ImportError:
+            logger.warning(
+                "F5-TTS 未安装。安装命令: pip install f5-tts\n"
+                "音色克隆功能不可用,将回退到 Edge-TTS"
+            )
+        except Exception as e:
+            logger.warning(f"F5-TTS 初始化失败: {e}")
+
+    @property
+    def is_available(self) -> bool:
+        """F5-TTS 是否可用"""
+        return self._available
+
+    def generate(
+        self,
+        text: str,
+        output_path: str,
+        config: VoiceConfig,
+    ) -> GeneratedVoice:
+        """使用 F5-TTS 生成配音(支持音色克隆)"""
+        if not self._available:
+            raise RuntimeError(
+                "F5-TTS 未安装或初始化失败。\n"
+                "请运行: pip install f5-tts\n"
+                "或使用 provider='edge' 回退到 Edge-TTS"
+            )
+
+        ref_audio = getattr(config, "ref_audio", None)
+        ref_text = getattr(config, "ref_text", "")
+
+        if not ref_audio:
+            raise ValueError(
+                "F5-TTS 需要 ref_audio 参数(参考音频路径)。\n"
+                "建议: 提供 15-30 秒的清晰人声作为音色参考。"
+            )
+
+        ref_audio_path = Path(ref_audio)
+        if not ref_audio_path.exists():
+            raise FileNotFoundError(f"参考音频不存在: {ref_audio}")
+
+        # 生成
+        self._f5_tts.generate(  # type: ignore[union-attr]
+            text=text,
+            ref_audio=str(ref_audio_path),
+            ref_text=ref_text,
+            output_path=output_path,
+        )
+
+        # 转码为 MP3(如果需要)
+        output_path = Path(output_path)  # type: ignore[assignment]
+        if config.output_format != "wav" and output_path.suffix.lower() == ".wav":  # type: ignore[attr-defined]
+            mp3_path = output_path.with_suffix(".mp3")  # type: ignore[attr-defined]
+            self._convert_to_mp3(str(output_path), str(mp3_path))
+            output_path = mp3_path
+
+        duration = self._get_audio_duration(str(output_path))
+
+        return GeneratedVoice(
+            audio_path=str(output_path),
+            duration=duration,
+            text=text,
+            voice_id=f"f5tts://{ref_audio_path.stem}",
+            format=config.output_format,
+            sentence_timestamps=[],
+        )
+
+    def _convert_to_mp3(self, input_path: str, output_path: str) -> None:
+        """将 WAV 转码为 MP3"""
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            input_path,
+            "-codec:a",
+            "libmp3lame",
+            "-q:a",
+            "2",
+            output_path,
+        ]
+        _audio_executor.run(cmd, timeout=60)
+
+    def list_voices(self, language: str = "zh-CN") -> list[VoiceInfo]:
+        """
+        列出可用"声音"(音色克隆模式下实际返回已注册的参考音频)
+        F5-TTS 本身无预设声音库,需用户提供参考音频进行克隆。
+        """
+        # 当无可用参考时返回空列表
+        return []

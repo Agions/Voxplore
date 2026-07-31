@@ -31,7 +31,7 @@ def test_main_window_registers_production_pages() -> None:
     try:
         from PySide6.QtWidgets import QApplication
 
-        from scenefab.ui.main.main_window import SceneFabMainWindow
+        from app.ui.main.main_window import SceneFabMainWindow
 
         app = QApplication.instance() or QApplication([])
     except ImportError as e:

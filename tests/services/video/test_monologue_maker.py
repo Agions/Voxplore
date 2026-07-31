@@ -3,8 +3,8 @@
 
 import pytest
 
-from scenefab.services.video import monologue_maker as maker_module
-from scenefab.services.video.monologue_maker import (
+from app.services.video import monologue_maker as maker_module
+from app.services.video.monologue_maker import (
     EmotionType,
     MonologueMaker,
     MonologueProject,

@@ -21,13 +21,13 @@ from unittest.mock import patch
 
 import pytest
 
-from scenefab.pipeline.assembly_steps import (
+from app.pipeline.assembly_steps import (
     assemble_step,
     probe_audio_duration,
     tts_length_adjust_step,
     tts_step,
 )
-from scenefab.pipeline.narration.engine import (
+from app.pipeline.narration.engine import (
     PLATFORM_SPECS,
     NarrationContext,
     NarrationState,
@@ -41,7 +41,7 @@ from scenefab.pipeline.narration.engine import (
     register_evaluation_steps,
     register_understanding_steps,
 )
-from scenefab.services.video_understanding.models import (
+from app.services.video_understanding.models import (
     Character,
     PlotEvent,
     StoryGraph,
@@ -244,7 +244,7 @@ class TestTtsStep:
         """真实 Edge-TTS 调用成功"""
         ctx_with_draft.current_draft = "测试一下 Edge-TTS 的输出。" * 5
 
-        with patch("scenefab.services.ai.voice_generator.VoiceGenerator") as mock_cls:
+        with patch("app.services.ai.voice_generator.VoiceGenerator") as mock_cls:
             # Mock Edge-TTS 实际写一个真实 WAV
             def mock_generate(text, output_path, config):
                 output_path = Path(output_path)
@@ -255,7 +255,7 @@ class TestTtsStep:
                     wf.setframerate(16000)
                     # 2s silence
                     wf.writeframes(b"\x00" * 64000)
-                from scenefab.services.ai.voice_models import GeneratedVoice
+                from app.services.ai.voice_models import GeneratedVoice
 
                 return GeneratedVoice(
                     file_path=str(output_path),
@@ -278,7 +278,7 @@ class TestTtsStep:
         """Edge-TTS 失败 → stub WAV + 字数估算时长"""
         ctx_with_draft.current_draft = "测试降级 stub。" * 5
 
-        with patch("scenefab.services.ai.voice_generator.VoiceGenerator") as mock_cls:
+        with patch("app.services.ai.voice_generator.VoiceGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no edge-tts")
             result = tts_step(ctx_with_draft)
 
@@ -292,7 +292,7 @@ class TestTtsStep:
         """step 写入 ctx.tts_audio_path"""
         ctx_with_draft.current_draft = "x" * 100
 
-        with patch("scenefab.services.ai.voice_generator.VoiceGenerator") as mock_cls:
+        with patch("app.services.ai.voice_generator.VoiceGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API")
             tts_step(ctx_with_draft)
 
@@ -498,13 +498,13 @@ class TestPhase4BackwardCompat:
         self, sm_full: NarrationStateMachine
     ) -> None:
         """register_assembly_steps 注册 3 个状态的真实实现"""
-        from scenefab.pipeline.assembly_steps import (
+        from app.pipeline.assembly_steps import (
             assemble_step as phase4_assemble,
         )
-        from scenefab.pipeline.assembly_steps import (
+        from app.pipeline.assembly_steps import (
             tts_length_adjust_step as phase4_tts_la,
         )
-        from scenefab.pipeline.assembly_steps import (
+        from app.pipeline.assembly_steps import (
             tts_step as phase4_tts,
         )
 

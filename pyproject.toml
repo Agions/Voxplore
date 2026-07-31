@@ -102,7 +102,7 @@ dev = [
 ]
 
 [project.scripts]
-scenefab = "scenefab.main:main"
+scenefab = "app.main:main"
 
 [project.urls]
 Homepage = "https://github.com/Agions/scene-fab"
@@ -116,7 +116,7 @@ package-dir = {"" = "src"}
 packages = {find = {where = ["src"]}}
 
 [tool.setuptools.package-data]
-scenefab = ["py.typed"]
+app = ["py.typed"]
 
 [tool.black]
 line-length = 88
@@ -160,7 +160,7 @@ profile = "black"
 line_length = 88
 
 [tool.pytest.ini_options]
-# src 布局：让 `pytest` 无需 PYTHONPATH=src 或 editable install 即可导入 scenefab
+# src 布局：让 `pytest` 无需 PYTHONPATH=src 或 editable install 即可导入 app
 pythonpath = ["src"]
 testpaths = ["tests"]
 python_files = "test_*.py"
@@ -171,7 +171,7 @@ asyncio_mode = "auto"
 # UI 测试通过根 conftest 在 PySide6 缺失时自动跳过；需要跑 UI 测试时用
 # `pytest -p pytest-qt ...` 重新启用。
 addopts = "-v --tb=short -p no:pytest-qt"
-norecursedirs = ["tests/_legacy", ".venv", ".git", "dist", "build", "*.egg-info", "*_ascm_temp"]
+norecursedirs = [".venv", ".git", "dist", "build", "*.egg-info"]
 markers = [
     "asyncio: 异步测试",
     "integration: 需要真实 API 密钥的集成测试",
@@ -193,7 +193,7 @@ show_error_codes = true
 pretty = true
 warn_unreachable = true
 strict_equality = true
-files = ["src/scenefab", "tests"]
+files = ["src/app", "tests"]
 
 [[tool.mypy.overrides]]
 module = "PySide6.*"

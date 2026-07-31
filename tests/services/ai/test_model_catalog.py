@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from scenefab.services.ai.llm_manager import LLMManager
-from scenefab.services.ai.model_catalog import (
+from app.services.ai.llm_manager import LLMManager
+from app.services.ai.model_catalog import (
     DEFAULT_MODELS,
     MODEL_CATALOG,
     NARRATION_MODEL_STACK,
@@ -13,7 +13,7 @@ from scenefab.services.ai.model_catalog import (
     provider_models,
     settings_model_options,
 )
-from scenefab.services.ai.provider_types import LLMRequest, ProviderType
+from app.services.ai.provider_types import LLMRequest, ProviderType
 
 # ---------------------------------------------------------------------------
 # All providers that must appear in MODEL_CATALOG

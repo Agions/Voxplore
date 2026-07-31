@@ -6,15 +6,15 @@
 import py_compile
 from pathlib import Path
 
-from scenefab.settings.definitions import get_all_settings_definitions
+from app.config.definitions import get_all_config_definitions
 
-_SRC = Path(__file__).resolve().parent.parent.parent / "src" / "scenefab"
+_SRC = Path(__file__).resolve().parent.parent.parent / "src" / "app"
 
 
 def test_tray_setting_default_is_false():
     """测试托盘功能默认禁用"""
 
-    defs = get_all_settings_definitions()
+    defs = get_all_config_definitions()
     assert "ui.minimize_to_tray" in defs, "ui.minimize_to_tray 配置项必须存在"
 
     tray_def = defs["ui.minimize_to_tray"]
@@ -26,7 +26,7 @@ def test_tray_setting_default_is_false():
 def test_tray_setting_in_all_definitions():
     """测试配置项已注册到全局字典"""
 
-    defs = get_all_settings_definitions()
+    defs = get_all_config_definitions()
     assert "ui.minimize_to_tray" in defs
 
 

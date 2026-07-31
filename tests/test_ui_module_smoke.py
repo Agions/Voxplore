@@ -49,7 +49,7 @@ def setup_qt_platform():
 )
 def test_main_window_imports():
     """SceneFabMainWindow 可 import (主程序启动依赖)"""
-    from scenefab.ui.main.main_window import SceneFabMainWindow
+    from app.ui.main.main_window import SceneFabMainWindow
     assert SceneFabMainWindow is not None
 
 
@@ -58,11 +58,15 @@ def test_main_window_imports():
     reason="SceneFabMainWindow(QWidget) 构造在无头 Linux CI 下触发解释器崩溃",
 )
 def test_main_window_class_structure():
-    """SceneFabMainWindow 结构契约: 4 个 production page + registry 一致性"""
+    """SceneFabMainWindow 结构契约: 5 个 production page + registry 一致性
+
+    Phase 1 · TD-03 后加入 ``update`` 页：
+        home / create / assets / settings / update
+    """
     from PySide6.QtWidgets import QApplication
 
-    from scenefab.ui.main.main_window import SceneFabMainWindow
-    from scenefab.ui.main.registry import PAGE_BUILDERS, PAGE_TITLES
+    from app.ui.main.main_window import SceneFabMainWindow
+    from app.ui.main.registry import PAGE_BUILDERS, PAGE_TITLES
 
     app = QApplication.instance() or QApplication([])
     window = SceneFabMainWindow()
@@ -76,9 +80,11 @@ def test_main_window_class_structure():
         assert "create" in PAGE_TITLES
         assert "assets" in PAGE_TITLES
         assert "settings" in PAGE_TITLES
+        assert "update" in PAGE_TITLES  # Phase 1 · TD-03
 
-        # PAGE_BUILDERS 4 个 page 都已注册
-        assert set(PAGE_BUILDERS) == {"home", "create", "assets", "settings"}
+        # PAGE_BUILDERS 5 个 page 都已注册
+        assert set(PAGE_BUILDERS) == {
+            "home", "create", "assets", "settings", "update"}
 
         # ContentArea 必须有 _stack (Phase 1.4: 页面懒加载,通过 router 访问)
         assert window.content._stack is not None
@@ -93,7 +99,7 @@ def test_main_window_class_structure():
 )
 def test_main_window_submodules_importable():
     """main_window 子模块可 import (content_area, nav_components, status_bar, top_bar)"""
-    from scenefab.ui.main.main_window import (
+    from app.ui.main.main_window import (
         ContentArea,
         Sidebar,
         StatusBar,
@@ -112,14 +118,14 @@ def test_main_window_submodules_importable():
 
 def test_theme_tokens_module_importable():
     """theme/ds_tokens 设计 token 模块可 import"""
-    from scenefab.ui.theme import ds_tokens
+    from app.ui.theme import ds_tokens
     assert ds_tokens is not None
 
 
 def test_theme_typography_module_importable():
     """theme/typography 模块可 import (如果存在)"""
     try:
-        from scenefab.ui.theme import typography
+        from app.ui.theme import typography
         assert typography is not None
     except ImportError:
         pytest.skip("typography module not found (optional)")
@@ -131,15 +137,15 @@ def test_theme_typography_module_importable():
 
 
 def test_ui_main_package_importable():
-    """scenefab.ui.main 包可 import"""
-    import scenefab.ui.main
-    assert scenefab.ui.main is not None
+    """app.ui.main 包可 import"""
+    import app.ui.main
+    assert app.ui.main is not None
 
 
 def test_ui_package_importable():
-    """scenefab.ui 包可 import (顶层)"""
-    import scenefab.ui
-    assert scenefab.ui is not None
+    """app.ui 包可 import (顶层)"""
+    import app.ui
+    assert app.ui is not None
 
 
 # =============================================================================
@@ -154,10 +160,10 @@ def test_ui_package_importable():
 def test_main_window_does_not_export_mainwindow_alias():
     """★ 诚实性: main_window 包不导出 MainWindow 别名 (只有 SceneFabMainWindow)
 
-    任何用户代码尝试 `from scenefab.ui.main.main_window import MainWindow` 会失败.
+    任何用户代码尝试 `from app.ui.main.main_window import MainWindow` 会失败.
     这是已知接口 (不是 bug), 但应该明确文档化以避免混淆.
     """
-    from scenefab.ui.main import main_window
+    from app.ui.main import main_window
 
     assert hasattr(main_window, "SceneFabMainWindow"), "缺少 SceneFabMainWindow"
     # 故意不导出 MainWindow 别名 — 防止命名混淆

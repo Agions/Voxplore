@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from scenefab.ui.theme.ds_tokens import (
+from app.ui.theme.ds_tokens import (
     _C,
     Colors,
     DarkColors,

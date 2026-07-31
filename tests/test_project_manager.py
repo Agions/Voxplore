@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """测试项目管理器"""
 
-from scenefab.models.project_models import ProjectStatus
-from scenefab.project.manager import (
+from app.models.project_models import ProjectStatus
+from app.project.manager import (
     ProjectMetadata,
     ProjectType,
 )
@@ -59,7 +59,7 @@ class TestProjectMetadata:
         assert metadata.modified_at is not None
         # version 字段从 pyproject.toml 动态读取 (field(default_factory=get_version_string)),
         # 验证与当前安装版本一致, 不硬编码 (避免 version bump 误报)
-        from scenefab.utils.version import get_version_string
+        from app.utils.version import get_version_string
         assert metadata.version == get_version_string()
         assert metadata.tags == []
         assert metadata.status == ProjectStatus.ACTIVE

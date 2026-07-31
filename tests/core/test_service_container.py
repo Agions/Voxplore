@@ -1,7 +1,7 @@
 """Tests for DIContainer - enhanced lifecycle management"""
 
-from scenefab.core.di_container import DIContainer as ServiceContainer
-from scenefab.core.di_container import ServiceLifetime
+from app.core.di_container import DIContainer as ServiceContainer
+from app.core.di_container import ServiceLifetime
 
 
 class TestServiceLifetime:

@@ -3,7 +3,7 @@
 
 from dataclasses import asdict
 
-from scenefab.services.ai.subtitle_extractor import (
+from app.services.ai.subtitle_extractor import (
     SubtitleExtractionResult,
     SubtitleSegment,
 )

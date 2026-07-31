@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """测试情感峰值检测服务"""
 
-from scenefab.services.video.extraction.emotion_peak import (
+from app.services.video.extraction.emotion_peak import (
     EmotionPeak,
     EmotionPeakDetector,
 )
-from scenefab.services.video.extraction.first_person import VideoSegment
+from app.services.video.extraction.first_person import VideoSegment
 
 
 class TestEmotionPeak:

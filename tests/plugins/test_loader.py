@@ -2,13 +2,13 @@
 
 from unittest.mock import MagicMock, patch
 
-from scenefab.plugins.interfaces.base import PluginType
-from scenefab.plugins.loader import PluginLoader
+from app.plugins.interfaces.base import PluginType
+from app.plugins.loader import PluginLoader
 
 
 class TestPluginLoaderEntryPoints:
     def test_entry_point_group_name(self):
-        assert PluginLoader.ENTRY_POINT_GROUP == "scenefab.plugins"
+        assert PluginLoader.ENTRY_POINT_GROUP == "app.plugins"
 
     def test_discover_via_entry_points_empty(self):
         """When no entry_points match, should return empty list"""

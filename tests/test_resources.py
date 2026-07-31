@@ -3,7 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = ROOT / "resources"
-SRC_THEME = ROOT / "src" / "scenefab" / "ui" / "theme"
+SRC_THEME = ROOT / "src" / "app" / "ui" / "theme"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 

@@ -3,8 +3,8 @@
 
 from pathlib import Path
 
-from scenefab.services.export.batch_export import BatchExportManager
-from scenefab.utils.json_io import write_json
+from app.services.export.batch_export import BatchExportManager
+from app.utils.json_io import write_json
 
 
 def test_load_project_data_from_json_file(tmp_path: Path):

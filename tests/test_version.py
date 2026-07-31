@@ -6,7 +6,7 @@
 
 import pytest
 
-from scenefab.utils.version import Version, get_version, get_version_string
+from app.utils.version import Version, get_version, get_version_string
 
 
 class TestVersion:

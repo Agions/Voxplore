@@ -26,14 +26,14 @@ import pytest as _pytest_import_gate
 try:
     from PySide6.QtWidgets import QApplication as _QApplication
 
-    from scenefab.ui.theme import (
+    from app.ui.theme import (
         _C,
         Colors,
         DarkColors,
         get_theme_mode,
         set_theme_mode,
     )
-    from scenefab.ui.theme.runtime import ThemeAwareMixin, restyle_app
+    from app.ui.theme.runtime import ThemeAwareMixin, restyle_app
 except (ImportError, OSError) as _exc:  # noqa: BLE001 — gate all import paths
     _pytest_import_gate.skip(
         allow_module_level=True,
@@ -173,7 +173,7 @@ def test_theme_aware_mixin_does_not_require_qt():
 
 def test_theme_package_exports_runtimes():
     """The unified :mod:`scenefab.ui.theme` package re-exports both runtimes."""
-    from scenefab.ui import theme as theme_pkg
+    from app.ui import theme as theme_pkg
 
     assert theme_pkg.restyle_app is restyle_app
     assert theme_pkg.ThemeAwareMixin is ThemeAwareMixin

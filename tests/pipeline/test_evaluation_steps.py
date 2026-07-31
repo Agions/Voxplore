@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pytest
 
-from scenefab.pipeline.narration.engine import (
+from app.pipeline.narration.engine import (
     PLATFORM_SPECS,
     Bridge,
     BridgeType,
@@ -39,7 +39,7 @@ from scenefab.pipeline.narration.engine import (
     register_evaluation_steps,
     register_understanding_steps,
 )
-from scenefab.services.video_understanding.models import (
+from app.services.video_understanding.models import (
     Character,
     PlotEvent,
     StoryGraph,
@@ -379,7 +379,7 @@ class TestWeightedScoring:
 
     def test_dimensions_weights_sum_to_one(self) -> None:
         """5 维权重和 = 1.0 (锁死)"""
-        from scenefab.pipeline.narration.evaluator import DIMENSION_WEIGHTS
+        from app.pipeline.narration.evaluator import DIMENSION_WEIGHTS
 
         total_w = sum(DIMENSION_WEIGHTS.values())
         assert abs(total_w - 1.0) < 0.001
@@ -457,7 +457,7 @@ class TestEvaluateStepReal:
 
     def test_evaluate_step_success(self, ctx_with_assets: NarrationContext) -> None:
         """evaluate_step 正常调用, 填充 ctx.eval_*"""
-        from scenefab.pipeline.evaluation_steps import evaluate_step
+        from app.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = "林墨重生打脸!" * 20
         result = evaluate_step(ctx_with_assets)
@@ -469,7 +469,7 @@ class TestEvaluateStepReal:
 
     def test_evaluate_step_empty_draft(self, ctx_with_assets: NarrationContext) -> None:
         """空 draft 也返回 success=True (评估器自己处理空)"""
-        from scenefab.pipeline.evaluation_steps import evaluate_step
+        from app.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = ""
         result = evaluate_step(ctx_with_assets)
@@ -481,12 +481,12 @@ class TestEvaluateStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """评估器异常时, 仍 succeed (用 5.0 兜底)"""
-        from scenefab.pipeline.evaluation_steps import evaluate_step
+        from app.pipeline.evaluation_steps import evaluate_step
 
         ctx_with_assets.current_draft = "test" * 30
 
         with patch(
-            "scenefab.pipeline.narration.evaluator.NarrationEvaluator.evaluate",
+            "app.pipeline.narration.evaluator.NarrationEvaluator.evaluate",
             side_effect=RuntimeError("boom"),
         ):
             result = evaluate_step(ctx_with_assets)
@@ -506,7 +506,7 @@ class TestHookRewriteStepReal:
 
     def test_hook_rewrite_no_draft(self, ctx_with_assets: NarrationContext) -> None:
         """空 draft → fail"""
-        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
+        from app.pipeline.evaluation_steps import hook_rewrite_step
 
         ctx_with_assets.current_draft = ""
         result = hook_rewrite_step(ctx_with_assets)
@@ -518,11 +518,11 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """LLM 不可用 → 降级规则生成 5 候选"""
-        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
+        from app.pipeline.evaluation_steps import hook_rewrite_step
 
         ctx_with_assets.current_draft = "这是一个普通的故事, 讲一个女主。" * 10
 
-        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
+        with patch("app.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API key")
             result = hook_rewrite_step(ctx_with_assets)
 
@@ -535,12 +535,12 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """改写后, draft 前 2 句被替换"""
-        from scenefab.pipeline.evaluation_steps import hook_rewrite_step
+        from app.pipeline.evaluation_steps import hook_rewrite_step
 
         original = "原 Hook 第一句。原 Hook 第二句。后面是主体内容。" * 10
         ctx_with_assets.current_draft = original
 
-        with patch("scenefab.services.ai.script_generator.ScriptGenerator") as mock_cls:
+        with patch("app.services.ai.script_generator.ScriptGenerator") as mock_cls:
             mock_cls.return_value.generate.side_effect = RuntimeError("no API key")
             result = hook_rewrite_step(ctx_with_assets)
 
@@ -559,7 +559,7 @@ class TestHookRewriteStepReal:
         self, ctx_with_assets: NarrationContext
     ) -> None:
         """候选为空时, 保留原 draft"""
-        from scenefab.pipeline.evaluation_steps import (
+        from app.pipeline.evaluation_steps import (
             hook_rewrite_step,
         )
 
@@ -567,11 +567,11 @@ class TestHookRewriteStepReal:
         original_draft = ctx_with_assets.current_draft
 
         with patch(
-            "scenefab.pipeline.evaluation_steps._generate_hook_candidates_via_llm",
+            "app.pipeline.evaluation_steps._generate_hook_candidates_via_llm",
             return_value=[],
         ):
             with patch(
-                "scenefab.pipeline.evaluation_steps._generate_hook_candidates_fallback",
+                "app.pipeline.evaluation_steps._generate_hook_candidates_fallback",
                 return_value=[],
             ):
                 result = hook_rewrite_step(ctx_with_assets)
@@ -604,7 +604,7 @@ class TestEvaluationLoopReal:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """首次 REJECT 后, 通过 ctx.eval_score 抬升触发 ACCEPT"""
-        from scenefab.pipeline.narration.state_machine import (
+        from app.pipeline.narration.state_machine import (
             NarrationConfig,
             StepResult,
         )
@@ -657,7 +657,7 @@ class TestEvaluationLoopReal:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """连续 REJECT → max_attempts → ERROR"""
-        from scenefab.pipeline.narration.state_machine import (
+        from app.pipeline.narration.state_machine import (
             NarrationConfig,
             StepResult,
         )
@@ -714,7 +714,7 @@ class TestPhase3EndToEnd:
     ) -> None:
         """低分 draft → REJECT → 回到 DRAFT (max_attempts 兜底)"""
         # 配 draft_step 让它总是产生低分 (极短)
-        from scenefab.pipeline.narration.state_machine import StepResult
+        from app.pipeline.narration.state_machine import StepResult
 
         def short_draft(ctx: NarrationContext):
             ctx.reset_draft()
@@ -735,7 +735,7 @@ class TestPhase3EndToEnd:
         ctx_with_assets: NarrationContext,
     ) -> None:
         """强制高分 EVALUATE → ACCEPT → 完整 DONE"""
-        from scenefab.pipeline.narration.state_machine import StepResult
+        from app.pipeline.narration.state_machine import StepResult
 
         # 配 fake_evaluate 设高分 (9.0) 强制 ACCEPT
         def high_score_evaluate(ctx: NarrationContext):

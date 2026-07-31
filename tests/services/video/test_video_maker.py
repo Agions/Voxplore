@@ -4,7 +4,7 @@
 from dataclasses import asdict
 from unittest.mock import Mock
 
-from scenefab.services.video.base_maker import (
+from app.services.video.base_maker import (
     BaseProject,
     BaseVideoMaker,
     ProgressMixin,

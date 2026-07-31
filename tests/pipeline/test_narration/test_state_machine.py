@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from scenefab.pipeline.narration.engine import (
+from app.pipeline.narration.engine import (
     PLATFORM_SPECS,
     Bridge,
     BridgeType,
@@ -127,7 +127,7 @@ class TestNarrationContext:
 
     def test_add_history(self, ctx: NarrationContext) -> None:
         """历史片段追加"""
-        from scenefab.pipeline.narration.engine import HistorySegment
+        from app.pipeline.narration.engine import HistorySegment
 
         seg = HistorySegment(
             scene_index=0,
@@ -227,7 +227,7 @@ class TestStateMachineMainFlow:
 
     def test_register_step_chainable(self) -> None:
         """register_step 支持链式调用"""
-        from scenefab.pipeline.narration.steps import ingest_step
+        from app.pipeline.narration.steps import ingest_step
 
         sm = NarrationStateMachine()
         result = sm.register_step(NarrationState.INGEST, ingest_step)
@@ -309,7 +309,7 @@ class TestEvaluationLoop:
         self, tmp_path: Path, fake_video: Path
     ) -> None:
         """EVALUATE 拒绝时, 未达 max_attempts → 回 DRAFT"""
-        from scenefab.pipeline.narration.steps import reject_step
+        from app.pipeline.narration.steps import reject_step
 
         # 简易 draft step: 仅生成占位文案
         def stub_draft(ctx: NarrationContext) -> StepResult:
@@ -453,7 +453,7 @@ class TestErrorHandling:
         sm._current_state = NarrationState.DRAFT
         # 强制设置一个会循环的 transfer (但不会真的发生, 因为 _execute_step 会先报"未注册")
         # 简化: 直接调用 run() 看是否会超过 max_iterations
-        from scenefab.pipeline.narration.engine import NarrationContext
+        from app.pipeline.narration.engine import NarrationContext
 
         with tempfile.TemporaryDirectory() as tmpdir:
             ctx = NarrationContext(

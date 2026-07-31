@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from scenefab.services.video.cache.frame_cache import (
+from app.services.video.cache.frame_cache import (
     VideoFrameCache,
     _safe_pickle_dump,
     _safe_pickle_load,
@@ -149,7 +149,7 @@ class TestFrameCacheDiskFallback:
         重命名为 _frame_cache__safe_pickle_load, 但调用点写的是 _safe_pickle_load
         → AttributeError → 磁盘回退 100% 静默失败
         """
-        from scenefab.services.video.cache import frame_cache
+        from app.services.video.cache import frame_cache
 
         # 必须能直接通过 _safe_pickle_load 访问
         assert hasattr(frame_cache, "_safe_pickle_load")

@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from scenefab.services.ai.vision_providers import (
+from app.services.ai.vision_providers import (
     GeminiVisionProvider,
     OpenAIVisionProvider,
     VisionProvider,

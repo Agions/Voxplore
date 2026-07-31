@@ -1,6 +1,6 @@
 """Test project_models data classes"""
 
-from scenefab.models.project_models import (
+from app.models.project_models import (
     ProjectMedia,
     ProjectMetadata,
     ProjectSettings,

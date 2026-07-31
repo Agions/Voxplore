@@ -4,7 +4,7 @@
 单元测试 - 文案生成器
 """
 
-from scenefab.services.ai.script_generator import (
+from app.services.ai.script_generator import (
     GeneratedScript,
     ScriptConfig,
     ScriptStyle,

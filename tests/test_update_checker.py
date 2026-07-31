@@ -13,14 +13,14 @@ from unittest.mock import MagicMock, patch
 
 import httpx
 
-from scenefab.update.checker import (
+from app.update.checker import (
     UpdateInfo,
     _parse_version,
     _strip_tag,
     check_update,
     format_update_message,
 )
-from scenefab.utils.version import Version, get_version_string
+from app.utils.version import Version, get_version_string
 
 
 class TestParseVersion:
@@ -105,7 +105,7 @@ class TestCheckUpdate:
             "body": "New release notes",
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -124,7 +124,7 @@ class TestCheckUpdate:
             "body": "Same version",
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -148,7 +148,7 @@ class TestCheckUpdate:
             "body": "Old",
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -167,7 +167,7 @@ class TestCheckUpdate:
             "body": long_body,
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -188,7 +188,7 @@ class TestCheckUpdate:
             "body": short_body,
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -207,7 +207,7 @@ class TestCheckUpdate:
             "body": "  hello world  ",
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -218,7 +218,7 @@ class TestCheckUpdate:
         """HTTP 错误返回 None (不抛异常)"""
         mock_resp = self._mock_response({}, status_code=404)
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 
@@ -226,7 +226,7 @@ class TestCheckUpdate:
 
     def test_network_error_returns_none(self):
         """网络错误返回 None"""
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.side_effect = httpx.ConnectError("network down")
             info = check_update()
 
@@ -234,7 +234,7 @@ class TestCheckUpdate:
 
     def test_unexpected_error_returns_none(self):
         """其他异常 (e.g. JSON 解析失败) 返回 None"""
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             mock_resp = MagicMock()
             mock_resp.raise_for_status = MagicMock()
             mock_resp.json.side_effect = ValueError("bad json")
@@ -251,7 +251,7 @@ class TestCheckUpdate:
             "body": "no tag",
         })
 
-        with patch("scenefab.update.checker.httpx.Client") as MockClient:
+        with patch("app.update.checker.httpx.Client") as MockClient:
             MockClient.return_value.__enter__.return_value.get.return_value = mock_resp
             info = check_update()
 

@@ -1,8 +1,8 @@
 """text_utils 模块测试 — 句子分割与风格映射。"""
 
 
-from scenefab.pipeline.narration.context import ProductionStyle
-from scenefab.pipeline.text_utils import (
+from app.pipeline.narration.context import ProductionStyle
+from app.pipeline.text_utils import (
     PRODUCTION_TO_SCRIPT_STYLE,
     split_sentences,
 )

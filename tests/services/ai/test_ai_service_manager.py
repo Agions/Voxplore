@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test AI Service Status and Health"""
 
-from scenefab.services.ai.base import ServiceHealth, ServiceStatus
+from app.services.ai.base import ServiceHealth, ServiceStatus
 
 
 class TestServiceStatus:

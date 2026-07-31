@@ -6,14 +6,14 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
-from scenefab.models.project_models import ProjectMetadata, ProjectType
-from scenefab.project.manager import Project
-from scenefab.project.template_mgr import (
+from app.models.project_models import ProjectMetadata, ProjectType
+from app.project.manager import Project
+from app.project.template_mgr import (
     ProjectTemplateManager,
     TemplateCategory,
     TemplateInfo,
 )
-from scenefab.utils.json_io import read_json, write_json
+from app.utils.json_io import read_json, write_json
 
 
 def _template_info(template_id: str) -> TemplateInfo:
@@ -33,7 +33,7 @@ def _template_info(template_id: str) -> TemplateInfo:
 
 
 def _template_manager(tmp_path: Path) -> ProjectTemplateManager:
-    manager = ProjectTemplateManager.__new__(ProjectTemplateManager)
+    manager = ProjectTemplateManager(config_manager=None)
     manager.config_manager = None
     manager.logger = logging.getLogger(__name__)
     manager.templates_dir = tmp_path / "templates"

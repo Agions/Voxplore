@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """测试导出工具函数"""
 
-from scenefab.services.export.export_utils import (
+from app.services.export.export_utils import (
     ensure_directory,
     ensure_parent_directory,
     safe_filename,
