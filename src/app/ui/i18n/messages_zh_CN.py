@@ -49,7 +49,6 @@ MESSAGES: dict[str, str] = {
     "common.yes": "是",
     "common.no": "否",
     "common.disabled": "已禁用",
-
     # ── menu（菜单栏） ────────────────────────────────────────
     "menu.file": "文件",
     "menu.edit": "编辑",
@@ -70,7 +69,6 @@ MESSAGES: dict[str, str] = {
     "menu.help.about": "关于 SceneFab",
     "menu.help.check_updates": "检查更新…",
     "menu.help.about_window_title": "关于 SceneFab",
-
     # ── nav（侧边栏） ────────────────────────────────────────
     "nav.home": "工作台",
     "nav.home.tooltip": "项目总览和快速入口",
@@ -81,11 +79,9 @@ MESSAGES: dict[str, str] = {
     "nav.settings": "系统设置",
     "nav.settings.tooltip": "AI 服务、导出和行为",
     "nav.brand.subtitle": "短剧解说生产台",
-
     # ── topbar（顶部操作栏） ──────────────────────────────
     "topbar.export.button": "导出",
     "topbar.export.tooltip": "导出成片",
-
     # ── tray（系统托盘） ──────────────────────────────────
     "tray.menu.header": "🎬 {name}",
     "tray.menu.show_window": "📖 显示主窗口",
@@ -93,16 +89,13 @@ MESSAGES: dict[str, str] = {
     "tray.menu.quit": "❌ 退出 {name}",
     "tray.notification.title": "{name}",
     "tray.notification.minimized": "应用已最小化到系统托盘。双击图标或右键菜单可恢复窗口。",
-
     # ── settings（设置页面） ────────────────────────────
     "settings.choose_directory": "选择",
-
     # ── page（页面标题 / 面包屑） ─────────────────────────────
     "page.home": "工作台",
     "page.production": "创作流程",
     "page.assets": "项目资产",
     "page.settings": "系统设置",
-
     # ── home（工作台） ────────────────────────────────────────
     "home.header.title": "第一人称短剧解说工作台",
     "home.header.subtitle": "上传视频 · AI 解说 · 一键导出",
@@ -155,7 +148,6 @@ MESSAGES: dict[str, str] = {
     "home.delivery.fps": "帧率",
     "home.delivery.bitrate": "码率",
     "home.delivery.codec": "编码器",
-
     # ── production（创作流程） ───────────────────────────────
     "production.header.title": "创作流程",
     "production.header.subtitle": "从素材到成片的一站式生产",
@@ -182,7 +174,6 @@ MESSAGES: dict[str, str] = {
     "production.section.workflow_steps": "5 步自动化流水线",
     "production.section.brief": "脚本约束",
     "production.section.quality_gate": "导出门禁",
-
     # ── assets（资产页） ─────────────────────────────────────
     "assets.header.title": "项目资产",
     "assets.header.subtitle": "管理素材、脚本与导出文件",
@@ -218,7 +209,6 @@ MESSAGES: dict[str, str] = {
     "assets.table.column.kind": "类型",
     "assets.table.column.name": "名称",
     "assets.table.column.created": "创建日期",
-
     # ── settings（设置页） ───────────────────────────────────
     "settings.header.title": "系统设置",
     "settings.header.subtitle": "配置默认工作区、AI 服务和导出参数",
@@ -309,10 +299,8 @@ MESSAGES: dict[str, str] = {
     "settings.dialog.choose_directory": "选择目录",
     "settings.error.unknown_key": "未知的设置项: {key}",
     "settings.error.invalid_value": "无效的设置值: {value}",
-
     # ── theme（主题） ─────────────────────────────────────────
     "theme.mode_switched": "已切换主题: {mode}",
-
     # ── error（错误） ─────────────────────────────────────────
     "error.project_manager_unavailable": "项目管理器未就绪",
     "error.load_project_failed": "加载项目失败:\n{path}",
@@ -328,10 +316,8 @@ MESSAGES: dict[str, str] = {
     "error.invalid_source_video": "视频文件不存在",
     "error.network_timeout": "网络超时，使用占位音频",
     "error.api_key_invalid": "API Key 无效",
-
     # ── update（更新） ────────────────────────────────────────
     "update.new_version_found": "🎉 发现新版本 v{version}:\n{message}",
-
     # ── update page (v2.5) ─────────────────────────────────
     "nav.update": "更新",
     "nav.update.tooltip": "检查更新、下载安装、回滚版本",
@@ -380,7 +366,6 @@ MESSAGES: dict[str, str] = {
     "update.error.verify_failed": "SHA256 校验失败：{error}",
     "update.error.install_failed": "安装失败：{error}",
     "update.error.rollback_failed": "回滚失败：{error}",
-
     # ── update menu popup (help → 检查更新…) ────────────────
     # 点击顶部菜单“检查更新…”时，不再跳转到独立页面，
     # 而是以 QMessageBox 弹窗直接反馈结果。
@@ -391,7 +376,6 @@ MESSAGES: dict[str, str] = {
     "update.menu.popup.new_version.url_label": "前往下载页面",
     "update.menu.popup.check_failed.title": "检测更新失败",
     "update.menu.popup.check_failed.message": "无法连接到更新服务器：\n{error}\n\n请稍后重试，或前往 https://github.com/Agions/scene-fab/releases 手动检查。",
-
     # ── step（5 步流水线） ────────────────────────────────────
     "step.01.number": "01",
     "step.01.name": "素材导入",
@@ -423,7 +407,6 @@ MESSAGES: dict[str, str] = {
     "step.progress.voice_done": "配音合成完成",
     "step.progress.caption_done": "字幕生成完成",
     "step.progress.saved": "项目已保存",
-
     # ── status bar（状态栏） ──────────────────────────────────
     "statusbar.current_page": "当前: {page}",
     "statusbar.project_loaded": "已加载项目: {name}",
@@ -431,12 +414,10 @@ MESSAGES: dict[str, str] = {
     "statusbar.project_saved": "项目已保存: {path}",
     "statusbar.files_selected": "已选择 {count} 个素材文件",
     "statusbar.export_hint": "请在创作流程完成后导出成片",
-
     # ── app identity（应用标识） ─────────────────────────
     "app.name": "SceneFab",
     "app.tagline": "第一人称短剧解说生产台",
     "app.tech_stack": "基于 PySide6 / FFmpeg / 多模型 LLM 编排。",
-
     # ── production page（表单 / 拖拽 / 5 步状态） ───────────────
     "production.drop_hint": "拖拽素材视频到此处，或点击下方按钮选择",
     "production.format_supported": "支持 MP4, MOV, AVI, MKV 格式视频",
@@ -445,6 +426,37 @@ MESSAGES: dict[str, str] = {
     "production.video_filter": "视频文件 (*.mp4 *.mov *.avi *.mkv *.flv *.wmv);;所有文件 (*)",
     "production.video_selected": "已选择视频: {name}",
     "production.replace_video": "更换视频",
+    # v2.5.0 多文件上传
+    "production.multi.add_more": "+ 添加更多视频",
+    "production.multi.clear": "清空",
+    "production.multi.remove": "从列表移除",
+    "production.multi.count": "已选 {count} 个视频",
+    # v2.5.0 多视频策略选择器
+    "production.strategy.label": "多视频处理策略:",
+    "production.strategy.single": "单视频（独立生成）",
+    "production.strategy.concat": "多段拼接（顺序合为一条成片）",
+    "production.strategy.batch": "批量独立（多份互不相关）",
+    "production.strategy.series": "整季系列（共享人物与剧情）",
+    "production.strategy.help": "多文件场景下，选择如何处理这些视频。",
+    "production.strategy.series_edit": "编辑整季系列设定…",
+    # v2.5.0 SeriesContext 对话框
+    "production.series.dialog_title": "整季系列设定",
+    "production.series.dialog_intro": "这些设定会在每一集生成时作为共享上下文传给 LLM，确保人物称呼、世界观与剧情走向全季一致。",
+    "production.series.field_title": "剧名",
+    "production.series.title_placeholder": "例如：深夜短剧",
+    "production.series.field_naming": "集数命名模板",
+    "production.series.field_naming_preset": "命名预设",
+    "production.series.field_genre": "题材",
+    "production.series.genre_placeholder": "例如：都市 / 短剧",
+    "production.series.field_total_eps": "总集数",
+    "production.series.eps_unknown": "未知",
+    "production.series.field_characters": "共享人物（每行一个）",
+    "production.series.characters_placeholder": "女主、男主、反派…",
+    "production.series.field_plot": "全季剧情主线",
+    "production.series.plot_placeholder": "用一两句话概括整季走向…",
+    "production.series.field_world": "世界观设定",
+    "production.series.world_placeholder": "时代背景、地点、特殊设定…",
+    "production.series.reset": "重置为空",
     "production.start_ai": "🚀 开始 AI 自动创作",
     "production.theme_label": "解说主题:",
     "production.theme_default": "第一人称影视解说",
@@ -458,7 +470,6 @@ MESSAGES: dict[str, str] = {
     "production.emotion.calm": "平静 (客观中性)",
     "production.emotion.gentle": "温柔 (细腻深情)",
     "production.emotion.excited": "激昂 (热血高燃)",
-
     # ── assets page（按钮 / 右键菜单 / 最近项目） ───────────────
     "assets.import_button": "导入素材",
     "assets.refresh_button": "刷新",
@@ -472,13 +483,11 @@ MESSAGES: dict[str, str] = {
     "assets.recent.empty": "暂无最近项目",
     "assets.recent.label": "最近项目",
     "assets.recent.suffix": "（共 {count} 项）",
-
     # ── page router 占位页 ────────────────────────────────────
     "page.load_failed": "页面加载失败",
     "page.load_failed_detail": "无法加载页面 {page_id}：\n{error}",
     "page.load_failed_hint": "该页面在初始化时发生异常，已记录到运行日志。请将以下错误信息反馈给开发者，或尝试重启应用。",
     "page.load_failed_title_with_id": "页面加载失败：{page_id}",
-
     # ── main window 状态 / 对话框（不再与 production.* / error.* 冲突） ──
     "main.export_failed.title": "导出失败",
     "main.task_running": "任务进行中，请稍候...",

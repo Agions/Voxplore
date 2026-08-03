@@ -35,7 +35,6 @@ MESSAGES: dict[str, str] = {
     "common.yes": "Yes",
     "common.no": "No",
     "common.disabled": "Disabled",
-
     # menu
     "menu.file": "File",
     "menu.edit": "Edit",
@@ -56,7 +55,6 @@ MESSAGES: dict[str, str] = {
     "menu.help.about": "About SceneFab",
     "menu.help.check_updates": "Check for Updates…",
     "menu.help.about_window_title": "About SceneFab",
-
     # navigation
     "nav.home": "Dashboard",
     "nav.home.tooltip": "Project overview and quick actions",
@@ -67,11 +65,9 @@ MESSAGES: dict[str, str] = {
     "nav.settings": "Settings",
     "nav.settings.tooltip": "AI services, export, and behavior",
     "nav.brand.subtitle": "Short Drama Narration Studio",
-
     # topbar (top action buttons)
     "topbar.export.button": "Export",
     "topbar.export.tooltip": "Export the final video",
-
     # tray (system tray menu)
     "tray.menu.header": "🎬 {name}",
     "tray.menu.show_window": "📖 Show Window",
@@ -79,16 +75,13 @@ MESSAGES: dict[str, str] = {
     "tray.menu.quit": "❌ Quit {name}",
     "tray.notification.title": "{name}",
     "tray.notification.minimized": "App minimized to the system tray. Double-click the icon or right-click to restore.",
-
     # settings page buttons
     "settings.choose_directory": "Choose",
-
     # pages
     "page.home": "Dashboard",
     "page.production": "Production",
     "page.assets": "Project Assets",
     "page.settings": "Settings",
-
     # home
     "home.header.title": "First-Person Drama Narration Studio",
     "home.header.subtitle": "Upload Video · AI Narration · One-Click Export",
@@ -141,7 +134,6 @@ MESSAGES: dict[str, str] = {
     "home.delivery.fps": "Frame Rate",
     "home.delivery.bitrate": "Bitrate",
     "home.delivery.codec": "Codec",
-
     # production
     "production.header.title": "Production",
     "production.header.subtitle": "An end-to-end workflow from media to final video",
@@ -168,7 +160,6 @@ MESSAGES: dict[str, str] = {
     "production.section.workflow_steps": "5-Step Automation Pipeline",
     "production.section.brief": "Script Constraints",
     "production.section.quality_gate": "Export Quality Gate",
-
     # assets
     "assets.header.title": "Project Assets",
     "assets.header.subtitle": "Manage media, scripts, and exported files",
@@ -204,7 +195,6 @@ MESSAGES: dict[str, str] = {
     "assets.table.column.kind": "Type",
     "assets.table.column.name": "Name",
     "assets.table.column.created": "Created",
-
     # settings
     "settings.header.title": "Settings",
     "settings.header.subtitle": "Configure workspace, AI services, and export defaults",
@@ -295,10 +285,8 @@ MESSAGES: dict[str, str] = {
     "settings.dialog.choose_directory": "Choose Folder",
     "settings.error.unknown_key": "Unknown setting: {key}",
     "settings.error.invalid_value": "Invalid setting value: {value}",
-
     # theme
     "theme.mode_switched": "Theme switched to {mode}",
-
     # errors and result messages
     "error.project_manager_unavailable": "Project manager is not ready",
     "error.load_project_failed": "Failed to load project:\n{path}",
@@ -314,10 +302,8 @@ MESSAGES: dict[str, str] = {
     "error.invalid_source_video": "Video file does not exist",
     "error.network_timeout": "Network timed out; using placeholder audio",
     "error.api_key_invalid": "Invalid API Key",
-
     # updates
     "update.new_version_found": "New version v{version} is available:\n{message}",
-
     # update page (v2.5)
     "nav.update": "Updates",
     "nav.update.tooltip": "Check for updates, download, install, or roll back",
@@ -366,7 +352,6 @@ MESSAGES: dict[str, str] = {
     "update.error.verify_failed": "SHA256 verification failed: {error}",
     "update.error.install_failed": "Install failed: {error}",
     "update.error.rollback_failed": "Rollback failed: {error}",
-
     # update menu popup (Help → Check for Updates…)
     # The Help menu no longer opens the dedicated Update page; instead it
     # pops up a QMessageBox with the result so users stay where they were.
@@ -377,7 +362,6 @@ MESSAGES: dict[str, str] = {
     "update.menu.popup.new_version.url_label": "Go to download page",
     "update.menu.popup.check_failed.title": "Update check failed",
     "update.menu.popup.check_failed.message": "Unable to reach the update server:\n{error}\n\nPlease retry later, or check manually at https://github.com/Agions/scene-fab/releases.",
-
     # five-step workflow
     "step.01.number": "01",
     "step.01.name": "Import Media",
@@ -409,7 +393,6 @@ MESSAGES: dict[str, str] = {
     "step.progress.voice_done": "Voice synthesis complete",
     "step.progress.caption_done": "Caption generation complete",
     "step.progress.saved": "Project saved",
-
     # status bar
     "statusbar.current_page": "Current: {page}",
     "statusbar.project_loaded": "Loaded project: {name}",
@@ -417,12 +400,10 @@ MESSAGES: dict[str, str] = {
     "statusbar.project_saved": "Project saved: {path}",
     "statusbar.files_selected": "Selected {count} media files",
     "statusbar.export_hint": "Export after the production workflow is complete",
-
     # app identity
     "app.name": "SceneFab",
     "app.tagline": "First-Person Drama Narration Studio",
     "app.tech_stack": "Built on PySide6, FFmpeg, and multi-model LLM orchestration.",
-
     # production page (form / drag-drop / 5-step status)
     "production.drop_hint": "Drag a source video here, or click the button below to choose",
     "production.format_supported": "Supports MP4, MOV, AVI, MKV formats",
@@ -431,6 +412,37 @@ MESSAGES: dict[str, str] = {
     "production.video_filter": "Video files (*.mp4 *.mov *.avi *.mkv *.flv *.wmv);;All files (*)",
     "production.video_selected": "Selected video: {name}",
     "production.replace_video": "Replace Video",
+    # v2.5.0 multi-file upload
+    "production.multi.add_more": "+ Add More Videos",
+    "production.multi.clear": "Clear",
+    "production.multi.remove": "Remove from list",
+    "production.multi.count": "{count} videos selected",
+    # v2.5.0 multi-video strategy selector
+    "production.strategy.label": "Multi-video strategy:",
+    "production.strategy.single": "Single (one video, one project)",
+    "production.strategy.concat": "Concat (sequential stitch into one film)",
+    "production.strategy.batch": "Batch (independent projects)",
+    "production.strategy.series": "Whole-season series (shared lore & characters)",
+    "production.strategy.help": "When multiple videos are added, choose how to process them.",
+    "production.strategy.series_edit": "Edit series context…",
+    # v2.5.0 SeriesContext dialog
+    "production.series.dialog_title": "Whole-season series context",
+    "production.series.dialog_intro": "These settings are passed to the LLM as shared context for every episode, keeping characters, worldbuilding and plot arc consistent across the season.",
+    "production.series.field_title": "Series title",
+    "production.series.title_placeholder": "e.g. Late Night Drama",
+    "production.series.field_naming": "Episode naming template",
+    "production.series.field_naming_preset": "Naming preset",
+    "production.series.field_genre": "Genre",
+    "production.series.genre_placeholder": "e.g. Urban / Short drama",
+    "production.series.field_total_eps": "Total episodes",
+    "production.series.eps_unknown": "Unknown",
+    "production.series.field_characters": "Shared characters (one per line)",
+    "production.series.characters_placeholder": "Lead, Antagonist, …",
+    "production.series.field_plot": "Season plot arc",
+    "production.series.plot_placeholder": "One or two sentences summarizing the whole season…",
+    "production.series.field_world": "World setting",
+    "production.series.world_placeholder": "Era, location, special rules…",
+    "production.series.reset": "Reset to empty",
     "production.start_ai": "🚀 Start AI Auto Production",
     "production.theme_label": "Narration topic:",
     "production.theme_default": "First-person film narration",
@@ -444,7 +456,6 @@ MESSAGES: dict[str, str] = {
     "production.emotion.calm": "Calm (Even-Tempered)",
     "production.emotion.gentle": "Gentle (Soft and Tender)",
     "production.emotion.excited": "Excited (High Energy)",
-
     # assets page (buttons / context menu / recent projects)
     "assets.import_button": "Import Media",
     "assets.refresh_button": "Refresh",
@@ -454,17 +465,15 @@ MESSAGES: dict[str, str] = {
     "assets.action.delete": "Delete",
     "assets.confirm_delete.title": "Delete Asset",
     "assets.confirm_delete.message": "Delete this asset?\n{path}",
-    "assets.empty.placeholder": "Drop media files here, or click \"Import Media\"",
+    "assets.empty.placeholder": 'Drop media files here, or click "Import Media"',
     "assets.recent.empty": "No recent projects",
     "assets.recent.label": "Recent Projects",
     "assets.recent.suffix": "({count} items)",
-
     # page router fallback
     "page.load_failed": "Page failed to load",
     "page.load_failed_detail": "Unable to load page {page_id}:\n{error}",
     "page.load_failed_hint": "This page failed to initialize. The error has been recorded in the runtime log. Please share the details below with the developers or restart the application.",
     "page.load_failed_title_with_id": "Page failed to load: {page_id}",
-
     # main window status / dialog (avoid clashing with production.*/error.*)
     "main.export_failed.title": "Export Failed",
     "main.task_running": "Task running — please wait…",

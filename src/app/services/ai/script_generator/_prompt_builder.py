@@ -1,11 +1,38 @@
 """Prompt construction helpers for script generation."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from ..script_models import ScriptConfig
-from ._style_prompts import TONE_MAP
+from ._style_prompts import (
+    STRATEGY_INSTRUCTIONS,
+    TONE_MAP,
+    series_context_block,
+)
+
+if TYPE_CHECKING:
+    from ....models.project import SeriesContext
 
 
-def build_prompt(topic: str, config: ScriptConfig) -> str:
-    """构建用户提示词"""
+def build_prompt(
+    topic: str,
+    config: ScriptConfig,
+    *,
+    multi_strategy: str | None = None,
+    series_context: SeriesContext | None = None,
+) -> str:
+    """构建用户提示词。
+
+    v2.5.0 新增 ``multi_strategy`` 与 ``series_context`` 参数：
+
+    - ``multi_strategy``: 拼接对应的策略提示词片段（让 LLM 知道这是
+      single/concat/batch/series 中的哪一种场景）。
+    - ``series_context``: 仅在 ``multi_strategy == "series"`` 时拼接
+      全季共享上下文块（人物 / 世界观 / 剧情主线）。
+
+    两个参数都向后兼容：默认 ``None`` 时行为与 v2.4 完全一致。
+    """
     parts = [f"请为以下主题生成视频文案：\n\n{topic}\n"]
 
     # 字数要求
@@ -28,6 +55,16 @@ def build_prompt(topic: str, config: ScriptConfig) -> str:
     if config.keywords:
         parts.append(f"\n必须自然融入以下关键词：{', '.join(config.keywords)}")
 
+    # v2.5.0: 多视频策略提示词
+    if multi_strategy and multi_strategy in STRATEGY_INSTRUCTIONS:
+        parts.append(STRATEGY_INSTRUCTIONS[multi_strategy])
+
+    # v2.5.0: 整季系列背景块
+    if multi_strategy == "series":
+        block = series_context_block(series_context)
+        if block:
+            parts.append(block)
+
     # 格式要求
     parts.append("""
 输出格式：
@@ -38,14 +75,30 @@ def build_prompt(topic: str, config: ScriptConfig) -> str:
     return "\n".join(parts)
 
 
-def build_batch_prompt(batch: list[tuple[str, ScriptConfig]]) -> str:
+def build_batch_prompt(
+    batch: list[tuple[str, ScriptConfig]],
+    *,
+    multi_strategy: str | None = None,
+    series_context: SeriesContext | None = None,
+) -> str:
     """
-    构建批量请求的提示词
+    构建批量请求的提示词。
+
+    v2.5.0: ``multi_strategy`` / ``series_context`` 参数向后兼容 —
+    仅当非 None 且策略 = series 时，才在整批共享前缀里追加系列背景块。
     """
     if not batch:
         return ""
 
     parts = ["请为以下多个主题分别生成视频文案。\n"]
+
+    # 批量场景下也拼接策略提示词（让 LLM 知道这是 batch 独立多份）。
+    if multi_strategy and multi_strategy in STRATEGY_INSTRUCTIONS:
+        parts.append(STRATEGY_INSTRUCTIONS[multi_strategy])
+    if multi_strategy == "series":
+        block = series_context_block(series_context)
+        if block:
+            parts.append(block)
 
     for i, (topic, config) in enumerate(batch, 1):
         parts.append(f"\n=== 段落 {i} ===")

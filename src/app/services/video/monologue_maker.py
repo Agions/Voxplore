@@ -25,6 +25,7 @@ AI 第一人称独白制作器 (Monologue Maker)
 """
 
 import logging
+import os
 import re
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -32,6 +33,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
+from ...models.project import MultiVideoSource, SeriesContext  # v2.5.0
 from ..ai.script_generator import ScriptGenerator, VoiceTone
 from ..ai.voice_generator import VoiceConfig, VoiceGenerator
 from ..ai.voice_models import VoiceStyle
@@ -67,10 +69,33 @@ class MonologueProject(BaseProject):
     voice_config: VoiceConfig = field(default_factory=VoiceConfig)
     caption_style: str = "cinematic"  # cinematic, minimal, expressive
 
+    # ── v2.5.0 多文件上传扩展（向后兼容） ───────────────────────
+    # 保留父类 BaseProject.source_video（单视频），新增多视频字段。
+    # 读：优先 source_videos，缺失回退 source_video。
+    # 写：始终写 source_videos（source_video 也同步写入）。
+    source_videos: list[str] = field(default_factory=list)
+    multi_strategy: str = "single"  # single | concat | batch | series
+    series_context: SeriesContext | None = None
+
     @property
     def total_duration(self) -> float:
         """总时长"""
         return sum(seg.audio_duration for seg in self.segments)
+
+    @property
+    def all_source_videos(self) -> list[str]:
+        """返回当前模式下需要处理的所有视频路径（消除歧义）。
+
+        优先级：
+        1. 若 ``source_videos`` 非空，取其副本（多视频模式）
+        2. 否则若 ``source_video`` 非空，包成单元素列表（单视频模式）
+        3. 都没有返回空列表
+        """
+        if self.source_videos:
+            return list(self.source_videos)
+        if self.source_video:
+            return [self.source_video]
+        return []
 
     # ------------------------------------------------------------------ #
     #  持久化 (.scenefab JSON)                                          #
@@ -93,11 +118,17 @@ class MonologueProject(BaseProject):
         save_path.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
-            "version": "1.0",
+            "version": "1.1",  # v2.5.0: 加入 multi_strategy / series_context
             "type": "monologue",
             "id": self.id,
             "name": self.name,
+            # 向后兼容：同时写 source_video 与 source_videos
             "source_video": self.source_video,
+            "source_videos": self.all_source_videos,
+            "multi_strategy": self.multi_strategy,
+            "series_context": self.series_context.to_dict()
+            if self.series_context
+            else None,
             "video_duration": self.video_duration,
             "output_dir": self.output_dir,
             "context": self.context,
@@ -164,10 +195,32 @@ class MonologueProject(BaseProject):
         else:
             style = MonologueStyle.MELANCHOLIC
 
+        # v2.5.0: source_videos 优先，缺失回退 source_video
+        source_video = data.get("source_video", "")
+        source_videos_raw = data.get("source_videos") or []
+        if not source_videos_raw and source_video:
+            source_videos_raw = [source_video]
+        # 去重保序
+        seen: set[str] = set()
+        source_videos: list[str] = []
+        for p in source_videos_raw:
+            if p and p not in seen:
+                seen.add(p)
+                source_videos.append(p)
+
+        # series_context（可选）
+        sc_raw = data.get("series_context")
+        series_ctx = (
+            SeriesContext.from_dict(sc_raw) if isinstance(sc_raw, dict) else None
+        )
+
         return cls(
             id=data.get("id", ""),
             name=data.get("name", "新建项目"),
-            source_video=data.get("source_video", ""),
+            source_video=source_video,
+            source_videos=source_videos,
+            multi_strategy=data.get("multi_strategy", "single"),
+            series_context=series_ctx,
             video_duration=data.get("video_duration", 0.0),
             output_dir=data.get("output_dir", ""),
             context=data.get("context", ""),
@@ -268,32 +321,73 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
     def create_project(  # type: ignore[override]
         self,
-        source_video: str,
-        context: str,
+        source_video: str | None = None,
+        context: str = "",
         emotion: str = "neutral",
         name: str | None = None,
         style: MonologueStyle = MonologueStyle.MELANCHOLIC,
         output_dir: str | None = None,
+        *,
+        source_videos: list[str] | None = None,
+        multi_strategy: str = "single",
+        series_context: SeriesContext | None = None,
         **kwargs,
     ) -> MonologueProject:
-        """创建独白项目"""
+        """创建独白项目（v2.5.0 支持多视频）。
+
+        支持三种调用方式（优先级从高到低）：
+        1. ``source_videos=[v1, v2, ...]`` ：多视频模式，根据 ``multi_strategy`` 处理
+        2. ``source_video="x.mp4"`` ：单视频模式（向后兼容）
+
+        ``multi_strategy`` 取值：
+        - ``"single"`` ：1 个视频，1 个项目
+        - ``"concat"`` ：N 个视频拼接为 1 个，1 个项目（FFmpeg concat demuxer）
+        - ``"batch"`` ：N 个视频独立生成 N 个项目（参看 ``create_batch``）
+        - ``"series"`` ：N 个视频作为整季系列，需 ``series_context``
+        """
+        # 统一得到所有要处理的视频路径（去重保序）
+        paths: list[str] = []
+        if source_videos:
+            seen: set[str] = set()
+            for p in source_videos:
+                if p and p not in seen:
+                    seen.add(p)
+                    paths.append(p)
+        if source_video and source_video not in paths:
+            paths.insert(0, source_video)
+
+        if not paths:
+            raise ValueError("create_project 需至少传入 source_video 或 source_videos")
+
+        primary = paths[0]
+        strategy = multi_strategy
+        if len(paths) > 1 and strategy == "single":
+            # 多文件但策略 single：自动升级为 batch （防呆）
+            strategy = "batch"
+            logger.info(
+                "source_videos 有 %d 个路径但未指定策略，自动升为 batch", len(paths)
+            )
+
         project = MonologueProject(
             context=context,
             emotion=emotion,
             style=style,
+            source_videos=list(paths),
+            multi_strategy=strategy,
+            series_context=series_context,
         )
 
         self._report_progress("分析视频", 0.0)
-        self._init_project(project, source_video, name, output_dir)
+        self._init_project(project, primary, name, output_dir)
 
-        # Fallback: 无场景时用 ffprobe 获取视频时长
+        # 多视频模式：首件时长为参考，全集总时长求和
         if project.video_duration <= 0:
             try:
-                project.video_duration = FFmpegTool.get_duration(source_video) or 0.0
+                project.video_duration = FFmpegTool.get_duration(primary) or 0.0
             except (subprocess.SubprocessError, FileNotFoundError, OSError) as e:
                 # FFmpegTool.get_duration 失败: 子进程错误 / FFmpeg 未安装 / OS 错误
                 # 不吞 RuntimeError/TypeError 等真实编程 bug
-                logger.warning(f"Failed to get video duration for {source_video}: {e}")
+                logger.warning(f"Failed to get video duration for {primary}: {e}")
                 project.video_duration = 0.0
 
         self._report_progress("分析视频", 1.0)
@@ -318,10 +412,13 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             project.full_script = custom_script
         else:
             # 复用预建的 script_generator（避免每次重新加载配置）
+            # v2.5.0: 透传 multi_strategy + series_context 让 LLM 知道场景
             result = self.script_generator.generate_monologue(
                 context=project.context,
                 emotion=project.emotion,
                 duration=project.video_duration,
+                multi_strategy=project.multi_strategy or None,
+                series_context=project.series_context,
             )
             project.full_script = result.content
 
@@ -492,7 +589,9 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                     result.sentence_timestamps or [],
                 )
             except Exception as e:
-                logger.warning(f"Segment {i} 配音合成网络超时/失败, 使用防崩占位音频: {e}")
+                logger.warning(
+                    f"Segment {i} 配音合成网络超时/失败, 使用防崩占位音频: {e}"
+                )
                 duration = _create_fallback_audio(audio_path, segment.script)
                 return (i, audio_path, duration, [])
 
@@ -602,10 +701,16 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
                 current_text += part
                 if len(current_text.strip()) >= 2:
                     self._emit_fallback_caption(
-                        captions, current_text, segment, caption_cfg,
-                        segment_words, current_start,
+                        captions,
+                        current_text,
+                        segment,
+                        caption_cfg,
+                        segment_words,
+                        current_start,
                     )
-                    duration = len(current_text) / segment_words * segment.audio_duration
+                    duration = (
+                        len(current_text) / segment_words * segment.audio_duration
+                    )
                     current_start += duration
                     current_text = ""
             else:
@@ -613,8 +718,12 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
         if current_text.strip() and len(current_text.strip()) >= 2:
             self._emit_fallback_caption(
-                captions, current_text, segment, caption_cfg,
-                segment_words, current_start,
+                captions,
+                current_text,
+                segment,
+                caption_cfg,
+                segment_words,
+                current_start,
             )
 
         return captions
@@ -657,6 +766,99 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
             "emotion": emotion,
         }
 
+    # ------------------------------------------------------------------ #
+    #  v2.5.0 多视频批量生成                                              #
+    # ------------------------------------------------------------------ #
+
+    def create_batch(
+        self,
+        sources: "MultiVideoSource | list[str]",
+        context: str = "",
+        emotion: str = "neutral",
+        style: MonologueStyle = MonologueStyle.MELANCHOLIC,
+        name_prefix: str = "EP",
+        parallel: int | None = None,
+        output_dir: str | None = None,
+    ) -> list[MonologueProject]:
+        """批量创建多集独白项目（batch 模式）。
+
+        输入为 ``MultiVideoSource`` 或纯路径列表。
+
+        - 每个路径独立生成一个 ``MonologueProject``，名字 = ``{name_prefix}{idx:02d}_{stem}``
+        - ``parallel=None`` （默认）时，按 ``compute_adaptive_parallel(n_tasks)``
+          自适应选择并发度（参见该函数注释）
+        - ``parallel=N`` 显式传入时，clamp 到 ``[1, max_parallel]`` 范围
+        - 仅生成 project + 运行 create_project，不会自动生成脚本/配音（由调用方控制）
+        - 返回按顺序的 N 个 ``MonologueProject``
+
+        注意：完整管线（脚本/配音/字幕/导出）仍需逐个调用 ``generate_*`` 方法。
+        如需一次性跑完，参考 :class:`ProductionRunner` 中的 ``start_batch``。
+        """
+        # 输入归一化
+        if isinstance(sources, MultiVideoSource):
+            paths = sources.paths
+            strategy = sources.strategy
+            series_ctx = sources.series_context
+        else:
+            paths = list(sources)
+            strategy = "batch"
+            series_ctx = None
+
+        if not paths:
+            return []
+
+        # v2.5.0 自适应并发：默认 None → 走 CPU 自适应
+        n_tasks = len(paths)
+        max_parallel = max(1, (os.cpu_count() or 1) * 2)
+        if parallel is None:
+            parallel = compute_adaptive_parallel(n_tasks, max_parallel=max_parallel)
+        if parallel < 1:
+            parallel = 1
+        if parallel > max_parallel:
+            parallel = max_parallel
+
+        results: list[MonologueProject | None] = [None] * len(paths)
+
+        def _build_one(idx: int, video_path: str) -> MonologueProject:
+            stem = Path(video_path).stem
+            # v2.5.0: series 策略 + SeriesContext → 消费 episode_naming 模板
+            if strategy == "series" and series_ctx is not None:
+                project_name = _format_episode_name(
+                    series_ctx.episode_naming,
+                    title=series_ctx.series_title or stem,
+                    ep=idx + 1,
+                    stem=stem,
+                )
+            else:
+                project_name = f"{name_prefix}{idx + 1:02d}_{stem}"
+            return self.create_project(
+                source_video=video_path,
+                context=context,
+                emotion=emotion,
+                name=project_name,
+                style=style,
+                output_dir=output_dir,
+                source_videos=None,  # batch 模式下每个项目仅为单视频
+                multi_strategy="single",
+                series_context=series_ctx if strategy == "series" else None,
+            )
+
+        with ThreadPoolExecutor(max_workers=parallel) as executor:
+            future_to_idx = {
+                executor.submit(_build_one, i, p): i for i, p in enumerate(paths)
+            }
+            for future in as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    results[idx] = future.result()
+                except Exception as e:  # noqa: BLE001 - record failure, keep batch going
+                    logger.error(
+                        "create_batch: 第 %d 个项目创建失败 (%s)，跳过", idx, e
+                    )
+                    results[idx] = None
+
+        return [p for p in results if p is not None]
+
     def _build_jianying_tracks(
         self, draft: JianyingDraft, project: MonologueProject
     ) -> None:
@@ -675,6 +877,68 @@ class MonologueMaker(BaseVideoMaker[MonologueProject]):
 
 
 # =========== 便捷函数 ===========
+
+
+def _format_episode_name(
+    template: str,
+    *,
+    title: str,
+    ep: int,
+    stem: str,
+) -> str:
+    """按模板渲染单集项目名（v2.5.0 集数命名器）。
+
+    支持占位符：
+    - ``{title}`` : :class:`SeriesContext.series_title`
+    - ``{ep}``    : 当前集数（1-based）
+    - ``{stem}``  : 视频文件名 stem（不含扩展名）
+
+    Args:
+        template: 模板字符串，如 ``"{title}_EP{ep:02d}"`` / ``"EP{ep:02d}_{title}"``
+        title: 剧名(为空时回退到 ``stem``)
+        ep: 当前集数(1-based)
+        stem: 视频文件名
+
+    Returns:
+        渲染后的项目名。若模板为空 / 解析异常 / 渲染后为空,则回退
+        到 ``{stem}_EP{ep:02d}``。
+    """
+    fallback = f"{stem}_EP{ep:02d}"
+    if not template:
+        return fallback
+    try:
+        rendered = template.format(title=title, ep=ep, stem=stem)
+    except (KeyError, IndexError, ValueError):
+        logger.warning("episode_naming 模板解析失败: %r, 回退到默认命名", template)
+        return fallback
+    return rendered or fallback
+
+
+def compute_adaptive_parallel(
+    n_tasks: int,
+    *,
+    max_parallel: int | None = None,
+) -> int:
+    """按 CPU 数自适应选择并发度（v2.5.0）。
+
+    规则：
+    - n_tasks <= 1  → 1（避免无意义并发）
+    - n_tasks == 2  → 2（小任务集，直接并行）
+    - n_tasks > 2   → ``min(n_tasks, cpu_count, max_parallel)``
+
+    ``max_parallel`` 默认取 ``os.cpu_count() * 2``，但调用方可显式压低
+    （如 CI 环境 / 受限线程池）。
+    """
+    if n_tasks <= 1:
+        return 1
+
+    if max_parallel is None:
+        cpu = os.cpu_count() or 1
+        max_parallel = max(1, cpu * 2)
+
+    # I/O bound 任务（ffprobe、FFmpeg 探测）下，2x CPU 通常就够了；
+    # 但允许 n_tasks 突破这个上限（任务数很多时全跑更划算）。
+    return min(n_tasks, max(max_parallel, n_tasks), max_parallel * 2)
 
 
 def create_monologue(
