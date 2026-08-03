@@ -170,7 +170,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
         self.content = ContentArea()
         self.router = PageRouter(
-            self.content, application=self._application, parent=self)
+            self.content, application=self._application, parent=self
+        )
         root_layout.addWidget(self.content, 1)
 
         self._lazy_load_pages()
@@ -180,8 +181,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.statusbar = StatusBar()
         outer.addWidget(self.statusbar)
 
-        self._cancel_shortcut = QShortcut(
-            QKeySequence(Qt.Key.Key_Escape), self)
+        self._cancel_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Escape), self)
         self._cancel_shortcut.activated.connect(self._on_cancel_production)
 
         # Phase 2 · 系统资源监控（1Hz psutil 采样 → system.metric 事件）
@@ -208,25 +208,17 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.exporter.exported.connect(self._on_export_succeeded)
         self.project_io = ProjectIOController(
             self,
-            get_project_manager=lambda: getattr(
-                self, "_project_manager", None
-            ),
+            get_project_manager=lambda: getattr(self, "_project_manager", None),
             get_last_project=lambda: self._last_project,
             set_last_project=lambda p: self._set_last_project(p),
-            get_production_page=lambda: getattr(
-                self, "_production_page", None
-            ),
+            get_production_page=lambda: getattr(self, "_production_page", None),
             navigate_to_create=lambda: self._on_navigate("create"),
             show_status=lambda msg: self.statusbar.set_status(msg),
-            show_message=lambda msg, level: self.show_message(
-                msg, level=level
-            ),
+            show_message=lambda msg, level: self.show_message(msg, level=level),
         )
         self.assets_io = AssetsIOController(
             self,
-            get_project_manager=lambda: getattr(
-                self, "_project_manager", None
-            ),
+            get_project_manager=lambda: getattr(self, "_project_manager", None),
             get_assets_page=lambda: getattr(self, "_assets_page", None),
             show_status=lambda msg: self.statusbar.set_status(msg),
         )
@@ -244,9 +236,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # the persisted language hasn't been applied yet. Do that here
         # so the first frame already renders in the right language.
         self._apply_persisted_language()
-        self.production_runner.step_status_changed.connect(
-            self._on_step_status_changed
-        )
+        self.production_runner.step_status_changed.connect(self._on_step_status_changed)
         self.production_runner.progress_message.connect(
             self._on_production_progress_msg
         )
@@ -263,11 +253,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         project_manager = None
         settings_manager = None
         if self._application is not None:
-            project_manager = self._application.get_service_by_name(
-                "project_manager")
-            settings_manager = self._application.get_service_by_name(
-                "settings_manager"
-            )
+            project_manager = self._application.get_service_by_name("project_manager")
+            settings_manager = self._application.get_service_by_name("settings_manager")
 
         # HomePageViewModel is the single source of truth for the home
         # dashboard — pages consume *_changed signals and re-read VM
@@ -339,8 +326,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.router.page_changed.connect(self._on_page_changed)
         self.topbar.action_triggered.connect(self._on_action)
         self.tray.show_window_requested.connect(self._restore_from_tray)
-        self.tray.open_settings_requested.connect(
-            self._open_settings_from_tray)
+        self.tray.open_settings_requested.connect(self._open_settings_from_tray)
         self.tray.quit_requested.connect(self._quit_application)
         # theme_ctrl 在 ThemeController.__init__ 中已自身接线
         # palette_changed 信号，所以这里不需要再手动 connect。
@@ -360,9 +346,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if spec is None:
             return
         title = t(spec.title_key) if spec.title_key else spec.title
-        breadcrumb = (
-            t(spec.breadcrumb_key) if spec.breadcrumb_key else spec.breadcrumb
-        )
+        breadcrumb = t(spec.breadcrumb_key) if spec.breadcrumb_key else spec.breadcrumb
         # Forward the i18n keys so a later language flip can re-paint
         # the title/breadcrumb without re-resolving the spec.
         self.topbar.set_title_keys(
@@ -372,9 +356,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             breadcrumb_key=spec.breadcrumb_key,
         )
         status_key = "statusbar.current_page"
-        self.statusbar.set_status(
-            t(status_key).format(page=title), key=status_key
-        )
+        self.statusbar.set_status(t(status_key).format(page=title), key=status_key)
 
     def _set_last_project(self, project: object) -> None:
         """Set the most recently produced / loaded ``MonologueProject``."""
@@ -396,9 +378,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
             sm = None
             if self._application is not None:
-                sm = self._application.get_service_by_name(
-                    "settings_manager"
-                )
+                sm = self._application.get_service_by_name("settings_manager")
             if sm is None or not isinstance(sm, ProjectSettingsManager):
                 return
             lang = sm.get_setting("ui.language")
@@ -412,7 +392,11 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # Order matters: chrome owns the QMenuBar tree; sidebar / topbar /
         # statusbar / tray own their own retranslate entry points.
         for owner_attr in (
-            "chrome", "sidebar", "topbar", "statusbar", "tray",
+            "chrome",
+            "sidebar",
+            "topbar",
+            "statusbar",
+            "tray",
         ):
             owner = getattr(self, owner_attr, None)
             if owner is None:
@@ -422,12 +406,14 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 try:
                     retranslate()
                 except Exception:
-                    logger.debug("%s.retranslate failed",
-                                 owner_attr, exc_info=True)
+                    logger.debug("%s.retranslate failed", owner_attr, exc_info=True)
         # Lazy-loaded pages also expose retranslate() — refactor them after
         # language changes so freshly-mounted forms stay in sync.
         for page_attr in (
-            "_home_page", "_production_page", "_assets_page", "_settings_page",
+            "_home_page",
+            "_production_page",
+            "_assets_page",
+            "_settings_page",
         ):
             page = getattr(self, page_attr, None)
             if page is None:
@@ -437,8 +423,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 try:
                     retranslate()
                 except Exception:
-                    logger.debug("%s.retranslate failed",
-                                 page_attr, exc_info=True)
+                    logger.debug("%s.retranslate failed", page_attr, exc_info=True)
 
     def _on_open_project(self, project_path: str = "") -> None:
         """Open a .scenefab project — delegated to ``ProjectIOController``."""
@@ -496,10 +481,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             version = str(getattr(manifest, "version", "") or "")
             notes = str(getattr(manifest, "release_notes", "") or "")
             current = self._current_app_version()
-            url = (
-                "https://github.com/Agions/scene-fab/releases/tag/v"
-                + version
-            )
+            url = "https://github.com/Agions/scene-fab/releases/tag/v" + version
             QMessageBox.information(
                 self,
                 t("update.menu.popup.new_version.title"),
@@ -539,8 +521,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             (getattr(signals, "update_unavailable", None), on_update_unavailable),
             (getattr(signals, "error_occurred", None), on_error),
         ]
-        handlers = [(signal, handler)
-                    for signal, handler in handlers if signal]
+        handlers = [(signal, handler) for signal, handler in handlers if signal]
         try:
             for signal, handler in handlers:
                 signal.connect(handler)
@@ -606,13 +587,9 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # Use the same key the initial render uses so retranslate can
         # rebuild the active label when language flips.
         if show:
-            self.statusbar.set_status(
-                t("common.loading"), key="common.loading"
-            )
+            self.statusbar.set_status(t("common.loading"), key="common.loading")
         else:
-            self.statusbar.set_status(
-                t("common.ready"), key="common.ready"
-            )
+            self.statusbar.set_status(t("common.ready"), key="common.ready")
 
     # ══════════════════════════════════════════════════════════════
     # 拖放支持 (delegated to MainWindowDropZone)
@@ -711,7 +688,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 except Exception:  # pragma: no cover — defensive
                     logger.debug(
                         "%s._setup_style 失败",
-                        owner_attr, exc_info=True,
+                        owner_attr,
+                        exc_info=True,
                     )
         sidebar = getattr(self, "sidebar", None)
         if sidebar is not None:
@@ -796,14 +774,14 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 self,
                 t("production.dialog.title"),
                 t("production.dialog.emotion"),
-                list(DEFAULT_EMOTIONS), 0, False,
+                list(DEFAULT_EMOTIONS),
+                0,
+                False,
             )
             if not ok:
                 return
 
-        self.statusbar.set_status(
-            t("step.progress.processing").format(path=video_path)
-        )
+        self.statusbar.set_status(t("step.progress.processing").format(path=video_path))
         self.show_loading(True)
         if hasattr(self, "_production_page"):
             self._production_page.reset_steps()
@@ -819,9 +797,73 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             # 已经有一个生产在跑，提示用户取消后再来。
             self.statusbar.set_status(t("main.task_running"))
 
-    def _on_step_status_changed(
-        self, step_name: str, status: str, color: str
+    def _start_production_with_videos(
+        self,
+        video_paths: list[str],
+        context: str = "",
+        emotion: str = "",
+        strategy: str = "batch",
+        series_context=None,
     ) -> None:
+        """多视频生产入口（v2.5.0）。
+
+        Args:
+            video_paths: 2+ 视频路径
+            context: 主题/情境
+            emotion: 情感基调
+            strategy: ``"single"``/``"concat"``/``"batch"``/``"series"``
+            series_context: :class:`SeriesContext` 实例（仅 series 生效）
+
+        Behavior: 与 ``_start_production_with_video`` 一样负责补齐
+        缺失的 context/emotion，然后调用 ``production_runner.start_batch``。
+        """
+        if not context or not context.strip():
+            from PySide6.QtWidgets import QInputDialog
+
+            context, ok = QInputDialog.getText(
+                self,
+                t("production.dialog.title"),
+                t("production.dialog.context"),
+                text=DEFAULT_CONTEXT,
+            )
+            if not ok or not context.strip():
+                return
+
+        if not emotion:
+            from PySide6.QtWidgets import QInputDialog
+
+            emotion, ok = QInputDialog.getItem(
+                self,
+                t("production.dialog.title"),
+                t("production.dialog.emotion"),
+                list(DEFAULT_EMOTIONS),
+                0,
+                False,
+            )
+            if not ok:
+                return
+
+        self.statusbar.set_status(
+            t("step.progress.processing").format(path=video_paths[0])
+        )
+        self.show_loading(True)
+        if hasattr(self, "_production_page"):
+            self._production_page.reset_steps()
+            self._production_page.set_running(True)
+            self._production_page.update_step_status(
+                "素材导入", t("step.status.active"), _C.PRIMARY
+            )
+
+        if not self.production_runner.start_batch(
+            list(video_paths),
+            context,
+            emotion,
+            strategy=strategy,
+            series_context=series_context,
+        ):
+            self.statusbar.set_status(t("main.task_running"))
+
+    def _on_step_status_changed(self, step_name: str, status: str, color: str) -> None:
         if hasattr(self, "_production_page"):
             self._production_page.update_step_status(step_name, status, color)
 
@@ -877,9 +919,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.statusbar.hide_progress()
         if hasattr(self, "_production_page"):
             self._production_page.set_running(False)
-        self.statusbar.set_status(
-            t("production.result.failed") + f": {error_msg}"
-        )
+        self.statusbar.set_status(t("production.result.failed") + f": {error_msg}")
         self.show_message(
             t("error.production_failed").format(error=error_msg),
             level="error",
@@ -907,9 +947,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
     def _on_export_succeeded(self, output_dir: str) -> None:
         self.statusbar.set_status(t("error.export_success"))
         if hasattr(self, "_home_page"):
-            self._home_page.mark_export_status(
-                t("step.status.done")
-            )
+            self._home_page.mark_export_status(t("step.status.done"))
 
     # ──────────────────────────────────────────────────────────
     # 托盘 / 关闭
@@ -981,8 +1019,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 logger.warning("Phase 2: SystemMonitor.start failed: %s", exc)
                 monitor = None
         else:
-            logger.debug(
-                "Phase 2: SystemMonitor skipped — event_bus unavailable")
+            logger.debug("Phase 2: SystemMonitor skipped — event_bus unavailable")
         self.system_monitor = monitor
 
         # 3) CommandPalette + 默认命令
@@ -992,6 +1029,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         def _nav(page_id: str):
             def _call() -> None:
                 self._on_navigate(page_id)
+
             return _call
 
         # 把现有的页面路由用最少耦合暴露给面板。每个回调都用闭包
@@ -1049,9 +1087,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                     default="打开帮助面板",
                 ),
                 callback=lambda: self._show_help_panel(),
-                group=_tr(
-                    MessageKey.HELP_COMMAND_OPEN_GROUP, default="帮助"
-                ),
+                group=_tr(MessageKey.HELP_COMMAND_OPEN_GROUP, default="帮助"),
                 shortcut_hint="F1",
                 keywords=("help", "帮助", "faq", "guide"),
             )
@@ -1102,14 +1138,11 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         registry = build_default_registry()
         widget = HelpPanelWidget(registry, self)
 
-        dock = QDockWidget(
-            _tr(MessageKey.HELP_PANEL_TITLE, default="帮助中心"), self
-        )
+        dock = QDockWidget(_tr(MessageKey.HELP_PANEL_TITLE, default="帮助中心"), self)
         dock.setObjectName("help_dock")
         dock.setWidget(widget)
         dock.setAllowedAreas(
-            Qt.DockWidgetArea.RightDockWidgetArea
-            | Qt.DockWidgetArea.LeftDockWidgetArea
+            Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.LeftDockWidgetArea
         )
         dock.setFeatures(
             QDockWidget.DockWidgetFeature.DockWidgetMovable
@@ -1124,6 +1157,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
 
         # F1 全局快捷键
         from PySide6.QtGui import QKeySequence, QShortcut
+
         f1 = QShortcut(QKeySequence(Qt.Key.Key_F1), self)
         f1.setContext(Qt.ShortcutContext.ApplicationShortcut)
         f1.activated.connect(self._show_help_panel)
@@ -1133,9 +1167,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if settings_page is not None and hasattr(
             settings_page, "help_action_requested"
         ):
-            settings_page.help_action_requested.connect(
-                self._on_help_action_requested
-            )
+            settings_page.help_action_requested.connect(self._on_help_action_requested)
             logger.debug(
                 "Phase 3: settings.help_action_requested wired (key=%s)",
                 id(settings_page),
@@ -1212,6 +1244,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             #    内部已持有 config 实例，但 settings_store 走自己的入口。
             try:
                 from app.config.config import get_config
+
                 store.bind_config(get_config())
             except Exception as exc:  # noqa: BLE001
                 logger.debug("settings_store.bind_config skipped: %s", exc)
@@ -1231,11 +1264,9 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             if bus is not None:
                 get_metrics().bind_to_event_bus(bus, prefix="events")
             else:
-                logger.debug(
-                    "Phase 4: self.event_bus missing; metrics not bound")
+                logger.debug("Phase 4: self.event_bus missing; metrics not bound")
         except Exception as exc:  # noqa: BLE001
-            logger.warning(
-                "Phase 4 observability install failed (non-fatal): %s", exc)
+            logger.warning("Phase 4 observability install failed (non-fatal): %s", exc)
 
     def _help_qsettings(self):
         """返回本窗口用的 QSettings（懒创建，单元测试不会触发）。"""
@@ -1243,6 +1274,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # 完全相同的 org/app 组合，否则 settings_store 和 main_window
         # 写入的 key 互不可见。
         from PySide6.QtCore import QSettings
+
         return QSettings("SceneFab", "Application")
 
     def _on_copy_diagnostics(self) -> None:
@@ -1290,15 +1322,15 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             try:
                 monitor.stop(timeout=1.0)
             except Exception:  # noqa: BLE001
-                logger.debug(
-                    "SystemMonitor.stop suppressed exception", exc_info=True)
+                logger.debug("SystemMonitor.stop suppressed exception", exc_info=True)
         vm = getattr(self, "_dashboard_vm", None)
         if vm is not None:
             try:
                 vm.unbind()
             except Exception:  # noqa: BLE001
                 logger.debug(
-                    "DashboardViewModel.unbind suppressed exception", exc_info=True)
+                    "DashboardViewModel.unbind suppressed exception", exc_info=True
+                )
         # CommandPalette 可以直接 GC 让 Qt 自动清理，这里只需关掉浮层
         palette = getattr(self, "command_palette", None)
         if palette is not None and palette.isVisible():
@@ -1309,8 +1341,7 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             try:
                 help_dock.hide()
             except Exception:  # noqa: BLE001
-                logger.debug(
-                    "help_dock.hide suppressed exception", exc_info=True)
+                logger.debug("help_dock.hide suppressed exception", exc_info=True)
         self.tray.handle_close_event(self, event)
 
     # ──────────────────────────────────────────────────────────

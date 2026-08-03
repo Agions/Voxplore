@@ -78,13 +78,30 @@ class ScriptGenerator:
         generator = ScriptGenerator(api_key="sk-xxx")
     """
 
-    def _build_llm_request(self, topic: str, config: ScriptConfig) -> LLMRequest:
-        """构造单条脚本生成的 LLMRequest（generate_batch 内部两处共享）"""
+    def _build_llm_request(
+        self,
+        topic: str,
+        config: ScriptConfig,
+        *,
+        multi_strategy: str | None = None,
+        series_context: Any = None,
+    ) -> LLMRequest:
+        """构造单条脚本生成的 LLMRequest（generate_batch 内部两处共享）。
+
+        v2.5.0 新增 ``multi_strategy`` / ``series_context`` 透传给
+        :func:`build_prompt` / :func:`build_batch_prompt`，让 LLM 知道
+        当前处于哪种场景 + 整季共享设定。
+        """
         system_prompt = self.STYLE_PROMPTS.get(
             config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
         )
         return LLMRequest(
-            prompt=build_prompt(topic, config),
+            prompt=build_prompt(
+                topic,
+                config,
+                multi_strategy=multi_strategy,
+                series_context=series_context,
+            ),
             system_prompt=system_prompt,
             model=config.model,
             max_tokens=config.target_words * 2,  # 预留空间
@@ -158,36 +175,52 @@ class ScriptGenerator:
         self,
         topic: str,
         config: ScriptConfig | None = None,
+        *,
+        multi_strategy: str | None = None,
+        series_context: Any = None,
     ) -> GeneratedScript:
         """
-        生成文案
+        生成文案。
 
-        Args:
-            topic: 主题/内容描述
-            config: 生成配置
+        v2.5.0 新增 ``multi_strategy`` / ``series_context`` 参数：
+        - ``multi_strategy``: ``"single"``/``"concat"``/``"batch"``/``"series"``
+        - ``series_context``: :class:`SeriesContext` 实例（仅 series 生效）
 
-        Returns:
-            生成的文案对象
+        两个参数都向后兼容：默认 ``None`` 时行为与 v2.4 完全一致。
         """
         config = config or ScriptConfig()
 
         if self.use_llm_manager:
             # 新架构：使用 LLMManager（异步包装为同步）
             try:
+
                 async def _run():
-                    result = await self._generate_async(topic, config)
-                    await self.llm_manager.close_all()  # type: ignore[union-attr]
+                    result = await self._generate_async(
+                        topic,
+                        config,
+                        multi_strategy=multi_strategy,
+                        series_context=series_context,
+                    )
+                    # type: ignore[union-attr]
+                    await self.llm_manager.close_all()
                     return result
 
                 raw_content, provider_used = run_async_safely(_run)
             except Exception as e:
-                logger.warning(f"LLM 脚本生成失败/未配置 API Key, 使用智能范文降级: {e}")
+                logger.warning(
+                    f"LLM 脚本生成失败/未配置 API Key, 使用智能范文降级: {e}"
+                )
                 return self._generate_single_fallback(topic, config)
 
         else:
             # 传统方式
             try:
-                raw_content = self._generate_openai(topic, config)
+                raw_content = self._generate_openai(
+                    topic,
+                    config,
+                    multi_strategy=multi_strategy,
+                    series_context=series_context,
+                )
                 provider_used = "openai"
             except Exception as e:
                 logger.warning(f"OpenAI 脚本生成失败: {e}")
@@ -203,6 +236,9 @@ class ScriptGenerator:
         self,
         topic: str,
         config: ScriptConfig,
+        *,
+        multi_strategy: str | None = None,
+        series_context: Any = None,
     ) -> tuple[str, str]:
         """
         异步生成（使用 LLMManager）
@@ -218,15 +254,23 @@ class ScriptGenerator:
 
                 provider_type = ProviderType(config.provider)
             except ValueError:
-                logger.debug(f"Invalid provider '{config.provider}', using default")
+                logger.debug(
+                    f"Invalid provider '{config.provider}', using default")
 
         # 构建请求
-        request = self._build_llm_request(topic, config)
+        request = self._build_llm_request(
+            topic,
+            config,
+            multi_strategy=multi_strategy,
+            series_context=series_context,
+        )
 
         # 调用 LLMManager
-        response = await self.llm_manager.generate(request, provider=provider_type)  # type: ignore[union-attr]
+        # type: ignore[union-attr]
+        response = await self.llm_manager.generate(request, provider=provider_type)
         provider_name = (
-            response.model.split("-")[0] if "-" in response.model else response.model
+            response.model.split(
+                "-")[0] if "-" in response.model else response.model
         )
 
         return response.content, provider_name
@@ -256,7 +300,8 @@ class ScriptGenerator:
 
             results = run_async_safely(_run)
         else:
-            results = [self.generate(topic, config) for topic, config in requests]
+            results = [self.generate(topic, config)
+                       for topic, config in requests]
 
         return results  # type: ignore[no-any-return]
 
@@ -309,7 +354,7 @@ class ScriptGenerator:
         if short_reqs:
             # 分批：每批最多 batch_size 个
             for i in range(0, len(short_reqs), self.batch_size):
-                batch = short_reqs[i : i + self.batch_size]
+                batch = short_reqs[i: i + self.batch_size]
                 if len(batch) == 1:
                     topic, config = batch[0]
                     script = self._generate_single_fallback(topic, config)
@@ -358,7 +403,8 @@ class ScriptGenerator:
         )
 
         try:
-            response = await self.llm_manager.generate(request)  # type: ignore[union-attr]
+            # type: ignore[union-attr]
+            response = await self.llm_manager.generate(request)
             return parse_batch_response(response.content, batch)
         except Exception as e:
             logger.warning(f"批量生成失败，回退到逐段调用: {e}")
@@ -393,9 +439,14 @@ class ScriptGenerator:
         self,
         topic: str,
         config: ScriptConfig,
+        *,
+        multi_strategy: str | None = None,
+        series_context: Any = None,
     ) -> str:
         """
         传统 OpenAI 方式生成
+
+        v2.5.0: 透传 multi_strategy / series_context 到 build_prompt。
         """
         try:
             from openai import OpenAI
@@ -405,7 +456,12 @@ class ScriptGenerator:
             system_prompt = self.STYLE_PROMPTS.get(
                 config.style, self.STYLE_PROMPTS[ScriptStyle.COMMENTARY]
             )
-            user_prompt = build_prompt(topic, config)
+            user_prompt = build_prompt(
+                topic,
+                config,
+                multi_strategy=multi_strategy,
+                series_context=series_context,
+            )
 
             response = client.chat.completions.create(
                 model=config.model or "gpt-5",
@@ -419,7 +475,8 @@ class ScriptGenerator:
                 max_tokens=2000,
             )
 
-            return response.choices[0].message.content  # type: ignore[return-value]
+            # type: ignore[return-value]
+            return response.choices[0].message.content
 
         except ImportError:
             raise ImportError("请安装 openai: pip install openai")
@@ -446,8 +503,16 @@ class ScriptGenerator:
         context: str,
         emotion: str = "neutral",
         duration: float = 30.0,
+        *,
+        multi_strategy: str | None = None,
+        series_context: Any = None,
     ) -> GeneratedScript:
-        """生成独白文案（快捷方法）"""
+        """生成独白文案（快捷方法）。
+
+        v2.5.0 新增 ``multi_strategy`` / ``series_context`` 透传给
+        :meth:`generate`，让 LLM 知道这是 single/concat/batch/series
+        中的哪一种场景。
+        """
         config = ScriptConfig(
             style=ScriptStyle.MONOLOGUE,
             tone=VoiceTone.EMOTIONAL,
@@ -455,7 +520,12 @@ class ScriptGenerator:
         )
 
         topic = f"场景: {context}\n情感: {emotion}"
-        return self.generate(topic, config)
+        return self.generate(
+            topic,
+            config,
+            multi_strategy=multi_strategy,
+            series_context=series_context,
+        )
 
     def generate_viral(
         self,

@@ -57,13 +57,6 @@ const roleCards = [
     link: '/guide/first-person-narration-production',
     icon: '🎬'
   },
-  {
-    label: '架构师',
-    title: '系统架构',
-    text: '理解事件驱动、DAG 流水线、视频服务、AI 服务、导出服务和资源层职责。',
-    link: '/guide/interface',
-    icon: '🏗️'
-  }
 ]
 
 const workflowSteps = [
