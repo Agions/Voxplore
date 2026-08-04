@@ -9,6 +9,8 @@ import os
 import sys
 from pathlib import Path
 
+from app.ui.i18n import t
+
 
 # 自动检测无头环境，设置 Qt 平台
 def _setup_headless_platform():

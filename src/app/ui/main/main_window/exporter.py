@@ -10,7 +10,8 @@ Extracted from ``SceneFabMainWindow`` as part of the Phase B refactor.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QInputDialog, QMainWindow, QMessageBox
@@ -45,7 +46,7 @@ class ExportController(QObject):
         self,
         window: QMainWindow,
         *,
-        get_project: Callable[[], "MonologueProject | None"],
+        get_project: Callable[[], MonologueProject | None],
         on_no_project: Callable[[], None] | None = None,
     ) -> None:
         super().__init__(window)

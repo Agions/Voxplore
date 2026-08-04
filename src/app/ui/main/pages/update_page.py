@@ -418,7 +418,7 @@ class UpdatePage(PaletteAwareMixin, QFrame):
         layout.addWidget(combo)
 
         # 重绘时回填
-        # type: ignore[attr-defined]
+
         self._channel_labels: list[QPushButton] = []
         return wrapper, combo
 

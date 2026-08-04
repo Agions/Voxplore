@@ -85,7 +85,7 @@ class AnimationService:
     ) -> QPropertyAnimation | None:
         """淡入（opacity 0 → 1）。"""
         if not cls.enabled:
-            widget.setWindowOpacity(1.0)  # type: ignore[attr-defined]
+            widget.setWindowOpacity(1.0)
             return None
         if not hasattr(widget, "setWindowOpacity"):
             return None
@@ -157,7 +157,7 @@ class AnimationService:
             return None
         # 起始位置
         try:
-            original_pos = widget.pos()  # type: ignore[attr-defined]
+            original_pos = widget.pos()
         except Exception:
             return None
 
@@ -270,7 +270,7 @@ class AnimationService:
         """
         if not cls.enabled:
             try:
-                in_widget.show()  # type: ignore[attr-defined]
+                in_widget.show()
             except Exception:
                 pass
             return

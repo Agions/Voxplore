@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSettings, Qt, Slot
@@ -53,6 +54,12 @@ from app.ui.main.main_window.top_bar import TopBar
 from app.ui.main.page_router import PageRouter
 from app.ui.main.registry import NAV_ITEMS, PAGE_TITLES
 from app.ui.main.system_tray import SystemTrayController
+from app.ui.main.widgets.toast import (
+    ToastAction,
+    ToastManager,
+    open_in_os,
+    reveal_in_finder,
+)
 from app.ui.theme import ThemeAwareMixin
 from app.ui.theme.ds_tokens import (
     _C,
@@ -75,6 +82,23 @@ def _tr(key: str, *, default: str | None = None) -> str:
     if text == f"[{key}]" and default is not None:
         return default
     return text
+
+
+# v2.5.0 端到端流程优化：辅助构造 toast action callback。
+# 使用具名函数而非 lambda + default arg 是为了避开 mypy 的
+# "Cannot infer type of lambda" 限制,同时保持类型推导稳定。
+def _make_open_file_cb(target: str) -> Callable[[], None]:
+    def _cb() -> None:
+        open_in_os(target)
+
+    return _cb
+
+
+def _make_reveal_cb(target: str) -> Callable[[], None]:
+    def _cb() -> None:
+        reveal_in_finder(target)
+
+    return _cb
 
 
 logger = logging.getLogger(__name__)
@@ -181,7 +205,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.statusbar = StatusBar()
         outer.addWidget(self.statusbar)
 
-        self._cancel_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Escape), self)
+        self._cancel_shortcut = QShortcut(
+            QKeySequence(Qt.Key.Key_Escape), self)
         self._cancel_shortcut.activated.connect(self._on_cancel_production)
 
         # Phase 2 · 系统资源监控（1Hz psutil 采样 → system.metric 事件）
@@ -208,17 +233,21 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.exporter.exported.connect(self._on_export_succeeded)
         self.project_io = ProjectIOController(
             self,
-            get_project_manager=lambda: getattr(self, "_project_manager", None),
+            get_project_manager=lambda: getattr(
+                self, "_project_manager", None),
             get_last_project=lambda: self._last_project,
             set_last_project=lambda p: self._set_last_project(p),
-            get_production_page=lambda: getattr(self, "_production_page", None),
+            get_production_page=lambda: getattr(
+                self, "_production_page", None),
             navigate_to_create=lambda: self._on_navigate("create"),
             show_status=lambda msg: self.statusbar.set_status(msg),
-            show_message=lambda msg, level: self.show_message(msg, level=level),
+            show_message=lambda msg, level: self.show_message(
+                msg, level=level),
         )
         self.assets_io = AssetsIOController(
             self,
-            get_project_manager=lambda: getattr(self, "_project_manager", None),
+            get_project_manager=lambda: getattr(
+                self, "_project_manager", None),
             get_assets_page=lambda: getattr(self, "_assets_page", None),
             show_status=lambda msg: self.statusbar.set_status(msg),
         )
@@ -236,7 +265,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # the persisted language hasn't been applied yet. Do that here
         # so the first frame already renders in the right language.
         self._apply_persisted_language()
-        self.production_runner.step_status_changed.connect(self._on_step_status_changed)
+        self.production_runner.step_status_changed.connect(
+            self._on_step_status_changed)
         self.production_runner.progress_message.connect(
             self._on_production_progress_msg
         )
@@ -253,8 +283,10 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         project_manager = None
         settings_manager = None
         if self._application is not None:
-            project_manager = self._application.get_service_by_name("project_manager")
-            settings_manager = self._application.get_service_by_name("settings_manager")
+            project_manager = self._application.get_service_by_name(
+                "project_manager")
+            settings_manager = self._application.get_service_by_name(
+                "settings_manager")
 
         # HomePageViewModel is the single source of truth for the home
         # dashboard — pages consume *_changed signals and re-read VM
@@ -326,7 +358,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.router.page_changed.connect(self._on_page_changed)
         self.topbar.action_triggered.connect(self._on_action)
         self.tray.show_window_requested.connect(self._restore_from_tray)
-        self.tray.open_settings_requested.connect(self._open_settings_from_tray)
+        self.tray.open_settings_requested.connect(
+            self._open_settings_from_tray)
         self.tray.quit_requested.connect(self._quit_application)
         # theme_ctrl 在 ThemeController.__init__ 中已自身接线
         # palette_changed 信号，所以这里不需要再手动 connect。
@@ -346,7 +379,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if spec is None:
             return
         title = t(spec.title_key) if spec.title_key else spec.title
-        breadcrumb = t(spec.breadcrumb_key) if spec.breadcrumb_key else spec.breadcrumb
+        breadcrumb = t(
+            spec.breadcrumb_key) if spec.breadcrumb_key else spec.breadcrumb
         # Forward the i18n keys so a later language flip can re-paint
         # the title/breadcrumb without re-resolving the spec.
         self.topbar.set_title_keys(
@@ -356,7 +390,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             breadcrumb_key=spec.breadcrumb_key,
         )
         status_key = "statusbar.current_page"
-        self.statusbar.set_status(t(status_key).format(page=title), key=status_key)
+        self.statusbar.set_status(
+            t(status_key).format(page=title), key=status_key)
 
     def _set_last_project(self, project: object) -> None:
         """Set the most recently produced / loaded ``MonologueProject``."""
@@ -406,7 +441,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 try:
                     retranslate()
                 except Exception:
-                    logger.debug("%s.retranslate failed", owner_attr, exc_info=True)
+                    logger.debug("%s.retranslate failed",
+                                 owner_attr, exc_info=True)
         # Lazy-loaded pages also expose retranslate() — refactor them after
         # language changes so freshly-mounted forms stay in sync.
         for page_attr in (
@@ -423,7 +459,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 try:
                     retranslate()
                 except Exception:
-                    logger.debug("%s.retranslate failed", page_attr, exc_info=True)
+                    logger.debug("%s.retranslate failed",
+                                 page_attr, exc_info=True)
 
     def _on_open_project(self, project_path: str = "") -> None:
         """Open a .scenefab project — delegated to ``ProjectIOController``."""
@@ -521,7 +558,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             (getattr(signals, "update_unavailable", None), on_update_unavailable),
             (getattr(signals, "error_occurred", None), on_error),
         ]
-        handlers = [(signal, handler) for signal, handler in handlers if signal]
+        handlers = [(signal, handler)
+                    for signal, handler in handlers if signal]
         try:
             for signal, handler in handlers:
                 signal.connect(handler)
@@ -587,7 +625,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         # Use the same key the initial render uses so retranslate can
         # rebuild the active label when language flips.
         if show:
-            self.statusbar.set_status(t("common.loading"), key="common.loading")
+            self.statusbar.set_status(
+                t("common.loading"), key="common.loading")
         else:
             self.statusbar.set_status(t("common.ready"), key="common.ready")
 
@@ -781,11 +820,18 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             if not ok:
                 return
 
-        self.statusbar.set_status(t("step.progress.processing").format(path=video_path))
+        self.statusbar.set_status(
+            t("step.progress.processing").format(path=video_path))
         self.show_loading(True)
+        # v2.5.0 Phase 2: 记录生产开始时间,用于 Summary 卡显示总耗时
+        import time as _time
+
+        self._production_start_time = _time.monotonic()
         if hasattr(self, "_production_page"):
             self._production_page.reset_steps()
             self._production_page.set_running(True)
+            # v2.5.0 Phase 2: 收起上一次生产的 Summary 卡（开始新一轮时）
+            self._production_page.clear_production_result()
             # Note: step name ("素材导入") is a runtime key matching
             # production_runner._ALL_PRODUCTION_STEPS — it needs separate
             # i18n alignment with the VM layer.
@@ -890,39 +936,82 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if hasattr(self, "_home_page"):
             self._home_page.refresh_from_viewmodel()
 
-        msg = t("production.cancelled_dialog.success_text")
+        # v2.5.0 Phase 2: 计算耗时 + 文件大小,展示 Summary 卡（持久卡片,
+        # 与 toast 互为补强,用户错过 toast 也能看到产物入口）。
+        import os as _os
+        import time as _time
+
+        start_time = getattr(self, "_production_start_time", None)
+        elapsed = (
+            max(0.0, _time.monotonic() - start_time)
+            if isinstance(start_time, int | float)
+            else 0.0
+        )
+        file_size = 0
+        if project_path and _os.path.exists(project_path):
+            try:
+                file_size = _os.path.getsize(project_path)
+            except OSError:
+                file_size = 0
+        if hasattr(self, "_production_page"):
+            self._production_page.show_production_result(
+                project_path=project_path or "",
+                elapsed_seconds=elapsed,
+                file_size_bytes=file_size,
+                steps_completed=5,
+                steps_total=5,
+            )
+
+        # v2.5.0 端到端流程优化：用 toast（非阻塞）替代阻塞式 QMessageBox
+        actions: list[ToastAction] = []
         if project_path:
-            msg += t("main.run_complete.saved").format(path=project_path)
-
-        box = QMessageBox(self)
-        box.setWindowTitle(t("production.cancelled_dialog.title"))
-        box.setText(msg)
-        export_btn = box.addButton(
-            t("production.action.export"),
-            QMessageBox.ButtonRole.ActionRole,
+            actions.extend(
+                [
+                    ToastAction(
+                        t("toast.action.open_file"),
+                        _make_open_file_cb(project_path),
+                    ),
+                    ToastAction(
+                        t("toast.action.open_folder"),
+                        _make_reveal_cb(project_path),
+                    ),
+                ]
+            )
+        actions.append(
+            ToastAction(
+                t("toast.action.save_project"),
+                self._on_save_project,
+            )
         )
-        save_btn = box.addButton(
-            t("production.action.save_project"),
-            QMessageBox.ButtonRole.ActionRole,
-        )
-        box.addButton(t("common.close"), QMessageBox.ButtonRole.RejectRole)
-        box.exec()
 
-        clicked = box.clickedButton()
-        if clicked == export_btn:
-            self._run_export()
-        elif clicked == save_btn:
-            self._on_save_project()
+        message = (
+            t("main.run_complete.saved").format(path=project_path)
+            if project_path
+            else t("production.cancelled_dialog.success_text")
+        )
+        ToastManager.success(
+            t("toast.production.completed.title"),
+            message,
+            actions=tuple(actions),
+        )
 
     def _on_production_failed(self, error_msg: str) -> None:
         self.show_loading(False)
         self.statusbar.hide_progress()
         if hasattr(self, "_production_page"):
             self._production_page.set_running(False)
-        self.statusbar.set_status(t("production.result.failed") + f": {error_msg}")
-        self.show_message(
+        self.statusbar.set_status(
+            t("production.result.failed") + f": {error_msg}")
+        # v2.5.0：error toast（非阻塞，停留 6s）替代 QMessageBox.critical
+        ToastManager.error(
+            t("toast.production.failed.title"),
             t("error.production_failed").format(error=error_msg),
-            level="error",
+            actions=(
+                ToastAction(
+                    t("toast.action.retry"),
+                    self._on_start_production,
+                ),
+            ),
         )
 
     def _on_cancel_production(self) -> None:
@@ -936,6 +1025,11 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if hasattr(self, "_production_page"):
             self._production_page.set_running(False)
         self.statusbar.set_status(t("production.result.cancelled"))
+        # v2.5.0：info toast 反馈取消状态
+        ToastManager.info(
+            t("toast.production.cancelled.title"),
+            t("toast.production.cancelled.message"),
+        )
 
     # ──────────────────────────────────────────────────────────
     # 导出接线（ExportController → 主窗口）
@@ -948,6 +1042,24 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         self.statusbar.set_status(t("error.export_success"))
         if hasattr(self, "_home_page"):
             self._home_page.mark_export_status(t("step.status.done"))
+        # v2.5.0：success toast + 打开产物快捷入口
+        actions: tuple[ToastAction, ...] = ()
+        if output_dir:
+            actions = (
+                ToastAction(
+                    t("toast.action.open_file"),
+                    _make_open_file_cb(output_dir),
+                ),
+                ToastAction(
+                    t("toast.action.open_folder"),
+                    _make_reveal_cb(output_dir),
+                ),
+            )
+        ToastManager.success(
+            t("toast.export.completed.title"),
+            output_dir or t("toast.export.completed.no_path"),
+            actions=actions,
+        )
 
     # ──────────────────────────────────────────────────────────
     # 托盘 / 关闭
@@ -1019,7 +1131,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
                 logger.warning("Phase 2: SystemMonitor.start failed: %s", exc)
                 monitor = None
         else:
-            logger.debug("Phase 2: SystemMonitor skipped — event_bus unavailable")
+            logger.debug(
+                "Phase 2: SystemMonitor skipped — event_bus unavailable")
         self.system_monitor = monitor
 
         # 3) CommandPalette + 默认命令
@@ -1138,7 +1251,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         registry = build_default_registry()
         widget = HelpPanelWidget(registry, self)
 
-        dock = QDockWidget(_tr(MessageKey.HELP_PANEL_TITLE, default="帮助中心"), self)
+        dock = QDockWidget(
+            _tr(MessageKey.HELP_PANEL_TITLE, default="帮助中心"), self)
         dock.setObjectName("help_dock")
         dock.setWidget(widget)
         dock.setAllowedAreas(
@@ -1167,7 +1281,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
         if settings_page is not None and hasattr(
             settings_page, "help_action_requested"
         ):
-            settings_page.help_action_requested.connect(self._on_help_action_requested)
+            settings_page.help_action_requested.connect(
+                self._on_help_action_requested)
             logger.debug(
                 "Phase 3: settings.help_action_requested wired (key=%s)",
                 id(settings_page),
@@ -1264,9 +1379,11 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             if bus is not None:
                 get_metrics().bind_to_event_bus(bus, prefix="events")
             else:
-                logger.debug("Phase 4: self.event_bus missing; metrics not bound")
+                logger.debug(
+                    "Phase 4: self.event_bus missing; metrics not bound")
         except Exception as exc:  # noqa: BLE001
-            logger.warning("Phase 4 observability install failed (non-fatal): %s", exc)
+            logger.warning(
+                "Phase 4 observability install failed (non-fatal): %s", exc)
 
     def _help_qsettings(self):
         """返回本窗口用的 QSettings（懒创建，单元测试不会触发）。"""
@@ -1322,7 +1439,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             try:
                 monitor.stop(timeout=1.0)
             except Exception:  # noqa: BLE001
-                logger.debug("SystemMonitor.stop suppressed exception", exc_info=True)
+                logger.debug(
+                    "SystemMonitor.stop suppressed exception", exc_info=True)
         vm = getattr(self, "_dashboard_vm", None)
         if vm is not None:
             try:
@@ -1341,7 +1459,8 @@ class SceneFabMainWindow(QMainWindow, ThemeAwareMixin):
             try:
                 help_dock.hide()
             except Exception:  # noqa: BLE001
-                logger.debug("help_dock.hide suppressed exception", exc_info=True)
+                logger.debug(
+                    "help_dock.hide suppressed exception", exc_info=True)
         self.tray.handle_close_event(self, event)
 
     # ──────────────────────────────────────────────────────────

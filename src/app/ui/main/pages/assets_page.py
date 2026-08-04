@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 
 from ...i18n import t
 from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, ui_font
+from .page_defaults import DEFAULT_EXPORT_DIR
 from .page_view_models import ASSET_SOURCE_ITEMS, ASSET_TABLE_COLUMNS
 from .page_widgets import (
     PaletteAwareMixin,
@@ -33,7 +34,6 @@ from .page_widgets import (
     scroll_area,
     section_title,
 )
-from .page_defaults import DEFAULT_EXPORT_DIR
 
 if TYPE_CHECKING:
     from app.project.manager import ProjectManager
@@ -483,7 +483,7 @@ class AssetsPage(PaletteAwareMixin, QFrame):
         if self._column_labels:
             keys = ("assets.table.column.kind",
                     "assets.table.column.name", "assets.table.column.created")
-            for lbl, key in zip(self._column_labels, keys):
+            for lbl, key in zip(self._column_labels, keys, strict=True):
                 lbl.setText(t(key))
         # Source panel cards
         for _item, title_label, desc_label, _nav, choose_btn in self._source_items:

@@ -39,6 +39,18 @@ class MessageKey:
     COMMON_NO = "common.no"
     COMMON_DISABLED = "common.disabled"
 
+    # v2.5.0 toast notification system
+    TOAST_ACTION_OPEN_FILE = "toast.action.open_file"
+    TOAST_ACTION_OPEN_FOLDER = "toast.action.open_folder"
+    TOAST_ACTION_SAVE_PROJECT = "toast.action.save_project"
+    TOAST_ACTION_RETRY = "toast.action.retry"
+    TOAST_PRODUCTION_COMPLETED_TITLE = "toast.production.completed.title"
+    TOAST_PRODUCTION_FAILED_TITLE = "toast.production.failed.title"
+    TOAST_PRODUCTION_CANCELLED_TITLE = "toast.production.cancelled.title"
+    TOAST_PRODUCTION_CANCELLED_MESSAGE = "toast.production.cancelled.message"
+    TOAST_EXPORT_COMPLETED_TITLE = "toast.export.completed.title"
+    TOAST_EXPORT_COMPLETED_NO_PATH = "toast.export.completed.no_path"
+
     # menu and navigation
     MENU_FILE = "menu.file"
     MENU_EDIT = "menu.edit"
@@ -100,12 +112,26 @@ class MessageKey:
     PRODUCTION_MULTI_COUNT = "production.multi.count"
     # v2.5.0 multi-video strategy selector
     PRODUCTION_STRATEGY_LABEL = "production.strategy.label"
+    PRODUCTION_STRATEGY_TITLE = "production.strategy.title"
     PRODUCTION_STRATEGY_SINGLE = "production.strategy.single"
     PRODUCTION_STRATEGY_CONCAT = "production.strategy.concat"
     PRODUCTION_STRATEGY_BATCH = "production.strategy.batch"
     PRODUCTION_STRATEGY_SERIES = "production.strategy.series"
+    PRODUCTION_STRATEGY_SINGLE_DESC = "production.strategy.single.desc"
+    PRODUCTION_STRATEGY_CONCAT_DESC = "production.strategy.concat.desc"
+    PRODUCTION_STRATEGY_BATCH_DESC = "production.strategy.batch.desc"
+    PRODUCTION_STRATEGY_SERIES_DESC = "production.strategy.series.desc"
     PRODUCTION_STRATEGY_HELP = "production.strategy.help"
     PRODUCTION_STRATEGY_SERIES_EDIT = "production.strategy.series_edit"
+    # v2.5.0 媒体统计栏（数量 / 时长 / 大小）
+    PRODUCTION_MEDIA_UNIT_VIDEOS = "production.media.unit.videos"
+    PRODUCTION_MEDIA_UNIT_DURATION = "production.media.unit.duration"
+    PRODUCTION_MEDIA_UNIT_SIZE = "production.media.unit.size"
+    PRODUCTION_MEDIA_ADD_MORE = "production.media.action.add_more"
+    PRODUCTION_MEDIA_SERIES_EMPTY_TITLE = "production.media.series_empty_title"
+    PRODUCTION_MEDIA_SERIES_EMPTY_HINT = "production.media.series_empty_hint"
+    PRODUCTION_MEDIA_SERIES_META_EPS = "production.media.series_meta_eps"
+    PRODUCTION_MEDIA_SERIES_META_MORE = "production.media.series_meta_more"
     # v2.5.0 SeriesContext dialog
     PRODUCTION_SERIES_DIALOG_TITLE = "production.series.dialog_title"
     PRODUCTION_SERIES_DIALOG_INTRO = "production.series.dialog_intro"
@@ -126,12 +152,32 @@ class MessageKey:
     PRODUCTION_SERIES_FIELD_WORLD = "production.series.field_world"
     PRODUCTION_SERIES_WORLD_PLACEHOLDER = "production.series.world_placeholder"
     PRODUCTION_SERIES_RESET = "production.series.reset"
+    # v2.5.0 dialog 三段式分组标题
+    PRODUCTION_SERIES_SECTION_BASIC = "production.series.section_basic"
+    PRODUCTION_SERIES_SECTION_BASIC_DESC = "production.series.section_basic_desc"
+    PRODUCTION_SERIES_SECTION_NAMING = "production.series.section_naming"
+    PRODUCTION_SERIES_SECTION_NAMING_DESC = "production.series.section_naming_desc"
+    PRODUCTION_SERIES_SECTION_CONTEXT = "production.series.section_context"
+    PRODUCTION_SERIES_SECTION_CONTEXT_DESC = "production.series.section_context_desc"
+    # v2.5.0 dialog 字段附加提示
+    PRODUCTION_SERIES_NAMING_HINT = "production.series.naming_hint"
+    PRODUCTION_SERIES_EPS_HINT = "production.series.eps_hint"
     PRODUCTION_START_AI = "production.start_ai"
     PRODUCTION_THEME_LABEL = "production.theme_label"
     PRODUCTION_THEME_DEFAULT = "production.theme_default"
     PRODUCTION_THEME_PLACEHOLDER = "production.theme_placeholder"
     PRODUCTION_TONE_LABEL = "production.tone_label"
     PRODUCTION_STATUS_PENDING = "production.status.pending"
+    # v2.5.0 生产完成 Summary 卡片（端到端流程优化 Phase 2）
+    PRODUCTION_SUMMARY_TITLE = "production.summary.title"
+    PRODUCTION_SUMMARY_DESC = "production.summary.desc"
+    PRODUCTION_SUMMARY_CLOSE_TOOLTIP = "production.summary.close_tooltip"
+    PRODUCTION_SUMMARY_METRIC_ELAPSED = "production.summary.metric.elapsed"
+    PRODUCTION_SUMMARY_METRIC_SIZE = "production.summary.metric.size"
+    PRODUCTION_SUMMARY_METRIC_STEPS = "production.summary.metric.steps"
+    PRODUCTION_SUMMARY_METRIC_STEPS_VALUE = (
+        "production.summary.metric.steps_value"
+    )
 
     # production emotion labels (visible in the dropdown — never translated
     # in zh-CN, English preserves the canonical emotion names)
@@ -497,6 +543,29 @@ class MessageKey:
     STEP_PROGRESS_VOICE_DONE = "step.progress.voice_done"
     STEP_PROGRESS_CAPTION_DONE = "step.progress.caption_done"
     STEP_PROGRESS_SAVED = "step.progress.saved"
+    # v2.5.0 端到端流程优化 Phase 3: 5 步流水线实时进度文案 + ETA
+    PRODUCTION_PROGRESS_ACTIVE_WITH_ETA = "production.progress.active_with_eta"
+    PRODUCTION_PROGRESS_ACTIVE_SIMPLE = "production.progress.active_simple"
+    PRODUCTION_PROGRESS_ETA_FINISHED = "production.progress.eta_finished"
+    # v2.5.0 端到端流程优化 Phase 4: 冷启动 Onboarding 引导
+    ONBOARDING_ACKNOWLEDGE = "onboarding.acknowledge"
+    ONBOARDING_IMPORT_VIDEO_TITLE = "onboarding.import_video.title"
+    ONBOARDING_IMPORT_VIDEO_BODY = "onboarding.import_video.body"
+    ONBOARDING_PIPELINE_STEPS_TITLE = "onboarding.pipeline_steps.title"
+    ONBOARDING_PIPELINE_STEPS_BODY = "onboarding.pipeline_steps.body"
+    ONBOARDING_START_AI_TITLE = "onboarding.start_ai.title"
+    ONBOARDING_START_AI_BODY = "onboarding.start_ai.body"
+    ONBOARDING_SUMMARY_CARD_TITLE = "onboarding.summary_card.title"
+    ONBOARDING_SUMMARY_CARD_BODY = "onboarding.summary_card.body"
+    ONBOARDING_TOAST_NOTIFICATIONS_TITLE = "onboarding.toast_notifications.title"
+    ONBOARDING_TOAST_NOTIFICATIONS_BODY = "onboarding.toast_notifications.body"
+    # v2.5.0 端到端流程优化 Phase 5: 错误降级条幅
+    PRODUCTION_ERROR_RETRY_BANNER = "production.error.retry_banner"
+    PRODUCTION_ERROR_SKIP_BANNER = "production.error.skip_banner"
+    PRODUCTION_ERROR_FAIL_BANNER = "production.error.fail_banner"
+    PRODUCTION_ERROR_RETRY_ACTION = "production.error.retry_action"
+    PRODUCTION_ERROR_SKIP_ACTION = "production.error.skip_action"
+    PRODUCTION_ERROR_FAIL_ACTION = "production.error.fail_action"
 
     # status bar
     STATUSBAR_CURRENT_PAGE = "statusbar.current_page"

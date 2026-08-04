@@ -23,6 +23,11 @@
 
 from __future__ import annotations
 
+from app.updater.downloader import (
+    Downloader,
+    DownloadError,
+    DownloadProgress,
+)
 from app.updater.installer import BackupRecord, Installer, InstallError
 from app.updater.manifest import (
     UpdateChannel,
@@ -31,16 +36,11 @@ from app.updater.manifest import (
     select_best_manifest,
 )
 from app.updater.service import (
-    UpdateStage,
     UpdaterService,
     UpdaterState,
+    UpdateStage,
 )
 from app.updater.verifier import VerificationError, verify_sha256
-from app.updater.downloader import (
-    DownloadError,
-    DownloadProgress,
-    Downloader,
-)
 
 __all__ = [
     # manifest

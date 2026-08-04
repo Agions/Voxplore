@@ -266,7 +266,7 @@ class Qwen37Provider(VisionProvider):
                 messages=[
                     {  # type: ignore[misc]
                         "role": "user",
-                        "content": user_content,  # type: ignore[misc]
+                        "content": user_content,
                     }
                 ],
                 max_tokens=4096,

@@ -27,7 +27,8 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from typing import Any, Callable, ClassVar
+from collections.abc import Callable
+from typing import ClassVar
 
 from app.core.event_types import SystemMetricSampled
 from app.core.unified_event_bus import UnifiedEventBus
@@ -35,11 +36,11 @@ from app.core.unified_event_bus import UnifiedEventBus
 logger = logging.getLogger(__name__)
 
 try:  # pragma: no cover — 在打包环境做软依赖
-    import psutil  # type: ignore[import-not-found]
+    import psutil
 
     _HAS_PSUTIL = True
 except Exception:  # noqa: BLE001
-    psutil = None  # type: ignore[assignment]
+    psutil = None
     _HAS_PSUTIL = False
 
 __all__ = ["SystemMonitor"]
@@ -172,7 +173,7 @@ class SystemMonitor:
         try:
             proc_mem_mb = proc.memory_info().rss / (1024 * 1024)
             proc_cpu = proc.cpu_percent(interval=None)
-        # type: ignore[misc]
+
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             proc_mem_mb = 0.0
             proc_cpu = 0.0

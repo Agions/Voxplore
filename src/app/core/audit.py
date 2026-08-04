@@ -380,7 +380,7 @@ class AuditLogger:
             sql += " WHERE action = ?"
             args.append(action)
         with self._connect() as conn:
-            # type: ignore[no-any-return]
+
             return conn.execute(sql, args).fetchone()[0]
 
     def clear(self, before_timestamp: str | None = None) -> int:

@@ -19,7 +19,7 @@ updates every visible label without rebuilding the QMenuBar tree.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import QMainWindow, QMenu, QMenuBar, QMessageBox
@@ -95,7 +95,7 @@ class MainWindowChrome:
         only labels that change, this method is a no-op for that —
         they're resolved lazily by ``show_about``.
         """
-        for menu, action, key in self._i18n_entries:
+        for _menu, action, key in self._i18n_entries:
             action.setText(t(key))
         for menu, key in self._menu_titles.items():
             menu.setTitle(t(key))

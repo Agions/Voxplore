@@ -13,8 +13,8 @@ environments and on the offscreen Qt backend.
 """
 
 from __future__ import annotations
-import contextlib
 
+import contextlib
 import os
 import sys
 
@@ -445,8 +445,8 @@ def test_production_runner_default_emotions_contract() -> None:
 def test_production_runner_all_steps_contract() -> None:
     """5 步管线必须包含所有已知阶段名。"""
     from app.ui.main.main_window.production_runner import (
-        ProductionRunner,
         _ALL_PRODUCTION_STEPS,
+        ProductionRunner,
     )
 
     # 模块常量直接稳定
@@ -595,7 +595,7 @@ def test_contentarea_set_transition_mode_validates() -> None:
 @_skip_widget
 def test_contentarea_set_page_unknown_is_noop() -> None:
     """不存在的 page_id 不抛异常、不切换。"""
-    from PySide6.QtWidgets import QApplication, QStackedWidget
+    from PySide6.QtWidgets import QApplication
 
     from app.ui.main.main_window.content_area import ContentArea
 
@@ -671,11 +671,14 @@ def test_contentarea_animated_swap_keeps_effect_reusable() -> None:
 # ──────────────────────────────────────────────────────────────
 
 
+_MISSING = object()
+
+
 def _make_project_io(
     *,
     pm: object | None = None,
     production_page: object | None = None,
-    last_project=object(),
+    last_project=_MISSING,
 ):
     """Build a ProjectIOController with every callback captured."""
     from PySide6.QtWidgets import QMainWindow
@@ -734,7 +737,6 @@ def test_projectio_open_project_cancelled_no_side_effects(monkeypatch) -> None:
 
 def test_projectio_open_project_no_manager_shows_error(monkeypatch) -> None:
     """路径非空但 project_manager 不可用时,走 show_message(error)。"""
-    from PySide6.QtWidgets import QFileDialog
 
     # 给一个 explicit path 跳过文件对话框
     win, controller, captured = _make_project_io(pm=None)
@@ -1040,7 +1042,6 @@ def test_theme_controller_set_router_late_wire() -> None:
 @_skip_widget
 def test_sidebar_subtitle_renders_via_translation_key() -> None:
     """侧边栏品牌副标题应通过 nav.brand.subtitle 解析,语言切换时实时刷新。"""
-    from PySide6.QtWidgets import QApplication
 
     from app.ui.i18n import t
     from app.ui.main.main_window.nav_components import Sidebar
@@ -1062,7 +1063,6 @@ def test_sidebar_subtitle_renders_via_translation_key() -> None:
 @_skip_widget
 def test_sidebar_nav_buttons_use_translated_labels() -> None:
     """导航按钮应以 t() 解析 label_key,并在重译后更新。"""
-    from PySide6.QtWidgets import QApplication
 
     from app.ui.main.main_window.nav_components import Sidebar
     from app.ui.main.registry import NAV_ITEMS
@@ -1084,7 +1084,6 @@ def test_sidebar_nav_buttons_use_translated_labels() -> None:
 @_skip_widget
 def test_topbar_export_action_renders_via_translation_key() -> None:
     """顶部栏导出按钮的文本/提示应通过 t() 解析。"""
-    from PySide6.QtWidgets import QApplication
 
     from app.ui.main.main_window.top_bar import TopBar
 
@@ -1107,7 +1106,6 @@ def test_topbar_export_action_renders_via_translation_key() -> None:
 @_skip_widget
 def test_statusbar_default_text_reflects_translation_key() -> None:
     """状态栏默认文本应使用 common.ready 键,并随语言切换刷新。"""
-    from PySide6.QtWidgets import QApplication
 
     from app.ui.main.main_window.status_bar import StatusBar
 
@@ -1127,7 +1125,6 @@ def test_statusbar_default_text_reflects_translation_key() -> None:
 @_skip_widget
 def test_statusbar_set_status_preserves_runtime_overrides() -> None:
     """retranslate() 应当刷新默认值,但不应覆盖运行中的 set_status 调用。"""
-    from PySide6.QtWidgets import QApplication
 
     from app.ui.main.main_window.status_bar import StatusBar
 
@@ -1151,7 +1148,7 @@ def test_statusbar_set_status_preserves_runtime_overrides() -> None:
 @_skip_widget
 def test_tray_manager_menu_uses_translation_keys() -> None:
     """TrayManager 的菜单动作应使用 t() 解析的标题/角色名。"""
-    from PySide6.QtWidgets import QApplication, QSystemTrayIcon
+    from PySide6.QtWidgets import QSystemTrayIcon
 
     from app.ui.main.tray_manager import TrayManager
 
@@ -1189,7 +1186,7 @@ def test_tray_manager_menu_uses_translation_keys() -> None:
 def test_tray_notification_message_uses_translation_key() -> None:
     """SystemTrayController.handle_close_event 的通知文案应来自 t()。"""
     from PySide6.QtCore import QObject
-    from PySide6.QtWidgets import QApplication, QMainWindow
+    from PySide6.QtWidgets import QMainWindow
 
     from app.ui.main.system_tray import SystemTrayController
 
@@ -1264,7 +1261,7 @@ def test_i18n_message_keys_constants_match_catalogs() -> None:
     """message_keys.py 声明的常量应全部存在于两个语言目录中。"""
     import re
 
-    from app.ui.i18n import messages_en_US, messages_zh_CN, message_keys
+    from app.ui.i18n import message_keys, messages_en_US, messages_zh_CN
 
     # i18n key 形如 ``<scope>.<body>``(两层点分隔)。过滤掉
     # ``__module__`` / ``__qualname__`` 等 dunder 属性和看起来像
@@ -1296,7 +1293,8 @@ def test_i18n_extract_script_reports_no_missing_keys() -> None:
         check=True,
     )
     assert "i18n scan:" in result.stdout
-    report = json.loads(open("/tmp/i18n.json").read())
+    with open("/tmp/i18n.json") as f:
+        report = json.loads(f.read())
     missing = report.get("missing", {})
     assert not missing.get("zh-CN"), f"zh-CN 缺失 key: {missing['zh-CN']}"
     assert not missing.get("en-US"), f"en-US 缺失 key: {missing['en-US']}"

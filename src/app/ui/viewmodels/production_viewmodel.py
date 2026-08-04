@@ -48,12 +48,14 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
 
 from app.services.video.monologue_maker import MonologueMaker, MonologueProject
+from app.ui.main.widgets.production_progress import ProgressETA
 from app.ui.viewmodels import ViewModelBase
 
 if TYPE_CHECKING:
@@ -192,6 +194,8 @@ class ProductionPageViewModel(ViewModelBase):
     current_step_changed = Signal()
     pipeline_finished = Signal(str)  # project path
     pipeline_failed = Signal(str)  # error message
+    # v2.5.0 Phase 3: ETA 文案更新信号（参数为可读的预计剩余秒数，None 表示无数据）
+    eta_changed = Signal(object)
 
     def __init__(self, application: Application | None = None, parent=None) -> None:
         super().__init__(application, parent)
@@ -202,6 +206,9 @@ class ProductionPageViewModel(ViewModelBase):
         self._last_project_path: str = ""
         self._runner_mode: str = "noop"  # noop / live
         self._current_project: MonologueProject | None = None
+        # v2.5.0 Phase 3: ETA 估算器，跟踪每步耗时 + 滑动窗口预测
+        self._eta = ProgressETA(total_steps=len(STEP_DEFINITIONS))
+        self._current_step_started_at: float = 0.0  # monotonic time of step start
 
     # ── 公开属性 ────────────────────────────────────────────────────
     @property
@@ -238,6 +245,16 @@ class ProductionPageViewModel(ViewModelBase):
             "done": "已完成",
             "failed": "失败",
         }.get(self._pipeline_state, "未知")
+
+    @property
+    def eta_seconds(self) -> float | None:
+        """v2.5.0 Phase 3: 预计剩余秒数（基于已完成步骤的滑动窗口平均）。
+
+        - ``None`` 表示数据不足（尚未完成任何步骤）
+        - ``0.0`` 表示全部完成
+        - ``> 0`` 表示基于历史的预测值
+        """
+        return self._eta.estimate_remaining(self._eta.completed_steps)
 
     def get_step_status(self, index: int) -> str:
         if 0 <= index < len(self._step_status):
@@ -303,7 +320,8 @@ class ProductionPageViewModel(ViewModelBase):
                 )
             except Exception as e:
                 # create_project 失败时,降级 noop 但记录 warning
-                logger.warning("MonologueMaker.create_project failed (%s), falling back to noop", e)
+                logger.warning(
+                    "MonologueMaker.create_project failed (%s), falling back to noop", e)
                 self._runner_mode = "noop"
                 self._current_project = None
         else:
@@ -311,7 +329,7 @@ class ProductionPageViewModel(ViewModelBase):
             self._current_project = None
 
     def _reset_for_new_run(self) -> None:
-        """Full reset: step state + runner + project.
+        """Full reset: step state + runner + project + ETA history.
 
         Used by :meth:`reset_pipeline` and on start_pipeline failure
         (when we want to start from a clean slate).
@@ -320,6 +338,10 @@ class ProductionPageViewModel(ViewModelBase):
         self._last_project_path = ""
         self._current_project = None
         self._runner_mode = "noop"
+        # v2.5.0 Phase 3: 清理 ETA 历史，避免上一次 run 的耗时污染新预测
+        self._eta.reset()
+        self._current_step_started_at = 0.0
+        self.eta_changed.emit(None)
 
     def _reset_step_state(self) -> None:
         """Reset only the 5 step statuses + current_step.
@@ -349,6 +371,8 @@ class ProductionPageViewModel(ViewModelBase):
         self.current_step_changed.emit()
         self._step_status[index] = "active"
         self.step_status_changed.emit(index)
+        # v2.5.0 Phase 3: 记录当前步骤开始时间，供 ETA 计算
+        self._current_step_started_at = time.monotonic()
         self._dispatch_step(index)
 
     def _mark_step_done(self, index: int) -> None:
@@ -356,18 +380,39 @@ class ProductionPageViewModel(ViewModelBase):
             return
         self._step_status[index] = "done"
         self.step_status_changed.emit(index)
+        # v2.5.0 Phase 3: 计算当前步骤耗时并喂给 ETA 估算器
+        # 然后通知 UI 刷新 ETA 文案
+        self._record_step_duration()
         if index + 1 < len(self._step_status):
             self._advance_to_step(index + 1)
         else:
             self._set_pipeline_state("done")
             self.pipeline_finished.emit(self._last_project_path)
+            # 全部完成 → eta 收敛到 0
+            self.eta_changed.emit(
+                self._eta.estimate_remaining(self._eta.completed_steps)
+            )
 
     def _mark_step_failed(self, index: int, error: str) -> None:
         if 0 <= index < len(self._step_status):
             self._step_status[index] = "error"
             self.step_status_changed.emit(index)
+        # v2.5.0 Phase 3: 失败也停止 ETA（不清空历史，避免下次运行时污染）
+        # 由 _reset_for_new_run 在下次 start_pipeline 时清理
         self._set_pipeline_state("failed")
         self.pipeline_failed.emit(error)
+
+    def _record_step_duration(self) -> None:
+        """把当前步骤耗时推入 ETA 历史；monotonic 时间，避免系统时钟回拨影响。"""
+        if self._current_step_started_at <= 0:
+            return
+        duration = time.monotonic() - self._current_step_started_at
+        self._eta.record_step(duration)
+        # 推完即发信号，UI 立即可以读取最新 ETA
+        self.eta_changed.emit(
+            self._eta.estimate_remaining(self._eta.completed_steps)
+        )
+        self._current_step_started_at = 0.0  # 防止重复计算
 
     # ── 内部:异步分发 ──────────────────────────────────────────────
     def _dispatch_step(self, index: int) -> None:

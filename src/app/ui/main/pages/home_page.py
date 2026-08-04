@@ -37,7 +37,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -680,7 +680,7 @@ class HomePage(PaletteAwareMixin, QFrame):
                 if state_lbl.text() == empty_marker or not state_lbl.text():
                     state_lbl.setText(t(status_key))
         # Workflow rows
-        for name_key, (num_key, name_key_, det_key) in list(
+        for name_key, (num_key, name_key_, _det_key) in list(
             self._workflow_step_keys.items()
         ):
             label = self._workflow_statuses.get(name_key)

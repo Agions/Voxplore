@@ -143,9 +143,9 @@ def test_assets_page_navigable_cards_have_button():
     """The first two source cards (media_dir / export_dir) include a button."""
     from PySide6.QtWidgets import QFrame, QPushButton
 
+    from app.ui.i18n import t
     from app.ui.main.pages.assets_page import AssetsPage
     from app.ui.main.pages.page_view_models import ASSET_SOURCE_ITEMS
-    from app.ui.i18n import t
 
     _qt_app()  # noqa: F841
     page = AssetsPage()

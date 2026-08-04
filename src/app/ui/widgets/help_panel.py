@@ -443,7 +443,7 @@ class HelpPanelWidget(PaletteAwareMixin, QWidget):
         """当作为独立 widget 嵌入时调用的关闭钩子。"""
         window = self.window()
         if window is not None and hasattr(window, "hide_help_panel"):
-            window.hide_help_panel()  # type: ignore[attr-defined]
+            window.hide_help_panel()
 
     # ─── 主题 ───
 
@@ -451,7 +451,7 @@ class HelpPanelWidget(PaletteAwareMixin, QWidget):
         # 列表项背景色由 QSS 控制；这里无需缓存 QColor
         return
 
-    def apply_palette(self) -> None:  # type: ignore[override]
+    def apply_palette(self) -> None:
         super().apply_palette()
         # 重新渲染当前 topic（让 _C 颜色随主题切换）
         current = self._list.currentItem()
@@ -517,7 +517,7 @@ class HelpPanelWidget(PaletteAwareMixin, QWidget):
 
         self._set_palette_style(self, _factory)
 
-    def showEvent(self, event) -> None:  # type: ignore[override]
+    def showEvent(self, event) -> None:
         super().showEvent(event)
         if self._list.count() > 0:
             # 默认选中第一项可点击的 topic（跳过 header）

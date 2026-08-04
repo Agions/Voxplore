@@ -11,7 +11,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from app.ui.theme import ds_tokens  # noqa: E402
 from app.ui.theme.ds_tokens import set_theme_mode  # noqa: E402
 
 

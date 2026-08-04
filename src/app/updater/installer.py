@@ -25,9 +25,9 @@ import shutil
 import sys
 import time
 import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class BackupRecord:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, object]) -> "BackupRecord":
+    def from_dict(cls, payload: dict[str, object]) -> BackupRecord:
         return cls(
             version=str(payload.get("version", "")),
             backup_dir=Path(str(payload.get("backup_dir", ""))),
@@ -334,7 +334,7 @@ class Installer:
         if not self._manifest_path.exists():
             return []
         try:
-            with open(self._manifest_path, "r", encoding="utf-8") as f:
+            with open(self._manifest_path, encoding="utf-8") as f:
                 payload = json.load(f)
             return [BackupRecord.from_dict(item) for item in payload]
         except (OSError, json.JSONDecodeError, ValueError, TypeError):

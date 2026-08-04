@@ -243,7 +243,7 @@ def _macos_default_palette() -> str:
 def _windows_default_palette() -> str:
     """Windows 默认调色板探测。读注册表 AppsUseLightTheme。"""
     try:
-        import winreg  # type: ignore[import-not-found]
+        import winreg
 
         with winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,

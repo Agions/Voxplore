@@ -352,7 +352,7 @@ class SecureKeyManager:
                 self.store_api_key(
                     provider,
                     key_data["api_key"],
-                    key_data.get("metadata"),  # type: ignore[arg-type]
+                    key_data.get("metadata"),
                 )
 
             self.logger.info("Master key rotated successfully")
