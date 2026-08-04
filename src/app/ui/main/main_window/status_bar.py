@@ -8,7 +8,6 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QProgressBar
 from app.ui.i18n import t
 from app.ui.theme.ds_tokens import _C, FontSizes, Radii
 
-
 # Translation key for the default status text — see ``common.ready``.
 _DEFAULT_STATUS_KEY = "common.ready"
 

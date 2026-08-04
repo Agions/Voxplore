@@ -56,8 +56,9 @@ def render_master_logo() -> None:
     src_light = ASSETS_SVG / "logo-mark-light.svg"
     if src_light.exists():
         for size in [128, 256, 512, 1024]:
-            render_svg_to_png(src_light, ASSETS_SVG / f"logo-light-{size}.png", size)
-        print(f"  [ok] assets/logo-light-{128,256,512,1024}.png")
+            render_svg_to_png(src_light, ASSETS_SVG /
+                              f"logo-light-{size}.png", size)
+        print(f"  [ok] assets/logo-light-{128, 256, 512, 1024}.png")
 
 
 def render_app_icon() -> None:
@@ -73,7 +74,7 @@ def render_app_icon() -> None:
 
     # 默认名 (512) - resources/icons/app_icon.png (向后兼容)
     render_svg_to_png(src, RESOURCES_ICONS / "app_icon.png", 512)
-    print(f"  [ok] resources/icons/app_icon.png")
+    print("  [ok] resources/icons/app_icon.png")
 
 
 def render_favicon() -> None:
@@ -84,13 +85,16 @@ def render_favicon() -> None:
 
     # 主 favicon (PNG, 256)
     render_svg_to_png(src, DOCS_PUBLIC / "favicon.png", 256)
-    print(f"  [ok] docs/public/favicon.png")
+    print("  [ok] docs/public/favicon.png")
 
     # 多尺寸 favicon.ico (浏览器/Windows 兼容)
     tmp = DOCS_PUBLIC / "_tmp_favicon.png"
-    cairosvg.svg2png(url=str(src), write_to=str(tmp), output_width=512, output_height=512)
-    ico_sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
-    Image.open(tmp).save(DOCS_PUBLIC / "favicon.ico", format="ICO", sizes=ico_sizes)
+    cairosvg.svg2png(url=str(src), write_to=str(
+        tmp), output_width=512, output_height=512)
+    ico_sizes = [(16, 16), (32, 32), (48, 48),
+                 (64, 64), (128, 128), (256, 256)]
+    Image.open(tmp).save(DOCS_PUBLIC / "favicon.ico",
+                         format="ICO", sizes=ico_sizes)
     tmp.unlink()
     print(f"  [ok] docs/public/favicon.ico (sizes={ico_sizes})")
 
@@ -104,7 +108,8 @@ def render_og_image() -> None:
 
     # 渲染 logo-horizontal 大图
     tmp = DOCS_PUBLIC / "_tmp_og.png"
-    cairosvg.svg2png(url=str(src), write_to=str(tmp), output_width=1024, output_height=320)
+    cairosvg.svg2png(url=str(src), write_to=str(
+        tmp), output_width=1024, output_height=320)
 
     # 拼接到 OG 画布 (1280×640)
     canvas = Image.new("RGB", (1280, 640), (5, 8, 22))  # 深空黑底
@@ -136,23 +141,25 @@ def render_og_image() -> None:
         ]
         font_path = next((f for f in font_paths if Path(f).exists()), None)
         if font_path:
-            big = ImageFont.truetype(font_path, 32)
+            _big = ImageFont.truetype(font_path, 32)
             small = ImageFont.truetype(font_path, 18)
         else:
-            big = ImageFont.load_default()
+            _big = ImageFont.load_default()
             small = ImageFont.load_default()
 
         # 顶部小字
         tag1 = "AI VIDEO NARRATION · FIRST-PERSON MONOLOGUE"
-        draw.text((640, 80), tag1, anchor="mm", fill=(165, 180, 200), font=small)
+        draw.text((640, 80), tag1, anchor="mm",
+                  fill=(165, 180, 200), font=small)
         # 底部小字
         tag2 = "github.com/Agions/scene-fab"
-        draw.text((640, 560), tag2, anchor="mm", fill=(165, 180, 200), font=small)
+        draw.text((640, 560), tag2, anchor="mm",
+                  fill=(165, 180, 200), font=small)
     except Exception:
         pass
 
     canvas.save(DOCS_PUBLIC / "og-image.png", "PNG", optimize=True)
-    print(f"  [ok] docs/public/og-image.png (1280x640)")
+    print("  [ok] docs/public/og-image.png (1280x640)")
 
     tmp.unlink(missing_ok=True)
 
@@ -164,22 +171,26 @@ def sync_to_docs_public() -> None:
     # 同步 logo-mark.svg → logo.svg (dark 主题默认)
     if (ASSETS_SVG / "logo-mark.svg").exists():
         shutil.copy(ASSETS_SVG / "logo-mark.svg", DOCS_PUBLIC / "logo.svg")
-        print(f"  [sync] docs/public/logo.svg ← assets/logo-mark.svg")
+        print("  [sync] docs/public/logo.svg ← assets/logo-mark.svg")
 
     # 同步 logo-mark-light.svg → logo-light.svg (light 主题变体)
     if (ASSETS_SVG / "logo-mark-light.svg").exists():
-        shutil.copy(ASSETS_SVG / "logo-mark-light.svg", DOCS_PUBLIC / "logo-light.svg")
-        print(f"  [sync] docs/public/logo-light.svg ← assets/logo-mark-light.svg")
+        shutil.copy(ASSETS_SVG / "logo-mark-light.svg",
+                    DOCS_PUBLIC / "logo-light.svg")
+        print("  [sync] docs/public/logo-light.svg ← assets/logo-mark-light.svg")
 
     # 同步 logo-horizontal.svg
     if (ASSETS_SVG / "logo-horizontal.svg").exists():
-        shutil.copy(ASSETS_SVG / "logo-horizontal.svg", DOCS_PUBLIC / "logo-horizontal.svg")
-        print(f"  [sync] docs/public/logo-horizontal.svg ← assets/logo-horizontal.svg")
+        shutil.copy(ASSETS_SVG / "logo-horizontal.svg",
+                    DOCS_PUBLIC / "logo-horizontal.svg")
+        print("  [sync] docs/public/logo-horizontal.svg ← assets/logo-horizontal.svg")
 
     # 同步 logo-horizontal-light.svg
     if (ASSETS_SVG / "logo-horizontal-light.svg").exists():
-        shutil.copy(ASSETS_SVG / "logo-horizontal-light.svg", DOCS_PUBLIC / "logo-horizontal-light.svg")
-        print(f"  [sync] docs/public/logo-horizontal-light.svg ← assets/logo-horizontal-light.svg")
+        shutil.copy(ASSETS_SVG / "logo-horizontal-light.svg",
+                    DOCS_PUBLIC / "logo-horizontal-light.svg")
+        print(
+            "  [sync] docs/public/logo-horizontal-light.svg ← assets/logo-horizontal-light.svg")
 
 
 def verify_png_files() -> int:
@@ -204,7 +215,8 @@ def verify_png_files() -> int:
                 elif nonblack < 0.3:
                     print(f"  [WARN] {f}: mostly blank ({nonblack*100:.0f}%)")
                 else:
-                    print(f"  [ok] {f.name}: {img.size}, nonblack={nonblack*100:.0f}%")
+                    print(
+                        f"  [ok] {f.name}: {img.size}, nonblack={nonblack*100:.0f}%")
             except Exception as e:
                 print(f"  [FAIL] {f}: {e}")
                 errors += 1
@@ -212,7 +224,7 @@ def verify_png_files() -> int:
 
 
 def main(check_only: bool = False) -> int:
-    print(f"=== SceneFab Brand Assets Renderer ===")
+    print("=== SceneFab Brand Assets Renderer ===")
     print(f"ROOT: {ROOT}")
     print()
 

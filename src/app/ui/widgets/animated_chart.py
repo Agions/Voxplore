@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 from PySide6.QtCore import (
     Property,
@@ -30,8 +30,7 @@ from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from app.ui.main.pages.page_widgets import PaletteAwareMixin
-from app.ui.theme.ds_tokens import FontWeights, _C, ui_font
-
+from app.ui.theme.ds_tokens import _C, FontWeights, ui_font
 
 # ─────────────────────────────────────────────────────────────────────
 #  RingChart
@@ -153,7 +152,7 @@ class RingChart(PaletteAwareMixin, QWidget):
         self._refresh_palette_brushes()
         self.update()
 
-    def apply_palette(self) -> None:  # type: ignore[override]
+    def apply_palette(self) -> None:
         super().apply_palette()
         self._refresh_palette_brushes()
         self.update()
@@ -212,7 +211,6 @@ class RingChart(PaletteAwareMixin, QWidget):
         big = ui_font(int(side * 0.22), FontWeights.Bold)
         small = ui_font(int(side * 0.10), FontWeights.Medium)
 
-        cx, cy = rect.center().x(), rect.center().y()
         painter.setFont(big)
         painter.drawText(
             QRectF(rect.left(), rect.top(), rect.width(), rect.height() * 0.5),
@@ -318,7 +316,7 @@ class LineChart(PaletteAwareMixin, QWidget):
         self._grid_color = QColor(_C.GRID_LINE)
         self._text_color = QColor(_C.TEXT_MUTED)
 
-    def apply_palette(self) -> None:  # type: ignore[override]
+    def apply_palette(self) -> None:
         super().apply_palette()
         self._refresh_palette_brushes()
         self.update()

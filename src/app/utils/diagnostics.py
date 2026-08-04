@@ -77,7 +77,7 @@ def _collect_environment() -> str:
     lines.append(f"- **CWD**: {os.getcwd()}")
     # 检测 PyInstaller 打包
     if getattr(sys, "frozen", False):
-        # type: ignore[attr-defined]
+
         lines.append(f"- **Bundle Dir**: {sys._MEIPASS}")
     return "\n".join(lines)
 

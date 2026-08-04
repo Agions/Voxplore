@@ -17,21 +17,17 @@
 from __future__ import annotations
 
 import logging
-from typing import Sequence
 
 from PySide6.QtCore import (
     QEasingCurve,
-    QEvent,
     QPoint,
     QPropertyAnimation,
-    QSize,
     Qt,
     Signal,
 )
-from PySide6.QtGui import QColor, QFont, QKeyEvent, QShortcut
+from PySide6.QtGui import QKeyEvent, QShortcut
 from PySide6.QtWidgets import (
     QAbstractItemView,
-    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -43,7 +39,7 @@ from PySide6.QtWidgets import (
 
 from app.ui.commands.registry import Command, CommandRegistry
 from app.ui.main.pages.page_widgets import PaletteAwareMixin
-from app.ui.theme.ds_tokens import FontWeights, Radii, _C, ui_font
+from app.ui.theme.ds_tokens import _C, FontWeights, Radii, ui_font
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +220,7 @@ class CommandPalette(PaletteAwareMixin, QWidget):
         # 子控件（QLineEdit/QListView）也会被 QSS 影响，但不强制包成可随主题切换
         # —— 上面 #xxx 选择器在主题切换后会自动随 _C 值刷新
 
-    def apply_palette(self) -> None:  # type: ignore[override]
+    def apply_palette(self) -> None:
         super().apply_palette()
         self._refresh_palette_brushes()
         self._refresh_list(self._search.text())
@@ -321,13 +317,13 @@ class CommandPalette(PaletteAwareMixin, QWidget):
             logger.warning("Command '%s' failed: %s", cmd.id, exc)
 
     # 键盘事件：Esc 关闭 / 上下方向键移动选择
-    # type: ignore[override]
+
     def keyPressEvent(self, event: QKeyEvent) -> None:
         if event.key() == Qt.Key.Key_Escape:
             self.close()
             return
         super().keyPressEvent(event)
 
-    def showEvent(self, event) -> None:  # type: ignore[override]
+    def showEvent(self, event) -> None:
         super().showEvent(event)
         self._search.setFocus()

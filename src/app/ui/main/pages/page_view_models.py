@@ -10,14 +10,11 @@ from app.pipeline.fp_workflow import (
 )
 
 from .page_defaults import (
-    CODEC_OPTIONS,
     DEFAULT_EXPORT_DIR,
     DEFAULT_PLATFORM_LABEL,
     DEFAULT_PROJECT_DIR,
     DEFAULT_VERTICAL_RESOLUTION,
     FPS_OPTIONS,
-    LANGUAGE_OPTIONS,
-    VIDEO_RESOLUTION_OPTIONS,
     default_audio_bitrate,
     default_video_bitrate,
     settings_model_options,

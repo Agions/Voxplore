@@ -90,7 +90,7 @@ class ViewModelBase(QObject):
             if signal is None:
                 continue
             try:
-                signal.disconnect(handler)  # type: ignore[arg-type]
+                signal.disconnect(handler)
             except (RuntimeError, TypeError):
                 # Signal was never connected (no project_manager at bind time)
                 pass
@@ -108,7 +108,7 @@ class ViewModelBase(QObject):
             if signal is None:
                 continue
             try:
-                signal.connect(handler)  # type: ignore[arg-type]
+                signal.connect(handler)
             except (RuntimeError, TypeError):
                 pass
         return True

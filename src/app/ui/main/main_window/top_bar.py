@@ -9,7 +9,6 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QToolButton
 from app.ui.i18n import t
 from app.ui.theme.ds_tokens import _C, FontSizes
 
-
 # Top-bar action: (action_id, icon, icon_key, tooltip_key)
 _TOPBAR_ACTIONS = (
     ("export", "导出", "topbar.export.button", "topbar.export.tooltip"),
@@ -72,7 +71,7 @@ class TopBar(QFrame):
         actions_layout.setSpacing(4)
 
         self._action_btns: dict[str, QToolButton] = {}
-        for action_id, icon, icon_key, tip_key in _TOPBAR_ACTIONS:
+        for action_id, _icon, icon_key, tip_key in _TOPBAR_ACTIONS:
             btn = QToolButton()
             btn.setObjectName("topbar_action_btn")
             btn.setText(t(icon_key))

@@ -13,9 +13,8 @@ service directly — easier to test, easier to swap implementations.
 
 from __future__ import annotations
 
-import shutil
-from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 

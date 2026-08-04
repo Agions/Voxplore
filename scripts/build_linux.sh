@@ -32,6 +32,14 @@ fi
 step "[3/6] 安装依赖..."
 pip install -e .
 
+# ── 打包文档站点 (v2.5.0 安装包文档化) ─────────────────────────
+step "[3.5/6] 打包文档 (VitePress dist + guide/*.md)..."
+if command -v python3 &> /dev/null; then
+    python3 scripts/bundle-docs.py || warn "文档打包失败,继续构建..."
+else
+    warn "python3 不可用,跳过文档打包"
+fi
+
 # ── Nuitka 编译 ────────────────────────────────────────────────
 step "[4/6] Nuitka 编译（这可能需要 5-15 分钟）..."
 nuitka \
@@ -59,6 +67,12 @@ cp "dist-nuitka/${PY_NAME}" "${APP_DIR}/"
 # 复制资源
 cp -r resources "${APP_DIR}/" 2>/dev/null || true
 cp resources/icons/app_icon.png "${APP_DIR}/SceneFab.png"
+
+# 文档站点 (v2.5.0 安装包文档化): 复制到 AppDir/docs
+if [ -d "docs_bundle" ]; then
+    cp -r docs_bundle "${APP_DIR}/docs"
+    info "  文档已打包: ${APP_DIR}/docs/"
+fi
 
 # AppRun（启动脚本）
 cat > "${APP_DIR}/AppRun" << APPRUN

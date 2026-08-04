@@ -24,7 +24,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QVBoxLayout
 
 from app.ui.main.pages.page_widgets import PaletteAwareMixin
-from app.ui.theme.ds_tokens import _C, QSSComponents, Radii
+from app.ui.theme.ds_tokens import _C, QSSComponents
 
 
 class GlassCard(PaletteAwareMixin, QFrame):

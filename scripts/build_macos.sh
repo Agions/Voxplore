@@ -40,6 +40,14 @@ fi
 step "[3/6] 安装依赖..."
 pip install -e .
 
+# ── 打包文档站点 (v2.5.0 安装包文档化) ─────────────────────────
+step "[3.5/6] 打包文档 (VitePress dist + guide/*.md)..."
+if command -v python3 &> /dev/null; then
+    python3 scripts/bundle-docs.py || warn "文档打包失败,继续构建..."
+else
+    warn "python3 不可用,跳过文档打包"
+fi
+
 # ── PyInstaller 构建 ───────────────────────────────────────────
 step "[4/6] PyInstaller 构建..."
 pyinstaller \
@@ -49,6 +57,7 @@ pyinstaller \
     --windowed \
     --icon="resources/icon.icns" \
     --add-data="resources:resources" \
+    --add-data="docs_bundle:docs_bundle" \
     --hidden-import=PySide6 \
     --hidden-import=PySide6.QtCore \
     --hidden-import=PySide6.QtGui \
@@ -79,6 +88,12 @@ mkdir -p "${APP_BUNDLE}/Contents/Resources"
 cp -r "dist/${PY_NAME}/"* "${APP_BUNDLE}/Contents/MacOS/"
 cp -r resources "${APP_BUNDLE}/Contents/"
 cp resources/icon.icns "${APP_BUNDLE}/Contents/Resources/icon.icns"
+
+# 文档站点 (v2.5.0 安装包文档化): 复制到 Contents/Resources/docs
+if [ -d "docs_bundle" ]; then
+    cp -r docs_bundle "${APP_BUNDLE}/Contents/Resources/docs"
+    info "  文档已打包: ${APP_BUNDLE}/Contents/Resources/docs/"
+fi
 
 # Info.plist
 cat > "${APP_BUNDLE}/Contents/Info.plist" << EOF

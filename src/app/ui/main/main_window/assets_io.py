@@ -18,11 +18,10 @@ concrete service directly.
 from __future__ import annotations
 
 import shutil
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
 from PySide6.QtWidgets import QFileDialog, QMainWindow
-
 
 # File extensions accepted by the importer. Includes video, audio and
 # image types since ``ProjectMedia`` covers all media kinds.

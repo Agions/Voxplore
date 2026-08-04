@@ -3,9 +3,9 @@ SceneFab FastAPI Application
 Web API 层入口
 """
 
-from contextlib import asynccontextmanager
 import logging
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware

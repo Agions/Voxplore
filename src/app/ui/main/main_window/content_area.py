@@ -30,7 +30,6 @@ from PySide6.QtWidgets import (
 
 from app.ui.theme.ds_tokens import _C
 
-
 TransitionMode = Literal["none", "fade", "cross-fade", "slide"]
 
 
@@ -66,7 +65,7 @@ class _VerticalSlideEffect(QGraphicsEffect):
     def offset(self) -> float:
         return self._offset
 
-    def draw(self, painter) -> None:  # type: ignore[override]
+    def draw(self, painter) -> None:
         if painter is None:
             return
         offset = self._offset
@@ -158,7 +157,7 @@ class ContentArea(QFrame):
             # painter chain still renders correctly because the slide
             # effect defers to its source.
             opacity_eff: QGraphicsEffect = eff
-            # type: ignore[assignment]
+
             slide_eff: _VerticalSlideEffect | None = eff
         elif isinstance(eff, QGraphicsOpacityEffect):
             opacity_eff = eff

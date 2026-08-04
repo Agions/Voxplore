@@ -367,11 +367,11 @@ class QSSComponents:
     """可复用的 QSS 片段"""
 
     @staticmethod
-    # type: ignore[assignment]
+
     def card(bg: str = None, border: str = None, radius: str = None) -> str:
         bg = bg or _C.BG_SURFACE
         border = border or _C.BORDER_SUBTLE
-        radius = radius or Radii.base  # type: ignore[assignment]
+        radius = radius or Radii.base
         return f"""
             background: {bg};
             border: 1px solid {border};

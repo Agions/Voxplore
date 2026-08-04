@@ -11,7 +11,6 @@ from app.ui.main.registry import NavItem
 from app.ui.theme.ds_tokens import _C, FontSizes, Radii
 from app.utils.version import get_version_string
 
-
 # Translation key for the brand subtitle — referenced both at build time
 # and from :py:meth:`Sidebar.retranslate` so the sidebar reflects the
 # active UI language without rebuilding the widget tree.

@@ -3,10 +3,6 @@
 
 from __future__ import annotations
 
-import os
-from collections.abc import Callable
-from unittest.mock import patch
-
 import pytest
 
 
@@ -230,8 +226,9 @@ class TestExemptPaths:
     )
     async def test_exempt_paths_pass(self, clear_env, path, monkeypatch):
         # Re-build request with custom path
-        from app.api.middleware.auth import APIKeyMiddleware
         from urllib.parse import parse_qs
+
+        from app.api.middleware.auth import APIKeyMiddleware
 
         class _StubApp:
             async def __call__(self, scope, receive, send):

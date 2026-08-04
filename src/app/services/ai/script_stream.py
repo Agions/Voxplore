@@ -223,7 +223,7 @@ class StreamingScriptGenerator(ScriptGenerator):
                 ):
                     yield chunk
             else:
-                response = await self.llm_manager.generate(  # type: ignore[union-attr]
+                response = await self.llm_manager.generate(
                     request, provider=provider_type
                 )
                 yield response.content

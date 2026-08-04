@@ -201,7 +201,7 @@ class ScriptGenerator:
                         multi_strategy=multi_strategy,
                         series_context=series_context,
                     )
-                    # type: ignore[union-attr]
+
                     await self.llm_manager.close_all()
                     return result
 
@@ -266,7 +266,7 @@ class ScriptGenerator:
         )
 
         # 调用 LLMManager
-        # type: ignore[union-attr]
+
         response = await self.llm_manager.generate(request, provider=provider_type)
         provider_name = (
             response.model.split(
@@ -403,7 +403,7 @@ class ScriptGenerator:
         )
 
         try:
-            # type: ignore[union-attr]
+
             response = await self.llm_manager.generate(request)
             return parse_batch_response(response.content, batch)
         except Exception as e:
@@ -475,7 +475,7 @@ class ScriptGenerator:
                 max_tokens=2000,
             )
 
-            # type: ignore[return-value]
+
             return response.choices[0].message.content
 
         except ImportError:

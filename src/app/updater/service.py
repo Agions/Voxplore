@@ -24,7 +24,7 @@ from typing import Any
 
 import httpx
 
-from app.updater.downloader import DownloadError, Downloader, DownloadProgress
+from app.updater.downloader import Downloader, DownloadError, DownloadProgress
 from app.updater.installer import BackupRecord, Installer, InstallError
 from app.updater.manifest import (
     UpdateChannel,
@@ -33,7 +33,6 @@ from app.updater.manifest import (
     select_best_manifest,
 )
 from app.updater.verifier import VerificationError, verify_sha256
-
 
 logger = logging.getLogger(__name__)
 
@@ -550,7 +549,7 @@ class UpdaterService:
         cls,
         settings_manager: Any | None = None,
         **kwargs: Any,
-    ) -> "UpdaterService":
+    ) -> UpdaterService:
         """从 ``ProjectSettingsManager`` 读 channel 配置后构造实例。"""
 
         channel = UpdateChannel.STABLE

@@ -27,9 +27,10 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import TYPE_CHECKING, Callable, Sequence
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import Signal
 
 from app.core.event_types import SystemMetricSampled
 from app.ui.viewmodels import ViewModelBase
@@ -344,7 +345,7 @@ class DashboardViewModel(ViewModelBase):
     #  application helpers
     # ───────────────────────────────────────────────
 
-    def _event_bus(self) -> "UnifiedEventBus | None":
+    def _event_bus(self) -> UnifiedEventBus | None:
         app = self._application
         if app is None:
             return None

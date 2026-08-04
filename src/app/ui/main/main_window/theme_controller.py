@@ -20,7 +20,7 @@ explicit (the parent ``QMainWindow`` owns the controller).
 from __future__ import annotations
 
 import logging
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 from PySide6.QtCore import QObject, Signal
 

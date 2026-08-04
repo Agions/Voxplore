@@ -28,10 +28,18 @@ from ....models.project import (
     SeriesContext,
     VideoSource,
 )  # v2.5.0
-from ...i18n import t
-from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, ui_font
+from ...i18n import MessageKey, t
+from ...theme.ds_tokens import _C, FontSizes, FontWeights, Radii, Spacing, ui_font
 from ..controls import ComboBox
 from ..dialogs.series_context_dialog import SeriesContextDialog
+from ..widgets.media_import_section import (
+    MediaSummaryBar,
+    SeriesContextPreview,
+    StrategyChoiceCards,
+    compute_file_stats,
+)
+from ..widgets.production_progress import format_seconds
+from ..widgets.production_summary import ProductionSummaryCard
 from .page_view_models import (
     EXPORT_QUALITY_CHECKS,
     SCRIPT_BRIEF_RULES,
@@ -73,7 +81,27 @@ _VIDEO_EXTENSIONS: tuple[str, ...] = (
 )
 
 
-# v2.5.0: 多视频策略选项 (策略值, i18n key, 显示图标)
+def _render_active_label(eta_seconds: float | None) -> str:
+    """v2.5.0 Phase 3: 把 ``eta_seconds`` 渲染成 i18n 进度文案。
+
+    - eta_seconds is None : 尚未积累历史样本(第 1 步进行中),只显示「进行中…」
+    - eta_seconds == 0   : 全部完成,显示「即将完成」
+    - eta_seconds > 0    : 显示「进行中(预计剩余 {eta})」
+
+    函数抽出来便于在 ``_refresh_step_status`` 与未来 unit test 中复用。
+    """
+    if eta_seconds is None:
+        return t(MessageKey.PRODUCTION_PROGRESS_ACTIVE_SIMPLE)
+    if eta_seconds <= 0:
+        return t(MessageKey.PRODUCTION_PROGRESS_ETA_FINISHED)
+    return t(MessageKey.PRODUCTION_PROGRESS_ACTIVE_WITH_ETA).format(
+        eta=format_seconds(eta_seconds)
+    )
+
+
+# v2.5.0: 多视频策略选项（实际渲染已迁移到 StrategyChoiceCards）
+# 保留仅用于向后兼容的常量引用，下方 retranslate() 使用 _STRATEGY_OPTIONS
+# 仅刷新历史日志文本，新控件有自己的 retranslate()。
 _STRATEGY_OPTIONS: tuple[tuple[str, str, str], ...] = (
     ("single", "production.strategy.single", "▶"),
     ("concat", "production.strategy.concat", "▶▶"),
@@ -251,13 +279,15 @@ class VideoDropzoneFrame(PaletteAwareMixin, QFrame):
 
         self._title_lbl = QLabel(t("production.drop_hint"))
         self._title_lbl.setFont(ui_font(FontSizes.sm, FontWeights.Medium))
-        self._set_palette_style(self._title_lbl, lambda: f"color: {_C.TEXT_PRIMARY};")
+        self._set_palette_style(
+            self._title_lbl, lambda: f"color: {_C.TEXT_PRIMARY};")
         self._title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         empty_layout.addWidget(self._title_lbl)
 
         self._path_lbl = QLabel(t("production.format_supported"))
         self._path_lbl.setFont(ui_font(FontSizes.xs))
-        self._set_palette_style(self._path_lbl, lambda: f"color: {_C.TEXT_MUTED};")
+        self._set_palette_style(
+            self._path_lbl, lambda: f"color: {_C.TEXT_MUTED};")
         self._path_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         empty_layout.addWidget(self._path_lbl)
 
@@ -356,7 +386,8 @@ class VideoDropzoneFrame(PaletteAwareMixin, QFrame):
                 # v2.4.3 向后兼容：选中状态下 browse 按钮显示「更换视频」
                 self._browse_btn.setText(t("production.replace_video"))
             else:
-                self._title_lbl.setText(t("production.multi.count").format(count=count))
+                self._title_lbl.setText(
+                    t("production.multi.count").format(count=count))
                 self._path_lbl.setText(first.path)
                 self._browse_btn.setText(t("production.browse_button"))
         else:
@@ -469,10 +500,14 @@ class ProductionPage(PaletteAwareMixin, QFrame):
 
     # v2.5.0: 控件缓存，便于 retranslate 与类型推断
     _strategy_combo: ComboBox
+    _strategy_cards: StrategyChoiceCards
     _strategy_label: QLabel
     _strategy_frame: QFrame
     _strategy_help: QLabel
     _series_edit_btn: QPushButton
+    _media_summary: MediaSummaryBar
+    _series_preview: SeriesContextPreview
+    _summary_card: ProductionSummaryCard
     _series_context: SeriesContext | None
     _files_changed: object  # slot reference, unused at runtime
 
@@ -594,20 +629,33 @@ class ProductionPage(PaletteAwareMixin, QFrame):
     # v2.5.0: 多视频策略选择 + SeriesContext 编辑（控件响应）
     # ──────────────────────────────────────────────────────────────
 
-    def _on_files_changed(self, _paths: list) -> None:
-        """拖拽区文件数变化：2+ 视频时显示策略选择器。"""
+    def _on_files_changed(self, paths: list) -> None:
+        """拖拽区文件数变化：2+ 视频时显示策略选择器；同步刷新媒体统计栏。"""
+        sources = self.dropzone._sources.videos
         count = self.dropzone._sources.count
         multi = count >= 2
         self._strategy_frame.setVisible(multi)
-        self._strategy_help.setVisible(multi)
-        # 控件隐藏后 series_edit_btn 总是隐藏（仅 series 时显示）
+        # v2.5.0: 媒体统计栏（数量 / 大小），空态自动隐藏
+        paths_only = [v.path for v in sources]
+        n, _dur, size = compute_file_stats(paths_only)
+        self._media_summary.update_stats(n, _dur, size)
+        # 控件隐藏后 series_preview 总是隐藏（仅 series 时显示）
         if not multi:
-            self._series_edit_btn.hide()
+            self._series_preview.hide()
 
     def _on_strategy_changed(self, _index: int) -> None:
-        """策略变化：series 时显示“编辑整季系列设定”按钮。"""
+        """策略变化：series 时显示 SeriesContext 预览卡。"""
         strategy = self._current_strategy()
-        self._series_edit_btn.setVisible(strategy == "series")
+        is_series = strategy == "series"
+        self._series_preview.setVisible(is_series)
+        self._series_preview.set_context(self._series_context)
+        # 切到非 series：保留已填的 SeriesContext 以防用户往返
+
+    def _on_strategy_cards_changed(self, value: str) -> None:
+        """v2.5.0: 4 卡片策略选择器切换的回调（与 _on_strategy_changed 行为一致）。"""
+        is_series = value == "series"
+        self._series_preview.setVisible(is_series)
+        self._series_preview.set_context(self._series_context)
         # 切到非 series：保留已填的 SeriesContext 以防用户往返
 
     def _on_edit_series_context(self) -> None:
@@ -630,12 +678,26 @@ class ProductionPage(PaletteAwareMixin, QFrame):
             from ....services.series_context_store import save_series_context
 
             save_series_context(ctx)
+            # 同步刷新预览卡
+            self._series_preview.set_context(ctx)
 
     def _current_strategy(self) -> MultiVideoStrategy:
-        """读取当前策略选择器的值，未知值回退 ``batch``。"""
+        """读取当前策略选择器的值，未知值回退 ``batch``。
+
+        v2.5.0: 4 卡片可视化策略选择器优先；保留旧路径以防历史调用。
+        """
         from typing import cast
 
-        value = self._strategy_combo.currentData()
+        # 优先: 4 卡片选择器（实际渲染控件）
+        try:
+            value = self._strategy_cards.strategy()
+        except AttributeError:
+            value = None
+        if value is None:
+            # 兜底: 旧版 ComboBox（如有）
+            combo = getattr(self, "_strategy_combo", None)
+            if combo is not None:
+                value = combo.currentData()
         if value in ("single", "concat", "batch", "series"):
             return cast(MultiVideoStrategy, value)
         return "batch"
@@ -645,109 +707,85 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(14)
-        self._pipeline_section = section_title(t("production.section.media_import"))
+        self._pipeline_section = section_title(
+            t("production.section.media_import"))
         layout.addWidget(self._pipeline_section)
 
-        # 视频拖拽区域
+        # ── 视频拖拽区域 ──
         self.dropzone = VideoDropzoneFrame(self)
         layout.addWidget(self.dropzone)
         # v2.5.0: 拖拽区文件数变化同步触发策略选择器显示逻辑
         self.dropzone.files_changed.connect(self._on_files_changed)
 
-        # v2.5.0: 多视频策略选择器（多文件时显示）
+        # ── 媒体统计栏（数量 / 时长 / 大小）──
+        # 空态隐藏，文件添加后自动展开
+        self._media_summary = MediaSummaryBar(self)
+        self._media_summary.add_more_clicked.connect(self.dropzone._on_browse)
+        layout.addWidget(self._media_summary)
+
+        # ── 多视频策略选择器（多文件时显示）──
+        # 卡片化容器：标题 + 4 卡片网格 + series 上下文预览
         self._strategy_frame = QFrame()
         self._set_palette_style(
             self._strategy_frame,
             lambda: (
                 f"""
             QFrame {{
-                background: {_C.BG_BASE};
+                background: {_C.BG_SURFACE};
                 border: 1px solid {_C.BORDER_SUBTLE};
                 border-radius: {Radii.base};
-                padding: 10px 12px;
             }}
         """
             ),
         )
-        strategy_box = QHBoxLayout(self._strategy_frame)
-        strategy_box.setContentsMargins(0, 0, 0, 0)
-        strategy_box.setSpacing(10)
+        strategy_outer = QVBoxLayout(self._strategy_frame)
+        strategy_outer.setContentsMargins(
+            Spacing.base, Spacing.md, Spacing.base, Spacing.md)
+        strategy_outer.setSpacing(Spacing.md)
 
-        self._strategy_label = QLabel(t("production.strategy.label"))
-        self._strategy_label.setFont(ui_font(FontSizes.sm, FontWeights.Medium))
+        # 策略 header：标题 + 帮助说明
+        strategy_header = QHBoxLayout()
+        strategy_header.setContentsMargins(0, 0, 0, 0)
+        strategy_header.setSpacing(Spacing.xs)
+        self._strategy_label = QLabel(t("production.strategy.title"))
+        self._strategy_label.setFont(
+            ui_font(FontSizes.md, FontWeights.SemiBold)
+        )
         self._set_palette_style(
             self._strategy_label, lambda: f"color: {_C.TEXT_PRIMARY};"
         )
-        self._strategy_combo = ComboBox()
-        self._strategy_combo.setMinimumWidth(220)
-        for value, key, icon in _STRATEGY_OPTIONS:
-            self._strategy_combo.addItem(f"{icon}  {t(key)}", userData=value)
-        self._strategy_combo.setCurrentIndex(2)  # 默认 batch
-        self._strategy_combo.currentIndexChanged.connect(self._on_strategy_changed)
-        self._set_palette_style(
-            self._strategy_combo,
-            lambda: (
-                f"""
-            QComboBox {{
-                background: {_C.BG_SURFACE};
-                color: {_C.TEXT_PRIMARY};
-                border: 1px solid {_C.BORDER_SUBTLE};
-                border-radius: {Radii.sm};
-                padding: 4px 10px;
-            }}
-            QComboBox:hover {{
-                border-color: {_C.PRIMARY};
-            }}
-        """
-            ),
-        )
-        strategy_box.addWidget(self._strategy_label)
-        strategy_box.addWidget(self._strategy_combo, 1)
+        strategy_header.addWidget(self._strategy_label)
+        strategy_header.addStretch(1)
+        strategy_outer.addLayout(strategy_header)
 
-        # 编辑整季系列设定按钮（仅 series 策略可见）
-        self._series_edit_btn = QPushButton(t("production.strategy.series_edit"))
-        self._series_edit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._series_edit_btn.clicked.connect(self._on_edit_series_context)
-        self._set_palette_style(
-            self._series_edit_btn,
-            lambda: (
-                f"""
-            QPushButton {{
-                background: {_C.PRIMARY};
-                color: #ffffff;
-                border: none;
-                border-radius: {Radii.sm};
-                padding: 4px 14px;
-                font-size: {FontSizes.xs}px;
-            }}
-            QPushButton:hover {{
-                background: {_C.PRIMARY_DARK};
-            }}
-        """
-            ),
-        )
-        strategy_box.addWidget(self._series_edit_btn)
-
-        # 策略帮助说明（单行 hint）
+        # 策略说明（副标题）
         self._strategy_help = QLabel(t("production.strategy.help"))
         self._strategy_help.setFont(ui_font(FontSizes.xs))
-        self._set_palette_style(self._strategy_help, lambda: f"color: {_C.TEXT_MUTED};")
+        self._set_palette_style(
+            self._strategy_help, lambda: f"color: {_C.TEXT_MUTED};"
+        )
         self._strategy_help.setWordWrap(True)
-
-        strategy_outer = QVBoxLayout()
-        strategy_outer.setContentsMargins(0, 0, 0, 0)
-        strategy_outer.setSpacing(6)
-        strategy_outer.addWidget(self._strategy_frame)
         strategy_outer.addWidget(self._strategy_help)
-        layout.addLayout(strategy_outer)
+
+        # 4 卡片可视化策略选择器
+        self._strategy_cards = StrategyChoiceCards(self)
+        self._strategy_cards.strategy_changed.connect(
+            self._on_strategy_cards_changed
+        )
+        strategy_outer.addWidget(self._strategy_cards)
+
+        # SeriesContext 预览卡（仅 series 策略时显示）
+        self._series_preview = SeriesContextPreview(self)
+        self._series_preview.edit_clicked.connect(self._on_edit_series_context)
+        strategy_outer.addWidget(self._series_preview)
+
+        layout.addWidget(self._strategy_frame)
 
         # SeriesContext (v2.5.0)：仅在 series 策略下由对话框填入
         # （已在 __init__ 中初始化为 None）
 
         # 默认隐藏（1 个视频 / 无视频时不需要选策略）
         self._strategy_frame.hide()
-        self._strategy_help.hide()
-        self._series_edit_btn.hide()
 
         # 行内参数配置面板
         config_frame = QFrame()
@@ -771,9 +809,11 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         context_box = QHBoxLayout()
         self._ctx_label = QLabel(t("production.theme_label"))
         self._ctx_label.setFont(ui_font(FontSizes.sm, FontWeights.Medium))
-        self._set_palette_style(self._ctx_label, lambda: f"color: {_C.TEXT_PRIMARY};")
+        self._set_palette_style(
+            self._ctx_label, lambda: f"color: {_C.TEXT_PRIMARY};")
         self._context_input = QLineEdit(t("production.theme_default"))
-        self._context_input.setPlaceholderText(t("production.theme_placeholder"))
+        self._context_input.setPlaceholderText(
+            t("production.theme_placeholder"))
         self._set_palette_style(
             self._context_input,
             lambda: (
@@ -796,7 +836,8 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         emotion_box = QHBoxLayout()
         self._emo_label = QLabel(t("production.tone_label"))
         self._emo_label.setFont(ui_font(FontSizes.sm, FontWeights.Medium))
-        self._set_palette_style(self._emo_label, lambda: f"color: {_C.TEXT_PRIMARY};")
+        self._set_palette_style(
+            self._emo_label, lambda: f"color: {_C.TEXT_PRIMARY};")
         self._emotion_combo = ComboBox()
         self._emotion_combo.addItems([t(key) for key in _EMOTION_KEYS])
         self._set_palette_style(
@@ -822,13 +863,15 @@ class ProductionPage(PaletteAwareMixin, QFrame):
 
         layout.addWidget(config_frame)
 
-        self._steps_section = section_title(t("production.section.workflow_steps"))
+        self._steps_section = section_title(
+            t("production.section.workflow_steps"))
         layout.addWidget(self._steps_section)
 
         # Phase 2B: read 5 steps from VM (falls back to canon if no VM)
         steps = self._step_definitions()
         self._step_rows: list[
-            tuple[QFrame, QLabel | None, QLabel | None, QLabel | None, str, str]
+            tuple[QFrame, QLabel | None, QLabel |
+                  None, QLabel | None, str, str]
         ] = []
         for number, name, desc in steps:
             row = self._step_row(number, name, desc)
@@ -836,12 +879,54 @@ class ProductionPage(PaletteAwareMixin, QFrame):
             badge = row.findChild(QLabel, "step_badge")
             title = row.findChild(QLabel, "step_title")
             status_lbl = row.findChild(QLabel, "step_status")
-            self._step_rows.append((row, badge, title, status_lbl, number, name))
+            self._step_rows.append(
+                (row, badge, title, status_lbl, number, name))
             # Cache the initial pending translation so retranslate() can detect
             # labels still in the default state and refresh only those.
             self._step_status_keys[name] = t("production.status.pending")
+
+        # ── 生产完成 Summary 卡片（v2.5.0 端到端流程优化 Phase 2） ──
+        # 默认隐藏,生产完成时由 main_window 调用 show_production_result 展开。
+        # 作为 Toast 通知的视觉补强: 即使用户错过 4 秒 toast,
+        # 也能在 5 步流水线下方持续看到产物路径与操作入口。
+        self._summary_card = ProductionSummaryCard(self)
+        layout.addWidget(self._summary_card)
+
         layout.addStretch()
         return frame
+
+    # ──────────────────────────────────────────────────────────────
+    # v2.5.0 Phase 2: 生产完成 Summary 卡片 — 公开 API
+    # ──────────────────────────────────────────────────────────────
+
+    def show_production_result(
+        self,
+        project_path: str,
+        elapsed_seconds: float,
+        file_size_bytes: int,
+        steps_completed: int = 5,
+        steps_total: int = 5,
+    ) -> None:
+        """主窗口在 ``_on_production_finished`` 时调用,展示本次成果卡。"""
+        if not hasattr(self, "_summary_card"):
+            return
+        self._summary_card.show_result(
+            project_path=project_path,
+            elapsed_seconds=elapsed_seconds,
+            file_size_bytes=file_size_bytes,
+            steps_completed=steps_completed,
+            steps_total=steps_total,
+        )
+
+    def clear_production_result(self) -> None:
+        """下次生产开始时主窗口调用,收起 Summary 卡。"""
+        if hasattr(self, "_summary_card"):
+            self._summary_card.clear()
+
+    def _summary_card_dismissed(self) -> None:
+        """Summary 卡被用户主动关闭的回调 — 仅记录,留作未来埋点。"""
+        # 当前不需要做任何事;这里保留 hook 是为了将来扩展(比如关闭次数埋点)
+        return None
 
     def _step_definitions(self) -> list[tuple[str, str, str]]:
         if self._vm is not None:
@@ -868,7 +953,8 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(12)
-        self._quality_section = section_title(t("production.section.quality_gate"))
+        self._quality_section = section_title(
+            t("production.section.quality_gate"))
         layout.addWidget(self._quality_section)
 
         for item in EXPORT_QUALITY_CHECKS:
@@ -975,7 +1061,8 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         self._cancel_btn.setText(t("production.run.cancel"))
         # Section titles
         if hasattr(self, "_pipeline_section"):
-            self._pipeline_section.setText(t("production.section.media_import"))
+            self._pipeline_section.setText(
+                t("production.section.media_import"))
         if hasattr(self, "_steps_section"):
             self._steps_section.setText(t("production.section.workflow_steps"))
         if hasattr(self, "_brief_section"):
@@ -988,7 +1075,8 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         if hasattr(self, "_emo_label"):
             self._emo_label.setText(t("production.tone_label"))
         # Placeholder only (don't clobber user input)
-        self._context_input.setPlaceholderText(t("production.theme_placeholder"))
+        self._context_input.setPlaceholderText(
+            t("production.theme_placeholder"))
         # Emotion combo: rebuild every visible item from the canonical
         # ``_EMOTION_KEYS`` so language switches update both label and
         # placeholder/selectable text. ``setItemText`` keeps the existing
@@ -998,17 +1086,27 @@ class ProductionPage(PaletteAwareMixin, QFrame):
                 self._emotion_combo.setItemText(index, t(key))
         # v2.5.0: 策略选择器与 SeriesContext 按钮文案刷新
         if hasattr(self, "_strategy_label"):
-            self._strategy_label.setText(t("production.strategy.label"))
+            self._strategy_label.setText(t("production.strategy.title"))
         if hasattr(self, "_strategy_help"):
             self._strategy_help.setText(t("production.strategy.help"))
-        if hasattr(self, "_series_edit_btn"):
-            self._series_edit_btn.setText(t("production.strategy.series_edit"))
+        # v2.5.0: 4 卡片策略选择器 + 媒体统计栏 + SeriesContext 预览
+        if hasattr(self, "_strategy_cards"):
+            self._strategy_cards.retranslate()
+        if hasattr(self, "_media_summary"):
+            self._media_summary.retranslate()
+        if hasattr(self, "_series_preview"):
+            self._series_preview.retranslate()
+        # v2.5.0 Phase 2: 生产完成 Summary 卡片文案刷新
+        if hasattr(self, "_summary_card"):
+            self._summary_card.retranslate()
+        # 向后兼容：若历史 UI 测试仍直接持有 _strategy_combo，保留旧逻辑
         if hasattr(self, "_strategy_combo"):
             for index, entry in enumerate(_STRATEGY_OPTIONS):
                 key = entry[1]
                 icon = entry[2]
                 if index < self._strategy_combo.count():
-                    self._strategy_combo.setItemText(index, f"{icon}  {t(key)}")
+                    self._strategy_combo.setItemText(
+                        index, f"{icon}  {t(key)}")
         # Dropzone
         self.dropzone.retranslate()
         # Step status: VM is the source of truth for runtime state. We only
@@ -1030,6 +1128,8 @@ class ProductionPage(PaletteAwareMixin, QFrame):
             return
         vm.step_status_changed.connect(self._refresh_step_status)
         vm.pipeline_state_changed.connect(self._refresh_pipeline_state)
+        # v2.5.0 Phase 3: ETA 变化时也刷新 step status 文本(active 文案会变)
+        vm.eta_changed.connect(lambda _eta: self._refresh_step_status())
         self._refresh_step_status()
         self._refresh_pipeline_state()
 
@@ -1038,11 +1138,18 @@ class ProductionPage(PaletteAwareMixin, QFrame):
         if self._vm is None or not self._step_rows:
             return
         statuses = self._vm.step_status
+        eta = self._vm.eta_seconds
         for index, (_row, _badge, _title, status_lbl, _num, _name) in enumerate(
             self._step_rows
         ):
             raw = statuses[index] if index < len(statuses) else "pending"
             label = self._vm.get_status_label(raw)
+            # v2.5.0 Phase 3: active 状态拼接 ETA 文案
+            # - eta is None  → 还没有历史数据(第 1 步进行中)
+            # - eta == 0.0   → 全部完成
+            # - eta > 0      → 基于滑动窗口平均的预测
+            if raw == "active":
+                label = _render_active_label(eta)
             color = {
                 "pending": _C.TEXT_DISABLED,
                 "active": _C.PRIMARY,
