@@ -154,10 +154,11 @@ describe("VideoPlanPreview", () => {
   });
 
   it("series 策略展示 episode 编号 + series_context", async () => {
-    // 首次 concat + 切到 series,两次 mock
-    invokeMock
-      .mockResolvedValueOnce(SAMPLE_PLANS_CONCAT)
-      .mockResolvedValueOnce(SAMPLE_PLANS_SERIES);
+    invokeMock.mockImplementation((_cmd, args) =>
+      args?.strategy === "series"
+        ? Promise.resolve(SAMPLE_PLANS_SERIES)
+        : Promise.resolve(SAMPLE_PLANS_CONCAT),
+    );
     setup(["/abs/a.mp4", "/abs/b.mp4"]);
 
     // 等待首次 concat 调用
@@ -165,8 +166,10 @@ describe("VideoPlanPreview", () => {
       expect(invokeMock).toHaveBeenCalledTimes(1);
     });
 
-    // 切到 series
+    // 切到 series 并填写 series_context
     fireEvent.click(screen.getByRole("button", { name: /系列/ }));
+    const seriesInput = await screen.findByPlaceholderText("例如：斗罗大陆第一季");
+    fireEvent.change(seriesInput, { target: { value: "vynaro-demo" } });
 
     await waitFor(() => {
       expect(invokeMock).toHaveBeenCalledWith(
