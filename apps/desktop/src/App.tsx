@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · App 根组件 (Gate 0)
+ * SceneFab v2.5.0 · App 根组件 (Gate 0)
  *
  * 阶段：M0 Gate 0 (最小可启动骨架) + TanStack Router 6 路由占位
  * 下一步 (M2)：

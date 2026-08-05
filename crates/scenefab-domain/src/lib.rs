@@ -1,4 +1,4 @@
-//! scenefab-domain v3.0 · 领域模型
+//! scenefab-domain v2.5.0 · 领域模型
 //!
 //! ## 责任范围
 //! 整个应用的"业务对象" — 不依赖任何基础设施 (无 IO / 无 HTTP / 无 IO error 类型)

@@ -64,7 +64,7 @@ function Hero() {
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
-            v3.0-alpha · 第一人称叙述已就绪
+            v2.5.0-alpha · 第一人称叙述已就绪
           </div>
 
           <h1 className="text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">

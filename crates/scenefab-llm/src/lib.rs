@@ -1,4 +1,4 @@
-//! scenefab-llm v3.0 · LlmProvider trait + 11 provider 真实实现 + LlmManager 故障切换
+//! scenefab-llm v2.5.0 · LlmProvider trait + 11 provider 真实实现 + LlmManager 故障切换
 //!
 //! ## 11 个 Provider (与 v2.4 config/llm.yaml 1:1)
 //! - Qwen (Qwen3-Max / Qwen-Plus / Qwen-Turbo)        — OpenAI 兼容

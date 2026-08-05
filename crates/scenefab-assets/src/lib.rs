@@ -1,4 +1,4 @@
-//! scenefab-assets v3.0 · 素材资产管理 (M3 后续完整实装)
+//! scenefab-assets v2.5.0 · 素材资产管理 (M3 后续完整实装)
 //!
 //! ## 责任范围
 //! - `assets_scan`        : 扫描目录,按 MIME 白名单返回可导入素材

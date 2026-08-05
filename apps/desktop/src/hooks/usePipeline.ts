@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 真实接通后端的流水线 hook (M3.2)
+ * SceneFab v2.5.0 · 真实接通后端的流水线 hook (M3.2)
  *
  * 数据源:Tauri 后端 PipelineService (state + step_statuses)
  * 实时性:listen "pipeline:event" + 主动 refetch pipeline_status

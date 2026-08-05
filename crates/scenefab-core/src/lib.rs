@@ -1,4 +1,4 @@
-//! scenefab-core v3.0 · 服务容器 + 错误 + Tracing 全应用基础设施
+//! scenefab-core v2.5.0 · 服务容器 + 错误 + Tracing 全应用基础设施
 //!
 //! ## 责任范围
 //! 提供整个应用共享的基础设施层:
