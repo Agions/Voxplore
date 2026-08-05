@@ -5,9 +5,9 @@
 
 use std::path::PathBuf;
 
+use tauri::{Manager, State};
 use vynaro_core::services::{ConfigService, ConfigSnapshot};
 use vynaro_core::AppContext;
-use tauri::{Manager, State};
 
 const CONFIG_FILE: &str = "config.json";
 

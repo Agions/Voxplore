@@ -12,12 +12,12 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use vynaro_domain::{ExportRecord, Project, ScriptSegment};
 use vynaro_detect::Ffmpeg;
+use vynaro_domain::{ExportRecord, Project, ScriptSegment};
 use vynaro_script::{LlmProvider, LlmRequest};
 use vynaro_voice::{TtsEngine, TtsRequest};
 
-use crate::{VynaroError, VynaroResult, StepExecutor};
+use crate::{StepExecutor, VynaroError, VynaroResult};
 
 // ════════════════════════════════════════════════════════════════════════
 // 依赖注入
@@ -49,13 +49,13 @@ impl std::fmt::Debug for PipelineDeps {
 /// 构造标准 7 步执行器列表 (与 STEPS 常量 1:1)。
 pub fn default_executors(deps: Arc<PipelineDeps>) -> Vec<Box<dyn StepExecutor>> {
     vec![
-        Box::new(IngestStep { deps: deps.clone() }),        // 0: intake
-        Box::new(SceneSplitStep { deps: deps.clone() }),    // 1: detect
-        Box::new(ScriptGenStep { deps: deps.clone() }),     // 2: script
+        Box::new(IngestStep { deps: deps.clone() }), // 0: intake
+        Box::new(SceneSplitStep { deps: deps.clone() }), // 1: detect
+        Box::new(ScriptGenStep { deps: deps.clone() }), // 2: script
         Box::new(VoiceCaptionsStep { deps: deps.clone() }), // 3: voice
-        Box::new(SubtitleStep { deps: deps.clone() }),      // 4: subtitle
-        Box::new(ComposeStep { deps: deps.clone() }),       // 5: compose
-        Box::new(ExportStep { deps }),                      // 6: export
+        Box::new(SubtitleStep { deps: deps.clone() }), // 4: subtitle
+        Box::new(ComposeStep { deps: deps.clone() }), // 5: compose
+        Box::new(ExportStep { deps }),               // 6: export
     ]
 }
 
@@ -400,8 +400,11 @@ impl StepExecutor for ComposeStep {
     }
 
     async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
-        tracing::info!("[compose] 正在为项目「{}」执行画面与音频智能对齐...", project.name);
-        
+        tracing::info!(
+            "[compose] 正在为项目「{}」执行画面与音频智能对齐...",
+            project.name
+        );
+
         let compose_dir = self.deps.workdir.join("compose");
         tokio::fs::create_dir_all(&compose_dir).await?;
 

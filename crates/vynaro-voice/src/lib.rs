@@ -17,8 +17,8 @@ use std::path::{Path, PathBuf};
 
 use async_trait::async_trait;
 use futures::{SinkExt, StreamExt};
-use vynaro_core::error::{VynaroError, VynaroResult};
 use tokio_tungstenite::tungstenite::Message;
+use vynaro_core::error::{VynaroError, VynaroResult};
 
 // 同时保留两个常用名称,方便业务侧 import 习惯
 pub use vynaro_core::error::TtsProviderKind;

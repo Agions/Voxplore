@@ -8,7 +8,10 @@ pub fn to_srt(track: &SubtitleTrack) -> Result<String, SubtitleError> {
     for entry in &track.entries {
         let start = ms_to_srt_time(entry.start_ms);
         let end = ms_to_srt_time(entry.end_ms);
-        out.push_str(&format!("{}\n{} --> {}\n{}\n\n", entry.index, start, end, entry.text));
+        out.push_str(&format!(
+            "{}\n{} --> {}\n{}\n\n",
+            entry.index, start, end, entry.text
+        ));
     }
     Ok(out)
 }

@@ -93,13 +93,16 @@ impl HelpRegistry {
     }
 
     pub fn list_by_category(&self, cat: HelpCategory) -> Vec<&HelpTopic> {
-        let mut list: Vec<&HelpTopic> = self.topics.values().filter(|t| t.category == cat).collect();
+        let mut list: Vec<&HelpTopic> =
+            self.topics.values().filter(|t| t.category == cat).collect();
         list.sort_by(|a, b| a.id.cmp(&b.id));
         list
     }
 
     pub fn get(&self, id: &str) -> Result<&HelpTopic, anyhow::Error> {
-        self.topics.get(id).ok_or_else(|| anyhow::anyhow!("未找到帮助主题: {id}"))
+        self.topics
+            .get(id)
+            .ok_or_else(|| anyhow::anyhow!("未找到帮助主题: {id}"))
     }
 
     pub fn search(&self, query: &str) -> Vec<SearchHit> {
@@ -129,7 +132,11 @@ impl HelpRegistry {
                 });
             }
         }
-        hits.sort_by(|a, b| b.score.cmp(&a.score).then_with(|| a.topic_id.cmp(&b.topic_id)));
+        hits.sort_by(|a, b| {
+            b.score
+                .cmp(&a.score)
+                .then_with(|| a.topic_id.cmp(&b.topic_id))
+        });
         hits
     }
 }

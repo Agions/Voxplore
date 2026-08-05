@@ -4,11 +4,11 @@
 
 use std::path::{Path, PathBuf};
 
+use tauri::{Manager, State};
 use vynaro_core::domain::Project;
 use vynaro_core::services::ProjectService;
 use vynaro_core::AppContext;
 use vynaro_domain::MediaFile;
-use tauri::{Manager, State};
 
 /// 列举最近项目 (M3.2 真实从 ProjectService 取)
 #[tauri::command]

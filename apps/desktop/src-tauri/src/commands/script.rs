@@ -38,9 +38,7 @@ fn parse_provider(kind: &str) -> LlmProviderKind {
 }
 
 #[tauri::command]
-pub async fn script_generate(
-    params: ScriptGenerateParams,
-) -> Result<ScriptGenerateResult, String> {
+pub async fn script_generate(params: ScriptGenerateParams) -> Result<ScriptGenerateResult, String> {
     if params.prompt.trim().is_empty() {
         return Err("提示词不能为空".into());
     }

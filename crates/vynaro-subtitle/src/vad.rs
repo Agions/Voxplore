@@ -92,9 +92,17 @@ pub async fn detect_segments(
     // 降级保底：若 FFmpeg 不可用或音频未就绪，返回合理切分区间
     tracing::info!("VAD 降级逻辑启动，生成默认切分区间");
     Ok(vec![
-        SpeechSegment { start_ms: 0, end_ms: 3200 },
-        SpeechSegment { start_ms: 3500, end_ms: 7800 },
-        SpeechSegment { start_ms: 8100, end_ms: 12400 },
+        SpeechSegment {
+            start_ms: 0,
+            end_ms: 3200,
+        },
+        SpeechSegment {
+            start_ms: 3500,
+            end_ms: 7800,
+        },
+        SpeechSegment {
+            start_ms: 8100,
+            end_ms: 12400,
+        },
     ])
 }
-

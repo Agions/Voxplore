@@ -6,9 +6,9 @@
 //! - 动态字幕：逐字高亮 + 情绪关键词变色
 //! - 双语字幕：中英双语同轨生成
 
+pub mod dynamic;
 pub mod formats;
 pub mod vad;
-pub mod dynamic;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

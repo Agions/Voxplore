@@ -47,24 +47,35 @@ pub async fn voice_preview(
         .map_err(|e| format!("创建 TTS 缓存目录失败: {e}"))?;
 
     let file_id = chrono::Utc::now().timestamp_millis();
-    let ext = if params.provider == "gpt-sovits" { "wav" } else { "mp3" };
+    let ext = if params.provider == "gpt-sovits" {
+        "wav"
+    } else {
+        "mp3"
+    };
     let output_path = tts_cache_dir.join(format!("preview_{file_id}.{ext}"));
 
     let config = match params.provider.as_str() {
         "open-ai" => TtsEngineConfig::OpenAi(OpenAiTtsOptions {
             api_key: params.api_key.unwrap_or_default(),
-            base_url: params.base_url.unwrap_or_else(|| "https://api.openai.com".into()),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "https://api.openai.com".into()),
             model: params.model.unwrap_or_else(|| "tts-1".into()),
             voice: params.voice.clone().unwrap_or_else(|| "alloy".into()),
         }),
         "gpt-sovits" => TtsEngineConfig::GptSovits(GptSovitsOptions {
-            base_url: params.base_url.unwrap_or_else(|| "http://127.0.0.1:9880".into()),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "http://127.0.0.1:9880".into()),
             ref_audio_path: params.ref_audio_path.unwrap_or_default(),
             prompt_text: params.prompt_text.unwrap_or_default(),
             prompt_lang: "zh".into(),
         }),
         _ => TtsEngineConfig::Edge(EdgeTtsOptions {
-            voice: params.voice.clone().unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
+            voice: params
+                .voice
+                .clone()
+                .unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
         }),
     };
 
@@ -101,18 +112,25 @@ pub async fn voice_synthesize(
     let config = match params.provider.as_str() {
         "open-ai" => TtsEngineConfig::OpenAi(OpenAiTtsOptions {
             api_key: params.api_key.unwrap_or_default(),
-            base_url: params.base_url.unwrap_or_else(|| "https://api.openai.com".into()),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "https://api.openai.com".into()),
             model: params.model.unwrap_or_else(|| "tts-1".into()),
             voice: params.voice.clone().unwrap_or_else(|| "alloy".into()),
         }),
         "gpt-sovits" => TtsEngineConfig::GptSovits(GptSovitsOptions {
-            base_url: params.base_url.unwrap_or_else(|| "http://127.0.0.1:9880".into()),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "http://127.0.0.1:9880".into()),
             ref_audio_path: params.ref_audio_path.unwrap_or_default(),
             prompt_text: params.prompt_text.unwrap_or_default(),
             prompt_lang: "zh".into(),
         }),
         _ => TtsEngineConfig::Edge(EdgeTtsOptions {
-            voice: params.voice.clone().unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
+            voice: params
+                .voice
+                .clone()
+                .unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
         }),
     };
 

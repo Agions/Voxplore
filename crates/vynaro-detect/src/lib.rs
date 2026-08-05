@@ -19,8 +19,8 @@
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
 
-use vynaro_core::error::{VynaroError, VynaroResult};
 use serde::{Deserialize, Serialize};
+use vynaro_core::error::{VynaroError, VynaroResult};
 
 // ════════════════════════════════════════════════════════════════════════
 // 数据结构
@@ -59,9 +59,8 @@ impl Ffmpeg {
     pub fn discover() -> VynaroResult<Self> {
         let ffmpeg = which("ffmpeg")
             .ok_or_else(|| VynaroError::Ffmpeg("ffmpeg 不在 PATH 中 (请先安装 ffmpeg)".into()))?;
-        let ffprobe = which("ffprobe").ok_or_else(|| {
-            VynaroError::Ffmpeg("ffprobe 不在 PATH 中 (请先安装 ffmpeg)".into())
-        })?;
+        let ffprobe = which("ffprobe")
+            .ok_or_else(|| VynaroError::Ffmpeg("ffprobe 不在 PATH 中 (请先安装 ffmpeg)".into()))?;
         Ok(Self {
             ffmpeg_bin: ffmpeg,
             ffprobe_bin: ffprobe,
@@ -112,11 +111,7 @@ impl Ffmpeg {
     // ── 场景检测 ────────────────────────────────────────────────────────
 
     /// select+showinfo 场景检测。返回切点时间列表 (秒)。
-    pub async fn detect_scenes(
-        &self,
-        input: &Path,
-        threshold: f64,
-    ) -> VynaroResult<Vec<SceneCut>> {
+    pub async fn detect_scenes(&self, input: &Path, threshold: f64) -> VynaroResult<Vec<SceneCut>> {
         let filter = format!("select='gt(scene,{threshold})',showinfo");
         let stderr = self
             .run_stderr(
@@ -196,12 +191,7 @@ impl Ffmpeg {
     }
 
     /// SRT 字幕烧录
-    pub async fn burn_captions(
-        &self,
-        input: &Path,
-        srt: &Path,
-        output: &Path,
-    ) -> VynaroResult<()> {
+    pub async fn burn_captions(&self, input: &Path, srt: &Path, output: &Path) -> VynaroResult<()> {
         // subtitles 滤镜需要转义路径中的特殊字符
         let srt_escaped = srt
             .to_string_lossy()

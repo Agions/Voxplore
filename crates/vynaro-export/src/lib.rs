@@ -28,9 +28,9 @@
 //! assert!(plan.ffmpeg_args.contains(&"libx264".to_string()));
 //! ```
 
-use vynaro_domain::ProjectSettings;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use vynaro_domain::ProjectSettings;
 
 // ════════════════════════════════════════════════════════════════════════
 // 错误类型
