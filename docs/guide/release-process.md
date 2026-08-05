@@ -1,11 +1,11 @@
 ---
 title: 发布流程
-description: SceneFab v3.0 桌面端的 GitHub Releases 发布、签名、CI 集成指引。
+description: SceneFab v2.5.0 桌面端的 GitHub Releases 发布、签名、CI 集成指引。
 ---
 
 # 发布流程
 
-本文档描述 SceneFab v3.0 桌面端（Tauri 2 + Rust + React 19）的工程化发布流程，覆盖：
+本文档描述 SceneFab v2.5.0 桌面端（Tauri 2 + Rust + React 19）的工程化发布流程，覆盖：
 
 - 版本号与 `Cargo.toml` / `tauri.conf.json` 同步
 - `tauri build` 三平台产物
@@ -26,7 +26,7 @@ description: SceneFab v3.0 桌面端的 GitHub Releases 发布、签名、CI 集
 发布前用一行脚本同步：
 
 ```bash
-NEW_VERSION="3.0.0-beta.1"
+NEW_VERSION="2.5.0-beta.1"
 sed -i '' "s/^version = \"[^\"]*\"$/version = \"$NEW_VERSION\"/" \
   apps/desktop/src-tauri/Cargo.toml
 # tauri.conf.json 需手工 update(避免 JSON 转义问题)
@@ -89,12 +89,12 @@ strategy:
 
 ```bash
 # 1. 推 tag
-git tag v3.0.0-beta.1
-git push origin v3.0.0-beta.1
+git tag v2.5.0-beta.1
+git push origin v2.5.0-beta.1
 
 # 2. gh CLI 创建 release + 上传 bundle
-gh release create v3.0.0-beta.1 \
-  --title "SceneFab v3.0.0-beta.1" \
+gh release create v2.5.0-beta.1 \
+  --title "SceneFab v2.5.0-beta.1" \
   --notes-file .github/RELEASE_TEMPLATE.md \
   apps/desktop/src-tauri/target/**/bundle/**/*.dmg \
   apps/desktop/src-tauri/target/**/bundle/**/*.msi \
@@ -110,17 +110,17 @@ release 标题必须以 `v` 开头（`scenefab-update` 内部 `tag_name.trim_sta
 
 ```bash
 # 上传前生成
-shasum -a 256 SceneFab_3.0.0-beta.1_aarch64.dmg > SceneFab_3.0.0-beta.1_aarch64.dmg.sha256
-gh release upload v3.0.0-beta.1 SceneFab_3.0.0-beta.1_aarch64.dmg.sha256
+shasum -a 256 SceneFab_2.5.0-beta.1_aarch64.dmg > SceneFab_2.5.0-beta.1_aarch64.dmg.sha256
+gh release upload v2.5.0-beta.1 SceneFab_2.5.0-beta.1_aarch64.dmg.sha256
 ```
 
 或者更优的做法 — 把 SHA-256 直接写入 `Asset.digest`（GitHub 在 web UI 自动生成），`scenefab-update` 会读取：
 
 ```json
 {
-  "name": "SceneFab_3.0.0-beta.1_aarch64.dmg",
+  "name": "SceneFab_2.5.0-beta.1_aarch64.dmg",
   "digest": "sha256:abc123...",
-  "browser_download_url": "https://github.com/.../SceneFab_3.0.0-beta.1_aarch64.dmg"
+  "browser_download_url": "https://github.com/.../SceneFab_2.5.0-beta.1_aarch64.dmg"
 }
 ```
 
