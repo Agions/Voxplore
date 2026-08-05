@@ -34,7 +34,7 @@ pub async fn subtitle_generate(
     let mut items = Vec::new();
     let mut curr_sec = 0.0f64;
 
-    for (_idx, line) in lines.iter().enumerate() {
+    for line in &lines {
         let clean = line
             .replace("[激烈冲突]", "")
             .replace("[情绪高潮]", "")
