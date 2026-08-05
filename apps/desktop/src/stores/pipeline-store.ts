@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · pipeline store (Zustand)
+ * Vynaro v2.5.0 · pipeline store (Zustand)
  *
  * 设计:
  * - state: idle | running | done | failed

@@ -1,9 +1,9 @@
 ---
 name: 🐛 Bug 报告 / Bug Report
 about: 报告一个问题帮助我们改进 / Report a bug to help us improve
-title: '[Bug] '
+title: "[Bug] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## 🐛 问题描述 / Bug Description
@@ -30,10 +30,9 @@ assignees: ''
 
 ## 🖥️ 环境信息 / Environment
 
-- OS: [e.g. macOS 14.0 / Windows 11]
-- Python 版本 / Python Version: [e.g. 3.11]
-- SceneFab 版本 / Version: [e.g. 3.0.0]
-- 使用的 AI 模型 / AI Model: [e.g. GPT-4o]
+- OS: [e.g. macOS 14.0 / Windows 11 / Ubuntu 22.04]
+- Vynaro 版本 / Version: [e.g. 2.5.0]
+- 使用的 AI 模型 / AI Model: [e.g. Kimi K3 / DeepSeek-V4]
 
 ## 📋 错误日志 / Error Logs
 

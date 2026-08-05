@@ -1,7 +1,7 @@
 {
-  "name": "scenefab-docs",
+  "name": "vynaro-docs",
   "version": "1.0.0",
-  "description": "SceneFab documentation",
+  "description": "Vynaro documentation",
   "type": "module",
   "scripts": {
     "docs:build": "vitepress build",

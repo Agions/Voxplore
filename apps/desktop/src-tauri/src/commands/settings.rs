@@ -5,8 +5,8 @@
 
 use std::path::PathBuf;
 
-use scenefab_core::services::{ConfigService, ConfigSnapshot};
-use scenefab_core::AppContext;
+use vynaro_core::services::{ConfigService, ConfigSnapshot};
+use vynaro_core::AppContext;
 use tauri::{Manager, State};
 
 const CONFIG_FILE: &str = "config.json";

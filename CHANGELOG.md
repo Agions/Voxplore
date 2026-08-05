@@ -1,6 +1,6 @@
 # 更新日志
 
-本文件记录 SceneFab 所有重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本控制](https://semver.org/lang/zh-CN/)。
+本文件记录 Vynaro 所有重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本控制](https://semver.org/lang/zh-CN/)。
 
 ---
 
@@ -8,17 +8,17 @@
 
 ## [2.5.0] - 2026-08-05
 
-> SceneFab v2.5.0 — **Rust + Tauri 2 + React 主线正式确立**。Python v2.4 主线退役冻结。
+> Vynaro v2.5.0 — **Rust + Tauri 2 + React 主线正式确立**。Python v2.4 主线退役冻结。
 
 ### 🚀 Features (Rust 13 + Tauri 2 主线)
 
 - **feat(rust): Rust workspace 13 个领域 crate**（commit `4fc4cd3`）
-  - `scenefab-core` · `scenefab-domain` · `scenefab-ffmpeg` · `scenefab-llm` (11 Provider)
-  - `scenefab-tts` (3 引擎) · `scenefab-video` · `scenefab-export`
-  - `scenefab-pipeline` (5 步状态机 + DAG) · `scenefab-plugin` (WASM 运行时)
-  - `scenefab-update` · `scenefab-help` · `scenefab-i18n` · `scenefab-assets`
+  - `vynaro-core` · `vynaro-domain` · `vynaro-ffmpeg` · `vynaro-llm` (11 Provider)
+  - `vynaro-tts` (3 引擎) · `vynaro-video` · `vynaro-export`
+  - `vynaro-pipeline` (5 步状态机 + DAG) · `vynaro-plugin` (WASM 运行时)
+  - `vynaro-update` · `vynaro-help` · `vynaro-i18n` · `vynaro-assets`
   - workspace root `version = 2.5.0`，所有 14 个 scenefab package 共享
-    (本版本后又移除 scenefab-cli → 现为 13 领域 crate + 1 Tauri entry)
+    (本版本后又移除 vynaro-cli → 现为 13 领域 crate + 1 Tauri entry)
 
 - **feat(tauri): Tauri 2.0 集成 + 10 个 domain command + Capability ACL**（commit `e399073`）
   - `greet` + 9 业务 command（app / assets / export / help / pipeline / project / settings / theme / update）
@@ -30,7 +30,7 @@
   - TanStack Router/Query v5 · Zustand v5 · XState v5 · cmdk 命令面板
   - 同时删除 538 个 Python v2.4 旧主线文件（`src/app/` · `tests/services` · `docs_bundle/` · `uv.lock` · `main.py`）
 
-- **chore(rust): 移除 scenefab-cli crate**（commit `57226ba`）
+- **chore(rust): 移除 vynaro-cli crate**（commit `57226ba`）
   - 纯桌面端无需独立 CLI 入口，3 个文件 + workspace member 一并清理
   - workspace 收敛为 13 个领域 crate + 1 个 Tauri entry（14 个 package）
 
@@ -40,7 +40,7 @@
   - 仅触动 4 个版本号配置文件 + `Cargo.lock` 同步：
     `Cargo.toml` · `apps/desktop/src-tauri/Cargo.toml` · `tauri.conf.json` · `package.json`
   - 业务代码 / 文档 / commit message 历史全部不动
-  - cargo metadata 现报告 scenefab-\* package 一律 version = 2.5.0
+  - cargo metadata 现报告 vynaro-\* package 一律 version = 2.5.0
 
 - **chore(governance): Python v2.4 主线退役存档**（commit `75ce862`）
   - 退役公告与历史说明保留在 `CHANGELOG.md` 主体中，不再单列文件
@@ -89,7 +89,7 @@
 ```text
 51b771c  fix(routes):   修正 help.test.tsx 的 HelpPage import 路径
 24f92bc  docs(readme):  重写根 README · 反映 v2.5.0 真实工程状态
-57226ba  chore(rust):   移除 scenefab-cli crate
+57226ba  chore(rust):   移除 vynaro-cli crate
 9076878  docs(refactor): 撤回 docs/refactor/v3-migration/ 入库
 038eab4  chore(release): 版本号回滚 v3.0.0-alpha.0 → v2.5.0
 eb484a3  docs(refactor): v3.0 迁移方案文档完整入库 (历史痕迹，已被 9076878 抵消)
@@ -161,7 +161,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ### 🎨 Brand & Docs (v2.4.0 品牌重塑 + 文档升级, 6 commits)
 
-**触发**: "作为资深架构师，帮我完全重写 scene-fab 项目的 docs 下的在线文档、README.md、logo 和资源图片，设计必须好看专业，使用，大气、美观" (2026-07-03)
+**触发**: "作为资深架构师，帮我完全重写 vynaro 项目的 docs 下的在线文档、README.md、logo 和资源图片，设计必须好看专业，使用，大气、美观" (2026-07-03)
 
 - **feat(brand): redesign logo system + render pipeline** (commit `fdd7e73`) — 22 files +788/-153
   - 3 SVG 重设计: `assets/logo-mark.svg` (256²) + `assets/logo-horizontal.svg` (512×128) + `docs/public/favicon.svg` (32²)
@@ -193,7 +193,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 **修复的隐藏 bug**:
 
 - 🐛 `docs/public/og-image.png` 一直**不存在** (`config.ts` og:image 引用但从未创建), 现已新建 1280×640 社交卡片
-- 🐛 `resources/app_icon.svg` 违反自家 `resources/README.md` "text-free" 原则 (有 SceneFab 文字), 现已无文字版
+- 🐛 `resources/app_icon.svg` 违反自家 `resources/README.md` "text-free" 原则 (有 Vynaro 文字), 现已无文字版
 - 🐛 cspell 字典漏 `Pydantic` 和 `uvicorn` (技术栈合法词), 现已加入
 
 **校验全过**:
@@ -204,11 +204,11 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 **GitHub repo 校准**:
 
-- description: scene-fab - AI 影视解说创作工具 | 智能拆条 · AI 解说生成 · 一键配音合成 ✓ (已对齐)
+- description: vynaro - AI 影视解说创作工具 | 智能拆条 · AI 解说生成 · 一键配音合成 ✓ (已对齐)
 - topics: +'brand-redesign' +'vitepress' (新增双主题 + 文档站)
-- 详见 `references/scene-fab-brand-redesign-2026-07-03.md` (待沉淀)
+- 详见 `references/vynaro-brand-redesign-2026-07-03.md` (待沉淀)
 
-**参考经验**: frame-fab 2026-07-02 (13 步全栈重写, 65 files) + project-brand-redesign skill 沉淀 + scene-fab 2026-06-02 三 PR saga (避免 squash 漏文件 + shields.io 偏好)
+**参考经验**: frame-fab 2026-07-02 (13 步全栈重写, 65 files) + project-brand-redesign skill 沉淀 + vynaro 2026-06-02 三 PR saga (避免 squash 漏文件 + shields.io 偏好)
 
 ### 🛠️ CI / Docs
 
@@ -226,7 +226,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
     5. `--remap '^/ ...'` 失败(v0.24 只接受字面前缀, 不接受正则)
   - **最终方案**: workflow 加 sed 预处理 step, `](/guide/...)` → `](https://internal.invalid/guide/...)`, 配合 `.lychee.toml` exclude 占位 host
   - **CI 验证**: run #28633088278 ✅ Total 40 / Successful 7 / Errors 0
-  - **新增 4 层 docs CI** (本次扩展): format / lint / spellcheck / links(内部) / **links(外部)** — 见 `references/scene-fab-docs-ci-4layer-2026-07-02.md`
+  - **新增 4 层 docs CI** (本次扩展): format / lint / spellcheck / links(内部) / **links(外部)** — 见 `references/vynaro-docs-ci-4layer-2026-07-02.md`
 
 ### 🔮 后续 (P2 候选, 暂未实现)
 
@@ -237,7 +237,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.4.0] - 2026-07-01
 
-> SceneFab v2.4.0 — UI 架构全面升级: Phase 1 ~ 3+ 闭环 (ViewModel 化 + 暗色主题 + 运行时切换)
+> Vynaro v2.4.0 — UI 架构全面升级: Phase 1 ~ 3+ 闭环 (ViewModel 化 + 暗色主题 + 运行时切换)
 
 5 个子阶段累计落地, 39 commits (5 月底 → 7 月初), 净增 UI 模块化分层 + 实时主题切换端到端。
 
@@ -249,7 +249,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
   - `ui/main/page_router.py`(新): 页面懒加载 + 路由
   - `ui/main/system_tray.py`(新): 系统托盘生命周期
   - `ui/main/controls.py`(新): `ToggleSwitch` 抽离
-  - `SceneFabMainWindow` 从 273 行(6 职责)缩为装配器, 接 `application=` 注入 (Phase 2 留口)
+  - `VynaroMainWindow` 从 273 行(6 职责)缩为装配器, 接 `application=` 注入 (Phase 2 留口)
   - 755 passed / 1 skipped (基线 562 → +193 项目成长)
 
 - **feat(ui): HomePage ViewModel + service injection** (commit `4098e0d`) — Phase 2A, 4 张状态卡接 `ProjectManager` 实时数据
@@ -285,7 +285,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 - **feat(ui): wire 2B+1 live runner — env-gated MonologueMaker integration**
   - `ProductionPageViewModel` 新增 `runner_mode` 属性 (`"noop"` / `"live"`) + `_setup_pipeline()` + `_live_runner()` factory
-  - `runner_mode` 由 `_has_runtime_keys()` 决定 — 检查 `SCENEFAB_TTS_KEY` / `SCENEFAB_LLM_KEY` 环境变量
+  - `runner_mode` 由 `_has_runtime_keys()` 决定 — 检查 `VYNARO_TTS_KEY` / `VYNARO_LLM_KEY` 环境变量
   - live mode 下: `_setup_pipeline` 调 `maker.create_project(src, ctx)`, 失败自动降级 noop 并打 warning
   - 4 个新测试: runner_mode 默认 noop / env 触发 live / `_has_runtime_keys` 单元 / live 失败降级 noop
 
@@ -309,7 +309,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
   - `ui/theme/runtime.py`(新): `restyle_app(app=None) -> int` 遍历 `QApplication.allWidgets()`, 对每个 widget 调 `style().unpolish(w) / polish(w) / w.update()`; headless/无 QApplication 路径返回 0
   - `ThemeAwareMixin` 让 `QWidget` 派生类持 `_build_stylesheet: Callable[[], str]`, `apply_theme()` 重新求值并 `setStyleSheet(qss)` 返回新 QSS
   - `ui/theme/__init__.py`(新): 包级 re-export `restyle_app` / `ThemeAwareMixin` / `set_theme_mode` / `get_theme_mode` / 全部 design token, 统一入口
-  - `SceneFabMainWindow(QMainWindow, ThemeAwareMixin)`: 初始化时 `setStyleSheet(build_global_stylesheet())`, 通过 `_wire_theme_switcher()` 懒连接 `SettingsPage.theme_changed` signal (用 `_theme_signal_wired` flag 去重, 因为 router 缓存页面会重复 visit)
+  - `VynaroMainWindow(QMainWindow, ThemeAwareMixin)`: 初始化时 `setStyleSheet(build_global_stylesheet())`, 通过 `_wire_theme_switcher()` 懒连接 `SettingsPage.theme_changed` signal (用 `_theme_signal_wired` flag 去重, 因为 router 缓存页面会重复 visit)
   - `_on_theme_switched(mode)`: 完整切换链 `set_theme_mode(mode)` → `self.apply_theme()` → 遍历 `router._page_map` 找所有 `ThemeAwareMixin` 页面 `apply_theme()` → `restyle_app()` 重 polish 非主题 widget (e.g. native dialog)
   - `SettingsPage(QFrame, ThemeAwareMixin)`: 新增 `_appearance_group` (浅色/深色 combo), `currentIndexChanged` 触发 `theme_changed` signal 传 `"light"` / `"dark"`; 同时提供 `set_theme_mode_index(mode)` 在 startup 时从 QSettings 恢复用户偏好
   - `docs/public/logo-horizontal.svg`(新): 暗色主题配套横版 logo (与正方形 logo 同色系, 横版布局适配 512x128)
@@ -321,9 +321,9 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
   - 修法: `pytest.skip(allow_module_level=True)` + `(ImportError, OSError)` 双抓 — pytest 官方"module unavailable" pattern
   - 本地有 libEGL → 7/7 跑; CI runner 无 libEGL → 7/7 SKIPPED (exit 0)
 
-- **refactor(ui): drop zombie re-export of SceneFabMainWindow from `__init__`** (commit `eac6059`, P1 架构清理)
-  - `scenefab.ui.__init__` 删除 `from .main.main_window import SceneFabMainWindow` + `__all__`
-  - **价值**: 解 `import scenefab.ui.viewmodels.X` → `scenefab.ui.__init__` → `SceneFabMainWindow` → `PySide6.QtWidgets` → libEGL 链
+- **refactor(ui): drop zombie re-export of VynaroMainWindow from `__init__`** (commit `eac6059`, P1 架构清理)
+  - `scenefab.ui.__init__` 删除 `from .main.main_window import VynaroMainWindow` + `__all__`
+  - **价值**: 解 `import scenefab.ui.viewmodels.X` → `scenefab.ui.__init__` → `VynaroMainWindow` → `PySide6.QtWidgets` → libEGL 链
   - **根本原因** — 06-30 早 + 06-30 晚两轮 libEGL 修复的根因
 
 ### 🧪 Tests
@@ -339,16 +339,16 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ### ⚠️ 不兼容变更
 
-- `SceneFabMainWindow` 必传 `application=` 参数(主入口 `main.py` 已同步)
+- `VynaroMainWindow` 必传 `application=` 参数(主入口 `main.py` 已同步)
 - 页面元数据 (导航 / 标题 / 工厂) 统一从 `scenefab.ui.main.registry` 导入
 - `PageBuilder` 签名变更: `(Application | None) -> QWidget`, 第三方自定义 page builder 需要更新
-- `scenefab.ui.__init__` 不再 re-export `SceneFabMainWindow`, 显式路径 `from scenefab.ui.main.main_window import SceneFabMainWindow`
+- `scenefab.ui.__init__` 不再 re-export `VynaroMainWindow`, 显式路径 `from scenefab.ui.main.main_window import VynaroMainWindow`
 
 ---
 
 ## [2.3.0] - 2026-06-26
 
-> SceneFab v2.3.0 — 代码审计 + 2 P1 安全修复 + API/UI 测试覆盖补齐
+> Vynaro v2.3.0 — 代码审计 + 2 P1 安全修复 + API/UI 测试覆盖补齐
 
 ### 🐛 Bug Fixes
 
@@ -363,7 +363,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 - **refactor(llm): narrow HTTPClientMixin.\_call_api** — 改前 `except Exception` (宽 catch, 吞 RuntimeError/TypeError), 改后异常分两段 catch: `httpx.HTTPStatusError` → `_handle_http_error`, `httpx.HTTPError` → `ProviderError("网络错误")`, `json.JSONDecodeError/ValueError` → `ProviderError("响应解析")`. 真 bug 不再被吞
 - **chore(cleanup): jianying_exporter.py MaterialType 注释** — pyflakes 报 "unused", 实际是间接 re-export (不在 `__all__` 但与其他 adapter 类型对齐). 注释明确为 "package-private" + 指引测试用 `from jianying_adapter import` 直路径
 - **test(api): 补 api/ 0% 测试覆盖** — 18 个集成测试覆盖 5 个 router (health/pipeline/plugins/export/projects) + 全局异常处理 + 路由顺序
-- **test(ui): 补 ui/ 0% 测试覆盖** — 8 个 headless-safe smoke test 覆盖 SceneFabMainWindow 类结构 + 子模块 import + theme 模块
+- **test(ui): 补 ui/ 0% 测试覆盖** — 8 个 headless-safe smoke test 覆盖 VynaroMainWindow 类结构 + 子模块 import + theme 模块
 - **style: ruff auto-fix 49 lint errors + skip ui smoke in headless CI** (commit `fff0168`) — R13 audit 引入 49 个 ruff 错 (17 F401 + 15 I001 + 2 F841 + 8 UP0xx + 1 B007) 未跑 `ruff --fix`. `--fix --unsafe-fixes` 全自动清零, 19 文件 +39/-52. **0 行为变化**
 - **chore(dead-code): drop 2 unused plugin example plugins (-655 LOC)** (commit `fcc8203`) — Dim 14 dead-file scan 报 40 候选, pytest 验证后仅 2 真死 (`plugins/examples/cinematic_subtitle` + `plugins/examples/deepseek_ai_generator`). 其余 38 个是 `_EXPORTS` lazy import / relative `__init__.py` import / `__main__.py` 隐式引用 / startup smoke test 引用 — 全保. **净效果**: 2 files / 655 LOC 真死删除, 0 行为变化
 
@@ -396,7 +396,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.2.0] - 2026-06-25
 
-> SceneFab v2.2.0 — 深度架构重构（PR #88）+ API 安全加固
+> Vynaro v2.2.0 — 深度架构重构（PR #88）+ API 安全加固
 
 ### 🚀 Features
 
@@ -437,7 +437,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.1.2] - 2026-06-22
 
-> SceneFab v2.1.2 — 模型目录统一 · 架构精简 · 文档专业重设计
+> Vynaro v2.1.2 — 模型目录统一 · 架构精简 · 文档专业重设计
 
 ### 新增
 
@@ -489,7 +489,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.1.1] - 2026-06-16
 
-> SceneFab v2.1.1 — 解说生成状态机 + 架构基线清理
+> Vynaro v2.1.1 — 解说生成状态机 + 架构基线清理
 
 ### 新增
 
@@ -506,7 +506,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.1.0] - 2026-06-04
 
-> SceneFab v2.1.0 — 架构升级：单源真相事件总线 + 类型化领域事件 + DI 现代化
+> Vynaro v2.1.0 — 架构升级：单源真相事件总线 + 类型化领域事件 + DI 现代化
 
 ### 新增
 
@@ -532,7 +532,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [2.0.0] - 2026-06-04
 
-> SceneFab v2.0.0 — 短剧解说特化与 DAG 并行流水线
+> Vynaro v2.0.0 — 短剧解说特化与 DAG 并行流水线
 
 ### 新增
 
@@ -557,7 +557,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [1.1.0] - 2026-06-02
 
-> SceneFab v1.1.0 — 大型架构重构与质量改进
+> Vynaro v1.1.0 — 大型架构重构与质量改进
 
 ### 改进
 
@@ -572,7 +572,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [1.0.1] - 2026-05-31
 
-> SceneFab v1.0.1 — 修复 GUI 启动问题
+> Vynaro v1.0.1 — 修复 GUI 启动问题
 
 ### 修复
 
@@ -583,7 +583,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ## [1.0.0] - 2026-05-31
 
-> SceneFab v1.0.0 — 首个正式发行版。
+> Vynaro v1.0.0 — 首个正式发行版。
 
 ### 核心功能
 

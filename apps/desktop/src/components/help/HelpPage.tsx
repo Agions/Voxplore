@@ -1,7 +1,7 @@
 /**
- * SceneFab v2.5.0 · HelpPage · 帮助页主体组件 (M4.5)
+ * Vynaro v2.5.0 · HelpPage · 帮助页主体组件 (M4.5)
  *
- * 接入 scenefab-help IPC:
+ * 接入 vynaro-help IPC:
  * - help_topics:分类拉取所有主题(替代旧硬编码 6 张 RESOURCES)
  * - help_topic_get:详情 modal(展示 markdown content)
  * - help_search:加权全文搜索(标题/关键词/摘要/正文)
@@ -130,12 +130,12 @@ export function HelpPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-12 px-8 py-12">
       <header className="space-y-2">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
-          Help
+        <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3 py-0.5 text-xs font-semibold text-[var(--color-gold)]">
+          <span>💡</span> Help Center
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">帮助</h1>
-        <p className="text-sm text-zinc-500">
-          当前版本 v{version ?? "—"} · 检查更新请见右上角菜单
+        <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">帮助与指南</h1>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          当前版本 v{version ?? "—"} · 快捷键速查与全量功能指南
         </p>
       </header>
 
@@ -173,7 +173,7 @@ export function HelpPage() {
         <SectionHeader
           kicker="学习"
           title="文档资源"
-          subtitle="由后端 scenefab-help 实时提供"
+          subtitle="由后端 vynaro-help 实时提供"
         />
 
         {/* 分类 chip */}
@@ -188,11 +188,10 @@ export function HelpPage() {
                   setCategory(f.value);
                   setSearchInput("");
                 }}
-                className={`rounded-full border px-3 py-1 text-xs transition ${
-                  active
-                    ? "border-violet-500/60 bg-violet-500/15 text-violet-100"
-                    : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                }`}
+                className={`rounded-full border px-3.5 py-1 text-xs font-semibold transition ${active
+                    ? "border-[var(--color-gold)] bg-[rgba(245,200,66,0.12)] text-[var(--color-gold)]"
+                    : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)]/40 hover:text-[var(--color-text-primary)]"
+                  }`}
               >
                 {f.label}
               </button>
@@ -202,7 +201,7 @@ export function HelpPage() {
 
         {/* 搜索框 */}
         <div className="relative mb-6">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-secondary)]">
             🔍
           </span>
           <input
@@ -210,7 +209,7 @@ export function HelpPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="搜索主题 (标题/关键词/正文加权)…"
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-900/40 py-2.5 pl-9 pr-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-violet-500"
+            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)]"
           />
           {searchFetching && (
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
@@ -256,12 +255,12 @@ export function HelpPage() {
           <div className="space-y-1">
             <div className="text-sm font-semibold text-zinc-100">遇到问题?</div>
             <div className="text-xs text-zinc-500">
-              查看日志或反馈给我们,有助于 SceneFab 越变越好
+              查看日志或反馈给我们,有助于 Vynaro 越变越好
             </div>
           </div>
           <div className="flex gap-2">
             <a
-              href="https://github.com/qingshanyanyu/SceneFab/issues"
+              href="https://github.com/agions/Vynaro/issues"
               target="_blank"
               rel="noreferrer"
               className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs text-zinc-200 transition hover:border-zinc-500"
@@ -269,7 +268,7 @@ export function HelpPage() {
               提交 Issue
             </a>
             <a
-              href="https://github.com/qingshanyanyu/SceneFab/discussions"
+              href="https://github.com/agions/Vynaro/discussions"
               target="_blank"
               rel="noreferrer"
               className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs text-zinc-200 transition hover:border-zinc-500"
@@ -432,13 +431,13 @@ function SectionHeader({
 }) {
   return (
     <div className="mb-4 space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-gold)]">
         {kicker}
       </div>
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
+      <h2 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
         {title}
       </h2>
-      <p className="text-sm text-zinc-500">{subtitle}</p>
+      <p className="text-sm text-[var(--color-text-secondary)]">{subtitle}</p>
     </div>
   );
 }

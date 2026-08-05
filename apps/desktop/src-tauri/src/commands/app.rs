@@ -1,8 +1,8 @@
 //! src-tauri 命令 · app 元信息 + 系统探测
 
 use chrono::{DateTime, Utc};
-use scenefab_core::AppContext;
-use scenefab_ffmpeg::Ffmpeg;
+use vynaro_core::AppContext;
+use vynaro_detect::Ffmpeg;
 use serde::Serialize;
 use tauri::State;
 

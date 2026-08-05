@@ -7,9 +7,9 @@
 //!
 //! 所有命令通过 `AppContext.services` 解析 `AssetService` 单例。
 
-use scenefab_assets::{AssetService, ScanResult, ThumbnailResult};
-use scenefab_core::AppContext;
-use scenefab_ffmpeg::FfmpegProbe;
+use vynaro_storage::{AssetService, ScanResult, ThumbnailResult};
+use vynaro_core::AppContext;
+use vynaro_detect::FfmpegProbe;
 use tauri::State;
 
 /// 扫描目录,返回可导入素材条目列表

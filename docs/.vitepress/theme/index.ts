@@ -1,5 +1,5 @@
 /**
- * SceneFab VitePress Theme
+ * Vynaro VitePress Theme
  * 使用默认主题 + 自定义CSS
  */
 

@@ -10,8 +10,6 @@ const SIDEBAR = [
       { text: "安装指南", link: "/guide/installation" },
       { text: "AI 配置", link: "/guide/ai-configuration" },
       { text: "界面说明", link: "/guide/interface" },
-      { text: "CLI 参考", link: "/guide/cli-reference" },
-      { text: "Python API", link: "/guide/python-api" },
     ],
   },
   {
@@ -31,12 +29,14 @@ const SIDEBAR = [
 ];
 
 export default defineConfig({
-  title: "SceneFab",
+  title: "Vynaro",
   description:
-    "SceneFab 第一人称影视/短剧解说生产文档，覆盖素材、脚本、配音、字幕、导出和发布复盘。",
-  base: "/scene-fab/",
+    "Vynaro 第一人称影视/短剧解说生产文档，覆盖素材、脚本、配音、字幕、导出和发布复盘。",
+  base: "/vynaro/",
   lang: "zh-CN",
   cleanUrls: false,
+  // 默认深色主题，保留手动切换。
+  appearance: "dark",
   // 死链作为构建错误（此前被 true 掩盖）。新增页面/链接若拼错会在 CI 暴露。
   ignoreDeadLinks: false,
   lastUpdated: true,
@@ -55,7 +55,7 @@ export default defineConfig({
       {
         name: "keywords",
         content:
-          "短剧解说,第一人称解说,影视解说,AI脚本,自动配音,AI字幕,竖屏导出,SceneFab",
+          "短剧解说,第一人称解说,影视解说,AI脚本,自动配音,AI字幕,竖屏导出,Vynaro",
       },
     ],
     ["meta", { name: "author", content: "Agions" }],
@@ -67,7 +67,7 @@ export default defineConfig({
       "meta",
       {
         property: "og:title",
-        content: "SceneFab 文档中心 — 第一人称影视解说生产流程",
+        content: "Vynaro 文档中心 — 第一人称影视解说生产流程",
       },
     ],
     [
@@ -82,18 +82,18 @@ export default defineConfig({
       "meta",
       {
         property: "og:image",
-        content: "https://agions.github.io/scene-fab/og-image.png",
+        content: "https://agions.github.io/vynaro/og-image.png",
       },
     ],
     [
       "meta",
-      { property: "og:url", content: "https://agions.github.io/scene-fab/" },
+      { property: "og:url", content: "https://agions.github.io/vynaro/" },
     ],
-    ["meta", { property: "og:site_name", content: "SceneFab" }],
+    ["meta", { property: "og:site_name", content: "Vynaro" }],
 
     // Twitter / X
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
-    ["meta", { name: "twitter:title", content: "SceneFab 文档中心" }],
+    ["meta", { name: "twitter:title", content: "Vynaro 文档中心" }],
     [
       "meta",
       {
@@ -105,7 +105,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:image",
-        content: "https://agions.github.io/scene-fab/og-image.png",
+        content: "https://agions.github.io/vynaro/og-image.png",
       },
     ],
 
@@ -131,22 +131,14 @@ export default defineConfig({
 
   themeConfig: {
     // ── Logo & Site Title ──────────────────────────────────
-    // 升级到新品牌资产 (v2.4.0 重设计):
-    //   - /logo.svg        → 新 logo-mark.svg (256², dark bg + cyan/violet gradient)
-    //   - /logo-horizontal.svg → 新横版 logo (README/docs 头部)
-    //   - /favicon.svg     → 浏览器标签 (32²)
-    //
-    // VitePress logo 字段类型 ThemeableImage,支持:
-    //   string | { src, alt } | { light, dark, alt }
-    // 用第三种 { light, dark } 平铺结构 (不是 { src: { light, dark } }!),
-    // 让 logo 随主题自动切换 (用户切到 light 模式不会出现黑底白字问题)。
+    // VitePress logo 字段类型 ThemeableImage，用 { light, dark } 平铺结构，
+    // 让 logo 随主题自动切换。
     logo: {
       dark: "/logo.svg",
       light: "/logo-light.svg",
-      alt: "SceneFab",
+      alt: "Vynaro",
     },
-    siteTitle: "SceneFab",
-    appearance: "dark",
+    siteTitle: "Vynaro",
 
     // ── Last Updated ────────────────────────────────────────
     lastUpdated: {
@@ -161,7 +153,6 @@ export default defineConfig({
     search: {
       provider: "local",
       options: {
-        placeholder: "搜索文档...",
         translations: {
           button: {
             buttonText: "搜索",
@@ -185,8 +176,6 @@ export default defineConfig({
           { text: "安装指南", link: "/guide/installation" },
           { text: "AI 配置", link: "/guide/ai-configuration" },
           { text: "界面说明", link: "/guide/interface" },
-          { text: "CLI 参考", link: "/guide/cli-reference" },
-          { text: "Python API", link: "/guide/python-api" },
         ],
       },
       {
@@ -200,24 +189,6 @@ export default defineConfig({
       {
         text: "帮助",
         items: [{ text: "疑难排查", link: "/guide/troubleshooting" }],
-      },
-      {
-        text: "重构档案",
-        items: [
-          { text: "总览与 ADR", link: "/refactor/00-overview" },
-          { text: "架构审计", link: "/refactor/01-architecture-audit" },
-          { text: "多文件上传方案", link: "/refactor/02-multi-video-upload" },
-          {
-            text: "第一人称解说规范",
-            link: "/refactor/03-first-person-narration",
-          },
-          { text: "代码精简", link: "/refactor/04-code-cleanup" },
-          { text: "过时内容清理", link: "/refactor/05-legacy-removal" },
-          { text: "文档清理", link: "/refactor/06-doc-cleanup" },
-          { text: "UI 重设计", link: "/refactor/07-ui-redesign" },
-          { text: "实施路线图", link: "/refactor/08-implementation-roadmap" },
-          { text: "风险矩阵", link: "/refactor/09-risk-matrix" },
-        ],
       },
     ],
 
@@ -238,7 +209,7 @@ export default defineConfig({
 
     // ── Footer ──────────────────────────────────────────────
     footer: {
-      message: "SceneFab 文档中心 · 面向影视/短剧第一人称解说生产",
+      message: "Vynaro 文档中心 · 面向影视/短剧第一人称解说生产",
       copyright: "Copyright © 2025-2026 Agions · 隐私优先 · 本地处理",
     },
 
@@ -256,7 +227,7 @@ export default defineConfig({
 
   // ── Sitemap ────────────────────────────────────────────────
   sitemap: {
-    hostname: "https://agions.github.io/scene-fab/",
+    hostname: "https://agions.github.io/vynaro/",
     lastmodDateOnly: true,
   },
 });

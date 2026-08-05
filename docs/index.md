@@ -1,10 +1,10 @@
 ---
 layout: home
-title: SceneFab · AI 影视解说一站式生产平台
+title: Vynaro · AI 影视解说一站式生产平台
 titleTemplate: false
 
 hero:
-  name: SceneFab
+  name: Vynaro
   text: 影视解说，从素材到成片
   tagline: 用 AI 把"理解剧情 → 写脚本 → 配语音 → 对字幕 → 多平台导出"串成标准化流水线。<br/>第一人称视角 · 短剧桥段识别 · 多模型交叉审核 · 本地优先处理。
   actions:
@@ -16,7 +16,7 @@ hero:
       link: /guide/first-person-narration-production
     - theme: alt
       text: ⭐ GitHub
-      link: https://github.com/Agions/scene-fab
+      link: https://github.com/Agions/vynaro
 
 features:
   - icon: 🎬
@@ -46,7 +46,7 @@ const roleCards = [
   {
     label: '新用户',
     title: '3 步上手',
-    text: '安装 SceneFab → 配置 API Key → 启动 GUI，10 分钟完成第一次解说创作。',
+    text: '安装 Vynaro → 配置 API Key → 启动 GUI，10 分钟完成第一次解说创作。',
     link: '/guide/quick-start',
     icon: '🚀'
   },
@@ -198,8 +198,8 @@ const techStack = [
     <p class="sf-cta-text">3 步安装、配置和首次运行，10 分钟完成从素材到成片。</p>
     <div class="sf-cta-actions">
       <a class="sf-cta-btn sf-cta-btn-primary" :href="withBase('/guide/quick-start')">🚀 快速开始</a>
-      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/scene-fab/releases">📥 下载安装</a>
-      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/scene-fab">⭐ GitHub 仓库</a>
+      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/vynaro/releases">📥 下载安装</a>
+      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/vynaro">⭐ GitHub 仓库</a>
     </div>
   </div>
 </section>

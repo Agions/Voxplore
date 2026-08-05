@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · 素材 probe 转换 纯函数单测
+ * Vynaro v2.5.0 · 素材 probe 转换 纯函数单测
  *
  * 覆盖:
  * - pathToMediaFileEmpty: path 保留 / 默认值正确 / ISO 时间戳

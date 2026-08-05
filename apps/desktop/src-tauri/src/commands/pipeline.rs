@@ -1,23 +1,23 @@
-//! src-tauri 命令 · pipeline 5 步定义 + 运行时 (M3.2)
+//! src-tauri 命令 · pipeline 7 步定义 + 运行时 (M3.2)
 //!
-//! 设计:
-//! - 状态查询 (`pipeline_status`) 同步返回 PipelineStatus
-//! - 启动 (`pipeline_start`) 把 5 步流水线 spawn 成 tokio 任务,立刻返回
-//! - 事件桥接: 后台任务 subscribe broadcast → emit Tauri event "pipeline:event"
+//! 支持的 commands:
+//! - `pipeline_step_defs` 查询预置 7 步元数据
+//! - 启动 (`pipeline_start`) 把 7 步流水线 spawn 成 tokio 任务,立刻返回
+//! - 取消 (`pipeline_cancel`) / 重设 (`pipeline_reset`) / 状态查询 (`pipeline_status`)
 
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use scenefab_core::services::{ConfigService, ConfigSnapshot};
-use scenefab_core::AppContext;
-use scenefab_ffmpeg::Ffmpeg;
-use scenefab_llm::factory;
-use scenefab_llm::LlmProviderKind;
-use scenefab_pipeline::executors::PipelineDeps;
-use scenefab_pipeline::service::{PipelineService, PipelineStatus};
-use scenefab_pipeline::{Project, StepDef, STEPS};
-use scenefab_tts::engine;
-use scenefab_tts::{
+use vynaro_core::services::{ConfigService, ConfigSnapshot};
+use vynaro_core::AppContext;
+use vynaro_detect::Ffmpeg;
+use vynaro_script::factory;
+use vynaro_script::LlmProviderKind;
+use vynaro_compose::executors::PipelineDeps;
+use vynaro_compose::service::{PipelineService, PipelineStatus};
+use vynaro_compose::{Project, StepDef, STEPS};
+use vynaro_voice::engine;
+use vynaro_voice::{
     EdgeTtsOptions, GptSovitsOptions, OpenAiTtsOptions, TtsEngineConfig, TtsProviderKind,
 };
 use tauri::{Emitter, State};
@@ -172,7 +172,7 @@ fn build_deps(
         llm,
         tts,
         ffmpeg,
-        workdir: PathBuf::from(workdir.unwrap_or_else(|| "/tmp/scenefab-workdir".to_string())),
+        workdir: PathBuf::from(workdir.unwrap_or_else(|| "/tmp/vynaro-workdir".to_string())),
     })
 }
 

@@ -1,6 +1,6 @@
 ---
 title: 快速开始
-description: 3 步上手 SceneFab，开始 AI 影视解说创作。
+description: 3 步上手 Vynaro，开始 AI 影视解说创作。
 ---
 
 # 快速开始
@@ -9,99 +9,66 @@ description: 3 步上手 SceneFab，开始 AI 影视解说创作。
 
 ## 第一步：安装
 
-安装 SceneFab 并确认 FFmpeg 可用：
+从 [GitHub Releases](https://github.com/Agions/vynaro/releases) 下载对应平台的安装包：
 
-```bash
-pip install scenefab
-```
+| 平台    | 安装包                                                  |
+| ------- | ------------------------------------------------------- |
+| Windows | `.msi` 或 `.exe`                                        |
+| macOS   | `.dmg`（首次打开需在「系统设置 → 隐私与安全性」中允许） |
+| Linux   | `.AppImage` 或 `.deb`                                   |
 
-验证 FFmpeg：
+安装完成后从开始菜单 / 启动台打开 **Vynaro**。
 
-```bash
-ffmpeg -version
-# 应输出：ffmpeg version 6.x ...
-```
+> 从源码运行开发版请见 [安装指南](/guide/installation)。
 
-如果 FFmpeg 未安装：
+## 第二步：配置 AI 服务
 
-- **macOS**：`brew install ffmpeg`
-- **Ubuntu/Debian**：`sudo apt install ffmpeg`
-- **Windows**：通过 winget 或 [ffmpeg.org](https://ffmpeg.org) 下载
+打开应用内 **设置** 页面，填入至少一个 AI 服务商的 API Key：
 
-## 第二步：配置
-
-编辑 `config/llm.yaml`，填入至少一个 API Key：
-
-```yaml
-LLM:
-  default_provider: "qwen"
-
-  qwen:
-    enabled: true
-    api_key: "sk-your-qwen-key"
-    model: "qwen3.7-max"
-
-  deepseek:
-    enabled: true
-    api_key: "sk-your-deepseek-key"
-    model: "deepseek-v4-pro"
-```
+1. **Provider**：选择解说稿生成所使用的服务商（如 Kimi / DeepSeek / Qwen）
+2. **API Key**：粘贴你的密钥
+3. **Model**（可选）：默认使用所选 Provider 的推荐模型
 
 API Key 获取方式：
 
-- **Qwen (阿里云百炼)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+- **Kimi (月之暗面)** — [platform.moonshot.cn](https://platform.moonshot.cn)
 - **DeepSeek** — [platform.deepseek.com](https://platform.deepseek.com)
+- **Qwen (阿里云百炼)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
 
-### 可选：环境变量方式
+所有配置仅保存在本地，绝不外传。完整的多服务商配置说明见 [AI 配置](/guide/ai-configuration)。
 
-在项目根目录创建 `.env` 文件：
+## 第三步：确认 FFmpeg 可用
 
-```bash
-DEEPSEEK_API_KEY=sk-your-deepseek-key
-QWEN_API_KEY=sk-your-qwen-key
-```
-
-## 第三步：运行
-
-启动 SceneFab：
+Vynaro 依赖系统级 FFmpeg 进行视频合成：
 
 ```bash
-scenefab
+ffmpeg -version
+# 应输出：ffmpeg version 6.x 或更高 ...
 ```
 
-验证安装：
+如果未安装：
 
-```bash
-scenefab --version
-# 应输出：scene-fab v2.2.3
-```
-
-### 常见卡点
-
-| 问题 | 解决 |
-|------|------|
-| `No module named 'scenefab'` | 确认使用 `pip install scenefab`，而非 `python -m pip` |
-| `ffmpeg not found` | 安装 FFmpeg 后重启终端 |
-| GUI 启动失败 | 安装 PySide6：`pip install PySide6`，或使用命令行模式 |
-| API Key 无效 | 检查 `config/llm.yaml` 中的 Key 是否正确，无多余空格 |
+- **macOS**：`brew install ffmpeg`
+- **Ubuntu/Debian**：`sudo apt install ffmpeg`
+- **Windows**：`winget install ffmpeg` 或从 [ffmpeg.org](https://ffmpeg.org) 下载并加入 PATH
 
 ## 验证成功
 
-运行以下命令确认一切正常：
+- 应用正常启动，进入项目首页
+- 设置页面中 Provider 显示为已选择的服务商
+- `ffmpeg -version` 输出正常
 
-```bash
-# 1. 检查版本
-scenefab --version
+## 常见卡点
 
-# 2. 检查配置
-cat config/llm.yaml
-
-# 3. 检查 FFmpeg
-ffmpeg -version | head -1
-```
+| 问题                       | 解决                               |
+| -------------------------- | ---------------------------------- |
+| macOS 提示"无法验证开发者" | 系统设置 → 隐私与安全性 → 仍要打开 |
+| `ffmpeg not found`         | 安装 FFmpeg 后重启应用             |
+| API Key 无效（401）        | 检查 Key 是否复制完整，无多余空格  |
+| 调用限流（429）            | 稍后重试或切换其他 Provider        |
 
 ## 下一步
 
-- [安装指南](/guide/installation) — 各平台完整安装步骤
+- [安装指南](/guide/installation) — 各平台完整安装与源码构建步骤
 - [AI 配置](/guide/ai-configuration) — 多服务商配置详解
 - [界面介绍](/guide/interface) — 了解桌面界面

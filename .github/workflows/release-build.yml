@@ -57,7 +57,7 @@ jobs:
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "version_tag=v${VERSION}" >> $GITHUB_OUTPUT
-          echo "📦 Building SceneFab v${VERSION}"
+          echo "📦 Building Vynaro v${VERSION}"
 
   # ─────────────────────────────────────────────
   # Job 2: 发布到 PyPI
@@ -130,7 +130,7 @@ jobs:
           uv run pyinstaller \
             --clean \
             --onedir \
-            --name "SceneFab-${{ env.VERSION }}-windows-x64" \
+            --name "Vynaro-${{ env.VERSION }}-windows-x64" \
             --add-data "resources;resources" \
             --hidden-import=PySide6 \
             --hidden-import=PySide6.QtCore \
@@ -157,14 +157,14 @@ jobs:
 
       - name: Package as zip
         run: |
-          powershell -Command "Compress-Archive -Force 'dist\SceneFab-${{ env.VERSION }}-windows-x64\*' 'dist\SceneFab-${{ env.VERSION }}-windows-x64.zip'"
+          powershell -Command "Compress-Archive -Force 'dist\Vynaro-${{ env.VERSION }}-windows-x64\*' 'dist\Vynaro-${{ env.VERSION }}-windows-x64.zip'"
           dir dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SceneFab-windows-x64
-          path: dist/SceneFab-${{ env.VERSION }}-windows-x64.zip
+          name: Vynaro-windows-x64
+          path: dist/Vynaro-${{ env.VERSION }}-windows-x64.zip
           retention-days: 5
 
   # ─────────────────────────────────────────────
@@ -200,7 +200,7 @@ jobs:
           uv run pyinstaller \
             --clean \
             --onedir \
-            --name "SceneFab-${{ env.VERSION }}-macos-x64" \
+            --name "Vynaro-${{ env.VERSION }}-macos-x64" \
             --windowed \
             --add-data "resources:resources" \
             --hidden-import=PySide6 \
@@ -228,10 +228,10 @@ jobs:
 
       - name: Create app bundle
         run: |
-          APP_NAME="SceneFab.app"
+          APP_NAME="Vynaro.app"
           mkdir -p "$APP_NAME/Contents/MacOS"
           mkdir -p "$APP_NAME/Contents/Resources"
-          cp -r "dist/SceneFab-${{ env.VERSION }}-macos-x64/"* "$APP_NAME/Contents/MacOS/"
+          cp -r "dist/Vynaro-${{ env.VERSION }}-macos-x64/"* "$APP_NAME/Contents/MacOS/"
           cp -r resources "$APP_NAME/Contents/"
           chmod -R a+rX "$APP_NAME"
 
@@ -239,25 +239,25 @@ jobs:
         run: |
           if command -v create-dmg &> /dev/null; then
             create-dmg \
-              --volname "SceneFab" \
+              --volname "Vynaro" \
               --window-size 600 400 \
-              --icon "SceneFab.app" 150 185 \
+              --icon "Vynaro.app" 150 185 \
               --app-drop-link 450 185 \
-              "SceneFab-${{ env.VERSION }}-macos-x64.dmg" \
-              "SceneFab.app"
+              "Vynaro-${{ env.VERSION }}-macos-x64.dmg" \
+              "Vynaro.app"
           else
-            hdiutil create -volname "SceneFab" \
-              -srcfolder "SceneFab.app" \
+            hdiutil create -volname "Vynaro" \
+              -srcfolder "Vynaro.app" \
               -ov -format UDZO \
-              "SceneFab-${{ env.VERSION }}-macos-x64.dmg"
+              "Vynaro-${{ env.VERSION }}-macos-x64.dmg"
           fi
           ls -lh *.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SceneFab-macos-x64
-          path: SceneFab-${{ env.VERSION }}-macos-x64.dmg
+          name: Vynaro-macos-x64
+          path: Vynaro-${{ env.VERSION }}-macos-x64.dmg
           retention-days: 5
 
   # ─────────────────────────────────────────────
@@ -293,7 +293,7 @@ jobs:
           uv run pyinstaller \
             --clean \
             --onedir \
-            --name "SceneFab-${{ env.VERSION }}-macos-arm64" \
+            --name "Vynaro-${{ env.VERSION }}-macos-arm64" \
             --windowed \
             --add-data "resources:resources" \
             --hidden-import=PySide6 \
@@ -321,10 +321,10 @@ jobs:
 
       - name: Create app bundle
         run: |
-          APP_NAME="SceneFab.app"
+          APP_NAME="Vynaro.app"
           mkdir -p "$APP_NAME/Contents/MacOS"
           mkdir -p "$APP_NAME/Contents/Resources"
-          cp -r "dist/SceneFab-${{ env.VERSION }}-macos-arm64/"* "$APP_NAME/Contents/MacOS/"
+          cp -r "dist/Vynaro-${{ env.VERSION }}-macos-arm64/"* "$APP_NAME/Contents/MacOS/"
           cp -r resources "$APP_NAME/Contents/"
           chmod -R a+rX "$APP_NAME"
 
@@ -332,25 +332,25 @@ jobs:
         run: |
           if command -v create-dmg &> /dev/null; then
             create-dmg \
-              --volname "SceneFab" \
+              --volname "Vynaro" \
               --window-size 600 400 \
-              --icon "SceneFab.app" 150 185 \
+              --icon "Vynaro.app" 150 185 \
               --app-drop-link 450 185 \
-              "SceneFab-${{ env.VERSION }}-macos-arm64.dmg" \
-              "SceneFab.app"
+              "Vynaro-${{ env.VERSION }}-macos-arm64.dmg" \
+              "Vynaro.app"
           else
-            hdiutil create -volname "SceneFab" \
-              -srcfolder "SceneFab.app" \
+            hdiutil create -volname "Vynaro" \
+              -srcfolder "Vynaro.app" \
               -ov -format UDZO \
-              "SceneFab-${{ env.VERSION }}-macos-arm64.dmg"
+              "Vynaro-${{ env.VERSION }}-macos-arm64.dmg"
           fi
           ls -lh *.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SceneFab-macos-arm64
-          path: SceneFab-${{ env.VERSION }}-macos-arm64.dmg
+          name: Vynaro-macos-arm64
+          path: Vynaro-${{ env.VERSION }}-macos-arm64.dmg
           retention-days: 5
 
   # ─────────────────────────────────────────────
@@ -393,7 +393,7 @@ jobs:
           uv run pyinstaller \
             --clean \
             --onefile \
-            --name "SceneFab-${{ env.VERSION }}-linux-x86_64" \
+            --name "Vynaro-${{ env.VERSION }}-linux-x86_64" \
             --add-data "resources:resources" \
             --hidden-import=PySide6 \
             --hidden-import=PySide6.QtCore \
@@ -421,8 +421,8 @@ jobs:
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SceneFab-linux-x86_64
-          path: dist/SceneFab-${{ env.VERSION }}-linux-x86_64
+          name: Vynaro-linux-x86_64
+          path: dist/Vynaro-${{ env.VERSION }}-linux-x86_64
           retention-days: 90
 
   # ─────────────────────────────────────────────
@@ -452,7 +452,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION_TAG }}
-          name: SceneFab ${{ env.VERSION_TAG }}
+          name: Vynaro ${{ env.VERSION_TAG }}
           draft: false
           # 不自动 generate release notes（保留 release body 模板）
           generate_release_notes: false
@@ -468,12 +468,12 @@ jobs:
             1. 点击上方 **Actions** 标签
             2. 选择 **Release Build** workflow
             3. 点击对应构建 run
-            4. 在 Artifacts 中下载 `SceneFab-linux-x86_64`
+            4. 在 Artifacts 中下载 `Vynaro-linux-x86_64`
 
             ```bash
             # 下载后赋予执行权限
-            chmod +x SceneFab-4.0.0-linux-x86_64
-            ./SceneFab-4.0.0-linux-x86_64
+            chmod +x Vynaro-4.0.0-linux-x86_64
+            ./Vynaro-4.0.0-linux-x86_64
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

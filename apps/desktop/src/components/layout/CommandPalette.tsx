@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · ⌘K 全局命令面板 (M4)
+ * Vynaro v2.5.0 · ⌘K 全局命令面板 (M4)
  *
  * - 使用 cmdk 作为命令面板核心 (已在 deps)
  * - 4 个分类:
@@ -54,7 +54,7 @@ export function CommandPalette() {
     const id = toast.loading("正在检查更新...");
     try {
       const r = await fetch(
-        "https://api.github.com/repos/qingshanyanyu/SceneFab/releases/latest",
+        "https://api.github.com/repos/qingshanyanyu/Vynaro/releases/latest",
       );
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = (await r.json()) as { tag_name?: string };
@@ -331,9 +331,14 @@ export function CommandPalette() {
     return groups;
   }, [allItems]);
 
-  // ⌘K / Ctrl+K 全局开关
+  // ⌘K / Ctrl+K 全局开关 与 ESC 关闭
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && useUiStore.getState().commandPaletteOpen) {
+        e.preventDefault();
+        close();
+        return;
+      }
       const mod = e.metaKey || e.ctrlKey;
       if (mod && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
@@ -385,7 +390,10 @@ export function CommandPalette() {
               placeholder="输入命令、页面或动作…"
               className="flex-1 bg-transparent text-base text-zinc-100 placeholder-zinc-600 outline-none"
             />
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+            <kbd
+              onClick={close}
+              className="cursor-pointer rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 hover:border-zinc-600 hover:text-zinc-100"
+            >
               ESC
             </kbd>
           </div>
@@ -477,6 +485,7 @@ function PaletteItem({ item }: { item: ActionItem }) {
     <Command.Item
       value={`${item.label} ${item.keywords ?? ""}`}
       onSelect={() => void item.run()}
+      onClick={() => void item.run()}
       className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm text-zinc-200 aria-selected:bg-gradient-to-r aria-selected:from-violet-500/15 aria-selected:via-fuchsia-500/10 aria-selected:to-blue-500/15 aria-selected:text-zinc-50 data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-violet-500/15 data-[selected=true]:via-fuchsia-500/10 data-[selected=true]:to-blue-500/15 data-[selected=true]:text-zinc-50"
     >
       <div className="flex items-center gap-3 truncate">

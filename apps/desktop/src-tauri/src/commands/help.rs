@@ -1,4 +1,4 @@
-//! src-tauri 命令 · help (M5.7 · 接 scenefab-help)
+//! src-tauri 命令 · help (M5.7 · 接 vynaro-help)
 //!
 //! - help_topics: 全量主题列表 (可按分类过滤)
 //! - help_topic_get: 按 id 取单篇主题 (含 markdown 正文)
@@ -7,7 +7,7 @@
 //! `HelpRegistry::with_defaults()` 在 lib.rs 中 `.manage()` 注入,
 //! 内置 6 篇默认主题与前端 HelpPage 卡片对应。
 
-use scenefab_help::{HelpCategory, HelpRegistry, HelpTopic, SearchHit};
+use vynaro_core::{HelpCategory, HelpRegistry, HelpTopic, SearchHit};
 use tauri::State;
 
 /// 全量主题列表。category 非空时按分类过滤 (kebab-case,非法分类返回错误)。

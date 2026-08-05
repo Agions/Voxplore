@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · 素材 hook (M3 后续完整实装)
+ * Vynaro v2.5.0 · 素材 hook (M3 后续完整实装)
  *
  * 数据源:
  * - 单一真相源 = project.media_files (从 useProjectStore.current 派生)
@@ -19,7 +19,7 @@
  * - M3 后续接入 ffmpeg probe 后,import 真实写入 duration/resolution/codec/size
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { assetsIpc, projectIpc } from "../ipc/commands";
 import { useAssetsStore } from "../stores/assets-store";
@@ -29,9 +29,16 @@ import type {
   AssetEntry,
   FfmpegProbe,
   MediaFile,
+  Project,
   ScanResult,
   ThumbnailResult,
 } from "../ipc/types.gen";
+
+/** QueryClient 缓存中的项目记录结构 (必须与 ProjectRecord 一致) */
+interface CachedProjectRecord {
+  path: string;
+  project: Project;
+}
 
 export interface UseAssetsReturn {
   /** 当前项目下素材 ID 列表 (path 作为 ID) */
@@ -57,7 +64,7 @@ export interface UseAssetsReturn {
 
   /**
    * 生成首帧缩略图
-   * - 写入 ~/.cache/scenefab/thumb/<sha256>.jpg
+   * - 写入 ~/.cache/vynaro/thumb/<sha256>.jpg
    * - 返回本地路径,前端用 file:// 或 convertFileSrc 加载
    */
   thumbnail: (path: string, width?: number) => Promise<ThumbnailResult>;
@@ -88,7 +95,7 @@ export interface UseAssetsReturn {
 
   /** 异步操作状态 */
   loading: boolean;
-  /** 最近一次失败信息 (SceneFabError 或 Error) */
+  /** 最近一次失败信息 (VynaroError 或 Error) */
   error: unknown;
 }
 
@@ -100,9 +107,25 @@ export interface UseAssetsReturn {
  */
 export function useAssets(): UseAssetsReturn {
   const qc = useQueryClient();
-  const current = useProjectStore((s) => s.current);
-  const currentPath = useProjectStore((s) => s.currentPath);
+
+  // 主数据源: useProjectStore
+  const storeProject = useProjectStore((s) => s.current);
+  const storePath = useProjectStore((s) => s.currentPath);
+  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
   const setCurrent = useProjectStore((s) => s.setCurrent);
+
+  // ✅ 关键修复: 当 store 为空时从 QueryClient 缓存回退
+  // 这样即使调用方没有手动 setCurrentRecord，导入也能正常工作
+  const cachedRec = qc.getQueryData<CachedProjectRecord>(["current-project"]);
+  const current = storeProject ?? cachedRec?.project ?? null;
+  const currentPath = storePath ?? cachedRec?.path ?? null;
+
+  // 如果 store 为空但 cache 有数据，在 effect 里同步（避免 render 期间 setState）
+  useEffect(() => {
+    if (!storeProject && cachedRec) {
+      setCurrentRecord(cachedRec.path, cachedRec.project);
+    }
+  }, [storeProject, cachedRec, setCurrentRecord]);
 
   const setIds = useAssetsStore((s) => s.setIds);
 
@@ -124,14 +147,17 @@ export function useAssets(): UseAssetsReturn {
       setCurrent(project);
       const pathIds = project.media_files.map((m) => m.path);
       setIds(pathIds);
+      // ✅ 保持 ProjectRecord {path, project} 结构，避免覆盖掉 path 字段
+      const existingRec = qc.getQueryData<CachedProjectRecord>(["current-project"]);
+      const rec: CachedProjectRecord = { path: existingRec?.path ?? currentPath ?? "", project };
       for (const key of [
         ["current-project"],
         ["assets-current-project"],
       ] as const) {
-        qc.setQueryData(key, project);
+        qc.setQueryData(key, rec);
       }
     },
-    [setCurrent, setIds, qc],
+    [setCurrent, setIds, qc, currentPath],
   );
 
   // ─── 4 个新 actions (scan / probe / thumbnail / search) ──────

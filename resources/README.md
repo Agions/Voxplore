@@ -1,7 +1,7 @@
 # Resources
 
-本目录是 SceneFab 桌面端的**视觉资源层**,存放图标、应用资产和品牌素材。资源层
-不承担运行时逻辑——Rust 后端 (scenefab-core / scenefab-assets) 与 React 前端
+本目录是 Vynaro 桌面端的**视觉资源层**,存放图标、应用资产和品牌素材。资源层
+不承担运行时逻辑——Rust 后端 (vynaro-core / vynaro-assets) 与 React 前端
 (apps/desktop) 负责行为,本目录只提供可加载的资产。
 
 ## 设计方向
@@ -37,7 +37,7 @@ resources/
 
 ## 品牌识别 (v2.5.0 重设计)
 
-SceneFab 品牌识别系统由以下 SVG 资产构成 (详见 `assets/logo-mark.svg` /
+Vynaro 品牌识别系统由以下 SVG 资产构成 (详见 `assets/logo-mark.svg` /
 `assets/logo-horizontal.svg` / `docs/public/favicon.svg`):
 
 | 资产                         | 用途                                    | viewBox  |

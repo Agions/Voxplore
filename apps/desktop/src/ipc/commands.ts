@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · IPC Commands 类型化包装
+ * Vynaro v2.5.0 · IPC Commands 类型化包装
  *
  * 设计:
  * - 每个方法直接对应一个 Tauri command,compile-time 类型由 types.gen.ts 保障
@@ -26,13 +26,21 @@ import type {
   ProjectRecord,
   ProjectSettings,
   ScanResult,
+  ScriptGenerateParams,
+  ScriptGenerateResult,
   SearchHit,
   SubtitleFormat,
   SubtitleItem,
   ThumbnailResult,
+  CapcutDraftResult,
+  DetectScenesResult,
+  SubtitleGenerateParams,
+  SubtitleGenerateResult,
   UpdateInfo,
   UpdateInstallResult,
   UpdateState,
+  VoicePreviewParams,
+  VoicePreviewResult,
 } from "./types.gen";
 
 // 类型 re-export (业务侧只用 ipc/commands 一处入口)
@@ -118,7 +126,7 @@ export const assetsIpc = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
-// export · 导出参数规划 + 字幕渲染 + 多视频编排 (4/4 · M4.5 接 scenefab-export / scenefab-video)
+// export · 导出参数规划 + 字幕渲染 + 多视频编排
 // ─────────────────────────────────────────────────────────────────────────
 
 export const exportIpc = {
@@ -128,6 +136,18 @@ export const exportIpc = {
     callIpc("export_validate_params", { params }),
   renderSubtitles: (items: SubtitleItem[], format: SubtitleFormat) =>
     callIpc("export_render_subtitles", { items, format }),
+  capcutDraft: (projectName: string, targetDir?: string | null): Promise<CapcutDraftResult> =>
+    callIpc("export_capcut_draft", { projectName, targetDir: targetDir ?? null }),
+} as const;
+
+export const detectIpc = {
+  scenes: (filePath: string, threshold?: number | null): Promise<DetectScenesResult> =>
+    callIpc("detect_scenes", { filePath, threshold: threshold ?? null }),
+} as const;
+
+export const subtitleIpc = {
+  generate: (params: SubtitleGenerateParams): Promise<SubtitleGenerateResult> =>
+    callIpc("subtitle_generate", { params }),
 } as const;
 
 export const videoIpc = {
@@ -144,7 +164,7 @@ export const videoIpc = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
-// help · 内置帮助主题 + 加权搜索 (3/3 · M5.7 接 scenefab-help)
+// help · 内置帮助主题 + 加权搜索 (3/3 · M5.7 接 vynaro-help)
 // ─────────────────────────────────────────────────────────────────────────
 
 export const helpIpc = {
@@ -157,7 +177,7 @@ export const helpIpc = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
-// theme · 后端文案 / Locale 切换 (3/3 · M5.6 接 scenefab-i18n)
+// theme · 后端文案 / Locale 切换 (3/3 · M5.6 接 vynaro-i18n)
 // ─────────────────────────────────────────────────────────────────────────
 
 export const themeIpc = {
@@ -168,6 +188,29 @@ export const themeIpc = {
     key: string,
     args?: Record<string, string> | null,
   ): Promise<string> => callIpc("i18n_translate", { key, args: args ?? null }),
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────
+// voice · TTS 试听与合成
+// ─────────────────────────────────────────────────────────────────────────
+
+export const voiceIpc = {
+  preview: (params: VoicePreviewParams): Promise<VoicePreviewResult> =>
+    callIpc("voice_preview", { params }),
+  synthesize: (
+    params: VoicePreviewParams,
+    outputPath: string,
+  ): Promise<VoicePreviewResult> =>
+    callIpc("voice_synthesize", { params, outputPath }),
+} as const;
+
+// ─────────────────────────────────────────────────────────────────────────
+// script · AI 独白脚本生成
+// ─────────────────────────────────────────────────────────────────────────
+
+export const scriptIpc = {
+  generate: (params: ScriptGenerateParams): Promise<ScriptGenerateResult> =>
+    callIpc("script_generate", { params }),
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -185,6 +228,8 @@ export const ipc = {
   video: videoIpc,
   help: helpIpc,
   theme: themeIpc,
+  voice: voiceIpc,
+  script: scriptIpc,
 } as const;
 
 export type IpcFacade = typeof ipc;

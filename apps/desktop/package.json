@@ -1,9 +1,9 @@
 {
-  "name": "scenefab",
+  "name": "vynaro",
   "private": true,
   "version": "2.5.0",
   "type": "module",
-  "description": "SceneFab v2.5.0 · Tauri + React 桌面应用 (迁移自 Python v2.4)",
+  "description": "Vynaro v2.5.0 · Tauri + React 桌面应用 (迁移自 Python v2.4)",
   "scripts": {
     "gen:ipc": "node scripts/gen-ipc.mjs",
     "gen:ipc:check": "node scripts/gen-ipc.mjs --check",

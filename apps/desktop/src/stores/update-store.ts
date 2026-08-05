@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · update store (Zustand)
+ * Vynaro v2.5.0 · update store (Zustand)
  *
  * 设计 (M4 完整实装):
  * - 镜像后端 UpdateState 完整快照 (单源真相)

@@ -1,8 +1,8 @@
 /**
- * SceneFab v2.5.0 · SceneFabError → 用户可读
+ * Vynaro v2.5.0 · VynaroError → 用户可读
  *
  * 设计 (README §06):
- * - 后端 9 类 SceneFabError (Io/Config/Llm/Tts/Ffmpeg/Project/Pipeline/Plugin/Updater/Other)
+ * - 后端 9 类 VynaroError (Io/Config/Llm/Tts/Ffmpeg/Project/Pipeline/Plugin/Updater/Other)
  *   序列化为 { kind, message } 抛到前端
  * - 此层负责:
  *   1) 错误归类 (kind → 人类可读 category,用于 UI 提示与埋点)
@@ -11,7 +11,7 @@
  *   4) 安全脱敏 (message 中的密钥/api_key/token 截断显示)
  */
 
-import type { SceneFabError } from "./types.gen";
+import type { VynaroError } from "./types.gen";
 
 /** 错误归类:决定 i18n 命名空间与是否弹 toast */
 export type ErrorCategory =
@@ -26,7 +26,7 @@ export type ErrorCategory =
   | "updater" // 升级错误
   | "other"; // 兜底
 
-export const ERROR_CATEGORY: Record<SceneFabError["kind"], ErrorCategory> = {
+export const ERROR_CATEGORY: Record<VynaroError["kind"], ErrorCategory> = {
   io: "io",
   config: "config",
   llm: "llm",
@@ -54,12 +54,12 @@ export const RETRYABLE: Record<ErrorCategory, boolean> = {
 };
 
 /** i18n key 前缀 (用于 t(`errors.${category}.${subKey}`)) */
-export function i18nKey(err: SceneFabError, subKey = "title"): string {
+export function i18nKey(err: VynaroError, subKey = "title"): string {
   return `errors.${ERROR_CATEGORY[err.kind]}.${subKey}`;
 }
 
 /** 脱敏:截断可能的密钥/api_key/token 片段,避免直接暴露到 UI/log */
-export function safeMessage(err: SceneFabError): string {
+export function safeMessage(err: VynaroError): string {
   let msg = err.message;
   // 截断常见敏感模式
   msg = msg.replace(
@@ -75,13 +75,13 @@ export function safeMessage(err: SceneFabError): string {
 }
 
 /** 组合 helper:给 UI 一行内可见的"分类:摘要" */
-export function formatError(err: SceneFabError): string {
+export function formatError(err: VynaroError): string {
   const cat = ERROR_CATEGORY[err.kind];
   return `[${cat}] ${safeMessage(err)}`;
 }
 
-/** 类型守卫:把任意 thrown 值还原成 SceneFabError */
-export function asSceneFabError(err: unknown): SceneFabError {
+/** 类型守卫:把任意 thrown 值还原成 VynaroError */
+export function asVynaroError(err: unknown): VynaroError {
   if (
     err &&
     typeof err === "object" &&
@@ -90,7 +90,7 @@ export function asSceneFabError(err: unknown): SceneFabError {
     typeof (err as { kind: unknown }).kind === "string" &&
     typeof (err as { message: unknown }).message === "string"
   ) {
-    return err as SceneFabError;
+    return err as VynaroError;
   }
   return {
     kind: "other",
