@@ -1,0 +1,17 @@
+[package]
+name = "scenefab-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "SceneFab 命令行入口 (CI / 自动化 / Advanced 用户)"
+
+[[bin]]
+name = "scenefab"
+path = "src/main.rs"
+
+[lints]
+workspace = true

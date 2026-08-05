@@ -1,0 +1,123 @@
+[workspace]
+resolver = "2"
+members = [
+    # ── Rust 业务 crates (12 个,M1 scaffold 阶段,均为 stub 实现) ──
+    "crates/scenefab-core",
+    "crates/scenefab-domain",
+    "crates/scenefab-ffmpeg",
+    "crates/scenefab-llm",
+    "crates/scenefab-tts",
+    "crates/scenefab-video",
+    "crates/scenefab-export",
+    "crates/scenefab-pipeline",
+    "crates/scenefab-plugin",
+    "crates/scenefab-update",
+    "crates/scenefab-help",
+    "crates/scenefab-i18n",
+    "crates/scenefab-assets",
+    "crates/scenefab-cli",
+    # ── Tauri 2 桌面应用入口 ──
+    "apps/desktop/src-tauri",
+]
+
+exclude = [
+    # 旧 Python 代码 — 已迁移到 src/app.legacy/,不会进入 Cargo 工作区
+    "src",
+]
+
+[workspace.package]
+version = "3.0.0-alpha.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+authors = ["SceneFab Team"]
+repository = "https://github.com/scenefab/scenefab"
+homepage = "https://scenefab.dev"
+
+[workspace.dependencies]
+# Tauri 2 + 插件
+tauri = { version = "2", features = [] }
+tauri-build = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-system-tray = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-window-state = "2"
+tauri-plugin-single-instance = "2"
+
+# 序列化 & 类型
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+ts-rs = { version = "10", features = ["serde-compat"] }
+specta = { version = "2.0.0-rc", features = ["derive"] }
+specta-typescript = "0.0.9"
+
+# 错误处理
+thiserror = "2"
+anyhow = "1"
+
+# 异步运行时
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+rayon = "1.10"
+
+# HTTP 客户端
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+
+# 系统调用
+dirs = "5"
+keyring = "3"
+ring = "0.17"
+
+# 进程 & IO
+serde_with = "3"
+walkdir = "2"
+notify = "6"
+
+# 时间
+chrono = { version = "0.4", features = ["serde"] }
+time = { version = "0.3", features = ["serde", "formatting"] }
+semver = { version = "1", features = ["serde"] }
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# 数据持久化
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "postgres", "macros", "chrono"] }
+sled = "0.34"
+
+# WASM 插件运行时
+wasmtime = "29"
+wasmtime-wasi = "29"
+
+# 测试
+tokio-test = "0.4"
+mockall = "0.13"
+proptest = "1.5"
+rstest = "0.25"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+unused_imports = "warn"
+dead_code = "warn"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = "thin"
+opt-level = "s"
+strip = "symbols"
+
+[profile.dev]
+opt-level = 0
+debug = true
+incremental = true
