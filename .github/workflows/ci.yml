@@ -30,10 +30,16 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace --quiet
+      - name: cargo-tarpaulin (Rust coverage)
+        run: |
+          cargo install cargo-tarpaulin --locked
+          cargo tarpaulin --workspace --timeout 180 \
+            --out Html --out Xml --out Json \
+            --output-dir target/coverage
       - uses: actions/upload-artifact@v4
         with:
           name: rust-coverage
-          path: target/debug/coverage/
+          path: target/coverage/
           retention-days: 5
           if-no-files-found: ignore
 
@@ -57,6 +63,13 @@ jobs:
       - run: pnpm gen:ipc
       - run: pnpm exec tsc --noEmit
       - run: pnpm exec vitest run
+      - run: pnpm exec vitest run --coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: apps/desktop/coverage/
+          retention-days: 5
+          if-no-files-found: ignore
       - run: pnpm build
 
   # ── Tag 触发：三平台 tauri build ──────────────────────
