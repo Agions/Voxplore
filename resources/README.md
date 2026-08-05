@@ -1,75 +1,70 @@
 # Resources
 
-This directory contains the visual resource layer for the first-person video
-narration production app. Resources should stay behavior-free: Python modules
-own runtime logic, while this directory owns icons, platform app assets, and Qt
-style sheets.
+本目录是 SceneFab 桌面端的**视觉资源层**,存放图标、应用资产和品牌素材。资源层
+不承担运行时逻辑——Rust 后端 (scenefab-core / scenefab-assets) 与 React 前端
+(apps/desktop) 负责行为,本目录只提供可加载的资产。
 
-## Design Direction
+## 设计方向
 
-- Use product-neutral naming. Resource files should not include legacy project
-  names or internal package names.
-- Keep the app icon text-free so it remains readable at dock, taskbar, tray, and
-  installer sizes.
-- Use a visual language tied to the workflow: first-person lens, narration
-  waveform, and editing timeline.
-- Keep both light and dark themes dense, quiet, and production-oriented for
-  repeated script, audio, video, and export work.
-- Prefer Qt-compatible HEX colors and stable QSS selectors over experimental CSS
-  color functions.
+- 采用**产品中立**的命名。资源文件不应携带旧项目名或内部包名。
+- 应用图标保持**无文字**,以保证 dock / 任务栏 / 托盘 / 安装器尺寸下都清晰可辨。
+- 视觉语言紧扣工作流:第一人称镜头、解说波形、剪辑时间线。
+- 浅色 / 深色双主题保持**密度、克制、生产导向**,适应长时间脚本、配音、剪辑、导出作业。
+- 色彩与排版优先使用 **CSS 现代特性** (oklch / color-mix / 容器查询),避免过时的
+  Qt QSS 选择器语义。
 
-## File Responsibilities
+## 文件职责
 
 ```text
 resources/
-├── icon.icns                 # macOS application bundle icon
-├── icon.ico                  # Windows installer/application icon
+├── icon.icns                 # macOS 应用包图标
+├── icon.ico                  # Windows 安装包/应用图标
 ├── app_icon.svg              # 主源 SVG (无文字, 符合 text-free 设计原则)
 ├── icons/
-│   ├── app_icon.png          # 512 px Linux/default application icon
-│   ├── app_icon_32.png       # small toolbar/tray/title icon
-│   ├── app_icon_64.png       # medium toolbar/window icon
-│   ├── app_icon_128.png      # launcher icon
-│   ├── app_icon_256.png      # high-density launcher icon
-│   ├── app_icon_512.png      # source-size application icon
-│   └── app_icon_1024.png     # ultra-high-density (1024 px)
+│   ├── app_icon.png          # 512 px Linux / 默认应用图标
+│   ├── app_icon_32.png       # 小尺寸工具栏 / 托盘 / 窗口图标
+│   ├── app_icon_64.png       # 中尺寸工具栏 / 窗口图标
+│   ├── app_icon_128.png      # 启动器图标
+│   ├── app_icon_256.png      # 高密度启动器图标
+│   ├── app_icon_512.png      # 源尺寸应用图标
+│   └── app_icon_1024.png     # 超高密度 (1024 px)
 ```
 
-> Note: legacy `light_theme.qss` / `dark_theme.qss` (Python v2.4 PySide6 主题)
-> 在 v2.5.0 收官清理中已移除 — 当前主题系统使用 `apps/desktop/src/styles/globals.css`
-> 的 Tailwind 4 设计令牌（`@theme` blocks + CSS variables），运行时通过
+> Note: v2.4 PySide6 时代的 `light_theme.qss` / `dark_theme.qss` 已在 v2.5.0
+> 收官清理中删除。当前主题系统使用 `apps/desktop/src/styles/globals.css` 的
+> Tailwind 4 设计令牌 (`@theme` blocks + CSS 变量),运行时通过
 > `useThemeStore` 切换。
 
-## Brand Identity (v2.5.0 重设计)
+## 品牌识别 (v2.5.0 重设计)
 
-SceneFab 品牌识别系统由以下 SVG 资产构成（详见 `assets/logo-mark.svg` /
-`assets/logo-horizontal.svg` / `docs/public/favicon.svg`）：
+SceneFab 品牌识别系统由以下 SVG 资产构成 (详见 `assets/logo-mark.svg` /
+`assets/logo-horizontal.svg` / `docs/public/favicon.svg`):
 
 | 资产                         | 用途                                    | viewBox  |
 | ---------------------------- | --------------------------------------- | -------- |
 | `assets/logo-mark.svg`       | 方形主标识符 · 应用图标 · OG image 核心 | 256×256  |
 | `assets/logo-horizontal.svg` | README 头部 · VitePress nav · 横版卡片  | 512×128  |
-| `docs/public/favicon.svg`    | 浏览器标签 · 极简化（32×32 优化）       | 32×32    |
-| `docs/public/og-image.png`   | 社交媒体卡片（GitHub/Twitter/微博）     | 1280×640 |
-| `docs/public/icons/*.svg`    | docs 站 6 个 24×24 功能图标（双色调）   | 24×24    |
+| `docs/public/favicon.svg`    | 浏览器标签 · 极简化 (32×32 优化)        | 32×32    |
+| `docs/public/og-image.png`   | 社交媒体卡片 (GitHub / Twitter / 微博)  | 1280×640 |
+| `docs/public/icons/*.svg`    | docs 站 6 个 24×24 功能图标 (双色调)    | 24×24    |
 
-**核心识别符**：Play 三角（视频）+ 双环轨道（流水线）+ AI 弧线（AI 处理）
+**核心识别符**:Play 三角 (视频) + 双环轨道 (流水线) + AI 弧线 (AI 处理)
 
-**品牌色系**：
+**品牌色系**:
 
-- 主色 cyan：`#22d3ee → #06b6d4`（深空蓝青渐变）
-- 强调 violet：`#a855f7`（AI 模块 / 重点步骤）
-- 高光：`#67e8f9`（顶部亮线 / 点缀）
-- 底色：`#050816 → #0f172a`（深空黑，深色主题优先）
+- 主色 cyan:`#22d3ee → #06b6d4` (深空蓝青渐变)
+- 强调 violet:`#a855f7` (AI 模块 / 重点步骤)
+- 高光:`#67e8f9` (顶部亮线 / 点缀)
+- 底色:`#050816 → #0f172a` (深空黑,深色主题优先)
 
-**6 个功能图标**（docs/public/icons/）：cyan 主结构 + violet AI 模块强调（双色调，
-1.75 stroke, round caps）。
+**6 个功能图标** (docs/public/icons/):cyan 主结构 + violet AI 模块强调 (双色调,
+1.75 stroke, round caps)。
 
-**渲染 / 同步 pipeline**：`scripts/render-assets.py` 一键端到端生成所有品牌资产
-（SVG → 多尺寸 PNG → 多尺寸 ICO → OG image → 跨目录同步）。
+**资产同步**:设计稿直接落地为 SVG 源文件 (存放于 `assets/`),PNG/ICO 多尺寸
+通过各平台打包工具 (Tauri bundler) 在构建时生成;设计师在 Figma 调整后,SVG
+由人工或脚本同步到 `assets/` 目录,不需要额外的 Python 渲染脚本。
 
-## Runtime Scope
+## 运行时范围
 
-Resources here are loaded by the desktop app and packaging targets only. Keep
-workflow media, screenshots, temporary exports, and draft experiments outside
-this directory unless they are part of a shipped screen.
+本目录资源仅供桌面应用与打包目标加载。**工作流媒体、截图、临时导出、草稿实验
+**应放在本目录之外,除非它们是已发布的某个屏幕的一部分。

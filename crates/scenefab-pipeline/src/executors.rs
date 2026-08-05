@@ -1,9 +1,5 @@
 //! scenefab-pipeline · 5 步真实执行器 (M3.2)
 //!
-//! ## 与 v2.4 Python 对应
-//! - `app/services/video/monologue_maker.py` (generate_script / generate_voice / generate_captions)
-//! - `app/pipeline/orchestrator.py` (步骤编排)
-//!
 //! ## 依赖注入
 //! [`PipelineDeps`] 集中持有 LLM / TTS / FFmpeg / workdir,
 //! 由 Tauri command 层按 ConfigService 快照构造。

@@ -688,110 +688,6 @@ a:hover {
   margin: 0;
 }
 
-/* ── Flow table ───────────────────────────────────────────── */
-.sf-flow {
-  border: 1px solid var(--vp-border);
-  border-radius: var(--vp-radius);
-  overflow: hidden;
-}
-
-.sf-flow-row {
-  align-items: stretch;
-  background: var(--vp-bg-elevated);
-  border-bottom: 1px solid var(--vp-border);
-  display: grid;
-  grid-template-columns: 92px 1.1fr 1.6fr 1.2fr;
-}
-
-.sf-flow-row:last-child {
-  border-bottom: none;
-}
-
-.sf-flow-cell {
-  border-right: 1px solid var(--vp-border);
-  color: var(--vp-text-2);
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 14px 16px;
-}
-
-.sf-flow-cell:last-child {
-  border-right: none;
-}
-
-.sf-flow-head .sf-flow-cell {
-  background: var(--vp-bg-soft);
-  color: var(--vp-text-1);
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.sf-step-no {
-  color: var(--vp-brand);
-  font-family: var(--vp-font-family-mono);
-  font-weight: 750;
-}
-
-/* ── Tags ─────────────────────────────────────────────────── */
-.sf-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.sf-tag {
-  background: var(--vp-code-bg);
-  border: 1px solid var(--vp-border);
-  border-radius: var(--vp-radius-sm);
-  color: var(--vp-brand);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 8px;
-}
-
-/* ── Check list ───────────────────────────────────────────── */
-.sf-check-list {
-  display: grid;
-  gap: 10px;
-}
-
-.sf-check-item {
-  align-items: flex-start;
-  color: var(--vp-text-2);
-  display: grid;
-  font-size: 14px;
-  gap: 10px;
-  grid-template-columns: 18px 1fr;
-  line-height: 1.65;
-}
-
-.sf-check-dot {
-  background: var(--vp-brand);
-  border-radius: 50%;
-  display: inline-block;
-  height: 8px;
-  margin-top: 8px;
-  width: 8px;
-}
-
-/* ── Metrics ──────────────────────────────────────────────── */
-.sf-metric {
-  border-left: 3px solid var(--vp-accent);
-}
-
-.sf-metric-value {
-  color: var(--vp-text-1);
-  font-family: var(--vp-font-family-mono);
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-
-.sf-metric-label {
-  color: var(--vp-text-3);
-  font-size: 13px;
-}
-
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 960px) {
   .VPHero {
@@ -870,9 +766,9 @@ a:hover {
   .sf-flow-cell:nth-child(2) {
     border-top: 1px solid var(--vp-border);
   }
-  }
+}
 
-  /* ──────────────────────────────────────────────────────────
+/* ──────────────────────────────────────────────────────────
      SceneFab v2.5.0 homepage — 重设计样式 (docs/index.md)
      保留所有 sf-* 基础类 (向后兼容), 新增:
      - sf-role-card: 角色入口卡片 (带 icon + arrow)
@@ -882,366 +778,392 @@ a:hover {
      - sf-cta: 底部行动召唤 (gradient bg)
      ────────────────────────────────────────────────────────── */
 
-  /* ── Role cards ────────────────────────────────────────── */
-  .sf-role-grid {
-    margin-top: 8px;
-  }
+/* ── Role cards ────────────────────────────────────────── */
+.sf-role-grid {
+  margin-top: 8px;
+}
 
-  .sf-role-card {
-    padding: 28px 24px;
-    position: relative;
-    text-decoration: none !important;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+.sf-role-card {
+  padding: 28px 24px;
+  position: relative;
+  text-decoration: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  .sf-role-card:hover {
-    border-color: var(--vp-brand);
-    box-shadow:
-      0 0 0 1px var(--vp-brand),
-      0 12px 28px -8px rgba(34, 211, 238, 0.18);
-    transform: translateY(-3px);
-  }
+.sf-role-card:hover {
+  border-color: var(--vp-brand);
+  box-shadow:
+    0 0 0 1px var(--vp-brand),
+    0 12px 28px -8px rgba(34, 211, 238, 0.18);
+  transform: translateY(-3px);
+}
 
-  .sf-role-icon {
-    font-size: 36px;
-    line-height: 1;
-    margin-bottom: 18px;
-  }
+.sf-role-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 18px;
+}
 
-  .sf-role-card .sf-card-arrow {
-    bottom: 20px;
-    color: var(--vp-brand);
-    font-size: 20px;
-    position: absolute;
-    right: 24px;
-    transition: transform 0.2s ease;
-  }
+.sf-role-card .sf-card-arrow {
+  bottom: 20px;
+  color: var(--vp-brand);
+  font-size: 20px;
+  position: absolute;
+  right: 24px;
+  transition: transform 0.2s ease;
+}
 
-  .sf-role-card:hover .sf-card-arrow {
-    transform: translateX(4px);
-  }
+.sf-role-card:hover .sf-card-arrow {
+  transform: translateX(4px);
+}
 
-  /* ── Workflow timeline ─────────────────────────────────── */
+/* ── Workflow timeline ─────────────────────────────────── */
+.sf-workflow {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-top: 8px;
+}
+
+.sf-workflow-step {
+  background: var(--vp-bg-elevated);
+  border: 1px solid var(--vp-border);
+  border-radius: var(--vp-radius);
+  padding: 18px 16px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.sf-workflow-step:hover {
+  border-color: var(--vp-brand);
+  transform: translateY(-2px);
+}
+
+.sf-step-cyan {
+  border-top: 2px solid var(--vp-brand);
+}
+
+.sf-step-violet {
+  border-top: 2px solid var(--vp-accent);
+}
+
+.sf-step-no {
+  color: var(--vp-brand);
+  font-family: var(--vp-font-family-mono);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.sf-step-violet .sf-step-no {
+  color: var(--vp-accent);
+}
+
+.sf-step-title {
+  color: var(--vp-text-1);
+  font-size: 15px;
+  font-weight: 720;
+  margin-bottom: 6px;
+}
+
+.sf-step-desc {
+  color: var(--vp-text-3);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.sf-step-arrow {
+  color: var(--vp-text-4);
+  font-size: 20px;
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+@media (max-width: 960px) {
   .sf-workflow {
-    display: grid;
-    gap: 14px;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    margin-top: 8px;
-  }
-
-  .sf-workflow-step {
-    background: var(--vp-bg-elevated);
-    border: 1px solid var(--vp-border);
-    border-radius: var(--vp-radius);
-    padding: 18px 16px;
-    position: relative;
-    transition: all 0.2s ease;
-  }
-
-  .sf-workflow-step:hover {
-    border-color: var(--vp-brand);
-    transform: translateY(-2px);
-  }
-
-  .sf-step-cyan {
-    border-top: 2px solid var(--vp-brand);
-  }
-
-  .sf-step-violet {
-    border-top: 2px solid var(--vp-accent);
-  }
-
-  .sf-step-no {
-    color: var(--vp-brand);
-    font-family: var(--vp-font-family-mono);
-    font-size: 11px;
-    font-weight: 750;
-    letter-spacing: 1.5px;
-    margin-bottom: 10px;
-    opacity: 0.7;
-  }
-
-  .sf-step-violet .sf-step-no {
-    color: var(--vp-accent);
-  }
-
-  .sf-step-title {
-    color: var(--vp-text-1);
-    font-size: 15px;
-    font-weight: 720;
-    margin-bottom: 6px;
-  }
-
-  .sf-step-desc {
-    color: var(--vp-text-3);
-    font-size: 12.5px;
-    line-height: 1.55;
-  }
-
-  .sf-step-arrow {
-    color: var(--vp-text-4);
-    font-size: 20px;
-    position: absolute;
-    right: -16px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1;
-  }
-
-  @media (max-width: 960px) {
-    .sf-workflow {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .sf-step-arrow {
-      display: none;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .sf-workflow {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  /* ── Platform grid ─────────────────────────────────────── */
-  .sf-platform-grid {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-top: 8px;
-  }
-
-  .sf-platform-card {
-    --brand-color: var(--vp-brand);
-    background: var(--vp-bg-elevated);
-    border: 1px solid var(--vp-border);
-    border-left: 3px solid var(--brand-color);
-    border-radius: var(--vp-radius);
-    padding: 16px 18px;
-    transition: all 0.2s ease;
-  }
-
-  .sf-platform-card:hover {
-    border-color: var(--vp-brand-hi);
-    border-left-color: var(--brand-color);
-    box-shadow: 0 4px 16px -4px rgba(34, 211, 238, 0.15);
-  }
-
-  .sf-platform-name {
-    color: var(--vp-text-1);
-    font-size: 16px;
-    font-weight: 720;
-    margin-bottom: 6px;
-  }
-
-  .sf-platform-res {
-    color: var(--vp-text-2);
-    font-family: var(--vp-font-family-mono);
-    font-size: 12.5px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    margin-bottom: 2px;
-  }
-
-  .sf-platform-ratio {
-    color: var(--vp-text-3);
-    font-size: 11.5px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
-
-  @media (max-width: 960px) {
-    .sf-platform-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sf-platform-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Tech stack grid ───────────────────────────────────── */
-  .sf-tech-grid {
-    display: grid;
-    gap: 12px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 8px;
   }
-
-  .sf-tech-card {
-    background: var(--vp-bg-elevated);
-    border: 1px solid var(--vp-border);
-    border-radius: var(--vp-radius);
-    padding: 20px 18px;
-    transition: all 0.2s ease;
+  .sf-step-arrow {
+    display: none;
   }
+}
 
-  .sf-tech-card:hover {
-    border-color: var(--vp-brand);
+@media (max-width: 640px) {
+  .sf-workflow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .sf-tech-icon {
-    font-size: 24px;
-    line-height: 1;
-    margin-bottom: 12px;
+/* ── Platform grid ─────────────────────────────────────── */
+.sf-platform-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 8px;
+}
+
+.sf-platform-card {
+  --brand-color: var(--vp-brand);
+  background: var(--vp-bg-elevated);
+  border: 1px solid var(--vp-border);
+  border-left: 3px solid var(--brand-color);
+  border-radius: var(--vp-radius);
+  padding: 16px 18px;
+  transition: all 0.2s ease;
+}
+
+.sf-platform-card:hover {
+  border-color: var(--vp-brand-hi);
+  border-left-color: var(--brand-color);
+  box-shadow: 0 4px 16px -4px rgba(34, 211, 238, 0.15);
+}
+
+.sf-platform-name {
+  color: var(--vp-text-1);
+  font-size: 16px;
+  font-weight: 720;
+  margin-bottom: 6px;
+}
+
+.sf-platform-res {
+  color: var(--vp-text-2);
+  font-family: var(--vp-font-family-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 2px;
+}
+
+.sf-platform-ratio {
+  color: var(--vp-text-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 960px) {
+  .sf-platform-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .sf-tech-layer {
-    color: var(--vp-text-1);
-    font-size: 14px;
-    font-weight: 720;
-    margin-bottom: 8px;
+@media (max-width: 480px) {
+  .sf-platform-grid {
+    grid-template-columns: 1fr;
   }
+}
 
-  .sf-tech-items {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+/* ── Tech stack grid ───────────────────────────────────── */
+.sf-tech-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 8px;
+}
+
+.sf-tech-card {
+  background: var(--vp-bg-elevated);
+  border: 1px solid var(--vp-border);
+  border-radius: var(--vp-radius);
+  padding: 20px 18px;
+  transition: all 0.2s ease;
+}
+
+.sf-tech-card:hover {
+  border-color: var(--vp-brand);
+}
+
+.sf-tech-icon {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.sf-tech-layer {
+  color: var(--vp-text-1);
+  font-size: 14px;
+  font-weight: 720;
+  margin-bottom: 8px;
+}
+
+.sf-tech-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sf-tech-item {
+  color: var(--vp-text-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+  .sf-tech-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .sf-tech-item {
-    color: var(--vp-text-3);
-    font-size: 12.5px;
-    line-height: 1.5;
+@media (max-width: 480px) {
+  .sf-tech-grid {
+    grid-template-columns: 1fr;
   }
+}
 
-  @media (max-width: 960px) {
-    .sf-tech-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
+/* ── CTA section ───────────────────────────────────────── */
+.sf-cta {
+  margin-top: 80px;
+}
 
-  @media (max-width: 480px) {
-    .sf-tech-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+.sf-cta-inner {
+  background:
+    radial-gradient(
+      ellipse at top left,
+      rgba(34, 211, 238, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at bottom right,
+      rgba(168, 85, 247, 0.12),
+      transparent 60%
+    ),
+    var(--vp-bg-elevated);
+  border: 1px solid var(--vp-border);
+  border-radius: 14px;
+  padding: 56px 48px;
+  text-align: center;
+}
 
-  /* ── CTA section ───────────────────────────────────────── */
-  .sf-cta {
-    margin-top: 80px;
-  }
+.sf-cta-title {
+  background: linear-gradient(135deg, var(--vp-brand), var(--vp-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 1.85rem;
+  font-weight: 820;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  margin: 0 0 16px;
+}
 
+.sf-cta-text {
+  color: var(--vp-text-2);
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0 auto 32px;
+  max-width: 540px;
+}
+
+.sf-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.sf-cta-btn {
+  border: 1px solid var(--vp-border);
+  border-radius: 8px;
+  color: var(--vp-text-1);
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 22px;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+}
+
+.sf-cta-btn:hover {
+  border-color: var(--vp-brand);
+  color: var(--vp-text-1);
+  transform: translateY(-1px);
+}
+
+.sf-cta-btn-primary {
+  background: linear-gradient(135deg, var(--vp-brand), var(--vp-accent));
+  border-color: transparent;
+  box-shadow: 0 4px 16px -2px rgba(34, 211, 238, 0.35);
+  color: #fff !important;
+}
+
+.sf-cta-btn-primary:hover {
+  background: linear-gradient(135deg, var(--vp-brand-hi), #c4b5fd);
+  border-color: transparent;
+  box-shadow: 0 8px 24px -4px rgba(34, 211, 238, 0.5);
+}
+
+.sf-cta-btn-secondary {
+  background: var(--vp-bg-soft);
+}
+
+@media (max-width: 640px) {
   .sf-cta-inner {
-    background:
-      radial-gradient(ellipse at top left, rgba(34, 211, 238, 0.12), transparent 60%),
-      radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.12), transparent 60%),
-      var(--vp-bg-elevated);
-    border: 1px solid var(--vp-border);
-    border-radius: 14px;
-    padding: 56px 48px;
-    text-align: center;
+    padding: 36px 24px;
   }
-
   .sf-cta-title {
-    background: linear-gradient(135deg, var(--vp-brand), var(--vp-accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-size: 1.85rem;
-    font-weight: 820;
-    letter-spacing: -0.5px;
-    line-height: 1.25;
-    margin: 0 0 16px;
+    font-size: 1.4rem;
   }
+}
 
-  .sf-cta-text {
-    color: var(--vp-text-2);
-    font-size: 15px;
-    line-height: 1.7;
-    margin: 0 auto 32px;
-    max-width: 540px;
+/* ── Hero enhancement (gradient mesh backdrop) ─────────── */
+.VPHero::after {
+  background:
+    radial-gradient(
+      ellipse 600px 300px at 20% 30%,
+      rgba(34, 211, 238, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 500px 250px at 80% 70%,
+      rgba(168, 85, 247, 0.15),
+      transparent 60%
+    );
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+/* ── Fade-in animation (subtle entrance) ───────────────── */
+@keyframes sfFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-
-  .sf-cta-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .sf-cta-btn {
-    border: 1px solid var(--vp-border);
-    border-radius: 8px;
-    color: var(--vp-text-1);
-    display: inline-flex;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 12px 22px;
-    text-decoration: none !important;
-    transition: all 0.2s ease;
-  }
+.sf-section {
+  animation: sfFadeInUp 0.5s ease both;
+}
 
-  .sf-cta-btn:hover {
-    border-color: var(--vp-brand);
-    color: var(--vp-text-1);
-    transform: translateY(-1px);
-  }
+.sf-section:nth-child(1) {
+  animation-delay: 0s;
+}
+.sf-section:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.sf-section:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.sf-section:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.sf-section:nth-child(5) {
+  animation-delay: 0.32s;
+}
 
-  .sf-cta-btn-primary {
-    background: linear-gradient(135deg, var(--vp-brand), var(--vp-accent));
-    border-color: transparent;
-    box-shadow: 0 4px 16px -2px rgba(34, 211, 238, 0.35);
-    color: #fff !important;
-  }
-
-  .sf-cta-btn-primary:hover {
-    background: linear-gradient(135deg, var(--vp-brand-hi), #c4b5fd);
-    border-color: transparent;
-    box-shadow: 0 8px 24px -4px rgba(34, 211, 238, 0.5);
-  }
-
-  .sf-cta-btn-secondary {
-    background: var(--vp-bg-soft);
-  }
-
-  @media (max-width: 640px) {
-    .sf-cta-inner {
-      padding: 36px 24px;
-    }
-    .sf-cta-title {
-      font-size: 1.4rem;
-    }
-  }
-
-  /* ── Hero enhancement (gradient mesh backdrop) ─────────── */
-  .VPHero::after {
-    background:
-      radial-gradient(ellipse 600px 300px at 20% 30%, rgba(34, 211, 238, 0.18), transparent 60%),
-      radial-gradient(ellipse 500px 250px at 80% 70%, rgba(168, 85, 247, 0.15), transparent 60%);
-    content: "";
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    z-index: 0;
-  }
-
-  /* ── Fade-in animation (subtle entrance) ───────────────── */
-  @keyframes sfFadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
+@media (prefers-reduced-motion: reduce) {
   .sf-section {
-    animation: sfFadeInUp 0.5s ease both;
+    animation: none;
   }
-
-  .sf-section:nth-child(1) { animation-delay: 0s; }
-  .sf-section:nth-child(2) { animation-delay: 0.08s; }
-  .sf-section:nth-child(3) { animation-delay: 0.16s; }
-  .sf-section:nth-child(4) { animation-delay: 0.24s; }
-  .sf-section:nth-child(5) { animation-delay: 0.32s; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sf-section {
-      animation: none;
-    }
-  }
+}

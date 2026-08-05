@@ -19,11 +19,6 @@ members = [
     "apps/desktop/src-tauri",
 ]
 
-exclude = [
-    # 旧 Python 代码 — 已迁移到 src/app.legacy/,不会进入 Cargo 工作区
-    "src",
-]
-
 [workspace.package]
 version = "2.5.0"
 edition = "2021"

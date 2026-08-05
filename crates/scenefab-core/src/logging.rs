@@ -1,6 +1,5 @@
 //! scenefab-core · Logging 初始化
 //!
-//! 对应 Python v2.4 主线的 `logging_setup.py` 语义。
 //! 读取 `RUST_LOG` 环境变量 (默认 `info`),输出到 stderr。
 
 use std::sync::OnceLock;
