@@ -1,0 +1,12 @@
+# SceneFab v3.0 · pnpm workspace
+#
+# 用途：把 apps/* 整合到一个 pnpm 安装树，共享依赖 hoist，
+#       并支持未来 apps/web、apps/cli 等其他子工程统一管理。
+#
+# 当前成员：
+#   - apps/desktop   Tauri 2 + React 19 桌面应用（M1-M10）
+
+packages:
+  - "apps/*"
+  # 文档站（独立 pnpm，不参与工作区依赖提升，仍保留在 docs/）
+  - "!docs"

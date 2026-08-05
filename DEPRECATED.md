@@ -20,13 +20,13 @@ SceneFab v2.x 是一个 Python + PySide6 (Qt) + FastAPI + Edge-TTS + 多 LLM Pro
 
 ## 冻结原因
 
-| 维度        | v2.4 (Python)                                | v3.0 (Rust + React)                |
-| ----------- | -------------------------------------------- | ---------------------------------- |
-| 安装包体积  | ~80 MB (PyInstaller)                         | **< 8 MB** (Tauri 2.0)             |
-| 冷启动时间  | ~1.5 s                                       | **< 500 ms**                       |
-| 内存占用    | ~280 MB                                      | **< 90 MB**                        |
-| 部署复杂度  | Python 解释器 + 系统 Qt + FFmpeg 链路长       | **单可执行二进制 + bundled webview** |
-| 跨平台一致性 | macOS/Windows/Linux 行为偶发偏离             | **Tauri 提供统一 webview 抽象**     |
+| 维度         | v2.4 (Python)                           | v3.0 (Rust + React)                  |
+| ------------ | --------------------------------------- | ------------------------------------ |
+| 安装包体积   | ~80 MB (PyInstaller)                    | **< 8 MB** (Tauri 2.0)               |
+| 冷启动时间   | ~1.5 s                                  | **< 500 ms**                         |
+| 内存占用     | ~280 MB                                 | **< 90 MB**                          |
+| 部署复杂度   | Python 解释器 + 系统 Qt + FFmpeg 链路长 | **单可执行二进制 + bundled webview** |
+| 跨平台一致性 | macOS/Windows/Linux 行为偶发偏离        | **Tauri 提供统一 webview 抽象**      |
 
 > 详细对比与决策依据：[01-architecture-audit.md](../../docs/refactor/v3-migration/01-architecture-audit.md)
 > · [02-target-architecture.md](../../docs/refactor/v3-migration/02-target-architecture.md)
@@ -41,13 +41,13 @@ SceneFab v2.x 是一个 Python + PySide6 (Qt) + FastAPI + Edge-TTS + 多 LLM Pro
 
 ## 历史归档
 
-| 文件/目录                  | 状态     | 用途                                     |
-| -------------------------- | -------- | ---------------------------------------- |
-| `README_v3_legacy_bk.md`   | ✅ 归档  | v2.4 主线 README 完整备份（已保留）       |
-| `pyproject.toml.legacy`    | ✅ 归档  | v2.4 Python 项目配置（备份）              |
-| `src/app/`                 | 🗑️ 待删 | v2.4 桌面应用代码（257 文件）            |
-| `tests/{services,ui,...}/` | 🗑️ 待删 | v2.4 测试套件（pytest + pytest-qt）       |
-| `docs_bundle/`             | 🗑️ 待删 | v2.4 用户文档构建中间产物                |
+| 文件/目录                  | 状态    | 用途                                |
+| -------------------------- | ------- | ----------------------------------- |
+| `README_v3_legacy_bk.md`   | ✅ 归档 | v2.4 主线 README 完整备份（已保留） |
+| `pyproject.toml.legacy`    | ✅ 归档 | v2.4 Python 项目配置（备份）        |
+| `src/app/`                 | 🗑️ 待删 | v2.4 桌面应用代码（257 文件）       |
+| `tests/{services,ui,...}/` | 🗑️ 待删 | v2.4 测试套件（pytest + pytest-qt） |
+| `docs_bundle/`             | 🗑️ 待删 | v2.4 用户文档构建中间产物           |
 
 ---
 
