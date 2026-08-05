@@ -1,4 +1,4 @@
-//! scenefab-pipeline v3.0 · 5 步第一人称叙述流水线
+//! scenefab-pipeline v2.5.0 · 5 步第一人称叙述流水线
 //!
 //! ## 与 v2.4 Python 对应
 //! - `app/services/video/monologue_maker.py` MonologueMaker

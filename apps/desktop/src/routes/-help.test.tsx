@@ -95,7 +95,7 @@ function makeWrapper() {
 beforeEach(() => {
   invokeMock.mockReset();
   invokeMock.mockImplementation((cmd: string) => {
-    if (cmd === "app_version") return Promise.resolve("3.0.0-alpha.0");
+    if (cmd === "app_version") return Promise.resolve("2.5.0");
     if (cmd === "help_topics") return Promise.resolve(SAMPLE_TOPICS);
     if (cmd === "help_search") return Promise.resolve([]);
     if (cmd === "help_topic_get") return Promise.resolve(SAMPLE_TOPICS[0]);

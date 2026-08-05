@@ -497,7 +497,7 @@ mod tests {
 
     #[test]
     fn phase_state_default_is_idle() {
-        let svc = UpdateService::new("3.0.0-alpha.0", "qingshanyanyu/SceneFab");
+        let svc = UpdateService::new("2.5.0", "qingshanyanyu/SceneFab");
         let rt = tokio::runtime::Runtime::new().unwrap();
         let s = rt.block_on(svc.snapshot());
         assert_eq!(s.phase, UpdatePhase::Idle);
@@ -507,14 +507,14 @@ mod tests {
 
     #[test]
     fn subscribe_returns_receiver() {
-        let svc = UpdateService::new("3.0.0-alpha.0", "qingshanyanyu/SceneFab");
+        let svc = UpdateService::new("2.5.0", "qingshanyanyu/SceneFab");
         let _rx = svc.subscribe();
         // 至少能拿到一个 sender,且不会因为 receiver drop 而 panic
     }
 
     #[test]
     fn reset_returns_to_idle() {
-        let svc = UpdateService::new("3.0.0-alpha.0", "qingshanyanyu/SceneFab");
+        let svc = UpdateService::new("2.5.0", "qingshanyanyu/SceneFab");
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(svc.reset());
         let s = rt.block_on(svc.snapshot());
@@ -525,7 +525,7 @@ mod tests {
     #[tokio::test]
     async fn check_handles_http_error_gracefully() {
         // 用一个不存在的 repo 触发 HTTP 404
-        let svc = UpdateService::new("3.0.0-alpha.0", "qingshanyanyu/this-repo-does-not-exist-zzz");
+        let svc = UpdateService::new("2.5.0", "qingshanyanyu/this-repo-does-not-exist-zzz");
         let res = svc.check().await;
         assert!(res.is_err());
         let s = svc.snapshot().await;
