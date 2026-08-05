@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 缩略图通用组件
+ * SceneFab v2.5.0 · 缩略图通用组件
  *
  * 设计:
  * - 调用 useAssets().thumbnail(source, width) 生成首帧 jpg

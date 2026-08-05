@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · TopBar · 帮助下拉菜单 (M4 完整更新器)
+ * SceneFab v2.5.0 · TopBar · 帮助下拉菜单 (M4 完整更新器)
  *
  * 规范 (项目 memory):
  * - "检查更新..." 触发后端 update_check,以 toast 反馈结果

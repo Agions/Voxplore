@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · Tauri Invoke 统一封装
+ * SceneFab v2.5.0 · Tauri Invoke 统一封装
  *
  * 设计:
  * - 唯一对 @tauri-apps/api 的强依赖点 (其它文件 import '@/ipc/client' 即可)

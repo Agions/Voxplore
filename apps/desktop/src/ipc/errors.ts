@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · SceneFabError → 用户可读
+ * SceneFab v2.5.0 · SceneFabError → 用户可读
  *
  * 设计 (README §06):
  * - 后端 9 类 SceneFabError (Io/Config/Llm/Tts/Ffmpeg/Project/Pipeline/Plugin/Updater/Other)

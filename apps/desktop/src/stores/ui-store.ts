@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · ui store (Zustand)
+ * SceneFab v2.5.0 · ui store (Zustand)
  *
  * 设计:
  * - 与"数据"无关的 UI 状态:侧栏折叠/命令面板开关/当前路由 toast 等

@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · useTauriEvent 单测 (M4.5)
+ * SceneFab v2.5.0 · useTauriEvent 单测 (M4.5)
  *
  * 覆盖:
  * - mount 时 listen 被调用,event 名匹配

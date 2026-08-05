@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 项目管理页 (M3 后续: 完整接入 assets 5 个 actions)
+ * SceneFab v2.5.0 · 项目管理页 (M3 后续: 完整接入 assets 5 个 actions)
  *
  * 顶部:项目统计 + 当前项目信息卡
  * 中段:最近项目网格 (使用 projectIpc.listRecent)

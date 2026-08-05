@@ -28,6 +28,7 @@
     "noUnusedParameters": true,
     /* Linting */
     "exactOptionalPropertyTypes": false,
+    "ignoreDeprecations": "6.0",
     /* baseUrl for paths */
     "baseUrl": ".",
     /* 路径别名 (与 vite.config.ts 保持一致, 平铺结构) */

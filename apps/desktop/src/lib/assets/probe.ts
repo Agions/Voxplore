@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 素材 probe 转换 (纯函数,可单测)
+ * SceneFab v2.5.0 · 素材 probe 转换 (纯函数,可单测)
  *
  * 设计:
  * - 不依赖 React/Store/IPC

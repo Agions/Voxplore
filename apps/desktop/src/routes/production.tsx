@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 制作流水线页 (M3.2 接通后端 + M3 后续素材入口)
+ * SceneFab v2.5.0 · 制作流水线页 (M3.2 接通后端 + M3 后续素材入口)
  *
  * 真实接入 pipeline_step_defs / pipeline_status / pipeline_start /
  *      pipeline_cancel / pipeline_reset + project_create_blank

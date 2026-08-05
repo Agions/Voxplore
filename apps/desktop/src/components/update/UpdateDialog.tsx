@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 应用更新对话框 (M4 · 完整实装)
+ * SceneFab v2.5.0 · 应用更新对话框 (M4 · 完整实装)
  *
  * 设计:
  * - 调用 useUpdate hook (state + check / download / install / reset)

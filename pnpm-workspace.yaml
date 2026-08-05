@@ -1,4 +1,4 @@
-# SceneFab v3.0 · pnpm workspace
+# SceneFab v2.5.0 · pnpm workspace
 #
 # 用途：把 apps/* 整合到一个 pnpm 安装树，共享依赖 hoist，
 #       并支持未来 apps/web、apps/cli 等其他子工程统一管理。

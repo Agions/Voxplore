@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 流水线派生函数 纯函数单测
+ * SceneFab v2.5.0 · 流水线派生函数 纯函数单测
  *
  * 覆盖:
  * - deriveSteps: 后端 status 缺/短/长/null/undefined

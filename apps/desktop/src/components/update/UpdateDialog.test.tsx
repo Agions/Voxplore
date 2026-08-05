@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · UpdateDialog 组件单测
+ * SceneFab v2.5.0 · UpdateDialog 组件单测
  *
  * 覆盖:
  * - 5 阶段渲染: idle / checking / available / downloading / ready

@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
+ * SceneFab v2.5.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
  *
  * 后端命令:
  * - open(path)    → projectIpc.load(path)      → ProjectRecord

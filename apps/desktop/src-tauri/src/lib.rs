@@ -1,4 +1,4 @@
-// SceneFab v3.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
+// SceneFab v2.5.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
 //
 // 业务覆盖:
 //! - app: app_version / app_started_at / app_system_info
@@ -35,7 +35,7 @@ use scenefab_update::UpdateService;
 /// 占位命令 — 保留以便兼容 Gate 0 冒烟测试
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {name}! 你正在使用 SceneFab v3.0 α")
+    format!("Hello, {name}! 你正在使用 SceneFab v2.5.0 α")
 }
 
 /// Tauri 入口（mobile 端另开 entry point）
@@ -75,7 +75,7 @@ pub fn run() {
         version = %ctx.version,
         debug = ctx.debug,
         services = services_count,
-        "SceneFab v3.0 starting"
+        "SceneFab v2.5.0 starting"
     );
 
     tauri::Builder::default()
