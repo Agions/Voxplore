@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · IPC 命令 / 事件名称常量
+ * Vynaro v2.5.0 · IPC 命令 / 事件名称常量
  *
  * 设计:
  * - 单一来源: Rust 端 command 名与 event 名,这里只导出可读的"引用常量"

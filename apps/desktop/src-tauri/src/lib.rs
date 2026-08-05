@@ -1,4 +1,4 @@
-// SceneFab v2.5.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
+// Vynaro v2.5.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
 //
 // 业务覆盖:
 //! - app: app_version / app_started_at / app_system_info
@@ -12,9 +12,9 @@
 //! - assets: assets_scan / assets_metadata / assets_thumbnail /
 //!   assets_search (M3 后续完整实装)
 //! - export: export_plan / export_validate_params / export_render_subtitles /
-//!   video_build_plans (M4.5 接 scenefab-export / scenefab-video)
-//! - help: help_topics / help_topic_get / help_search (M5.7 接 scenefab-help)
-//! - theme: i18n_get_locale / i18n_set_locale / i18n_translate (M5.6 接 scenefab-i18n)
+//!   video_build_plans (M4.5 接 vynaro-export / vynaro-video)
+//! - help: help_topics / help_topic_get / help_search (M5.7 接 vynaro-help)
+//! - theme: i18n_get_locale / i18n_set_locale / i18n_translate (M5.6 接 vynaro-i18n)
 //
 // PipelineService + UpdateService + AssetService 在 AppContext::new() 后注册进 ServiceContainer。
 // Translator + HelpRegistry 通过 .manage() 直注,提供轻量全局状态。
@@ -25,24 +25,24 @@ mod commands;
 
 use std::sync::Arc;
 
-use scenefab_assets::AssetService;
-use scenefab_core::AppContext;
-use scenefab_help::HelpRegistry;
-use scenefab_i18n::Translator;
-use scenefab_pipeline::service::PipelineService;
-use scenefab_update::UpdateService;
+use vynaro_storage::AssetService;
+use vynaro_core::AppContext;
+use vynaro_core::HelpRegistry;
+use vynaro_core::Translator;
+use vynaro_compose::service::PipelineService;
+use vynaro_update::UpdateService;
 
 /// 占位命令 — 保留以便兼容 Gate 0 冒烟测试
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {name}! 你正在使用 SceneFab v2.5.0 α")
+    format!("Hello, {name}! 你正在使用 Vynaro v2.5.0 α")
 }
 
 /// Tauri 入口（mobile 端另开 entry point）
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // 初始化 logging (OnceLock idem-potent 调度)
-    scenefab_core::init_logging();
+    vynaro_core::init_logging();
 
     // 构造 AppContext + 在同步上下文中启动 runtime
     let (ctx, services_count) = tokio::runtime::Builder::new_multi_thread()
@@ -59,7 +59,7 @@ pub fn run() {
             ctx.services
                 .register(Arc::new(UpdateService::new(
                     ctx.version.to_string(),
-                    "qingshanyanyu/SceneFab",
+                    "qingshanyanyu/Vynaro",
                 )))
                 .await;
             // 注入 AssetService (M3 后续完整实装)
@@ -73,7 +73,7 @@ pub fn run() {
         version = %ctx.version,
         debug = ctx.debug,
         services = services_count,
-        "SceneFab v2.5.0 starting"
+        "Vynaro v2.5.0 starting"
     );
 
     tauri::Builder::default()
@@ -120,6 +120,12 @@ pub fn run() {
             commands::theme::i18n_get_locale,
             commands::theme::i18n_set_locale,
             commands::theme::i18n_translate,
+            commands::voice::voice_preview,
+            commands::voice::voice_synthesize,
+            commands::script::script_generate,
+            commands::detect::detect_scenes,
+            commands::subtitle::subtitle_generate,
+            commands::export::export_capcut_draft,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

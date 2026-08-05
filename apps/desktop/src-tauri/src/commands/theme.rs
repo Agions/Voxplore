@@ -1,4 +1,4 @@
-//! src-tauri 命令 · theme / i18n (M5.6 · 接 scenefab-i18n)
+//! src-tauri 命令 · theme / i18n (M5.6 · 接 vynaro-i18n)
 //!
 //! - i18n_get_locale: 当前后端文案语言
 //! - i18n_set_locale: 切换后端文案语言 (宽松解析 "en-US"/"en_us";成功后 emit `app:locale_changed`)
@@ -10,7 +10,7 @@
 
 use std::collections::HashMap;
 
-use scenefab_i18n::Translator;
+use vynaro_core::Translator;
 use tauri::{AppHandle, Emitter, State};
 
 /// 当前后端文案语言 (BCP-47,如 "zh-CN")

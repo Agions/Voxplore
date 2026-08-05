@@ -1,11 +1,14 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window (v2.5.0 skeleton — Gate 0)",
+  "description": "Capability for the main window (Vynaro v2.5.0)",
   "windows": ["main"],
   "permissions": [
     "core:default",
     "opener:default",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
     "core:window:allow-show",
     "core:window:allow-hide",
     "core:window:allow-close",

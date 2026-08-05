@@ -1,15 +1,13 @@
 [package]
-name = "scenefab"
+name = "vynaro"
 version = "2.5.0"
-description = "SceneFab v2.5.0 - Tauri + Rust 桌面应用"
+description = "Vynaro v2.5.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
 authors = ["Agions"]
 edition = "2021"
 rust-version = "1.85"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
-name = "scenefab_lib"
+name = "vynaro_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -29,42 +27,27 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 
-[dependencies.scenefab-core]
-path = "../../../crates/scenefab-core"
+# ── Vynaro 工作流 crates ──
+# 基础层
+vynaro-core    = { path = "../../../crates/vynaro-core" }
+vynaro-domain  = { path = "../../../crates/vynaro-domain" }
+# Step 1 素材导入
+vynaro-intake  = { path = "../../../crates/vynaro-intake" }
+# Step 2 智能拆条
+vynaro-detect  = { path = "../../../crates/vynaro-detect" }
+# Step 3 脚本生成
+vynaro-script  = { path = "../../../crates/vynaro-script" }
+# Step 4 TTS 配音
+vynaro-voice   = { path = "../../../crates/vynaro-voice" }
+# Step 5 字幕合成
+vynaro-subtitle = { path = "../../../crates/vynaro-subtitle" }
+# Step 6 画面对齐
+vynaro-compose = { path = "../../../crates/vynaro-compose" }
+# Step 7 多平台导出
+vynaro-export  = { path = "../../../crates/vynaro-export" }
+# 基础设施
+vynaro-storage = { path = "../../../crates/vynaro-storage" }
+vynaro-update  = { path = "../../../crates/vynaro-update" }
+vynaro-plugin  = { path = "../../../crates/vynaro-plugin" }
 
-[dependencies.scenefab-domain]
-path = "../../../crates/scenefab-domain"
-
-[dependencies.scenefab-llm]
-path = "../../../crates/scenefab-llm"
-
-[dependencies.scenefab-tts]
-path = "../../../crates/scenefab-tts"
-
-[dependencies.scenefab-ffmpeg]
-path = "../../../crates/scenefab-ffmpeg"
-
-[dependencies.scenefab-pipeline]
-path = "../../../crates/scenefab-pipeline"
-
-[dependencies.scenefab-update]
-path = "../../../crates/scenefab-update"
-
-[dependencies.scenefab-assets]
-path = "../../../crates/scenefab-assets"
-
-[dependencies.scenefab-export]
-path = "../../../crates/scenefab-export"
-
-[dependencies.scenefab-help]
-path = "../../../crates/scenefab-help"
-
-[dependencies.scenefab-i18n]
-path = "../../../crates/scenefab-i18n"
-
-[dependencies.scenefab-video]
-path = "../../../crates/scenefab-video"
-
-# workspace.lists 和 workspace.profiles 在根 Cargo.toml 集中定义
-# 此处不再覆盖,避免 cargo 警告
-# [profile.release] 见 /Users/zfkc/Desktop/04-AI/scene-fab/Cargo.toml
+# workspace lints / profiles 在根 Cargo.toml 集中定义

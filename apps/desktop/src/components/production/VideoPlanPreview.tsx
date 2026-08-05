@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · 多视频导出策略预览 (scenefab-video · video_build_plans)
+ * Vynaro v2.5.0 · 多视频导出策略预览 (vynaro-video · video_build_plans)
  *
  * 4 种策略:
  * - single  : 全部输入 → 1 个 OutputPlan (要求 1 个源)
@@ -67,14 +67,15 @@ export function VideoPlanPreview({
   const [strategy, setStrategy] = useState<ExportStrategy>(defaultStrategy);
   const [baseName, setBaseName] = useState("output");
   const [episodeTemplate, setEpisodeTemplate] = useState("EP{nn}_{title}");
+  const [seriesContext, setSeriesContext] = useState("");
 
   const options = useMemo(
     () => ({
       base_name: baseName,
-      series_context: strategy === "series" ? "scenefab-demo" : null,
+      series_context: strategy === "series" && seriesContext.trim() ? seriesContext.trim() : null,
       episode_template: episodeTemplate,
     }),
-    [baseName, episodeTemplate, strategy],
+    [baseName, episodeTemplate, strategy, seriesContext],
   );
 
   const {
@@ -142,7 +143,7 @@ export function VideoPlanPreview({
         })}
       </div>
 
-      {/* Plan options (base_name + episode_template) */}
+      {/* Plan options (base_name + episode_template + series_context) */}
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
         <label className="space-y-1 text-[11px] text-zinc-500">
           <span>输出基础名 (base_name)</span>
@@ -164,6 +165,18 @@ export function VideoPlanPreview({
             placeholder="EP{nn}_{title}"
           />
         </label>
+        {strategy === "series" && (
+          <label className="space-y-1 text-[11px] text-zinc-500 md:col-span-2">
+            <span>剧集上下文 (series_context) — 用于 AI 关联多集叙事</span>
+            <input
+              type="text"
+              value={seriesContext}
+              onChange={(e) => setSeriesContext(e.target.value)}
+              className="w-full rounded-md border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 font-mono text-xs text-zinc-200 focus:border-violet-500 focus:outline-none"
+              placeholder="例如：斗罗大陆第一季"
+            />
+          </label>
+        )}
       </div>
 
       {/* OutputPlan 列表 */}

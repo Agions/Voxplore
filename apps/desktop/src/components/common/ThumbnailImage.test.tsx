@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · ThumbnailImage 组件单测
+ * Vynaro v2.5.0 · ThumbnailImage 组件单测
  *
  * 状态机:
  * - 挂载 → "loading" (显示 "生成缩略图...")

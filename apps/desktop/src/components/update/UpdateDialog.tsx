@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · 应用更新对话框 (M4 · 完整实装)
+ * Vynaro v2.5.0 · 应用更新对话框 (M4 · 完整实装)
  *
  * 设计:
  * - 调用 useUpdate hook (state + check / download / install / reset)
@@ -161,7 +161,7 @@ function Header({
           {PHASE_TITLE[phase]}
         </h2>
         <p className="text-[11px] text-zinc-500">
-          SceneFab 应用更新器 · 当前版本 v{currentVersion ?? "—"}
+          Vynaro 应用更新器 · 当前版本 v{currentVersion ?? "—"}
         </p>
       </div>
       <button

@@ -1,11 +1,12 @@
 /**
- * SceneFab v2.5.0 · 欢迎页 (M3.2 视觉化重设计)
+ * Vynaro v2.5.0 · 欢迎页 (M3.2 视觉化重设计)
  *
  * 去文字堆砌:
  * - 顶部 Hero:渐变大字 + 1 句价值主张 + 2 个 CTA
  * - 中段工作流:视觉化 5 步流水线 (StepFlow 组件)
  * - 下段系统状态:紧凑贴纸式
  * - 不再展示"6 个页面链接"列表(已由 Sidebar 接管)
+ * - 所有颜色使用 CSS 变量，自动响应主题切换
  */
 
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -21,14 +22,6 @@ import {
   type ProjectRecord,
 } from "@ipc/commands";
 
-const FALLBACK_STEPS = [
-  { id: "ingest", label: "素材", icon: "🎞", status: "pending" as const },
-  { id: "scene", label: "场景", icon: "✂", status: "pending" as const },
-  { id: "script", label: "脚本", icon: "✍", status: "pending" as const },
-  { id: "voice", label: "配音", icon: "🎙", status: "pending" as const },
-  { id: "export", label: "导出", icon: "📤", status: "pending" as const },
-];
-
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
@@ -37,14 +30,7 @@ function HomePage() {
   return (
     <div className="mx-auto max-w-6xl space-y-10 px-8 py-10">
       <Hero />
-      <section>
-        <SectionHeader
-          kicker="工作流"
-          title="一段视频,5 步成型"
-          subtitle="从原始素材到可发布短片的全自动链路"
-        />
-        <StepFlow steps={FALLBACK_STEPS} activeIndex={-1} />
-      </section>
+      <WorkflowSection />
       <RecentProjectsStrip />
       <MediaOverview />
       <SystemStatusStrip />
@@ -52,46 +38,140 @@ function HomePage() {
   );
 }
 
+// ── 工作流介绍（真实 IPC）─────────────────────────────────
+
+const STEP_ICON: Record<string, string> = {
+  intake: "📥",
+  detect: "✂️",
+  script: "🤖",
+  voice: "🎙️",
+  subtitle: "📝",
+  compose: "🎬",
+  export: "📤",
+};
+
+function WorkflowSection() {
+  const { data: stepDefs, isLoading } = useQuery({
+    queryKey: ["home-steps"],
+    queryFn: pipelineIpc.stepDefs,
+  });
+
+  const steps = stepDefs && stepDefs.length > 0
+    ? stepDefs.map((s) => ({
+        id: s.id,
+        label: s.label_zh,
+        icon: STEP_ICON[s.id] ?? "📦",
+        status: "pending" as const,
+      }))
+    : null;
+
+  return (
+    <section>
+      <SectionHeader
+        kicker="工作流"
+        title="一段视频,多步成型"
+        subtitle="从原始素材到可发布短片的全自动链路"
+      />
+      {isLoading ? (
+        <div style={{ display: "flex", gap: "8px" }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} style={{
+              flex: 1,
+              height: "120px",
+              borderRadius: "14px",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              animation: "pulse 1.5s ease-in-out infinite",
+            }} />
+          ))}
+        </div>
+      ) : steps ? (
+        <StepFlow steps={steps} activeIndex={-1} />
+      ) : (
+        <div style={{
+          padding: "24px",
+          borderRadius: "14px",
+          border: "1px dashed var(--color-border)",
+          textAlign: "center",
+          color: "var(--color-text-muted)",
+          fontSize: "13px",
+        }}>
+          流水线步骤加载失败，请检查后端连接
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ── Hero ────────────────────────────────────────────────────────────
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-zinc-800/60 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-10 shadow-2xl">
-      <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-
-      <div className="relative grid grid-cols-1 gap-8 md:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-200">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
-            v2.5.0-alpha · 第一人称叙述已就绪
+    <section style={{
+      position: "relative",
+      overflow: "hidden",
+      borderRadius: "24px",
+      border: "1px solid var(--color-border)",
+      background: "var(--color-surface)",
+      padding: "40px",
+      boxShadow: "var(--shadow-elevated)",
+      transition: "background 200ms ease, border-color 200ms ease",
+    }}>
+      {/* Decorative glow */}
+      <div style={{
+        position: "absolute",
+        top: "-60px",
+        right: "-60px",
+        width: "300px",
+        height: "300px",
+        borderRadius: "50%",
+        background: "radial-gradient(circle, var(--color-gold-glow) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px", alignItems: "center", position: "relative" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "var(--color-gold-muted)",
+            border: "1px solid rgba(245,200,66,0.3)",
+            borderRadius: "999px",
+            padding: "4px 14px",
+            width: "fit-content",
+            fontSize: "12px",
+            color: "var(--color-gold)",
+            fontWeight: 600,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-gold)", boxShadow: "0 0 6px var(--color-gold)" }} />
+            Vynaro v2.5.0 · AI 第一人称解说引擎
           </div>
 
-          <h1 className="text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
-            <span className="text-zinc-50">给每一段视频</span>
+          <h1 style={{
+            fontSize: "40px",
+            fontWeight: 800,
+            lineHeight: 1.15,
+            color: "var(--color-text-primary)",
+            letterSpacing: "-0.02em",
+            margin: 0,
+          }}>
+            把影视与短剧交给 AI
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              写一个会说话的主持人
+            <span style={{ background: "linear-gradient(135deg, var(--color-gold) 0%, var(--color-amber) 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              打造爆款第一人称解说
             </span>
           </h1>
 
-          <p className="max-w-xl text-base text-zinc-400">
-            AI 拆场景 · 写脚本 · 配中文语音 · 烧字幕,5 步出成片。
+          <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.6 }}>
+            智能拆条 · AI 第一人称脚本 · 3秒人声克隆配音 · VAD动态字幕 · 画面节奏对齐 · 一键导出剪映草稿。
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/production"
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:shadow-blue-500/50"
-            >
-              开始制作
-              <span className="transition group-hover:translate-x-0.5">→</span>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <Link to="/production" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+              🎬 开始 7 步解说制作 <span>→</span>
             </Link>
-            <Link
-              to="/assets"
-              className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/70 px-6 py-3 text-sm font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-900"
-            >
-              打开项目
+            <Link to="/assets" className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+              📦 管理项目资产
             </Link>
           </div>
         </div>
@@ -104,49 +184,8 @@ function Hero() {
 
 function HeroVisual() {
   return (
-    <div className="relative grid grid-cols-3 gap-3 rounded-2xl border border-zinc-800/60 bg-zinc-950/60 p-4">
-      <VisualCard tone="blue" icon="🎞" title="导入" sub="mp4 / mov" />
-      <VisualCard tone="violet" icon="✂" title="拆分" sub="6 场景" />
-      <VisualCard tone="fuchsia" icon="✍" title="脚本" sub="第一人称" />
-      <VisualCard tone="amber" icon="🎙" title="配音" sub="Edge TTS" />
-      <VisualCard tone="emerald" icon="📝" title="字幕" sub="自动烧录" />
-      <VisualCard tone="cyan" icon="📤" title="导出" sub="1080×1920" />
-    </div>
-  );
-}
-
-function VisualCard({
-  tone,
-  icon,
-  title,
-  sub,
-}: {
-  tone: string;
-  icon: string;
-  title: string;
-  sub: string;
-}) {
-  const map: Record<string, string> = {
-    blue: "from-blue-500/20 to-blue-500/0 border-blue-500/30 text-blue-200",
-    violet:
-      "from-violet-500/20 to-violet-500/0 border-violet-500/30 text-violet-200",
-    fuchsia:
-      "from-fuchsia-500/20 to-fuchsia-500/0 border-fuchsia-500/30 text-fuchsia-200",
-    amber:
-      "from-amber-500/20 to-amber-500/0 border-amber-500/30 text-amber-200",
-    emerald:
-      "from-emerald-500/20 to-emerald-500/0 border-emerald-500/30 text-emerald-200",
-    cyan: "from-cyan-500/20 to-cyan-500/0 border-cyan-500/30 text-cyan-200",
-  };
-  return (
-    <div
-      className={`flex flex-col items-start justify-between rounded-xl border bg-gradient-to-br p-3 transition hover:scale-[1.03] ${map[tone]}`}
-    >
-      <span className="text-2xl">{icon}</span>
-      <div className="mt-6 space-y-0.5">
-        <div className="text-sm font-semibold text-zinc-100">{title}</div>
-        <div className="text-[10px] text-zinc-400">{sub}</div>
-      </div>
+    <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", border: "1px solid var(--color-border)" }}>
+      <img src="/empty-state.jpg" alt="Vynaro Cinema Journey" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
     </div>
   );
 }
@@ -164,13 +203,13 @@ function SectionHeader({
 }) {
   return (
     <div className="mb-5 space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
+      <div style={{ fontSize: "10px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--color-gold)" }}>
         {kicker}
       </div>
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
+      <h2 style={{ fontSize: "20px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--color-text-primary)", margin: 0 }}>
         {title}
       </h2>
-      <p className="text-sm text-zinc-500">{subtitle}</p>
+      <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>{subtitle}</p>
     </div>
   );
 }
@@ -192,15 +231,47 @@ function RecentProjectsStrip() {
             <button
               key={path}
               type="button"
-              className="group flex flex-col items-start gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-left transition hover:border-blue-500/50 hover:bg-zinc-900"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: "8px",
+                borderRadius: "12px",
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                padding: "16px",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface-elevated)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface)";
+              }}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 text-sm font-bold text-zinc-300 group-hover:from-blue-500 group-hover:to-violet-500 group-hover:text-white">
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: "10px",
+                background: "var(--color-surface-elevated)",
+                border: "1px solid var(--color-border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px",
+                fontWeight: 700,
+                color: "var(--color-text-secondary)",
+              }}>
                 {i + 1}
               </div>
-              <div className="truncate text-xs text-zinc-300">
+              <div style={{ fontSize: "12px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
                 {path.split("/").pop()}
               </div>
-              <div className="truncate text-[10px] text-zinc-500">{path}</div>
+              <div style={{ fontSize: "10px", color: "var(--color-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{path}</div>
             </button>
           ))}
         </div>
@@ -213,14 +284,23 @@ function RecentProjectsStrip() {
 
 function EmptyRecent() {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 px-6 py-8">
-      <div className="space-y-1">
-        <div className="text-base font-medium text-zinc-200">还没有项目</div>
-        <div className="text-xs text-zinc-500">创建一个空白项目开始制作</div>
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderRadius: "16px",
+      border: "1px dashed var(--color-border)",
+      background: "var(--color-surface)",
+      padding: "32px 24px",
+    }}>
+      <div>
+        <div style={{ fontSize: "15px", fontWeight: 500, color: "var(--color-text-primary)" }}>还没有项目</div>
+        <div style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>创建一个空白项目开始制作</div>
       </div>
       <Link
         to="/production"
-        className="rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow shadow-blue-500/30"
+        className="btn-primary"
+        style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
       >
         新建项目
       </Link>
@@ -248,7 +328,7 @@ function SystemStatusStrip() {
   const ffmpegOk = sysInfo.data?.ffmpegAvailable ?? false;
 
   return (
-    <section className="flex flex-wrap items-center gap-2 text-[11px]">
+    <section style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", fontSize: "11px" }}>
       <Pill tone={ok ? "ok" : "err"}>{ok ? "Tauri 已连接" : "后端断连"}</Pill>
       <Pill tone="info">v{version.data ?? "—"}</Pill>
       <Pill tone="info">{stepDefs.data?.length ?? 5} 步流水线</Pill>
@@ -267,17 +347,25 @@ function Pill({
   tone: "ok" | "err" | "warn" | "info" | "neutral";
   children: React.ReactNode;
 }) {
-  const map: Record<string, string> = {
-    ok: "border-emerald-700/40 bg-emerald-950/30 text-emerald-300",
-    err: "border-rose-800/40 bg-rose-950/30 text-rose-300",
-    warn: "border-amber-800/40 bg-amber-950/30 text-amber-300",
-    info: "border-blue-800/40 bg-blue-950/30 text-blue-300",
-    neutral: "border-zinc-800 bg-zinc-900/40 text-zinc-400",
+  const map: Record<string, { border: string; bg: string; color: string }> = {
+    ok:      { border: "rgba(74,222,128,0.3)",  bg: "rgba(74,222,128,0.08)",  color: "#4ADE80" },
+    err:     { border: "rgba(248,113,113,0.3)", bg: "rgba(248,113,113,0.08)", color: "#F87171" },
+    warn:    { border: "rgba(251,191,36,0.3)",  bg: "rgba(251,191,36,0.08)",  color: "#FBBF24" },
+    info:    { border: "rgba(96,165,250,0.3)",  bg: "rgba(96,165,250,0.08)",  color: "#60A5FA" },
+    neutral: { border: "var(--color-border)",   bg: "var(--color-surface)",   color: "var(--color-text-muted)" },
   };
+  const s = map[tone] ?? map.neutral;
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 ${map[tone]}`}
-    >
+    <span style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "6px",
+      borderRadius: "999px",
+      border: `1px solid ${s!.border}`,
+      background: s!.bg,
+      color: s!.color,
+      padding: "2px 10px",
+    }}>
       {children}
     </span>
   );
@@ -299,7 +387,7 @@ function MediaOverview() {
 
   return (
     <section>
-      <div className="mb-5 flex items-end justify-between">
+      <div style={{ marginBottom: "20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
         <SectionHeader
           kicker="素材"
           title={projectName ? `当前项目 · ${projectName}` : "素材总览"}
@@ -309,20 +397,39 @@ function MediaOverview() {
               : "打开或新建一个项目后可在此预览"
           }
         />
-        <div className="flex gap-2">
+        <div style={{ display: "flex", gap: "8px" }}>
           <button
             type="button"
             onClick={() => setOpenImport(true)}
             disabled={!currentProject}
             title={!currentProject ? "请先打开项目" : undefined}
-            className="rounded-md border border-blue-700/50 bg-blue-950/30 px-3 py-1.5 text-xs text-blue-200 transition hover:border-blue-500 hover:bg-blue-950/60 disabled:opacity-40"
+            style={{
+              borderRadius: "8px",
+              border: "1px solid rgba(96,165,250,0.4)",
+              background: "rgba(96,165,250,0.08)",
+              padding: "6px 12px",
+              fontSize: "12px",
+              color: "#60A5FA",
+              cursor: currentProject ? "pointer" : "not-allowed",
+              opacity: currentProject ? 1 : 0.4,
+              transition: "all 150ms ease",
+            }}
           >
             📂 导入
           </button>
           <button
             type="button"
             onClick={() => void navigate({ to: "/assets" })}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-200 transition hover:border-zinc-500"
+            style={{
+              borderRadius: "8px",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface)",
+              padding: "6px 12px",
+              fontSize: "12px",
+              color: "var(--color-text-secondary)",
+              cursor: "pointer",
+              transition: "all 150ms ease",
+            }}
           >
             📦 进入素材页 →
           </button>
@@ -330,36 +437,45 @@ function MediaOverview() {
       </div>
 
       {!currentProject ? (
-        <div className="flex items-center justify-between rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 px-6 py-8">
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-zinc-200">
-              还没有打开的项目
-            </div>
-            <div className="text-xs text-zinc-500">
-              前往制作流水线页新建项目,或将素材直接导入现有项目
-            </div>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderRadius: "16px",
+          border: "1px dashed var(--color-border)",
+          background: "var(--color-surface)",
+          padding: "32px 24px",
+        }}>
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>还没有打开的项目</div>
+            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>前往制作流水线页新建项目,或将素材直接导入现有项目</div>
           </div>
           <Link
             to="/production"
-            className="rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow shadow-blue-500/30"
+            className="btn-primary"
+            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
           >
             🎬 前往制作
           </Link>
         </div>
       ) : media.length === 0 ? (
-        <div className="flex items-center justify-between rounded-2xl border border-amber-800/40 bg-amber-950/20 px-6 py-8">
-          <div className="space-y-1">
-            <div className="text-sm font-medium text-amber-100">
-              当前项目还没有素材
-            </div>
-            <div className="text-xs text-amber-200/80">
-              导入 1 个或多个视频后即可启动流水线
-            </div>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderRadius: "16px",
+          border: "1px solid rgba(251,191,36,0.3)",
+          background: "rgba(251,191,36,0.05)",
+          padding: "32px 24px",
+        }}>
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>当前项目还没有素材</div>
+            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>导入 1 个或多个视频后即可启动流水线</div>
           </div>
           <button
             type="button"
             onClick={() => setOpenImport(true)}
-            className="rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow shadow-blue-500/30"
+            className="btn-primary"
           >
             📂 立即导入
           </button>
@@ -371,17 +487,33 @@ function MediaOverview() {
               type="button"
               key={m.path}
               onClick={() => void navigate({ to: "/assets" })}
-              className="group flex flex-col gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/40 p-2 text-left transition hover:border-blue-500/50 hover:bg-zinc-900"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                borderRadius: "12px",
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                padding: "8px",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "all 150ms ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface-elevated)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface)";
+              }}
             >
               <ThumbnailImage source={m.path} kind="video" width={200} />
-              <div className="space-y-0.5 px-1 pb-1">
-                <div
-                  className="truncate font-mono text-[10px] text-zinc-200"
-                  title={m.path}
-                >
+              <div style={{ padding: "0 4px 4px" }}>
+                <div style={{ fontSize: "10px", fontFamily: "monospace", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={m.path}>
                   {m.path.split(/[/\\]/).pop() ?? m.path}
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "var(--color-text-muted)", marginTop: "2px" }}>
                   <span>{Math.round(m.duration_seconds)}s</span>
                   {m.resolution && (
                     <>
@@ -397,9 +529,30 @@ function MediaOverview() {
             <button
               type="button"
               onClick={() => void navigate({ to: "/assets" })}
-              className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-900/30 text-center text-xs text-zinc-400 transition hover:border-blue-500/50 hover:text-blue-300"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "12px",
+                border: "1px dashed var(--color-border)",
+                background: "var(--color-surface)",
+                fontSize: "12px",
+                color: "var(--color-text-muted)",
+                cursor: "pointer",
+                transition: "all 150ms ease",
+                aspectRatio: "16/9",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--color-gold)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)";
+              }}
             >
-              <div className="text-2xl">＋</div>
+              <div style={{ fontSize: "24px" }}>＋</div>
               <div>还有 {remaining} 项</div>
             </button>
           )}

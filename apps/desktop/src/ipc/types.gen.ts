@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · Tauri Command 类型契约 (单源真相)
+ * Vynaro v2.5.0 · Tauri Command 类型契约 (单源真相)
  *
  * M3+ 由 pnpm `gen:ipc` 自动生成两段:
  *   - "gen-ipc start" 标记: IpcContracts (commands/*.rs 的 #[tauri::command] 函数)
@@ -8,7 +8,7 @@
  * 设计原则:
  * - 与 apps/desktop/src-tauri/src/commands/*.rs 1:1 对应
  * - 字段命名严格 camelCase (Rust 命令参数序列化策略)
- * - 错误统一从 SceneFabError JSON 反序列化
+ * - 错误统一从 VynaroError JSON 反序列化
  */
 
 // ────────────────────────────────────────────────────────────────────────
@@ -30,10 +30,10 @@ export type LlmProviderKind =
   | "qwen37";
 
 // ────────────────────────────────────────────────────────────────────────
-// 错误类型 (与 scenefab-core::SceneFabError 手工 wire 格式 1:1)
+// 错误类型 (与 vynaro-core::VynaroError 手工 wire 格式 1:1)
 // ────────────────────────────────────────────────────────────────────────
 
-export interface SceneFabError {
+export interface VynaroError {
   kind:
     | "io"
     | "config"
@@ -49,7 +49,7 @@ export interface SceneFabError {
 }
 
 export type CommandResult<T> = T;
-export type CommandError = SceneFabError | { error: SceneFabError };
+export type CommandError = VynaroError | { error: VynaroError };
 
 /* >>> gen-ipc start */
 export interface IpcContracts {
@@ -190,7 +190,14 @@ export interface IpcContracts {
     };
     result: ThumbnailResult;
   };
-  // ─────── export · 3 个 ───────
+  // ─────── export · 4 个 ───────
+  export_capcut_draft: {
+    args: {
+      projectName: string;
+      targetDir: string | null;
+    };
+    result: CapcutDraftResult;
+  };
   export_plan: {
     args: {
       mode: ExportMode;
@@ -230,6 +237,42 @@ export interface IpcContracts {
     };
     result: HelpTopic[];
   };
+  // ─────── voice · 2 个 ───────
+  voice_preview: {
+    args: {
+      params: VoicePreviewParams;
+    };
+    result: VoicePreviewResult;
+  };
+  voice_synthesize: {
+    args: {
+      params: VoicePreviewParams;
+      outputPath: string;
+    };
+    result: VoicePreviewResult;
+  };
+  // ─────── script · 1 个 ───────
+  script_generate: {
+    args: {
+      params: ScriptGenerateParams;
+    };
+    result: ScriptGenerateResult;
+  };
+  // ─────── detect · 1 个 ───────
+  detect_scenes: {
+    args: {
+      filePath: string;
+      threshold: number | null;
+    };
+    result: DetectScenesResult;
+  };
+  // ─────── subtitle · 1 个 ───────
+  subtitle_generate: {
+    args: {
+      params: SubtitleGenerateParams;
+    };
+    result: SubtitleGenerateResult;
+  };
   // ─────── video · 1 个 ───────
   video_build_plans: {
     args: {
@@ -267,10 +310,57 @@ export interface AppSystemInfo {
   ffmpegVersion: string | null;
 }
 
+// Rust 端 DetectScenesResult (pub struct)
+export interface DetectScenesResult {
+  cuts: number[];
+  total_cuts: number;
+  probe: FfmpegProbe | null;
+}
+
+// Rust 端 CapcutDraftResult (pub struct)
+export interface CapcutDraftResult {
+  draft_folder: string;
+  draft_id: string;
+  created_at: string;
+}
+
 // Rust 端 ProjectRecord (pub struct, rename_all = "camelCase")
 export interface ProjectRecord {
   path: string;
   project: Project;
+}
+
+// Rust 端 ScriptGenerateParams (pub struct)
+export interface ScriptGenerateParams {
+  provider: string;
+  api_key: string | null;
+  base_url: string | null;
+  model: string | null;
+  prompt: string;
+  style: string | null;
+  emotion_density: number | null;
+  word_count_target: number | null;
+}
+
+// Rust 端 ScriptGenerateResult (pub struct)
+export interface ScriptGenerateResult {
+  text: string;
+  word_count: number;
+  estimated_duration_sec: number;
+}
+
+// Rust 端 SubtitleGenerateParams (pub struct)
+export interface SubtitleGenerateParams {
+  script_text: string;
+  format: string;
+}
+
+// Rust 端 SubtitleGenerateResult (pub struct)
+export interface SubtitleGenerateResult {
+  content: string;
+  format: string;
+  item_count: number;
+  items: SubtitleItem[];
 }
 
 // Rust 端 UpdateInstallResult (pub struct, rename_all = "camelCase")
@@ -279,35 +369,93 @@ export interface UpdateInstallResult {
   note: string;
 }
 
-// Rust 端 AssetEntry (pub struct, rename_all = "camelCase")
-export interface AssetEntry {
-  path: string;
-  sizeBytes: number;
-  mime: string;
-  kind: AssetKind;
+// Rust 端 VoicePreviewParams (pub struct)
+export interface VoicePreviewParams {
+  text: string;
+  provider: string;
+  voice: string | null;
+  rate_percent: number;
+  api_key: string | null;
+  base_url: string | null;
+  model: string | null;
+  ref_audio_path: string | null;
+  prompt_text: string | null;
 }
 
-// Rust 端 ScanResult (pub struct, rename_all = "camelCase")
-export interface ScanResult {
-  dir: string;
-  total: number;
-  entries: AssetEntry[];
-  skipped: number;
+// Rust 端 VoicePreviewResult (pub struct)
+export interface VoicePreviewResult {
+  file_path: string;
+  format: string;
+  bytes_written: number;
 }
 
-// Rust 端 ThumbnailResult (pub struct, rename_all = "camelCase")
-export interface ThumbnailResult {
-  source: string;
-  thumbnailPath: string;
-  width: number;
-  height: number;
+// Rust 端 StepDef (pub struct)
+export interface PipelineStepDef {
+  id: string;
+  label_zh: string;
+  description_zh: string;
 }
 
-// Rust 端 AssetKind (pub enum, rename_all = "snake_case")
-export type AssetKind = "video" | "audio" | "image" | "subtitle" | "other";
+// Rust 端 StepStatus (pub enum, rename_all = "kebab-case")
+export type StepStatus =
+  | "pending"
+  | "active"
+  | "done"
+  | "error";
+
+// Rust 端 PipelineState (pub enum, rename_all = "kebab-case")
+export type PipelineState =
+  | "idle"
+  | "running"
+  | "done"
+  | "failed";
+
+// Rust 端 PipelineStatus (pub struct, rename_all = "camelCase")
+export interface PipelineStatus {
+  state: PipelineState;
+  stepStatuses: StepStatus[];
+  currentStep: number;
+  projectName: string | null;
+}
 
 // Rust 端 TtsProviderKind (pub enum, rename_all = "kebab-case")
-export type TtsProviderKind = "edge" | "open-ai" | "gpt-sovits";
+export type TtsProviderKind =
+  | "edge"
+  | "open-ai"
+  | "gpt-sovits";
+
+// Rust 端 HelpTopic (pub struct)
+export interface HelpTopic {
+  id: string;
+  title: string;
+  summary: string | null;
+  category: HelpCategory;
+  keywords: string[];
+  content: string;
+  related: string[];
+}
+
+// Rust 端 SearchHit (pub struct)
+export interface SearchHit {
+  id: string;
+  topic_id: string;
+  title: string;
+  score: number;
+  snippet: string;
+}
+
+// Rust 端 HelpCategory (pub enum, rename_all = "kebab-case")
+export type HelpCategory =
+  | "guide"
+  | "reference"
+  | "shortcut"
+  | "faq"
+  | "troubleshooting";
+
+// Rust 端 Locale (pub enum)
+export type Locale =
+  | "ZhCn"
+  | "EnUs";
 
 // Rust 端 ConfigSnapshot (pub struct)
 export interface ConfigSnapshot {
@@ -323,6 +471,16 @@ export interface ConfigSnapshot {
   tts_voice: string | null;
   tts_ref_audio_path: string | null;
   tts_prompt_text: string | null;
+}
+
+// Rust 端 FfmpegProbe (pub struct, rename_all = "camelCase")
+export interface FfmpegProbe {
+  durationSeconds: number;
+  width: number;
+  height: number;
+  videoCodec: string | null;
+  audioCodec: string | null;
+  sizeBytes: number;
 }
 
 // Rust 端 Project (pub struct)
@@ -402,10 +560,17 @@ export interface ExportRecord {
 }
 
 // Rust 端 TrackKind (pub enum, rename_all = "kebab-case")
-export type TrackKind = "video" | "audio" | "subtitle";
+export type TrackKind =
+  | "video"
+  | "audio"
+  | "subtitle";
 
 // Rust 端 ExportStrategy (pub enum, rename_all = "kebab-case")
-export type ExportStrategy = "single" | "concat" | "batch" | "series";
+export type ExportStrategy =
+  | "single"
+  | "concat"
+  | "batch"
+  | "series";
 
 // Rust 端 ExportParams (pub struct)
 export interface ExportParams {
@@ -432,62 +597,92 @@ export interface SubtitleItem {
 }
 
 // Rust 端 ExportMode (pub enum, rename_all = "kebab-case")
-export type ExportMode = "quick" | "custom" | "silent";
+export type ExportMode =
+  | "quick"
+  | "custom"
+  | "silent";
 
 // Rust 端 SubtitleFormat (pub enum, rename_all = "kebab-case")
-export type SubtitleFormat = "srt" | "ass" | "vtt";
+export type SubtitleFormat =
+  | "srt"
+  | "ass"
+  | "vtt";
 
-// Rust 端 FfmpegProbe (pub struct, rename_all = "camelCase")
-export interface FfmpegProbe {
-  durationSeconds: number;
+// Rust 端 PlanOptions (pub struct)
+export interface PlanOptions {
+  base_name: string;
+  series_context: string | null;
+  episode_template: string;
+}
+
+// Rust 端 OutputPlan (pub struct)
+export interface OutputPlan {
+  name: string;
+  ordered_sources: string[];
+  episode_number: number | null;
+  episode_label: string | null;
+  series_context: string | null;
+}
+
+// Rust 端 AssetEntry (pub struct, rename_all = "camelCase")
+export interface AssetEntry {
+  path: string;
+  sizeBytes: number;
+  mime: string;
+  kind: AssetKind;
+}
+
+// Rust 端 ScanResult (pub struct, rename_all = "camelCase")
+export interface ScanResult {
+  dir: string;
+  total: number;
+  entries: AssetEntry[];
+  skipped: number;
+}
+
+// Rust 端 ThumbnailResult (pub struct, rename_all = "camelCase")
+export interface ThumbnailResult {
+  source: string;
+  thumbnailPath: string;
   width: number;
   height: number;
-  videoCodec: string | null;
-  audioCodec: string | null;
-  sizeBytes: number;
 }
 
-// Rust 端 HelpTopic (pub struct)
-export interface HelpTopic {
-  id: string;
-  category: HelpCategory;
-  title: string;
-  summary: string;
-  content: string;
-  keywords: string[];
-  related: string[];
+// Rust 端 AssetKind (pub enum, rename_all = "snake_case")
+export type AssetKind =
+  | "video"
+  | "audio"
+  | "image"
+  | "subtitle"
+  | "other";
+
+// Rust 端 SubtitleEntry (pub struct)
+export interface SubtitleEntry {
+  index: number;
+  start_ms: number;
+  end_ms: number;
+  text: string;
+  emotion_tag: string | null;
 }
 
-// Rust 端 SearchHit (pub struct)
-export interface SearchHit {
-  id: string;
-  title: string;
-  score: number;
+// Rust 端 SubtitleTrack (pub struct)
+export interface SubtitleTrack {
+  entries: SubtitleEntry[];
+  format: SubtitleFormat;
+  language: string;
 }
 
-// Rust 端 HelpCategory (pub enum, rename_all = "kebab-case")
-export type HelpCategory =
-  "guide" | "troubleshooting" | "shortcut" | "faq" | "reference";
-
-// Rust 端 StepDef (pub struct)
-export interface PipelineStepDef {
-  id: string;
-  label_zh: string;
-  description_zh: string;
+// Rust 端 VadConfig (pub struct)
+export interface VadConfig {
+  min_segment_ms: number;
+  silence_threshold_db: number;
+  merge_gap_ms: number;
 }
 
-// Rust 端 StepStatus (pub enum, rename_all = "kebab-case")
-export type StepStatus = "pending" | "active" | "done" | "error";
-
-// Rust 端 PipelineState (pub enum, rename_all = "kebab-case")
-export type PipelineState = "idle" | "running" | "done" | "failed";
-
-// Rust 端 PipelineStatus (pub struct, rename_all = "camelCase")
-export interface PipelineStatus {
-  state: PipelineState;
-  stepStatuses: StepStatus[];
-  currentStep: number;
-  projectName: string | null;
+// Rust 端 SpeechSegment (pub struct)
+export interface SpeechSegment {
+  start_ms: number;
+  end_ms: number;
 }
 
 // Rust 端 UpdateInfo (pub struct, rename_all = "camelCase")
@@ -519,23 +714,11 @@ export interface UpdateState {
 
 // Rust 端 UpdatePhase (pub enum, rename_all = "snake_case")
 export type UpdatePhase =
-  "idle" | "checking" | "available" | "downloading" | "ready";
-
-// Rust 端 PlanOptions (pub struct)
-export interface PlanOptions {
-  base_name: string;
-  series_context: string | null;
-  episode_template: string;
-}
-
-// Rust 端 OutputPlan (pub struct)
-export interface OutputPlan {
-  name: string;
-  ordered_sources: string[];
-  episode_number: number | null;
-  episode_label: string | null;
-  series_context: string | null;
-}
+  | "idle"
+  | "checking"
+  | "available"
+  | "downloading"
+  | "ready";
 
 /* <<< gen-ipc-types end */
 
@@ -562,7 +745,7 @@ export interface IpcEventPayloads {
   "pipeline:step_failed": {
     runId: string;
     stepId: string;
-    error: SceneFabError;
+    error: VynaroError;
   };
   "pipeline:progress": { runId: string; percent: number };
   "pipeline:log": {
@@ -579,7 +762,7 @@ export interface IpcEventPayloads {
   "updater:downloading": { version: string };
   "updater:download_progress": { percent: number };
   "updater:ready": { version: string };
-  "updater:error": { error: SceneFabError };
+  "updater:error": { error: VynaroError };
   "updater:event": UpdateState | UpdateInfo | UpdateProgress | string;
   "app:theme_changed": { theme: string };
   "app:locale_changed": { locale: string };
@@ -588,7 +771,7 @@ export interface IpcEventPayloads {
   "app:secure_key_rotated": Record<string, never>;
   "app:service_started": { name: string };
   "app:service_stopped": { name: string };
-  "app:error_reported": { error: SceneFabError };
+  "app:error_reported": { error: VynaroError };
   "app:log_flushed": { lines: number };
 }
 

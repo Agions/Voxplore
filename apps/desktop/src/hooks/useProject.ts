@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
+ * Vynaro v2.5.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
  *
  * 后端命令:
  * - open(path)    → projectIpc.load(path)      → ProjectRecord
@@ -33,7 +33,7 @@ export interface UseProjectReturn {
   /** 是否已加载项目 */
   hasProject: boolean;
 
-  /** 加载指定路径的项目 (解析 .scenefab.json → setCurrentRecord) */
+  /** 加载指定路径的项目 (解析 .vynaro.json → setCurrentRecord) */
   open: (path: string) => Promise<void>;
   /** 保存到当前路径 (currentPath 必须存在) */
   save: () => Promise<void>;
@@ -44,7 +44,7 @@ export interface UseProjectReturn {
 
   /** 异步操作状态 */
   loading: boolean;
-  /** 最近一次失败信息 (SceneFabError 或 Error) */
+  /** 最近一次失败信息 (VynaroError 或 Error) */
   error: unknown;
 }
 

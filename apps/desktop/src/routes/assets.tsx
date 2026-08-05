@@ -1,24 +1,25 @@
 /**
- * SceneFab v2.5.0 · 项目管理页 (M3 后续: 完整接入 assets 5 个 actions)
+ * Vynaro v2.5.0 · 项目管理页 — 电影调光室主题（深黑 + 暖金）
  *
- * 顶部:项目统计 + 当前项目信息卡
- * 中段:最近项目网格 (使用 projectIpc.listRecent)
- * 下段:当前项目的素材列表 (缩略图网格 + 搜索 + 批量导入)
- *      - 🎞 单文件导入 (tauri-plugin-dialog + useAssets.importFromPaths)
- *      - 📂 批量目录扫描导入 (BatchImportDialog + useAssets.scan + importFromScan)
- *      - 顶部搜索框 (substring 过滤当前 media_files)
- *      - 缩略图 (ThumbnailImage + useAssets.thumbnail)
+ * 1. 顶部: 项目统计看板 (项目数/媒体文件/脚本/轨道)
+ * 2. 当前项目: 素材清单 + 缩略图 + 实时搜索 + 单文件/批量目录导入
+ * 3. 历史项目: 胶片卡片网格 (支持打开/删除)
+ * 4. 视觉对齐: 完整对齐 design_report.md 电影调光室风格
  */
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { projectIpc } from "@ipc/commands";
 import { useAssets } from "@hooks/useAssets";
 import { useProject } from "@hooks/useProject";
+import { useProjectStore } from "@stores/project-store";
+import { useSettingsStore } from "@stores/settings-store";
+import { t } from "@lib/i18n";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { ThumbnailImage } from "@components/common/ThumbnailImage";
+import { toast } from "sonner";
 import type { MediaFile, Project } from "@ipc/types.gen";
 
 export const Route = createFileRoute("/assets")({
@@ -27,25 +28,26 @@ export const Route = createFileRoute("/assets")({
 
 function AssetsPage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const locale = useSettingsStore((s) => s.locale);
+
   const { data: recents, isLoading } = useQuery({
     queryKey: ["assets-recent"],
     queryFn: projectIpc.listRecent,
   });
-  const { data: currentRaw } = useQuery<Project | null>({
-    queryKey: ["assets-current-project"],
-    queryFn: async () => null,
-    enabled: false,
-  });
-  const current = currentRaw;
 
-  // M4 真实接通:素材导入/删除由 useAssets 接管
+  // 读取当前已打开的项目（由 production 页面写入 QueryClient 缓存）
+  const currentRaw = qc.getQueryData<{ project: Project } | null>(["current-project"]);
+  const current = currentRaw?.project ?? null;
+
+
   const {
     importFromPaths,
     remove: removeAssets,
     search,
     loading: assetsLoading,
   } = useAssets();
-  // useProject 让 hook 自动跟随 current / currentPath 变化
+
   const { hasProject } = useProject();
 
   const [importError, setImportError] = useState<string | null>(null);
@@ -67,9 +69,11 @@ function AssetsPage() {
       if (!selected) return;
       const paths = Array.isArray(selected) ? selected : [selected];
       await importFromPaths(paths);
+      toast.success(`成功导入 ${paths.length} 个视频文件`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setImportError(msg);
+      toast.error("导入素材失败", { description: msg });
     }
   };
 
@@ -77,17 +81,14 @@ function AssetsPage() {
     setImportError(null);
     try {
       await removeAssets([id]);
+      toast.success("已移除素材");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setImportError(msg);
+      toast.error("移除素材失败", { description: msg });
     }
   };
 
-  /**
-   * 搜索:实时 substring 过滤
-   * - searchPattern 为空时不过滤,显示全部
-   * - 非空时通过后端 search 命令过滤
-   */
   const handleSearch = async (pattern: string) => {
     if (!pattern.trim() || !current) {
       setMatchingPaths(null);
@@ -102,13 +103,22 @@ function AssetsPage() {
     }
   };
 
+  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
+
   const handleCreateBlank = async () => {
-    const rec = await projectIpc.createBlank();
-    qc.setQueryData(["assets-current-project"], rec.project);
-    void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+    try {
+      const rec = await projectIpc.createBlank();
+      setCurrentRecord(rec.path, rec.project);
+      qc.setQueryData(["assets-current-project"], rec.project);
+      qc.setQueryData(["current-project"], rec);
+      void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+      toast.success(`已创建空白项目 ${rec.project.name}`);
+      void navigate({ to: "/production" });
+    } catch (e) {
+      toast.error("创建空白项目失败", { description: String(e) });
+    }
   };
 
-  /** 视图层过滤后的 media_files (None 表示不过滤) */
   const filteredMedia = useMemo<MediaFile[]>(() => {
     if (!matchingPaths) return current?.media_files ?? [];
     const set = new Set(matchingPaths);
@@ -116,25 +126,34 @@ function AssetsPage() {
   }, [current?.media_files, matchingPaths]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-8 py-10">
-      <header className="flex items-start justify-between">
+    <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+      {/* 页头 */}
+      <header className="flex items-start justify-between border-b border-[var(--color-border)] pb-6">
         <div className="space-y-1">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
-            Project Management
+          <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--color-gold)]">
+            PROJECT MANAGEMENT
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">项目管理</h1>
-          <p className="text-sm text-zinc-500">管理项目、媒体、脚本与导出</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
+            {t("assets.title", locale)}
+          </h1>
+          <p className="text-xs text-[var(--color-text-secondary)]">
+            {t("assets.subtitle", locale)}
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={handleCreateBlank}
-          className="rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:shadow-blue-500/50"
-        >
-          新建空白项目
-        </button>
+
+        {recents && recents.length > 0 && (
+          <button
+            type="button"
+            onClick={handleCreateBlank}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-5 py-2.5 text-xs font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:shadow-amber-500/40 hover:brightness-105"
+          >
+            <span>✨</span>
+            <span>{t("action.create", locale)}</span>
+          </button>
+        )}
       </header>
 
-      {/* 当前项目 */}
+      {/* 当前项目信息卡 / 状态 */}
       <CurrentProjectCard
         project={current ?? null}
         onImportMedia={handleImportMedia}
@@ -146,20 +165,27 @@ function AssetsPage() {
         importing={assetsLoading}
         importError={importError}
         hasProject={hasProject}
+        onCreateBlank={handleCreateBlank}
       />
 
       {/* 最近项目 */}
-      <section>
-        <SectionHeader
-          kicker="历史"
-          title="最近的项目"
-          subtitle="最多保留 20 条"
-        />
+      <section className="space-y-4">
+        <div className="flex items-center justify-between border-b border-[var(--color-border)]/60 pb-3">
+          <div>
+            <h2 className="text-base font-bold text-[var(--color-text-primary)]">
+              {t("assets.recent", locale)}
+            </h2>
+            <p className="text-[11px] text-[var(--color-text-secondary)]">
+              {t("assets.recent_subtitle", locale)}
+            </p>
+          </div>
+        </div>
+
         {isLoading ? (
           <SkeletonGrid />
         ) : recents && recents.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {recents.map((p, idx) => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {recents.map((p: string, idx: number) => (
               <RecentCard key={p} path={p} index={idx + 1} />
             ))}
           </div>
@@ -188,10 +214,10 @@ function CurrentProjectCard({
   onOpenBatchDialog,
   onSearch,
   filteredMedia,
-  searching,
   importing,
   importError,
   hasProject,
+  onCreateBlank,
 }: {
   project: Project | null;
   onImportMedia: () => Promise<void> | void;
@@ -199,39 +225,56 @@ function CurrentProjectCard({
   onOpenBatchDialog: () => void;
   onSearch: (pattern: string) => void;
   filteredMedia: MediaFile[];
-  searching: boolean;
+  searching?: boolean;
   importing: boolean;
   importError: string | null;
   hasProject: boolean;
+  onCreateBlank: () => void;
 }) {
+  const locale = useSettingsStore((s) => s.locale);
+
   if (!project) {
     return (
-      <section className="flex items-center justify-between rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 px-6 py-5">
-        <div className="space-y-0.5">
-          <div className="text-sm font-medium text-zinc-300">
-            尚未打开任何项目
+      <section className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-[var(--color-gold)]">
+              <span>🎬</span>
+              <span>电影调光室影院解说引擎</span>
+            </div>
+            <h2 className="text-xl font-bold text-[var(--color-text-primary)]">
+              {t("assets.no_project", locale)}
+            </h2>
+            <p className="text-xs text-[var(--color-text-secondary)] max-w-md">
+              选择下方的历史项目工程或新建空白项目，开启 AI 第一人称解说、智能拆条与 TTS 配音合成。
+            </p>
           </div>
-          <div className="text-xs text-zinc-500">
-            选择现有项目或新建空白项目开始
-          </div>
+          <button
+            type="button"
+            onClick={onCreateBlank}
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-6 py-3 text-xs font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:shadow-amber-500/40 hover:brightness-105"
+          >
+            <span>✨</span>
+            <span>{t("assets.create_now", locale)}</span>
+          </button>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-sm font-bold text-white">
-            P
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-border)] pb-5">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 text-lg font-bold text-zinc-950 shadow-md shadow-amber-500/20">
+            🎬
           </div>
-          <div className="space-y-0.5">
-            <div className="text-base font-semibold text-zinc-100">
+          <div className="space-y-1">
+            <div className="text-lg font-bold text-[var(--color-text-primary)]">
               {project.name}
             </div>
-            <div className="font-mono text-[10px] text-zinc-500">
-              id: {project.id.slice(0, 8)}
+            <div className="font-mono text-[11px] text-[var(--color-text-secondary)]">
+              ID: {project.id}
             </div>
           </div>
         </div>
@@ -240,36 +283,36 @@ function CurrentProjectCard({
             type="button"
             onClick={onOpenBatchDialog}
             disabled={!hasProject}
-            title={!hasProject ? "请先打开或新建项目" : undefined}
-            className="rounded-lg border border-blue-700/50 bg-blue-950/30 px-4 py-2 text-xs text-blue-200 transition hover:border-blue-500 hover:bg-blue-950/60 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-medium text-[var(--color-gold)] transition hover:border-amber-500/60 hover:bg-amber-500/20 disabled:opacity-50"
           >
-            📂 批量扫描导入
+            <span>📂</span>
+            <span>{t("assets.batch_import", locale)}</span>
           </button>
           <button
             type="button"
             onClick={onImportMedia}
             disabled={importing || !hasProject}
-            title={!hasProject ? "请先打开或新建项目" : undefined}
-            className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs text-zinc-200 transition hover:border-zinc-500 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-xs font-medium text-[var(--color-text-primary)] transition hover:border-[var(--color-border)] disabled:opacity-50"
           >
-            🎞 导入媒体
+            <span>🎞</span>
+            <span>{t("action.import", locale)}</span>
           </button>
         </div>
       </div>
 
       {importError && (
-        <div className="mb-4 rounded-lg border border-rose-800/60 bg-rose-950/30 px-3 py-2 text-xs text-rose-200">
+        <div className="rounded-xl border border-rose-800/60 bg-rose-950/30 px-4 py-3 text-xs text-rose-200">
           导入失败: {importError}
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="媒体素材" value={project.media_files.length} tone="blue" />
-        <Stat label="脚本段" value={project.scripts.length} tone="violet" />
+        <Stat label="媒体素材" value={project.media_files.length} tone="amber" />
+        <Stat label="脚本段落" value={project.scripts.length} tone="gold" />
         <Stat
-          label="轨道"
+          label="时间轴轨道"
           value={project.timeline?.tracks?.length ?? 0}
-          tone="cyan"
+          tone="dark"
         />
         <Stat
           label="导出记录"
@@ -280,31 +323,23 @@ function CurrentProjectCard({
 
       {/* 媒体清单:搜索 + 缩略图网格 */}
       {project.media_files.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-[10px] uppercase tracking-wider text-zinc-500">
-              媒体清单 ({filteredMedia.length}/{project.media_files.length})
+        <div className="space-y-4 border-t border-[var(--color-border)] pt-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="text-xs font-bold text-[var(--color-text-primary)]">
+              媒体文件清单 ({filteredMedia.length}/{project.media_files.length})
             </div>
-            <div className="relative min-w-[260px] flex-1 max-w-md">
-              <input
-                type="search"
-                value={searching ? "🔎 搜索中..." : ""}
-                readOnly
-                placeholder=""
-                className="absolute inset-0 cursor-text rounded-md border border-transparent bg-transparent text-xs text-zinc-200 outline-none"
-                tabIndex={-1}
-              />
+            <div className="relative min-w-[260px] max-w-md">
               <input
                 type="search"
                 onChange={(e) => onSearch(e.target.value)}
-                placeholder="🔎 搜索文件路径 (substring)"
-                className="w-full rounded-md border border-zinc-700 bg-zinc-950/40 px-3 py-1.5 text-xs text-zinc-200 outline-none focus:border-blue-500"
+                placeholder="🔍 搜索媒体文件名称..."
+                className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-gold)]"
               />
             </div>
           </div>
 
           {filteredMedia.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-zinc-800 bg-zinc-950/40 px-4 py-6 text-center text-xs text-zinc-500">
+            <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-8 text-center text-xs text-[var(--color-text-secondary)]">
               没有匹配的素材
             </div>
           ) : (
@@ -325,7 +360,34 @@ function CurrentProjectCard({
   );
 }
 
-// ── 媒体卡 (缩略图 + 元数据 + 删除按钮) ───────────────────────────
+// ── 统计卡片 ──────────────────────────────────────────────────────
+
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "amber" | "gold" | "dark" | "emerald";
+}) {
+  const map: Record<string, string> = {
+    amber: "from-amber-500/10 to-amber-500/0 border-amber-500/30 text-amber-400",
+    gold: "from-yellow-500/10 to-yellow-500/0 border-yellow-500/30 text-yellow-400",
+    dark: "from-zinc-800/40 to-zinc-800/0 border-[var(--color-border)] text-zinc-300",
+    emerald: "from-emerald-500/10 to-emerald-500/0 border-emerald-500/30 text-emerald-400",
+  };
+  return (
+    <div className={`rounded-xl border bg-gradient-to-br p-4 ${map[tone]}`}>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-bold">{value}</div>
+    </div>
+  );
+}
+
+// ── 媒体卡 (缩略图 + 删除按钮) ───────────────────────────────────
 
 function MediaCard({
   media,
@@ -338,68 +400,30 @@ function MediaCard({
 }) {
   const basename = media.path.split(/[/\\]/).pop() ?? media.path;
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-2 transition hover:border-zinc-600">
+    <div className="group flex flex-col gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2 transition hover:border-[var(--color-gold)]/50">
       <ThumbnailImage source={media.path} kind="video" width={240} />
       <div className="flex items-start justify-between gap-2 px-1 pb-1">
         <div className="min-w-0 flex-1 space-y-0.5">
           <div
-            className="truncate font-mono text-[11px] text-zinc-200"
+            className="truncate font-mono text-[11px] font-medium text-[var(--color-text-primary)]"
             title={media.path}
           >
             {basename}
           </div>
-          <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-500">
-            <span>{Math.round(media.duration_seconds)}s</span>
-            {media.resolution && (
-              <>
-                <span>·</span>
-                <span>{media.resolution}</span>
-              </>
-            )}
-            {media.codec && (
-              <>
-                <span>·</span>
-                <span className="uppercase">{media.codec}</span>
-              </>
-            )}
+          <div className="text-[10px] text-[var(--color-text-secondary)]">
+            {(media.file_size_bytes / (1024 * 1024)).toFixed(1)} MB
           </div>
         </div>
         <button
           type="button"
           onClick={onRemove}
           disabled={disabled}
-          title="从项目移除"
-          aria-label={`删除 ${basename}`}
-          className="rounded px-1.5 py-0.5 text-rose-400 transition hover:bg-rose-950/40 hover:text-rose-200 disabled:opacity-40"
+          title="移除此素材"
+          className="rounded-lg border border-red-500/20 bg-red-500/10 p-1 text-xs text-red-400 opacity-70 transition hover:opacity-100 disabled:opacity-30"
         >
-          ✕
+          🗑
         </button>
       </div>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone: "blue" | "violet" | "cyan" | "emerald";
-}) {
-  const map: Record<string, string> = {
-    blue: "from-blue-500/15 to-blue-500/0 border-blue-500/30",
-    violet: "from-violet-500/15 to-violet-500/0 border-violet-500/30",
-    cyan: "from-cyan-500/15 to-cyan-500/0 border-cyan-500/30",
-    emerald: "from-emerald-500/15 to-emerald-500/0 border-emerald-500/30",
-  };
-  return (
-    <div className={`rounded-xl border bg-gradient-to-br p-4 ${map[tone]}`}>
-      <div className="text-[10px] uppercase tracking-wider text-zinc-500">
-        {label}
-      </div>
-      <div className="mt-1 text-2xl font-bold text-zinc-100">{value}</div>
     </div>
   );
 }
@@ -407,42 +431,98 @@ function Stat({
 // ── 最近项目卡 ─────────────────────────────────────────────────────
 
 function RecentCard({ path, index }: { path: string; index: number }) {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const locale = useSettingsStore((s) => s.locale);
   const fileName = path.split("/").pop() ?? path;
   const dir = path.substring(0, path.length - fileName.length);
+  const cleanName = fileName.replace(/\.(scenefab|vynaro)\.json$/, "");
+
+  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
+
+  const handleLoad = async () => {
+    try {
+      const rec = await projectIpc.load(path);
+      setCurrentRecord(rec.path, rec.project);
+      qc.setQueryData(["assets-current-project"], rec.project);
+      qc.setQueryData(["current-project"], rec);
+      toast.success(`已打开项目 ${rec.project.name}`);
+      void navigate({ to: "/production" });
+    } catch (e) {
+      toast.error("加载项目失败", { description: String(e) });
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm(t("assets.delete_confirm", locale))) return;
+    try {
+      await projectIpc.remove(path);
+      toast.success(`已成功删除项目`);
+      qc.invalidateQueries({ queryKey: ["assets-recent"] });
+      qc.setQueryData(["assets-current-project"], null);
+      qc.setQueryData(["current-project"], null);
+    } catch (err) {
+      toast.error("删除项目失败", { description: String(err) });
+    }
+  };
+
   return (
-    <button
-      type="button"
-      className="group flex flex-col items-start gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 text-left transition hover:border-blue-500/50 hover:bg-zinc-900"
+    <div
+      onClick={handleLoad}
+      className="group relative flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)] hover:shadow-lg hover:shadow-amber-500/5"
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-900 text-base font-bold text-zinc-300 group-hover:from-blue-500 group-hover:to-violet-500 group-hover:text-white">
-        {index}
-      </div>
-      <div className="w-full space-y-0.5">
-        <div className="truncate text-sm font-medium text-zinc-100">
-          {fileName.replace(/\.scenefab\.json$/, "")}
+      <div className="flex w-full items-center justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-xs font-bold text-[var(--color-gold)] group-hover:border-[var(--color-gold)]/40 group-hover:bg-[var(--color-gold-muted)]">
+          0{index}
         </div>
-        <div className="truncate font-mono text-[10px] text-zinc-500">
-          {dir}
+        <button
+          type="button"
+          onClick={handleDelete}
+          title="删除此项目"
+          className="rounded-lg border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-xs text-red-400 opacity-70 transition hover:border-red-500/50 hover:bg-red-500/20 hover:opacity-100"
+        >
+          🗑 {t("action.delete", locale)}
+        </button>
+      </div>
+
+      <div className="w-full space-y-1">
+        <div className="truncate text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition">
+          {cleanName}
+        </div>
+        <div className="truncate font-mono text-[10px] text-[var(--color-text-secondary)]">
+          {dir || path}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
 // ── 空态 ──────────────────────────────────────────────────────────
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
+  const locale = useSettingsStore((s) => s.locale);
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 px-6 py-12 text-center">
-      <div className="text-3xl">📁</div>
-      <div className="text-sm font-medium text-zinc-200">还没有项目</div>
-      <div className="text-xs text-zinc-500">点击下方按钮创建一个空白项目</div>
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)]/40 px-6 py-12 text-center">
+      <div className="overflow-hidden rounded-2xl border border-[var(--color-border)]">
+        <img
+          src="/empty-state.jpg"
+          alt="电影调光室空状态"
+          className="h-40 w-72 object-cover"
+        />
+      </div>
+      <div className="text-base font-bold text-[var(--color-text-primary)]">
+        {t("assets.no_project", locale)}
+      </div>
+      <div className="text-xs text-[var(--color-text-secondary)]">
+        点击下方按钮，开始创建全新的解说工程
+      </div>
       <button
         type="button"
         onClick={onCreate}
-        className="mt-2 rounded-lg bg-gradient-to-r from-blue-500 to-violet-500 px-5 py-2 text-xs font-semibold text-white shadow shadow-blue-500/30"
+        className="mt-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-6 py-2.5 text-xs font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:shadow-amber-500/40 hover:brightness-105"
       >
-        立即创建
+        ✨ {t("assets.create_now", locale)}
       </button>
     </div>
   );
@@ -452,37 +532,13 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="h-32 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/40"
+          className="h-32 animate-pulse rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]"
         />
       ))}
-    </div>
-  );
-}
-
-// ── Section header ────────────────────────────────────────────────
-
-function SectionHeader({
-  kicker,
-  title,
-  subtitle,
-}: {
-  kicker: string;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="mb-4 space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
-        {kicker}
-      </div>
-      <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
-        {title}
-      </h2>
-      <p className="text-sm text-zinc-500">{subtitle}</p>
     </div>
   );
 }

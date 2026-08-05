@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · settings store (Zustand)
+ * Vynaro v2.5.0 · settings store (Zustand)
  *
  * 设计:
  * - 仅持久化非敏感设置(主题/语言/默认值)
@@ -36,6 +36,6 @@ export const useSettingsStore = create<SettingsState>()(
       setTtsDefault: (provider) => set({ ttsDefaultProvider: provider }),
       setAutoSaveInterval: (sec) => set({ autoSaveIntervalSec: sec }),
     }),
-    { name: "scenefab.settings" },
+    { name: "vynaro.settings" },
   ),
 );

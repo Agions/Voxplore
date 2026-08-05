@@ -1,5 +1,5 @@
 /**
- * SceneFab v2.5.0 · AppShell
+ * Vynaro v2.5.0 · AppShell
  * - TopBar + Sidebar + 内容区
  * - 主题初始化 (data-theme 同步到根节点)
  */
@@ -28,7 +28,7 @@ export function AppShell() {
   }, [theme]);
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex h-screen flex-col" style={{ background: "var(--color-bg)", color: "var(--color-text-primary)", transition: "background 200ms ease, color 200ms ease" }}>
       <TopBar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar currentPath={location.pathname} />

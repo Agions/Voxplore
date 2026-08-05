@@ -4,10 +4,10 @@
 
 use std::path::{Path, PathBuf};
 
-use scenefab_core::domain::Project;
-use scenefab_core::services::ProjectService;
-use scenefab_core::AppContext;
-use scenefab_domain::MediaFile;
+use vynaro_core::domain::Project;
+use vynaro_core::services::ProjectService;
+use vynaro_core::AppContext;
+use vynaro_domain::MediaFile;
 use tauri::{Manager, State};
 
 /// 列举最近项目 (M3.2 真实从 ProjectService 取)
@@ -36,7 +36,7 @@ pub async fn project_create_blank(
     tokio::fs::create_dir_all(&dir)
         .await
         .map_err(|e| e.to_string())?;
-    let path = dir.join(format!("{}.scenefab.json", proj.id));
+    let path = dir.join(format!("{}.vynaro.json", proj.id));
     write_project(&path, &proj)
         .await
         .map_err(|e| e.to_string())?;
@@ -53,7 +53,7 @@ pub async fn project_create_blank(
     })
 }
 
-/// 从指定路径加载 Project (.scenefab.json)
+/// 从指定路径加载 Project (.vynaro.json)
 #[tauri::command]
 pub async fn project_load(
     path: String,

@@ -1,9 +1,9 @@
 /**
- * SceneFab v2.5.0 · TopBar · 帮助下拉菜单 (M4 完整更新器)
+ * Vynaro v2.5.0 · TopBar · 帮助下拉菜单 (M4 完整更新器)
  *
  * 规范 (项目 memory):
  * - "检查更新..." 触发后端 update_check,以 toast 反馈结果
- * - "关于 SceneFab..." 打开对话框 (不跳转)
+ * - "关于 Vynaro..." 打开对话框 (不跳转)
  * - 两项之间用分隔线分开
  *
  * M4 更新:
@@ -270,7 +270,7 @@ export function HelpMenu() {
                 ⓘ
               </span>
               <div className="flex flex-col leading-tight">
-                <span>关于 SceneFab...</span>
+                <span>关于 Vynaro...</span>
                 <span className="text-[10px] text-zinc-500">
                   版本与系统信息
                 </span>
@@ -349,7 +349,7 @@ function AboutDialog({
       >
         <div className="flex items-center justify-between border-b border-zinc-800/60 px-6 py-4">
           <h2 id="about-title" className="text-lg font-semibold text-zinc-100">
-            关于 SceneFab
+            关于 Vynaro
           </h2>
           <button
             type="button"
@@ -367,7 +367,7 @@ function AboutDialog({
               S
             </div>
             <div className="space-y-1">
-              <div className="text-xl font-bold text-zinc-100">SceneFab</div>
+              <div className="text-xl font-bold text-zinc-100">Vynaro</div>
               <div className="font-mono text-xs text-zinc-500">
                 v{version} · AI Video Narrator
               </div>
