@@ -1,9 +1,11 @@
 name: CI
 
-# main 分支推送：全量检查（lint + type + test + docs build）
+# main 分支推送 + tag 推送：全量 v2.5.0 验证
+# 包括三平台 tauri build（仅 tag 触发，避免 PR 跑 3 次构建）
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 concurrency:
@@ -11,78 +13,94 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
+  # ── Rust lint + test ──────────────────────────────────
+  rust:
+    name: cargo lint + test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          python-version: '3.11'
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - run: uv sync --extra dev --frozen
-      - run: uv run ruff check src/scenefab/ tests/ --output-format=github
-
-  type-check:
-    # 已恢复 (2026-06-09): 修复 112 个 mypy 错误后重新启用
-    # 不阻塞本 release: continue-on-error: true 保留报警, 不当 merge gate
-    # baseline 锁: 56 errors (mypty 1.16.1 f-string bug 不可修)
-    # 后续目标: 渐进清 attr-defined / union-attr / assignment 三大户
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
         with:
-          python-version: '3.11'
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - run: uv sync --extra dev --frozen
-      # 启用 --check-untyped-defs 跟本地一致, baseline 锁当前错误数
-      # 错误数硬断言: 防回归 (本数 = 当前真实 count + 10 缓冲, 给增量留空间)
-      - name: Run mypy (with baseline gate)
-        run: |
-          set +e
-          uv run mypy src/scenefab/ --check-untyped-defs > /tmp/mypy_output.txt 2>&1
-          # 提取 "Found N errors" 行里的 N
-          error_count=$(grep -oE "Found [0-9]+ errors? in" /tmp/mypy_output.txt | grep -oE "[0-9]+" | head -1)
-          error_count=${error_count:-0}
-          echo "Mypy errors: ${error_count}"
-          baseline=105  # 56 local f-string bug + 4 buffer
-          if [ "${error_count}" -gt "${baseline}" ]; then
-            echo "::error::Mypy error count ${error_count} exceeds baseline ${baseline}"
-            cat /tmp/mypy_output.txt | tail -50
-            exit 1
-          fi
-          echo "::notice::Mypy baseline OK (${error_count} <= ${baseline})"
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # onnxruntime (via faster-whisper) only ships wheels for Python 3.11+
-        python: ['3.11', '3.12']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: ${{ matrix.python }}
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - name: Install system dependencies (PySide6 EGL/GL)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1
-      - run: uv sync --extra all --extra dev --frozen
-      # Headless Linux widgets are gated via @pytest.mark.skipif in each test file
-      - run: |
-          uv run pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=xml --cov-report=term-missing \
-            --ignore=tests/test_project_manager.py \
-            --ignore=tests/test_settings_mgr.py \
-            --ignore=tests/test_template_mgr.py
+          workspaces: |
+            .
+            apps/desktop/src-tauri -> target
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --quiet
       - uses: actions/upload-artifact@v4
-        if: matrix.python == '3.11'
         with:
-          name: coverage-xml
-          path: coverage.xml
+          name: rust-coverage
+          path: target/debug/coverage/
           retention-days: 5
+          if-no-files-found: ignore
+
+  # ── Frontend lint + test + build ──────────────────────
+  frontend:
+    name: pnpm lint + test + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gen:ipc
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm exec vitest run
+      - run: pnpm build
+
+  # ── Tag 触发：三平台 tauri build ──────────────────────
+  build:
+    name: tauri build (${{ matrix.target }})
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: universal-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            apps/desktop/src-tauri -> target
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm gen:ipc
+      - run: pnpm build
+      - name: cargo tauri build
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "SceneFab ${{ github.ref_name }}"
+          releaseBody: See CHANGELOG.md for details.
+          releaseDraft: true
+          prerelease: false
+          target: ${{ matrix.target }}
