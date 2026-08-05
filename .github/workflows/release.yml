@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            target: universal-apple-darwin
+            target: aarch64-apple-darwin
           - os: windows-latest
             target: x86_64-pc-windows-msvc
           - os: ubuntu-22.04
@@ -55,7 +55,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate IPC Types
-        run: pnpm gen:ipc
+        run: pnpm --filter desktop gen:ipc
 
       - name: Build Frontend
         run: pnpm --filter desktop build
