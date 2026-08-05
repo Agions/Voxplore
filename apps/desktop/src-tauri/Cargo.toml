@@ -1,0 +1,70 @@
+[package]
+name = "scenefab"
+version = "3.0.0-alpha.0"
+description = "SceneFab v3.0 - Tauri + Rust 桌面应用"
+authors = ["SceneFab Team"]
+edition = "2021"
+rust-version = "1.85"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "scenefab_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1"
+
+[dependencies.scenefab-core]
+path = "../../../crates/scenefab-core"
+
+[dependencies.scenefab-domain]
+path = "../../../crates/scenefab-domain"
+
+[dependencies.scenefab-llm]
+path = "../../../crates/scenefab-llm"
+
+[dependencies.scenefab-tts]
+path = "../../../crates/scenefab-tts"
+
+[dependencies.scenefab-ffmpeg]
+path = "../../../crates/scenefab-ffmpeg"
+
+[dependencies.scenefab-pipeline]
+path = "../../../crates/scenefab-pipeline"
+
+[dependencies.scenefab-update]
+path = "../../../crates/scenefab-update"
+
+[dependencies.scenefab-assets]
+path = "../../../crates/scenefab-assets"
+
+[dependencies.scenefab-export]
+path = "../../../crates/scenefab-export"
+
+[dependencies.scenefab-help]
+path = "../../../crates/scenefab-help"
+
+[dependencies.scenefab-i18n]
+path = "../../../crates/scenefab-i18n"
+
+[dependencies.scenefab-video]
+path = "../../../crates/scenefab-video"
+
+# workspace.lists 和 workspace.profiles 在根 Cargo.toml 集中定义
+# 此处不再覆盖,避免 cargo 警告
+# [profile.release] 见 /Users/zfkc/Desktop/04-AI/scene-fab/Cargo.toml

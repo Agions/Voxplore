@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "SceneFab",
+  "version": "3.0.0-alpha.0",
+  "identifier": "com.scenefab.app",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "SceneFab",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "dragDropEnabled": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: asset: http://asset.localhost; font-src 'self' data:; connect-src 'self' ipc: https://ipc.localhost; media-src 'self' blob: asset:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "VideoEditor",
+    "copyright": "© 2026 SceneFab Team",
+    "shortDescription": "AI 视频叙事生成器",
+    "longDescription": "SceneFab 是基于 AI 的第一人称视频叙事编辑器,通过 5 步流水线自动将影视素材转换为竖屏平台的完整视频。",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "SceneFab Team",
+    "homepage": "https://scenefab.dev"
+  },
+  "plugins": {}
+}
