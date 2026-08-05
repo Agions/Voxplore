@@ -15,7 +15,6 @@ members = [
     "crates/scenefab-help",
     "crates/scenefab-i18n",
     "crates/scenefab-assets",
-    "crates/scenefab-cli",
     # ── Tauri 2 桌面应用入口 ──
     "apps/desktop/src-tauri",
 ]

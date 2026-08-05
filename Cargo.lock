@@ -3200,10 +3200,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "scenefab-cli"
-version = "2.5.0"
-
-[[package]]
 name = "scenefab-core"
 version = "2.5.0"
 dependencies = [
