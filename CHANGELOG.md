@@ -43,8 +43,7 @@
   - cargo metadata 现报告 scenefab-\* package 一律 version = 2.5.0
 
 - **chore(governance): Python v2.4 主线退役存档**（commit `75ce862`）
-  - 新增 `DEPRECATED.md`：冻结原因表 · 维护政策 · 历史归档清单
-  - 新增 `README_v3_legacy_bk.md`：v2.4 README 完整备份 13.9 KB
+  - 退役公告与历史说明保留在 `CHANGELOG.md` 主体中，不再单列文件
   - `.gitignore`：tsbuildinfo / playwright-report / test-results 入库规则
   - v2.4 进入只读维护期，不添加新功能，仅修关键阻塞性 bug
 
@@ -83,8 +82,7 @@
 - 迁移方案：`docs/refactor/v3-migration/`（21 份，本地参考保留，不入库）
 - 上线指南：[docs/guide/quick-start.md](docs/guide/quick-start.md) · [docs/guide/installation.md](docs/guide/installation.md)
 - 发布流程：[docs/guide/release-process.md](docs/guide/release-process.md)
-- Python 主线退役公告：[DEPRECATED.md](DEPRECATED.md)
-- v2.4 README 归档：[README_v3_legacy_bk.md](README_v3_legacy_bk.md)
+- 历史说明：见上文「chore(governance): Python v2.4 主线退役存档」段
 
 ### 🔗 完整 commit 链（10 commits，本分支）
 
@@ -170,8 +168,8 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
   - 保留核心识别符 (Play 三角 + dark bg + cyan/violet), 升级精致度 (双环轨道 + AI 弧线 + 4 tick)
   - `resources/app_icon.svg` 重写为**无文字版** (符合 `resources/README.md` 自家 design 原则)
   - `resources/icons/app_icon_{32,64,128,256,512,1024}.png` (6 尺寸 PNG 全部重新生成)
-  - `scripts/render-assets.py` (NEW): 单脚本端到端 SVG → PNG → ICO → OG image → 跨目录同步 + 验证非空白
   - `docs/public/og-image.png` (NEW, 1280×640): **修复 og:image 404 bug** — `config.ts` 一直引用但文件从未存在
+  - 注：原 v2.4 时期的 `scripts/render-assets.py` 渲染流水线在 v2.5.0 收官清理中已移除，资产改由 `assets/` 仓库源文件 + 设计师同步维护
 - **feat(icons): upgrade 24×24 feature icons with duotone palette** (commit `52a0256`) — 6 files +152/-46
   - 6 个 docs 站功能图标从单色 cyan → cyan + violet 双色调 (multi-video / monologue / emotion / module / style / export)
   - stroke 从 2.0 → 1.75, round caps, AI 模块用 violet 强调
@@ -203,7 +201,6 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 - `npm run docs:build` ✓ 7.68s (vitepress v1.6.4)
 - `npm run docs:lint` ✓ 0 errors (markdownlint-cli2 v0.23.0)
 - `npm run docs:spellcheck` ✓ 0 errors
-- `python3 scripts/render-assets.py` ✓ 13 PNG + 1 ICO + 1 OG 全过
 
 **GitHub repo 校准**:
 

@@ -5,7 +5,7 @@
 //! - `app/pipeline/orchestrator.py` Orchestrator
 //! - `app/ui/viewmodels/production_viewmodel.py` 5 步状态机
 //!
-//! ## 流水线定义 (与 src/app/ui/viewmodels/production_viewmodel.py 的 STEP_DEFINITIONS 完全对应)
+//! ## 流水线定义 (5 步状态机，与 v2.4 主线 STEP_DEFINITIONS 语义一致)
 //! - ① 素材导入 (ingest source video)
 //! - ② 场景拆分 (extract scenes + emotion peaks)
 //! - ③ 脚本生成 (MonologueMaker.generate_script)

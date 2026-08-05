@@ -37,14 +37,14 @@ SceneFab 是一款基于 AI 的**第一人称视频叙事编辑器**,通过 5 �
 
 ## ✨ 核心能力矩阵
 
-| 模块 | 能力 | 技术亮点 |
-| ---------- | ----------------------------------------------- | ---------------------------------------------------- |
-| 🧠 **AI 解说** | 短剧解说 / 影评 / 教学 / 故事化 4 种风格 | 11 LLM Provider · 5 维加权评估 · 流式 token 输出 |
-| ✂️ **智能拆条** | 关键帧 / 情绪峰值 / 视角切换 / 集数扫描 | FFmpeg 6.x 探测 · DAG 并行流水线 · 断点续传 |
-| 🎙️ **TTS 配音** | 中英日韩 4 语言 · 30+ 音色 | Edge-TTS / OpenAI-TTS / GPT-SoVITS 三引擎 |
-| 📝 **字幕合成** | SRT / VTT / ASS · 中英双语 · 时间轴自动对齐 | 基于语音端点检测（VAD）+ 句子边界识别 |
-| 🎨 **多平台导出** | 8 平台智能裁剪 + 平台专属封面 | MP4 / MOV / GIF / 剪映草稿(.draft) · 1080×1920 竖屏 |
-| 🔌 **插件体系** | WASM 插件运行时 · Provider 热插拔 | Provider 抽象 · 异步 retry · JSON 契约 |
+| 模块              | 能力                                        | 技术亮点                                            |
+| ----------------- | ------------------------------------------- | --------------------------------------------------- |
+| 🧠 **AI 解说**    | 短剧解说 / 影评 / 教学 / 故事化 4 种风格    | 11 LLM Provider · 5 维加权评估 · 流式 token 输出    |
+| ✂️ **智能拆条**   | 关键帧 / 情绪峰值 / 视角切换 / 集数扫描     | FFmpeg 6.x 探测 · DAG 并行流水线 · 断点续传         |
+| 🎙️ **TTS 配音**   | 中英日韩 4 语言 · 30+ 音色                  | Edge-TTS / OpenAI-TTS / GPT-SoVITS 三引擎           |
+| 📝 **字幕合成**   | SRT / VTT / ASS · 中英双语 · 时间轴自动对齐 | 基于语音端点检测（VAD）+ 句子边界识别               |
+| 🎨 **多平台导出** | 8 平台智能裁剪 + 平台专属封面               | MP4 / MOV / GIF / 剪映草稿(.draft) · 1080×1920 竖屏 |
+| 🔌 **插件体系**   | WASM 插件运行时 · Provider 热插拔           | Provider 抽象 · 异步 retry · JSON 契约              |
 
 ---
 
@@ -108,38 +108,38 @@ apps/desktop/src/
 
 ### 前端
 
-| 类别       | 选型                                                       |
-| ---------- | ---------------------------------------------------------- |
-| 框架       | React 19 · TypeScript 5.8（strict + noUncheckedIndexedAccess） |
-| 路由       | TanStack Router v1.95（文件式路由 + devtools）              |
-| 数据       | TanStack Query v5.62 · Zustand v5 · XState v5              |
-| UI         | shadcn/ui · Tailwind CSS 4 · Radix Primitives · cmdk      |
-| 构建       | Vite 7 · `@tauri-apps/cli` 2                              |
-| 测试       | Vitest 3.2 · Testing Library · Playwright 1.49              |
-| i18n       | react-i18next 15 · i18next 24                              |
-| 通知       | Sonner toast · 系统原生 Notification（plugin）             |
+| 类别 | 选型                                                           |
+| ---- | -------------------------------------------------------------- |
+| 框架 | React 19 · TypeScript 5.8（strict + noUncheckedIndexedAccess） |
+| 路由 | TanStack Router v1.95（文件式路由 + devtools）                 |
+| 数据 | TanStack Query v5.62 · Zustand v5 · XState v5                  |
+| UI   | shadcn/ui · Tailwind CSS 4 · Radix Primitives · cmdk           |
+| 构建 | Vite 7 · `@tauri-apps/cli` 2                                   |
+| 测试 | Vitest 3.2 · Testing Library · Playwright 1.49                 |
+| i18n | react-i18next 15 · i18next 24                                  |
+| 通知 | Sonner toast · 系统原生 Notification（plugin）                 |
 
 ### 后端
 
-| 类别        | 选型                                                       |
-| ----------- | ---------------------------------------------------------- |
-| 运行时      | Rust 1.85+ · edition 2021 · unsafe_code = forbid           |
-| 桌面壳      | Tauri 2.0 · 10 个 domain command + Capability ACL          |
-| 序列化      | serde 1 · ts-rs 10（Rust→TS 自动类型生成）                 |
-| 异步        | tokio 1（full）· async-trait · futures                    |
-| HTTP        | reqwest 0.12（rustls-tls）· tokio-tungstenite 0.24        |
-| 持久化      | sqlx 0.8（sqlite/postgres）· sled 0.34                     |
-| 插件运行时  | wasmtime 29 · wasmtime-wasi 29                            |
-| 测试        | 内置测试 112 个 · mockall · proptest · rstest              |
+| 类别       | 选型                                               |
+| ---------- | -------------------------------------------------- |
+| 运行时     | Rust 1.85+ · edition 2021 · unsafe_code = forbid   |
+| 桌面壳     | Tauri 2.0 · 10 个 domain command + Capability ACL  |
+| 序列化     | serde 1 · ts-rs 10（Rust→TS 自动类型生成）         |
+| 异步       | tokio 1（full）· async-trait · futures             |
+| HTTP       | reqwest 0.12（rustls-tls）· tokio-tungstenite 0.24 |
+| 持久化     | sqlx 0.8（sqlite/postgres）· sled 0.34             |
+| 插件运行时 | wasmtime 29 · wasmtime-wasi 29                     |
+| 测试       | 内置测试 112 个 · mockall · proptest · rstest      |
 
 ### 构建 / 发布
 
-| 类别       | 选型                                                       |
-| ---------- | ---------------------------------------------------------- |
-| 包管理     | pnpm 9（workspace）· Cargo workspace 14 member            |
-| 类型生成   | `pnpm gen:ipc` 从 Rust `specta` 生成 TS 类型（38 个）     |
-| 桌面打包   | Tauri bundler（dmg / msi / AppImage / deb）                |
-| 文档       | VitePress 1.6 + markdownlint-cli2 + cspell + lychee       |
+| 类别     | 选型                                                  |
+| -------- | ----------------------------------------------------- |
+| 包管理   | pnpm 9（workspace）· Cargo workspace 14 member        |
+| 类型生成 | `pnpm gen:ipc` 从 Rust `specta` 生成 TS 类型（38 个） |
+| 桌面打包 | Tauri bundler（dmg / msi / AppImage / deb）           |
+| 文档     | VitePress 1.6 + markdownlint-cli2 + cspell + lychee   |
 
 ---
 
@@ -147,11 +147,11 @@ apps/desktop/src/
 
 ### 环境要求
 
-| 工具        | 版本       | 说明                                  |
-| ----------- | ---------- | ------------------------------------- |
-| Node.js     | ≥ 20.19    | LTS 推荐                              |
-| pnpm        | ≥ 9.x      | `corepack enable && corepack prepare pnpm@latest --activate` |
-| Rust        | ≥ 1.85     | `rustup default stable && rustup update` |
+| 工具           | 版本                                                 | 说明                                                           |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------- |
+| Node.js        | ≥ 20.19                                              | LTS 推荐                                                       |
+| pnpm           | ≥ 9.x                                                | `corepack enable && corepack prepare pnpm@latest --activate`   |
+| Rust           | ≥ 1.85                                               | `rustup default stable && rustup update`                       |
 | Tauri 系统依赖 | 见[官方文档](https://tauri.app/start/prerequisites/) | macOS: Xcode CLT · Windows: VS Build Tools · Linux: webkit2gtk |
 
 ### 安装与开发
@@ -171,21 +171,21 @@ pnpm tauri:dev
 
 ### 常用命令（apps/desktop）
 
-| 命令                  | 作用                                          |
-| --------------------- | --------------------------------------------- |
-| `pnpm dev`            | 启动 Vite dev server（仅前端）                |
-| `pnpm tauri:dev`      | 启动完整 Tauri 开发模式                       |
-| `pnpm build`          | 前端生产构建（tsc + vite build）              |
-| `pnpm tauri:build`    | 桌面端三平台打包                              |
-| `pnpm typecheck`      | TypeScript 严格模式类型检查                   |
-| `pnpm lint`           | ESLint（`--max-warnings 0`）                  |
-| `pnpm format`         | Prettier 自动格式化                           |
-| `pnpm test`           | Vitest 单次执行                               |
-| `pnpm test:watch`     | Vitest 监听模式                               |
-| `pnpm test:coverage`  | Vitest + v8 覆盖率                            |
-| `pnpm test:e2e`       | Playwright 端到端                             |
-| `pnpm gen:ipc`        | 从 Rust specta 生成 TS 类型契约               |
-| `pnpm gen:ipc:check`  | 校验生成的 TS 类型是否最新（CI 用）           |
+| 命令                 | 作用                                |
+| -------------------- | ----------------------------------- |
+| `pnpm dev`           | 启动 Vite dev server（仅前端）      |
+| `pnpm tauri:dev`     | 启动完整 Tauri 开发模式             |
+| `pnpm build`         | 前端生产构建（tsc + vite build）    |
+| `pnpm tauri:build`   | 桌面端三平台打包                    |
+| `pnpm typecheck`     | TypeScript 严格模式类型检查         |
+| `pnpm lint`          | ESLint（`--max-warnings 0`）        |
+| `pnpm format`        | Prettier 自动格式化                 |
+| `pnpm test`          | Vitest 单次执行                     |
+| `pnpm test:watch`    | Vitest 监听模式                     |
+| `pnpm test:coverage` | Vitest + v8 覆盖率                  |
+| `pnpm test:e2e`      | Playwright 端到端                   |
+| `pnpm gen:ipc`       | 从 Rust specta 生成 TS 类型契约     |
+| `pnpm gen:ipc:check` | 校验生成的 TS 类型是否最新（CI 用） |
 
 ### 常用命令（crates/）
 
@@ -223,15 +223,12 @@ scene-fab/
 ├── assets/                        Logo 与品牌资源（SVG + PNG 多尺寸）
 ├── resources/                     应用图标（icons/）+ 安装包素材
 ├── docs/                          VitePress 官方文档站（guide/ + index）
-├── scripts/                       跨平台构建脚本（macOS / Windows / Linux）
-├── bin/                           i18n 抽取 + 模板合规校验
+├── scripts/                       Cargo + pnpm + docs 工具脚本（coverage.sh / docs-check-*）
 ├── config/                        app_config.yaml / llm.yaml / logging.conf
 ├── Cargo.toml                     Rust workspace 根配置（14 member）
 ├── pnpm-workspace.yaml            前端 workspace
 ├── CHANGELOG.md                   完整变更日志（v1.0 → v2.4 → 2.5.0）
-├── DEPRECATED.md                  v2.4 Python 主线退役存档
-├── README_v3_legacy_bk.md         v2.4 README 完整备份（373 行）
-└── Makefile                       顶层构建入口（help / build_*）
+└── Makefile                       顶层构建入口（help / build / test / coverage）
 ```
 
 ---
@@ -240,16 +237,16 @@ scene-fab/
 
 SceneFab 严格遵守 **3 轨验证** 原则 — 任一失败则不能合并。
 
-| 轨道          | 命令                                                            | 当前状态            |
-| ------------- | --------------------------------------------------------------- | ------------------- |
-| **Rust**      | `cargo check --workspace`                                       | ✅ 0 errors          |
-|               | `cargo clippy --workspace --all-targets -- -D warnings`         | ✅ 0 warnings        |
-|               | `cargo test --workspace`                                        | ✅ **112 / 112** PASS |
-| **前端**      | `pnpm exec tsc --noEmit`                                        | ✅ EXIT=0            |
-|               | `pnpm exec vitest run`                                          | ✅ **157 / 157** PASS（11 test files） |
-|               | `pnpm exec eslint . --ext ts,tsx --max-warnings 0`              | ✅ 0 warnings        |
-| **构建**      | `pnpm build`（tsc + vite build）                                | ✅ 270 modules · 1.18s |
-|               | `pnpm gen:ipc`（Rust→TS 类型同步）                              | ✅ 38 types generated |
+| 轨道     | 命令                                                    | 当前状态                               |
+| -------- | ------------------------------------------------------- | -------------------------------------- |
+| **Rust** | `cargo check --workspace`                               | ✅ 0 errors                            |
+|          | `cargo clippy --workspace --all-targets -- -D warnings` | ✅ 0 warnings                          |
+|          | `cargo test --workspace`                                | ✅ **112 / 112** PASS                  |
+| **前端** | `pnpm exec tsc --noEmit`                                | ✅ EXIT=0                              |
+|          | `pnpm exec vitest run`                                  | ✅ **157 / 157** PASS（11 test files） |
+|          | `pnpm exec eslint . --ext ts,tsx --max-warnings 0`      | ✅ 0 warnings                          |
+| **构建** | `pnpm build`（tsc + vite build）                        | ✅ 270 modules · 1.18s                 |
+|          | `pnpm gen:ipc`（Rust→TS 类型同步）                      | ✅ 38 types generated                  |
 
 > 全部命令在 commit 后立即复跑于本地,任何红灯都会阻断 PR 合并。
 
@@ -269,14 +266,14 @@ SceneFab 严格遵守 **3 轨验证** 原则 — 任一失败则不能合并。
 
 ## 🛣️ 路线图
 
-| 版本       | 状态          | 主题                                                            |
-| ---------- | ------------- | --------------------------------------------------------------- |
-| **v2.4.x** | 🧊 仅维护     | Python 主线（[DEPRECATED.md](DEPRECATED.md)），仅修阻塞性 bug    |
-| **v2.5.0** | ✅ 当前       | **Tauri 2 + Rust + React 主线正式启用** · 5 步流水线 · 11 LLM  |
-| v2.5.x     | 📋 进行中     | WASM 插件市场 · 多 TTS 引擎并行 · 字幕双语 · 剪映草稿导出        |
-| v3.0       | 🔮 规划       | 全功能 GA · Python 主线删除 · WASM 插件 API 稳定                |
+| 版本       | 状态      | 主题                                                             |
+| ---------- | --------- | ---------------------------------------------------------------- |
+| **v2.4.x** | 🧊 仅维护 | Python v2.4 主线（仅修关键阻塞性 bug,详见 CHANGELOG [2.5.0] 段） |
+| **v2.5.0** | ✅ 当前   | **Tauri 2 + Rust + React 主线正式启用** · 5 步流水线 · 11 LLM    |
+| v2.5.x     | 📋 进行中 | WASM 插件市场 · 多 TTS 引擎并行 · 字幕双语 · 剪映草稿导出        |
+| v3.0       | 🔮 规划   | 全功能 GA · Python 主线删除 · WASM 插件 API 稳定                 |
 
-> **方向**：以 Tauri 为主线持续演进,Python 主线仅做冻结维护,完整迁移里程碑详见 [DEPRECATED.md](DEPRECATED.md)。
+> **方向**：以 Tauri 为主线持续演进,Python v2.4 主线仅做冻结维护。
 
 ---
 
@@ -321,28 +318,27 @@ cd apps/desktop && pnpm exec tsc --noEmit && pnpm exec vitest run && pnpm build
 
 ## 📚 文档导航
 
-| 主题                | 链接                                                                          |
-| ------------------- | ----------------------------------------------------------------------------- |
-| 官方文档站 VitePress | [docs/index.md](docs/index.md)                                                |
-| 快速开始            | [docs/guide/quick-start.md](docs/guide/quick-start.md)                        |
-| 安装指南            | [docs/guide/installation.md](docs/guide/installation.md)                      |
-| AI 模型配置         | [docs/guide/ai-configuration.md](docs/guide/ai-configuration.md)              |
-| AI 视频生成指南     | [docs/guide/ai-video-guide.md](docs/guide/ai-video-guide.md)                  |
-| 界面说明            | [docs/guide/interface.md](docs/guide/interface.md)                            |
-| 解说规格            | [docs/guide/narration-spec.md](docs/guide/narration-spec.md)                  |
-| 导出                | [docs/guide/exporting.md](docs/guide/exporting.md)                            |
-| Python API v2.4     | [docs/guide/python-api.md](docs/guide/python-api.md)                          |
-| CLI 参考 v2.4       | [docs/guide/cli-reference.md](docs/guide/cli-reference.md)                    |
-| 发布流程            | [docs/guide/release-process.md](docs/guide/release-process.md)                |
-| 故障排查            | [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md)                |
+| 主题                 | 链接                                                             |
+| -------------------- | ---------------------------------------------------------------- |
+| 官方文档站 VitePress | [docs/index.md](docs/index.md)                                   |
+| 快速开始             | [docs/guide/quick-start.md](docs/guide/quick-start.md)           |
+| 安装指南             | [docs/guide/installation.md](docs/guide/installation.md)         |
+| AI 模型配置          | [docs/guide/ai-configuration.md](docs/guide/ai-configuration.md) |
+| AI 视频生成指南      | [docs/guide/ai-video-guide.md](docs/guide/ai-video-guide.md)     |
+| 界面说明             | [docs/guide/interface.md](docs/guide/interface.md)               |
+| 解说规格             | [docs/guide/narration-spec.md](docs/guide/narration-spec.md)     |
+| 导出                 | [docs/guide/exporting.md](docs/guide/exporting.md)               |
+| Python API v2.4      | [docs/guide/python-api.md](docs/guide/python-api.md)             |
+| CLI 参考 v2.4        | [docs/guide/cli-reference.md](docs/guide/cli-reference.md)       |
+| 发布流程             | [docs/guide/release-process.md](docs/guide/release-process.md)   |
+| 故障排查             | [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md)   |
 
 ### 历史与归档
 
-| 文件                                          | 说明                                       |
-| --------------------------------------------- | ------------------------------------------ |
-| [CHANGELOG.md](CHANGELOG.md)                  | v1.0 到 v2.5.0 完整变更日志，514 行         |
-| [DEPRECATED.md](DEPRECATED.md)                | v2.4 Python 主线退役存档与维护政策         |
-| [README_v3_legacy_bk.md](README_v3_legacy_bk.md) | v2.4 README 完整备份，373 行              |
+- v2.4 Python 主线退役公告与维护政策：见 [CHANGELOG.md](CHANGELOG.md) [2.5.0] 段「chore(governance): Python v2.4 主线退役存档」
+
+| 文件 | 说明 |
+| ---- | ---- |
 
 ---
 
