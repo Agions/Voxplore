@@ -107,6 +107,8 @@ const SKIP_TYPES = new Set([
   "SceneSplitStep",
   "ScriptGenStep",
   "VoiceCaptionsStep",
+  "SubtitleStep",
+  "ComposeStep",
   "ExportStep",
   "Pipeline",
   "PipelineService",
