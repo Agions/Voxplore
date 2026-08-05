@@ -11,7 +11,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelpPage } from "@components/help/HelpPage";
@@ -153,7 +153,9 @@ describe("HelpPage", () => {
     await user.type(input, "流水线");
 
     // 等待 debounce 200ms + 一帧
-    await new Promise((r) => setTimeout(r, 300));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
 
     await waitFor(() => {
       const searchCalls = invokeMock.mock.calls.filter(
@@ -210,7 +212,7 @@ describe("HelpPage", () => {
 
   it("帮助主题 IPC 失败时显示错误信息", async () => {
     invokeMock.mockImplementation((cmd: string) => {
-      if (cmd === "app_version") return Promise.resolve("3.0.0");
+      if (cmd === "app_version") return Promise.resolve("2.5.0");
       if (cmd === "help_topics") {
         return Promise.reject(new Error("IPC 失败: help backend down"));
       }
@@ -226,7 +228,7 @@ describe("HelpPage", () => {
 
   it("搜索无结果时显示空状态", async () => {
     invokeMock.mockImplementation((cmd: string) => {
-      if (cmd === "app_version") return Promise.resolve("3.0.0");
+      if (cmd === "app_version") return Promise.resolve("2.5.0");
       if (cmd === "help_topics") return Promise.resolve(SAMPLE_TOPICS);
       if (cmd === "help_search") return Promise.resolve([]);
       return Promise.resolve(null);
@@ -240,7 +242,9 @@ describe("HelpPage", () => {
     const input = screen.getByPlaceholderText(/搜索主题/);
     await user.type(input, "完全不存在");
 
-    await new Promise((r) => setTimeout(r, 300));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/没有匹配/)).toBeInTheDocument();
