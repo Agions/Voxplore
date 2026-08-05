@@ -2,7 +2,7 @@
 name = "scenefab"
 version = "2.5.0"
 description = "SceneFab v2.5.0 - Tauri + Rust 桌面应用"
-authors = ["SceneFab Team"]
+authors = ["Agions"]
 edition = "2021"
 rust-version = "1.85"
 
