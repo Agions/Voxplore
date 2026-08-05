@@ -1,6 +1,6 @@
 //! src-tauri 命令 · project 完整 CRUD (M3.2)
 //!
-//! 与 v2.4 Python `app/services/project_service.py` 对应。
+//! 对应 v2.4 Python 主线的 project_service.py 语义（迁移期 1:1 映射）。
 
 use std::path::{Path, PathBuf};
 

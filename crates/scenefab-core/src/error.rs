@@ -1,6 +1,6 @@
 //! scenefab-core · 统一错误类型
 //!
-//! 与 Python `src/app/core/exceptions.py` 中的 `SceneFabError` 1:1 对应。
+//! 与 Python v2.4 主线的 `SceneFabError` 语义一致（迁移期 1:1 映射保证对等）。
 //! 实现了 `serde::Serialize` 让 Tauri IPC 能直接传回前端 (前端拿到的是结构化 JSON)。
 
 use serde::{Deserialize, Serialize};
