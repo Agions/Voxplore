@@ -163,9 +163,6 @@ docs/.vitepress/.temp/
 docs/node_modules/
 docs/package-lock.json
 
-# ── v3.0 迁移方案 doc（全部入库，仅排除中间产物）─────────────────────
-# docs/refactor/ 本身入库(已确定),只排除中间产物
-docs/refactor/**/*.draft.md
-# 反向否定: docs/refactor/ 中的文档子目录必须入库
-!docs/refactor/**/
-!docs/refactor/v3-migration/
+# ── v3.0 迁移方案 doc（不入库，仅保留本地工作区设计文档）────────────
+# 上游明确指示：docs/refactor/ 的内容从仓库排除，不入库
+docs/refactor/
