@@ -80,27 +80,50 @@ build_linux:
 	@echo "$(GREEN)✅ Linux 构建完成: SceneFab-$(VERSION)-linux-x86_64.AppImage$(NC)"
 
 # ── 开发目标 ───────────────────────────────────────────────────────
+# v2.5.0: Rust + Tauri + React 主线取代 Python v2.4
+# (pytest/ruff/black/isort 已退役,保留为过渡参考)
 test:
-	pytest tests/ -v
+	@echo "$(YELLOW)→ pytest 已退役,使用 'make rust-test' 与 'pnpm test'$(NC)"
+	cargo test --workspace
+	(cd apps/desktop && pnpm test)
 
 test-cov:
-	pytest tests/ --cov=src/scenefab --cov-report=html --cov-report=term-missing
+	@echo "$(YELLOW)→ pytest-cov 已退役,使用 'make coverage'（统一脚本）$(NC)"
+	./scripts/coverage.sh
 
+# Rust 单元 + 集成测试
+rust-test:
+	cargo test --workspace
+
+# Rust + 集成测试,输出到控制台
+rust-test-verbose:
+	cargo test --workspace -- --nocapture
+
+# 仅 clippy,不动 coverage
 lint:
-	ruff check src/scenefab tests
-	black --check src/scenefab tests
-	isort --check-only src/scenefab tests
+	cargo clippy --workspace --all-targets -- -D warnings
+	cargo fmt --all -- --check
+	(cd apps/desktop && pnpm lint)
 
+# Rust 格式化（检查 + 应用）
 format:
-	black src/scenefab tests
-	isort src/scenefab tests
+	cargo fmt --all
+	(cd apps/desktop && pnpm format)
 
+# 全量覆盖率测量：Rust tarpaulin + 前端 vitest
+coverage:
+	./scripts/coverage.sh
+
+# 清理（扩展：增加 v2.5.0 产物）
 clean:
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 	rm -rf build/ dist/ dist-nuitka/ *.egg-info/
 	rm -rf .pytest_cache/ .mypy_cache/ .ruff_cache/
 	rm -rf htmlcov/ .coverage
+	rm -rf apps/desktop/coverage/
+	rm -rf apps/desktop/dist/
+	rm -rf target/coverage/
 
 docs:
 	cd docs && npm run docs:build
