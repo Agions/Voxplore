@@ -347,7 +347,7 @@ cd apps/desktop && pnpm exec tsc --noEmit && pnpm exec vitest run && pnpm build
 ```text
 MIT License
 
-Copyright (c) 2026 SceneFab Team
+Copyright (c) 2026  Agions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -379,6 +379,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
 
 **[⭐ Star us on GitHub](https://github.com/scenefab/scenefab)** · **[📖 Read the docs](docs/index.md)** · **[🐛 Report a bug](https://github.com/scenefab/scenefab/issues)**
 
-<sub>Built with ❤️ by SceneFab Team · 2026</sub>
+<sub>Built with ❤️ by Agions · 2026</sub>
 
 </div>

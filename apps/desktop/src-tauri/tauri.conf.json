@@ -34,7 +34,7 @@
     "active": true,
     "targets": "all",
     "category": "VideoEditor",
-    "copyright": "© 2026 SceneFab Team",
+    "copyright": "© 2026  Agions",
     "shortDescription": "AI 视频叙事生成器",
     "longDescription": "SceneFab 是基于 AI 的第一人称视频叙事编辑器,通过 5 步流水线自动将影视素材转换为竖屏平台的完整视频。",
     "icon": [
@@ -44,7 +44,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "publisher": "SceneFab Team",
+    "publisher": "Agions",
     "homepage": "https://scenefab.dev"
   },
   "plugins": {}
