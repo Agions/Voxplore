@@ -1,11 +1,6 @@
 //! scenefab-pipeline v2.5.0 · 5 步第一人称叙述流水线
 //!
-//! ## 与 v2.4 Python 对应
-//! - `app/services/video/monologue_maker.py` MonologueMaker
-//! - `app/pipeline/orchestrator.py` Orchestrator
-//! - `app/ui/viewmodels/production_viewmodel.py` 5 步状态机
-//!
-//! ## 流水线定义 (5 步状态机，与 v2.4 主线 STEP_DEFINITIONS 语义一致)
+//! ## 流水线定义 (5 步状态机)
 //! - ① 素材导入 (ingest source video)
 //! - ② 场景拆分 (extract scenes + emotion peaks)
 //! - ③ 脚本生成 (MonologueMaker.generate_script)

@@ -6,11 +6,6 @@
 //! - [`EdgeTtsEngine`]    : Microsoft Edge TTS (WebSocket 协议,免费无需密钥)
 //! - [`GptSovitsTtsEngine`]: GPT-SoVITS 本地推理 API (默认 127.0.0.1:9880)
 //!
-//! ## 与 v2.4 Python 对应
-//! - `app/services/tts/edge_tts_engine.py`
-//! - `app/services/tts/openai_tts_engine.py`
-//! - `app/services/tts/gpt_sovits_engine.py`
-//!
 //! ## 设计
 //! - [`TtsEngine`] trait 是唯一出口,业务层只依赖 trait
 //! - 所有失败统一为 `SceneFabError::Tts { provider, message }`

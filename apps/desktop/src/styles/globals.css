@@ -1,7 +1,6 @@
 /** SceneFab v2.5.0 · 设计令牌根 CSS
  * Tailwind 4 + @theme blocks 统一提供 light/dark 主题变量
  * 主题切换运行时通过 useThemeStore 重新挂载 :root [data-theme="…"]
- * 替换了 v2.4 PySide6 时期的 ds_tokens.py (QSS 程序化绑定) 方案
  */
 
 @import "tailwindcss";

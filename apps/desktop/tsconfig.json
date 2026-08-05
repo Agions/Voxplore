@@ -69,8 +69,6 @@
   ],
   "exclude": [
     "src-tauri",
-    "src/app.legacy",
-    "tests.legacy",
     "dist",
     "node_modules"
   ]
