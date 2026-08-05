@@ -61,7 +61,7 @@ path = "src/main.rs"
 workspace = true
 '''
 
-LIB_RS_TPL = '''//! {name} v3.0 · {stage} 占位实现
+LIB_RS_TPL = '''//! {name} v2.5.0 · {stage} 占位实现
 //!
 //! ## 责任范围
 //! {desc}

@@ -1,4 +1,4 @@
-//! scenefab-update v3.0 · 应用更新器 (M4 完整实装)
+//! scenefab-update v2.5.0 · 应用更新器 (M4 完整实装)
 //!
 //! ## 责任范围
 //! - GitHub Releases 探测最新版本
