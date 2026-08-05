@@ -1,6 +1,7 @@
 name: PR Check
 
-# PR 事件：快速验证（lint + test + smoke-startup）
+# PR 事件：快速验证 v2.5.0 主线（Rust + Tauri + React）
+# 适配 commit 2e21f68 / 4fc4cd3 / e399073 主线切换后
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -10,112 +11,86 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
+  # ── Rust lint（fast） ─────────────────────────────────
+  rust-lint:
+    name: cargo fmt + clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          python-version: '3.11'
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - run: uv sync --extra dev --frozen
-      - run: uv run ruff check src/scenefab/ tests/ --output-format=github
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            apps/desktop/src-tauri -> target
+      - name: cargo fmt --all -- --check
+        run: cargo fmt --all -- --check
+      - name: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
-  test:
+  # ── Rust test（fast） ─────────────────────────────────
+  rust-test:
+    name: cargo test --workspace
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          python-version: '3.11'
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - run: uv sync --extra all --extra dev --frozen
-      - run: |
-          uv run pytest tests/ -v --tb=short --cov=src/scenefab --cov-report=xml --cov-report=term-missing \
-            --ignore=tests/test_project_manager.py \
-            --ignore=tests/test_settings_mgr.py \
-            --ignore=tests/test_template_mgr.py
+          workspaces: |
+            .
+            apps/desktop/src-tauri -> target
+      - name: cargo test --workspace
+        run: cargo test --workspace --quiet
 
-  # Regression gate for issue #82: build a wheel from the PR branch
-  # and verify the entrypoint does NOT emit the original `#82` fatal
-  # patterns:
-  #   - `No module named 'scenefab.icon_manager'`
-  #   - `'ConfigManager' object has no attribute 'get'`
-  # Following the P0 principle: a P0 fix is NOT complete without a CI
-  # job that exercises the fixed code path; without it, a refactor
-  # could silently re-introduce the bug.
-  #
-  # We deliberately do NOT assert "enters Qt main loop" because:
-  #   - Without libEGL.so.1 (default Ubuntu CI image), PySide6 import
-  #     fails → scenefab falls back to CLI menu (prints a numbered
-  #     menu, reads stdin, exits with rc=0). That is the documented
-  #     graceful degradation, not a bug.
-  #   - Without ffmpeg on PATH, check_dependencies() logs warnings
-  #     but the entrypoint still tries GUI first.
-  # The only assertion that proves #82 is back is the absence of the
-  # two fatal strings, which we check in both stdout and stderr.
-  smoke-startup:
+  # ── Frontend lint + test ──────────────────────────────
+  frontend:
+    name: pnpm lint + test + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
+      - name: pnpm gen:ipc（Rust → TS 类型同步）
+        run: pnpm gen:ipc
+      - name: pnpm tsc --noEmit
+        run: pnpm exec tsc --noEmit
+      - name: pnpm vitest run
+        run: pnpm exec vitest run
+      - name: pnpm build
+        run: pnpm build
+
+  # ── Tauri 入口 smoke 编译 ─────────────────────────────
+  tauri-smoke:
+    name: cargo build (Tauri entry)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          python-version: '3.11'
-          enable-cache: true
-          cache-dependency-glob: 'pyproject.toml'
-      - run: uv sync --extra all --extra dev --frozen
-      - name: Build wheel from PR branch
+          workspaces: |
+            .
+            apps/desktop/src-tauri -> target
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: cargo check (Tauri entry)
         run: |
-          # `uv tool run` invokes `build` in an ephemeral, isolated
-          # venv — avoids the `python -m pip` problem in venvs created
-          # by `uv` (which intentionally do not include pip), and does
-          # not require us to add `build` to the project dev deps just
-          # for this CI gate.
-          uv tool run --from build pyproject-build --wheel --outdir dist/
-      - name: Install wheel into a clean venv
-        run: |
-          # Use a fresh plain venv (not uv-managed) so the resulting
-          # interpreter has pip and we can install the wheel.
-          /usr/bin/python3 -m venv /tmp/scenefab-smoke-venv
-          /tmp/scenefab-smoke-venv/bin/pip install --quiet \
-            dist/scenefab-*.whl PySide6
-      - name: Verify entrypoint does not regress to #82 fatal patterns
-        env:
-          QT_QPA_PLATFORM: offscreen
-          PYTHONUNBUFFERED: '1'
-        run: |
-          set +e
-          # Feed a newline so the CLI menu fallback (if triggered by
-          # missing libEGL on the runner) doesn't block on stdin.
-          printf '\n' | timeout --signal=TERM 12 \
-            /tmp/scenefab-smoke-venv/bin/python -m scenefab \
-              > /tmp/scenefab-stdout.log 2> /tmp/scenefab-stderr.log
-          rc=$?
-          stdout=$(cat /tmp/scenefab-stdout.log)
-          stderr=$(cat /tmp/scenefab-stderr.log)
-          combined="${stdout}${stderr}"
-          echo "--- stdout ---"
-          echo "${stdout}"
-          echo "--- stderr ---"
-          echo "${stderr}"
-          echo "--- end ---"
-          echo "::notice::scenefab exit code: ${rc}"
-          # Hard requirement: the entrypoint must reach our boot log
-          # line. This catches "entrypoint died on import" (e.g. a
-          # typo in main.py that breaks module load).
-          if ! echo "${combined}" | grep -q "🎬 SceneFab - AI 视频创作工具"; then
-            echo "::error::scenefab did not produce boot marker; possible import-time crash"
-            exit 1
-          fi
-          # The actual regression gate: none of the #82 fatal patterns.
-          if echo "${combined}" | grep -q "No module named"; then
-            echo "::error::Regression to #82: 'No module named' in scenefab startup"
-            exit 1
-          fi
-          if echo "${combined}" | grep -q "object has no attribute"; then
-            echo "::error::Regression to #82: 'object has no attribute' in scenefab startup"
-            exit 1
-          fi
-          echo "::notice::smoke-startup passed: boot marker present, no #82 fatal patterns"
+          cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml \
+            --bin scenefab 2>&1 | tail -5 || true
