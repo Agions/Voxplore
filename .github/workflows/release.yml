@@ -65,9 +65,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
           releaseName: "Vynaro ${{ github.ref_name }}"
           releaseBody: "Vynaro v2.5.0 Release. See CHANGELOG.md for release notes."
           releaseDraft: true
           prerelease: false
-          target: ${{ matrix.target }}
+          args: --target ${{ matrix.target }}
