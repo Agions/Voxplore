@@ -328,8 +328,6 @@ cd apps/desktop && pnpm exec tsc --noEmit && pnpm exec vitest run && pnpm build
 | 界面说明             | [docs/guide/interface.md](docs/guide/interface.md)               |
 | 解说规格             | [docs/guide/narration-spec.md](docs/guide/narration-spec.md)     |
 | 导出                 | [docs/guide/exporting.md](docs/guide/exporting.md)               |
-| Python API v2.4      | [docs/guide/python-api.md](docs/guide/python-api.md)             |
-| CLI 参考 v2.4        | [docs/guide/cli-reference.md](docs/guide/cli-reference.md)       |
 | 发布流程             | [docs/guide/release-process.md](docs/guide/release-process.md)   |
 | 故障排查             | [docs/guide/troubleshooting.md](docs/guide/troubleshooting.md)   |
 
