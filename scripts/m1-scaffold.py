@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SceneFab v3.0 · M1 脚本
+SceneFab v2.5.0 · M1 脚本
 为 12 个业务 crate (除 src-tauri) 批量生成 Cargo.toml + lib.rs stub。
 """
 import os

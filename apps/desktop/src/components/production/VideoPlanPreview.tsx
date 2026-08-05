@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 多视频导出策略预览 (scenefab-video · video_build_plans)
+ * SceneFab v2.5.0 · 多视频导出策略预览 (scenefab-video · video_build_plans)
  *
  * 4 种策略:
  * - single  : 全部输入 → 1 个 OutputPlan (要求 1 个源)

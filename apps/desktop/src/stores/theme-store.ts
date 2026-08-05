@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · theme store (Zustand)
+ * SceneFab v2.5.0 · theme store (Zustand)
  *
  * 设计:
  * - 单一字段: `theme` (light / dark / system)

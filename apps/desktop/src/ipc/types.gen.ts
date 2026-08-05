@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · Tauri Command 类型契约 (单源真相)
+ * SceneFab v2.5.0 · Tauri Command 类型契约 (单源真相)
  *
  * M3+ 由 pnpm `gen:ipc` 自动生成两段:
  *   - "gen-ipc start" 标记: IpcContracts (commands/*.rs 的 #[tauri::command] 函数)
@@ -304,18 +304,10 @@ export interface ThumbnailResult {
 }
 
 // Rust 端 AssetKind (pub enum, rename_all = "snake_case")
-export type AssetKind =
-  | "video"
-  | "audio"
-  | "image"
-  | "subtitle"
-  | "other";
+export type AssetKind = "video" | "audio" | "image" | "subtitle" | "other";
 
 // Rust 端 TtsProviderKind (pub enum, rename_all = "kebab-case")
-export type TtsProviderKind =
-  | "edge"
-  | "open-ai"
-  | "gpt-sovits";
+export type TtsProviderKind = "edge" | "open-ai" | "gpt-sovits";
 
 // Rust 端 ConfigSnapshot (pub struct)
 export interface ConfigSnapshot {
@@ -410,17 +402,10 @@ export interface ExportRecord {
 }
 
 // Rust 端 TrackKind (pub enum, rename_all = "kebab-case")
-export type TrackKind =
-  | "video"
-  | "audio"
-  | "subtitle";
+export type TrackKind = "video" | "audio" | "subtitle";
 
 // Rust 端 ExportStrategy (pub enum, rename_all = "kebab-case")
-export type ExportStrategy =
-  | "single"
-  | "concat"
-  | "batch"
-  | "series";
+export type ExportStrategy = "single" | "concat" | "batch" | "series";
 
 // Rust 端 ExportParams (pub struct)
 export interface ExportParams {
@@ -447,16 +432,10 @@ export interface SubtitleItem {
 }
 
 // Rust 端 ExportMode (pub enum, rename_all = "kebab-case")
-export type ExportMode =
-  | "quick"
-  | "custom"
-  | "silent";
+export type ExportMode = "quick" | "custom" | "silent";
 
 // Rust 端 SubtitleFormat (pub enum, rename_all = "kebab-case")
-export type SubtitleFormat =
-  | "srt"
-  | "ass"
-  | "vtt";
+export type SubtitleFormat = "srt" | "ass" | "vtt";
 
 // Rust 端 FfmpegProbe (pub struct, rename_all = "camelCase")
 export interface FfmpegProbe {
@@ -488,11 +467,7 @@ export interface SearchHit {
 
 // Rust 端 HelpCategory (pub enum, rename_all = "kebab-case")
 export type HelpCategory =
-  | "guide"
-  | "troubleshooting"
-  | "shortcut"
-  | "faq"
-  | "reference";
+  "guide" | "troubleshooting" | "shortcut" | "faq" | "reference";
 
 // Rust 端 StepDef (pub struct)
 export interface PipelineStepDef {
@@ -502,18 +477,10 @@ export interface PipelineStepDef {
 }
 
 // Rust 端 StepStatus (pub enum, rename_all = "kebab-case")
-export type StepStatus =
-  | "pending"
-  | "active"
-  | "done"
-  | "error";
+export type StepStatus = "pending" | "active" | "done" | "error";
 
 // Rust 端 PipelineState (pub enum, rename_all = "kebab-case")
-export type PipelineState =
-  | "idle"
-  | "running"
-  | "done"
-  | "failed";
+export type PipelineState = "idle" | "running" | "done" | "failed";
 
 // Rust 端 PipelineStatus (pub struct, rename_all = "camelCase")
 export interface PipelineStatus {
@@ -552,11 +519,7 @@ export interface UpdateState {
 
 // Rust 端 UpdatePhase (pub enum, rename_all = "snake_case")
 export type UpdatePhase =
-  | "idle"
-  | "checking"
-  | "available"
-  | "downloading"
-  | "ready";
+  "idle" | "checking" | "available" | "downloading" | "ready";
 
 // Rust 端 PlanOptions (pub struct)
 export interface PlanOptions {

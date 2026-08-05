@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · AppShell
+ * SceneFab v2.5.0 · AppShell
  * - TopBar + Sidebar + 内容区
  * - 主题初始化 (data-theme 同步到根节点)
  */

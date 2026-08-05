@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 素材 hook (M3 后续完整实装)
+ * SceneFab v2.5.0 · 素材 hook (M3 后续完整实装)
  *
  * 数据源:
  * - 单一真相源 = project.media_files (从 useProjectStore.current 派生)

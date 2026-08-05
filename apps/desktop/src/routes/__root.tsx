@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 根路由 (M3.2 · 接 AppShell)
+ * SceneFab v2.5.0 · 根路由 (M3.2 · 接 AppShell)
  *
  * 整个应用统一布局:AppShell 已经包含 TopBar + Sidebar + 自带 Outlet。
  */

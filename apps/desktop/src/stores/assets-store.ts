@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · assets store (Zustand)
+ * SceneFab v2.5.0 · assets store (Zustand)
  *
  * 设计:
  * - ids: 当前项目素材 id 列表

@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · IPC Commands 类型化包装
+ * SceneFab v2.5.0 · IPC Commands 类型化包装
  *
  * 设计:
  * - 每个方法直接对应一个 Tauri command,compile-time 类型由 types.gen.ts 保障

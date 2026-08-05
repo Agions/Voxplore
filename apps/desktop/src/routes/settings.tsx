@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · 设置页 (M3.2 接通后端 · M4.5 Locale 切换)
+ * SceneFab v2.5.0 · 设置页 (M3.2 接通后端 · M4.5 Locale 切换)
  *
  * 真实接入 settings_get / settings_set + i18n_get_locale / i18n_set_locale
  * - LLM 11 个 Provider (与 Rust 1:1)

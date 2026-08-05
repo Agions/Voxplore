@@ -40,7 +40,7 @@
   - 仅触动 4 个版本号配置文件 + `Cargo.lock` 同步：
     `Cargo.toml` · `apps/desktop/src-tauri/Cargo.toml` · `tauri.conf.json` · `package.json`
   - 业务代码 / 文档 / commit message 历史全部不动
-  - cargo metadata 现报告 scenefab-* package 一律 version = 2.5.0
+  - cargo metadata 现报告 scenefab-\* package 一律 version = 2.5.0
 
 - **chore(governance): Python v2.4 主线退役存档**（commit `75ce862`）
   - 新增 `DEPRECATED.md`：冻结原因表 · 维护政策 · 历史归档清单
@@ -193,17 +193,20 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
   - 踩坑修正: 首次写 `{ src: { light, dark } }` 触发 `TypeError: path.startsWith is not a function` build 失败, 修正为 `{ light, dark, alt }` 平铺后通过
 
 **修复的隐藏 bug**:
+
 - 🐛 `docs/public/og-image.png` 一直**不存在** (`config.ts` og:image 引用但从未创建), 现已新建 1280×640 社交卡片
 - 🐛 `resources/app_icon.svg` 违反自家 `resources/README.md` "text-free" 原则 (有 SceneFab 文字), 现已无文字版
 - 🐛 cspell 字典漏 `Pydantic` 和 `uvicorn` (技术栈合法词), 现已加入
 
 **校验全过**:
+
 - `npm run docs:build` ✓ 7.68s (vitepress v1.6.4)
 - `npm run docs:lint` ✓ 0 errors (markdownlint-cli2 v0.23.0)
 - `npm run docs:spellcheck` ✓ 0 errors
 - `python3 scripts/render-assets.py` ✓ 13 PNG + 1 ICO + 1 OG 全过
 
 **GitHub repo 校准**:
+
 - description: scene-fab - AI 影视解说创作工具 | 智能拆条 · AI 解说生成 · 一键配音合成 ✓ (已对齐)
 - topics: +'brand-redesign' +'vitepress' (新增双主题 + 文档站)
 - 详见 `references/scene-fab-brand-redesign-2026-07-03.md` (待沉淀)
@@ -360,7 +363,7 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ### 🔧 Maintenance
 
-- **refactor(llm): narrow HTTPClientMixin._call_api** — 改前 `except Exception` (宽 catch, 吞 RuntimeError/TypeError), 改后异常分两段 catch: `httpx.HTTPStatusError` → `_handle_http_error`, `httpx.HTTPError` → `ProviderError("网络错误")`, `json.JSONDecodeError/ValueError` → `ProviderError("响应解析")`. 真 bug 不再被吞
+- **refactor(llm): narrow HTTPClientMixin.\_call_api** — 改前 `except Exception` (宽 catch, 吞 RuntimeError/TypeError), 改后异常分两段 catch: `httpx.HTTPStatusError` → `_handle_http_error`, `httpx.HTTPError` → `ProviderError("网络错误")`, `json.JSONDecodeError/ValueError` → `ProviderError("响应解析")`. 真 bug 不再被吞
 - **chore(cleanup): jianying_exporter.py MaterialType 注释** — pyflakes 报 "unused", 实际是间接 re-export (不在 `__all__` 但与其他 adapter 类型对齐). 注释明确为 "package-private" + 指引测试用 `from jianying_adapter import` 直路径
 - **test(api): 补 api/ 0% 测试覆盖** — 18 个集成测试覆盖 5 个 router (health/pipeline/plugins/export/projects) + 全局异常处理 + 路由顺序
 - **test(ui): 补 ui/ 0% 测试覆盖** — 8 个 headless-safe smoke test 覆盖 SceneFabMainWindow 类结构 + 子模块 import + theme 模块
@@ -385,12 +388,12 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ### PR 链 (6 commits, all pushed)
 
-| SHA | 类型 | 摘要 |
-|---|---|---|
+| SHA       | 类型          | 摘要                                                  |
+| --------- | ------------- | ----------------------------------------------------- |
 | `7da45ec` | fix(security) | 2 P1 — hardware subprocess + pipeline router 路径校验 |
-| `2727e02` | refactor(llm) | narrow HTTPClientMixin._call_api 异常分两段 |
-| `b57cda4` | test(api) | 补 api/ 覆盖 + 修 2 真 bug (根路由 + 路由顺序) |
-| `4543ea3` | test(ui) | 补 ui/ smoke test |
+| `2727e02` | refactor(llm) | narrow HTTPClientMixin.\_call_api 异常分两段          |
+| `b57cda4` | test(api)     | 补 api/ 覆盖 + 修 2 真 bug (根路由 + 路由顺序)        |
+| `4543ea3` | test(ui)      | 补 ui/ smoke test                                     |
 
 ---
 
@@ -547,11 +550,11 @@ e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
 
 ### 性能
 
-| 指标 | v1.1.0 | v2.0.0 | 提升 |
-|------|:---:|:---:|:---:|
-| 10min 视频处理 | ~70s | ~40s | ↓ 43% |
+| 指标           | v1.1.0 | v2.0.0 | 提升  |
+| -------------- | :----: | :----: | :---: |
+| 10min 视频处理 |  ~70s  |  ~40s  | ↓ 43% |
 | 短剧整季 25 集 | ~29min | ~15min | ↓ 48% |
-| LLM 首字延迟 | 20s | < 2s | ↓ 90% |
+| LLM 首字延迟   |  20s   |  < 2s  | ↓ 90% |
 
 ---
 

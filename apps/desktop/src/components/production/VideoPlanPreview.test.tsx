@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · VideoPlanPreview 组件单测
+ * SceneFab v2.5.0 · VideoPlanPreview 组件单测
  *
  * 验证:
  * - 4 个策略按钮 (single / concat / batch / series) 全部渲染

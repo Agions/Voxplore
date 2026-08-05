@@ -1,7 +1,7 @@
 [package]
 name = "scenefab"
 version = "2.5.0"
-description = "SceneFab v3.0 - Tauri + Rust 桌面应用"
+description = "SceneFab v2.5.0 - Tauri + Rust 桌面应用"
 authors = ["SceneFab Team"]
 edition = "2021"
 rust-version = "1.85"

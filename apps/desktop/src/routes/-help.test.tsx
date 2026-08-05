@@ -1,5 +1,5 @@
 /**
- * SceneFab v3.0 · HelpPage 单测 (M4.5)
+ * SceneFab v2.5.0 · HelpPage 单测 (M4.5)
  *
  * 覆盖场景:
  * - 加载状态(loading)
