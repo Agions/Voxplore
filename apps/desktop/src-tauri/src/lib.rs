@@ -25,11 +25,11 @@ mod commands;
 
 use std::sync::Arc;
 
-use vynaro_storage::AssetService;
+use vynaro_compose::service::PipelineService;
 use vynaro_core::AppContext;
 use vynaro_core::HelpRegistry;
 use vynaro_core::Translator;
-use vynaro_compose::service::PipelineService;
+use vynaro_storage::AssetService;
 use vynaro_update::UpdateService;
 
 /// 占位命令 — 保留以便兼容 Gate 0 冒烟测试

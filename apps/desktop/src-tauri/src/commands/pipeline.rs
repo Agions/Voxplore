@@ -8,19 +8,19 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use tauri::{Emitter, State};
+use vynaro_compose::executors::PipelineDeps;
+use vynaro_compose::service::{PipelineService, PipelineStatus};
+use vynaro_compose::{Project, StepDef, STEPS};
 use vynaro_core::services::{ConfigService, ConfigSnapshot};
 use vynaro_core::AppContext;
 use vynaro_detect::Ffmpeg;
 use vynaro_script::factory;
 use vynaro_script::LlmProviderKind;
-use vynaro_compose::executors::PipelineDeps;
-use vynaro_compose::service::{PipelineService, PipelineStatus};
-use vynaro_compose::{Project, StepDef, STEPS};
 use vynaro_voice::engine;
 use vynaro_voice::{
     EdgeTtsOptions, GptSovitsOptions, OpenAiTtsOptions, TtsEngineConfig, TtsProviderKind,
 };
-use tauri::{Emitter, State};
 
 /// 5 步定义查询
 #[tauri::command]

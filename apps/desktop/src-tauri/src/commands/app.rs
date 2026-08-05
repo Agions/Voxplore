@@ -1,10 +1,10 @@
 //! src-tauri 命令 · app 元信息 + 系统探测
 
 use chrono::{DateTime, Utc};
-use vynaro_core::AppContext;
-use vynaro_detect::Ffmpeg;
 use serde::Serialize;
 use tauri::State;
+use vynaro_core::AppContext;
+use vynaro_detect::Ffmpeg;
 
 /// 返回 AppContext 中的 semver 版本 (字符串格式)
 #[tauri::command]

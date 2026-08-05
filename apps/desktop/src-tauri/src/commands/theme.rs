@@ -10,8 +10,8 @@
 
 use std::collections::HashMap;
 
-use vynaro_core::Translator;
 use tauri::{AppHandle, Emitter, State};
+use vynaro_core::Translator;
 
 /// 当前后端文案语言 (BCP-47,如 "zh-CN")
 #[tauri::command]

@@ -8,10 +8,10 @@
 //!
 //! 所有命令通过 `AppContext.services` 解析 `UpdateService` 单例。
 
-use vynaro_core::AppContext;
-use vynaro_update::{UpdateInfo, UpdateState};
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_opener::OpenerExt;
+use vynaro_core::AppContext;
+use vynaro_update::{UpdateInfo, UpdateState};
 
 /// 查询当前更新状态快照
 #[tauri::command]
