@@ -2,6 +2,7 @@
 
 use vynaro_script::{factory, LlmProviderKind, LlmRequest};
 
+#[allow(dead_code)]
 #[derive(serde::Deserialize)]
 pub struct ScriptGenerateParams {
     pub provider: String,
