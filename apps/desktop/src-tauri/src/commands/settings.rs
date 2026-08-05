@@ -5,8 +5,8 @@
 
 use std::path::PathBuf;
 
-use scenefab_core::AppContext;
 use scenefab_core::services::{ConfigService, ConfigSnapshot};
+use scenefab_core::AppContext;
 use tauri::{Manager, State};
 
 const CONFIG_FILE: &str = "config.json";
@@ -62,8 +62,9 @@ pub async fn settings_set(
 // ── helpers ───────────────────────────────────────────────────────────
 
 fn config_path(app: &tauri::AppHandle) -> Result<PathBuf, tauri::Error> {
-    let dir = app.path().app_data_dir().map_err(|e| {
-        tauri::Error::Anyhow(anyhow::anyhow!("无法获取 app data 目录: {e}"))
-    })?;
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| tauri::Error::Anyhow(anyhow::anyhow!("无法获取 app data 目录: {e}")))?;
     Ok(dir.join(CONFIG_FILE))
 }

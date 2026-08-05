@@ -34,9 +34,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::sync::broadcast;
 
 pub use scenefab_core::error::{SceneFabError, SceneFabResult};
-pub use scenefab_domain::{
-    Clip, MediaFile, Project, ScriptSegment, Timeline, Track,
-};
+pub use scenefab_domain::{Clip, MediaFile, Project, ScriptSegment, Timeline, Track};
 
 // ════════════════════════════════════════════════════════════════════════
 // 5 步定义
@@ -282,9 +280,9 @@ impl Pipeline {
                 st.current_step = idx as i8;
                 st.step_statuses[idx] = StepStatus::Active;
             }
-            let _ = self.events_tx.send(PipelineEvent::StepStarted {
-                index: idx as u8,
-            });
+            let _ = self
+                .events_tx
+                .send(PipelineEvent::StepStarted { index: idx as u8 });
 
             let step_start = std::time::Instant::now();
             let result = exec.execute(project).await;
@@ -312,9 +310,9 @@ impl Pipeline {
                         index: idx as u8,
                         message: msg.clone(),
                     });
-                    let _ = self.events_tx.send(PipelineEvent::PipelineFailed {
-                        message: msg,
-                    });
+                    let _ = self
+                        .events_tx
+                        .send(PipelineEvent::PipelineFailed { message: msg });
                     return Err(e);
                 }
             }

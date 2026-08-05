@@ -117,11 +117,11 @@ pub enum TrackKind {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Clip {
     pub id: String,
-    pub media_ref: PathBuf,     // 引用的 MediaFile.path
-    pub start_seconds: f64,      // 在时间线上的起点
-    pub in_seconds: f64,         // 在 MediaFile 中的入点
-    pub out_seconds: f64,        // 在 MediaFile 中的出点
-    pub volume: Option<f32>,     // 仅 audio 有意义
+    pub media_ref: PathBuf,  // 引用的 MediaFile.path
+    pub start_seconds: f64,  // 在时间线上的起点
+    pub in_seconds: f64,     // 在 MediaFile 中的入点
+    pub out_seconds: f64,    // 在 MediaFile 中的出点
+    pub volume: Option<f32>, // 仅 audio 有意义
 }
 
 /// 第一人称叙述脚本的一段。

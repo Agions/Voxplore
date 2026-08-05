@@ -8,14 +8,14 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use scenefab_core::services::{ConfigService, ConfigSnapshot};
 use scenefab_core::AppContext;
-use scenefab_core::services::{ConfigSnapshot, ConfigService};
 use scenefab_ffmpeg::Ffmpeg;
 use scenefab_llm::factory;
 use scenefab_llm::LlmProviderKind;
 use scenefab_pipeline::executors::PipelineDeps;
 use scenefab_pipeline::service::{PipelineService, PipelineStatus};
-use scenefab_pipeline::{Project, STEPS, StepDef};
+use scenefab_pipeline::{Project, StepDef, STEPS};
 use scenefab_tts::engine;
 use scenefab_tts::{
     EdgeTtsOptions, GptSovitsOptions, OpenAiTtsOptions, TtsEngineConfig, TtsProviderKind,
@@ -30,9 +30,7 @@ pub fn pipeline_step_defs() -> Vec<StepDef> {
 
 /// 状态快照 (前端 polling)
 #[tauri::command]
-pub async fn pipeline_status(
-    state: State<'_, AppContext>,
-) -> Result<PipelineStatus, String> {
+pub async fn pipeline_status(state: State<'_, AppContext>) -> Result<PipelineStatus, String> {
     let svc = state
         .service::<PipelineService>()
         .await
@@ -138,30 +136,23 @@ fn build_deps(
         .as_deref()
         .and_then(TtsProviderKind::from_str)
     {
-        Some(TtsProviderKind::Edge) => Some(engine(TtsEngineConfig::Edge(
-            EdgeTtsOptions {
-                voice: config
-                    .tts_voice
-                    .clone()
-                    .unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
-            },
-        ))),
-        Some(TtsProviderKind::OpenAi) => Some(engine(TtsEngineConfig::OpenAi(
-            OpenAiTtsOptions {
-                api_key: config.llm_api_key.clone().unwrap_or_default(),
-                base_url: config
-                    .llm_base_url
-                    .clone()
-                    .unwrap_or_else(|| "https://api.openai.com".into()),
-                model: config.llm_model.clone().unwrap_or_else(|| "tts-1".into()),
-                voice: config
-                    .tts_voice
-                    .clone()
-                    .unwrap_or_else(|| "alloy".into()),
-            },
-        ))),
-        Some(TtsProviderKind::GptSovits) => Some(engine(TtsEngineConfig::GptSovits(
-            GptSovitsOptions {
+        Some(TtsProviderKind::Edge) => Some(engine(TtsEngineConfig::Edge(EdgeTtsOptions {
+            voice: config
+                .tts_voice
+                .clone()
+                .unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
+        }))),
+        Some(TtsProviderKind::OpenAi) => Some(engine(TtsEngineConfig::OpenAi(OpenAiTtsOptions {
+            api_key: config.llm_api_key.clone().unwrap_or_default(),
+            base_url: config
+                .llm_base_url
+                .clone()
+                .unwrap_or_else(|| "https://api.openai.com".into()),
+            model: config.llm_model.clone().unwrap_or_else(|| "tts-1".into()),
+            voice: config.tts_voice.clone().unwrap_or_else(|| "alloy".into()),
+        }))),
+        Some(TtsProviderKind::GptSovits) => {
+            Some(engine(TtsEngineConfig::GptSovits(GptSovitsOptions {
                 base_url: config
                     .llm_base_url
                     .clone()
@@ -169,8 +160,8 @@ fn build_deps(
                 ref_audio_path: config.tts_ref_audio_path.clone().unwrap_or_default(),
                 prompt_text: config.tts_prompt_text.clone().unwrap_or_default(),
                 prompt_lang: "zh".into(),
-            },
-        ))),
+            })))
+        }
         None => None,
     };
 
@@ -181,9 +172,7 @@ fn build_deps(
         llm,
         tts,
         ffmpeg,
-        workdir: PathBuf::from(
-            workdir.unwrap_or_else(|| "/tmp/scenefab-workdir".to_string()),
-        ),
+        workdir: PathBuf::from(workdir.unwrap_or_else(|| "/tmp/scenefab-workdir".to_string())),
     })
 }
 

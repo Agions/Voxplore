@@ -222,7 +222,9 @@ pub fn escape_xml(s: &str) -> String {
 }
 
 fn now_http_date() -> String {
-    chrono::Utc::now().format("%a, %d %b %Y %H:%M:%S GMT").to_string()
+    chrono::Utc::now()
+        .format("%a, %d %b %Y %H:%M:%S GMT")
+        .to_string()
 }
 
 fn random_connection_id() -> String {
@@ -320,10 +322,10 @@ impl TtsEngine for EdgeTtsEngine {
 
 #[derive(Debug, Clone)]
 pub struct GptSovitsOptions {
-    pub base_url: String,         // 默认 http://127.0.0.1:9880
-    pub ref_audio_path: String,   // 参考音频路径 (克隆音色)
-    pub prompt_text: String,      // 参考音频对应文本
-    pub prompt_lang: String,      // 默认 zh
+    pub base_url: String,       // 默认 http://127.0.0.1:9880
+    pub ref_audio_path: String, // 参考音频路径 (克隆音色)
+    pub prompt_text: String,    // 参考音频对应文本
+    pub prompt_lang: String,    // 默认 zh
 }
 
 impl Default for GptSovitsOptions {
@@ -484,7 +486,13 @@ mod tests {
             output_path: PathBuf::from("/tmp/x.wav"),
         }));
         let err = r.unwrap_err();
-        assert!(matches!(err, SceneFabError::Tts { provider: TtsProviderKind::GptSovits, .. }));
+        assert!(matches!(
+            err,
+            SceneFabError::Tts {
+                provider: TtsProviderKind::GptSovits,
+                ..
+            }
+        ));
     }
 
     #[tokio::test]

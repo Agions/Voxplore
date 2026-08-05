@@ -159,7 +159,10 @@ mod tests {
         let svc = PipelineService::new();
         // 构造一个会"运行中"的场景较难离线模拟,这里验证 Idle 下可以 start
         let p = Project::default();
-        assert!(svc.start(p.clone(), deps("/tmp/sf-svc-test2")).await.is_ok());
+        assert!(svc
+            .start(p.clone(), deps("/tmp/sf-svc-test2"))
+            .await
+            .is_ok());
         let _ = svc.take_finished_project().await;
     }
 }

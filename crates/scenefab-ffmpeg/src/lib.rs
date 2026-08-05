@@ -57,9 +57,8 @@ pub struct Ffmpeg {
 impl Ffmpeg {
     /// 从 PATH 发现 ffmpeg + ffprobe。缺失返回 `Ffmpeg` 错误。
     pub fn discover() -> SceneFabResult<Self> {
-        let ffmpeg = which("ffmpeg").ok_or_else(|| {
-            SceneFabError::Ffmpeg("ffmpeg 不在 PATH 中 (请先安装 ffmpeg)".into())
-        })?;
+        let ffmpeg = which("ffmpeg")
+            .ok_or_else(|| SceneFabError::Ffmpeg("ffmpeg 不在 PATH 中 (请先安装 ffmpeg)".into()))?;
         let ffprobe = which("ffprobe").ok_or_else(|| {
             SceneFabError::Ffmpeg("ffprobe 不在 PATH 中 (请先安装 ffmpeg)".into())
         })?;
@@ -204,7 +203,10 @@ impl Ffmpeg {
         output: &Path,
     ) -> SceneFabResult<()> {
         // subtitles 滤镜需要转义路径中的特殊字符
-        let srt_escaped = srt.to_string_lossy().replace(':', "\\:").replace('\'', "\\'");
+        let srt_escaped = srt
+            .to_string_lossy()
+            .replace(':', "\\:")
+            .replace('\'', "\\'");
         let filter = format!("subtitles='{srt_escaped}'");
         self.run_encode(
             &[
@@ -257,11 +259,7 @@ impl Ffmpeg {
     }
 
     /// 多段拼接 (concat demuxer,先写 list 文件)
-    pub async fn concat(
-        &self,
-        inputs: &[PathBuf],
-        output: &Path,
-    ) -> SceneFabResult<()> {
+    pub async fn concat(&self, inputs: &[PathBuf], output: &Path) -> SceneFabResult<()> {
         if inputs.is_empty() {
             return Err(SceneFabError::Ffmpeg("concat: 输入列表为空".into()));
         }
@@ -317,7 +315,9 @@ impl Ffmpeg {
             full.push("-nostats");
         }
         full.extend_from_slice(args);
-        Ok(self.run_raw(&self.ffmpeg_bin, &full, on_progress, None).await?)
+        Ok(self
+            .run_raw(&self.ffmpeg_bin, &full, on_progress, None)
+            .await?)
     }
 
     /// 底层执行: 捕获 stdout/stderr,解析 time= 进度。exit != 0 → Err(stderr tail)。
@@ -350,12 +350,9 @@ impl Ffmpeg {
             if let Some(mut err) = stderr_take {
                 let mut chunk = [0u8; 4096];
                 loop {
-                    let n = err
-                        .read(&mut chunk)
-                        .await
-                        .map_err(|e| RawExecError {
-                            stderr_tail: format!("read stderr: {e}"),
-                        })?;
+                    let n = err.read(&mut chunk).await.map_err(|e| RawExecError {
+                        stderr_tail: format!("read stderr: {e}"),
+                    })?;
                     if n == 0 {
                         break;
                     }
@@ -429,7 +426,10 @@ pub fn parse_probe_json(json: &str) -> SceneFabResult<FfmpegProbe> {
         .as_str()
         .and_then(|s| s.parse::<f64>().ok())
         .unwrap_or(0.0);
-    let size = v["format"]["size"].as_str().and_then(|s| s.parse().ok()).unwrap_or(0);
+    let size = v["format"]["size"]
+        .as_str()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(0);
 
     let mut width = 0u32;
     let mut height = 0u32;
@@ -582,7 +582,10 @@ mod tests {
     #[test]
     fn parse_timestamp_and_time_line() {
         assert_eq!(parse_timestamp("00:01:30.50"), Some(90.5));
-        assert_eq!(extract_time_line("frame=10 fps=5 time=00:00:12.34 bitrate=1x"), Some(12.34));
+        assert_eq!(
+            extract_time_line("frame=10 fps=5 time=00:00:12.34 bitrate=1x"),
+            Some(12.34)
+        );
         assert_eq!(extract_time_line("no progress here"), None);
     }
 
