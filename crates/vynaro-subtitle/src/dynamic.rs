@@ -50,7 +50,7 @@ pub fn to_karaoke_ass(entry: &SubtitleEntry) -> Result<String, SubtitleError> {
 
 /// 批量处理字幕条目：标注情绪 + 可选逐字高亮
 pub fn process_entries(
-    entries: &mut Vec<SubtitleEntry>,
+    entries: &mut [SubtitleEntry],
     enable_emotion: bool,
 ) -> Result<(), SubtitleError> {
     for entry in entries.iter_mut() {
