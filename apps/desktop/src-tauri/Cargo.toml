@@ -1,6 +1,6 @@
 [package]
 name = "scenefab"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 description = "SceneFab v3.0 - Tauri + Rust 桌面应用"
 authors = ["SceneFab Team"]
 edition = "2021"

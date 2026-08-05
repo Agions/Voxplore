@@ -3152,7 +3152,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3183,7 +3183,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-assets"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "dirs 5.0.1",
  "mime_guess",
@@ -3201,11 +3201,11 @@ dependencies = [
 
 [[package]]
 name = "scenefab-cli"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 
 [[package]]
 name = "scenefab-core"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3223,7 +3223,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-domain"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "chrono",
  "semver",
@@ -3233,7 +3233,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-export"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "scenefab-domain",
  "serde",
@@ -3243,7 +3243,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-ffmpeg"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "scenefab-core",
  "serde",
@@ -3255,7 +3255,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-help"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -3264,7 +3264,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-i18n"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -3273,7 +3273,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-llm"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "async-trait",
  "futures",
@@ -3288,7 +3288,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-pipeline"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3307,11 +3307,11 @@ dependencies = [
 
 [[package]]
 name = "scenefab-plugin"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 
 [[package]]
 name = "scenefab-tts"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "async-trait",
  "chrono",
@@ -3328,7 +3328,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-update"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "anyhow",
  "futures",
@@ -3347,7 +3347,7 @@ dependencies = [
 
 [[package]]
 name = "scenefab-video"
-version = "3.0.0-alpha.0"
+version = "2.5.0"
 dependencies = [
  "scenefab-domain",
  "serde",
