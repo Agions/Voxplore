@@ -125,7 +125,10 @@ mod tests {
         let err = SceneFabError::Config("missing api_key".into());
         let json = serde_json::to_value(&err).unwrap();
         assert_eq!(json["kind"], "config");
-        assert!(json["message"].as_str().unwrap().contains("missing api_key"));
+        assert!(json["message"]
+            .as_str()
+            .unwrap()
+            .contains("missing api_key"));
     }
 
     #[test]

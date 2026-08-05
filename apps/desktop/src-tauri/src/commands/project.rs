@@ -4,17 +4,15 @@
 
 use std::path::{Path, PathBuf};
 
-use scenefab_core::AppContext;
 use scenefab_core::domain::Project;
 use scenefab_core::services::ProjectService;
+use scenefab_core::AppContext;
 use scenefab_domain::MediaFile;
 use tauri::{Manager, State};
 
 /// 列举最近项目 (M3.2 真实从 ProjectService 取)
 #[tauri::command]
-pub async fn project_list_recent(
-    state: State<'_, AppContext>,
-) -> Result<Vec<String>, String> {
+pub async fn project_list_recent(state: State<'_, AppContext>) -> Result<Vec<String>, String> {
     let svc = state
         .service::<ProjectService>()
         .await
@@ -35,9 +33,13 @@ pub async fn project_create_blank(
 ) -> Result<ProjectRecord, String> {
     let proj = Project::default();
     let dir = project_dir(&app).map_err(|e| e.to_string())?;
-    tokio::fs::create_dir_all(&dir).await.map_err(|e| e.to_string())?;
+    tokio::fs::create_dir_all(&dir)
+        .await
+        .map_err(|e| e.to_string())?;
     let path = dir.join(format!("{}.scenefab.json", proj.id));
-    write_project(&path, &proj).await.map_err(|e| e.to_string())?;
+    write_project(&path, &proj)
+        .await
+        .map_err(|e| e.to_string())?;
 
     let svc = state
         .service::<ProjectService>()
@@ -59,8 +61,7 @@ pub async fn project_load(
 ) -> Result<ProjectRecord, String> {
     let p = PathBuf::from(&path);
     let bytes = tokio::fs::read(&p).await.map_err(|e| e.to_string())?;
-    let proj: Project =
-        serde_json::from_slice(&bytes).map_err(|e| format!("解析失败: {e}"))?;
+    let proj: Project = serde_json::from_slice(&bytes).map_err(|e| format!("解析失败: {e}"))?;
 
     let svc = state
         .service::<ProjectService>()
@@ -115,9 +116,10 @@ pub struct ProjectRecord {
 // ── helpers ───────────────────────────────────────────────────────────
 
 pub fn project_dir(app: &tauri::AppHandle) -> Result<PathBuf, tauri::Error> {
-    let dir = app.path().app_data_dir().map_err(|e| tauri::Error::Anyhow(
-        anyhow::anyhow!("无法获取 app data 目录: {e}"),
-    ))?;
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|e| tauri::Error::Anyhow(anyhow::anyhow!("无法获取 app data 目录: {e}")))?;
     Ok(dir.join("projects"))
 }
 

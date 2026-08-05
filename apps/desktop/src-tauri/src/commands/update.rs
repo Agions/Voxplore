@@ -15,9 +15,7 @@ use tauri_plugin_opener::OpenerExt;
 
 /// 查询当前更新状态快照
 #[tauri::command]
-pub async fn update_get_state(
-    state: State<'_, AppContext>,
-) -> Result<UpdateState, String> {
+pub async fn update_get_state(state: State<'_, AppContext>) -> Result<UpdateState, String> {
     let svc = state
         .service::<scenefab_update::UpdateService>()
         .await
@@ -27,9 +25,7 @@ pub async fn update_get_state(
 
 /// 探测 GitHub Releases latest。返回 UpdateInfo(同时写状态)
 #[tauri::command]
-pub async fn update_check(
-    state: State<'_, AppContext>,
-) -> Result<UpdateInfo, String> {
+pub async fn update_check(state: State<'_, AppContext>) -> Result<UpdateInfo, String> {
     let svc = state
         .service::<scenefab_update::UpdateService>()
         .await
@@ -70,9 +66,9 @@ pub async fn update_install(
         .await
         .map_err(|e| e.to_string())?;
     let snap = svc.snapshot().await;
-    let path = snap.downloaded_path.ok_or_else(|| {
-        "尚未下载更新,请先调用 update_download".to_string()
-    })?;
+    let path = snap
+        .downloaded_path
+        .ok_or_else(|| "尚未下载更新,请先调用 update_download".to_string())?;
 
     // 尝试用 opener 插件打开下载目录
     if let Some(dir) = std::path::Path::new(&path).parent() {
@@ -83,7 +79,9 @@ pub async fn update_install(
 
     Ok(UpdateInstallResult {
         downloaded_path: path,
-        note: "M4 阶段:已打开下载目录,请手动替换应用并重启。M5 将接入 tauri-plugin-updater 自动安装。".into(),
+        note:
+            "M4 阶段:已打开下载目录,请手动替换应用并重启。M5 将接入 tauri-plugin-updater 自动安装。"
+                .into(),
     })
 }
 

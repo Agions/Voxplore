@@ -261,7 +261,10 @@ impl StepExecutor for ScriptGenStep {
                 // 降级: 整段文本作为单脚本
                 tracing::warn!("LLM 输出无法解析为 JSON,降级为单段脚本");
                 let timing = project.scripts.first().map(|s| {
-                    (s.start_seconds.unwrap_or(0.0), s.end_seconds.unwrap_or(60.0))
+                    (
+                        s.start_seconds.unwrap_or(0.0),
+                        s.end_seconds.unwrap_or(60.0),
+                    )
                 });
                 project.scripts = vec![ScriptSegment {
                     id: "script-full".into(),
@@ -300,7 +303,13 @@ impl StepExecutor for VoiceCaptionsStep {
         let total = project
             .media_files
             .first()
-            .map(|m| if m.duration_seconds > 0.0 { m.duration_seconds } else { 60.0 })
+            .map(|m| {
+                if m.duration_seconds > 0.0 {
+                    m.duration_seconds
+                } else {
+                    60.0
+                }
+            })
             .unwrap_or(60.0);
 
         // 按文本长度分配时间 (若脚本没带时间)
@@ -378,9 +387,10 @@ impl StepExecutor for ExportStep {
             SceneFabError::Ffmpeg("ffmpeg 未安装或不在 PATH 中,无法导出成片".into())
         })?;
 
-        let media = project.media_files.first().ok_or_else(|| {
-            SceneFabError::Project("没有可导出的素材".into())
-        })?;
+        let media = project
+            .media_files
+            .first()
+            .ok_or_else(|| SceneFabError::Project("没有可导出的素材".into()))?;
 
         let export_dir = self.deps.workdir.join("export");
         tokio::fs::create_dir_all(&export_dir).await?;
@@ -464,7 +474,9 @@ mod tests {
 
     #[tokio::test]
     async fn ingest_rejects_empty_media() {
-        let step = IngestStep { deps: deps("/tmp/sf-ingest-test") };
+        let step = IngestStep {
+            deps: deps("/tmp/sf-ingest-test"),
+        };
         let mut p = Project::default();
         let r = step.execute(&mut p).await;
         assert!(matches!(r, Err(SceneFabError::Project(_))));
@@ -472,7 +484,9 @@ mod tests {
 
     #[tokio::test]
     async fn ingest_rejects_missing_file() {
-        let step = IngestStep { deps: deps("/tmp/sf-ingest-test2") };
+        let step = IngestStep {
+            deps: deps("/tmp/sf-ingest-test2"),
+        };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
         assert!(matches!(r, Err(SceneFabError::Project(_))));
@@ -481,7 +495,9 @@ mod tests {
     #[tokio::test]
     async fn scene_split_fallback_without_ffmpeg() {
         // 无 ffmpeg → 单场景覆盖全长
-        let step = SceneSplitStep { deps: deps("/tmp/sf-scene-test") };
+        let step = SceneSplitStep {
+            deps: deps("/tmp/sf-scene-test"),
+        };
         let mut p = project_with_media();
         step.execute(&mut p).await.unwrap();
         assert_eq!(p.scripts.len(), 1);
@@ -491,7 +507,9 @@ mod tests {
 
     #[tokio::test]
     async fn script_gen_requires_llm() {
-        let step = ScriptGenStep { deps: deps("/tmp/sf-script-test") };
+        let step = ScriptGenStep {
+            deps: deps("/tmp/sf-script-test"),
+        };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
         assert!(matches!(r, Err(SceneFabError::Config(_))));
@@ -499,7 +517,8 @@ mod tests {
 
     #[test]
     fn parse_segments_json_and_fence() {
-        let raw = r#"[{"text": "第一段旁白", "emotion": "平静"}, {"text": "第二段", "emotion": "激动"}]"#;
+        let raw =
+            r#"[{"text": "第一段旁白", "emotion": "平静"}, {"text": "第二段", "emotion": "激动"}]"#;
         let segs = ScriptGenStep::parse_segments(raw).unwrap();
         assert_eq!(segs.len(), 2);
 
@@ -511,7 +530,9 @@ mod tests {
 
     #[tokio::test]
     async fn voice_requires_tts() {
-        let step = VoiceCaptionsStep { deps: deps("/tmp/sf-voice-test") };
+        let step = VoiceCaptionsStep {
+            deps: deps("/tmp/sf-voice-test"),
+        };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
         assert!(matches!(r, Err(SceneFabError::Config(_))));
@@ -519,7 +540,9 @@ mod tests {
 
     #[tokio::test]
     async fn export_requires_ffmpeg() {
-        let step = ExportStep { deps: deps("/tmp/sf-export-test") };
+        let step = ExportStep {
+            deps: deps("/tmp/sf-export-test"),
+        };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
         assert!(matches!(r, Err(SceneFabError::Ffmpeg(_))));

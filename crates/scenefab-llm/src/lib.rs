@@ -323,7 +323,10 @@ impl LlmProvider for GeminiProvider {
     async fn chat(&self, req: &LlmRequest) -> SceneFabResult<LlmResponse> {
         let start = std::time::Instant::now();
 
-        let model = req.model.clone().unwrap_or_else(|| self.default_model().to_string());
+        let model = req
+            .model
+            .clone()
+            .unwrap_or_else(|| self.default_model().to_string());
         // 使用 streamGenerateContent=false 切到非流式
         let url = format!(
             "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}",
@@ -621,17 +624,17 @@ mod tests {
     #[test]
     fn all_eleven_providers_kind_correct() {
         let all: Vec<(&str, LlmProviderKind)> = vec![
-            ("openai",  LlmProviderKind::OpenAi),
-            ("qwen",    LlmProviderKind::Qwen),
-            ("kimi",    LlmProviderKind::Kimi),
-            ("glm5",    LlmProviderKind::Glm5),
+            ("openai", LlmProviderKind::OpenAi),
+            ("qwen", LlmProviderKind::Qwen),
+            ("kimi", LlmProviderKind::Kimi),
+            ("glm5", LlmProviderKind::Glm5),
             ("deepseek", LlmProviderKind::DeepSeek),
-            ("doubao",  LlmProviderKind::Doubao),
+            ("doubao", LlmProviderKind::Doubao),
             ("hunyuan", LlmProviderKind::Hunyuan),
-            ("local",   LlmProviderKind::Local),
-            ("qwen37",  LlmProviderKind::Qwen37),
-            ("claude",  LlmProviderKind::Claude),
-            ("gemini",  LlmProviderKind::Gemini),
+            ("local", LlmProviderKind::Local),
+            ("qwen37", LlmProviderKind::Qwen37),
+            ("claude", LlmProviderKind::Claude),
+            ("gemini", LlmProviderKind::Gemini),
         ];
 
         for (name, kind) in all {
@@ -643,17 +646,17 @@ mod tests {
     #[test]
     fn default_models_distinct() {
         let m = [
-            (LlmProviderKind::OpenAi,  openai("k").default_model()),
-            (LlmProviderKind::Qwen,    qwen("k").default_model()),
-            (LlmProviderKind::Kimi,    kimi("k").default_model()),
-            (LlmProviderKind::Glm5,    glm5("k").default_model()),
+            (LlmProviderKind::OpenAi, openai("k").default_model()),
+            (LlmProviderKind::Qwen, qwen("k").default_model()),
+            (LlmProviderKind::Kimi, kimi("k").default_model()),
+            (LlmProviderKind::Glm5, glm5("k").default_model()),
             (LlmProviderKind::DeepSeek, deepseek("k").default_model()),
-            (LlmProviderKind::Doubao,  doubao("k").default_model()),
+            (LlmProviderKind::Doubao, doubao("k").default_model()),
             (LlmProviderKind::Hunyuan, hunyuan("k").default_model()),
-            (LlmProviderKind::Local,   local(None).default_model()),
-            (LlmProviderKind::Qwen37,  qwen37("k").default_model()),
-            (LlmProviderKind::Claude,  claude("k").default_model()),
-            (LlmProviderKind::Gemini,  gemini("k").default_model()),
+            (LlmProviderKind::Local, local(None).default_model()),
+            (LlmProviderKind::Qwen37, qwen37("k").default_model()),
+            (LlmProviderKind::Claude, claude("k").default_model()),
+            (LlmProviderKind::Gemini, gemini("k").default_model()),
         ];
         for (kind, model) in m {
             assert!(!model.is_empty(), "{kind:?} default model empty");
@@ -670,14 +673,16 @@ mod tests {
             "gpt-4o-mini",
         );
         let mgr = LlmManager::new(vec![Box::new(bad)]);
-        let r = mgr.chat(&LlmRequest {
-            system: "test".into(),
-            user: "hi".into(),
-            model: None,
-            max_tokens: None,
-            temperature: None,
-            stream: false,
-        }).await;
+        let r = mgr
+            .chat(&LlmRequest {
+                system: "test".into(),
+                user: "hi".into(),
+                model: None,
+                max_tokens: None,
+                temperature: None,
+                stream: false,
+            })
+            .await;
         assert!(r.is_err());
     }
 }

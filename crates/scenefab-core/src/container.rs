@@ -44,9 +44,7 @@ impl ServiceContainer {
 
     /// 解析一个服务 (返回克隆的 Arc)。
     /// 未注册返回 `SceneFabError::Config`。
-    pub async fn resolve<T: Any + Send + Sync>(
-        &self,
-    ) -> Result<Arc<T>, super::SceneFabError> {
+    pub async fn resolve<T: Any + Send + Sync>(&self) -> Result<Arc<T>, super::SceneFabError> {
         let id = TypeId::of::<T>();
         let map = self.services.lock().await;
         map.get(&id)
@@ -63,8 +61,7 @@ impl ServiceContainer {
     pub async fn try_resolve<T: Any + Send + Sync>(&self) -> Option<Arc<T>> {
         let id = TypeId::of::<T>();
         let map = self.services.lock().await;
-        map.get(&id)
-            .and_then(|s| s.clone().downcast::<T>().ok())
+        map.get(&id).and_then(|s| s.clone().downcast::<T>().ok())
     }
 
     /// 当前已注册服务数 (主要用于单元测试断言)。

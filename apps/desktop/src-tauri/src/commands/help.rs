@@ -18,8 +18,7 @@ pub async fn help_topics(
 ) -> Result<Vec<HelpTopic>, String> {
     let topics = match category {
         Some(raw) if !raw.trim().is_empty() => {
-            let cat = HelpCategory::parse(&raw)
-                .ok_or_else(|| format!("未知帮助分类: {raw}"))?;
+            let cat = HelpCategory::parse(&raw).ok_or_else(|| format!("未知帮助分类: {raw}"))?;
             reg.list_by_category(cat)
         }
         _ => reg.list_all(),
@@ -29,10 +28,7 @@ pub async fn help_topics(
 
 /// 按 id 取单篇主题 (含 markdown 正文);不存在返回错误
 #[tauri::command]
-pub async fn help_topic_get(
-    reg: State<'_, HelpRegistry>,
-    id: String,
-) -> Result<HelpTopic, String> {
+pub async fn help_topic_get(reg: State<'_, HelpRegistry>, id: String) -> Result<HelpTopic, String> {
     reg.get(&id).cloned().map_err(|e| e.to_string())
 }
 

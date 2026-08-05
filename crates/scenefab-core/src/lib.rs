@@ -20,15 +20,15 @@
 
 #![allow(dead_code, unused_imports)]
 
-pub mod context;
 pub mod container;
+pub mod context;
 pub mod domain;
 pub mod error;
 pub mod logging;
 pub mod services;
 
-pub use context::{AppContext, AppContextBuilder};
 pub use container::ServiceContainer;
+pub use context::{AppContext, AppContextBuilder};
 pub use error::{SceneFabError, SceneFabResult};
 pub use logging::init_logging;
 pub use services::{ConfigService, LoggingService, ProjectService};

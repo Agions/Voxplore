@@ -3,8 +3,8 @@
 //! 全应用单一状态对象,通过 `app.manage(AppContext::new())` 注入 Tauri State,
 //! 每个 Tauri Command 用 `state: State<'_, AppContext>` 即可拿到。
 
-use std::sync::Arc;
 use chrono::{DateTime, Utc};
+use std::sync::Arc;
 
 use super::container::ServiceContainer;
 
@@ -98,10 +98,7 @@ mod tests {
 
     #[tokio::test]
     async fn skip_default_services_works() {
-        let ctx = AppContext::builder()
-            .skip_default_services()
-            .build()
-            .await;
+        let ctx = AppContext::builder().skip_default_services().build().await;
         assert!(ctx.services.is_empty().await);
     }
 }

@@ -202,9 +202,7 @@ impl UpdateService {
     }
 
     fn emit_downloaded(&self, path: String, sha256: String) {
-        let _ = self
-            .event_tx
-            .send(UpdateEvent::Downloaded { path, sha256 });
+        let _ = self.event_tx.send(UpdateEvent::Downloaded { path, sha256 });
     }
 
     /// 探测最新版本 (GitHub Releases latest)
@@ -216,10 +214,7 @@ impl UpdateService {
         }
         self.emit_phase(UpdatePhase::Checking);
 
-        let url = format!(
-            "https://api.github.com/repos/{}/releases/latest",
-            self.repo
-        );
+        let url = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
 
         let resp = self
             .client

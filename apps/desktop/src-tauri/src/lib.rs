@@ -63,9 +63,7 @@ pub fn run() {
                 )))
                 .await;
             // 注入 AssetService (M3 后续完整实装)
-            ctx.services
-                .register(Arc::new(AssetService::new()))
-                .await;
+            ctx.services.register(Arc::new(AssetService::new())).await;
             // 在 async 上下文里拿到注册计数 (留给 sync 入口打 log 用)
             let count = ctx.services.len().await;
             (ctx, count)

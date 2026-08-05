@@ -112,10 +112,29 @@ pub struct ThumbnailResult {
 fn is_media_extension(ext: &str) -> bool {
     matches!(
         ext.to_lowercase().as_str(),
-        "mp4" | "mov" | "mkv" | "avi" | "webm" | "flv" | "m4v"
-            | "mp3" | "wav" | "flac" | "aac" | "ogg" | "m4a"
-            | "jpg" | "jpeg" | "png" | "webp" | "gif" | "bmp"
-            | "srt" | "vtt" | "ass" | "ssa"
+        "mp4"
+            | "mov"
+            | "mkv"
+            | "avi"
+            | "webm"
+            | "flv"
+            | "m4v"
+            | "mp3"
+            | "wav"
+            | "flac"
+            | "aac"
+            | "ogg"
+            | "m4a"
+            | "jpg"
+            | "jpeg"
+            | "png"
+            | "webp"
+            | "gif"
+            | "bmp"
+            | "srt"
+            | "vtt"
+            | "ass"
+            | "ssa"
     )
 }
 
@@ -259,11 +278,7 @@ impl AssetService {
     /// - 输出到 `<cache_dir>/thumb/<sha256(path)>.jpg`
     /// - 用 ffmpeg 抽 `-ss 00:00:01` (1 秒处),避免黑屏
     /// - 失败时返回 `AssetError::Thumbnail`
-    pub async fn thumbnail(
-        &self,
-        path: &str,
-        width: u32,
-    ) -> AssetResult<ThumbnailResult> {
+    pub async fn thumbnail(&self, path: &str, width: u32) -> AssetResult<ThumbnailResult> {
         let p = Path::new(path);
         if !p.exists() {
             return Err(AssetError::NotFound(path.into()));
@@ -305,11 +320,7 @@ impl AssetService {
     }
 
     /// 在已有 media 列表中按 substring 过滤
-    pub fn search(
-        &self,
-        media_paths: &[String],
-        pattern: &str,
-    ) -> Vec<String> {
+    pub fn search(&self, media_paths: &[String], pattern: &str) -> Vec<String> {
         if pattern.is_empty() {
             return media_paths.to_vec();
         }
@@ -336,7 +347,10 @@ mod tests {
         assert_eq!(AssetKind::from_mime("audio/mpeg"), AssetKind::Audio);
         assert_eq!(AssetKind::from_mime("image/png"), AssetKind::Image);
         assert_eq!(AssetKind::from_mime("text/plain"), AssetKind::Subtitle);
-        assert_eq!(AssetKind::from_mime("application/octet-stream"), AssetKind::Other);
+        assert_eq!(
+            AssetKind::from_mime("application/octet-stream"),
+            AssetKind::Other
+        );
     }
 
     #[test]

@@ -4,7 +4,7 @@
 //! 读取 `RUST_LOG` 环境变量 (默认 `info`),输出到 stderr。
 
 use std::sync::OnceLock;
-use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 static INIT: OnceLock<()> = OnceLock::new();
 

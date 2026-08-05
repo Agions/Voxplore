@@ -48,10 +48,7 @@ pub async fn i18n_translate(
         return Ok(tr.t(&key));
     };
     // 稳定输出:按 key 字典序插值,避免 HashMap 迭代顺序影响
-    let mut pairs: Vec<(&str, &str)> = args
-        .iter()
-        .map(|(k, v)| (k.as_str(), v.as_str()))
-        .collect();
+    let mut pairs: Vec<(&str, &str)> = args.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
     pairs.sort_unstable_by(|a, b| a.0.cmp(b.0));
     Ok(tr.t_with_args(&key, &pairs))
 }
