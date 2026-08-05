@@ -6,6 +6,103 @@
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-08-05
+
+> SceneFab v2.5.0 — **Rust + Tauri 2 + React 主线正式确立**。Python v2.4 主线退役冻结。
+
+### 🚀 Features (Rust 13 + Tauri 2 主线)
+
+- **feat(rust): Rust workspace 13 个领域 crate**（commit `4fc4cd3`）
+  - `scenefab-core` · `scenefab-domain` · `scenefab-ffmpeg` · `scenefab-llm` (11 Provider)
+  - `scenefab-tts` (3 引擎) · `scenefab-video` · `scenefab-export`
+  - `scenefab-pipeline` (5 步状态机 + DAG) · `scenefab-plugin` (WASM 运行时)
+  - `scenefab-update` · `scenefab-help` · `scenefab-i18n` · `scenefab-assets`
+  - workspace root `version = 2.5.0`，所有 14 个 scenefab package 共享
+    (本版本后又移除 scenefab-cli → 现为 13 领域 crate + 1 Tauri entry)
+
+- **feat(tauri): Tauri 2.0 集成 + 10 个 domain command + Capability ACL**（commit `e399073`）
+  - `greet` + 9 业务 command（app / assets / export / help / pipeline / project / settings / theme / update）
+  - Capability ACL（`apps/desktop/src-tauri/capabilities/default.json`）
+  - `apps/desktop/src-tauri/src/lib.rs` Tauri 2 entry point
+
+- **feat(desktop): React 19 + Vite 7 前端工程完整切换**（commit `2e21f68`）
+  - `apps/desktop/` 从零搭建：6 routes · 12 component dirs · 7 hooks · 7 stores · 38 IPC types
+  - TanStack Router/Query v5 · Zustand v5 · XState v5 · cmdk 命令面板
+  - 同时删除 538 个 Python v2.4 旧主线文件（`src/app/` · `tests/services` · `docs_bundle/` · `uv.lock` · `main.py`）
+
+- **chore(rust): 移除 scenefab-cli crate**（commit `57226ba`）
+  - 纯桌面端无需独立 CLI 入口，3 个文件 + workspace member 一并清理
+  - workspace 收敛为 13 个领域 crate + 1 个 Tauri entry（14 个 package）
+
+### 💥 Breaking Changes（版本号与主线）
+
+- **chore(release): 版本号回滚 v3.0.0-alpha.0 → v2.5.0**（commit `038eab4`）
+  - 仅触动 4 个版本号配置文件 + `Cargo.lock` 同步：
+    `Cargo.toml` · `apps/desktop/src-tauri/Cargo.toml` · `tauri.conf.json` · `package.json`
+  - 业务代码 / 文档 / commit message 历史全部不动
+  - cargo metadata 现报告 scenefab-* package 一律 version = 2.5.0
+
+- **chore(governance): Python v2.4 主线退役存档**（commit `75ce862`）
+  - 新增 `DEPRECATED.md`：冻结原因表 · 维护政策 · 历史归档清单
+  - 新增 `README_v3_legacy_bk.md`：v2.4 README 完整备份 13.9 KB
+  - `.gitignore`：tsbuildinfo / playwright-report / test-results 入库规则
+  - v2.4 进入只读维护期，不添加新功能，仅修关键阻塞性 bug
+
+### 🐛 Bug Fixes
+
+- **fix(routes): 修正 help.test.tsx 的 HelpPage import 路径**（commit `51b771c`）
+  - 路由入口 `routes/help.tsx` 只导出 `Route`，不导出 `HelpPage`
+  - 测试目标测组件本身，应从 `../components/help/HelpPage` 而非 `./help` 导入
+  - TS2305 消除，`pnpm exec vitest run src/routes/help.test.tsx` 从全失败 → 8/8 PASS
+
+### 📚 Documentation
+
+- **docs(readme): 重写根 README**（commit `24f92bc`）
+  - 117 行 apps/desktop 子目录错误内容 → 390 行 v2.5.0 项目总览
+  - 15 个章节：Hero · 定位 · 6 模块能力矩阵 · 架构图 · 技术栈 · 快速开始 · 项目结构 · 3 轨验证 · 发布流程 · 路线图 · 贡献指南 · 文档导航 · 历史归档 · License · 致谢
+  - shields.io `for-the-badge` 徽章 + ASCII 架构图 + 11 张分类表
+
+- **docs(refactor): 撤回 docs/refactor/v3-migration/ 入库**（commit `9076878`）
+  - 上游明确指示该目录禁止提交
+  - 21 个迁移文档从 index 移除，本地 working tree 保留供作者参考
+  - `.gitignore` 重新启用 `docs/refactor/` 全忽略规则
+
+### 🧪 Tests
+
+- **总测试规模**（本次新增 + 入库）：
+  - Rust workspace：`cargo test --workspace` **112 / 112 PASS**
+  - 前端：`pnpm exec vitest run` **12 test files · 165 / 165 PASS**（help.test 8 项首次入库）
+  - `cargo check --workspace` 0 errors
+  - `cargo clippy --workspace --all-targets -- -D warnings` 0 warnings
+  - `pnpm exec tsc --noEmit` EXIT=0
+  - `pnpm build` 270 modules · 1.18s
+  - `pnpm gen:ipc` 38 types generated
+
+### 📝 关联文档
+
+- 迁移方案：`docs/refactor/v3-migration/`（21 份，本地参考保留，不入库）
+- 上线指南：[docs/guide/quick-start.md](docs/guide/quick-start.md) · [docs/guide/installation.md](docs/guide/installation.md)
+- 发布流程：[docs/guide/release-process.md](docs/guide/release-process.md)
+- Python 主线退役公告：[DEPRECATED.md](DEPRECATED.md)
+- v2.4 README 归档：[README_v3_legacy_bk.md](README_v3_legacy_bk.md)
+
+### 🔗 完整 commit 链（10 commits，本分支）
+
+```text
+51b771c  fix(routes):   修正 help.test.tsx 的 HelpPage import 路径
+24f92bc  docs(readme):  重写根 README · 反映 v2.5.0 真实工程状态
+57226ba  chore(rust):   移除 scenefab-cli crate
+9076878  docs(refactor): 撤回 docs/refactor/v3-migration/ 入库
+038eab4  chore(release): 版本号回滚 v3.0.0-alpha.0 → v2.5.0
+eb484a3  docs(refactor): v3.0 迁移方案文档完整入库 (历史痕迹，已被 9076878 抵消)
+2e21f68  feat(desktop):  前端工程完整切换 + 删除 Python 旧主线
+e399073  feat(tauri):    Tauri 2.0 集成 + 10 domain command
+4fc4cd3  feat(rust):     Rust workspace + 13 个领域 crate
+75ce862  chore(governance): Python 主线退役存档
+```
+
+---
+
 ## [2.4.3] - 2026-07-29
 
 ### 🐛 Bug Fixes
