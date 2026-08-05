@@ -28,40 +28,38 @@
     "noUnusedParameters": true,
     /* Linting */
     "exactOptionalPropertyTypes": false,
-    "ignoreDeprecations": "6.0",
-    /* baseUrl for paths */
-    "baseUrl": ".",
-    /* 路径别名 (与 vite.config.ts 保持一致, 平铺结构) */
+    /* 路径别名 (与 vite.config.ts 保持一致, 平铺结构)
+       不再使用 baseUrl 注入,paths 直接以项目根为基准 */
     "paths": {
       "@/*": [
         "./src/*"
       ],
       "@ui/*": [
-        "src/components/ui/*"
+        "./src/components/ui/*"
       ],
       "@components/*": [
-        "src/components/*"
+        "./src/components/*"
       ],
       "@hooks/*": [
-        "src/hooks/*"
+        "./src/hooks/*"
       ],
       "@stores/*": [
-        "src/stores/*"
+        "./src/stores/*"
       ],
       "@ipc/*": [
-        "src/ipc/*"
+        "./src/ipc/*"
       ],
       "@lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ],
       "@pages/*": [
-        "src/pages/*"
+        "./src/pages/*"
       ],
       "@styles/*": [
-        "src/styles/*"
+        "./src/styles/*"
       ],
       "@workers/*": [
-        "src/workers/*"
+        "./src/workers/*"
       ]
     }
   },

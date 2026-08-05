@@ -25,6 +25,7 @@ htmlcov/
 .coverage.*
 coverage.xml
 cov.xml
+apps/desktop/coverage/
 
 # ── IDE / 编辑器 ────────────────────────────────────────────────────
 .vscode/

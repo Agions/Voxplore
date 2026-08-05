@@ -19,6 +19,35 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
     exclude: ["node_modules", "dist", "src-tauri", ".tanstack"],
     css: false,
+    // 覆盖率配置（`pnpm test:coverage`）
+    // 供应商：v8（基于 V8 引擎内置 counters，无需 babel/swc 插装）
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "lcov", "json-summary"],
+      reportsDirectory: "./coverage",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        // TanStack Router 自动生成的路由表
+        "src/routes/-routeTree.gen.ts",
+        // IPC 类型生成
+        "src/ipc/types.gen.ts",
+        // 测试工具与 mock
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.spec.{ts,tsx}",
+        "src/test/**",
+        // 入口文件（覆盖率无意义）
+        "src/main.tsx",
+        "src/App.tsx",
+        "src/vite-env.d.ts",
+      ],
+      // 项目阈值（以当前基线为准，新增测试逐步提高）
+      thresholds: {
+        lines: 45,
+        functions: 75,
+        branches: 60,
+        statements: 45,
+      },
+    },
   },
 
   plugins: [
