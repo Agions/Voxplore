@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useTauriQuery } from "@hooks/useTauriQuery";
 import { useSettingsStore } from "@stores/settings-store";
 import { t } from "@lib/i18n";
@@ -122,38 +123,146 @@ export function HelpPage() {
   });
 
   return (
-    <div className="mx-auto max-w-5xl space-y-12 px-8 py-12">
-      <header className="space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3 py-0.5 text-xs font-semibold text-[var(--color-gold)]">
-          <span>💡</span> {t("help.title", locale)}
+    <div className="mx-auto max-w-6xl space-y-10 px-8 py-10">
+      {/* 1. Header Banner */}
+      <header className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-surface)] via-[var(--color-surface-elevated)] to-[var(--color-surface)] p-8 shadow-2xl">
+        <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-[var(--color-gold)]/10 blur-3xl" />
+        <div className="relative z-10 space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3.5 py-1 text-xs font-bold text-[var(--color-gold)] shadow-sm">
+            <span>💡</span> {t("help.title", locale)} · VYNARO KNOWLEDGE CENTER
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-[var(--color-text-primary)] md:text-4xl">
+            {t("help.title", locale)}与全量功能指南
+          </h1>
+          <p className="max-w-2xl text-sm text-[var(--color-text-secondary)] leading-relaxed">
+            极速掌握第一人称 AI 影视叙事解说系统，涵盖从智能拆条、文案大模型、TTS 音色克隆到 4K 60fps 高清渲染全流程手册。
+          </p>
+
+          {/* System Diagnostics Status Line */}
+          <div className="pt-2 flex flex-wrap items-center gap-3 text-xs font-mono text-[var(--color-text-muted)]">
+            <span className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              Engine: FFmpeg 7.0 (VideoToolbox / NVENC)
+            </span>
+            <span className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1">
+              🔒 Privacy: 100% 本地存储无云端上传
+            </span>
+            <span className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-[var(--color-gold)] font-bold">
+              v{version ?? "1.0.0"} Official Release
+            </span>
+          </div>
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
-          {t("help.title", locale)}
-        </h1>
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          {t("help.subtitle", locale)} · v{version ?? "1.0.0"}
-        </p>
       </header>
 
-      {/* 快捷键(静态 · 不在 HelpTopic 模型) */}
-      <section>
+      {/* 2. 核心 4 步极速通关视觉导览 */}
+      <section className="space-y-4">
+        <SectionHeader
+          kicker="WORKFLOW"
+          title="⚡ 第一人称 AI 解说 4 步极速通关导览"
+          subtitle="点击下方卡片即可直接查阅对应模块的高阶创作与配置手册"
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            onClick={() => setOpenTopicId("guide-quick-start")}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] text-xs font-mono font-black text-[var(--color-gold)] border border-[var(--color-gold)]/40">
+                01
+              </span>
+              <span className="text-xs text-[var(--color-gold)] font-bold group-hover:translate-x-1 transition-transform">
+                查看教程 →
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+              素材导入与首帧探针
+            </h3>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)] line-clamp-2">
+              批量扫描本地目录，自动提取视频元数据与高清 1st frame 封面。
+            </p>
+          </div>
+
+          <div
+            onClick={() => setOpenTopicId("guide-detect-master")}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] text-xs font-mono font-black text-[var(--color-gold)] border border-[var(--color-gold)]/40">
+                02
+              </span>
+              <span className="text-xs text-[var(--color-gold)] font-bold group-hover:translate-x-1 transition-transform">
+                查看教程 →
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+              智能拆条与镜头分割
+            </h3>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)] line-clamp-2">
+              场景光影突变识别，自动将长视频精准切割为独立卡点镜头。
+            </p>
+          </div>
+
+          <div
+            onClick={() => setOpenTopicId("guide-script-copilot")}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] text-xs font-mono font-black text-[var(--color-gold)] border border-[var(--color-gold)]/40">
+                03
+              </span>
+              <span className="text-xs text-[var(--color-gold)] font-bold group-hover:translate-x-1 transition-transform">
+                查看教程 →
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+              文案大模型与音色克隆
+            </h3>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)] line-clamp-2">
+              爆款 Hook 独白脚本生成，零样本 10 秒提取专属高保真声优。
+            </p>
+          </div>
+
+          <div
+            onClick={() => setOpenTopicId("guide-export-preset")}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] text-xs font-mono font-black text-[var(--color-gold)] border border-[var(--color-gold)]/40">
+                04
+              </span>
+              <span className="text-xs text-[var(--color-gold)] font-bold group-hover:translate-x-1 transition-transform">
+                查看教程 →
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+              音画卡点与 4K 高清导出
+            </h3>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)] line-clamp-2">
+              字幕动画对齐、短视频平台多分辨率 Preset 渲染导出。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. 快捷键速查区 */}
+      <section className="space-y-4">
         <SectionHeader
           kicker={locale === "en-US" ? "Shortcuts" : "快捷键"}
           title={t("help.shortcuts_title", locale)}
-          subtitle={locale === "en-US" ? "Boost your productivity with quick hotkeys" : "提升效率的常用组合键"}
+          subtitle={locale === "en-US" ? "Boost your productivity with quick hotkeys" : "提升效率的常用组合键清单"}
         />
-        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {SHORTCUTS.map((s, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-sm"
+              className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-sm transition hover:border-[var(--color-gold)]/40"
             >
-              <span className="text-xs font-medium text-[var(--color-text-primary)]">{s.desc}</span>
+              <span className="text-xs font-bold text-[var(--color-text-primary)]">{s.desc}</span>
               <span className="flex items-center gap-1">
                 {s.keys.map((k, idx) => (
                   <kbd
                     key={idx}
-                    className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 font-mono text-[10px] font-bold text-[var(--color-gold)]"
+                    className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 font-mono text-[10px] font-extrabold text-[var(--color-gold)] shadow-inner"
                   >
                     {k}
                   </kbd>
@@ -164,41 +273,48 @@ export function HelpPage() {
         </div>
       </section>
 
-      {/* 文档(从 help_topics IPC 拉取 + help_search 全文搜索) */}
-      <section>
+      {/* 4. 全量专业文档资源区 */}
+      <section className="space-y-4">
         <SectionHeader
-          kicker={locale === "en-US" ? "Tutorials" : "教程"}
-          title={locale === "en-US" ? "Documentation & Guides" : "文档与教程指南"}
-          subtitle={locale === "en-US" ? "Real-time tutorials powered by Vynaro Help engine" : "由后端 vynaro-help 实时提供"}
+          kicker={locale === "en-US" ? "Knowledge Base" : "知识库"}
+          title={locale === "en-US" ? "Documentation & Detailed Guides" : "全量专业文档与教程指南"}
+          subtitle={locale === "en-US" ? "Real-time docs powered by Vynaro Help Engine" : "由后端 vynaro-help 实时提供加权全文检索与主题映射"}
         />
 
-        {/* 分类 chip */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {CATEGORY_FILTERS.map((f) => {
-            const active = category === f.value;
-            const labelStr = f.value ? t(`help.${f.value}`, locale) : t("help.all_cat", locale);
-            return (
-              <button
-                key={f.label}
-                type="button"
-                onClick={() => {
-                  setCategory(f.value);
-                  setSearchInput("");
-                }}
-                className={`rounded-full border px-3.5 py-1 text-xs font-semibold transition ${active
-                    ? "border-[var(--color-gold)] bg-[rgba(245,200,66,0.12)] text-[var(--color-gold)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)]/40 hover:text-[var(--color-text-primary)]"
+        {/* 分类 Filter Tabs */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {CATEGORY_FILTERS.map((f) => {
+              const active = category === f.value;
+              const labelStr = f.value ? t(`help.${f.value}`, locale) : t("help.all_cat", locale);
+              return (
+                <button
+                  key={f.label}
+                  type="button"
+                  onClick={() => {
+                    setCategory(f.value);
+                    setSearchInput("");
+                  }}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                    active
+                      ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)]"
+                      : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)]/40 hover:text-[var(--color-text-primary)]"
                   }`}
-              >
-                {labelStr}
-              </button>
-            );
-          })}
+                >
+                  {labelStr}
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-xs font-mono text-[var(--color-text-muted)]">
+            共 {displayTopics.length} 篇专业指南
+          </span>
         </div>
 
         {/* 搜索框 */}
         <div className="relative mb-6">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-secondary)]">
+          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-secondary)]">
             🔍
           </span>
           <input
@@ -206,61 +322,62 @@ export function HelpPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder={t("help.search_placeholder", locale)}
-            className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)]"
+            className="w-full rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] py-3 pl-10 pr-4 text-xs font-medium text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)] shadow-inner transition"
           />
           {searchFetching && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-gold)]">
-              Searching...
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[var(--color-gold)] animate-pulse">
+              搜索中...
             </span>
           )}
         </div>
 
-        {/* 主题卡片 */}
+        {/* 主题卡片网格 */}
         {topicsLoading && (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-text-muted)]">
-            Loading tutorials...
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-12 text-center text-xs font-bold text-[var(--color-gold)] animate-pulse">
+            正在拉取加权文档数据库...
           </div>
         )}
 
         {topicsError && (
-          <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
-            加载失败:
-            {(topicsError as { message?: string })?.message ?? "未知错误"}
+          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-5 py-4 text-xs text-rose-400 font-medium">
+            加载失败: {(topicsError as { message?: string })?.message ?? "未知错误"}
           </div>
         )}
 
         {!topicsLoading && !topicsError && displayTopics.length === 0 && (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-text-muted)]">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-12 text-center text-xs text-[var(--color-text-muted)]">
             {searchQuery ? `没有匹配 “${searchQuery}” 的主题` : t("help.no_topics", locale)}
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {displayTopics.map((t) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {displayTopics.map((topic) => (
             <TopicCard
-              key={t.id}
-              topic={t}
-              onOpen={() => setOpenTopicId(t.id)}
+              key={topic.id}
+              topic={topic}
+              onOpen={() => setOpenTopicId(topic.id)}
             />
           ))}
         </div>
       </section>
 
-      {/* 反馈 */}
-      <section className="rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900/60 to-zinc-950/60 p-6">
+      {/* 5. 技术支持与 Community 反馈 */}
+      <section className="rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-surface)] via-[var(--color-surface-elevated)] to-[var(--color-surface)] p-6 shadow-xl">
         <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="space-y-1">
-            <div className="text-sm font-semibold text-zinc-100">遇到问题?</div>
-            <div className="text-xs text-zinc-500">
-              查看日志或反馈给我们,有助于 Vynaro 越变越好
+            <div className="text-sm font-extrabold text-[var(--color-text-primary)] flex items-center gap-2">
+              <span>💬</span> 遇到任何疑问或功能建议?
+            </div>
+            <div className="text-xs text-[var(--color-text-secondary)]">
+              提交 Issue 或参与 GitHub 社区讨论，帮助 Vynaro 第一人称 AI 叙事系统持续进化。
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3 shrink-0">
             <a
               href="https://github.com/Agions/vynaro/issues"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs text-zinc-200 transition hover:border-zinc-500"
+              className="rounded-xl border border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)] px-4 py-2 text-xs font-bold text-[var(--color-gold)] transition hover:border-[var(--color-gold)] shadow-sm"
             >
               提交 Issue
             </a>
@@ -268,7 +385,7 @@ export function HelpPage() {
               href="https://github.com/Agions/vynaro"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs text-zinc-200 transition hover:border-zinc-500"
+              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-text-primary)] transition hover:border-[var(--color-gold)]"
             >
               访问 GitHub 仓库
             </a>
@@ -276,12 +393,13 @@ export function HelpPage() {
         </div>
       </section>
 
-      {/* 详情 modal */}
+      {/* 6. 详情 Modal */}
       {openTopicId && (
         <TopicModal
           topic={openTopic ?? null}
           loading={topicLoading}
           onClose={() => setOpenTopicId(null)}
+          onSelectTopic={(id) => setOpenTopicId(id)}
         />
       )}
     </div>
@@ -339,10 +457,12 @@ function TopicModal({
   topic,
   loading,
   onClose,
+  onSelectTopic,
 }: {
   topic: HelpTopic | null;
   loading: boolean;
   onClose: () => void;
+  onSelectTopic?: (id: string) => void;
 }) {
   // Esc 关闭
   useEffect(() => {
@@ -353,6 +473,13 @@ function TopicModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  const copyContent = () => {
+    if (topic?.content) {
+      void navigator.clipboard.writeText(topic.content);
+      toast.success("已成功复制指南文档至剪贴板");
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-6 backdrop-blur-md animate-fade-in"
@@ -360,53 +487,82 @@ function TopicModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[var(--color-gold)] bg-[var(--color-surface)] p-6 shadow-[0_0_36px_var(--color-gold-glow)]">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
-          aria-label="关闭"
-        >
-          ✕
-        </button>
+      <div className="relative max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-[var(--color-gold)] bg-[var(--color-surface)] p-8 shadow-[0_0_40px_var(--color-gold-glow)] transition-all">
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-4 mb-5">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-gold-muted)] text-sm font-bold text-[var(--color-gold)]">
+              {CATEGORY_ICON[topic?.category ?? "guide"] ?? "📘"}
+            </span>
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--color-gold)]">
+              {CATEGORY_LABEL[topic?.category ?? "guide"] ?? topic?.category}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {topic?.content && (
+              <button
+                type="button"
+                onClick={copyContent}
+                className="flex items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-bold text-[var(--color-text-secondary)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
+              >
+                📋 复制文档
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
+              aria-label="关闭"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
         {loading && (
-          <div className="py-12 text-center text-xs text-[var(--color-gold)]">加载主题详情中...</div>
+          <div className="py-16 text-center text-xs font-bold text-[var(--color-gold)] animate-pulse">
+            正在拉取加权文档详情...
+          </div>
         )}
+
         {topic && !loading && (
-          <div className="space-y-4 pr-6">
-            <div className="space-y-1">
-              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-gold)]">
-                {CATEGORY_LABEL[topic.category] ?? topic.category}
-              </div>
-              <h2 className="text-xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black tracking-tight text-[var(--color-text-primary)] leading-tight">
                 {topic.title}
               </h2>
               {topic.summary && (
-                <p className="text-xs text-[var(--color-text-secondary)]">{topic.summary}</p>
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed bg-[var(--color-surface-elevated)] p-3 rounded-xl border border-[var(--color-border)]">
+                  {topic.summary}
+                </p>
               )}
             </div>
+
             {topic.content ? (
-              <pre className="whitespace-pre-wrap rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-xs leading-relaxed text-[var(--color-text-primary)]">
+              <div className="whitespace-pre-wrap rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 font-mono text-xs leading-relaxed text-[var(--color-text-primary)] shadow-inner">
                 {topic.content}
-              </pre>
+              </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg)] p-4 text-center text-xs text-[var(--color-text-muted)]">
+              <div className="rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg)] p-6 text-center text-xs text-[var(--color-text-muted)]">
                 该主题暂无正文 (仅元数据 · id: {topic.id})
               </div>
             )}
+
             {topic.related.length > 0 && (
-              <div className="border-t border-[var(--color-border)] pt-3">
-                <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-gold)]">
-                  相关关联主题
+              <div className="border-t border-[var(--color-border)] pt-4 space-y-2">
+                <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-gold)] flex items-center gap-1.5">
+                  <span>🔗</span> 关联延伸教程指南:
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {topic.related.map((rid) => (
-                    <span
+                    <button
                       key={rid}
-                      className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-secondary)]"
+                      type="button"
+                      onClick={() => onSelectTopic?.(rid)}
+                      className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3 py-1.5 font-mono text-xs text-[var(--color-gold)] font-bold transition hover:border-[var(--color-gold)] hover:bg-[var(--color-gold-muted)] shadow-sm flex items-center gap-1"
                     >
-                      {rid}
-                    </span>
+                      <span>📖</span> {rid}
+                    </button>
                   ))}
                 </div>
               </div>
