@@ -199,15 +199,25 @@ export function useAssets(): UseAssetsReturn {
         let proj = current;
         let path = currentPath;
 
-        // 如果当前没有项目，自动创建默认解说工程，避免报 "未打开项目,无法导入素材"
+        // 如果当前没有项目，先尝试恢复最近使用的解说工程，若不存在才新建空白工程
         if (!proj || !path) {
-          const rec = await projectIpc.createBlank();
-          proj = rec.project;
-          path = rec.path;
-          setCurrentRecord(path, proj);
-          qc.setQueryData(["current-project"], rec);
-          qc.setQueryData(["assets-current-project"], proj);
-          void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+          const recents = await projectIpc.listRecent();
+          if (recents && recents.length > 0 && recents[0]) {
+            const rec = await projectIpc.load(recents[0]);
+            proj = rec.project;
+            path = rec.path;
+            setCurrentRecord(path, proj);
+            qc.setQueryData(["current-project"], rec);
+            qc.setQueryData(["assets-current-project"], proj);
+          } else {
+            const rec = await projectIpc.createBlank();
+            proj = rec.project;
+            path = rec.path;
+            setCurrentRecord(path, proj);
+            qc.setQueryData(["current-project"], rec);
+            qc.setQueryData(["assets-current-project"], proj);
+            void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+          }
         }
 
         const added: MediaFile[] = [];

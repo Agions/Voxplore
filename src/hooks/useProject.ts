@@ -65,14 +65,14 @@ export function useProject(): UseProjectReturn {
 
   /** 同步"当前项目"到所有相关 query cache key */
   const syncCurrentToCache = useCallback(
-    (project: Project) => {
-      for (const key of QUERY_KEYS_CURRENT_PROJECT) {
-        qc.setQueryData(key, project);
-      }
+    (project: Project, path?: string) => {
+      const rec = { path: path ?? currentPath ?? "", project };
+      qc.setQueryData(["current-project"], rec);
+      qc.setQueryData(["assets-current-project"], project);
       void qc.invalidateQueries({ queryKey: ["assets-recent"] });
       void qc.invalidateQueries({ queryKey: ["pipeline-status"] });
     },
-    [qc],
+    [qc, currentPath],
   );
 
   const open = useCallback(

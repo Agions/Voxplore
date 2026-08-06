@@ -4,7 +4,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PipelineFlow, DEFAULT_PIPELINE_STEPS, type PipelineStep } from "@components/common/StepFlow";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { Step1IntakePanel } from "@components/production/Step1IntakePanel";
@@ -43,6 +43,24 @@ function ProductionPage() {
 
   const currentProject =
     (qc.getQueryData(["current-project"]) as ProjectRecord | undefined) ?? null;
+
+  // 自动恢复最近的项目，防止页面刷新或直接切路由导致项目视频丢失
+  useEffect(() => {
+    if (!currentProject) {
+      void projectIpc.listRecent().then(async (recents) => {
+        if (recents && recents.length > 0 && recents[0]) {
+          try {
+            const rec = await projectIpc.load(recents[0]);
+            qc.setQueryData(["current-project"], rec);
+            qc.setQueryData(["assets-current-project"], rec.project);
+            setCurrentRecord(rec.path, rec.project);
+          } catch {
+            // ignore load error
+          }
+        }
+      });
+    }
+  }, [currentProject, qc, setCurrentRecord]);
 
   const createProject = useMutation({
     mutationFn: projectIpc.createBlank,

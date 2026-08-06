@@ -132,10 +132,23 @@ function RecentProjectsSection() {
           {recentPaths.slice(0, 3).map((realPath) => {
             const displayTitle = realPath.split(/[/\\]/).pop() || realPath;
 
+            const handleOpenProject = async () => {
+              try {
+                const rec = await projectIpc.load(realPath);
+                setCurrentRecord(rec.path, rec.project);
+                qc.setQueryData(["current-project"], rec);
+                qc.setQueryData(["assets-current-project"], rec.project);
+                toast.success(locale === "en-US" ? `Opened project ${rec.project.name}` : `已打开解说工程 ${rec.project.name}`);
+                void navigate({ to: "/production" });
+              } catch (e) {
+                toast.error("加载项目失败", { description: e instanceof Error ? e.message : String(e) });
+              }
+            };
+
             return (
               <div
                 key={realPath}
-                onClick={() => void navigate({ to: "/production" })}
+                onClick={handleOpenProject}
                 className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
               >
                 {/* Thumbnail Container */}
