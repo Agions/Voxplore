@@ -182,49 +182,108 @@ function PipelineSection() {
   const locale = useSettingsStore((s) => s.locale);
 
   const steps = [
-    { num: 1, labelKey: "step.intake.title", icon: "📥" },
-    { num: 2, labelKey: "step.detect.title", icon: "🔍" },
-    { num: 3, labelKey: "step.script.title", icon: "📝" },
-    { num: 4, labelKey: "step.voice.title", icon: "🎙️" },
-    { num: 5, labelKey: "step.subtitle.title", icon: "💬" },
-    { num: 6, labelKey: "step.compose.title", icon: "🔀" },
-    { num: 7, labelKey: "step.export.title", icon: "📤" },
+    {
+      num: 1,
+      nameZh: "素材导入",
+      nameEn: "Media Intake",
+      descZh: "格式校验与分析",
+      descEn: "Format & resolution",
+      icon: "📥",
+    },
+    {
+      num: 2,
+      nameZh: "智能拆条",
+      nameEn: "Scene Cut",
+      descZh: "FFmpeg 镜头检测",
+      descEn: "Scene transitions",
+      icon: "🔍",
+    },
+    {
+      num: 3,
+      nameZh: "文案脚本",
+      nameEn: "AI Script",
+      descZh: "第一人称视角",
+      descEn: "1st-person monologue",
+      icon: "📝",
+    },
+    {
+      num: 4,
+      nameZh: "TTS 配音",
+      nameEn: "TTS Voice",
+      descZh: "零样本人声克隆",
+      descEn: "Voice cloning & synth",
+      icon: "🎙️",
+    },
+    {
+      num: 5,
+      nameZh: "字幕特效",
+      nameEn: "Subtitles",
+      descZh: "VAD 时间轴花字",
+      descEn: "VAD timeline & FX",
+      icon: "💬",
+    },
+    {
+      num: 6,
+      nameZh: "音画对齐",
+      nameEn: "Sync Align",
+      descZh: "多轨混音与高潮",
+      descEn: "Multi-track timeline",
+      icon: "🔀",
+    },
+    {
+      num: 7,
+      nameZh: "草稿导出",
+      nameEn: "Draft Export",
+      descZh: "剪映工程多平台",
+      descEn: "CapCut draft export",
+      icon: "📤",
+    },
   ];
 
   return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 backdrop-blur-xl shadow-xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-          {t("home.pipeline_title", locale)}
-        </h2>
-        <span className="font-mono text-xs text-[var(--color-gold)] bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 px-3 py-1 rounded-full font-medium">
-          7-Step Automated Pipeline
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 backdrop-blur-xl shadow-xl space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-4">
+        <div>
+          <h2 className="text-base font-bold text-[var(--color-text-primary)] tracking-tight">
+            {t("home.pipeline_title", locale)}
+          </h2>
+          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+            {locale === "en-US" ? "End-to-end 7-step automated narrative video production" : "全流程 7 步一键贯通解说视频自动化生产"}
+          </p>
+        </div>
+        <span className="self-start sm:self-auto font-mono text-xs text-[var(--color-gold)] bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 px-3 py-1 rounded-full font-medium">
+          7 Steps Workflow
         </span>
       </div>
 
-      {/* Horizontal Stepper Row */}
+      {/* Grid of cards with ample padding and non-truncated multi-line text */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {steps.map((step) => {
-          const rawTitle = t(step.labelKey, locale);
-          const cleanTitle = rawTitle.replace(/^Step \d+:\s*/, "");
+          const title = locale === "en-US" ? step.nameEn : step.nameZh;
+          const desc = locale === "en-US" ? step.descEn : step.descZh;
 
           return (
             <div
               key={step.num}
               onClick={() => void navigate({ to: "/production" })}
-              className="group relative flex flex-col items-center justify-between cursor-pointer rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 text-center transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_16px_var(--color-gold-glow)]"
+              className="group relative flex flex-col justify-between cursor-pointer rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3.5 text-left transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_20px_var(--color-gold-glow)] hover:-translate-y-0.5 min-h-[105px]"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-lg mb-2 group-hover:scale-110 transition-transform">
-                {step.icon}
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] bg-[var(--color-gold-muted)] px-2 py-0.5 rounded-md border border-[var(--color-gold)]/30">
+                  0{step.num}
+                </span>
+                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/20 text-[var(--color-gold)] text-sm group-hover:scale-110 transition-transform">
+                  {step.icon}
+                </div>
               </div>
 
               <div className="space-y-0.5">
-                <span className="block font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">
-                  Step 0{step.num}
-                </span>
-                <span className="block text-xs font-bold text-[var(--color-text-primary)] truncate max-w-[110px]" title={cleanTitle}>
-                  {cleanTitle}
-                </span>
+                <h3 className="text-xs font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors leading-snug">
+                  {title}
+                </h3>
+                <p className="text-[10px] text-[var(--color-text-muted)] leading-tight">
+                  {desc}
+                </p>
               </div>
             </div>
           );
