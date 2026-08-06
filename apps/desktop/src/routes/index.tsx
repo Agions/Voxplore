@@ -184,8 +184,145 @@ function Hero() {
 
 function HeroVisual() {
   return (
-    <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", border: "1px solid var(--color-border)" }}>
-      <img src="/empty-state.jpg" alt="Vynaro Cinema Journey" style={{ width: "100%", height: "240px", objectFit: "cover" }} />
+    <div
+      style={{
+        position: "relative",
+        borderRadius: "16px",
+        overflow: "hidden",
+        border: "1px solid rgba(245, 200, 66, 0.25)",
+        background: "linear-gradient(145deg, rgba(22, 22, 25, 0.9), rgba(18, 18, 22, 0.95))",
+        padding: "20px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(245,200,66,0.1)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      {/* Ambient gold glow */}
+      <div
+        style={{
+          position: "absolute",
+          top: "-40px",
+          right: "-40px",
+          width: "160px",
+          height: "160px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(245,200,66,0.18) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Card Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+          paddingBottom: "12px",
+          marginBottom: "16px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "var(--color-gold)",
+              boxShadow: "0 0 10px var(--color-gold)",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "var(--color-gold)",
+              textTransform: "uppercase",
+            }}
+          >
+            AI Stream Active
+          </span>
+        </div>
+        <span
+          style={{
+            fontFamily: "monospace",
+            fontSize: "10px",
+            color: "var(--color-gold)",
+            background: "rgba(245, 200, 66, 0.12)",
+            border: "1px solid rgba(245, 200, 66, 0.25)",
+            padding: "2px 8px",
+            borderRadius: "999px",
+          }}
+        >
+          v2.5.0
+        </span>
+      </div>
+
+      {/* Active Pipeline Preview */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div
+          style={{
+            borderRadius: "12px",
+            border: "1px solid rgba(245, 200, 66, 0.3)",
+            background: "linear-gradient(90deg, rgba(245,200,66,0.1) 0%, rgba(232,147,58,0.05) 100%)",
+            padding: "14px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+            <span>🤖 正在生成独白脚本 (Qwen 3.8 Max)</span>
+            <span style={{ color: "var(--color-gold)", fontFamily: "monospace" }}>85%</span>
+          </div>
+          <div
+            style={{
+              marginTop: "10px",
+              height: "6px",
+              width: "100%",
+              borderRadius: "999px",
+              background: "rgba(255, 255, 255, 0.08)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "85%",
+                borderRadius: "999px",
+                background: "linear-gradient(90deg, var(--color-gold), var(--color-amber))",
+                boxShadow: "0 0 10px var(--color-gold)",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Real-time Waveform Preview */}
+        <div
+          style={{
+            borderRadius: "12px",
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+            padding: "12px",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--color-text-secondary)", marginBottom: "8px" }}>
+            <span>🎙️ GPT-SoVITS 零样本人声克隆</span>
+            <span style={{ color: "var(--color-success)", fontFamily: "monospace" }}>● 本地探针在线</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "24px" }}>
+            {[45, 75, 30, 90, 60, 100, 45, 80, 55, 95, 35, 70, 85, 50, 90, 65, 40, 80].map((h, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: 1,
+                  height: `${h}%`,
+                  borderRadius: "999px",
+                  background: "linear-gradient(180deg, var(--color-gold) 0%, var(--color-amber) 100%)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
