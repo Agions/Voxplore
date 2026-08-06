@@ -285,7 +285,7 @@ export function TopBar() {
         theme={theme === "light" ? "light" : "dark"}
         position="bottom-center"
         toastOptions={{
-          duration: 4000,
+          duration: 7000,
           classNames: {
             toast:
               "!bg-[var(--color-surface)] !text-[var(--color-text-primary)] !border !border-[var(--color-gold)] !rounded-2xl !px-5 !py-3.5 !shadow-[0_8px_32px_var(--color-gold-glow)] !backdrop-blur-xl !text-xs !font-semibold !mb-4",

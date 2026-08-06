@@ -458,10 +458,17 @@ function RecentCard({ path, index }: { path: string; index: number }) {
     if (!confirm(t("assets.delete_confirm", locale))) return;
     try {
       await projectIpc.remove(path);
-      toast.success(`已成功删除项目`);
-      qc.invalidateQueries({ queryKey: ["assets-recent"] });
-      qc.setQueryData(["assets-current-project"], null);
-      qc.setQueryData(["current-project"], null);
+      toast.success(locale === "en-US" ? "Project deleted successfully" : "已成功删除解说工程");
+      
+      const currentStorePath = useProjectStore.getState().currentPath;
+      if (currentStorePath === path) {
+        useProjectStore.getState().clear();
+        qc.setQueryData(["assets-current-project"], null);
+        qc.setQueryData(["current-project"], null);
+      }
+      
+      void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+      void qc.invalidateQueries({ queryKey: ["home-recent-projects"] });
     } catch (err) {
       toast.error("删除项目失败", { description: String(err) });
     }
