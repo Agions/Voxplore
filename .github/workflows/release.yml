@@ -70,8 +70,8 @@ jobs:
         with:
           projectPath: .
           tagName: ${{ github.ref_name }}
-          releaseName: "Vynaro ${{ github.ref_name }}"
-          releaseBody: "Vynaro v1.0.0 Official Release. See CHANGELOG.md for release notes."
+          releaseName: "vynaro ${{ github.ref_name }}"
+          releaseBody: "vynaro v1.0.0 Official Release. See CHANGELOG.md for release notes."
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target }}

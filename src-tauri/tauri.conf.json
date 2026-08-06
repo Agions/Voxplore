@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Vynaro",
+  "productName": "vynaro",
   "version": "1.0.0",
   "identifier": "com.vynaro.app",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Vynaro",
+        "title": "vynaro",
         "width": 1280,
         "height": 800,
         "minWidth": 1024,
