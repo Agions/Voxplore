@@ -122,7 +122,12 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
             title: "🎞️ 智能拆条与镜头分割高阶技巧".into(),
             summary: Some("深入理解场景变色、光影突变与多视角镜头精准切分参数与技巧。".into()),
             category: HelpCategory::Guide,
-            keywords: vec!["拆条".into(), "镜头分割".into(), "转场检测".into(), "帧率".into()],
+            keywords: vec![
+                "拆条".into(),
+                "镜头分割".into(),
+                "转场检测".into(),
+                "帧率".into(),
+            ],
             content: r#"# 智能拆条与镜头分割高阶指南
 
 镜头拆条是第一人称解说制作的根基。精准的拆条能大幅提升剪辑的卡点节奏感。
@@ -143,7 +148,8 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
 ## 技巧与注意事项
 - **静音段预处理**: 开启“自动裁切片头片尾静音”，可提升 15% 的算法分析效率。
 - **关键帧锁定**: 拆条完成后，可在预览面板上手动微调切点或合并相邻短镜头。
-"#.into(),
+"#
+            .into(),
             related: vec!["guide-quick-start".into(), "guide-compose-timeline".into()],
         });
 
@@ -152,7 +158,13 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
             title: "📝 AI 文案大模型与第一人称独白调优".into(),
             summary: Some("如何利用内置 Prompt 模板撰写爆款第一人称电影解说脚本。".into()),
             category: HelpCategory::Guide,
-            keywords: vec!["文案".into(), "脚本".into(), "第一人称".into(), "Prompt".into(), "大模型".into()],
+            keywords: vec![
+                "文案".into(),
+                "脚本".into(),
+                "第一人称".into(),
+                "Prompt".into(),
+                "大模型".into(),
+            ],
             content: r#"# AI 文案大模型与第一人称独白调优
 
 第一人称解说不同于传统旁白，它要求文案以“主人公自身视角的内心独白”切入，建立极强的人设带入感。
@@ -172,7 +184,8 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
 ### 3. 字数与语速匹配
 - 推荐语速: 280 ~ 320 字/分钟。
 - 单个镜头文案长度控制在 15~35 字，确保播放时不拖泥带水。
-"#.into(),
+"#
+            .into(),
             related: vec!["guide-tts-cloning".into(), "guide-quick-start".into()],
         });
 
@@ -181,7 +194,13 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
             title: "🎙️ 音色克隆与 TTS 高保真情感配音指南".into(),
             summary: Some("零样本 10 秒音色克隆、情感语调控制与采样率配置最佳实践。".into()),
             category: HelpCategory::Guide,
-            keywords: vec!["TTS".into(), "配音".into(), "音色克隆".into(), "情感语调".into(), "采样率".into()],
+            keywords: vec![
+                "TTS".into(),
+                "配音".into(),
+                "音色克隆".into(),
+                "情感语调".into(),
+                "采样率".into(),
+            ],
             content: r#"# 音色克隆与 TTS 高保真情感配音指南
 
 Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样本（Zero-Shot）音色克隆模块。
@@ -203,8 +222,12 @@ Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样
 ## 情感与语调调节提示
 - **悬疑解说**: 将语速调至 `0.9x`，适当降低音调 `Pitch -2`。
 - **热血动漫**: 将语速调至 `1.15x`，提升音高 `Pitch +3`。
-"#.into(),
-            related: vec!["guide-subtitle-styling".into(), "guide-script-copilot".into()],
+"#
+            .into(),
+            related: vec![
+                "guide-subtitle-styling".into(),
+                "guide-script-copilot".into(),
+            ],
         });
 
         reg.register(HelpTopic {
@@ -212,7 +235,13 @@ Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样
             title: "🎨 电影级字幕与双语动态特效配置".into(),
             summary: Some("定制电影感金黄描边、高对比底纹与卡拉 OK 逐字亮色字幕样式。".into()),
             category: HelpCategory::Guide,
-            keywords: vec!["字幕".into(), "特效".into(), "双语".into(), "描边".into(), "字体".into()],
+            keywords: vec![
+                "字幕".into(),
+                "特效".into(),
+                "双语".into(),
+                "描边".into(),
+                "字体".into(),
+            ],
             content: r#"# 电影级字幕与双语动态特效配置
 
 专业的字幕渲染能大幅提升视频的高级感与完播率。
@@ -230,7 +259,8 @@ Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样
 ### 2. 双语对照字幕 (Bilingual Subtitles)
 - 顶部放大中文主字幕（字号 24pt），底部放置英文对照字幕（字号 14pt，半透明 `#A1A1AA`）。
 - 开启「逐字卡点亮色」，音频播报到当前字词时自动变为高亮白色。
-"#.into(),
+"#
+            .into(),
             related: vec!["guide-tts-cloning".into(), "guide-export-preset".into()],
         });
 
@@ -239,7 +269,13 @@ Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样
             title: "🔀 音画自动精准对齐与卡点混剪算法".into(),
             summary: Some("了解音频波形匹配、静音切除与 B-Roll 画面智能覆盖机制。".into()),
             category: HelpCategory::Guide,
-            keywords: vec!["对齐".into(), "卡点".into(), "混剪".into(), "波形".into(), "时间轴".into()],
+            keywords: vec![
+                "对齐".into(),
+                "卡点".into(),
+                "混剪".into(),
+                "波形".into(),
+                "时间轴".into(),
+            ],
             content: r#"# 音画自动精准对齐与卡点混剪算法
 
 Vynaro 的自动对齐引擎能够自动将合成的语音脚本与视频镜头时间轴进行毫秒级匹配。
@@ -253,7 +289,8 @@ Vynaro 的自动对齐引擎能够自动将合成的语音脚本与视频镜头�
    - 若镜头比配音长: 自动切除尾帧或插入平滑慢动作。
    - 若镜头比配音短: 智能补帧或从素材库无缝抽调 B-Roll 补充画面。
 3. **卡点音频交叉淡入淡出**: 视频背景音乐（BGM）在有独白语音时自动降低 `6dB`（Ducking 闪避）。
-"#.into(),
+"#
+            .into(),
             related: vec!["guide-export-preset".into(), "guide-detect-master".into()],
         });
 
@@ -297,7 +334,7 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 {
   "id": "prj_9a746e9",
   "name": "太阳神纪元 第01集",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "created_at": "2026-08-06T12:00:00Z",
   "media_files": [
     { "id": "m1", "path": "/media/scene1.mp4", "kind": "video", "duration": 42.5 }
@@ -325,7 +362,12 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
             title: "⌨️ 效率极客快捷键全景图".into(),
             summary: Some("提升创作速度的全键盘快捷键映射与命令面板呼出。".into()),
             category: HelpCategory::Reference,
-            keywords: vec!["快捷键".into(), "组合键".into(), "效率".into(), "命令面板".into()],
+            keywords: vec![
+                "快捷键".into(),
+                "组合键".into(),
+                "效率".into(),
+                "命令面板".into(),
+            ],
             content: r#"# 效率极客快捷键速查表
 
 熟练使用快捷键可大幅减少鼠标点击，将工作流效率提升 300%。
@@ -342,7 +384,8 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 - `⌘ + O` / `Ctrl + O`: **打开批量素材导入选择器**
 - `⌘ + ,` / `Ctrl + ,`: **打开系统偏好设置**
 - `Esc`: **关闭当前打开的弹窗或 Modal**
-"#.into(),
+"#
+            .into(),
             related: vec!["guide-quick-start".into()],
         });
 
@@ -352,7 +395,14 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
             title: "⚡ 硬件加速与 FFmpeg 编解码驱动诊断".into(),
             summary: Some("解决 FFmpeg 编解码器未找到、GPU 硬编失败或预览卡顿的诊断指南。".into()),
             category: HelpCategory::Troubleshooting,
-            keywords: vec!["FFmpeg".into(), "硬件加速".into(), "GPU".into(), "NVENC".into(), "Metal".into(), "卡顿".into()],
+            keywords: vec![
+                "FFmpeg".into(),
+                "硬件加速".into(),
+                "GPU".into(),
+                "NVENC".into(),
+                "Metal".into(),
+                "卡顿".into(),
+            ],
             content: r#"# 硬件加速与 FFmpeg 编解码诊断指南
 
 如果遇到视频渲染缓慢、预览卡顿或提示“Encoder Not Found”，请参考本指南排查。
@@ -371,8 +421,12 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 
 ### 3. CPU 软编回退 (Fallback)
 若 GPU 驱动不可用，系统会自动安全回退至高品质 `libx264` 软编模式。
-"#.into(),
-            related: vec!["trouble-path-permission".into(), "guide-export-preset".into()],
+"#
+            .into(),
+            related: vec![
+                "trouble-path-permission".into(),
+                "guide-export-preset".into(),
+            ],
         });
 
         reg.register(HelpTopic {
@@ -445,7 +499,13 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
             title: "🚀 渲染性能调优与多核并行计算 FAQ".into(),
             summary: Some("内存占用优化、GPU 缓存清理与长视频渲染加速技巧。".into()),
             category: HelpCategory::Faq,
-            keywords: vec!["性能".into(), "优化".into(), "内存".into(), "缓存".into(), "多核".into()],
+            keywords: vec![
+                "性能".into(),
+                "优化".into(),
+                "内存".into(),
+                "缓存".into(),
+                "多核".into(),
+            ],
             content: r#"# 渲染性能调优与多核并行计算 FAQ
 
 ### Q1: 处理 2 小时以上的长视频时感到轻微卡顿怎么办？
@@ -455,7 +515,8 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 
 ### Q2: 多核 CPU 资源如何全速调用？
 **答**: Vynaro 基于 Tokio 异步多线程架构，默认会自动分配所有物理 CPU 核心参与音视频并发编解码。
-"#.into(),
+"#
+            .into(),
             related: vec!["trouble-ffmpeg-cuda".into(), "guide-quick-start".into()],
         });
 

@@ -4795,7 +4795,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-compose"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "chrono",
@@ -4814,7 +4814,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-core"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4832,7 +4832,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-detect"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -4844,7 +4844,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-domain"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "chrono",
  "semver",
@@ -4854,7 +4854,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-export"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -4864,7 +4864,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-intake"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -4874,11 +4874,11 @@ dependencies = [
 
 [[package]]
 name = "vynaro-plugin"
-version = "1.0.0"
+version = "1.0.1"
 
 [[package]]
 name = "vynaro-script"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "futures",
@@ -4893,7 +4893,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-storage"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "dirs 5.0.1",
  "mime_guess",
@@ -4911,7 +4911,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-subtitle"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4928,7 +4928,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-update"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "futures",
@@ -4947,7 +4947,7 @@ dependencies = [
 
 [[package]]
 name = "vynaro-voice"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "async-trait",
  "chrono",

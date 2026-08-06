@@ -1,4 +1,4 @@
-# Vynaro v1.0.0 Makefile
+# Vynaro v1.0.1 Makefile
 # Rust + Tauri 2 + React 主线构建系统
 #
 # 使用方法:
@@ -17,7 +17,7 @@
 # ── 版本号（单一真相来源：package.json）──────────────────
 VERSION := $(shell node -p "require('./package.json').version" 2>/dev/null)
 ifeq ($(VERSION),)
-  VERSION := 1.0.0
+  VERSION := 1.0.1
 endif
 
 # ── 颜色输出 ───────────────────────────────────────────────────────

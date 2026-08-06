@@ -45,7 +45,7 @@ impl Default for Project {
             name: "未命名项目".into(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
-            version: semver::Version::parse("1.0.0").unwrap(),
+            version: semver::Version::parse("1.0.1").unwrap(),
             settings: ProjectSettings::default(),
             media_files: vec![],
             timeline: Timeline::default(),
