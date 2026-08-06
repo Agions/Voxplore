@@ -1,112 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="SceneFab mark">
-  <title>SceneFab</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Vynaro emblem">
+  <title>Vynaro 叙影</title>
   <defs>
-    <!-- 深空背景渐变 -->
-    <linearGradient id="bgMark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050816"/>
-      <stop offset="100%" stop-color="#0f172a"/>
+    <!-- 深空曜石背景渐变 -->
+    <linearGradient id="vynaroBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E0F17"/>
+      <stop offset="50%" stop-color="#151722"/>
+      <stop offset="100%" stop-color="#090A0E"/>
     </linearGradient>
 
-    <!-- 主品牌渐变: cyan → violet -->
-    <linearGradient id="brandMark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="55%" stop-color="#06b6d4"/>
-      <stop offset="100%" stop-color="#a855f7"/>
+    <!-- 主琥珀金电影渐变: Amber Gold -->
+    <linearGradient id="vynaroGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="40%" stop-color="#F5C842"/>
+      <stop offset="80%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
     </linearGradient>
 
-    <!-- 高光渐变 (顶部亮线) -->
-    <linearGradient id="hiMark" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#67e8f9"/>
-      <stop offset="100%" stop-color="#22d3ee"/>
+    <!-- 霓彩高光 (紫色/青色微光,彰显 AI 多模态能力) -->
+    <linearGradient id="vynaroNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#F5C842"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
     </linearGradient>
 
-    <!-- 内核径向渐变 (中心高亮) -->
-    <radialGradient id="coreMark" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </radialGradient>
+    <!-- 内核高亮 -->
+    <linearGradient id="vynaroCore" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="50%" stop-color="#F5C842"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
 
-    <!-- 外发光 -->
-    <filter id="glowMark" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
+    <!-- 柔和金色外发光 -->
+    <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <!-- 剪裁路径: 圆角方形 (跟 app icon 同形状) -->
-    <clipPath id="clipMark">
+    <!-- 微玻璃拟态遮罩与圆角 -->
+    <clipPath id="squircle">
       <rect width="256" height="256" rx="56" ry="56"/>
     </clipPath>
   </defs>
 
-  <!-- 1. 底板: 深空圆角方 -->
-  <rect width="256" height="256" rx="56" ry="56" fill="url(#bgMark)"/>
+  <!-- 1. 圆角深空底板 -->
+  <rect width="256" height="256" rx="56" ry="56" fill="url(#vynaroBg)"/>
 
-  <!-- 2. 内描边: 极淡品牌色 (质感) -->
-  <rect x="1" y="1" width="254" height="254" rx="55" ry="55"
-        fill="none" stroke="url(#brandMark)" stroke-width="1" opacity="0.25"/>
+  <!-- 2. 金色环境微光边缘 -->
+  <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" ry="54.5"
+        fill="none" stroke="url(#vynaroGold)" stroke-width="1.5" opacity="0.35"/>
 
-  <!-- 3. 外环 (轨道/时间线) - 代表流水线 -->
-  <g clip-path="url(#clipMark)" opacity="0.95">
-    <!-- 大外环 -->
-    <circle cx="128" cy="128" r="92"
-            fill="none" stroke="url(#brandMark)" stroke-width="2.5"
-            stroke-dasharray="3 6" opacity="0.55"/>
+  <!-- 3. 背景胶片与时间线轨道齿孔元素 -->
+  <g clip-path="url(#squircle)" opacity="0.18">
+    <circle cx="128" cy="128" r="105" fill="none" stroke="url(#vynaroGold)" stroke-width="2" stroke-dasharray="4 8"/>
+    <circle cx="128" cy="128" r="82" fill="none" stroke="#F5C842" stroke-width="1" opacity="0.4"/>
+  </g>
 
-    <!-- 中环 (实线,主框架) -->
-    <circle cx="128" cy="128" r="68"
-            fill="none" stroke="url(#brandMark)" stroke-width="1.5"
-            opacity="0.7"/>
+  <!-- 4. Vynaro 核心图腾: Stylized 'V' + 电影胶片羽翼 + 音频声波 + Play 播放内核 -->
+  <g transform="translate(128 126)">
+    <!-- 翼展 'V' 形图案左臂 (代表视频/剪辑轨) -->
+    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z"
+          fill="url(#vynaroGold)" filter="url(#goldGlow)"/>
 
-    <!-- 4 个 tick (12/3/6/9 点位,工业感) -->
-    <g fill="url(#hiMark)">
-      <circle cx="128" cy="36"  r="2.5"/>
-      <circle cx="220" cy="128" r="2.5"/>
-      <circle cx="128" cy="220" r="2.5"/>
-      <circle cx="36"  cy="128" r="2.5"/>
+    <!-- 翼展 'V' 形图案右臂 (代表 AI 脚本与声波轨) -->
+    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z"
+          fill="url(#vynaroGold)" filter="url(#goldGlow)"/>
+
+    <!-- 顶部电影胶片与音波穿插线条 -->
+    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="url(#vynaroCore)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- 声波柱阵列 (从中心 'V' 底部向上延伸) -->
+    <g fill="url(#vynaroCore)">
+      <rect x="-24" y="-12" width="4" height="20" rx="2"/>
+      <rect x="-14" y="-24" width="4" height="34" rx="2"/>
+      <rect x="-4"  y="-34" width="4" height="48" rx="2"/>
+      <rect x="6"   y="-28" width="4" height="40" rx="2"/>
+      <rect x="16"  y="-16" width="4" height="26" rx="2"/>
     </g>
+
+    <!-- 核心 Play 播放按键点睛 (电影/视频标志) -->
+    <path d="M -7 -4 L 11 -14 L 11 6 Z" fill="#0E0F17"/>
+    <path d="M -6 -3 L 9 -12 L 9 4 Z" fill="url(#vynaroCore)"/>
   </g>
 
-  <!-- 4. 内核盘: 视频帧 -->
-  <g transform="translate(128 128)">
-    <!-- 中心圆盘 (深色,做对比) -->
-    <circle r="44" fill="#050816"/>
-    <circle r="44" fill="none" stroke="url(#brandMark)" stroke-width="1.5" opacity="0.6"/>
-
-    <!-- AI 弧线 (围绕中心,代表 AI 处理) -->
-    <path d="M -28 0 A 28 28 0 0 1 0 -28" fill="none"
-          stroke="url(#hiMark)" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-    <path d="M 28 0 A 28 28 0 0 1 0 28" fill="none"
-          stroke="url(#hiMark)" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-
-    <!-- 中心 Play 三角 (主识别符) -->
-    <path d="M -10 -16 L 18 0 L -10 16 Z" fill="url(#coreMark)" filter="url(#glowMark)"/>
-  </g>
-
-  <!-- 5. 角落 AI sparkle (3 个,代表 AI 能力点缀) -->
-  <g fill="url(#hiMark)" opacity="0.9">
-    <!-- 主 sparkle (右上) -->
-    <path d="M 196 60
-             L 199 67
-             L 206 70
-             L 199 73
-             L 196 80
-             L 193 73
-             L 186 70
-             L 193 67 Z"/>
-  </g>
-  <g fill="#a855f7" opacity="0.7">
-    <!-- 副 sparkle (右下) -->
-    <path d="M 210 88
-             L 211.5 92
-             L 215.5 93.5
-             L 211.5 95
-             L 210 99
-             L 208.5 95
-             L 204.5 93.5
-             L 208.5 92 Z"/>
+  <!-- 5. 右上角 AI 降临火花 (Sparkles) -->
+  <g fill="url(#vynaroGold)">
+    <path d="M 188 52 L 191 60 L 199 63 L 191 66 L 188 74 L 185 66 L 177 63 L 185 60 Z"/>
+    <path d="M 204 80 L 205.5 84 L 209.5 85.5 L 205.5 87 L 204 91 L 202.5 87 L 198.5 85.5 L 202.5 84 Z" opacity="0.7"/>
   </g>
 </svg>
