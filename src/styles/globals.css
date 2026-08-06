@@ -101,7 +101,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
 /* ── 输入框统一适配 ────────────────────────────── */
-input, textarea, select {
+input, textarea {
   background-color: var(--color-surface-elevated);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
@@ -113,9 +113,64 @@ input, textarea, select {
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus, textarea:focus {
   border-color: var(--color-gold);
   box-shadow: 0 0 0 3px var(--color-gold-muted);
+}
+
+/* ── 重构自定义下拉选择框 (Modern Glassmorphic Select Dropdown) ─── */
+select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23F5C842'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 14px 14px !important;
+  padding-right: 36px !important;
+  padding-left: 14px !important;
+  background-color: var(--color-surface-elevated) !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 12px !important;
+  font-family: inherit;
+  font-size: 13px !important;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+select:hover {
+  border-color: var(--color-gold) !important;
+  background-color: var(--color-surface-overlay) !important;
+  box-shadow: 0 0 12px var(--color-gold-glow) !important;
+}
+
+select:focus {
+  border-color: var(--color-gold) !important;
+  box-shadow: 0 0 0 3px var(--color-gold-muted) !important;
+}
+
+select option {
+  background-color: var(--color-surface, #161619) !important;
+  color: var(--color-text-primary, #F0EDE8) !important;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+html[data-theme="light"] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23D97706'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-color: #FFFFFF !important;
+  color: #18181B !important;
+  border-color: #D1D1D8 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] select option {
+  background-color: #FFFFFF !important;
+  color: #18181B !important;
 }
 
 /* ── 文字选择 ─────────────────────────────────── */

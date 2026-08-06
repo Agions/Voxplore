@@ -91,14 +91,7 @@ export function Step1IntakePanel({ mediaCount, onImportClick, onNext }: Step1Int
           <select
             value={selectedFormat}
             onChange={(e) => setSelectedFormat(e.target.value)}
-            style={{
-              background: "var(--color-bg)",
-              border: "1px solid #2A2A2F",
-              color: "var(--color-text-primary)",
-              padding: "6px 12px",
-              borderRadius: "8px",
-              fontSize: "13px",
-            }}
+            className="py-1.5 text-xs font-semibold"
           >
             <option value="all">自动识别全部格式</option>
             <option value="mp4">仅 MP4 容器</option>

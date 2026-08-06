@@ -242,7 +242,7 @@ export function BatchImportDialog({
               onChange={(e) =>
                 setKindFilter(e.target.value as AssetKind | "all")
               }
-              className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-200"
+              className="py-1.5 text-xs font-semibold"
             >
               <option value="all">全部类型</option>
               {ALL_KINDS.map((k) => (
