@@ -64,14 +64,14 @@ graph LR
 ## 🧠 大模型与 TTS 引擎能力矩阵
 
 ### 11 大主流 LLM 引擎支持
-* 🇨🇳 **通义千问 (Qwen)**: `qwen3.8-max` / `qwen-plus`
+* 🇨🇳 **通义千问 (Qwen)**: `qwen3.8-max`
 * 🇨🇳 **DeepSeek**: `deepseek-v4-pro` / `deepseek-v4-flash`
-* 🇺🇸 **OpenAI**: `gpt-5.6-sol` / `gpt-4o`
+* 🇺🇸 **OpenAI**: `gpt-5.6-sol`
 * 🇺🇸 **Claude**: `claude-sonnet-5`
 * 🇺🇸 **Gemini**: `gemini-3.6-flash` / `gemini-3.1-pro`
 * 🇨🇳 **Kimi (月之暗面)**: `kimi-k3` / `moonshot-v1`
-* 🇨🇳 **智谱 GLM**: `glm-5.2` / `glm-4-plus`
-* 🇨🇳 **豆包 (Doubao)**: `doubao-seed-2-1-pro` / `doubao-pro-128k`
+* 🇨🇳 **智谱 GLM**: `glm-5.2`
+* 🇨🇳 **豆包 (Doubao)**: `doubao-seed-2-1-pro`
 * 🇨🇳 **腾讯混元 (Hunyuan)**: `hunyuan-pro`
 * 🏠 **本地模型 (Local)**: Ollama / LMStudio (`llama3.2` / `qwen2.5`)
 
