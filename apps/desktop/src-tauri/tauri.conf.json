@@ -33,7 +33,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "category": "VideoEditor",
+    "category": "Video",
     "copyright": "© 2026  Agions",
     "shortDescription": "AI 视频叙事生成器",
     "longDescription": "Vynaro 是基于 AI 的第一人称视频叙事编辑器,通过 7 步流水线自动将影视素材转换为竖屏平台的完整视频。",
@@ -45,7 +45,7 @@
       "icons/icon.ico"
     ],
     "publisher": "Agions",
-    "homepage": "https://scenefab.dev"
+    "homepage": "https://github.com/Agions/vynaro"
   },
   "plugins": {}
 }
