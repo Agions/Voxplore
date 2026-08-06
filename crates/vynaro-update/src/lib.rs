@@ -1,4 +1,4 @@
-//! vynaro-update v2.5.0 · 应用更新器 (M4 完整实装)
+//! vynaro-update v1.0.0  · 应用更新器 (M4 完整实装)
 //!
 //! ## 责任范围
 //! - GitHub Releases 探测最新版本

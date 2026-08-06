@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// SceneFab v2.5.0 - gen-ipc.mjs
+// SceneFab v1.0.0  - gen-ipc.mjs
 //
 // 自动从 Rust 源码提取 IPC 命令签名 + 公开类型定义,生成 IpcContracts 表与
 // 领域类型 interface,前后端类型单一真相源。

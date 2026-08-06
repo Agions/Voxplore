@@ -30,12 +30,12 @@ resources/
 │   └── app_icon_1024.png     # 超高密度 (1024 px)
 ```
 
-> Note: v2.4 PySide6 时代的 `light_theme.qss` / `dark_theme.qss` 已在 v2.5.0
+> Note: v2.4 PySide6 时代的 `light_theme.qss` / `dark_theme.qss` 已在 v1.0.0 
 > 收官清理中删除。当前主题系统使用 `apps/desktop/src/styles/globals.css` 的
 > Tailwind 4 设计令牌 (`@theme` blocks + CSS 变量),运行时通过
 > `useThemeStore` 切换。
 
-## 品牌识别 (v2.5.0 重设计)
+## 品牌识别 (v1.0.0  重设计)
 
 Vynaro 品牌识别系统由以下 SVG 资产构成 (详见 `assets/logo-mark.svg` /
 `assets/logo-horizontal.svg` / `docs/public/favicon.svg`):

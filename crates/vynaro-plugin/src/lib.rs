@@ -1,4 +1,4 @@
-//! vynaro-plugin v2.5.0 · Polish 占位实现
+//! vynaro-plugin v1.0.0  · Polish 占位实现
 //!
 //! ## 责任范围
 //! wasmtime 插件宿主 + Rust SDK + WASM 沙箱

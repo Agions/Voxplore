@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SceneFab v2.5.0 · Rust + TypeScript 统一覆盖率脚本
+# SceneFab v1.0.0  · Rust + TypeScript 统一覆盖率脚本
 #
 # 双端测量：
 #   - Rust    : cargo tarpaulin(workspace 元数据自动加载)

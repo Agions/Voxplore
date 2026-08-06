@@ -91,12 +91,12 @@ strategy:
 
 ```bash
 # 1. 推 tag
-git tag v2.5.0-beta.1
-git push origin v2.5.0-beta.1
+git tag v1.0.0 -beta.1
+git push origin v1.0.0 -beta.1
 
 # 2. gh CLI 创建 release + 上传 bundle
-gh release create v2.5.0-beta.1 \
-  --title "Vynaro v2.5.0-beta.1" \
+gh release create v1.0.0 -beta.1 \
+  --title "Vynaro v1.0.0 -beta.1" \
   --notes-file .github/RELEASE_TEMPLATE.md \
   apps/desktop/src-tauri/target/**/bundle/**/*.dmg \
   apps/desktop/src-tauri/target/**/bundle/**/*.msi \
@@ -113,7 +113,7 @@ release 标题必须以 `v` 开头（`vynaro-update` 内部 `tag_name.trim_start
 ```bash
 # 上传前生成
 shasum -a 256 Vynaro_2.5.0-beta.1_aarch64.dmg > Vynaro_2.5.0-beta.1_aarch64.dmg.sha256
-gh release upload v2.5.0-beta.1 Vynaro_2.5.0-beta.1_aarch64.dmg.sha256
+gh release upload v1.0.0 -beta.1 Vynaro_2.5.0-beta.1_aarch64.dmg.sha256
 ```
 
 或者更优的做法 — 把 SHA-256 直接写入 `Asset.digest`（GitHub 在 web UI 自动生成），`vynaro-update` 会读取：

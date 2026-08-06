@@ -1,4 +1,4 @@
-//! vynaro-ffmpeg v2.5.0 · FFmpeg 包装层 (M3.2 完整实现)
+//! vynaro-ffmpeg v1.0.0  · FFmpeg 包装层 (M3.2 完整实现)
 //!
 //! ## 责任范围
 //! - 二进制发现 (`ffmpeg` / `ffprobe` PATH 探测)
