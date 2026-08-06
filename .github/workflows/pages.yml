@@ -29,7 +29,7 @@ jobs:
       - name: Install Docs Dependencies & Build
         run: |
           cd docs
-          npm ci
+          npm install
           npm run docs:build
       - uses: actions/upload-pages-artifact@v3
         with:
