@@ -178,3 +178,36 @@ html[data-theme="light"] select option {
   background: var(--color-gold-muted);
   color: var(--color-gold);
 }
+
+/* ── 玻片态与高质感面板类名 (Glassmorphism & Gold Glow) ─── */
+.glass-panel {
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+}
+
+.glass-card {
+  background: var(--color-surface-elevated);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(245, 200, 66, 0.4);
+  box-shadow: 0 4px 20px rgba(245, 200, 66, 0.12);
+  transform: translateY(-2px);
+}
+
+html[data-theme="light"] .glass-card:hover {
+  border-color: rgba(217, 119, 6, 0.4);
+  box-shadow: 0 4px 20px rgba(217, 119, 6, 0.1);
+}
+
+.gold-glow-border {
+  border: 1px solid var(--color-gold);
+  box-shadow: 0 0 16px var(--color-gold-glow);
+}
+
