@@ -15,6 +15,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTauriQuery } from "@hooks/useTauriQuery";
+import { useSettingsStore } from "@stores/settings-store";
+import { t } from "@lib/i18n";
 import type { HelpCategory, HelpTopic } from "@ipc/types.gen";
 
 // ── 静态数据 · 必须在模块顶层以便 TopicCard/TopicModal 闭包访问 ─────
@@ -41,16 +43,6 @@ const CATEGORY_FILTERS: Array<{ value: HelpCategory | null; label: string }> = [
   { value: "faq", label: "FAQ" },
   { value: "shortcut", label: "快捷键" },
 ];
-
-const CATEGORY_TONE: Record<HelpCategory, string> = {
-  guide: "from-blue-500/15 to-blue-500/0 border-blue-500/30 text-blue-200",
-  reference:
-    "from-fuchsia-500/15 to-fuchsia-500/0 border-fuchsia-500/30 text-fuchsia-200",
-  troubleshooting:
-    "from-amber-500/15 to-amber-500/0 border-amber-500/30 text-amber-200",
-  faq: "from-emerald-500/15 to-emerald-500/0 border-emerald-500/30 text-emerald-200",
-  shortcut: "from-cyan-500/15 to-cyan-500/0 border-cyan-500/30 text-cyan-200",
-};
 
 const CATEGORY_LABEL: Record<HelpCategory, string> = {
   guide: "教程",
@@ -119,6 +111,8 @@ export function HelpPage() {
     return topics ?? [];
   }, [topics, searchHits, searchQuery]);
 
+  const locale = useSettingsStore((s) => s.locale);
+
   // 详情 modal 数据
   const { data: openTopic, isLoading: topicLoading } = useTauriQuery({
     command: "help_topic_get",
@@ -131,33 +125,35 @@ export function HelpPage() {
     <div className="mx-auto max-w-5xl space-y-12 px-8 py-12">
       <header className="space-y-2">
         <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3 py-0.5 text-xs font-semibold text-[var(--color-gold)]">
-          <span>💡</span> Help Center
+          <span>💡</span> {t("help.title", locale)}
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">帮助与指南</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+          {t("help.title", locale)}
+        </h1>
         <p className="text-sm text-[var(--color-text-secondary)]">
-          当前版本 v{version ?? "—"} · 快捷键速查与全量功能指南
+          {t("help.subtitle", locale)} · v{version ?? "1.0.0"}
         </p>
       </header>
 
       {/* 快捷键(静态 · 不在 HelpTopic 模型) */}
       <section>
         <SectionHeader
-          kicker="操作"
-          title="快捷键"
-          subtitle="提升效率的常用组合"
+          kicker={locale === "en-US" ? "Shortcuts" : "快捷键"}
+          title={t("help.shortcuts_title", locale)}
+          subtitle={locale === "en-US" ? "Boost your productivity with quick hotkeys" : "提升效率的常用组合键"}
         />
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
           {SHORTCUTS.map((s, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/30 px-4 py-3"
+              className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-sm"
             >
-              <span className="text-sm text-zinc-300">{s.desc}</span>
+              <span className="text-xs font-medium text-[var(--color-text-primary)]">{s.desc}</span>
               <span className="flex items-center gap-1">
                 {s.keys.map((k, idx) => (
                   <kbd
                     key={idx}
-                    className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-zinc-700 bg-zinc-950 px-2 font-mono text-[10px] text-zinc-300"
+                    className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 font-mono text-[10px] font-bold text-[var(--color-gold)]"
                   >
                     {k}
                   </kbd>
@@ -171,15 +167,16 @@ export function HelpPage() {
       {/* 文档(从 help_topics IPC 拉取 + help_search 全文搜索) */}
       <section>
         <SectionHeader
-          kicker="学习"
-          title="文档资源"
-          subtitle="由后端 vynaro-help 实时提供"
+          kicker={locale === "en-US" ? "Tutorials" : "教程"}
+          title={locale === "en-US" ? "Documentation & Guides" : "文档与教程指南"}
+          subtitle={locale === "en-US" ? "Real-time tutorials powered by Vynaro Help engine" : "由后端 vynaro-help 实时提供"}
         />
 
         {/* 分类 chip */}
         <div className="mb-4 flex flex-wrap gap-2">
           {CATEGORY_FILTERS.map((f) => {
             const active = category === f.value;
+            const labelStr = f.value ? t(`help.${f.value}`, locale) : t("help.all_cat", locale);
             return (
               <button
                 key={f.label}
@@ -193,7 +190,7 @@ export function HelpPage() {
                     : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)]/40 hover:text-[var(--color-text-primary)]"
                   }`}
               >
-                {f.label}
+                {labelStr}
               </button>
             );
           })}
@@ -208,33 +205,33 @@ export function HelpPage() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="搜索主题 (标题/关键词/正文加权)…"
+            placeholder={t("help.search_placeholder", locale)}
             className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-gold)]"
           />
           {searchFetching && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">
-              搜索中…
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--color-gold)]">
+              Searching...
             </span>
           )}
         </div>
 
         {/* 主题卡片 */}
         {topicsLoading && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 px-4 py-8 text-center text-sm text-zinc-500">
-            加载主题中…
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-text-muted)]">
+            Loading tutorials...
           </div>
         )}
 
         {topicsError && (
-          <div className="rounded-xl border border-rose-800/60 bg-rose-950/20 px-4 py-3 text-sm text-rose-300">
+          <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
             加载失败:
             {(topicsError as { message?: string })?.message ?? "未知错误"}
           </div>
         )}
 
         {!topicsLoading && !topicsError && displayTopics.length === 0 && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 px-4 py-8 text-center text-sm text-zinc-500">
-            {searchQuery ? `没有匹配 “${searchQuery}” 的主题` : "暂无主题"}
+          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-8 text-center text-sm text-[var(--color-text-muted)]">
+            {searchQuery ? `没有匹配 “${searchQuery}” 的主题` : t("help.no_topics", locale)}
           </div>
         )}
 
@@ -299,32 +296,33 @@ function TopicCard({
   topic: HelpTopic;
   onOpen: () => void;
 }) {
-  const tone = CATEGORY_TONE[topic.category] ?? CATEGORY_TONE.guide;
   const icon = CATEGORY_ICON[topic.category] ?? "📘";
   const cat = CATEGORY_LABEL[topic.category] ?? topic.category;
   return (
     <button
       type="button"
       onClick={onOpen}
-      className={`group block rounded-2xl border bg-gradient-to-br p-4 text-left transition hover:scale-[1.02] hover:border-opacity-80 ${tone}`}
+      className="group block rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition-all duration-300 hover:scale-[1.02] hover:border-[var(--color-gold)] hover:shadow-[0_0_20px_var(--color-gold-glow)]"
     >
       <div className="flex items-center justify-between">
         <div className="text-3xl">{icon}</div>
-        <span className="rounded-full border border-current/30 bg-black/20 px-2 py-0.5 text-[10px] opacity-70">
+        <span className="rounded-full border border-[var(--color-gold)]/30 bg-[var(--color-gold-muted)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--color-gold)]">
           {cat}
         </span>
       </div>
       <div className="mt-4 space-y-1">
-        <div className="text-sm font-semibold text-zinc-100">{topic.title}</div>
+        <div className="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+          {topic.title}
+        </div>
         {topic.summary && (
-          <div className="text-xs text-zinc-400">{topic.summary}</div>
+          <div className="text-xs text-[var(--color-text-secondary)]">{topic.summary}</div>
         )}
         {topic.keywords.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {topic.keywords.slice(0, 3).map((k) => (
               <span
                 key={k}
-                className="rounded-md bg-black/30 px-1.5 py-0.5 text-[10px] text-zinc-400"
+                className="rounded-md bg-[var(--color-bg)] border border-[var(--color-border)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--color-text-muted)]"
               >
                 #{k}
               </span>
@@ -357,55 +355,55 @@ function TopicModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-6 backdrop-blur-md animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[var(--color-gold)] bg-[var(--color-surface)] p-6 shadow-[0_0_36px_var(--color-gold-glow)]">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-md p-1 text-zinc-500 transition hover:bg-zinc-900 hover:text-zinc-200"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
           aria-label="关闭"
         >
           ✕
         </button>
         {loading && (
-          <div className="py-12 text-center text-sm text-zinc-500">加载中…</div>
+          <div className="py-12 text-center text-xs text-[var(--color-gold)]">加载主题详情中...</div>
         )}
         {topic && !loading && (
           <div className="space-y-4 pr-6">
             <div className="space-y-1">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[var(--color-gold)]">
                 {CATEGORY_LABEL[topic.category] ?? topic.category}
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-100">
+              <h2 className="text-xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
                 {topic.title}
               </h2>
               {topic.summary && (
-                <p className="text-sm text-zinc-500">{topic.summary}</p>
+                <p className="text-xs text-[var(--color-text-secondary)]">{topic.summary}</p>
               )}
             </div>
             {topic.content ? (
-              <pre className="whitespace-pre-wrap rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-xs leading-relaxed text-zinc-300">
+              <pre className="whitespace-pre-wrap rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-xs leading-relaxed text-[var(--color-text-primary)]">
                 {topic.content}
               </pre>
             ) : (
-              <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 p-4 text-center text-xs text-zinc-500">
-                该主题暂无正文(仅元数据 · id: {topic.id})
+              <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg)] p-4 text-center text-xs text-[var(--color-text-muted)]">
+                该主题暂无正文 (仅元数据 · id: {topic.id})
               </div>
             )}
             {topic.related.length > 0 && (
-              <div className="border-t border-zinc-800 pt-3">
-                <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
-                  相关主题
+              <div className="border-t border-[var(--color-border)] pt-3">
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-gold)]">
+                  相关关联主题
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {topic.related.map((rid) => (
                     <span
                       key={rid}
-                      className="rounded-md bg-zinc-900 px-2 py-0.5 text-[11px] text-zinc-400"
+                      className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-secondary)]"
                     >
                       {rid}
                     </span>

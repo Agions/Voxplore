@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { settingsIpc, themeIpc, type ConfigSnapshot } from "@ipc/commands";
 import { useSettingsStore } from "@stores/settings-store";
 import { useThemeStore, type Theme } from "@stores/theme-store";
+import { t } from "@lib/i18n";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -121,22 +122,26 @@ function SettingsPage() {
 
   const hasApiKey = Boolean(local.llm_api_key && local.llm_api_key.trim().length > 0);
 
+  const locale = useSettingsStore((s) => s.locale);
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-8 py-8">
       {/* Header */}
       <header className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3 py-0.5 text-xs font-semibold text-[var(--color-gold)]">
-            <span>⚙️</span> Engine Settings
+            <span>⚙️</span> LLM & Engine Hub
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">系统与大模型设置</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+            {t("settings.title", locale)}
+          </h1>
           <p className="text-xs text-[var(--color-text-secondary)]">
-            {isLoading ? "加载配置中..." : "纯本地单机应用 · 管理 11 大 LLM 引擎、TTS 人声配音与 FFmpeg 硬件加速"}
+            {isLoading ? "Loading..." : t("settings.subtitle", locale)}
           </p>
         </div>
         {saved && (
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-1 text-xs font-medium text-emerald-400 animate-fade-in">
-            ✓ 已保存
+            {t("settings.saved", locale)}
           </span>
         )}
       </header>
@@ -153,7 +158,7 @@ function SettingsPage() {
           }`}
         >
           <span>🔑</span>
-          <span>LLM API Keys</span>
+          <span>{t("settings.tab_llm", locale)}</span>
           <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${hasApiKey ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
             {hasApiKey ? "Active" : "Keys"}
           </span>
@@ -169,7 +174,7 @@ function SettingsPage() {
           }`}
         >
           <span>🎙️</span>
-          <span>TTS Voice Engine</span>
+          <span>{t("settings.tab_tts", locale)}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
             Online
           </span>
@@ -184,8 +189,8 @@ function SettingsPage() {
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
           }`}
         >
-          <span>🎞️</span>
-          <span>FFmpeg Path</span>
+          <span>⚙️</span>
+          <span>{t("settings.tab_ffmpeg", locale)}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
             Detected
           </span>
@@ -201,7 +206,7 @@ function SettingsPage() {
           }`}
         >
           <span>🎨</span>
-          <span>Theme & Appearance</span>
+          <span>{t("settings.tab_appearance", locale)}</span>
         </button>
       </div>
 

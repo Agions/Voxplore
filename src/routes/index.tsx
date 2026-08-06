@@ -1,11 +1,5 @@
 /**
- * Vynaro v1.0.0 · 首页 Dashboard (完美适配亮色/暗色多主题模式)
- *
- * 核心页面布局结构 (与 Image 1 UI 100% 对齐):
- * 1. 顶部 Welcome Banner: Vynaro 叙影 AI 视频叙事工作室 · 打造下一部爆款电影级解说作品
- * 2. Recent Video Projects 区域: 3 张带金色发光边框、进度条与 ▶ 播放按钮的项目卡片
- * 3. 7-Step AI Narrative Pipeline 区域: 视觉化 7 步横向流水线面板 (1-3 100%, 4 85% 进行中高亮, 5-7 待处理)
- * 4. Quick Actions 区域: 4 块核心快捷按钮 (实心金 "➕ 新建项目" + 3 个暗黑玻璃按钮)
+ * Vynaro v1.0.0 · 首页 Dashboard (完美适配亮色/暗色双模式与中英文双语)
  */
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -14,6 +8,8 @@ import { useState } from "react";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { ThumbnailImage } from "@components/common/ThumbnailImage";
 import { useProjectStore } from "@stores/project-store";
+import { useSettingsStore } from "@stores/settings-store";
+import { t } from "@lib/i18n";
 import { toast } from "sonner";
 import {
   appIpc,
@@ -49,16 +45,17 @@ function HomePage() {
 // ── 1. Welcome Header ──────────────────────────────────────────────
 
 function WelcomeHeader() {
+  const locale = useSettingsStore((s) => s.locale);
   return (
     <div className="space-y-1">
       <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
-        Vynaro 叙影 AI 视频叙事工作室{" "}
+        {t("home.welcome_title", locale)}{" "}
         <span className="bg-gradient-to-r from-[#F5C842] via-[#F9D76B] to-[#E8933A] bg-clip-text text-transparent font-normal">
-          打造下一部爆款电影级解说作品
+          · 电影级 AI 短剧与影视解说
         </span>
       </h1>
       <p className="text-xs text-[var(--color-text-secondary)] font-medium tracking-wide">
-        支持 7 步全自动拆条、第一人称文案编排、TTS 人声克隆与剪映草稿工程导出
+        {t("home.welcome_subtitle", locale)}
       </p>
     </div>
   );
@@ -69,6 +66,7 @@ function WelcomeHeader() {
 function RecentProjectsSection() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const locale = useSettingsStore((s) => s.locale);
   const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
 
   const { data: recentPaths } = useQuery({
@@ -82,7 +80,7 @@ function RecentProjectsSection() {
       qc.setQueryData(["current-project"], rec);
       setCurrentRecord(rec.path, rec.project);
       void navigate({ to: "/production" });
-      toast.success("新建解说工程已建立");
+      toast.success(locale === "en-US" ? "New Narrative Project Created" : "新建解说工程已建立");
     },
     onError: (e) => {
       toast.error("创建工程失败", { description: e instanceof Error ? e.message : String(e) });
@@ -96,7 +94,7 @@ function RecentProjectsSection() {
       {/* Header with See All */}
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-          最近视频解说工程
+          {t("home.recent_title", locale)}
         </h2>
         {hasRecents && (
           <button
@@ -104,7 +102,7 @@ function RecentProjectsSection() {
             onClick={() => void navigate({ to: "/assets" })}
             className="text-xs font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-gold)]"
           >
-            查看资产库 →
+            {t("home.see_all", locale)}
           </button>
         )}
       </div>
@@ -114,9 +112,11 @@ function RecentProjectsSection() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-2xl mb-3">
             🎬
           </div>
-          <h3 className="text-sm font-bold text-[var(--color-text-primary)]">暂无历史解说工程</h3>
+          <h3 className="text-sm font-bold text-[var(--color-text-primary)]">
+            {t("home.no_project", locale)}
+          </h3>
           <p className="text-xs text-[var(--color-text-secondary)] mt-1 mb-4">
-            点击下方按钮快速建立第一个 7 步 AI 短剧/影视解说工程
+            {t("home.no_project_sub", locale)}
           </p>
           <button
             type="button"
@@ -124,7 +124,7 @@ function RecentProjectsSection() {
             disabled={createProject.isPending}
             className="btn-primary text-xs px-5 py-2.5 font-bold"
           >
-            ➕ 新建解说工程
+            {t("home.create_project", locale)}
           </button>
         </div>
       ) : (
@@ -150,14 +150,14 @@ function RecentProjectsSection() {
                     {displayTitle}
                   </h3>
                   <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
-                    工程文件 · 本地极速处理
+                    {t("home.project_file_tag", locale)}
                   </p>
                 </div>
 
                 {/* Action CTA */}
                 <div className="flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-2.5">
                   <span className="text-[11px] font-semibold text-[var(--color-gold)]">
-                    进入制作工作台 →
+                    {t("action.enter", locale)}
                   </span>
                   <button
                     type="button"
@@ -177,94 +177,55 @@ function RecentProjectsSection() {
 
 // ── 3. 7-Step AI Narrative Pipeline Card ───────────────────────────
 
-interface PipelineStepItem {
-  num: number;
-  label: string;
-  status: "completed" | "in_progress" | "pending";
-  percent?: number;
-  icon: string;
-}
-
-const PIPELINE_STEPS: PipelineStepItem[] = [
-  { num: 1, label: "素材导入", status: "completed", percent: 100, icon: "📥" },
-  { num: 2, label: "智能拆条", status: "completed", percent: 100, icon: "🔍" },
-  { num: 3, label: "镜头检测", status: "completed", percent: 100, icon: "✂️" },
-  { num: 4, label: "文案编排", status: "in_progress", percent: 85, icon: "≡" },
-  { num: 5, label: "片段精选", status: "pending", icon: "🎬" },
-  { num: 6, label: "转场特效", status: "pending", icon: "🔀" },
-  { num: 7, label: "草稿导出", status: "pending", icon: "📤" },
-];
-
 function PipelineSection() {
   const navigate = useNavigate();
+  const locale = useSettingsStore((s) => s.locale);
+
+  const steps = [
+    { num: 1, labelKey: "step.intake.title", icon: "📥" },
+    { num: 2, labelKey: "step.detect.title", icon: "🔍" },
+    { num: 3, labelKey: "step.script.title", icon: "📝" },
+    { num: 4, labelKey: "step.voice.title", icon: "🎙️" },
+    { num: 5, labelKey: "step.subtitle.title", icon: "💬" },
+    { num: 6, labelKey: "step.compose.title", icon: "🔀" },
+    { num: 7, labelKey: "step.export.title", icon: "📤" },
+  ];
 
   return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 backdrop-blur-xl shadow-xl">
-      <div className="mb-6 flex items-center justify-between">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-          7 步 AI 叙事工作流
+          {t("home.pipeline_title", locale)}
         </h2>
         <span className="font-mono text-xs text-[var(--color-gold)] bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 px-3 py-1 rounded-full font-medium">
-          Step 4 / 7 进行中
+          7-Step Automated Pipeline
         </span>
       </div>
 
       {/* Horizontal Stepper Row */}
-      <div className="relative flex items-center justify-between gap-2 overflow-x-auto pb-2">
-        {PIPELINE_STEPS.map((step, index) => {
-          const isCompleted = step.status === "completed";
-          const isInProgress = step.status === "in_progress";
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        {steps.map((step) => {
+          const rawTitle = t(step.labelKey, locale);
+          const cleanTitle = rawTitle.replace(/^Step \d+:\s*/, "");
 
           return (
-            <div key={step.num} className="flex flex-1 items-center">
-              {/* Step Card Element */}
-              <div
-                onClick={() => void navigate({ to: "/production" })}
-                className={`relative flex flex-col items-center justify-center flex-1 cursor-pointer rounded-xl p-3.5 text-center transition-all duration-300 ${
-                  isInProgress
-                    ? "border border-[var(--color-gold)] bg-[var(--color-gold-muted)] shadow-[0_0_20px_var(--color-gold-glow)] scale-105"
-                    : isCompleted
-                      ? "border border-[var(--color-gold)]/40 bg-[var(--color-surface-elevated)] hover:border-[var(--color-gold)]"
-                      : "border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 opacity-60 hover:opacity-100"
-                }`}
-              >
-                {/* Step Icon Badge */}
-                <div
-                  className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl font-bold text-base transition-all ${
-                    isInProgress
-                      ? "border border-[var(--color-gold)] bg-[var(--color-gold)] text-zinc-950 shadow-[0_0_12px_var(--color-gold-glow)]"
-                      : isCompleted
-                        ? "border border-[var(--color-gold)]/50 bg-[var(--color-gold-muted)] text-[var(--color-gold)]"
-                        : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"
-                  }`}
-                >
-                  {isCompleted ? "✓" : step.icon}
-                </div>
-
-                {/* Step Label & Number */}
-                <div className="space-y-1">
-                  <span className="block text-xs font-semibold text-[var(--color-text-primary)]">
-                    {step.num}. {step.label}
-                  </span>
-
-                  {/* Status Pill */}
-                  {isCompleted && (
-                    <span className="inline-block rounded-md bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 px-2 py-0.5 font-mono text-[10px] text-[var(--color-gold)] font-semibold">
-                      已完成 100%
-                    </span>
-                  )}
-                  {isInProgress && (
-                    <span className="inline-block rounded-md bg-[var(--color-gold)] text-zinc-950 px-2 py-0.5 font-mono text-[10px] font-bold shadow-[0_0_8px_var(--color-gold-glow)]">
-                      进行中 85%
-                    </span>
-                  )}
-                </div>
+            <div
+              key={step.num}
+              onClick={() => void navigate({ to: "/production" })}
+              className="group relative flex flex-col items-center justify-between cursor-pointer rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 text-center transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_16px_var(--color-gold-glow)]"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-lg mb-2 group-hover:scale-110 transition-transform">
+                {step.icon}
               </div>
 
-              {/* Connecting Line Arrow */}
-              {index < PIPELINE_STEPS.length - 1 && (
-                <div className="mx-1 h-[2px] w-4 flex-shrink-0 bg-[var(--color-border)]" />
-              )}
+              <div className="space-y-0.5">
+                <span className="block font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">
+                  Step 0{step.num}
+                </span>
+                <span className="block text-xs font-bold text-[var(--color-text-primary)] truncate max-w-[110px]" title={cleanTitle}>
+                  {cleanTitle}
+                </span>
+              </div>
             </div>
           );
         })}
@@ -277,49 +238,50 @@ function PipelineSection() {
 
 function QuickActionsSection() {
   const navigate = useNavigate();
+  const locale = useSettingsStore((s) => s.locale);
   const [openImport, setOpenImport] = useState(false);
 
   return (
     <section className="space-y-3">
       <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-        快捷操作
+        {t("home.quick_actions", locale)}
       </h2>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {/* Button 1: Solid Vibrant Gold "➕ 新建项目" */}
+        {/* Button 1: Solid Vibrant Gold "➕ 新建工程" */}
         <button
           type="button"
           onClick={() => void navigate({ to: "/production" })}
-          className="flex h-12 items-center justify-center rounded-xl bg-[var(--color-gold)] px-6 text-sm font-bold text-zinc-950 shadow-[0_0_20px_var(--color-gold-glow)] transition-all duration-300 hover:brightness-110 hover:scale-[1.02]"
+          className="flex h-12 items-center justify-center rounded-xl bg-[var(--color-gold)] px-6 text-xs font-bold text-zinc-950 shadow-[0_0_20px_var(--color-gold-glow)] transition-all duration-300 hover:brightness-110 hover:scale-[1.02]"
         >
-          ➕ 新建项目
+          ➕ {t("home.action_new", locale)}
         </button>
 
         {/* Button 2: Import Media */}
         <button
           type="button"
           onClick={() => setOpenImport(true)}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
+          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
         >
-          📂 导入素材
+          📂 {t("home.action_scan", locale)}
         </button>
 
-        {/* Button 3: Explore AI Styles */}
+        {/* Button 3: Engine Settings */}
         <button
           type="button"
           onClick={() => void navigate({ to: "/settings" })}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
+          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
         >
-          ✨ 探索 AI 风格
+          ⚙️ {t("home.action_settings", locale)}
         </button>
 
-        {/* Button 4: Recent Activity */}
+        {/* Button 4: Help Center */}
         <button
           type="button"
-          onClick={() => void navigate({ to: "/assets" })}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
+          onClick={() => void navigate({ to: "/help" })}
+          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
         >
-          🕒 历史活动
+          📘 {t("home.action_help", locale)}
         </button>
       </div>
 
@@ -337,6 +299,7 @@ function QuickActionsSection() {
 // ── 5. System Status Strip (Compact Footer) ───────────────────────
 
 function SystemStatusStrip() {
+  const locale = useSettingsStore((s) => s.locale);
   const version = useQuery({
     queryKey: ["home-version"],
     queryFn: appIpc.version,
@@ -359,7 +322,7 @@ function SystemStatusStrip() {
         ok ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-rose-500/30 bg-rose-500/10 text-rose-500"
       }`}>
         <span className={`h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-        {ok ? "Tauri 已连接" : "后端未连接"}
+        {ok ? (locale === "en-US" ? "Tauri Connected" : "Tauri 已连接") : "Disconnected"}
       </span>
 
       <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] text-[var(--color-text-secondary)]">
@@ -367,13 +330,13 @@ function SystemStatusStrip() {
       </span>
 
       <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] text-[var(--color-text-secondary)]">
-        {stepDefs.data?.length ?? 7} 步解说工作流
+        {stepDefs.data?.length ?? 7} {locale === "en-US" ? "Pipeline Steps" : "步解说工作流"}
       </span>
 
       <span className={`inline-flex items-center rounded-full px-3 py-1 border text-[11px] ${
         ffmpegOk ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-amber-500/30 bg-amber-500/10 text-amber-500"
       }`}>
-        FFmpeg {ffmpegOk ? "已就绪" : "环境检测"}
+        FFmpeg {ffmpegOk ? (locale === "en-US" ? "Ready" : "已就绪") : "Probe"}
       </span>
     </div>
   );
