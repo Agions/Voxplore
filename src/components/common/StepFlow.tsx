@@ -1,22 +1,27 @@
 /**
- * Vynaro v2.5.0 · 7步工作流卡片式流水线
+ * Vynaro v1.0.0 · 7 步卡片式全自动解说工作流 (根据用户设计原图 100% 对齐重构)
  *
- * 电影调光室主题：深色底 + 暖金高亮
- * 每个 Step 是一个独立卡片，点击展开详情面板
+ * 对应设计图 7 步垂直高保真卡片:
+ * 1. 素材导入 (Media) -> 包含视频预览帧与绿色 ✓ 完成角标
+ * 2. 智能拆条 (Scene Detection) -> 包含蓝色 ⚡ Processing 动态脉冲
+ * 3. 脚本生成 (Script Gen) -> 包含机器人 🤖 Generating
+ * 4. TTS配音 (Voice) -> 包含金色动态音频波形 🎚️
+ * 5. 字幕合成 (Subtitles) -> 屏幕字幕图标
+ * 6. 画面对齐 (Sync) -> 轴向对齐图标
+ * 7. 导出 (Export) -> 包含多平台社交图标
  */
 
 import type { StepStatus } from "@ipc/types.gen";
-import React from "react";
 
-// ── 工作流步骤定义 ──────────────────────────────
 export interface PipelineStep {
   id: string;
-  index: number;       // 1-7
-  label: string;       // 中文名
-  labelEn: string;     // 英文副标题
-  icon: string;        // emoji 图标
+  index: number;
+  label: string;
+  labelEn: string;
+  icon: string;
   status: StepStatus;
-  statusText?: string; // 自定义状态文字（如"8段 / 已分析"）
+  statusText?: string;
+  thumbnail?: string;
 }
 
 interface PipelineCardProps {
@@ -25,314 +30,173 @@ interface PipelineCardProps {
   onClick: () => void;
 }
 
-// ── 状态配置 ───────────────────────────────────
-const STATUS_CONFIG: Record<
-  StepStatus,
-  { color: string; bg: string; border: string; shadow: string; label: string; dot: string }
-> = {
-  pending: {
-    color:  "var(--color-text-muted)",
-    bg:     "transparent",
-    border: "var(--color-border)",
-    shadow: "none",
-    label:  "待开始",
-    dot:    "var(--color-text-muted)",
-  },
-  active: {
-    color:  "#60A5FA",
-    bg:     "rgba(96,165,250,0.08)",
-    border: "rgba(96,165,250,0.4)",
-    shadow: "0 0 16px rgba(96,165,250,0.15)",
-    label:  "处理中",
-    dot:    "#60A5FA",
-  },
-  done: {
-    color:  "#4ADE80",
-    bg:     "rgba(74,222,128,0.06)",
-    border: "rgba(74,222,128,0.35)",
-    shadow: "none",
-    label:  "已完成",
-    dot:    "#4ADE80",
-  },
-  error: {
-    color:  "#F87171",
-    bg:     "rgba(248,113,113,0.08)",
-    border: "rgba(248,113,113,0.4)",
-    shadow: "0 0 16px rgba(248,113,113,0.12)",
-    label:  "出错",
-    dot:    "#F87171",
-  },
-};
+export function PipelineCard({ step, isActive, onClick }: PipelineCardProps) {
+  const isDone = step.status === "done";
+  const isProcessing = step.status === "active";
 
-// ── 单张流水线卡片 ─────────────────────────────
-function PipelineCard({ step, isActive, onClick }: PipelineCardProps) {
-  const cfg = STATUS_CONFIG[step.status];
-  const [hovered, setHovered] = React.useState(false);
-
-  const borderColor = isActive
-    ? "var(--color-gold)"
-    : hovered
-    ? "rgba(245,200,66,0.3)"
-    : cfg.border;
-
-  const boxShadow = isActive
-    ? "0 0 24px rgba(245,200,66,0.20), 0 0 1px rgba(0,0,0,0.8)"
-    : hovered
-    ? "0 4px 16px rgba(0,0,0,0.4)"
-    : cfg.shadow;
-
-  return (
-    <button
-      type="button"
-      id={`pipeline-card-step-${step.index}`}
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "12px",
-        padding: "18px 14px 14px",
-        minWidth: "156px",
-        background: isActive
-          ? "rgba(245,200,66,0.04)"
-          : hovered
-          ? "var(--color-surface-elevated)"
-          : "var(--color-surface)",
-        border: `1px solid ${borderColor}`,
-        borderRadius: "14px",
-        cursor: "pointer",
-        transition: "all 200ms cubic-bezier(0.4,0,0.2,1)",
-        boxShadow,
-        transform: hovered && !isActive ? "translateY(-2px)" : "none",
-        position: "relative",
-        textAlign: "center",
-        flexShrink: 0,
-      }}
-      aria-pressed={isActive}
-      aria-label={`步骤 ${step.index}: ${step.label}`}
-    >
-      {/* 步骤编号 */}
-      <span
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "12px",
-          fontSize: "11px",
-          fontWeight: 600,
-          color: isActive ? "var(--color-gold)" : "var(--color-text-muted)",
-          letterSpacing: "0.04em",
-        }}
-      >
-        {step.index}
-      </span>
-
-      {/* 状态点 */}
-      <span
-        style={{
-          position: "absolute",
-          top: "12px",
-          right: "12px",
-          width: "7px",
-          height: "7px",
-          borderRadius: "50%",
-          background: cfg.dot,
-          boxShadow: step.status === "active"
-            ? `0 0 6px ${cfg.dot}`
-            : step.status === "done"
-            ? `0 0 4px ${cfg.dot}`
-            : "none",
-        }}
-      />
-
-      {/* 主图标 */}
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: "12px",
-          background: isActive ? "rgba(245,200,66,0.10)" : "var(--color-bg)",
-          border: `1px solid ${isActive ? "rgba(245,200,66,0.25)" : "var(--color-border)"}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "22px",
-          transition: "all 200ms ease",
-        }}
-      >
-        {step.icon}
-      </div>
-
-      {/* 文字区 */}
-      <div style={{ lineHeight: 1.3 }}>
-        <div
-          style={{
-            fontSize: "14px",
-            fontWeight: 600,
-            color: isActive ? "var(--color-gold)" : "var(--color-text-primary)",
-            marginBottom: "3px",
-          }}
-        >
-          {step.label}
-        </div>
-        <div
-          style={{
-            fontSize: "11px",
-            color: "var(--color-text-muted)",
-            letterSpacing: "0.04em",
-          }}
-        >
-          {step.labelEn}
-        </div>
-      </div>
-
-      {/* 状态文字 */}
-      <div
-        style={{
-          fontSize: "11px",
-          fontWeight: 500,
-          color: cfg.color,
-          background: cfg.bg,
-          border: `1px solid ${cfg.border}`,
-          borderRadius: "999px",
-          padding: "3px 10px",
-          width: "100%",
-          textAlign: "center",
-        }}
-      >
-        {step.status === "active" && "⚡ "}
-        {step.status === "done" && "✓ "}
-        {step.status === "error" && "✕ "}
-        {step.statusText ?? cfg.label}
-      </div>
-
-      {/* 活跃时背景光晕 */}
-      {step.status === "active" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "14px",
-            background: "rgba(96,165,250,0.03)",
-            animation: "pulse 2s ease-in-out infinite",
-          }}
-        />
-      )}
-    </button>
-  );
-}
-
-// ── 连接箭头 ───────────────────────────────────
-function Arrow({ lit }: { lit: boolean }) {
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        padding: "0 2px",
-        flexShrink: 0,
-      }}
-      aria-hidden="true"
+      onClick={onClick}
+      className={`group relative flex flex-col justify-between items-center flex-1 min-w-[152px] h-[340px] cursor-pointer rounded-2xl border p-4 transition-all duration-300 select-none ${
+        isActive
+          ? "border-[var(--color-gold)] bg-[var(--color-surface)] shadow-[0_0_24px_var(--color-gold-glow)] scale-[1.02]"
+          : isDone
+            ? "border-[var(--color-gold)]/40 bg-[var(--color-surface)] hover:border-[var(--color-gold)]/80"
+            : "border-[var(--color-border)] bg-[var(--color-surface)]/60 hover:border-[var(--color-border)]/80"
+      }`}
     >
-      <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-        <path
-          d="M0 6 H14 M10 2 L18 6 L10 10"
-          stroke={lit ? "#4ADE80" : "var(--color-border)"}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ transition: "stroke 400ms ease" }}
-        />
-      </svg>
+      {/* 1. 顶部 Header (序号 + 完成绿勾) */}
+      <div className="flex w-full items-center justify-between">
+        <span
+          className={`font-mono text-xs font-bold ${
+            isActive ? "text-[var(--color-gold)]" : "text-[var(--color-text-muted)]"
+          }`}
+        >
+          {step.index}
+        </span>
+        {isDone && (
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-zinc-950 font-black text-xs shadow-md">
+            ✓
+          </span>
+        )}
+      </div>
+
+      {/* 2. 中央大图标与标题 */}
+      <div className="flex flex-col items-center space-y-2 text-center my-1">
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-2xl border transition-transform duration-200 group-hover:scale-110 ${
+            isActive || isDone
+              ? "border-[var(--color-gold)]/30 bg-[var(--color-gold-muted)] text-[var(--color-gold)] shadow-md"
+              : "border-[var(--color-border)] bg-[var(--color-surface-elevated)] text-[var(--color-text-secondary)]"
+          }`}
+        >
+          <span className="text-2xl">{step.icon}</span>
+        </div>
+
+        <div className="space-y-0.5">
+          <h3 className="text-sm font-extrabold tracking-tight text-[var(--color-text-primary)]">
+            {step.label}
+          </h3>
+          <p className="text-[11px] font-medium text-[var(--color-text-muted)] tracking-wide">
+            {step.labelEn}
+          </p>
+        </div>
+      </div>
+
+      {/* 3. 卡片内部动态内容插槽 (对应设计原图) */}
+      <div className="flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/60 p-2 my-1">
+        {step.index === 1 && (
+          <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-zinc-950 border border-zinc-800">
+            <img
+              src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&q=80"
+              alt="Video Preview"
+              className="h-full w-full object-cover opacity-80"
+            />
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 text-xs font-bold shadow-md">
+              ▶
+            </div>
+          </div>
+        )}
+
+        {step.index === 2 && (
+          <div className="flex flex-col items-center space-y-1 text-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 animate-pulse text-lg">
+              ⚡
+            </div>
+            <span className="text-[10px] font-mono text-blue-400 font-semibold">
+              {isProcessing ? "Processing..." : "Ready"}
+            </span>
+          </div>
+        )}
+
+        {step.index === 3 && (
+          <div className="flex flex-col items-center space-y-1 text-center">
+            <div className="text-xl">🤖</div>
+            <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-[9px] font-mono text-zinc-300">
+              Generating
+            </span>
+          </div>
+        )}
+
+        {step.index === 4 && (
+          <div className="flex items-center space-x-1">
+            <div className="h-6 w-1 rounded bg-[var(--color-gold)] animate-pulse" />
+            <div className="h-10 w-1 rounded bg-[var(--color-gold)] animate-pulse delay-75" />
+            <div className="h-4 w-1 rounded bg-[var(--color-gold)] animate-pulse delay-150" />
+            <div className="h-8 w-1 rounded bg-[var(--color-gold)] animate-pulse delay-200" />
+            <div className="h-5 w-1 rounded bg-[var(--color-gold)]" />
+          </div>
+        )}
+
+        {step.index === 5 && (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="text-lg">📝</div>
+            <span className="text-[9px] font-mono text-[var(--color-text-muted)]">
+              VAD Auto Align
+            </span>
+          </div>
+        )}
+
+        {step.index === 6 && (
+          <div className="flex items-center space-x-2 text-lg text-[var(--color-gold)]">
+            <span>🎬</span>
+            <span>🔀</span>
+            <span>🎵</span>
+          </div>
+        )}
+
+        {step.index === 7 && (
+          <div className="grid grid-cols-2 gap-1 text-center text-xs">
+            <span className="rounded bg-zinc-800/80 p-1">🎵</span>
+            <span className="rounded bg-zinc-800/80 p-1">📹</span>
+            <span className="rounded bg-zinc-800/80 p-1">🔴</span>
+            <span className="rounded bg-zinc-800/80 p-1">✂️</span>
+          </div>
+        )}
+      </div>
+
+      {/* 4. 底部金色 Pill 按钮 */}
+      <button
+        type="button"
+        className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2 text-xs font-black text-zinc-950 shadow-[0_2px_10px_rgba(245,200,66,0.3)] transition-all duration-200 hover:brightness-110 hover:shadow-[0_4px_16px_rgba(245,200,66,0.5)]"
+      >
+        {step.label}
+      </button>
     </div>
   );
 }
 
-// ── 主流水线组件 ───────────────────────────────
-export interface PipelineFlowProps {
+// ── 7 步卡片横向排列容器 ──────────────────────────────────────────
+
+export function PipelineFlow({
+  steps,
+  activeStepId,
+  onStepClick,
+}: {
   steps: PipelineStep[];
   activeStepId: string | null;
   onStepClick: (step: PipelineStep) => void;
-}
-
-export function PipelineFlow({ steps, activeStepId, onStepClick }: PipelineFlowProps) {
+}) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-        padding: "0 4px",
-        overflowX: "auto",
-        scrollbarWidth: "none",
-      }}
-      role="list"
-      aria-label="影视解说工作流步骤"
-    >
-      {steps.map((step, idx) => {
-        const isLast = idx === steps.length - 1;
-        const prevDone = idx > 0 && steps[idx - 1]?.status === "done";
-        return (
-          <React.Fragment key={step.id}>
-            <div role="listitem">
-              <PipelineCard
-                step={step}
-                isActive={step.id === activeStepId}
-                onClick={() => onStepClick(step)}
-              />
-            </div>
-            {!isLast && <Arrow lit={prevDone || step.status === "done"} />}
-          </React.Fragment>
-        );
-      })}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 w-full py-2">
+      {steps.map((step) => (
+        <PipelineCard
+          key={step.id}
+          step={step}
+          isActive={step.id === activeStepId}
+          onClick={() => onStepClick(step)}
+        />
+      ))}
     </div>
   );
 }
 
-// ── 默认 7 步工作流配置 ────────────────────────
 export const DEFAULT_PIPELINE_STEPS: PipelineStep[] = [
-  { id: "intake",   index: 1, label: "素材导入", labelEn: "Media Import",    icon: "📥", status: "pending" },
-  { id: "detect",   index: 2, label: "智能拆条", labelEn: "Scene Detection", icon: "✂️", status: "pending" },
-  { id: "script",   index: 3, label: "脚本生成", labelEn: "Script Gen",      icon: "🤖", status: "pending" },
-  { id: "voice",    index: 4, label: "TTS配音",  labelEn: "Voice Synth",     icon: "🎙️", status: "pending" },
+  { id: "intake",   index: 1, label: "素材导入", labelEn: "Media",           icon: "📁", status: "done" },
+  { id: "detect",   index: 2, label: "智能拆条", labelEn: "Scene Detection", icon: "🎞️", status: "active" },
+  { id: "script",   index: 3, label: "脚本生成", labelEn: "Script Gen",      icon: "📝", status: "pending" },
+  { id: "voice",    index: 4, label: "TTS配音",  labelEn: "Voice",           icon: "🎙️", status: "pending" },
   { id: "subtitle", index: 5, label: "字幕合成", labelEn: "Subtitles",       icon: "📝", status: "pending" },
-  { id: "compose",  index: 6, label: "画面对齐", labelEn: "Compose & Sync",  icon: "🎬", status: "pending" },
-  { id: "export",   index: 7, label: "导出发布", labelEn: "Export",          icon: "📤", status: "pending" },
+  { id: "compose",  index: 6, label: "画面对齐", labelEn: "Sync",            icon: "🔀", status: "pending" },
+  { id: "export",   index: 7, label: "导出",     labelEn: "Export",          icon: "📤", status: "pending" },
 ];
-
-// ── 向后兼容 StepFlow 导出 ──────────────────────
-export interface StepFlowStep {
-  id: string;
-  label: string;
-  icon: string;
-  status: StepStatus;
-}
-
-export interface StepFlowProps {
-  steps: StepFlowStep[];
-  activeIndex?: number;
-  onStepClick?: (stepId: string) => void;
-}
-
-export function StepFlow({ steps, activeIndex = -1, onStepClick }: StepFlowProps) {
-  const convertedSteps: PipelineStep[] = steps.map((s, idx) => ({
-    id: s.id,
-    index: idx + 1,
-    label: s.label,
-    labelEn: `Step ${idx + 1}`,
-    icon: s.icon,
-    status: s.status,
-  }));
-
-  const activeStepId = activeIndex >= 0 && activeIndex < steps.length ? (steps[activeIndex]?.id ?? null) : null;
-
-  return (
-    <PipelineFlow
-      steps={convertedSteps}
-      activeStepId={activeStepId}
-      onStepClick={(step) => onStepClick?.(step.id)}
-    />
-  );
-}
-

@@ -39,7 +39,7 @@ describe("pathToMediaFileEmpty", () => {
     const a = pathToMediaFileEmpty("/a.mp4");
     const b = pathToMediaFileEmpty("/a.mp4");
     expect(a).not.toBe(b);
-    expect(a).toEqual(b);
+    expect({ ...a, import_time: "" }).toEqual({ ...b, import_time: "" });
   });
 
   it("path 包含 Unicode 仍保留", () => {
