@@ -4,7 +4,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PipelineFlow, DEFAULT_PIPELINE_STEPS, type PipelineStep } from "@components/common/StepFlow";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { Step1IntakePanel } from "@components/production/Step1IntakePanel";
@@ -41,10 +41,19 @@ function ProductionPage() {
   const [activeStepId, setActiveStepId] = useState<string>("intake");
   const [showImport, setShowImport] = useState(false);
 
-  const currentProject =
-    (qc.getQueryData(["current-project"]) as ProjectRecord | undefined) ?? null;
+  const storeProject = useProjectStore((s) => s.current);
+  const storePath = useProjectStore((s) => s.currentPath);
 
-  // 自动恢复最近的项目，防止页面刷新或直接切路由导致项目视频丢失
+  const cachedRecord = qc.getQueryData<ProjectRecord>(["current-project"]);
+
+  const currentProject: ProjectRecord | null = useMemo(() => {
+    if (storeProject && storePath) {
+      return { path: storePath, project: storeProject };
+    }
+    return cachedRecord ?? null;
+  }, [storeProject, storePath, cachedRecord]);
+
+  // 仅在完全没有活跃项目时，自动加载最靠前的历史工程
   useEffect(() => {
     if (!currentProject) {
       void projectIpc.listRecent().then(async (recents) => {

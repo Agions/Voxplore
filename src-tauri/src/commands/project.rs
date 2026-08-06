@@ -82,11 +82,20 @@ pub async fn project_save(path: String, project: Project) -> Result<(), String> 
     write_project(&p, &project).await.map_err(|e| e.to_string())
 }
 
-/// 删除指定路径的 Project 文件
+/// 删除指定路径的 Project 文件，并同步从最近工程列表中注销
 #[tauri::command]
-pub async fn project_delete(path: String) -> Result<(), String> {
+pub async fn project_delete(
+    state: State<'_, AppContext>,
+    path: String,
+) -> Result<(), String> {
     let p = PathBuf::from(&path);
-    tokio::fs::remove_file(&p).await.map_err(|e| e.to_string())
+    if p.exists() {
+        let _ = tokio::fs::remove_file(&p).await;
+    }
+    if let Ok(svc) = state.service::<ProjectService>().await {
+        svc.remove_recent(&p).await;
+    }
+    Ok(())
 }
 
 /// 给现有 Project 追加一个素材 (前端素材页拖拽后调用)

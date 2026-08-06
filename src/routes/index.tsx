@@ -132,7 +132,11 @@ function RecentProjectsSection() {
           {recentPaths.slice(0, 3).map((realPath) => {
             const displayTitle = realPath.split(/[/\\]/).pop() || realPath;
 
-            const handleOpenProject = async () => {
+            const handleOpenProject = async (e?: React.MouseEvent) => {
+              if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
               try {
                 const rec = await projectIpc.load(realPath);
                 setCurrentRecord(rec.path, rec.project);
@@ -140,8 +144,8 @@ function RecentProjectsSection() {
                 qc.setQueryData(["assets-current-project"], rec.project);
                 toast.success(locale === "en-US" ? `Opened project ${rec.project.name}` : `已打开解说工程 ${rec.project.name}`);
                 void navigate({ to: "/production" });
-              } catch (e) {
-                toast.error("加载项目失败", { description: e instanceof Error ? e.message : String(e) });
+              } catch (err) {
+                toast.error("加载项目失败", { description: err instanceof Error ? err.message : String(err) });
               }
             };
 
@@ -174,6 +178,7 @@ function RecentProjectsSection() {
                   </span>
                   <button
                     type="button"
+                    onClick={handleOpenProject}
                     className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
                   >
                     ▶

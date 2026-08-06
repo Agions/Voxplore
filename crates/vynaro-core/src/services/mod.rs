@@ -30,9 +30,11 @@ impl ProjectService {
         Self::default()
     }
 
-    /// 返回最近项目列表 (M2 占位,后续 M3 会从 ConfigService 读取 + 自动刷新)
+    /// 返回最近项目列表 (自动过滤已从磁盘删除的文件)
     pub async fn recent_projects(&self) -> Vec<PathBuf> {
-        self.recent.lock().await.clone()
+        let mut list = self.recent.lock().await;
+        list.retain(|p| p.exists());
+        list.clone()
     }
 
     pub async fn push_recent(&self, path: PathBuf) {
@@ -40,6 +42,11 @@ impl ProjectService {
         list.retain(|p| p != &path);
         list.insert(0, path);
         list.truncate(20); // 最多保存 20 条
+    }
+
+    pub async fn remove_recent(&self, path: &PathBuf) {
+        let mut list = self.recent.lock().await;
+        list.retain(|p| p != path);
     }
 }
 
