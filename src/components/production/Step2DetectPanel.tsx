@@ -80,7 +80,7 @@ export function Step2DetectPanel({ onNext }: Step2DetectPanelProps) {
     <div
       style={{
         background: "var(--color-surface)",
-        border: "1px solid #2A2A2F",
+        border: "1px solid var(--color-border)",
         borderRadius: "14px",
         padding: "24px",
         display: "flex",
@@ -163,7 +163,7 @@ export function Step2DetectPanel({ onNext }: Step2DetectPanelProps) {
               key={scene.id}
               style={{
                 background: "var(--color-bg)",
-                border: "1px solid #2A2A2F",
+                border: "1px solid var(--color-border)",
                 borderRadius: "10px",
                 padding: "12px 16px",
                 display: "flex",
@@ -195,7 +195,7 @@ export function Step2DetectPanel({ onNext }: Step2DetectPanelProps) {
               <span
                 style={{
                   background: "var(--color-surface)",
-                  border: "1px solid #2A2A2F",
+                  border: "1px solid var(--color-border)",
                   borderRadius: "6px",
                   padding: "2px 10px",
                   fontSize: "11px",
@@ -212,7 +212,7 @@ export function Step2DetectPanel({ onNext }: Step2DetectPanelProps) {
         <div
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "10px",
             padding: "16px",
             display: "flex",
@@ -254,7 +254,7 @@ export function Step2DetectPanel({ onNext }: Step2DetectPanelProps) {
             style={{
               marginTop: "auto",
               background: "var(--color-surface)",
-              border: "1px solid #2A2A2F",
+              border: "1px solid var(--color-border)",
               color: "var(--color-text-primary)",
               borderRadius: "8px",
               padding: "10px",

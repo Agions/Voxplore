@@ -83,7 +83,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
     <div
       style={{
         background: "var(--color-surface)",
-        border: "1px solid #2A2A2F",
+        border: "1px solid var(--color-border)",
         borderRadius: "14px",
         padding: "24px",
         display: "flex",
@@ -144,7 +144,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
           placeholder="输入剧本核心梗概、情感走向或主角特点..."
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "8px",
             padding: "10px 14px",
             fontSize: "14px",
@@ -159,7 +159,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
         <div
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "12px",
             padding: "20px",
             display: "flex",
@@ -192,7 +192,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
         <div
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "12px",
             padding: "20px",
             display: "flex",
@@ -211,7 +211,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
               style={{
                 width: "100%",
                 background: "var(--color-surface)",
-                border: "1px solid #2A2A2F",
+                border: "1px solid var(--color-border)",
                 color: "var(--color-text-primary)",
                 padding: "8px 12px",
                 borderRadius: "8px",
@@ -246,7 +246,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
                     padding: "8px",
                     borderRadius: "6px",
                     fontSize: "12px",
-                    border: styleTab === tab.id ? "1px solid #F5C842" : "1px solid #2A2A2F",
+                    border: styleTab === tab.id ? "1px solid #F5C842" : "1px solid var(--color-border)",
                     background: styleTab === tab.id ? "rgba(245,200,66,0.1)" : "var(--color-surface)",
                     color: styleTab === tab.id ? "var(--color-gold)" : "var(--color-text-secondary)",
                     cursor: "pointer",
@@ -287,7 +287,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
               style={{
                 width: "100%",
                 background: "var(--color-surface)",
-                border: "1px solid #2A2A2F",
+                border: "1px solid var(--color-border)",
                 color: "var(--color-text-primary)",
                 padding: "8px 12px",
                 borderRadius: "8px",
@@ -304,7 +304,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
           display: "flex",
           justifyContent: "flex-end",
           gap: "12px",
-          borderTop: "1px solid #2A2A2F",
+          borderTop: "1px solid var(--color-border)",
           paddingTop: "16px",
         }}
       >

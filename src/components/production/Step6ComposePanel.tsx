@@ -47,7 +47,7 @@ export function Step6ComposePanel({ onNext }: Step6ComposePanelProps) {
     <div
       style={{
         background: "var(--color-surface)",
-        border: "1px solid #2A2A2F",
+        border: "1px solid var(--color-border)",
         borderRadius: "14px",
         padding: "24px",
         display: "flex",
@@ -89,7 +89,7 @@ export function Step6ComposePanel({ onNext }: Step6ComposePanelProps) {
         <div
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "10px",
             padding: "20px",
             display: "flex",
@@ -125,7 +125,7 @@ export function Step6ComposePanel({ onNext }: Step6ComposePanelProps) {
         <div
           style={{
             background: "var(--color-bg)",
-            border: "1px solid #2A2A2F",
+            border: "1px solid var(--color-border)",
             borderRadius: "10px",
             padding: "16px",
             display: "flex",
@@ -166,7 +166,7 @@ export function Step6ComposePanel({ onNext }: Step6ComposePanelProps) {
             style={{
               marginTop: "auto",
               background: "var(--color-surface)",
-              border: "1px solid #2A2A2F",
+              border: "1px solid var(--color-border)",
               color: "var(--color-text-primary)",
               borderRadius: "8px",
               padding: "10px",

@@ -34,30 +34,30 @@
   color-scheme: dark;
 }
 
-/* ── 亮色主题 (Light Mode) 无冲突精准变量定义 ─────────────────── */
+/* ── 亮色主题 (Light Mode) 珍珠暖琥珀 ─────────────────── */
 html[data-theme="light"] {
-  --color-bg:              #F4F4F7;   /* 柔和浅灰底色 */
+  --color-bg:              #F8F8FC;   /* 柔和珍珠浅灰底色 */
   --color-surface:         #FFFFFF;   /* 纯白卡片 */
-  --color-surface-elevated:#EAEAEF;   /* 悬浮灰 */
+  --color-surface-elevated:#F0F0F6;   /* 悬浮浅灰 */
   --color-surface-overlay: #FFFFFF;
-  --color-border:          #D1D1D8;   /* 浅灰色边框 */
+  --color-border:          #E2E2E8;   /* 纤细浅灰色边框 */
   --color-border-focus:    rgba(217,119,6,0.5);
 
-  --color-gold:            #D97706;   /* 琥珀金/深琥珀 */
+  --color-gold:            #D97706;   /* 暖琥珀金 */
   --color-gold-hover:      #B45309;
   --color-gold-muted:      rgba(217,119,6,0.12);
-  --color-gold-glow:       rgba(217,119,6,0.2);
+  --color-gold-glow:       rgba(217,119,6,0.25);
 
   --color-amber:           #D97706;
   --color-amber-muted:     rgba(217,119,6,0.12);
 
-  --color-text-primary:    #18181B;   /* 深黑主字 */
-  --color-text-secondary:  #52525B;   /* 深灰副字 */
-  --color-text-muted:      #71717A;
+  --color-text-primary:    #0F172A;   /* 石板深黑主字 */
+  --color-text-secondary:  #475569;   /* 深灰副字 */
+  --color-text-muted:      #94A3B8;   /* 柔和禁用字 */
   --color-text-inverse:    #FFFFFF;
 
-  --topbar-bg:             rgba(255,255,255,0.95);
-  --card-shadow:           0 4px 16px rgba(0,0,0,0.06);
+  --topbar-bg:             rgba(255,255,255,0.92);
+  --card-shadow:           0 8px 30px rgba(0,0,0,0.06);
 
   color-scheme: light;
 }

@@ -17,7 +17,7 @@ export function Step1IntakePanel({ mediaCount, onImportClick, onNext }: Step1Int
     <div
       style={{
         background: "var(--color-surface)",
-        border: "1px solid #2A2A2F",
+        border: "1px solid var(--color-border)",
         borderRadius: "14px",
         padding: "24px",
         display: "flex",
@@ -82,7 +82,7 @@ export function Step1IntakePanel({ mediaCount, onImportClick, onNext }: Step1Int
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderTop: "1px solid #2A2A2F",
+          borderTop: "1px solid var(--color-border)",
           paddingTop: "16px",
         }}
       >

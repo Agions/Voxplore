@@ -81,7 +81,7 @@ export function Step7ExportPanel() {
     <div
       style={{
         background: "var(--color-surface)",
-        border: "1px solid #2A2A2F",
+        border: "1px solid var(--color-border)",
         borderRadius: "14px",
         padding: "24px",
         display: "flex",
@@ -180,7 +180,7 @@ export function Step7ExportPanel() {
                   marginTop: "8px",
                   background: isSelected ? "var(--color-gold)" : "var(--color-surface)",
                   color: isSelected ? "var(--color-bg)" : "var(--color-text-primary)",
-                  border: isSelected ? "none" : "1px solid #2A2A2F",
+                  border: isSelected ? "none" : "1px solid var(--color-border)",
                   borderRadius: "8px",
                   padding: "8px",
                   fontSize: "12px",
