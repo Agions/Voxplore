@@ -69,7 +69,7 @@ graph LR
 * 🇺🇸 **OpenAI**: `gpt-5.6-sol`
 * 🇺🇸 **Claude**: `claude-sonnet-5`
 * 🇺🇸 **Gemini**: `gemini-3.6-flash` / `gemini-3.1-pro`
-* 🇨🇳 **Kimi (月之暗面)**: `kimi-k3` / `moonshot-v1`
+* 🇨🇳 **Kimi (月之暗面)**: `kimi-k3`
 * 🇨🇳 **智谱 GLM**: `glm-5.2`
 * 🇨🇳 **豆包 (Doubao)**: `doubao-seed-2-1-pro`
 * 🇨🇳 **腾讯混元 (Hunyuan)**: `hunyuan-pro`
