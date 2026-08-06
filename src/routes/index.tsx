@@ -9,10 +9,12 @@
  */
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { ThumbnailImage } from "@components/common/ThumbnailImage";
+import { useProjectStore } from "@stores/project-store";
+import { toast } from "sonner";
 import {
   appIpc,
   pipelineIpc,
@@ -64,117 +66,111 @@ function WelcomeHeader() {
 
 // ── 2. Recent Video Projects ───────────────────────────────────────
 
-interface SampleProject {
-  id: string;
-  title: string;
-  lastEdited: string;
-  progress: number;
-  thumbnail: string;
-}
-
-const SAMPLE_PROJECTS: SampleProject[] = [
-  {
-    id: "neon-odyssey",
-    title: "赛博霓虹：霓虹史诗解说",
-    lastEdited: "2026-01-15 09:12",
-    progress: 70,
-    thumbnail: "/abs/neon.mp4",
-  },
-  {
-    id: "chronicles-sol",
-    title: "太阳神纪元：高光拆条",
-    lastEdited: "2026-01-15 09:12",
-    progress: 45,
-    thumbnail: "/abs/sol.mp4",
-  },
-  {
-    id: "echoes-tomorrow",
-    title: "明日回响：第一人称叙述",
-    lastEdited: "2026-01-15 09:12",
-    progress: 92,
-    thumbnail: "/abs/echoes.mp4",
-  },
-];
-
 function RecentProjectsSection() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
+
   const { data: recentPaths } = useQuery({
     queryKey: ["home-recent-projects"],
     queryFn: () => projectIpc.listRecent(),
   });
+
+  const createProject = useMutation({
+    mutationFn: projectIpc.createBlank,
+    onSuccess: (rec) => {
+      qc.setQueryData(["current-project"], rec);
+      setCurrentRecord(rec.path, rec.project);
+      void navigate({ to: "/production" });
+      toast.success("新建解说工程已建立");
+    },
+    onError: (e) => {
+      toast.error("创建工程失败", { description: e instanceof Error ? e.message : String(e) });
+    },
+  });
+
+  const hasRecents = recentPaths && recentPaths.length > 0;
 
   return (
     <section className="space-y-3">
       {/* Header with See All */}
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-          最近视频项目
+          最近视频解说工程
         </h2>
-        <button
-          type="button"
-          onClick={() => void navigate({ to: "/assets" })}
-          className="text-xs font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-gold)]"
-        >
-          查看全部 →
-        </button>
+        {hasRecents && (
+          <button
+            type="button"
+            onClick={() => void navigate({ to: "/assets" })}
+            className="text-xs font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-gold)]"
+          >
+            查看资产库 →
+          </button>
+        )}
       </div>
 
-      {/* 3 Grid Project Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {SAMPLE_PROJECTS.map((proj, idx) => {
-          // If real paths exist, use real path for title fallback
-          const realPath = recentPaths?.[idx];
-          const displayTitle = realPath ? realPath.split(/[/\\]/).pop() : proj.title;
+      {!hasRecents ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-2xl mb-3">
+            🎬
+          </div>
+          <h3 className="text-sm font-bold text-[var(--color-text-primary)]">暂无历史解说工程</h3>
+          <p className="text-xs text-[var(--color-text-secondary)] mt-1 mb-4">
+            点击下方按钮快速建立第一个 7 步 AI 短剧/影视解说工程
+          </p>
+          <button
+            type="button"
+            onClick={() => createProject.mutate()}
+            disabled={createProject.isPending}
+            className="btn-primary text-xs px-5 py-2.5 font-bold"
+          >
+            ➕ 新建解说工程
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {recentPaths.slice(0, 3).map((realPath) => {
+            const displayTitle = realPath.split(/[/\\]/).pop() || realPath;
 
-          return (
-            <div
-              key={proj.id}
-              onClick={() => void navigate({ to: "/production" })}
-              className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-gold)]/40 bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
-            >
-              {/* Thumbnail Container */}
-              <div className="relative mb-3.5 h-28 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
-                <ThumbnailImage source={realPath ?? proj.thumbnail} kind="video" width={320} />
-              </div>
-
-              {/* Title & Metadata */}
-              <div className="mb-3 space-y-0.5">
-                <h3 className="truncate text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
-                  {displayTitle}
-                </h3>
-                <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
-                  上次编辑: {proj.lastEdited}
-                </p>
-              </div>
-
-              {/* Progress Bar & Play Button */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex-1 space-y-1">
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-elevated)]">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-amber)] shadow-[0_0_8px_var(--color-gold-glow)] transition-all duration-500"
-                      style={{ width: `${proj.progress}%` }}
-                    />
-                  </div>
+            return (
+              <div
+                key={realPath}
+                onClick={() => void navigate({ to: "/production" })}
+                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
+              >
+                {/* Thumbnail Container */}
+                <div className="relative mb-3.5 h-28 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
+                  <ThumbnailImage source={realPath} kind="video" width={320} />
                 </div>
 
-                <span className="font-mono text-xs font-bold text-[var(--color-text-secondary)] group-hover:text-[var(--color-gold)]">
-                  {proj.progress}%
-                </span>
+                {/* Title & Metadata */}
+                <div className="mb-3 space-y-0.5">
+                  <h3 className="truncate text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+                    {displayTitle}
+                  </h3>
+                  <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
+                    工程文件 · 本地极速处理
+                  </p>
+                </div>
 
-                {/* Golden Round Play Button */}
-                <button
-                  type="button"
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
-                >
-                  ▶
-                </button>
+                {/* Action CTA */}
+                <div className="flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-2.5">
+                  <span className="text-[11px] font-semibold text-[var(--color-gold)]">
+                    进入制作工作台 →
+                  </span>
+                  <button
+                    type="button"
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
+                  >
+                    ▶
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

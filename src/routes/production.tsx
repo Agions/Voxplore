@@ -91,29 +91,61 @@ function ProductionPage() {
 
   const mediaCount = currentProject?.project.media_files?.length ?? 0;
 
+  const handleStepClick = (targetStep: PipelineStep) => {
+    const stepIds = ["intake", "detect", "script", "voice", "subtitle", "compose", "export"];
+    const targetIdx = stepIds.indexOf(targetStep.id);
+    if (targetIdx <= 0) {
+      setActiveStepId(targetStep.id);
+      return;
+    }
+
+    // Guard 1: Step 2+ requires media file in Step 1
+    if (mediaCount === 0) {
+      toast.warning("请先在步骤 1 导入视频素材，再进行后续操作", {
+        description: "点击「📂 导入素材」添加至少一个视频或音频文件",
+      });
+      return;
+    }
+
+    // Guard 2: Sequential step enforcement - check uncompleted prior step
+    const priorSteps = displaySteps.slice(0, targetIdx);
+    const uncompletedStep = priorSteps.find(
+      (s) => s.status !== "done" && s.status !== "active"
+    );
+
+    if (uncompletedStep) {
+      toast.warning(`请先完成步骤 ${uncompletedStep.index} (${uncompletedStep.label})，才能解锁此步骤`, {
+        description: "7 步 AI 叙事流水线需按顺序逐步完成",
+      });
+      return;
+    }
+
+    setActiveStepId(targetStep.id);
+  };
+
   const handleNextStep = () => {
     const stepIds = ["intake", "detect", "script", "voice", "subtitle", "compose", "export"];
     const currIdx = stepIds.indexOf(activeStepId);
     if (currIdx >= 0 && currIdx < stepIds.length - 1 && stepIds[currIdx + 1]) {
-      setActiveStepId(stepIds[currIdx + 1]!);
+      const nextStepId = stepIds[currIdx + 1]!;
+      const targetStep = displaySteps.find((s) => s.id === nextStepId);
+      if (targetStep) {
+        handleStepClick(targetStep);
+      }
     }
   };
 
   return (
     <div className="mx-auto max-w-7xl px-8 py-6 space-y-6 flex flex-col min-h-screen">
-      {/* 1. 页头 (与设计图完全对齐: 工作流水线 ✏️ 与 + 某件功能) */}
+      {/* 1. 页头 */}
       <header className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <h1 className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
-            工作流水线
+            7 步 AI 解说工作流水线
           </h1>
-          <button
-            type="button"
-            className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-gold)] transition"
-            title="重命名工作流"
-          >
-            ✏️
-          </button>
+          <span className="text-xs text-[var(--color-text-muted)] bg-[var(--color-surface-elevated)] border border-[var(--color-border)] px-2.5 py-0.5 rounded-full font-mono">
+            {currentProject ? currentProject.project.name || "当前解说工程" : "未打开工程"}
+          </span>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -125,7 +157,7 @@ function ProductionPage() {
               className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-4 py-2 text-xs font-bold text-zinc-950 shadow-[0_2px_10px_rgba(245,200,66,0.3)] transition hover:brightness-110"
             >
               <span>+</span>
-              <span>某件功能</span>
+              <span>新建解说工程</span>
             </button>
           ) : (
             <div className="flex items-center space-x-2">
@@ -164,11 +196,11 @@ function ProductionPage() {
         </div>
       </header>
 
-      {/* 2. 7 步卡片式流水线组件 (根据原图 100% 重构) */}
+      {/* 2. 7 步卡片式流水线组件 */}
       <PipelineFlow
         steps={displaySteps}
         activeStepId={activeStepId}
-        onStepClick={(step) => setActiveStepId(step.id)}
+        onStepClick={handleStepClick}
       />
 
       {/* 3. 步骤详情展开面板 */}
