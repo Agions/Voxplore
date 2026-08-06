@@ -1,18 +1,14 @@
 /**
  * Vynaro v1.0.0 · 电影调光室左侧导航栏 (完美响应多主题切换)
- *
- * 核心区域结构:
- * 1. 顶部 Vynaro 品牌 V Logo 图标 (带金色发光)
- * 2. 主功能导航 (首页 🏠, AI 7步工作流 🎬, 资产管理 📁) - 严格唯一无重复
- * 3. 底部系统导航 (系统设置 ⚙️, 帮助中心 ❓)
+ * 采用 useNavigate 与 useRouterState 确保点击 100% 页面即时响应与高亮
  */
 
-import { Link } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useSettingsStore } from "@stores/settings-store";
 import { t } from "@lib/i18n";
 
 interface NavItem {
-  to: string;
+  to: "/" | "/production" | "/assets" | "/settings" | "/help";
   key: string;
   icon: string;
   hint: string;
@@ -36,6 +32,9 @@ interface SidebarProps {
 
 export function Sidebar({ currentPath }: SidebarProps) {
   const locale = useSettingsStore((s) => s.locale);
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+  const activePath = routerState.location.pathname || currentPath;
 
   return (
     <aside
@@ -44,8 +43,9 @@ export function Sidebar({ currentPath }: SidebarProps) {
     >
       {/* 1. 顶部 Brand Logo */}
       <div className="flex flex-col items-center space-y-4 w-full">
-        <Link
-          to="/"
+        <button
+          type="button"
+          onClick={() => void navigate({ to: "/" })}
           className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-xl shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-transform duration-300 hover:scale-105"
           title="Vynaro 叙影 AI 视频解说"
         >
@@ -54,25 +54,26 @@ export function Sidebar({ currentPath }: SidebarProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F5C842] opacity-75" />
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F5C842]" />
           </span>
-        </Link>
+        </button>
 
         <div className="h-[1px] w-8 bg-[var(--color-border)]" />
 
-        {/* 2. 主功能导航 (无重复) */}
+        {/* 2. 主功能导航 */}
         <nav className="flex flex-col space-y-1.5 w-full px-2" role="navigation">
           {TOP_NAV_ITEMS.map((item) => {
             const active =
               item.to === "/"
-                ? currentPath === "/"
-                : currentPath === item.to || currentPath.startsWith(item.to + "/");
+                ? activePath === "/"
+                : activePath === item.to || activePath.startsWith(item.to + "/");
 
             return (
-              <Link
+              <button
                 key={item.to}
-                to={item.to}
+                type="button"
+                onClick={() => void navigate({ to: item.to })}
                 title={`${t(item.key, locale)} (${item.hint})`}
                 id={`sidebar-nav-${item.hint.toLowerCase()}`}
-                className={`group relative flex flex-col items-center justify-center rounded-xl py-2.5 px-1 text-decoration-none transition-all duration-200 ${
+                className={`group relative flex flex-col items-center justify-center rounded-xl py-2.5 px-1 cursor-pointer transition-all duration-200 ${
                   active
                     ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)] font-bold"
                     : "border border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:border-[var(--color-border)] hover:text-[var(--color-text-primary)]"
@@ -100,7 +101,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
                 {item.badge && !active && (
                   <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-[var(--color-gold)]" />
                 )}
-              </Link>
+              </button>
             );
           })}
         </nav>
@@ -111,14 +112,15 @@ export function Sidebar({ currentPath }: SidebarProps) {
         <div className="h-[1px] w-8 bg-[var(--color-border)]" />
 
         {BOTTOM_NAV_ITEMS.map((item) => {
-          const active = currentPath.startsWith(item.to);
+          const active = activePath.startsWith(item.to);
           return (
-            <Link
+            <button
               key={item.to}
-              to={item.to}
+              type="button"
+              onClick={() => void navigate({ to: item.to })}
               title={t(item.key, locale)}
               id={`sidebar-nav-${item.hint.toLowerCase()}`}
-              className={`group relative flex flex-col items-center justify-center w-full rounded-xl py-2 px-1 text-decoration-none transition-all duration-200 ${
+              className={`group relative flex flex-col items-center justify-center w-full rounded-xl py-2 px-1 cursor-pointer transition-all duration-200 ${
                 active
                   ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)]"
                   : "border border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
@@ -130,7 +132,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
               <span className="mt-1 text-[10px] text-[var(--color-text-secondary)] font-medium group-hover:text-[var(--color-text-primary)]">
                 {item.hint}
               </span>
-            </Link>
+            </button>
           );
         })}
       </div>
