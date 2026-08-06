@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · useTauriEvent 单测 (M4.5)
+ * Vynaro v1.0.0 · useTauriEvent 单测 (M4.5)
  *
  * 覆盖:
  * - mount 时 listen 被调用,event 名匹配

@@ -1,4 +1,4 @@
-//! Vynaro v2.5.0 · TTS 试听与合成 Tauri 命令
+//! Vynaro v1.0.0 · TTS 试听与合成 Tauri 命令
 
 use std::path::PathBuf;
 use tauri::Manager;

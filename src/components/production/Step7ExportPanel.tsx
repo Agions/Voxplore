@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · Step 7: 多平台导出与剪映草稿详情面板
+ * Vynaro v1.0.0 · Step 7: 多平台导出与剪映草稿详情面板
  * 真实连通 exportIpc.capcutDraft (vynaro-export 剪映草稿工程结构生成器)
  */
 

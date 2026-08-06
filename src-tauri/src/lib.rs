@@ -1,4 +1,4 @@
-// Vynaro v2.5.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
+// Vynaro v1.0.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
 //
 // 业务覆盖:
 //! - app: app_version / app_started_at / app_system_info
@@ -73,7 +73,7 @@ pub fn run() {
         version = %ctx.version,
         debug = ctx.debug,
         services = services_count,
-        "Vynaro v2.5.0 starting"
+        "Vynaro v1.0.0 starting"
     );
 
     tauri::Builder::default()

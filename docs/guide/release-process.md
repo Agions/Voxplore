@@ -1,11 +1,11 @@
 ---
 title: 发布流程
-description: Vynaro v2.5.0 桌面端的 GitHub Releases 发布、签名、CI 集成指引。
+description: Vynaro v1.0.0 桌面端的 GitHub Releases 发布、签名、CI 集成指引。
 ---
 
 # 发布流程
 
-本文档描述 Vynaro v2.5.0 桌面端（Tauri 2 + Rust + React 19）的工程化发布流程，覆盖：
+本文档描述 Vynaro v1.0.0 桌面端（Tauri 2 + Rust + React 19）的工程化发布流程，覆盖：
 
 - 版本号与 `Cargo.toml` / `tauri.conf.json` 同步
 - `tauri build` 三平台产物

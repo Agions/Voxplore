@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · IPC Events 类型化包装
+ * Vynaro v1.0.0 · IPC Events 类型化包装
  *
  * 设计 (README §06 + §07):
  * - 24 个 events 按业务域分组,每个方法返回一个取消订阅函数

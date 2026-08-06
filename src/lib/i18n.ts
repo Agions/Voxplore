@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · 全量双语 (i18n) 字典与翻译函数
+ * Vynaro v1.0.0 · 全量双语 (i18n) 字典与翻译函数
  */
 
 export type Locale = "zh-CN" | "en-US";

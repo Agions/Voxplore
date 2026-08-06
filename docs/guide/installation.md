@@ -1,6 +1,6 @@
 ---
 title: 安装指南
-description: 在 Windows、macOS 和 Linux 上完整安装 Vynaro v2.5.0 桌面应用（Tauri 2 + React 主线）。
+description: 在 Windows、macOS 和 Linux 上完整安装 Vynaro v1.0.0 桌面应用（Tauri 2 + React 主线）。
 ---
 
 # 安装指南

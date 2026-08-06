@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · Tauri Command 类型契约 (单源真相)
+ * Vynaro v1.0.0 · Tauri Command 类型契约 (单源真相)
  *
  * M3+ 由 pnpm `gen:ipc` 自动生成两段:
  *   - "gen-ipc start" 标记: IpcContracts (commands/*.rs 的 #[tauri::command] 函数)

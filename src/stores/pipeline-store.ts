@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · pipeline store (Zustand)
+ * Vynaro v1.0.0 · pipeline store (Zustand)
  *
  * 设计:
  * - state: idle | running | done | failed

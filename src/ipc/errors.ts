@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · VynaroError → 用户可读
+ * Vynaro v1.0.0 · VynaroError → 用户可读
  *
  * 设计 (README §06):
  * - 后端 9 类 VynaroError (Io/Config/Llm/Tts/Ffmpeg/Project/Pipeline/Plugin/Updater/Other)

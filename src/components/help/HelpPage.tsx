@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · HelpPage · 帮助页主体组件 (M4.5)
+ * Vynaro v1.0.0 · HelpPage · 帮助页主体组件 (M4.5)
  *
  * 接入 vynaro-help IPC:
  * - help_topics:分类拉取所有主题(替代旧硬编码 6 张 RESOURCES)

@@ -1,4 +1,4 @@
-//! Vynaro v2.5.0 · AI 脚本生成 Tauri 命令
+//! Vynaro v1.0.0 · AI 脚本生成 Tauri 命令
 
 use vynaro_script::{factory, LlmProviderKind, LlmRequest};
 

@@ -1,4 +1,4 @@
-//! Vynaro v2.5.0 · 智能字幕与 ASS/SRT/VTT 渲染 Tauri 命令
+//! Vynaro v1.0.0 · 智能字幕与 ASS/SRT/VTT 渲染 Tauri 命令
 
 use vynaro_export::{SubtitleFormat, SubtitleItem};
 

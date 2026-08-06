@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · settings store (Zustand)
+ * Vynaro v1.0.0 · settings store (Zustand)
  *
  * 设计:
  * - 仅持久化非敏感设置(主题/语言/默认值)

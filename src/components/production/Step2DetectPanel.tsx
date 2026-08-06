@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · Step 2: 智能拆条详情面板
+ * Vynaro v1.0.0 · Step 2: 智能拆条详情面板
  * 真实连通 detectIpc.scenes (vynaro-detect FFmpeg 镜头切换与关键帧探测)
  */
 

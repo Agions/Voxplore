@@ -4,7 +4,7 @@
     <div class="vynaro-showcase-header">
       <div class="vynaro-gradient-badge">
         <span class="pulse-dot"></span>
-        <span class="badge-text">Vynaro v2.5.0 · Tauri 2.0 + Rust 旗舰版桌面端</span>
+        <span class="badge-text">Vynaro v1.0.0 · Tauri 2.0 + Rust 旗舰版桌面端</span>
       </div>
       <h2 class="vynaro-showcase-title">
         为短剧拆条与影视解说而生的

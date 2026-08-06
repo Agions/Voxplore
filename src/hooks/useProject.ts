@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
+ * Vynaro v1.0.0 · 当前项目 hook (M3 真实接通 Tauri 命令)
  *
  * 后端命令:
  * - open(path)    → projectIpc.load(path)      → ProjectRecord

@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · Step 5: 字幕合成详情面板
+ * Vynaro v1.0.0 · Step 5: 字幕合成详情面板
  * 真实连通 subtitleIpc.generate (vynaro-subtitle VAD 语音断句与 ASS/SRT 渲染)
  */
 

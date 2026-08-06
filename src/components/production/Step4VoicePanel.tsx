@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · Step 4: TTS 配音与人声克隆详情面板
+ * Vynaro v1.0.0 · Step 4: TTS 配音与人声克隆详情面板
  * 修复:
  * - requestAnimationFrame 驱动实时波形动画
  * - Tauri 文件选择器真实选取参考音频 (人声克隆)

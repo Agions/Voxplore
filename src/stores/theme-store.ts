@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · theme store (Zustand)
+ * Vynaro v1.0.0 · theme store (Zustand)
  *
  * 设计:
  * - 单一字段: `theme` (light / dark / system)
