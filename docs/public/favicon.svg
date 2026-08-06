@@ -1,38 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="0 0 32 32"
-     role="img"
-     aria-label="SceneFab">
-  <title>SceneFab</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="bgFav" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#050816"/>
-      <stop offset="100%" stop-color="#0f172a"/>
+    <linearGradient id="favGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="50%" stop-color="#F5C842"/>
+      <stop offset="100%" stop-color="#D97706"/>
     </linearGradient>
-    <linearGradient id="brandFav" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#a855f7"/>
-    </linearGradient>
-    <radialGradient id="coreFav" cx="50%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </radialGradient>
   </defs>
-
-  <!-- 底板 -->
-  <rect width="32" height="32" rx="7" fill="url(#bgFav)"/>
-  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5"
-        fill="none" stroke="url(#brandFav)" stroke-width="0.5" opacity="0.3"/>
-
-  <!-- 外环 (实线, 缩小场景只保留核心) -->
-  <circle cx="16" cy="16" r="11" fill="none"
-          stroke="url(#brandFav)" stroke-width="1" opacity="0.7"/>
-
-  <!-- 中心圆盘 -->
-  <circle cx="16" cy="16" r="7" fill="#050816"/>
-  <circle cx="16" cy="16" r="7" fill="none"
-          stroke="url(#brandFav)" stroke-width="0.6" opacity="0.55"/>
-
-  <!-- Play 三角 (主识别符) -->
-  <path d="M 14 12 L 21 16 L 14 20 Z" fill="url(#coreFav)"/>
+  <rect width="64" height="64" rx="14" fill="#0E0F17"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" fill="none" stroke="#F5C842" stroke-width="1" opacity="0.4"/>
+  <g transform="translate(32 31) scale(0.24)">
+    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#favGold)"/>
+    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#favGold)"/>
+    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="#FFFBEB" stroke-width="6" stroke-linecap="round"/>
+    <g fill="#FDE047">
+      <rect x="-24" y="-12" width="5" height="22" rx="2"/>
+      <rect x="-14" y="-24" width="5" height="36" rx="2"/>
+      <rect x="-4"  y="-34" width="5" height="50" rx="2"/>
+      <rect x="6"   y="-28" width="5" height="42" rx="2"/>
+      <rect x="16"  y="-16" width="5" height="28" rx="2"/>
+    </g>
+  </g>
 </svg>

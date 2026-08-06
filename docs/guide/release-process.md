@@ -63,6 +63,7 @@ pnpm tauri build --target x86_64-unknown-linux-gnu
 
 GitHub Actions（在 `.github/workflows/` 下）建议矩阵：
 
+<v-pre>
 ```yaml
 strategy:
   matrix:
@@ -79,9 +80,10 @@ strategy:
 
 1. `pnpm install --frozen-lockfile`
 2. `pnpm --filter vynaro-desktop build` （前端）
-3. `cargo build --release --target ${{ matrix.target }}` （Rust）
-4. `cargo tauri build --target ${{ matrix.target }}` （打包）
+3. `<v-pre>cargo build --release --target $&#123;&#123; matrix.target }}</v-pre>` （Rust）
+4. `<v-pre>cargo tauri build --target $&#123;&#123; matrix.target }}</v-pre>` （打包）
 5. `actions/upload-artifact@v4` 上传 bundle 目录
+</v-pre>
 
 ## 3. GitHub Releases
 
@@ -185,20 +187,22 @@ GitHub Actions Secrets 配置：
 
 ### 5.1 GitHub Actions 签名示例
 
+<v-pre>
 ```yaml
 - name: Sign macOS bundle
   if: matrix.os == 'macos-latest'
   env:
-    TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-    TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-    APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-    APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-    APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+    TAURI_SIGNING_PRIVATE_KEY: $&#123;&#123; secrets.TAURI_SIGNING_PRIVATE_KEY }}
+    TAURI_SIGNING_PRIVATE_KEY_PASSWORD: $&#123;&#123; secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+    APPLE_CERTIFICATE: $&#123;&#123; secrets.APPLE_CERTIFICATE }}
+    APPLE_CERTIFICATE_PASSWORD: $&#123;&#123; secrets.APPLE_CERTIFICATE_PASSWORD }}
+    APPLE_SIGNING_IDENTITY: $&#123;&#123; secrets.APPLE_SIGNING_IDENTITY }}
   run: |
     cargo install tauri-cli --version "^2.0" --locked
     pnpm tauri build --target universal-apple-darwin
     # 自动触发 .sig 生成
 ```
+</v-pre>
 
 ### 5.2 私钥泄露应急
 

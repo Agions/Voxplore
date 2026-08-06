@@ -1,6 +1,6 @@
 /**
- * SceneFab VitePress theme
- * Dark-tech aesthetic: cyan + violet on deep neutral surfaces.
+ * Vynaro VitePress theme
+ * Dark obsidian cinema aesthetic: amber gold (#F5C842) + neon purple on deep obsidian surfaces.
  */
 
 :root {
@@ -11,44 +11,38 @@
     "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, monospace;
 
   /* ── Light mode ─────────────────────────────────────────── */
-  --sf-brand: #0891b2;
-  --sf-brand-light: #06b6d4;
+  --sf-brand: #d97706;
+  --sf-brand-light: #f5c842;
   --sf-accent: #7c3aed;
   --sf-accent-light: #8b5cf6;
   --sf-surface: #ffffff;
-  --sf-surface-raised: #f8fafc;
-  --sf-border: #e2e8f0;
-  --sf-text: #0f172a;
-  --sf-text-secondary: #64748b;
+  --sf-surface-raised: #f9fafb;
+  --sf-border: #e5e7eb;
+  --sf-text: #111827;
+  --sf-text-secondary: #4b5563;
 
   /* VitePress built-in overrides – light */
-  --vp-c-brand-1: var(--sf-brand);
-  --vp-c-brand-2: #0e7490;
-  --vp-c-brand-3: var(--sf-brand-light);
-  --vp-c-brand-soft: rgba(8, 145, 178, 0.1);
+  --vp-c-brand-1: #d97706;
+  --vp-c-brand-2: #b45309;
+  --vp-c-brand-3: #f5c842;
+  --vp-c-brand-soft: rgba(217, 119, 6, 0.1);
 
   --vp-c-bg: var(--sf-surface);
   --vp-c-bg-soft: var(--sf-surface-raised);
-  --vp-c-bg-alt: #f1f5f9;
+  --vp-c-bg-alt: #f3f4f6;
   --vp-c-bg-elv: var(--sf-surface);
   --vp-c-border: var(--sf-border);
   --vp-c-divider: var(--sf-border);
   --vp-c-text-1: var(--sf-text);
-  --vp-c-text-2: #334155;
+  --vp-c-text-2: #374151;
   --vp-c-text-3: var(--sf-text-secondary);
-  --vp-c-text-4: #94a3b8;
+  --vp-c-text-4: #9ca3af;
 
   --vp-nav-bg-color: rgba(255, 255, 255, 0.92);
   --vp-sidebar-bg-color: var(--sf-surface-raised);
-  --vp-code-block-bg: #f8fafc;
-  --vp-code-bg: rgba(8, 145, 178, 0.08);
-  --vp-code-color: var(--sf-brand);
-
-  --vp-font-family-base:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Microsoft YaHei SC", sans-serif;
-  --vp-font-family-mono:
-    "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, monospace;
+  --vp-code-block-bg: #f9fafb;
+  --vp-code-bg: rgba(217, 119, 6, 0.08);
+  --vp-code-color: #d97706;
 
   --vp-radius-xs: 4px;
   --vp-radius-sm: 6px;
@@ -59,81 +53,80 @@
   --vp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --vp-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 
-  /* legacy aliases used by existing component classes */
   --vp-bg: var(--sf-surface);
   --vp-bg-soft: var(--sf-surface-raised);
-  --vp-bg-alt: #f1f5f9;
+  --vp-bg-alt: #f3f4f6;
   --vp-bg-elevated: var(--sf-surface);
   --vp-border: var(--sf-border);
-  --vp-border-hi: #cbd5e1;
-  --vp-brand: var(--sf-brand);
-  --vp-brand-hi: var(--sf-brand-light);
-  --vp-brand-lo: #0e7490;
-  --vp-brand-soft: rgba(8, 145, 178, 0.1);
+  --vp-border-hi: #d1d5db;
+  --vp-brand: #d97706;
+  --vp-brand-hi: #f5c842;
+  --vp-brand-lo: #b45309;
+  --vp-brand-soft: rgba(217, 119, 6, 0.1);
   --vp-accent: var(--sf-accent);
   --vp-accent-soft: rgba(124, 58, 237, 0.1);
   --vp-success: #10b981;
   --vp-warning: #f59e0b;
   --vp-danger: #ef4444;
   --vp-text-1: var(--sf-text);
-  --vp-text-2: #334155;
+  --vp-text-2: #374151;
   --vp-text-3: var(--sf-text-secondary);
-  --vp-text-4: #94a3b8;
+  --vp-text-4: #9ca3af;
 }
 
-/* ── Dark mode ──────────────────────────────────────────── */
+/* ── Dark mode (Vynaro Amber Gold Obsidian Cinema) ───────────────────────── */
 .dark {
-  --sf-brand: #22d3ee;
-  --sf-brand-light: #67e8f9;
+  --sf-brand: #f5c842;
+  --sf-brand-light: #fde047;
   --sf-accent: #a78bfa;
   --sf-accent-light: #c4b5fd;
-  --sf-surface: #0a0a0a;
-  --sf-surface-raised: #111111;
-  --sf-border: #222222;
-  --sf-text: #e5e5e5;
-  --sf-text-secondary: #a0a0a0;
+  --sf-surface: #0b0c10;
+  --sf-surface-raised: #12131a;
+  --sf-border: #242634;
+  --sf-text: #f3f4f6;
+  --sf-text-secondary: #9ca3af;
 
-  --vp-c-brand-1: var(--sf-brand);
-  --vp-c-brand-2: #67e8f9;
-  --vp-c-brand-3: #0891b2;
-  --vp-c-brand-soft: rgba(34, 211, 238, 0.12);
+  --vp-c-brand-1: #f5c842;
+  --vp-c-brand-2: #fde047;
+  --vp-c-brand-3: #d97706;
+  --vp-c-brand-soft: rgba(245, 200, 66, 0.14);
 
   --vp-c-bg: var(--sf-surface);
   --vp-c-bg-soft: var(--sf-surface-raised);
-  --vp-c-bg-alt: #161616;
-  --vp-c-bg-elv: #111111;
+  --vp-c-bg-alt: #161722;
+  --vp-c-bg-elv: #12131a;
   --vp-c-border: var(--sf-border);
-  --vp-c-divider: #1a1a1a;
+  --vp-c-divider: #1f212e;
   --vp-c-text-1: var(--sf-text);
-  --vp-c-text-2: #d4d4d4;
+  --vp-c-text-2: #e5e7eb;
   --vp-c-text-3: var(--sf-text-secondary);
-  --vp-c-text-4: #737373;
+  --vp-c-text-4: #6b7280;
 
-  --vp-nav-bg-color: rgba(10, 10, 10, 0.92);
-  --vp-sidebar-bg-color: #0e0e0e;
-  --vp-code-block-bg: #161616;
-  --vp-code-bg: rgba(34, 211, 238, 0.08);
-  --vp-code-color: var(--sf-brand);
+  --vp-nav-bg-color: rgba(11, 12, 16, 0.92);
+  --vp-sidebar-bg-color: #0e0f15;
+  --vp-code-block-bg: #151620;
+  --vp-code-bg: rgba(245, 200, 66, 0.1);
+  --vp-code-color: #f5c842;
 
   --vp-bg: var(--sf-surface);
   --vp-bg-soft: var(--sf-surface-raised);
-  --vp-bg-alt: #161616;
-  --vp-bg-elevated: #111111;
+  --vp-bg-alt: #161722;
+  --vp-bg-elevated: #12131a;
   --vp-border: var(--sf-border);
-  --vp-border-hi: #333333;
-  --vp-brand: var(--sf-brand);
-  --vp-brand-hi: var(--sf-brand-light);
-  --vp-brand-lo: #0891b2;
-  --vp-brand-soft: rgba(34, 211, 238, 0.12);
+  --vp-border-hi: #373a4d;
+  --vp-brand: #f5c842;
+  --vp-brand-hi: #fde047;
+  --vp-brand-lo: #d97706;
+  --vp-brand-soft: rgba(245, 200, 66, 0.14);
   --vp-accent: var(--sf-accent);
-  --vp-accent-soft: rgba(167, 139, 250, 0.12);
+  --vp-accent-soft: rgba(167, 139, 250, 0.14);
   --vp-success: #34d399;
-  --vp-warning: #fbbf24;
+  --vp-warning: #f5c842;
   --vp-danger: #f87171;
   --vp-text-1: var(--sf-text);
-  --vp-text-2: #d4d4d4;
+  --vp-text-2: #e5e7eb;
   --vp-text-3: var(--sf-text-secondary);
-  --vp-text-4: #737373;
+  --vp-text-4: #6b7280;
 }
 
 /* ── Base resets ──────────────────────────────────────────── */
@@ -1167,3 +1160,195 @@ a:hover {
     animation: none;
   }
 }
+
+/* ════════════════ Vynaro Custom UI Components ════════════════ */
+.vynaro-hero-showcase {
+  margin: 32px 0 56px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.vynaro-mockup-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1120px;
+}
+
+.vynaro-mockup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: rgba(245, 200, 66, 0.12);
+  border: 1px solid rgba(245, 200, 66, 0.3);
+  color: #f5c842;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.vynaro-mockup-frame {
+  background: #12131a;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 200, 66, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(245, 200, 66, 0.15);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vynaro-mockup-frame:hover {
+  border-color: rgba(245, 200, 66, 0.45);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(245, 200, 66, 0.25);
+}
+
+.vynaro-frame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #0b0c10;
+  border-bottom: 1px solid #1f212e;
+}
+
+.vynaro-window-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.vynaro-window-controls .dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.vynaro-window-controls .dot.red { background: #ef4444; }
+.vynaro-window-controls .dot.yellow { background: #f59e0b; }
+.vynaro-window-controls .dot.green { background: #10b981; }
+
+.vynaro-window-title {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.vynaro-window-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(245, 200, 66, 0.15);
+  color: #f5c842;
+  font-family: var(--vp-font-family-mono);
+}
+
+.vynaro-mockup-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 7 步卡片流水线 Grid */
+.vynaro-pipeline-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.vynaro-pipeline-card {
+  background: rgba(18, 19, 26, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.25s ease;
+}
+
+.vynaro-pipeline-card:hover {
+  border-color: rgba(245, 200, 66, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 200, 66, 0.1);
+}
+
+.vynaro-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.vynaro-step-icon {
+  font-size: 24px;
+}
+
+.vynaro-step-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f5c842;
+  background: rgba(245, 200, 66, 0.12);
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 200, 66, 0.25);
+  font-family: var(--vp-font-family-mono);
+}
+
+.vynaro-step-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vp-c-text-1);
+  margin-bottom: 6px;
+}
+
+.vynaro-step-desc {
+  font-size: 13px;
+  color: var(--vp-c-text-3);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 2列功能视窗卡片 */
+.vynaro-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .vynaro-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vynaro-submockup-card {
+  background: #12131a;
+  border: 1px solid #242634;
+  border-radius: 12px;
+  padding: 16px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.vynaro-submockup-card:hover {
+  border-color: rgba(245, 200, 66, 0.35);
+}
+
+.vynaro-submockup-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5c842;
+  margin-bottom: 12px;
+}
+
+.vynaro-submockup-img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #1f212e;
+  margin-bottom: 12px;
+}
+
+.vynaro-submockup-text {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0;
+}
+

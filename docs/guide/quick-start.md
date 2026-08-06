@@ -1,74 +1,90 @@
 ---
 title: 快速开始
-description: 3 步上手 Vynaro，开始 AI 影视解说创作。
+description: 3 步上手 Vynaro 桌面端，10分钟完成第一次 AI 视频解说创作。
 ---
 
-# 快速开始
+# 🚀 快速开始
 
-3 步完成安装、配置和首次运行。
+只要 3 步，即可完成 **Vynaro 桌面端** 的安装、大模型 API 密钥配置与环境准备，开启自动化的短剧解说与视频剪辑流程。
 
-## 第一步：安装
+![Vynaro 主工作台预览](/assets/mockups/hero-app-main.jpg)
 
-从 [GitHub Releases](https://github.com/Agions/vynaro/releases) 下载对应平台的安装包：
+---
 
-| 平台    | 安装包                                                  |
-| ------- | ------------------------------------------------------- |
-| Windows | `.msi` 或 `.exe`                                        |
-| macOS   | `.dmg`（首次打开需在「系统设置 → 隐私与安全性」中允许） |
-| Linux   | `.AppImage` 或 `.deb`                                   |
+## 📦 第一步：下载与安装桌面端
 
-安装完成后从开始菜单 / 启动台打开 **Vynaro**。
+从 [GitHub Releases](https://github.com/Agions/vynaro/releases) 下载适合您操作系统的预编译安装包：
 
-> 从源码运行开发版请见 [安装指南](/guide/installation)。
+| 操作系统 | 安装包格式 | 安装与安装后权限说明 |
+| :--- | :--- | :--- |
+| **Windows** | `.msi` / `.exe` | 双击运行安装向导，自动关联 `.draft` 导出协议 |
+| **macOS** | `.dmg` | 拖拽至 `Applications`。首次启动如提示开发者未验证，请前往「系统设置 → 隐私与安全性 → 仍要打开」 |
+| **Linux** | `.AppImage` / `.deb` | 赋予可执行权限 `chmod +x` 后直接运行 |
 
-## 第二步：配置 AI 服务
+> 💡 如果您是开发者并希望从源码构建，请参考 [安装指南](/guide/installation)。
 
-打开应用内 **设置** 页面，填入至少一个 AI 服务商的 API Key：
+---
 
-1. **Provider**：选择解说稿生成所使用的服务商（如 Kimi / DeepSeek / Qwen）
-2. **API Key**：粘贴你的密钥
-3. **Model**（可选）：默认使用所选 Provider 的推荐模型
+## 🗝️ 第二步：配置 LLM 与 TTS 秘钥
 
-API Key 获取方式：
+启动 Vynaro，点击左侧导航栏的 **⚙️ 设置 (Settings) → AI 配置**，输入至少一个 AI 大模型与 TTS 服务的 API Key：
 
-- **Kimi (月之暗面)** — [platform.moonshot.cn](https://platform.moonshot.cn)
-- **DeepSeek** — [platform.deepseek.com](https://platform.deepseek.com)
-- **Qwen (阿里云百炼)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+![AI 独白脚本生成与 API 选择](/assets/mockups/ai-script-generator.jpg)
 
-所有配置仅保存在本地，绝不外传。完整的多服务商配置说明见 [AI 配置](/guide/ai-configuration)。
+1. **LLM 供应商**：支持通义千问 (Qwen)、DeepSeek R1、GPT-4o、Claude 3.5、Kimi 等 11 大服务商。
+2. **API Key**：粘贴您的 API 秘钥（秘钥通过 macOS Keychain / Windows Credential Manager 安全加密存储在本地）。
+3. **测试连接**：点击「连通性测试」按钮，确认 API Key 响应正常。
 
-## 第三步：确认 FFmpeg 可用
+### 常用 LLM 秘钥获取地址
 
-Vynaro 依赖系统级 FFmpeg 进行视频合成：
+* 🇨🇳 **DeepSeek** — [platform.deepseek.com](https://platform.deepseek.com)
+* 🇨🇳 **通义千问 (Aliyun Bailian)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+* 🇺🇸 **OpenAI / GPT-4o** — [platform.openai.com](https://platform.openai.com)
+* 🇨🇳 **Kimi (月之暗面)** — [platform.moonshot.cn](https://platform.moonshot.cn)
+
+---
+
+## 🎞️ 第三步：确认本地 FFmpeg 探针可用
+
+Vynaro 核心底层使用 FFmpeg 进行场景切片、情绪检测与音画混流。桌面端内置探针，也可识别系统级 FFmpeg：
 
 ```bash
+# 在终端中验证 FFmpeg 版本：
 ffmpeg -version
-# 应输出：ffmpeg version 6.x 或更高 ...
+# 输出应当包含: ffmpeg version 6.0 或更高的版本信息
 ```
 
-如果未安装：
+若您的系统尚未安装 FFmpeg：
+* **macOS**：`brew install ffmpeg`
+* **Windows**：`winget install ffmpeg` 或下载后添加到 PATH 环境变量
+* **Linux**：`sudo apt update && sudo apt install ffmpeg`
 
-- **macOS**：`brew install ffmpeg`
-- **Ubuntu/Debian**：`sudo apt install ffmpeg`
-- **Windows**：`winget install ffmpeg` 或从 [ffmpeg.org](https://ffmpeg.org) 下载并加入 PATH
+---
 
-## 验证成功
+## 🎬 创作您的第一条 AI 视频解说
 
-- 应用正常启动，进入项目首页
-- 设置页面中 Provider 显示为已选择的服务商
-- `ffmpeg -version` 输出正常
+环境准备就绪后，按照 7 步流水线开启创作：
 
-## 常见卡点
+1. **📥 素材导入**：点击「新建项目」，导入一段短剧或电影视频片段 (`.mp4` / `.mov`)。
+2. **✂️ 智能拆条**：点击「扫描场景切片」，AI 将根据镜头突变与情绪峰值自动打点。
+3. **🤖 脚本生成**：选择角色语气（如【悬疑解说】或【吐槽风】），一键生成第一人称 Hook 与主体独白。
+4. **🎙️ 配音与对齐**：选择 Edge-TTS 音色或零样本克隆，自动对齐 SRT 字幕（偏差 < 50ms）。
+5. **📤 草稿导出**：点击「导出」，原生生成剪映工程草稿 (`.draft`) 或 9:16 竖屏 1080P 成片！
 
-| 问题                       | 解决                               |
-| -------------------------- | ---------------------------------- |
-| macOS 提示"无法验证开发者" | 系统设置 → 隐私与安全性 → 仍要打开 |
-| `ffmpeg not found`         | 安装 FFmpeg 后重启应用             |
-| API Key 无效（401）        | 检查 Key 是否复制完整，无多余空格  |
-| 调用限流（429）            | 稍后重试或切换其他 Provider        |
+---
 
-## 下一步
+## ❓ 常见问题快速排查
 
-- [安装指南](/guide/installation) — 各平台完整安装与源码构建步骤
-- [AI 配置](/guide/ai-configuration) — 多服务商配置详解
-- [界面介绍](/guide/interface) — 了解桌面界面
+| 现象 / 报错 | 常见原因 | 解决方法 |
+| :--- | :--- | :--- |
+| **API Key 报 401 Unauthorized** | 秘钥复制不完整或包含首尾空格 | 重新从服务商控制台复制并点击「连通性测试」 |
+| **拆条提示 `FFmpeg executable missing`** | 系统 PATH 未找到 ffmpeg 可执行文件 | 按照第三步安装 FFmpeg 并重启 Vynaro |
+| **TTS 生成极慢或超时** | 网络波动或代理设置影响 | 在设置中开启【Edge-TTS 备用节点】或使用本地克隆 |
+
+---
+
+## 📖 下一步推荐
+
+* 了解界面控制：查看 [界面与功能指南](/guide/interface)
+* 了解第一人称创作 SOP：查看 [第一人称生产规范](/guide/narration-spec)
+* 了解剪映草稿导出：查看 [导出与发布](/guide/exporting)
