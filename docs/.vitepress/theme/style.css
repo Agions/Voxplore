@@ -5,7 +5,7 @@
 
 :root {
   --vp-font-family-base:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Microsoft YaHei SC", sans-serif;
   --vp-font-family-mono:
     "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, monospace;
@@ -74,15 +74,15 @@
   --vp-text-4: #9ca3af;
 }
 
-/* ── Dark mode (Vynaro Amber Gold Obsidian Cinema) ───────────────────────── */
+/* ── Dark mode (Linear / Raycast Obsidian Theme #05060A) ──────────────── */
 .dark {
   --sf-brand: #f5c842;
   --sf-brand-light: #fde047;
   --sf-accent: #a78bfa;
   --sf-accent-light: #c4b5fd;
-  --sf-surface: #0b0c10;
-  --sf-surface-raised: #12131a;
-  --sf-border: #242634;
+  --sf-surface: #05060a;
+  --sf-surface-raised: #0a0c13;
+  --sf-border: #1a1d2b;
   --sf-text: #f3f4f6;
   --sf-text-secondary: #9ca3af;
 
@@ -91,29 +91,29 @@
   --vp-c-brand-3: #d97706;
   --vp-c-brand-soft: rgba(245, 200, 66, 0.14);
 
-  --vp-c-bg: var(--sf-surface);
-  --vp-c-bg-soft: var(--sf-surface-raised);
-  --vp-c-bg-alt: #161722;
-  --vp-c-bg-elv: #12131a;
-  --vp-c-border: var(--sf-border);
-  --vp-c-divider: #1f212e;
+  --vp-c-bg: #05060a;
+  --vp-c-bg-soft: #0a0c13;
+  --vp-c-bg-alt: #0e101a;
+  --vp-c-bg-elv: #121422;
+  --vp-c-border: #1a1d2b;
+  --vp-c-divider: #151724;
   --vp-c-text-1: var(--sf-text);
   --vp-c-text-2: #e5e7eb;
   --vp-c-text-3: var(--sf-text-secondary);
   --vp-c-text-4: #6b7280;
 
-  --vp-nav-bg-color: rgba(11, 12, 16, 0.92);
-  --vp-sidebar-bg-color: #0e0f15;
-  --vp-code-block-bg: #151620;
+  --vp-nav-bg-color: rgba(5, 6, 10, 0.88);
+  --vp-sidebar-bg-color: #07080d;
+  --vp-code-block-bg: #0b0d14;
   --vp-code-bg: rgba(245, 200, 66, 0.1);
   --vp-code-color: #f5c842;
 
-  --vp-bg: var(--sf-surface);
-  --vp-bg-soft: var(--sf-surface-raised);
-  --vp-bg-alt: #161722;
-  --vp-bg-elevated: #12131a;
-  --vp-border: var(--sf-border);
-  --vp-border-hi: #373a4d;
+  --vp-bg: #05060a;
+  --vp-bg-soft: #0a0c13;
+  --vp-bg-alt: #0e101a;
+  --vp-bg-elevated: #121422;
+  --vp-border: #1a1d2b;
+  --vp-border-hi: #282c40;
   --vp-brand: #f5c842;
   --vp-brand-hi: #fde047;
   --vp-brand-lo: #d97706;

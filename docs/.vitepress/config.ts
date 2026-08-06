@@ -42,6 +42,17 @@ export default defineConfig({
   lastUpdated: true,
 
   head: [
+    // Google Fonts: Outfit, Inter, JetBrains Mono
+    ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
+    ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
+    [
+      "link",
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800;900&display=swap",
+      },
+    ],
+
     // Favicon (新品牌: SVG 主, PNG 备)
     ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     [
