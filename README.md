@@ -21,17 +21,17 @@
 
 ---
 
-## 🖥️ 真实高保真桌面界面展示
+## 🖥️ 桌面应用界面展示
 
 <div align="center">
 
 | 首页 Dashboard 概览 | 素材资产管理面板 |
 | :---: | :---: |
-| <img src="assets/vynaro_dashboard_cover.png" width="460" alt="Vynaro 首页 Dashboard 真实高保真截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_assets_cover.png" width="460" alt="Vynaro 素材资产管理真实高保真截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
+| <img src="assets/vynaro_dashboard_cover.png" width="460" alt="Vynaro 首页 Dashboard 界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_assets_cover.png" width="460" alt="Vynaro 素材资产管理界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
 
 | 7 步全自动解说生产工作区 | 11 大模型与 TTS 设置表单 |
 | :---: | :---: |
-| <img src="assets/vynaro_production_cover.png" width="460" alt="Vynaro 7 步解说生产工作区真实高保真截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_settings_cover.png" width="460" alt="Vynaro 模型设置表单真实高保真截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
+| <img src="assets/vynaro_production_cover.png" width="460" alt="Vynaro 7 步解说生产工作区界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_settings_cover.png" width="460" alt="Vynaro 模型设置表单界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
 
 </div>
 

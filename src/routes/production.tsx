@@ -110,13 +110,13 @@ function ProductionPage() {
       {/* 页头导航信息 */}
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", color: "#F5C842", marginBottom: "4px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--color-gold)", marginBottom: "4px" }}>
             Vynaro Pipeline
           </div>
-          <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#F0EDE8", margin: "0 0 6px" }}>
+          <h1 style={{ fontSize: "26px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 6px" }}>
             第一人称解说创作流水线
           </h1>
-          <p style={{ fontSize: "13px", color: "#8A8680", margin: 0 }}>
+          <p style={{ fontSize: "13px", color: "var(--color-text-secondary)", margin: 0 }}>
             素材导入 → 智能拆条 → AI脚本 → TTS配音 → 字幕合成 → 画面对齐 → 平台导出
           </p>
         </div>
