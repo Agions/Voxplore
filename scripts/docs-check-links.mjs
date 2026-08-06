@@ -65,6 +65,7 @@ function resolveLink(href, currentFile) {
     resolved,
     `${resolved}.md`,
     join(resolved, 'index.md'),
+    ...(path.startsWith('/') ? [join(DOCS_DIR, 'public', path)] : []),
   ];
 
   for (const c of candidates) {
