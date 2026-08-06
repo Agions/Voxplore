@@ -40,6 +40,7 @@ function ProductionPage() {
   const pipeline = usePipeline(stepDefs ?? []);
   const [activeStepId, setActiveStepId] = useState<string>("intake");
   const [showImport, setShowImport] = useState(false);
+  const [pageNotice, setPageNotice] = useState<string | null>(null);
 
   const storeProject = useProjectStore((s) => s.current);
   const storePath = useProjectStore((s) => s.currentPath);
@@ -77,7 +78,9 @@ function ProductionPage() {
       qc.setQueryData(["current-project"], rec);
       setCurrentRecord(rec.path, rec.project);
       setShowImport(true);
-      toast.success("解说工程已建立，请在弹窗中选取视频素材文件夹");
+      const msg = "解说工程已建立，请在弹窗中选取视频素材文件夹";
+      setPageNotice(msg);
+      toast.success(msg);
     },
     onError: (e) => {
       toast.error("创建项目失败", { description: e instanceof Error ? e.message : String(e) });
@@ -86,10 +89,12 @@ function ProductionPage() {
 
   const handleStart = useCallback(() => {
     if (!currentProject) return;
+    setPageNotice("全自动 7 步 AI 叙事流水线已启动，正在顺序执行...");
     void pipeline.start(currentProject.project);
   }, [currentProject, pipeline]);
 
   const handleCancel = useCallback(() => {
+    setPageNotice("流水线已终止");
     void pipeline.cancel();
   }, [pipeline]);
 
@@ -123,12 +128,15 @@ function ProductionPage() {
     const targetIdx = stepIds.indexOf(targetStep.id);
     if (targetIdx <= 0) {
       setActiveStepId(targetStep.id);
+      setPageNotice(null);
       return;
     }
 
     // Guard 1: Step 2+ requires media file in Step 1
     if (mediaCount === 0) {
-      toast.warning("请先在步骤 1 导入视频素材，再进行后续操作", {
+      const msg = "请先在步骤 1 导入视频素材，再解锁后续步骤操作";
+      setPageNotice(msg);
+      toast.warning(msg, {
         description: "点击「📂 导入素材」添加至少一个视频或音频文件",
       });
       return;
@@ -141,12 +149,15 @@ function ProductionPage() {
     );
 
     if (uncompletedStep) {
-      toast.warning(`请先完成步骤 ${uncompletedStep.index} (${uncompletedStep.label})，才能解锁此步骤`, {
+      const msg = `请先完成步骤 ${uncompletedStep.index} (${uncompletedStep.label})，才能解锁此步骤`;
+      setPageNotice(msg);
+      toast.warning(msg, {
         description: "7 步 AI 叙事流水线需按顺序逐步完成",
       });
       return;
     }
 
+    setPageNotice(null);
     setActiveStepId(targetStep.id);
   };
 
@@ -229,6 +240,23 @@ function ProductionPage() {
         activeStepId={activeStepId}
         onStepClick={handleStepClick}
       />
+
+      {/* 2.5 常驻页面提示与操作指导看板 */}
+      {pageNotice && (
+        <div className="flex items-center justify-between rounded-2xl border border-[var(--color-gold)] bg-[var(--color-gold-muted)] px-5 py-3 text-xs font-semibold text-[var(--color-gold)] shadow-[0_0_20px_var(--color-gold-glow)] animate-fade-in">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">💡</span>
+            <span>{pageNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPageNotice(null)}
+            className="text-xs font-bold hover:underline opacity-80 hover:opacity-100 cursor-pointer"
+          >
+            ✕ 知道了
+          </button>
+        </div>
+      )}
 
       {/* 3. 步骤详情展开面板 */}
       <main className="flex-1 min-h-[360px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-xl">
