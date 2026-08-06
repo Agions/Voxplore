@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Vynaro horizontal logo light">
+  <title>Vynaro 叙影 - AI 视频解说创作工具</title>
+  <defs>
+    <linearGradient id="hzGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 左侧图形 Emblem -->
+  <g transform="translate(20, 20) scale(0.46875)">
+    <rect width="256" height="256" rx="56" ry="56" fill="#F3F4F6"/>
+    <rect x="2" y="2" width="252" height="252" rx="54" ry="54" fill="none" stroke="#D97706" stroke-width="3" opacity="0.3"/>
+    
+    <g transform="translate(128 126)">
+      <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#hzGoldLight)"/>
+      <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#hzGoldLight)"/>
+      <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="#F5C842" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#D97706">
+        <rect x="-24" y="-12" width="4" height="20" rx="2"/>
+        <rect x="-14" y="-24" width="4" height="34" rx="2"/>
+        <rect x="-4"  y="-34" width="4" height="48" rx="2"/>
+        <rect x="6"   y="-28" width="4" height="40" rx="2"/>
+        <rect x="16"  y="-16" width="4" height="26" rx="2"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- 右侧品牌文本 -->
+  <g transform="translate(160, 42)">
+    <text x="0" y="48" font-family="Inter, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1" fill="#111827">Vynaro</text>
+    <rect x="210" y="14" width="68" height="32" rx="8" fill="#D97706" fill-opacity="0.1" stroke="#D97706" stroke-width="1"/>
+    <text x="244" y="36" font-family="'PingFang SC', sans-serif" font-size="18" font-weight="700" fill="#B45309" text-anchor="middle">叙影</text>
+
+    <text x="2" y="80" font-family="'PingFang SC', sans-serif" font-size="16" font-weight="500" fill="#4B5563" letter-spacing="0.5">AI 第一人称视频解说创作工具 · 7步卡片流水线</text>
+  </g>
+</svg>

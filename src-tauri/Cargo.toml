@@ -1,0 +1,53 @@
+[package]
+name = "vynaro"
+version = "1.0.0"
+description = "Vynaro v1.0.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
+authors = ["Agions"]
+edition = "2021"
+rust-version = "1.85"
+
+[lib]
+name = "vynaro_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1"
+
+# ── Vynaro 工作流 crates ──
+# 基础层
+vynaro-core    = { path = "../crates/vynaro-core" }
+vynaro-domain  = { path = "../crates/vynaro-domain" }
+# Step 1 素材导入
+vynaro-intake  = { path = "../crates/vynaro-intake" }
+# Step 2 智能拆条
+vynaro-detect  = { path = "../crates/vynaro-detect" }
+# Step 3 脚本生成
+vynaro-script  = { path = "../crates/vynaro-script" }
+# Step 4 TTS 配音
+vynaro-voice   = { path = "../crates/vynaro-voice" }
+# Step 5 字幕合成
+vynaro-subtitle = { path = "../crates/vynaro-subtitle" }
+# Step 6 画面对齐
+vynaro-compose = { path = "../crates/vynaro-compose" }
+# Step 7 多平台导出
+vynaro-export  = { path = "../crates/vynaro-export" }
+# 基础设施
+vynaro-storage = { path = "../crates/vynaro-storage" }
+vynaro-update  = { path = "../crates/vynaro-update" }
+vynaro-plugin  = { path = "../crates/vynaro-plugin" }
+
+# workspace lints / profiles 在根 Cargo.toml 集中定义

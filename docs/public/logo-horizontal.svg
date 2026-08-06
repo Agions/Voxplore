@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Vynaro horizontal logo">
+  <title>Vynaro 叙影 - AI 视频解说创作工具</title>
+  <defs>
+    <linearGradient id="hzGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="50%" stop-color="#F5C842"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <linearGradient id="hzTextGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#F5C842"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 左侧图形 Emblem (80x80 缩放居中) -->
+  <g transform="translate(20, 20) scale(0.46875)">
+    <!-- 引用自完整 emblem 架构 -->
+    <rect width="256" height="256" rx="56" ry="56" fill="#12131A"/>
+    <rect x="2" y="2" width="252" height="252" rx="54" ry="54" fill="none" stroke="url(#hzGold)" stroke-width="3" opacity="0.4"/>
+    
+    <g transform="translate(128 126)">
+      <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#hzGold)"/>
+      <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#hzGold)"/>
+      <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="#FFFBEB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#FDE047">
+        <rect x="-24" y="-12" width="4" height="20" rx="2"/>
+        <rect x="-14" y="-24" width="4" height="34" rx="2"/>
+        <rect x="-4"  y="-34" width="4" height="48" rx="2"/>
+        <rect x="6"   y="-28" width="4" height="40" rx="2"/>
+        <rect x="16"  y="-16" width="4" height="26" rx="2"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- 右侧品牌文本: Vynaro (英) + 叙影 (中) + 副标 -->
+  <g transform="translate(160, 42)">
+    <!-- Vynaro 极具科技优雅感的字型 -->
+    <text x="0" y="48" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" letter-spacing="-1" fill="url(#hzTextGold)">Vynaro</text>
+    <!-- 中文 叙影 标签 -->
+    <rect x="210" y="14" width="68" height="32" rx="8" fill="#F5C842" fill-opacity="0.15" stroke="#F5C842" stroke-width="1"/>
+    <text x="244" y="36" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18" font-weight="700" fill="#F5C842" text-anchor="middle">叙影</text>
+
+    <!-- Subtitle 副标题描述 -->
+    <text x="2" y="80" font-family="'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="500" fill="#9CA3AF" letter-spacing="0.5">AI 第一人称视频解说创作工具 · 7步卡片流水线</text>
+  </g>
+</svg>

@@ -1,0 +1,44 @@
+# lychee config for vynaro docs external link checker
+# Used by .github/workflows/docs-external-links.yml
+#
+# The workflow pre-processes markdown via sed to rewrite root-relative
+# links (](/guide/...) -> ](https://internal.invalid/guide/...)) so lychee
+# can parse them as valid URLs without trying to resolve them as filesystem
+# paths. The placeholder host is excluded below so no real HTTP request is
+# made. Internal links are also checked by docs-links.yml.
+#
+# Why these settings:
+#   - exclude internal.invalid: skip sed-rewritten placeholders
+#   - exclude self: avoid checking our own GitHub repo
+#   - accept 4xx: tolerate anti-bot responses (DeepSeek, Cloudflare-walled sites)
+#   - retries: handle transient network failures / rate limits
+#   - 30s timeout: bumped from lychee default 20s for slow CDNs
+
+# Acceptable HTTP status codes (in addition to 2xx/3xx)
+# 4xx = "exists but anti-bot" (DeepSeek platform, Cloudflare-walled sites)
+accept = ["200..299", "300..399", "400..499"]
+
+# Don't check these
+exclude = [
+  "github.com/Agions/vynaro",  # self
+  "internal.invalid",             # workflow sed-rewritten placeholders
+  "mailto:",
+  "^#",                           # pure anchor links
+]
+
+# Retry up to 3 times on transient failures
+max_retries = 3
+
+# Per-request timeout in seconds
+timeout = 30
+
+# Concurrent requests (lychee default is 32; lower for CI politeness)
+max_concurrency = 8
+
+# Don't follow redirects to mailto:/tel:/javascript:
+exclude_link_local = false
+exclude_loopback = true
+
+# Output format
+format = "markdown"
+output = ".lychee/out.md"

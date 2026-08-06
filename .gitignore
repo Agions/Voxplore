@@ -1,0 +1,133 @@
+# ════════════════════════════════════════════════════════════════════════
+# SceneFab v2.5.0 · .gitignore
+# Rust + Tauri 2 + React 工具链产物
+# ════════════════════════════════════════════════════════════════════════
+
+# ── 前端测试/覆盖率 ───────────────────────────────────────────────────
+apps/desktop/coverage/
+
+# ── IDE / 编辑器 ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# ── macOS / Windows / Linux ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── 环境变量 ─────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── 应用运行时 ───────────────────────────────────────────────────────
+*.log
+temp/
+cache/
+output/
+exports/
+outputs/
+
+# ── AI 模型文件（防止大文件误入库）───────────────────────────────────
+*.pt
+*.pth
+*.onnx
+*.h5
+
+# ── 媒体文件（不入库）─────────────────────────────────────────────────
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wav
+*.mp3
+*.flac
+
+# ── 数据库文件 ──────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── 备份文件 ────────────────────────────────────────────────────────
+*.bak
+*.backup
+*.old
+*.rej
+*.patch
+
+# ── Agent / AI 工具 scratch ─────────────────────────────────────────
+.hermes/
+.claude/
+.qoder/
+
+# ── 构建产物（Rust + Tauri + JS）────────────────────────────────────
+target/
+dist/
+build/
+*.dylib
+*.dll
+*.a
+*.lib
+
+# ── Tauri 工具链 ─────────────────────────────────────────────────────
+# Tauri 生成的 schema/permission 文件
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/target/
+# Tauri 运行时临时
+apps/desktop/src-tauri/WixTools/
+# macOS Info.plist 临时
+*.plist
+# 由 Cargo workspace 根 lock 管理
+apps/desktop/src-tauri/Cargo.lock
+
+# ── TypeScript 增量编译缓存（不入库）───────────────────────────────
+*.tsbuildinfo
+apps/desktop/tsconfig.node.tsbuildinfo
+
+# ── Playwright 测试运行产物（不入库）───────────────────────────────
+apps/desktop/test-results/
+apps/desktop/playwright-report/
+
+# ── 包管理产物 ──────────────────────────────────────────────────────
+node_modules/
+*.tar.gz
+# 注意：pnpm-lock.yaml 应该入库 (以保证 CI 安装版本一致)
+!apps/desktop/pnpm-lock.yaml
+
+# ── 运行数据 ────────────────────────────────────────────────────────
+*.pid
+*.seed
+*.pid.lock
+
+# ── 本地开发文档（不入库）───────────────────────────────────────────
+DEVELOPMENT.md
+TODO.md
+SPEC.md
+PLAN.md
+ARCHITECTURE.md
+REFORMATION_REPORT.md
+UPGRADE_PLAN.md
+RESEARCH_*.md
+*.draft.md
+notes/
+research/
+docs/planning/
+docs/dev/
+
+# ── 设计/架构学习记录 ────────────────────────────────────────────────
+.learnings/
+
+# ── 文档构建产物（注意：仅忽略构建产物，源文件需入库）────────────────
+docs/build/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/.temp/
+docs/node_modules/
+docs/package-lock.json
+
+# ── v2.5.0 迁移方案 doc（不入库，仅保留本地工作区设计文档）────────────
+docs/refactor/

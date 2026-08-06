@@ -1,0 +1,24 @@
+{
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD024": {
+      "siblings_only": true
+    },
+    "MD033": false,
+    "MD041": false,
+    "MD045": false,
+    "MD046": false,
+    "MD059": false
+  },
+  "globs": [
+    "docs/**/*.md"
+  ],
+  "ignores": [
+    "docs/.vitepress/**",
+    "docs/public/**",
+    "docs/index.md",
+    "node_modules/**",
+    "**/node_modules/**"
+  ]
+}

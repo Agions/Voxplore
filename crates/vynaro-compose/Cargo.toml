@@ -1,0 +1,38 @@
+[package]
+name = "vynaro-compose"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "7 步流水线状态机 + MonologueMaker"
+
+[dependencies]
+tokio = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+parking_lot = "0.12"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dependencies.vynaro-core]
+path = "../vynaro-core"
+
+[dependencies.vynaro-domain]
+path = "../vynaro-domain"
+
+[dependencies.vynaro-script]
+path = "../vynaro-script"
+
+[dependencies.vynaro-voice]
+path = "../vynaro-voice"
+
+[dependencies.vynaro-detect]
+path = "../vynaro-detect"
+
+[lints]
+workspace = true

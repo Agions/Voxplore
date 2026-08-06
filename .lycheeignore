@@ -1,0 +1,5 @@
+# .lycheeignore — patterns for links to skip during link checking
+# Each line is a regex matched against the link URL.
+# Internal VitePress root-relative links (/guide/...) are handled by docs-links.yml
+^/guide/
+^/$
