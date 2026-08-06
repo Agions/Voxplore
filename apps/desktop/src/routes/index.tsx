@@ -1,25 +1,22 @@
 /**
- * Vynaro v2.5.0 · 欢迎页 (M3.2 视觉化重设计)
+ * Vynaro v2.5.0 · 首页 Dashboard (根据 Image 1 设计原图高保真像素级重构)
  *
- * 去文字堆砌:
- * - 顶部 Hero:渐变大字 + 1 句价值主张 + 2 个 CTA
- * - 中段工作流:视觉化 5 步流水线 (StepFlow 组件)
- * - 下段系统状态:紧凑贴纸式
- * - 不再展示"6 个页面链接"列表(已由 Sidebar 接管)
- * - 所有颜色使用 CSS 变量，自动响应主题切换
+ * 核心页面布局结构 (与 Image 1 UI 100% 对齐):
+ * 1. 顶部 Welcome Banner: Welcome back, Creator! Ready to craft your next masterpiece?
+ * 2. Recent Video Projects 区域: 3 张带金色发光边框、进度条与 ▶ 播放按钮的项目卡片
+ * 3. 7-Step AI Narrative Pipeline 区域: 视觉化 7 步横向流水线面板 (1-3 100%, 4 85% In Progress 高亮, 5-7 待处理)
+ * 4. Quick Actions 区域: 4 块核心快捷按钮 (实心金 "New Project" + 3 个暗黑玻璃按钮)
  */
 
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { StepFlow } from "@components/common/StepFlow";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { ThumbnailImage } from "@components/common/ThumbnailImage";
 import {
   appIpc,
   pipelineIpc,
   projectIpc,
-  type ProjectRecord,
 } from "@ipc/commands";
 
 export const Route = createFileRoute("/")({
@@ -28,424 +25,320 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-8 py-10">
-      <Hero />
-      <WorkflowSection />
-      <RecentProjectsStrip />
-      <MediaOverview />
+    <div className="mx-auto max-w-6xl space-y-8 px-8 py-8">
+      {/* 1. 顶部 Header */}
+      <WelcomeHeader />
+
+      {/* 2. 最近视频项目卡片 */}
+      <RecentProjectsSection />
+
+      {/* 3. 7 步 AI 叙事流水线 */}
+      <PipelineSection />
+
+      {/* 4. 快捷操作栏 */}
+      <QuickActionsSection />
+
+      {/* 5. 底栏系统探针状态 */}
       <SystemStatusStrip />
     </div>
   );
 }
 
-// ── 工作流介绍（真实 IPC）─────────────────────────────────
+// ── 1. Welcome Header ──────────────────────────────────────────────
 
-const STEP_ICON: Record<string, string> = {
-  intake: "📥",
-  detect: "✂️",
-  script: "🤖",
-  voice: "🎙️",
-  subtitle: "📝",
-  compose: "🎬",
-  export: "📤",
-};
-
-function WorkflowSection() {
-  const { data: stepDefs, isLoading } = useQuery({
-    queryKey: ["home-steps"],
-    queryFn: pipelineIpc.stepDefs,
-  });
-
-  const steps = stepDefs && stepDefs.length > 0
-    ? stepDefs.map((s) => ({
-        id: s.id,
-        label: s.label_zh,
-        icon: STEP_ICON[s.id] ?? "📦",
-        status: "pending" as const,
-      }))
-    : null;
-
+function WelcomeHeader() {
   return (
-    <section>
-      <SectionHeader
-        kicker="工作流"
-        title="一段视频,多步成型"
-        subtitle="从原始素材到可发布短片的全自动链路"
-      />
-      {isLoading ? (
-        <div style={{ display: "flex", gap: "8px" }}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} style={{
-              flex: 1,
-              height: "120px",
-              borderRadius: "14px",
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
-              animation: "pulse 1.5s ease-in-out infinite",
-            }} />
-          ))}
-        </div>
-      ) : steps ? (
-        <StepFlow steps={steps} activeIndex={-1} />
-      ) : (
-        <div style={{
-          padding: "24px",
-          borderRadius: "14px",
-          border: "1px dashed var(--color-border)",
-          textAlign: "center",
-          color: "var(--color-text-muted)",
-          fontSize: "13px",
-        }}>
-          流水线步骤加载失败，请检查后端连接
-        </div>
-      )}
-    </section>
-  );
-}
-
-// ── Hero ────────────────────────────────────────────────────────────
-
-function Hero() {
-  return (
-    <section style={{
-      position: "relative",
-      overflow: "hidden",
-      borderRadius: "24px",
-      border: "1px solid var(--color-border)",
-      background: "var(--color-surface)",
-      padding: "40px",
-      boxShadow: "var(--shadow-elevated)",
-      transition: "background 200ms ease, border-color 200ms ease",
-    }}>
-      {/* Decorative glow */}
-      <div style={{
-        position: "absolute",
-        top: "-60px",
-        right: "-60px",
-        width: "300px",
-        height: "300px",
-        borderRadius: "50%",
-        background: "radial-gradient(circle, var(--color-gold-glow) 0%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "32px", alignItems: "center", position: "relative" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "var(--color-gold-muted)",
-            border: "1px solid rgba(245,200,66,0.3)",
-            borderRadius: "999px",
-            padding: "4px 14px",
-            width: "fit-content",
-            fontSize: "12px",
-            color: "var(--color-gold)",
-            fontWeight: 600,
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-gold)", boxShadow: "0 0 6px var(--color-gold)" }} />
-            Vynaro v2.5.0 · AI 第一人称解说引擎
-          </div>
-
-          <h1 style={{
-            fontSize: "40px",
-            fontWeight: 800,
-            lineHeight: 1.15,
-            color: "var(--color-text-primary)",
-            letterSpacing: "-0.02em",
-            margin: 0,
-          }}>
-            把影视与短剧交给 AI
-            <br />
-            <span style={{ background: "linear-gradient(135deg, var(--color-gold) 0%, var(--color-amber) 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              打造爆款第一人称解说
-            </span>
-          </h1>
-
-          <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, lineHeight: 1.6 }}>
-            智能拆条 · AI 第一人称脚本 · 3秒人声克隆配音 · VAD动态字幕 · 画面节奏对齐 · 一键导出剪映草稿。
-          </p>
-
-          <div style={{ display: "flex", gap: "12px" }}>
-            <Link to="/production" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-              🎬 开始 7 步解说制作 <span>→</span>
-            </Link>
-            <Link to="/assets" className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-              📦 管理项目资产
-            </Link>
-          </div>
-        </div>
-
-        <HeroVisual />
-      </div>
-    </section>
-  );
-}
-
-function HeroVisual() {
-  return (
-    <div
-      style={{
-        position: "relative",
-        borderRadius: "16px",
-        overflow: "hidden",
-        border: "1px solid rgba(245, 200, 66, 0.25)",
-        background: "linear-gradient(145deg, rgba(22, 22, 25, 0.9), rgba(18, 18, 22, 0.95))",
-        padding: "20px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(245,200,66,0.1)",
-        backdropFilter: "blur(12px)",
-      }}
-    >
-      {/* Ambient gold glow */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-40px",
-          right: "-40px",
-          width: "160px",
-          height: "160px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(245,200,66,0.18) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Card Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          paddingBottom: "12px",
-          marginBottom: "16px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span
-            style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "var(--color-gold)",
-              boxShadow: "0 0 10px var(--color-gold)",
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "monospace",
-              fontSize: "11px",
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              color: "var(--color-gold)",
-              textTransform: "uppercase",
-            }}
-          >
-            AI Stream Active
-          </span>
-        </div>
-        <span
-          style={{
-            fontFamily: "monospace",
-            fontSize: "10px",
-            color: "var(--color-gold)",
-            background: "rgba(245, 200, 66, 0.12)",
-            border: "1px solid rgba(245, 200, 66, 0.25)",
-            padding: "2px 8px",
-            borderRadius: "999px",
-          }}
-        >
-          v2.5.0
+    <div className="space-y-1">
+      <h1 className="text-3xl font-extrabold tracking-tight text-zinc-100">
+        Welcome back, Creator!{" "}
+        <span className="bg-gradient-to-r from-[#F5C842] via-[#F9D76B] to-[#E8933A] bg-clip-text text-transparent font-normal">
+          Ready to craft your next masterpiece?
         </span>
-      </div>
-
-      {/* Active Pipeline Preview */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <div
-          style={{
-            borderRadius: "12px",
-            border: "1px solid rgba(245, 200, 66, 0.3)",
-            background: "linear-gradient(90deg, rgba(245,200,66,0.1) 0%, rgba(232,147,58,0.05) 100%)",
-            padding: "14px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
-            <span>🤖 正在生成独白脚本 (Qwen 3.8 Max)</span>
-            <span style={{ color: "var(--color-gold)", fontFamily: "monospace" }}>85%</span>
-          </div>
-          <div
-            style={{
-              marginTop: "10px",
-              height: "6px",
-              width: "100%",
-              borderRadius: "999px",
-              background: "rgba(255, 255, 255, 0.08)",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: "85%",
-                borderRadius: "999px",
-                background: "linear-gradient(90deg, var(--color-gold), var(--color-amber))",
-                boxShadow: "0 0 10px var(--color-gold)",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Real-time Waveform Preview */}
-        <div
-          style={{
-            borderRadius: "12px",
-            border: "1px solid var(--color-border)",
-            background: "var(--color-surface)",
-            padding: "12px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--color-text-secondary)", marginBottom: "8px" }}>
-            <span>🎙️ GPT-SoVITS 零样本人声克隆</span>
-            <span style={{ color: "var(--color-success)", fontFamily: "monospace" }}>● 本地探针在线</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "3px", height: "24px" }}>
-            {[45, 75, 30, 90, 60, 100, 45, 80, 55, 95, 35, 70, 85, 50, 90, 65, 40, 80].map((h, i) => (
-              <div
-                key={i}
-                style={{
-                  flex: 1,
-                  height: `${h}%`,
-                  borderRadius: "999px",
-                  background: "linear-gradient(180deg, var(--color-gold) 0%, var(--color-amber) 100%)",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      </h1>
+      <p className="text-xs text-zinc-400 font-medium tracking-wide">
+        With a futuristic, cinematic AI video narrative engine
+      </p>
     </div>
   );
 }
 
-// ── Section header ─────────────────────────────────────────────────
+// ── 2. Recent Video Projects ───────────────────────────────────────
 
-function SectionHeader({
-  kicker,
-  title,
-  subtitle,
-}: {
-  kicker: string;
+interface SampleProject {
+  id: string;
   title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="mb-5 space-y-1">
-      <div style={{ fontSize: "10px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--color-gold)" }}>
-        {kicker}
-      </div>
-      <h2 style={{ fontSize: "20px", fontWeight: 600, letterSpacing: "-0.02em", color: "var(--color-text-primary)", margin: 0 }}>
-        {title}
-      </h2>
-      <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>{subtitle}</p>
-    </div>
-  );
+  lastEdited: string;
+  progress: number;
+  thumbnail: string;
 }
 
-// ── Recent projects strip ──────────────────────────────────────────
+const SAMPLE_PROJECTS: SampleProject[] = [
+  {
+    id: "neon-odyssey",
+    title: "The Neon Odyssey",
+    lastEdited: "Jan 15, 2026, 09:12 AM",
+    progress: 70,
+    thumbnail: "/abs/neon.mp4",
+  },
+  {
+    id: "chronicles-sol",
+    title: "Chronicles of Sol",
+    lastEdited: "Jan 15, 2026, 09:12 AM",
+    progress: 45,
+    thumbnail: "/abs/sol.mp4",
+  },
+  {
+    id: "echoes-tomorrow",
+    title: "Echoes of Tomorrow",
+    lastEdited: "Jan 15, 2026, 09:12 AM",
+    progress: 92,
+    thumbnail: "/abs/echoes.mp4",
+  },
+];
 
-function RecentProjectsStrip() {
-  const { data: recent } = useQuery({
-    queryKey: ["home-recent"],
+function RecentProjectsSection() {
+  const navigate = useNavigate();
+  const { data: recentPaths } = useQuery({
+    queryKey: ["home-recent-projects"],
     queryFn: () => projectIpc.listRecent(),
   });
 
   return (
-    <section>
-      <SectionHeader kicker="历史" title="最近的项目" subtitle="点击继续编辑" />
-      {recent && recent.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {recent.slice(0, 8).map((path, i) => (
-            <button
-              key={path}
-              type="button"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: "8px",
-                borderRadius: "12px",
-                border: "1px solid var(--color-border)",
-                background: "var(--color-surface)",
-                padding: "16px",
-                textAlign: "left",
-                cursor: "pointer",
-                transition: "all 150ms ease",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface-elevated)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface)";
-              }}
+    <section className="space-y-3">
+      {/* Header with See All */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-zinc-100 tracking-tight">
+          Recent Video Projects
+        </h2>
+        <button
+          type="button"
+          onClick={() => void navigate({ to: "/assets" })}
+          className="text-xs font-medium text-zinc-400 transition hover:text-[#F5C842]"
+        >
+          See All →
+        </button>
+      </div>
+
+      {/* 3 Grid Project Cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {SAMPLE_PROJECTS.map((proj, idx) => {
+          // If real paths exist, use real path for title fallback
+          const realPath = recentPaths?.[idx];
+          const displayTitle = realPath ? realPath.split(/[/\\]/).pop() : proj.title;
+
+          return (
+            <div
+              key={proj.id}
+              onClick={() => void navigate({ to: "/production" })}
+              className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[#F5C842]/40 bg-[#161619] p-4 transition-all duration-300 hover:border-[#F5C842] hover:bg-[#1E1E22] hover:shadow-[0_0_24px_rgba(245,200,66,0.18)]"
             >
-              <div style={{
-                width: 40,
-                height: 40,
-                borderRadius: "10px",
-                background: "var(--color-surface-elevated)",
-                border: "1px solid var(--color-border)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-                fontWeight: 700,
-                color: "var(--color-text-secondary)",
-              }}>
-                {i + 1}
+              {/* Thumbnail Container */}
+              <div className="relative mb-3.5 h-28 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-zinc-800">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#161619] via-transparent to-transparent z-10 opacity-70" />
+                <ThumbnailImage source={realPath ?? proj.thumbnail} kind="video" width={320} />
               </div>
-              <div style={{ fontSize: "12px", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>
-                {path.split("/").pop()}
+
+              {/* Title & Metadata */}
+              <div className="mb-3 space-y-0.5">
+                <h3 className="truncate text-sm font-semibold text-zinc-100 group-hover:text-[#F5C842] transition-colors">
+                  {displayTitle}
+                </h3>
+                <p className="text-[11px] text-zinc-500 font-mono">
+                  Last edited: {proj.lastEdited}
+                </p>
               </div>
-              <div style={{ fontSize: "10px", color: "var(--color-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%" }}>{path}</div>
-            </button>
-          ))}
-        </div>
-      ) : (
-        <EmptyRecent />
-      )}
+
+              {/* Progress Bar & Play Button */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 space-y-1">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#F5C842] to-[#E8933A] shadow-[0_0_8px_rgba(245,200,66,0.5)] transition-all duration-500"
+                      style={{ width: `${proj.progress}%` }}
+                    />
+                  </div>
+                </div>
+
+                <span className="font-mono text-xs font-bold text-zinc-400 group-hover:text-[#F5C842]">
+                  {proj.progress}%
+                </span>
+
+                {/* Golden Round Play Button */}
+                <button
+                  type="button"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#F5C842] text-zinc-950 font-bold shadow-[0_0_10px_rgba(245,200,66,0.4)] transition-transform duration-200 group-hover:scale-110"
+                >
+                  ▶
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }
 
-function EmptyRecent() {
+// ── 3. 7-Step AI Narrative Pipeline Card ───────────────────────────
+
+interface PipelineStepItem {
+  num: number;
+  label: string;
+  status: "completed" | "in_progress" | "pending";
+  percent?: number;
+  icon: string;
+}
+
+const PIPELINE_STEPS: PipelineStepItem[] = [
+  { num: 1, label: "Ingest", status: "completed", percent: 100, icon: "📥" },
+  { num: 2, label: "Analyze", status: "completed", percent: 100, icon: "🔍" },
+  { num: 3, label: "Scene Detection", status: "completed", percent: 100, icon: "✂️" },
+  { num: 4, label: "Narrative Mapping", status: "in_progress", percent: 85, icon: "≡" },
+  { num: 5, label: "Clip Selection", status: "pending", icon: "🎬" },
+  { num: 6, label: "Transitions & FX", status: "pending", icon: "🔀" },
+  { num: 7, label: "Final Output", status: "pending", icon: "📤" },
+];
+
+function PipelineSection() {
+  const navigate = useNavigate();
+
   return (
-    <div style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderRadius: "16px",
-      border: "1px dashed var(--color-border)",
-      background: "var(--color-surface)",
-      padding: "32px 24px",
-    }}>
-      <div>
-        <div style={{ fontSize: "15px", fontWeight: 500, color: "var(--color-text-primary)" }}>还没有项目</div>
-        <div style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "4px" }}>创建一个空白项目开始制作</div>
+    <section className="rounded-2xl border border-zinc-800 bg-[#161619]/90 p-6 backdrop-blur-xl shadow-xl">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-zinc-100 tracking-tight">
+          7-Step AI Narrative Pipeline
+        </h2>
+        <span className="font-mono text-xs text-[#F5C842] bg-[#F5C842]/10 border border-[#F5C842]/30 px-3 py-1 rounded-full font-medium">
+          Step 4 / 7 Active
+        </span>
       </div>
-      <Link
-        to="/production"
-        className="btn-primary"
-        style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
-      >
-        新建项目
-      </Link>
-    </div>
+
+      {/* Horizontal Stepper Row */}
+      <div className="relative flex items-center justify-between gap-2 overflow-x-auto pb-2">
+        {PIPELINE_STEPS.map((step, index) => {
+          const isCompleted = step.status === "completed";
+          const isInProgress = step.status === "in_progress";
+
+          return (
+            <div key={step.num} className="flex flex-1 items-center">
+              {/* Step Card Element */}
+              <div
+                onClick={() => void navigate({ to: "/production" })}
+                className={`relative flex flex-col items-center justify-center flex-1 cursor-pointer rounded-xl p-3.5 text-center transition-all duration-300 ${
+                  isInProgress
+                    ? "border border-[#F5C842] bg-[#F5C842]/15 shadow-[0_0_20px_rgba(245,200,66,0.3)] scale-105"
+                    : isCompleted
+                      ? "border border-[#F5C842]/40 bg-[#1E1E22] hover:border-[#F5C842]"
+                      : "border border-zinc-800/80 bg-zinc-950/40 opacity-50 hover:opacity-80"
+                }`}
+              >
+                {/* Step Icon Badge */}
+                <div
+                  className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl font-bold text-base transition-all ${
+                    isInProgress
+                      ? "border border-[#F5C842] bg-[#F5C842] text-zinc-950 shadow-[0_0_12px_rgba(245,200,66,0.5)]"
+                      : isCompleted
+                        ? "border border-[#F5C842]/50 bg-[#F5C842]/20 text-[#F5C842]"
+                        : "border border-zinc-800 bg-zinc-900 text-zinc-500"
+                  }`}
+                >
+                  {isCompleted ? "✓" : step.icon}
+                </div>
+
+                {/* Step Label & Number */}
+                <div className="space-y-1">
+                  <span className="block text-xs font-semibold text-zinc-200">
+                    {step.num}. {step.label}
+                  </span>
+
+                  {/* Status Pill */}
+                  {isCompleted && (
+                    <span className="inline-block rounded-md bg-[#F5C842]/15 border border-[#F5C842]/30 px-2 py-0.5 font-mono text-[10px] text-[#F5C842] font-semibold">
+                      Completed 100%
+                    </span>
+                  )}
+                  {isInProgress && (
+                    <span className="inline-block rounded-md bg-[#F5C842] text-zinc-950 px-2 py-0.5 font-mono text-[10px] font-bold shadow-[0_0_8px_rgba(245,200,66,0.4)]">
+                      In Progress 85%
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Connecting Line Arrow */}
+              {index < PIPELINE_STEPS.length - 1 && (
+                <div className="mx-1 h-[2px] w-4 flex-shrink-0 bg-gradient-to-r from-zinc-700 to-zinc-800" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
-// ── System status strip (compact, 1 line) ──────────────────────────
+// ── 4. Quick Actions Section ───────────────────────────────────────
+
+function QuickActionsSection() {
+  const navigate = useNavigate();
+  const [openImport, setOpenImport] = useState(false);
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-base font-semibold text-zinc-100 tracking-tight">
+        Quick Actions
+      </h2>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {/* Button 1: Solid Vibrant Gold "New Project" */}
+        <button
+          type="button"
+          onClick={() => void navigate({ to: "/production" })}
+          className="flex h-12 items-center justify-center rounded-xl bg-[#F5C842] px-6 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(245,200,66,0.35)] transition-all duration-300 hover:bg-[#F9D76B] hover:shadow-[0_0_28px_rgba(245,200,66,0.5)] hover:scale-[1.02]"
+        >
+          ➕ New Project
+        </button>
+
+        {/* Button 2: Import Media */}
+        <button
+          type="button"
+          onClick={() => setOpenImport(true)}
+          className="flex h-12 items-center justify-center rounded-xl border border-zinc-800 bg-[#161619] px-6 text-sm font-medium text-zinc-200 transition-all duration-300 hover:border-zinc-700 hover:bg-[#1E1E22] hover:text-white"
+        >
+          📂 Import Media
+        </button>
+
+        {/* Button 3: Explore AI Styles */}
+        <button
+          type="button"
+          onClick={() => void navigate({ to: "/settings" })}
+          className="flex h-12 items-center justify-center rounded-xl border border-zinc-800 bg-[#161619] px-6 text-sm font-medium text-zinc-200 transition-all duration-300 hover:border-zinc-700 hover:bg-[#1E1E22] hover:text-white"
+        >
+          ✨ Explore AI Styles
+        </button>
+
+        {/* Button 4: Recent Activity */}
+        <button
+          type="button"
+          onClick={() => void navigate({ to: "/assets" })}
+          className="flex h-12 items-center justify-center rounded-xl border border-zinc-800 bg-[#161619] px-6 text-sm font-medium text-zinc-200 transition-all duration-300 hover:border-zinc-700 hover:bg-[#1E1E22] hover:text-white"
+        >
+          🕒 Recent Activity
+        </button>
+      </div>
+
+      <BatchImportDialog
+        open={openImport}
+        onClose={() => setOpenImport(false)}
+        onImported={() => {
+          setOpenImport(false);
+        }}
+      />
+    </section>
+  );
+}
+
+// ── 5. System Status Strip (Compact Footer) ───────────────────────
 
 function SystemStatusStrip() {
   const version = useQuery({
@@ -465,244 +358,27 @@ function SystemStatusStrip() {
   const ffmpegOk = sysInfo.data?.ffmpegAvailable ?? false;
 
   return (
-    <section style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", fontSize: "11px" }}>
-      <Pill tone={ok ? "ok" : "err"}>{ok ? "Tauri 已连接" : "后端断连"}</Pill>
-      <Pill tone="info">v{version.data ?? "—"}</Pill>
-      <Pill tone="info">{stepDefs.data?.length ?? 5} 步流水线</Pill>
-      <Pill tone={ffmpegOk ? "ok" : "warn"}>
-        ffmpeg {ffmpegOk ? "就绪" : "未安装"}
-      </Pill>
-      <Pill tone="neutral">Rust backend</Pill>
-    </section>
-  );
-}
+    <div className="flex flex-wrap items-center gap-2 pt-2 text-xs font-mono text-zinc-500">
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 border text-[11px] ${
+        ok ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-rose-500/30 bg-rose-500/10 text-rose-400"
+      }`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
+        {ok ? "Tauri Connected" : "Backend Disconnected"}
+      </span>
 
-function Pill({
-  tone,
-  children,
-}: {
-  tone: "ok" | "err" | "warn" | "info" | "neutral";
-  children: React.ReactNode;
-}) {
-  const map: Record<string, { border: string; bg: string; color: string }> = {
-    ok:      { border: "rgba(74,222,128,0.3)",  bg: "rgba(74,222,128,0.08)",  color: "#4ADE80" },
-    err:     { border: "rgba(248,113,113,0.3)", bg: "rgba(248,113,113,0.08)", color: "#F87171" },
-    warn:    { border: "rgba(251,191,36,0.3)",  bg: "rgba(251,191,36,0.08)",  color: "#FBBF24" },
-    info:    { border: "rgba(96,165,250,0.3)",  bg: "rgba(96,165,250,0.08)",  color: "#60A5FA" },
-    neutral: { border: "var(--color-border)",   bg: "var(--color-surface)",   color: "var(--color-text-muted)" },
-  };
-  const s = map[tone] ?? map.neutral;
-  return (
-    <span style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "6px",
-      borderRadius: "999px",
-      border: `1px solid ${s!.border}`,
-      background: s!.bg,
-      color: s!.color,
-      padding: "2px 10px",
-    }}>
-      {children}
-    </span>
-  );
-}
+      <span className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[11px] text-zinc-400">
+        v{version.data ?? "2.5.0"}
+      </span>
 
-// ── 素材总览 (M3 后续: 当前项目素材) ─────────────────────────────
+      <span className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900/60 px-3 py-1 text-[11px] text-zinc-400">
+        {stepDefs.data?.length ?? 7} Steps Pipeline
+      </span>
 
-function MediaOverview() {
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const [openImport, setOpenImport] = useState(false);
-
-  const currentProject =
-    (qc.getQueryData(["current-project"]) as ProjectRecord | undefined) ?? null;
-  const media = currentProject?.project.media_files ?? [];
-  const preview = media.slice(0, 6);
-  const remaining = Math.max(media.length - preview.length, 0);
-  const projectName = currentProject?.project.name ?? null;
-
-  return (
-    <section>
-      <div style={{ marginBottom: "20px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-        <SectionHeader
-          kicker="素材"
-          title={projectName ? `当前项目 · ${projectName}` : "素材总览"}
-          subtitle={
-            projectName
-              ? `共 ${media.length} 个素材`
-              : "打开或新建一个项目后可在此预览"
-          }
-        />
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            type="button"
-            onClick={() => setOpenImport(true)}
-            disabled={!currentProject}
-            title={!currentProject ? "请先打开项目" : undefined}
-            style={{
-              borderRadius: "8px",
-              border: "1px solid rgba(96,165,250,0.4)",
-              background: "rgba(96,165,250,0.08)",
-              padding: "6px 12px",
-              fontSize: "12px",
-              color: "#60A5FA",
-              cursor: currentProject ? "pointer" : "not-allowed",
-              opacity: currentProject ? 1 : 0.4,
-              transition: "all 150ms ease",
-            }}
-          >
-            📂 导入
-          </button>
-          <button
-            type="button"
-            onClick={() => void navigate({ to: "/assets" })}
-            style={{
-              borderRadius: "8px",
-              border: "1px solid var(--color-border)",
-              background: "var(--color-surface)",
-              padding: "6px 12px",
-              fontSize: "12px",
-              color: "var(--color-text-secondary)",
-              cursor: "pointer",
-              transition: "all 150ms ease",
-            }}
-          >
-            📦 进入素材页 →
-          </button>
-        </div>
-      </div>
-
-      {!currentProject ? (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderRadius: "16px",
-          border: "1px dashed var(--color-border)",
-          background: "var(--color-surface)",
-          padding: "32px 24px",
-        }}>
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>还没有打开的项目</div>
-            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>前往制作流水线页新建项目,或将素材直接导入现有项目</div>
-          </div>
-          <Link
-            to="/production"
-            className="btn-primary"
-            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
-          >
-            🎬 前往制作
-          </Link>
-        </div>
-      ) : media.length === 0 ? (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderRadius: "16px",
-          border: "1px solid rgba(251,191,36,0.3)",
-          background: "rgba(251,191,36,0.05)",
-          padding: "32px 24px",
-        }}>
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }}>当前项目还没有素材</div>
-            <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>导入 1 个或多个视频后即可启动流水线</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpenImport(true)}
-            className="btn-primary"
-          >
-            📂 立即导入
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          {preview.map((m) => (
-            <button
-              type="button"
-              key={m.path}
-              onClick={() => void navigate({ to: "/assets" })}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                borderRadius: "12px",
-                border: "1px solid var(--color-border)",
-                background: "var(--color-surface)",
-                padding: "8px",
-                textAlign: "left",
-                cursor: "pointer",
-                transition: "all 150ms ease",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface-elevated)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
-                (e.currentTarget as HTMLButtonElement).style.background = "var(--color-surface)";
-              }}
-            >
-              <ThumbnailImage source={m.path} kind="video" width={200} />
-              <div style={{ padding: "0 4px 4px" }}>
-                <div style={{ fontSize: "10px", fontFamily: "monospace", color: "var(--color-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={m.path}>
-                  {m.path.split(/[/\\]/).pop() ?? m.path}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "10px", color: "var(--color-text-muted)", marginTop: "2px" }}>
-                  <span>{Math.round(m.duration_seconds)}s</span>
-                  {m.resolution && (
-                    <>
-                      <span>·</span>
-                      <span>{m.resolution}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </button>
-          ))}
-          {remaining > 0 && (
-            <button
-              type="button"
-              onClick={() => void navigate({ to: "/assets" })}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "12px",
-                border: "1px dashed var(--color-border)",
-                background: "var(--color-surface)",
-                fontSize: "12px",
-                color: "var(--color-text-muted)",
-                cursor: "pointer",
-                transition: "all 150ms ease",
-                aspectRatio: "16/9",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-gold)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--color-gold)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-muted)";
-              }}
-            >
-              <div style={{ fontSize: "24px" }}>＋</div>
-              <div>还有 {remaining} 项</div>
-            </button>
-          )}
-        </div>
-      )}
-
-      <BatchImportDialog
-        open={openImport}
-        onClose={() => setOpenImport(false)}
-        onImported={() => {
-          setOpenImport(false);
-        }}
-      />
-    </section>
+      <span className={`inline-flex items-center rounded-full px-3 py-1 border text-[11px] ${
+        ffmpegOk ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+      }`}>
+        FFmpeg {ffmpegOk ? "Ready" : "System Check"}
+      </span>
+    </div>
   );
 }
