@@ -173,143 +173,198 @@ export function BatchImportDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-6 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="批量导入素材"
       onClick={handleClose}
     >
       <div
-        className="flex max-h-[90vh] w-full max-w-5xl flex-col rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl"
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col rounded-3xl border border-[var(--color-gold)] bg-[var(--color-surface)] shadow-[0_0_36px_var(--color-gold-glow)] overflow-hidden transition-all duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <header className="flex items-center justify-between border-b border-zinc-800 px-5 py-4">
-          <div className="space-y-0.5">
-            <h2 className="text-base font-semibold text-zinc-100">
-              📂 批量导入素材
-            </h2>
-            <p className="text-xs text-zinc-500">
-              选择目录 → 扫描 → 多选 → 一键导入到当前项目
-            </p>
+        {/* 1. Modal Header */}
+        <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
+          <div className="flex items-center space-x-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-lg shadow-[0_0_12px_rgba(245,200,66,0.3)]">
+              V
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold tracking-tight text-[var(--color-text-primary)]">
+                BATCH ASSET SELECTOR <span className="text-xs font-normal text-[var(--color-gold)] ml-1 font-mono">· 批量素材选择器</span>
+              </h2>
+              <p className="text-[11px] text-[var(--color-text-secondary)]">
+                极速扫描本地目录，自动提取视频与音频元数据
+              </p>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="关闭"
-            className="rounded-md px-2 py-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-          >
-            ✕
-          </button>
-        </header>
 
-        {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-zinc-800 bg-zinc-900/30 px-5 py-3">
-          <button
-            type="button"
-            onClick={handlePickDir}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-200 hover:border-zinc-500"
-          >
-            📁 选择目录
-          </button>
-          <div className="min-w-0 flex-1 truncate font-mono text-[11px] text-zinc-400">
-            {dir ?? "尚未选择目录"}
-          </div>
-          <label className="flex items-center gap-2 text-xs text-zinc-400">
-            <input
-              type="checkbox"
-              checked={recursive}
-              onChange={(e) => setRecursive(e.target.checked)}
-              className="h-3.5 w-3.5"
-            />
-            递归子目录
-          </label>
-          <button
-            type="button"
-            onClick={handleScan}
-            disabled={!dir || scanning}
-            className="rounded-md bg-gradient-to-r from-blue-500 to-violet-500 px-4 py-1.5 text-xs font-semibold text-white shadow shadow-blue-500/30 transition disabled:opacity-40"
-          >
-            {scanning ? "扫描中..." : "🔍 扫描"}
-          </button>
-        </div>
-
-        {/* Filters */}
-        {scanResult && scanResult.entries.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800 bg-zinc-900/20 px-5 py-3">
-            <select
-              value={kindFilter}
-              onChange={(e) =>
-                setKindFilter(e.target.value as AssetKind | "all")
-              }
-              className="py-1.5 text-xs font-semibold"
-            >
-              <option value="all">全部类型</option>
-              {ALL_KINDS.map((k) => (
-                <option key={k} value={k}>
-                  {KIND_LABEL[k]}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center space-x-3">
+            {/* Search Input */}
             <input
               type="search"
               value={searchPattern}
               onChange={(e) => setSearchPattern(e.target.value)}
-              placeholder="🔎 文件名搜索 (substring)"
-              className="min-w-[200px] flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs text-zinc-200 outline-none focus:border-blue-500"
+              placeholder="🔎 文件名搜索..."
+              className="w-56 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
             />
+
             <button
               type="button"
-              onClick={selectAllVisible}
-              className="rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 hover:border-zinc-500"
+              onClick={handleClose}
+              aria-label="关闭"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition"
             >
-              当前页全选
+              ✕
             </button>
+          </div>
+        </header>
+
+        {/* 2. Folder Selection Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-border)] bg-[var(--color-surface-elevated)]/60 px-6 py-3">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
             <button
               type="button"
-              onClick={deselectAllVisible}
-              className="rounded border border-zinc-700 px-2 py-1 text-[11px] text-zinc-300 hover:border-zinc-500"
+              onClick={handlePickDir}
+              className="flex items-center space-x-1.5 rounded-xl border border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)] px-3.5 py-1.5 text-xs font-bold text-[var(--color-gold)] hover:border-[var(--color-gold)] shadow-sm transition"
             >
-              当前页反选
+              📁 选择目录
             </button>
-            <div className="font-mono text-[11px] text-zinc-500">
-              {selected.size} / {scanResult.total} 已选
-              {scanResult.skipped > 0 ? ` · 跳过 ${scanResult.skipped}` : ""}
+            <div className="min-w-0 flex-1 truncate font-mono text-xs text-[var(--color-text-secondary)] bg-[var(--color-bg)] px-3 py-1.5 rounded-xl border border-[var(--color-border)]">
+              {dir ?? "尚未选择本地文件夹..."}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <label className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={recursive}
+                onChange={(e) => setRecursive(e.target.checked)}
+                className="h-4 w-4 rounded accent-[#F5C842]"
+              />
+              <span>递归扫描子目录</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={handleScan}
+              disabled={!dir || scanning}
+              className="flex items-center space-x-1 rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-4 py-1.5 text-xs font-bold text-zinc-950 shadow-[0_2px_10px_rgba(245,200,66,0.3)] transition hover:brightness-110 disabled:opacity-40"
+            >
+              {scanning ? "扫描中..." : "🔍 扫描"}
+            </button>
+          </div>
+        </div>
+
+        {/* 3. Category Filter Tabs Bar */}
+        {scanResult && scanResult.entries.length > 0 && (
+          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-2.5">
+            <div className="flex items-center space-x-2 overflow-x-auto">
+              <select
+                value={kindFilter}
+                onChange={(e) =>
+                  setKindFilter(e.target.value as AssetKind | "all")
+                }
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1 text-xs font-bold text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
+              >
+                <option value="all">全部类型</option>
+                {ALL_KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {KIND_LABEL[k]}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setKindFilter("all")}
+                className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+                  kindFilter === "all"
+                    ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)]"
+                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                ALL 全部 ({scanResult.entries.length})
+              </button>
+              {ALL_KINDS.map((k) => {
+                const count = scanResult.entries.filter((e) => e.kind === k).length;
+                if (count === 0) return null;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setKindFilter(k)}
+                    className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+                      kindFilter === k
+                        ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)]"
+                        : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    {KIND_LABEL[k].toUpperCase()} ({count})
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={selectAllVisible}
+                className="text-[11px] text-[var(--color-text-secondary)] hover:text-[var(--color-gold)] font-medium"
+              >
+                当前页全选
+              </button>
+              <span className="text-[var(--color-border)]">|</span>
+              <button
+                type="button"
+                onClick={deselectAllVisible}
+                className="text-[11px] text-[var(--color-text-secondary)] hover:text-[var(--color-gold)] font-medium"
+              >
+                当前页反选
+              </button>
+              <span className="text-xs font-bold text-[var(--color-gold)] bg-[var(--color-gold-muted)] px-2.5 py-0.5 rounded-full border border-[var(--color-gold)]/30 ml-2">
+                {selected.size} / {scanResult.total} 已选
+                {scanResult.skipped > 0 ? ` · 跳过 ${scanResult.skipped}` : ""}
+              </span>
             </div>
           </div>
         )}
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        {/* 4. Asset Cards Main Grid */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-[280px]">
           {scanError && (
-            <div className="mb-4 rounded-lg border border-rose-800/60 bg-rose-950/30 px-3 py-2 text-xs text-rose-200">
+            <div className="mb-4 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-xs text-rose-400">
               扫描失败: {scanError}
             </div>
           )}
           {importError && (
-            <div className="mb-4 rounded-lg border border-rose-800/60 bg-rose-950/30 px-3 py-2 text-xs text-rose-200">
+            <div className="mb-4 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-xs text-rose-400">
               导入失败: {importError}
             </div>
           )}
 
           {!scanResult ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-20 text-center">
-              <div className="text-3xl opacity-50">📂</div>
-              <div className="text-sm text-zinc-400">选择一个目录开始扫描</div>
-              <div className="text-xs text-zinc-500">
-                支持视频 / 音频 / 图片 / 字幕 等常见格式
+            <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-3xl">
+                📂
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">选择一个目录开始扫描</h3>
+                <p className="text-xs text-[var(--color-text-secondary)]">
+                  点击上方「选择扫描目录」以获取本地视频、音频与字幕素材
+                </p>
               </div>
             </div>
           ) : filteredEntries.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-20 text-center">
+            <div className="flex flex-col items-center justify-center py-16 text-center space-y-2">
               <div className="text-3xl opacity-50">🔍</div>
-              <div className="text-sm text-zinc-400">没有匹配的素材</div>
-              <div className="text-xs text-zinc-500">
-                尝试清空搜索词或切换类型过滤
+              <div className="text-sm font-bold text-[var(--color-text-primary)]">未匹配到素材文件</div>
+              <div className="text-xs text-[var(--color-text-secondary)]">
+                请调整搜索关键词或切换类型过滤
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {filteredEntries.map((e) => {
                 const isSelected = selected.has(e.path);
                 return (
@@ -318,38 +373,44 @@ export function BatchImportDialog({
                     key={e.path}
                     onClick={() => toggleSelected(e.path)}
                     aria-pressed={isSelected}
-                    className={`group flex flex-col gap-2 rounded-xl border p-2 text-left transition ${
+                    className={`group relative flex flex-col justify-between cursor-pointer rounded-2xl border p-3 text-left transition-all duration-300 ${
                       isSelected
-                        ? "border-blue-500 bg-blue-950/30"
-                        : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-600"
+                        ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] shadow-[0_0_16px_var(--color-gold-glow)] scale-[1.02]"
+                        : "border-[var(--color-border)] bg-[var(--color-bg)] hover:border-[var(--color-gold)]/40 hover:bg-[var(--color-surface-elevated)]"
                     }`}
                   >
-                    <ThumbnailImage source={e.path} kind={e.kind} width={240} />
-                    <div className="flex items-start justify-between gap-2 px-1">
-                      <div className="min-w-0 flex-1 space-y-0.5">
-                        <div
-                          className="truncate font-mono text-[11px] text-zinc-200"
-                          title={e.path}
-                        >
-                          {basename(e.path)}
-                        </div>
-                        <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                          <span>{KIND_LABEL[e.kind]}</span>
-                          <span>·</span>
-                          <span>{formatBytes(e.sizeBytes)}</span>
-                          <span>·</span>
-                          <span className="truncate">{e.mime}</span>
-                        </div>
-                      </div>
+                    {/* Checkmark Badge */}
+                    <div className="absolute top-4 right-4 z-20">
                       <div
-                        className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
+                        className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-black transition ${
                           isSelected
-                            ? "border-blue-400 bg-blue-500 text-white"
-                            : "border-zinc-600 bg-zinc-900"
+                            ? "bg-[var(--color-gold)] text-zinc-950 shadow-md"
+                            : "border border-[var(--color-border)] bg-[var(--color-surface)] text-transparent"
                         }`}
-                        aria-hidden="true"
                       >
-                        {isSelected ? "✓" : ""}
+                        ✓
+                      </div>
+                    </div>
+
+                    {/* Thumbnail */}
+                    <div className="relative mb-2.5 h-28 w-full overflow-hidden rounded-xl bg-zinc-950 border border-[var(--color-border)]">
+                      <ThumbnailImage source={e.path} kind={e.kind} width={240} />
+                      <span className="absolute bottom-1.5 left-1.5 rounded-md bg-zinc-950/80 px-2 py-0.5 text-[9px] font-mono font-bold text-[var(--color-gold)] border border-[var(--color-gold)]/30">
+                        {KIND_LABEL[e.kind].toUpperCase()}
+                      </span>
+                    </div>
+
+                    {/* File Details */}
+                    <div className="space-y-1">
+                      <div
+                        className="truncate text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors"
+                        title={e.path}
+                      >
+                        {basename(e.path)}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-mono text-[var(--color-text-muted)]">
+                        <span>{formatBytes(e.sizeBytes)}</span>
+                        <span className="uppercase">{e.mime?.split("/")[1] || e.kind}</span>
                       </div>
                     </div>
                   </button>
@@ -359,18 +420,22 @@ export function BatchImportDialog({
           )}
         </div>
 
-        {/* Footer */}
-        <footer className="flex items-center justify-between border-t border-zinc-800 px-5 py-3">
-          <div className="text-[11px] text-zinc-500">
-            {scanResult
-              ? `共 ${scanResult.total} 项 · 已选 ${selected.size}`
-              : "未扫描"}
+        {/* 5. Modal Footer / Action Bar */}
+        <footer className="flex items-center justify-between border-t border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
+          {/* Dashed Dropzone */}
+          <div
+            onClick={handlePickDir}
+            className="flex items-center space-x-2 rounded-xl border border-dashed border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)]/50 px-4 py-2 text-xs font-medium text-[var(--color-gold)] cursor-pointer hover:border-[var(--color-gold)] transition"
+          >
+            <span>📥</span>
+            <span>拖拽文件至此处 或 浏览选择...</span>
           </div>
-          <div className="flex gap-2">
+
+          <div className="flex items-center space-x-3">
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-md border border-zinc-700 bg-zinc-900 px-4 py-1.5 text-xs text-zinc-200 hover:border-zinc-500"
+              className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-4 py-2 text-xs font-bold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition"
             >
               取消
             </button>
@@ -378,7 +443,7 @@ export function BatchImportDialog({
               type="button"
               onClick={handleImport}
               disabled={loading || selected.size === 0}
-              className="rounded-md bg-gradient-to-r from-blue-500 to-violet-500 px-5 py-1.5 text-xs font-semibold text-white shadow shadow-blue-500/30 transition disabled:opacity-40"
+              className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-6 py-2 text-xs font-black text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition hover:brightness-110 disabled:opacity-40"
             >
               {loading ? "导入中..." : `📥 导入 ${selected.size} 项`}
             </button>

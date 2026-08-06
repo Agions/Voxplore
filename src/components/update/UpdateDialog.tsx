@@ -86,16 +86,20 @@ export function UpdateDialog({
   const downloadedPath = update.state.downloadedPath;
   const busy = update.busy;
 
+  const handleOverlayClick = () => {
+    if (!busy) onClose();
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="应用更新"
-      onClick={onClose}
+      onClick={handleOverlayClick}
     >
       <div
-        className="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl"
+        className="flex w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-[var(--color-gold)] bg-[var(--color-surface)] shadow-[0_0_36px_var(--color-gold-glow)] transition-all duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         <Header
@@ -112,7 +116,7 @@ export function UpdateDialog({
             <ProgressBar progress={progress} />
           )}
 
-          {/* release notes (available/ready 时) */}
+          {/* 发行说明 (release_notes) */}
           {(phase === "available" || phase === "ready") && available?.notes && (
             <NotesBlock notes={available.notes} />
           )}
@@ -122,8 +126,8 @@ export function UpdateDialog({
 
           {/* 调试信息:已下载路径 (ready 时) */}
           {phase === "ready" && downloadedPath && (
-            <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-[11px] text-emerald-300">
-              ✓ 安装包已下载到:{" "}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-xs text-emerald-400 font-mono">
+              <span>✓ 安装包已下载到:</span>{" "}
               <span className="font-mono">{downloadedPath}</span>
             </div>
           )}
@@ -155,14 +159,19 @@ function Header({
   onClose: () => void;
 }) {
   return (
-    <header className="flex items-center justify-between border-b border-zinc-800/60 px-6 py-4">
-      <div className="space-y-0.5">
-        <h2 className="text-base font-semibold text-zinc-100">
-          {PHASE_TITLE[phase]}
-        </h2>
-        <p className="text-[11px] text-zinc-500">
-          Vynaro 应用更新器 · 当前版本 v{currentVersion ?? "—"}
-        </p>
+    <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
+      <div className="flex items-center space-x-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-base shadow-[0_0_12px_rgba(245,200,66,0.3)]">
+          ↻
+        </div>
+        <div>
+          <h2 className="text-base font-extrabold tracking-tight text-[var(--color-text-primary)]">
+            {PHASE_TITLE[phase]}
+          </h2>
+          <p className="text-[11px] text-[var(--color-text-secondary)]">
+            Vynaro 应用更新器 · 当前版本 v{currentVersion ?? "1.0.0"}
+          </p>
+        </div>
       </div>
       <button
         type="button"
