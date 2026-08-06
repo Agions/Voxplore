@@ -283,11 +283,14 @@ export function TopBar() {
 
       <Toaster
         theme={theme === "light" ? "light" : "dark"}
-        position="bottom-right"
+        position="bottom-center"
         toastOptions={{
+          duration: 4000,
           classNames: {
             toast:
-              "!bg-[var(--color-surface)] !text-[var(--color-text-primary)] !border !border-[var(--color-border)] !rounded-xl",
+              "!bg-[var(--color-surface)] !text-[var(--color-text-primary)] !border !border-[var(--color-gold)] !rounded-2xl !px-5 !py-3.5 !shadow-[0_8px_32px_var(--color-gold-glow)] !backdrop-blur-xl !text-xs !font-semibold !mb-4",
+            title: "!text-xs !font-bold !text-[var(--color-text-primary)]",
+            description: "!text-[11px] !text-[var(--color-text-secondary)]",
           },
         }}
       />
