@@ -218,11 +218,11 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
                 fontSize: "14px",
               }}
             >
-              <option value="qwen">通义千问 (qwen3.8-max 推荐)</option>
-              <option value="open-ai">OpenAI (gpt-5.6-sol 旗舰款)</option>
-              <option value="claude">Claude (claude-sonnet-5)</option>
-              <option value="deepseek">DeepSeek (deepseek-v4-pro)</option>
-              <option value="gemini">Gemini (gemini-3.6-flash)</option>
+              <option value="qwen">通义千问 (Qwen-Max / Plus)</option>
+              <option value="open-ai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+              <option value="claude">Claude (Claude-3.5-Sonnet)</option>
+              <option value="deepseek">DeepSeek (DeepSeek-R1 / V3)</option>
+              <option value="gemini">Gemini (Gemini-1.5-Pro / Flash)</option>
             </select>
           </div>
 

@@ -210,7 +210,7 @@ impl LlmProvider for ClaudeProvider {
     }
 
     fn default_model(&self) -> &'static str {
-        "claude-sonnet-5"
+        "claude-3-5-sonnet-20241022"
     }
 
     async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
@@ -317,7 +317,7 @@ impl LlmProvider for GeminiProvider {
     }
 
     fn default_model(&self) -> &'static str {
-        "gemini-3.6-flash"
+        "gemini-1.5-flash"
     }
 
     async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
@@ -435,7 +435,7 @@ pub fn openai(api_key: impl Into<String>) -> OpenAiProvider {
         LlmProviderKind::OpenAi,
         api_key,
         "https://api.openai.com/v1/chat/completions",
-        "gpt-5.6-sol",
+        "gpt-4o",
     )
 }
 
@@ -444,7 +444,7 @@ pub fn qwen(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::Qwen,
         api_key,
         "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-        "qwen3.8-max",
+        "qwen-max",
     )
 }
 
@@ -453,7 +453,7 @@ pub fn kimi(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::Kimi,
         api_key,
         "https://api.moonshot.cn/v1/chat/completions",
-        "kimi-k3",
+        "moonshot-v1-8k",
     )
 }
 
@@ -462,7 +462,7 @@ pub fn glm5(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::Glm5,
         api_key,
         "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-        "glm-5.2",
+        "glm-4-plus",
     )
 }
 
@@ -471,7 +471,7 @@ pub fn deepseek(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::DeepSeek,
         api_key,
         "https://api.deepseek.com/v1/chat/completions",
-        "deepseek-v4-pro",
+        "deepseek-chat",
     )
 }
 
@@ -480,7 +480,7 @@ pub fn doubao(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::Doubao,
         api_key,
         "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
-        "doubao-seed-2-1-pro-260628",
+        "doubao-pro-128k",
     )
 }
 
@@ -510,7 +510,7 @@ pub fn qwen37(api_key: impl Into<String>) -> OpenAiCompatible {
         LlmProviderKind::Qwen37,
         api_key,
         "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-        "qwen3.7-max",
+        "qwen-plus",
     )
 }
 
