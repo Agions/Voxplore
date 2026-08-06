@@ -434,19 +434,29 @@ function RecentCard({ path, index }: { path: string; index: number }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const locale = useSettingsStore((s) => s.locale);
+
+  const { data: projectRec } = useQuery({
+    queryKey: ["assets-project-card", path],
+    queryFn: () => projectIpc.load(path),
+    staleTime: 5000,
+  });
+
   const fileName = path.split("/").pop() ?? path;
   const dir = path.substring(0, path.length - fileName.length);
-  const cleanName = fileName.replace(/\.(scenefab|vynaro)\.json$/, "");
+  const displayTitle = projectRec?.project?.name || fileName.replace(/\.(scenefab|vynaro)\.json$/, "");
+  const firstVideo = projectRec?.project?.media_files?.find(
+    (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
+  )?.path || projectRec?.project?.media_files?.[0]?.path;
 
   const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
 
   const handleLoad = async () => {
     try {
-      const rec = await projectIpc.load(path);
+      const rec = projectRec ?? (await projectIpc.load(path));
       setCurrentRecord(rec.path, rec.project);
       qc.setQueryData(["assets-current-project"], rec.project);
       qc.setQueryData(["current-project"], rec);
-      toast.success(`已打开项目 ${rec.project.name}`);
+      toast.success(locale === "en-US" ? `Opened project ${rec.project.name}` : `已打开解说工程 ${rec.project.name}`);
       void navigate({ to: "/production" });
     } catch (e) {
       toast.error("加载项目失败", { description: String(e) });
@@ -459,14 +469,14 @@ function RecentCard({ path, index }: { path: string; index: number }) {
     try {
       await projectIpc.remove(path);
       toast.success(locale === "en-US" ? "Project deleted successfully" : "已成功删除解说工程");
-      
+
       const currentStorePath = useProjectStore.getState().currentPath;
       if (currentStorePath === path) {
         useProjectStore.getState().clear();
         qc.setQueryData(["assets-current-project"], null);
         qc.setQueryData(["current-project"], null);
       }
-      
+
       void qc.invalidateQueries({ queryKey: ["assets-recent"] });
       void qc.invalidateQueries({ queryKey: ["home-recent-projects"] });
     } catch (err) {
@@ -477,10 +487,10 @@ function RecentCard({ path, index }: { path: string; index: number }) {
   return (
     <div
       onClick={handleLoad}
-      className="group relative flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-left transition hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)] hover:shadow-lg hover:shadow-amber-500/5"
+      className="group relative flex cursor-pointer flex-col justify-between gap-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)] hover:shadow-lg hover:shadow-amber-500/5"
     >
       <div className="flex w-full items-center justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-xs font-bold text-[var(--color-gold)] group-hover:border-[var(--color-gold)]/40 group-hover:bg-[var(--color-gold-muted)]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-xs font-mono font-bold text-[var(--color-gold)] group-hover:border-[var(--color-gold)]/40 group-hover:bg-[var(--color-gold-muted)]">
           0{index}
         </div>
         <button
@@ -493,12 +503,25 @@ function RecentCard({ path, index }: { path: string; index: number }) {
         </button>
       </div>
 
+      {/* Video 1st Frame Cover Preview */}
+      <div className="relative h-32 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
+        {firstVideo ? (
+          <ThumbnailImage source={firstVideo} kind="video" width={320} />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-3xl opacity-40">
+            🎬
+          </div>
+        )}
+      </div>
+
       <div className="w-full space-y-1">
         <div className="truncate text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition">
-          {cleanName}
+          {displayTitle}
         </div>
-        <div className="truncate font-mono text-[10px] text-[var(--color-text-secondary)]">
-          {dir || path}
+        <div className="truncate font-mono text-[10px] text-[var(--color-text-secondary)] flex items-center justify-between">
+          <span>{projectRec?.project?.media_files?.length ?? 0} 个素材</span>
+          <span>{dir || path}</span>
         </div>
       </div>
     </div>

@@ -129,67 +129,98 @@ function RecentProjectsSection() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {recentPaths.slice(0, 3).map((realPath) => {
-            const displayTitle = realPath.split(/[/\\]/).pop() || realPath;
-
-            const handleOpenProject = async (e?: React.MouseEvent) => {
-              if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-              }
-              try {
-                const rec = await projectIpc.load(realPath);
-                setCurrentRecord(rec.path, rec.project);
-                qc.setQueryData(["current-project"], rec);
-                qc.setQueryData(["assets-current-project"], rec.project);
-                toast.success(locale === "en-US" ? `Opened project ${rec.project.name}` : `已打开解说工程 ${rec.project.name}`);
-                void navigate({ to: "/production" });
-              } catch (err) {
-                toast.error("加载项目失败", { description: err instanceof Error ? err.message : String(err) });
-              }
-            };
-
-            return (
-              <div
-                key={realPath}
-                onClick={handleOpenProject}
-                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)]"
-              >
-                {/* Thumbnail Container */}
-                <div className="relative mb-3.5 h-28 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
-                  <ThumbnailImage source={realPath} kind="video" width={320} />
-                </div>
-
-                {/* Title & Metadata */}
-                <div className="mb-3 space-y-0.5">
-                  <h3 className="truncate text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
-                    {displayTitle}
-                  </h3>
-                  <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
-                    {t("home.project_file_tag", locale)}
-                  </p>
-                </div>
-
-                {/* Action CTA */}
-                <div className="flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-2.5">
-                  <span className="text-[11px] font-semibold text-[var(--color-gold)]">
-                    {t("action.enter", locale)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleOpenProject}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
-                  >
-                    ▶
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {recentPaths.slice(0, 3).map((realPath) => (
+            <HomeProjectCard key={realPath} realPath={realPath} />
+          ))}
         </div>
       )}
     </section>
+  );
+}
+
+function HomeProjectCard({ realPath }: { realPath: string }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const locale = useSettingsStore((s) => s.locale);
+  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
+
+  const { data: projectRec } = useQuery({
+    queryKey: ["home-project-card", realPath],
+    queryFn: () => projectIpc.load(realPath),
+    staleTime: 5000,
+  });
+
+  const displayTitle = projectRec?.project?.name || realPath.split(/[/\\]/).pop() || realPath;
+  const cleanTitle = displayTitle.replace(/\.(scenefab|vynaro)\.json$/, "");
+  const firstVideo = projectRec?.project?.media_files?.find(
+    (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
+  )?.path || projectRec?.project?.media_files?.[0]?.path;
+
+  const handleOpenProject = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    try {
+      const rec = projectRec ?? (await projectIpc.load(realPath));
+      setCurrentRecord(rec.path, rec.project);
+      qc.setQueryData(["current-project"], rec);
+      qc.setQueryData(["assets-current-project"], rec.project);
+      toast.success(
+        locale === "en-US"
+          ? `Opened project ${rec.project.name}`
+          : `已打开解说工程 ${rec.project.name}`
+      );
+      void navigate({ to: "/production" });
+    } catch (err) {
+      toast.error("加载项目失败", {
+        description: err instanceof Error ? err.message : String(err),
+      });
+    }
+  };
+
+  return (
+    <div
+      onClick={handleOpenProject}
+      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)] flex flex-col justify-between"
+    >
+      {/* Thumbnail Container (Default 1st Frame Video Cover) */}
+      <div className="relative mb-3.5 h-32 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
+        {firstVideo ? (
+          <ThumbnailImage source={firstVideo} kind="video" width={360} />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-3xl opacity-40">
+            🎬
+          </div>
+        )}
+      </div>
+
+      {/* Title & Metadata */}
+      <div className="mb-3 space-y-0.5">
+        <h3 className="truncate text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
+          {cleanTitle}
+        </h3>
+        <p className="text-[11px] text-[var(--color-text-muted)] font-mono flex items-center justify-between">
+          <span>{projectRec?.project?.media_files?.length ?? 0} 个素材</span>
+          <span>{t("home.project_file_tag", locale)}</span>
+        </p>
+      </div>
+
+      {/* Action CTA */}
+      <div className="flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-2.5">
+        <span className="text-[11px] font-semibold text-[var(--color-gold)]">
+          {t("action.enter", locale)}
+        </span>
+        <button
+          type="button"
+          onClick={handleOpenProject}
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
+        >
+          ▶
+        </button>
+      </div>
+    </div>
   );
 }
 

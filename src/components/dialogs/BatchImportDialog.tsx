@@ -58,6 +58,7 @@ export function BatchImportDialog({
   const [kindFilter, setKindFilter] = useState<AssetKind | "all">("all");
   const [searchPattern, setSearchPattern] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
 
   /** 过滤后的 entries (受 类型 + 搜索 双过滤) */
   const filteredEntries = useMemo<AssetEntry[]>(() => {
@@ -80,6 +81,7 @@ export function BatchImportDialog({
     setKindFilter("all");
     setSearchPattern("");
     setImportError(null);
+    setProjectName("");
   }, []);
 
   const handleClose = useCallback(() => {
@@ -255,6 +257,20 @@ export function BatchImportDialog({
               {scanning ? "扫描中..." : "🔍 扫描"}
             </button>
           </div>
+        </div>
+
+        {/* 2.5 Project Name Customization Bar */}
+        <div className="flex items-center space-x-3 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-2.5">
+          <span className="text-xs font-bold text-[var(--color-gold)] flex items-center gap-1.5 shrink-0">
+            <span>🎬</span> 解说工程名称:
+          </span>
+          <input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder="自定义解说工程名称 (例：太阳神纪元 第01集)..."
+            className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-1.5 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-gold)] font-medium"
+          />
         </div>
 
         {/* 3. Category Filter Tabs Bar */}
