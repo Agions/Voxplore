@@ -25,16 +25,16 @@ const LLM_OPTIONS: Array<{
   label: string;
   hint: string;
 }> = [
-  { id: "qwen", label: "通义千问 Qwen", hint: "qwen3.8-max 阿里旗舰" },
-  { id: "deepseek", label: "DeepSeek", hint: "deepseek-v4-pro / flash" },
-  { id: "open-ai", label: "OpenAI", hint: "gpt-5.6-sol (Sol / Terra)" },
-  { id: "claude", label: "Claude", hint: "claude-sonnet-5 / fable-5" },
-  { id: "gemini", label: "Gemini", hint: "gemini-3.6-flash / 3.1-pro" },
-  { id: "kimi", label: "Kimi · Moonshot", hint: "kimi-k3 月之暗面 2026 旗舰" },
-  { id: "glm5", label: "智谱 GLM", hint: "glm-5.2 智谱清言 2026 旗舰" },
-  { id: "doubao", label: "豆包 Doubao", hint: "doubao-seed-2-1-pro 字节火山" },
-  { id: "hunyuan", label: "混元 Hunyuan", hint: "hunyuan-pro 腾讯" },
-  { id: "local", label: "本地 (Ollama)", hint: "llama3.2 自部署" },
+  { id: "qwen", label: "通义千问 Qwen", hint: "qwen-max / qwen-plus" },
+  { id: "deepseek", label: "DeepSeek", hint: "deepseek-r1 / deepseek-v3" },
+  { id: "open-ai", label: "OpenAI", hint: "gpt-4o / gpt-4o-mini" },
+  { id: "claude", label: "Claude", hint: "claude-3-5-sonnet" },
+  { id: "gemini", label: "Gemini", hint: "gemini-1.5-pro / flash" },
+  { id: "kimi", label: "Kimi · Moonshot", hint: "moonshot-v1-8k / 32k" },
+  { id: "glm5", label: "智谱 GLM", hint: "glm-4-plus / glm-4-flash" },
+  { id: "doubao", label: "豆包 Doubao", hint: "doubao-pro-128k" },
+  { id: "hunyuan", label: "混元 Hunyuan", hint: "hunyuan-pro" },
+  { id: "local", label: "本地 (Ollama)", hint: "llama3.2 / qwen2.5" },
 ];
 
 const TTS_OPTIONS: Array<{

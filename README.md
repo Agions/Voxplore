@@ -53,7 +53,7 @@ graph LR
 | :--- | :--- | :--- |
 | **Step 1** | **📥 素材导入与预处理** | 本地极速提取音视频流元数据（Resolution / FPS / Codec），自动生成缩略图 |
 | **Step 2** | **✂️ FFmpeg 智能拆条** | 基于 FFmpeg 场景切面探测、情绪峰值吸附与关键帧序列化索引 |
-| **Step 3** | **🤖 AI 第一人称独白** | 支持 Qwen 3.8 / DeepSeek R1 / GPT-4o 等 11 大 LLM，提供主角独白/影评/吐槽 4 大风格 |
+| **Step 3** | **🤖 AI 第一人称独白** | 支持 Qwen / DeepSeek R1 / GPT-4o 等主流 LLM，提供主角独白/影评/吐槽 4 大风格 |
 | **Step 4** | **🎙️ TTS 配音与人声克隆** | Edge-TTS + OpenAI-TTS + GPT-SoVITS 人声克隆，集成实时黄金波形与本地服务探针 |
 | **Step 5** | **📝 VAD 字幕精准对齐** | 基于 FFmpeg `silencedetect` 语音端点检测，自动生成 SRT / VTT / ASS 字幕 |
 | **Step 6** | **🎬 画面-声音智能混流** | 多轨时间轴毫秒级对齐，支持 BGM 背景降噪与音量比例调配 (`amix`) |
@@ -63,16 +63,16 @@ graph LR
 
 ## 🧠 大模型与 TTS 引擎能力矩阵
 
-### 11 大主流 LLM 引擎支持
-* 🇨🇳 **通义千问 (Qwen)**: `qwen3.8-max` / `qwen-plus`
-* 🇨🇳 **DeepSeek**: `deepseek-v4-pro` / `deepseek-r1` / `deepseek-v3`
-* 🇺🇸 **OpenAI**: `gpt-5.6-sol` / `gpt-4o` / `gpt-4o-mini`
-* 🇺🇸 **Claude**: `claude-sonnet-5` / `claude-3-5-sonnet`
-* 🇺🇸 **Gemini**: `gemini-3.6-flash` / `gemini-3.1-pro`
-* 🇨🇳 **Kimi (月之暗面)**: `kimi-k3` / `moonshot-v1`
-* 🇨🇳 **智谱 GLM**: `glm-5.2` / `glm-4-plus`
-* 🇨🇳 **豆包 (Doubao)**: `doubao-seed-2-1-pro` / `doubao-pro-128k`
-* 🇨🇳 **腾讯混元 (Hunyuan)**: `hunyuan-pro`
+### 主流 LLM 引擎支持
+* 🇨🇳 **通义千问 (Qwen)**: `qwen-max` / `qwen-plus`
+* 🇨🇳 **DeepSeek**: `deepseek-r1` / `deepseek-v3`
+* 🇺🇸 **OpenAI**: `gpt-4o` / `gpt-4o-mini` / `o1`
+* 🇺🇸 **Claude**: `claude-3-5-sonnet` / `claude-3-5-haiku`
+* 🇺🇸 **Gemini**: `gemini-1.5-pro` / `gemini-1.5-flash`
+* 🇨🇳 **Kimi (月之暗面)**: `moonshot-v1-8k` / `moonshot-v1-32k`
+* 🇨🇳 **智谱 GLM**: `glm-4-plus` / `glm-4-flash`
+* 🇨🇳 **豆包 (Doubao)**: `doubao-pro-128k` / `doubao-lite-32k`
+* 🇨🇳 **腾讯混元 (Hunyuan)**: `hunyuan-pro` / `hunyuan-standard`
 * 🏠 **本地模型 (Local)**: Ollama / LMStudio (`llama3.2` / `qwen2.5`)
 
 ---
