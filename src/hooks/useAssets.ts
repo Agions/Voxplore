@@ -191,22 +191,25 @@ export function useAssets(): UseAssetsReturn {
 
   const importFromPaths = useCallback(
     async (paths: string[]): Promise<MediaFile[]> => {
-      if (!current) {
-        const e = new Error("未打开项目,无法导入素材");
-        setError(e);
-        throw e;
-      }
-      if (!currentPath) {
-        const e = new Error("项目未保存到磁盘,无法导入素材");
-        setError(e);
-        throw e;
-      }
       if (paths.length === 0) return [];
 
       setLoading(true);
       setError(null);
       try {
         let proj = current;
+        let path = currentPath;
+
+        // 如果当前没有项目，自动创建默认解说工程，避免报 "未打开项目,无法导入素材"
+        if (!proj || !path) {
+          const rec = await projectIpc.createBlank();
+          proj = rec.project;
+          path = rec.path;
+          setCurrentRecord(path, proj);
+          qc.setQueryData(["current-project"], rec);
+          qc.setQueryData(["assets-current-project"], proj);
+          void qc.invalidateQueries({ queryKey: ["assets-recent"] });
+        }
+
         const added: MediaFile[] = [];
         for (const p of paths) {
           let mf = pathToMediaFileEmpty(p);
@@ -217,7 +220,7 @@ export function useAssets(): UseAssetsReturn {
           } catch {
             // probe 失败不阻塞导入
           }
-          proj = await projectIpc.addMedia(currentPath, proj, mf);
+          proj = await projectIpc.addMedia(path, proj, mf);
           added.push(mf);
         }
         syncProject(proj);
@@ -229,7 +232,7 @@ export function useAssets(): UseAssetsReturn {
         setLoading(false);
       }
     },
-    [current, currentPath, syncProject],
+    [current, currentPath, syncProject, setCurrentRecord, qc],
   );
 
   const importFromScan = useCallback(
