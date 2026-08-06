@@ -1,69 +1,65 @@
-/** Vynaro v2.5.0 · 叙影 · 设计系统
- * 主题：电影调光室（Cinematic Darkroom）
- * 色调：深黑 + 暖金高亮
- * ─────────────────────────────────────────
- * 字体：Inter (英文) + Noto Sans SC (中文)
+/** Vynaro v1.0.0 · 叙影 · 设计系统
+ * 主题系统：支持 Cinematic Darkroom (黑金调光室) 与 Light Mode (极简浅色模式)
+ * 完美消除跨主题样式穿透与重叠冲突
  */
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap");
 @import "tailwindcss";
 
-/* ── 设计令牌 ─────────────────────────────────── */
-@theme {
-  /* 背景层 */
-  --color-bg:              #0D0D0F;   /* 全局底色，近纯黑 */
+/* ── 默认 (Dark Mode / 电影调光室黑金) 设计令牌 ─────────────────── */
+:root {
+  --color-bg:              #0D0D0F;   /* 全局底色 */
   --color-surface:         #161619;   /* 卡片/面板 */
   --color-surface-elevated:#1E1E22;   /* 悬浮/激活态 */
   --color-surface-overlay: #252529;   /* 下拉/弹窗 */
   --color-border:          #2A2A2F;   /* 分割线 */
-  --color-border-focus:    rgba(245,200,66,0.5); /* 聚焦边框 */
+  --color-border-focus:    rgba(245,200,66,0.5);
 
-  /* 主高亮 · 暖金 */
-  --color-gold:            #F5C842;   /* 主操作/选中/标题 */
-  --color-gold-hover:      #F9D76B;   /* 金色悬停 */
-  --color-gold-muted:      rgba(245,200,66,0.15); /* 金色背景淡色 */
-  --color-gold-glow:       rgba(245,200,66,0.25); /* 发光阴影 */
+  --color-gold:            #F5C842;   /* 暖金高亮 */
+  --color-gold-hover:      #F9D76B;
+  --color-gold-muted:      rgba(245,200,66,0.15);
+  --color-gold-glow:       rgba(245,200,66,0.25);
 
-  /* 辅高亮 · 琥珀橙 */
-  --color-amber:           #E8933A;   /* 次级强调/标签 */
+  --color-amber:           #E8933A;
   --color-amber-muted:     rgba(232,147,58,0.15);
 
-  /* 文字 */
-  --color-text-primary:    #F0EDE8;   /* 主文字，奶白 */
-  --color-text-secondary:  #B0ACA6;   /* 次级文字 */
-  --color-text-muted:      #6B6760;   /* 禁用/占位 */
-  --color-text-inverse:    #0D0D0F;   /* 反色（金色按钮上的文字） */
+  --color-text-primary:    #F0EDE8;   /* 奶白主字 */
+  --color-text-secondary:  #B0ACA6;   /* 灰色副字 */
+  --color-text-muted:      #6B6760;   /* 占位符/禁用字 */
+  --color-text-inverse:    #0D0D0F;
 
-  /* 状态色 */
-  --color-success:         #4ADE80;   /* 完成 */
-  --color-success-muted:   rgba(74,222,128,0.12);
-  --color-processing:      #60A5FA;   /* 处理中 */
-  --color-processing-muted:rgba(96,165,250,0.12);
-  --color-warning:         #F5C842;   /* 待处理（复用金色） */
-  --color-error:           #F87171;   /* 错误 */
-  --color-error-muted:     rgba(248,113,113,0.12);
+  --topbar-bg:             rgba(13,13,15,0.95);
+  --card-shadow:           0 4px 16px rgba(0,0,0,0.35);
 
-  /* 间距 */
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
-  --radius-full:9999px;
-
-  /* 阴影 */
-  --shadow-card:    0 2px 8px rgba(0,0,0,0.4), 0 0 1px rgba(0,0,0,0.6);
-  --shadow-gold:    0 0 20px rgba(245,200,66,0.20), 0 0 40px rgba(245,200,66,0.08);
-  --shadow-elevated:0 8px 24px rgba(0,0,0,0.5);
-
-  /* 过渡 */
-  --transition-fast:  150ms cubic-bezier(0.4,0,0.2,1);
-  --transition-base:  250ms cubic-bezier(0.4,0,0.2,1);
-  --transition-slow:  400ms cubic-bezier(0.4,0,0.2,1);
+  color-scheme: dark;
 }
 
-/* ── TopBar 专用背景 (在 :root 级别定义, 非 @theme) ─── */
-:root {
-  --topbar-bg: rgba(13,13,15,0.95);
+/* ── 亮色主题 (Light Mode) 无冲突精准变量定义 ─────────────────── */
+html[data-theme="light"] {
+  --color-bg:              #F4F4F7;   /* 柔和浅灰底色 */
+  --color-surface:         #FFFFFF;   /* 纯白卡片 */
+  --color-surface-elevated:#EAEAEF;   /* 悬浮灰 */
+  --color-surface-overlay: #FFFFFF;
+  --color-border:          #D1D1D8;   /* 浅灰色边框 */
+  --color-border-focus:    rgba(217,119,6,0.5);
+
+  --color-gold:            #D97706;   /* 琥珀金/深琥珀 */
+  --color-gold-hover:      #B45309;
+  --color-gold-muted:      rgba(217,119,6,0.12);
+  --color-gold-glow:       rgba(217,119,6,0.2);
+
+  --color-amber:           #D97706;
+  --color-amber-muted:     rgba(217,119,6,0.12);
+
+  --color-text-primary:    #18181B;   /* 深黑主字 */
+  --color-text-secondary:  #52525B;   /* 深灰副字 */
+  --color-text-muted:      #71717A;
+  --color-text-inverse:    #FFFFFF;
+
+  --topbar-bg:             rgba(255,255,255,0.95);
+  --card-shadow:           0 4px 16px rgba(0,0,0,0.06);
+
+  color-scheme: light;
 }
 
 /* ── 全局基础 ─────────────────────────────────── */
@@ -79,117 +75,8 @@ html, body, #root {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 200ms ease, color 200ms ease;
 }
-
-/* ── 亮色主题 (Light Mode) ─────────────────────────────────── */
-html[data-theme="light"] {
-  --color-bg:              #F4F4F7;
-  --color-surface:         #FFFFFF;
-  --color-surface-elevated:#EDEDF2;
-  --color-surface-overlay: #FFFFFF;
-  --color-border:          #DDDDE4;
-  --color-border-focus:    rgba(217,119,6,0.5);
-
-  --color-gold:            #D97706;
-  --color-gold-hover:      #B45309;
-  --color-gold-muted:      rgba(217,119,6,0.1);
-  --color-gold-glow:       rgba(217,119,6,0.15);
-
-  --color-amber:           #D97706;
-  --color-amber-muted:     rgba(217,119,6,0.1);
-
-  --color-text-primary:    #18181B;
-  --color-text-secondary:  #52525B;
-  --color-text-muted:      #71717A;
-  --color-text-inverse:    #FFFFFF;
-
-  --shadow-card:    0 2px 8px rgba(0,0,0,0.06);
-  --shadow-gold:    0 0 20px rgba(217,119,6,0.12);
-  --shadow-elevated:0 8px 24px rgba(0,0,0,0.08);
-
-  --topbar-bg:             rgba(255,255,255,0.92);
-
-  color-scheme: light;
-}
-
-
-html[data-theme="light"] body,
-html[data-theme="light"] #root {
-  background-color: #F4F4F7;
-  color: #18181B;
-}
-
-/* ── Light mode: Tailwind zinc 类覆盖 ─────────────────────────────── */
-/* 背景 */
-html[data-theme="light"] .bg-zinc-950,
-html[data-theme="light"] .bg-zinc-950\/60,
-html[data-theme="light"] .bg-zinc-900,
-html[data-theme="light"] .bg-zinc-900\/30,
-html[data-theme="light"] .bg-zinc-900\/40,
-html[data-theme="light"] .bg-zinc-900\/60,
-html[data-theme="light"] .bg-zinc-900\/80,
-html[data-theme="light"] .bg-\[var\(--color-surface\)\],
-html[data-theme="light"] .bg-\[var\(--color-bg\)\] {
-  background-color: #FFFFFF !important;
-}
-
-html[data-theme="light"] .bg-zinc-800,
-html[data-theme="light"] .bg-zinc-800\/40 {
-  background-color: #EDEDF2 !important;
-}
-
-/* 边框 */
-html[data-theme="light"] .border-zinc-800,
-html[data-theme="light"] .border-zinc-800\/60,
-html[data-theme="light"] .border-zinc-700,
-html[data-theme="light"] .border-zinc-700\/50,
-html[data-theme="light"] .border-\[var\(--color-border\)\] {
-  border-color: #DDDDE4 !important;
-}
-
-/* 文字 */
-html[data-theme="light"] .text-zinc-100,
-html[data-theme="light"] .text-zinc-200,
-html[data-theme="light"] .text-zinc-300,
-html[data-theme="light"] .text-\[var\(--color-text-primary\)\] {
-  color: #18181B !important;
-}
-
-html[data-theme="light"] .text-zinc-400,
-html[data-theme="light"] .text-zinc-500,
-html[data-theme="light"] .text-\[var\(--color-text-secondary\)\],
-html[data-theme="light"] .text-\[var\(--color-text-muted\)\] {
-  color: #52525B !important;
-}
-
-/* input / select / textarea — 覆盖所有来源 */
-html[data-theme="light"] input,
-html[data-theme="light"] select,
-html[data-theme="light"] textarea {
-  background-color: #FFFFFF !important;
-  color: #18181B !important;
-  border-color: #DDDDE4 !important;
-}
-html[data-theme="light"] input::placeholder,
-html[data-theme="light"] textarea::placeholder {
-  color: #A1A1AA !important;
-}
-
-/* 模态框覆盖 */
-html[data-theme="light"] .bg-zinc-950.rounded-2xl,
-html[data-theme="light"] .rounded-2xl.bg-zinc-950 {
-  background-color: #FFFFFF !important;
-}
-
-/* hover 态 */
-html[data-theme="light"] .hover\:bg-zinc-900:hover {
-  background-color: #EDEDF2 !important;
-}
-html[data-theme="light"] .hover\:border-zinc-500:hover {
-  border-color: #A1A1AA !important;
-}
-
-
 
 body {
   font-family:
@@ -209,167 +96,21 @@ body {
 ::-webkit-scrollbar-track { background: var(--color-surface); }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
-/* ── 工作流卡片 ───────────────────────────────── */
-.pipeline-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 20px 16px;
-  min-width: 160px;
-  flex-shrink: 0;
-  transition: all var(--transition-base);
-  cursor: pointer;
-  position: relative;
-}
-
-.pipeline-card:hover {
-  background: var(--color-surface-elevated);
-  border-color: rgba(245,200,66,0.3);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card);
-}
-
-.pipeline-card.active {
-  border-color: var(--color-gold);
-  box-shadow: var(--shadow-gold);
-  background: var(--color-surface-elevated);
-}
-
-/* ── 主操作按钮（金色渐变）─────────────────────── */
-.btn-primary {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-amber) 100%);
-  color: var(--color-text-inverse);
-  font-weight: 600;
-  font-size: 14px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  letter-spacing: 0.02em;
-}
-
-.btn-primary:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(245,200,66,0.35);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-  filter: brightness(0.96);
-}
-
-/* ── 次级按钮 ─────────────────────────────────── */
-.btn-secondary {
-  background: var(--color-surface-elevated);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  font-size: 14px;
-  padding: 9px 18px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-secondary:hover {
-  border-color: rgba(245,200,66,0.4);
-  color: var(--color-gold);
-  background: var(--color-gold-muted);
-}
-
-/* ── 状态徽章 ─────────────────────────────────── */
-.badge-success  { background: var(--color-success-muted);    color: var(--color-success);    border-radius: var(--radius-full); padding: 3px 10px; font-size: 12px; font-weight: 500; }
-.badge-process  { background: var(--color-processing-muted); color: var(--color-processing); border-radius: var(--radius-full); padding: 3px 10px; font-size: 12px; font-weight: 500; }
-.badge-waiting  { background: var(--color-gold-muted);       color: var(--color-gold);       border-radius: var(--radius-full); padding: 3px 10px; font-size: 12px; font-weight: 500; }
-.badge-error    { background: var(--color-error-muted);      color: var(--color-error);      border-radius: var(--radius-full); padding: 3px 10px; font-size: 12px; font-weight: 500; }
-
-/* ── 处理中动画 ───────────────────────────────── */
-@keyframes pulse-gold {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
-}
-.animate-pulse-gold { animation: pulse-gold 1.6s ease-in-out infinite; }
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-.animate-spin-slow { animation: spin-slow 2s linear infinite; }
-
-/* ── 连接箭头 ─────────────────────────────────── */
-.pipeline-arrow {
-  display: flex;
-  align-items: center;
-  color: var(--color-text-muted);
-  font-size: 18px;
-  flex-shrink: 0;
-  padding: 0 4px;
-}
-
-/* ── 金色分割线 ───────────────────────────────── */
-.divider-gold {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--color-gold) 50%, transparent 100%);
-  opacity: 0.2;
-  margin: 16px 0;
-}
-
-/* ── 进度条 ───────────────────────────────────── */
-.progress-track {
-  height: 3px;
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-gold) 0%, var(--color-amber) 100%);
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
-  position: relative;
-}
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-gold);
-  box-shadow: 0 0 8px var(--color-gold);
-}
-
-/* ── 波形可视化 ───────────────────────────────── */
-.waveform-bar {
-  background: var(--color-gold);
-  border-radius: 2px;
-  transition: height var(--transition-fast);
-  opacity: 0.8;
-}
-
-.waveform-bar:hover { opacity: 1; }
-
-/* ── 输入框 ───────────────────────────────────── */
+/* ── 输入框统一适配 ────────────────────────────── */
 input, textarea, select {
-  background: var(--color-surface-elevated);
+  background-color: var(--color-surface-elevated);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   padding: 8px 12px;
   font-family: inherit;
   font-size: 14px;
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 
 input:focus, textarea:focus, select:focus {

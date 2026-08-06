@@ -1,5 +1,5 @@
 /**
- * Vynaro v2.5.0 · 电影调光室左侧导航栏 (去重 & 默认中文)
+ * Vynaro v1.0.0 · 电影调光室左侧导航栏 (完美响应多主题切换)
  *
  * 核心区域结构:
  * 1. 顶部 Vynaro 品牌 V Logo 图标 (带金色发光)
@@ -39,7 +39,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
 
   return (
     <aside
-      className="flex w-16 flex-col items-center justify-between border-r border-[#2A2A2F] bg-[#0D0D0F] py-3 flex-shrink-0 z-30 select-none"
+      className="flex w-16 flex-col items-center justify-between border-r border-[var(--color-border)] bg-[var(--color-bg)] py-3 flex-shrink-0 z-30 select-none transition-colors duration-200"
       aria-label="Vynaro 主导航"
     >
       {/* 1. 顶部 Brand Logo */}
@@ -56,7 +56,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
           </span>
         </Link>
 
-        <div className="h-[1px] w-8 bg-[#2A2A2F]" />
+        <div className="h-[1px] w-8 bg-[var(--color-border)]" />
 
         {/* 2. 主功能导航 (无重复) */}
         <nav className="flex flex-col space-y-1.5 w-full px-2" role="navigation">
@@ -74,14 +74,14 @@ export function Sidebar({ currentPath }: SidebarProps) {
                 id={`sidebar-nav-${item.hint.toLowerCase()}`}
                 className={`group relative flex flex-col items-center justify-center rounded-xl py-2.5 px-1 text-decoration-none transition-all duration-200 ${
                   active
-                    ? "bg-[#F5C842]/15 border border-[#F5C842]/30 text-[#F5C842] shadow-[0_0_12px_rgba(245,200,66,0.15)]"
-                    : "border border-transparent text-zinc-400 hover:bg-[#1E1E22] hover:border-[#2A2A2F] hover:text-zinc-200"
+                    ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)] font-bold"
+                    : "border border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:border-[var(--color-border)] hover:text-[var(--color-text-primary)]"
                 }`}
                 aria-current={active ? "page" : undefined}
               >
                 {/* 激活态金线指针 */}
                 {active && (
-                  <span className="absolute -left-2 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-[#F5C842] shadow-[0_0_8px_#F5C842]" />
+                  <span className="absolute -left-2 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-[var(--color-gold)] shadow-[0_0_8px_var(--color-gold-glow)]" />
                 )}
 
                 <span className="text-xl leading-none transition-transform duration-200 group-hover:scale-110">
@@ -89,8 +89,8 @@ export function Sidebar({ currentPath }: SidebarProps) {
                 </span>
 
                 <span
-                  className={`mt-1 text-[10px] font-medium tracking-tight ${
-                    active ? "text-[#F5C842] font-semibold" : "text-zinc-400 group-hover:text-zinc-200"
+                  className={`mt-1 text-[10px] tracking-tight ${
+                    active ? "text-[var(--color-gold)] font-bold" : "text-[var(--color-text-secondary)] group-hover:text-[var(--color-text-primary)]"
                   }`}
                 >
                   {item.hint}
@@ -98,7 +98,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
 
                 {/* Badge 提示 */}
                 {item.badge && !active && (
-                  <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-[#F5C842]" />
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-[var(--color-gold)]" />
                 )}
               </Link>
             );
@@ -108,7 +108,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
 
       {/* 3. 底部系统导航 */}
       <div className="flex flex-col items-center space-y-2 w-full px-2">
-        <div className="h-[1px] w-8 bg-[#2A2A2F]" />
+        <div className="h-[1px] w-8 bg-[var(--color-border)]" />
 
         {BOTTOM_NAV_ITEMS.map((item) => {
           const active = currentPath.startsWith(item.to);
@@ -120,14 +120,14 @@ export function Sidebar({ currentPath }: SidebarProps) {
               id={`sidebar-nav-${item.hint.toLowerCase()}`}
               className={`group relative flex flex-col items-center justify-center w-full rounded-xl py-2 px-1 text-decoration-none transition-all duration-200 ${
                 active
-                  ? "bg-[#F5C842]/15 border border-[#F5C842]/30 text-[#F5C842]"
-                  : "border border-transparent text-zinc-400 hover:bg-[#1E1E22] hover:text-zinc-200"
+                  ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)]"
+                  : "border border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
               }`}
             >
               <span className="text-lg leading-none transition-transform duration-200 group-hover:scale-110">
                 {item.icon}
               </span>
-              <span className="mt-1 text-[10px] text-zinc-400 font-medium group-hover:text-zinc-200">
+              <span className="mt-1 text-[10px] text-[var(--color-text-secondary)] font-medium group-hover:text-[var(--color-text-primary)]">
                 {item.hint}
               </span>
             </Link>
