@@ -1,4 +1,4 @@
-# Vynaro v2.5.0 Makefile
+# Vynaro v1.0.0 Makefile
 # Rust + Tauri 2 + React 主线构建系统
 #
 # 使用方法:

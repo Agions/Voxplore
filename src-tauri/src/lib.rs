@@ -35,7 +35,7 @@ use vynaro_update::UpdateService;
 /// 占位命令 — 保留以便兼容 Gate 0 冒烟测试
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {name}! 你正在使用 Vynaro v2.5.0 α")
+    format!("Hello, {name}! 你正在使用 vynaro v1.0.0")
 }
 
 /// Tauri 入口（mobile 端另开 entry point）
@@ -59,7 +59,7 @@ pub fn run() {
             ctx.services
                 .register(Arc::new(UpdateService::new(
                     ctx.version.to_string(),
-                    "qingshanyanyu/Vynaro",
+                    "Agions/vynaro",
                 )))
                 .await;
             // 注入 AssetService (M3 后续完整实装)
