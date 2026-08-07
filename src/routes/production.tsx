@@ -21,6 +21,7 @@ import {
 } from "@ipc/commands";
 import type { StepStatus } from "@ipc/types.gen";
 import { usePipeline, usePipelineHotkeys } from "@hooks/usePipeline";
+import { useSnapshot } from "@hooks/useSnapshot";
 import { useProjectStore } from "@stores/project-store";
 import { toast } from "sonner";
 
@@ -161,10 +162,16 @@ function ProductionPage() {
     setActiveStepId(targetStep.id);
   };
 
+  const { createSnapshot } = useSnapshot();
+
   const handleNextStep = () => {
     const stepIds = ["intake", "detect", "script", "voice", "subtitle", "compose", "export"];
     const currIdx = stepIds.indexOf(activeStepId);
     if (currIdx >= 0 && currIdx < stepIds.length - 1 && stepIds[currIdx + 1]) {
+      const currentStep = displaySteps.find((s) => s.id === activeStepId);
+      if (currentStep) {
+        void createSnapshot(`完成步骤 ${currentStep.index} (${currentStep.label})`, "auto");
+      }
       const nextStepId = stepIds[currIdx + 1]!;
       const targetStep = displaySteps.find((s) => s.id === nextStepId);
       if (targetStep) {

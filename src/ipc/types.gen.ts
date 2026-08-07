@@ -106,6 +106,35 @@ export interface IpcContracts {
     };
     result: void;
   };
+  project_snapshot_list: {
+    args: {
+      projectId: string;
+    };
+    result: ProjectSnapshot[];
+  };
+  project_snapshot_create: {
+    args: {
+      projectId: string;
+      name: string;
+      kind: string;
+      projectJson: string;
+    };
+    result: ProjectSnapshot;
+  };
+  project_snapshot_restore: {
+    args: {
+      projectId: string;
+      snapshotId: string;
+    };
+    result: ProjectSnapshot;
+  };
+  project_snapshot_delete: {
+    args: {
+      projectId: string;
+      snapshotId: string;
+    };
+    result: boolean;
+  };
   // ─────── pipeline · 5 个 ───────
   pipeline_cancel: {
     args: void;
@@ -719,6 +748,16 @@ export type UpdatePhase =
   | "available"
   | "downloading"
   | "ready";
+
+export interface ProjectSnapshot {
+  id: string;
+  projectId: string;
+  versionTag: string;
+  kind: "auto" | "manual";
+  name: string;
+  createdAt: string;
+  projectJson: string;
+}
 
 /* <<< gen-ipc-types end */
 
