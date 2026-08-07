@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use tauri::{Manager, State};
 use vynaro_core::domain::Project;
-use vynaro_core::services::{ProjectService, ProjectSnapshot, SnapshotService};
+use vynaro_core::services::ProjectService;
 use vynaro_core::AppContext;
 use vynaro_domain::MediaFile;
 
@@ -108,65 +108,6 @@ pub async fn project_add_media(
     proj.updated_at = chrono::Utc::now();
     write_project(&p, &proj).await.map_err(|e| e.to_string())?;
     Ok(proj)
-}
-
-// ── 快照版本历史 IPC 命令 ──────────────────────────────────────────
-
-#[tauri::command]
-pub async fn project_snapshot_list(
-    state: State<'_, AppContext>,
-    project_id: String,
-) -> Result<Vec<ProjectSnapshot>, String> {
-    let svc = state
-        .service::<SnapshotService>()
-        .await
-        .map_err(|e| e.to_string())?;
-    Ok(svc.list_snapshots(&project_id).await)
-}
-
-#[tauri::command]
-pub async fn project_snapshot_create(
-    state: State<'_, AppContext>,
-    project_id: String,
-    name: String,
-    kind: String,
-    project_json: String,
-) -> Result<ProjectSnapshot, String> {
-    let svc = state
-        .service::<SnapshotService>()
-        .await
-        .map_err(|e| e.to_string())?;
-    Ok(svc
-        .create_snapshot(&project_id, &name, &kind, &project_json)
-        .await)
-}
-
-#[tauri::command]
-pub async fn project_snapshot_restore(
-    state: State<'_, AppContext>,
-    project_id: String,
-    snapshot_id: String,
-) -> Result<ProjectSnapshot, String> {
-    let svc = state
-        .service::<SnapshotService>()
-        .await
-        .map_err(|e| e.to_string())?;
-    svc.restore_snapshot(&project_id, &snapshot_id)
-        .await
-        .ok_or_else(|| "未找到该快照".to_string())
-}
-
-#[tauri::command]
-pub async fn project_snapshot_delete(
-    state: State<'_, AppContext>,
-    project_id: String,
-    snapshot_id: String,
-) -> Result<bool, String> {
-    let svc = state
-        .service::<SnapshotService>()
-        .await
-        .map_err(|e| e.to_string())?;
-    Ok(svc.delete_snapshot(&project_id, &snapshot_id).await)
 }
 
 // ── IPC 类型 ──────────────────────────────────────────────────────────

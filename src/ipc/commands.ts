@@ -24,7 +24,6 @@ import type {
   PlanOptions,
   Project,
   ProjectRecord,
-  ProjectSnapshot,
   ProjectSettings,
   ScanResult,
   ScriptGenerateParams,
@@ -74,27 +73,6 @@ export const projectIpc = {
     project: Project,
     media: MediaFile,
   ): Promise<Project> => callIpc("project_add_media", { path, project, media }),
-  snapshotList: (projectId: string): Promise<ProjectSnapshot[]> =>
-    callIpc("project_snapshot_list", { projectId }),
-  snapshotCreate: (
-    projectId: string,
-    name: string,
-    kind: "auto" | "manual",
-    projectJson: string,
-  ): Promise<ProjectSnapshot> =>
-    callIpc("project_snapshot_create", {
-      projectId,
-      name,
-      kind,
-      projectJson,
-    }),
-  snapshotRestore: (
-    projectId: string,
-    snapshotId: string,
-  ): Promise<ProjectSnapshot> =>
-    callIpc("project_snapshot_restore", { projectId, snapshotId }),
-  snapshotDelete: (projectId: string, snapshotId: string): Promise<boolean> =>
-    callIpc("project_snapshot_delete", { projectId, snapshotId }),
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────

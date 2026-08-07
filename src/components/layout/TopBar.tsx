@@ -10,10 +10,8 @@ import { Link } from "@tanstack/react-router";
 import { useTauriQuery } from "@hooks/useTauriQuery";
 import { useUiStore } from "@stores/ui-store";
 import { useSettingsStore } from "@stores/settings-store";
-import { useSnapshotStore } from "@stores/snapshot-store";
 import { t } from "@lib/i18n";
 import { themeIpc } from "@ipc/commands";
-import { ProjectSnapshotDrawer } from "../dialogs/ProjectSnapshotDrawer";
 import { Toaster, toast } from "sonner";
 import { useThemeStore } from "@stores/theme-store";
 
@@ -63,7 +61,6 @@ export function TopBar() {
     args: {},
   });
   const openPalette = useUiStore((s) => s.openCommandPalette);
-  const toggleSnapshotDrawer = useSnapshotStore((s) => s.toggleDrawer);
   const { locale, setLocale } = useSettingsStore();
   const connected = !isError && Boolean(version);
   const theme = useThemeStore((s) => s.theme);
@@ -187,30 +184,6 @@ export function TopBar() {
           </kbd>
         </button>
 
-        {/* 解说工程版本历史与快照触发按钮 */}
-        <button
-          type="button"
-          onClick={() => toggleSnapshotDrawer()}
-          title="解说工程版本历史与快照 (Project Snapshots)"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            borderRadius: "8px",
-            border: "1px solid var(--color-gold)",
-            background: "var(--color-gold-muted)",
-            padding: "5px 10px",
-            fontSize: "12px",
-            color: "var(--color-gold)",
-            cursor: "pointer",
-            fontWeight: 700,
-            boxShadow: "0 0 10px var(--color-gold-glow)",
-          }}
-        >
-          <span>📸</span>
-          <span>快照历史</span>
-        </button>
-
         {/* 语言切换按钮 (中/英) */}
         <button
           type="button"
@@ -307,8 +280,6 @@ export function TopBar() {
           ⚙️
         </Link>
       </div>
-
-      <ProjectSnapshotDrawer />
 
       <Toaster
         theme={theme === "light" ? "light" : "dark"}

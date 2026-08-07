@@ -70,7 +70,7 @@ export interface IpcContracts {
     args: void;
     result: string;
   };
-  // ─────── project · 6 个 ───────
+  // ─────── project · 10 个 ───────
   project_add_media: {
     args: {
       path: string;
@@ -105,35 +105,6 @@ export interface IpcContracts {
       project: Project;
     };
     result: void;
-  };
-  project_snapshot_list: {
-    args: {
-      projectId: string;
-    };
-    result: ProjectSnapshot[];
-  };
-  project_snapshot_create: {
-    args: {
-      projectId: string;
-      name: string;
-      kind: string;
-      projectJson: string;
-    };
-    result: ProjectSnapshot;
-  };
-  project_snapshot_restore: {
-    args: {
-      projectId: string;
-      snapshotId: string;
-    };
-    result: ProjectSnapshot;
-  };
-  project_snapshot_delete: {
-    args: {
-      projectId: string;
-      snapshotId: string;
-    };
-    result: boolean;
   };
   // ─────── pipeline · 5 个 ───────
   pipeline_cancel: {
@@ -502,6 +473,17 @@ export interface ConfigSnapshot {
   tts_prompt_text: string | null;
 }
 
+// Rust 端 ProjectSnapshot (pub struct)
+export interface ProjectSnapshot {
+  id: string;
+  project_id: string;
+  version_tag: string;
+  kind: string;
+  name: string;
+  created_at: string;
+  project_json: string;
+}
+
 // Rust 端 FfmpegProbe (pub struct, rename_all = "camelCase")
 export interface FfmpegProbe {
   durationSeconds: number;
@@ -748,16 +730,6 @@ export type UpdatePhase =
   | "available"
   | "downloading"
   | "ready";
-
-export interface ProjectSnapshot {
-  id: string;
-  projectId: string;
-  versionTag: string;
-  kind: "auto" | "manual";
-  name: string;
-  createdAt: string;
-  projectJson: string;
-}
 
 /* <<< gen-ipc-types end */
 

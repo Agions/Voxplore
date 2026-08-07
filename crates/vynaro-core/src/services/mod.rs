@@ -20,9 +20,6 @@ use tokio::sync::Mutex;
 
 use super::container::ServiceContainer;
 
-pub mod snapshot;
-pub use snapshot::{ProjectSnapshot, SnapshotService};
-
 #[derive(Debug, Default)]
 pub struct ProjectService {
     recent: Mutex<Vec<PathBuf>>,
@@ -137,12 +134,9 @@ pub async fn register_default_services(container: &ServiceContainer) {
     container
         .register::<LoggingService>(Arc::new(LoggingService::new()))
         .await;
-    container
-        .register::<SnapshotService>(Arc::new(SnapshotService::new()))
-        .await;
 
     tracing::info!(
-        "vynaro-core: 4/{total} default services registered (M2 milestone)",
+        "vynaro-core: 3/{total} default services registered (M2 milestone)",
         total = 19
     );
 }
