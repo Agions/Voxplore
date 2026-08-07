@@ -216,12 +216,21 @@ impl UpdateService {
 
         let url = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
 
-        let resp = self
+        let resp = match self
             .client
             .get(&url)
             .header("Accept", "application/vnd.github+json")
             .send()
-            .await?;
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => {
+                let msg = format!("reqwest: {e}");
+                self.set_error(msg.clone()).await;
+                self.emit_error(msg.clone());
+                return Err(UpdateError::Api(msg));
+            }
+        };
 
         let status = resp.status();
         if !status.is_success() {
