@@ -227,8 +227,8 @@ impl UpdateService {
             Err(e) => {
                 let msg = format!("reqwest: {e}");
                 self.set_error(msg.clone()).await;
-                self.emit_error(msg.clone());
-                return Err(UpdateError::Api(msg));
+                self.emit_error(msg);
+                return Err(UpdateError::Api(e.to_string()));
             }
         };
 
@@ -256,7 +256,15 @@ impl UpdateService {
             digest: Option<String>,
         }
 
-        let rel: Release = resp.json().await?;
+        let rel: Release = match resp.json().await {
+            Ok(r) => r,
+            Err(e) => {
+                let msg = format!("json: {e}");
+                self.set_error(msg.clone()).await;
+                self.emit_error(msg);
+                return Err(UpdateError::Api(e.to_string()));
+            }
+        };
         let version = rel.tag_name.trim_start_matches('v').to_string();
         let release_date = rel.published_at;
         let notes = rel.body;

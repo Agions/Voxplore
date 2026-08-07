@@ -147,13 +147,22 @@ mod tests {
 
     #[tokio::test]
     async fn project_service_recent_works() {
+        let dir = std::env::temp_dir();
+        let path_a = dir.join("test_vynaro_a.vynaro");
+        let path_b = dir.join("test_vynaro_b.vynaro");
+        let _ = std::fs::File::create(&path_a);
+        let _ = std::fs::File::create(&path_b);
+
         let s = ProjectService::new();
-        s.push_recent(PathBuf::from("/tmp/a.vynaro")).await;
-        s.push_recent(PathBuf::from("/tmp/b.vynaro")).await;
-        s.push_recent(PathBuf::from("/tmp/a.vynaro")).await; // 重复会移到首位
+        s.push_recent(path_a.clone()).await;
+        s.push_recent(path_b.clone()).await;
+        s.push_recent(path_a.clone()).await; // 重复会移到首位
         let r = s.recent_projects().await;
         assert_eq!(r.len(), 2);
-        assert_eq!(r[0], PathBuf::from("/tmp/a.vynaro"));
+        assert_eq!(r[0], path_a);
+
+        let _ = std::fs::remove_file(path_a);
+        let _ = std::fs::remove_file(path_b);
     }
 
     #[tokio::test]
