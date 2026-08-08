@@ -41,7 +41,7 @@ const features = [
     icon: '🤖',
     tag: '11 大 LLM 独白',
     title: '第一人称主角独白脚本',
-    text: '通义千问 3.8、DeepSeek R1、GPT-4o 深度微调，黄金3秒 Hook 留存，大幅拉升完播率。'
+    text: '通义千问 (qwen3.8-max)、DeepSeek (deepseek-v4-pro)、OpenAI (gpt-5.6-sol) 深度微调，黄金3秒 Hook 留存，大幅拉升完播率。'
   },
   {
     icon: '🎙️',

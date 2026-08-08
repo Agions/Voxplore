@@ -87,7 +87,7 @@ const models = [
     defaultModel: 'deepseek-v4-pro',
     desc: '深度思考推理引擎，擅长处理错综复杂的多人反转与悬疑短剧冲突逻辑链。',
     latency: '~1.5s',
-    tags: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-r1', 'deepseek-v3'],
+    tags: ['deepseek-v4-pro', 'deepseek-v4-flash', '高密度情节'],
     cat: 'llm',
     brandColor: '#06b6d4'
   },
@@ -98,7 +98,7 @@ const models = [
     defaultModel: 'gpt-5.6-sol',
     desc: '全球顶尖多模态模型，文笔流畅优美，角色第一人称内心独白渲染极强。',
     latency: '~1.2s',
-    tags: ['gpt-5.6-sol', 'gpt-4o', 'gpt-4o-mini', '多语种解说'],
+    tags: ['gpt-5.6-sol', 'gpt-4o-mini', '多语种解说'],
     cat: 'llm',
     brandColor: '#10b981'
   },
@@ -109,7 +109,7 @@ const models = [
     defaultModel: 'claude-sonnet-5',
     desc: '极具电影质感的文风输出，无机械感，适合治愈系、怀旧与纪录片腔调。',
     latency: '~1.4s',
-    tags: ['claude-sonnet-5', 'claude-3-5-sonnet', '高级修辞'],
+    tags: ['claude-sonnet-5', '电影感修辞'],
     cat: 'llm',
     brandColor: '#a78bfa'
   },
