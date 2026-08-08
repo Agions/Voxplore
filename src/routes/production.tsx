@@ -100,6 +100,8 @@ function ProductionPage() {
 
   usePipelineHotkeys(() => currentProject && handleStart(), handleCancel);
 
+  const [completedStepIds, setCompletedStepIds] = useState<string[]>(["intake"]);
+
   const STEP_ICON: Record<string, string> = {
     intake: "📁", detect: "🎞️", script: "📝",
     voice: "🎙️", subtitle: "📝", compose: "🔀", export: "📤",
@@ -115,13 +117,20 @@ function ProductionPage() {
       }))
     : DEFAULT_PIPELINE_STEPS;
 
+  const mediaCount = currentProject?.project.media_files?.length ?? 0;
+
   const displaySteps: PipelineStep[] = baseSteps.map((step, idx) => {
     const backendStep = pipeline.steps[idx];
-    const status = backendStep ? (backendStep.status as StepStatus) : step.status;
+    const backendStatus = backendStep ? (backendStep.status as StepStatus) : step.status;
+    const isCompleted = completedStepIds.includes(step.id) || (step.id === "intake" && mediaCount > 0);
+    const status: StepStatus =
+      backendStatus === "done" || isCompleted
+        ? "done"
+        : step.id === activeStepId
+        ? "active"
+        : backendStatus;
     return { ...step, status };
   });
-
-  const mediaCount = currentProject?.project.media_files?.length ?? 0;
 
   const handleStepClick = (targetStep: PipelineStep) => {
     const stepIds = ["intake", "detect", "script", "voice", "subtitle", "compose", "export"];
@@ -164,12 +173,12 @@ function ProductionPage() {
   const handleNextStep = () => {
     const stepIds = ["intake", "detect", "script", "voice", "subtitle", "compose", "export"];
     const currIdx = stepIds.indexOf(activeStepId);
+    setCompletedStepIds((prev) => Array.from(new Set([...prev, activeStepId])));
     if (currIdx >= 0 && currIdx < stepIds.length - 1 && stepIds[currIdx + 1]) {
       const nextStepId = stepIds[currIdx + 1]!;
-      const targetStep = displaySteps.find((s) => s.id === nextStepId);
-      if (targetStep) {
-        handleStepClick(targetStep);
-      }
+      setActiveStepId(nextStepId);
+      setPageNotice(null);
+      toast.success(`步骤 ${currIdx + 1} 已标记完成！解锁步骤 ${currIdx + 2}`);
     }
   };
 
