@@ -31,16 +31,16 @@ description: 3 步上手 Vynaro 桌面端，10分钟完成第一次 AI 视频解
 
 ![AI 独白脚本生成与 API 选择](/assets/mockups/ai-script-generator.jpg)
 
-1. **LLM 供应商**：支持通义千问 (Qwen)、DeepSeek R1、GPT-4o、Claude 3.5、Kimi 等 11 大服务商。
+1. **LLM 供应商**：支持通义千问 (qwen3.8-max)、DeepSeek (deepseek-v4-pro)、OpenAI (gpt-5.6-sol)、Claude (claude-sonnet-5)、Gemini (gemini-3.6-flash)、Kimi (kimi-k3)、GLM-5.2、豆包 (doubao-seed-2-1-pro)、腾讯混元 (hunyuan-pro) 与本地 Ollama 等 11 大服务商。
 2. **API Key**：粘贴您的 API 秘钥（秘钥通过 macOS Keychain / Windows Credential Manager 安全加密存储在本地）。
 3. **测试连接**：点击「连通性测试」按钮，确认 API Key 响应正常。
 
 ### 常用 LLM 秘钥获取地址
 
-* 🇨🇳 **DeepSeek** — [platform.deepseek.com](https://platform.deepseek.com)
-* 🇨🇳 **通义千问 (Aliyun Bailian)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
-* 🇺🇸 **OpenAI / GPT-4o** — [platform.openai.com](https://platform.openai.com)
-* 🇨🇳 **Kimi (月之暗面)** — [platform.moonshot.cn](https://platform.moonshot.cn)
+* 🇨🇳 **DeepSeek (deepseek-v4-pro)** — [platform.deepseek.com](https://platform.deepseek.com)
+* 🇨🇳 **通义千问 (qwen3.8-max)** — [bailian.console.aliyun.com](https://bailian.console.aliyun.com)
+* 🇺🇸 **OpenAI (gpt-5.6-sol)** — [platform.openai.com](https://platform.openai.com)
+* 🇨🇳 **Kimi (kimi-k3)** — [platform.moonshot.cn](https://platform.moonshot.cn)
 
 ---
 

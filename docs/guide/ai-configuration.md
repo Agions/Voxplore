@@ -1,102 +1,93 @@
 ---
-title: AI 配置
-description: 配置 Vynaro 所使用的 AI 服务（解说稿生成 / 配音合成）。
+title: AI 配置与大模型矩阵
+description: 配置 Vynaro 支持的 11 大 LLM 解说稿生成引擎与 3 大 TTS 人声克隆服务。
 ---
 
-# AI 配置
+# 🧠 AI 配置与大模型矩阵
 
-Vynaro 支持多个 AI 服务商。所有配置通过应用内 **设置** 页面管理，仅存储在本地，绝不外传。
+Vynaro 采用统一的 LLM & TTS Provider 架构。所有 API 密钥均通过应用内 **设置 → AI 服务** 进行本地加密存储，绝不上云或外传。
 
-## 配置入口
+---
 
-打开应用 **设置 → AI 服务**，可配置以下字段：
+## ⚙️ 基本配置入口
 
-| 字段     | 说明                                     |
-| -------- | ---------------------------------------- |
-| Provider | 解说稿生成所用 LLM 服务商                |
-| API Key  | 服务商密钥                               |
-| Base URL | 可选 · 自定义代理或本地端点（如 Ollama） |
-| Model    | 可选 · 默认使用 Provider 推荐模型        |
+打开桌面应用 **设置 → AI 服务**，可配置以下参数：
 
-## DeepSeek（解说稿生成）
+| 字段 | 说明 |
+| :--- | :--- |
+| **Provider** | 选择用于生成解说稿的 11 大 LLM 服务商 |
+| **API Key** | 服务商密钥（本地加密存储） |
+| **Base URL** | 可选 · 自定义代理或本地端点（如 Ollama / GPT-SoVITS） |
+| **Model** | 可选 · 留空使用 Provider 推荐模型，也可自定义 |
 
-### 获取 API Key
+---
 
-1. 访问 [platform.deepseek.com](https://platform.deepseek.com) → API Keys → Create
-2. 推荐使用 **DeepSeek-V4 Pro** 模型
+## 🤖 11 大主流 LLM 独白引擎支持
 
-### 费用估算
+Vynaro 原生支持 `README.md` 与底层核心代码指定的 11 大大语言模型引擎：
 
-| 操作            | Token 消耗 | 费用    |
-| --------------- | ---------- | ------- |
-| 5 分钟视频解说  | ~50K       | ~¥0.005 |
-| 10 分钟视频解说 | ~200K      | ~¥0.02  |
-| 2 小时电影解说  | ~500K      | ~¥0.05  |
+| 服务商 | 官方默认模型 (Default Model) | 推荐替代模型 | 特性与适用场景 |
+| :--- | :--- | :--- | :--- |
+| **🇨🇳 通义千问 (Qwen)** | `qwen3.8-max` | `qwen3.7-max`, `qwen-plus` | 阿里云百炼推荐，视频语义理解与 Hook 爆点抓取极佳 |
+| **🇨🇳 DeepSeek** | `deepseek-v4-pro` | `deepseek-v4-flash`, `deepseek-r1` | 性价比极高，逻辑思维与反转打脸剧情推理能力强 |
+| **🇺🇸 OpenAI** | `gpt-5.6-sol` | `gpt-4o`, `gpt-4o-mini` | 全球旗舰模型，第一人称内心独白与情感表达渲染力强 |
+| **🇺🇸 Claude** | `claude-sonnet-5` | `claude-3-5-sonnet` | 叙事文采华丽，无机械感，适合电影感与纪录片腔调 |
+| **🇺🇸 Gemini** | `gemini-3.6-flash` | `gemini-3.1-pro` | Google 超长上下文，支持长达 2 小时整季短剧批量分析 |
+| **🇨🇳 Kimi (月之暗面)** | `kimi-k3` | `moonshot-v1` | 适合长篇小说改编剧本与多集角色设定集处理 |
+| **🇨🇳 智谱 GLM** | `glm-5.2` | `glm-4-plus` | 智谱清言引擎，针对中文剧情递进与抑扬顿挫深度优化 |
+| **🇨🇳 豆包 (Doubao)** | `doubao-seed-2-1-pro` | `doubao-pro-128k` | 字节火山引擎，天然契合抖音爆款节奏与短视频卡点 |
+| **🇨🇳 腾讯混元 (Hunyuan)** | `hunyuan-pro` | `hunyuan-standard` | 腾讯云大模型，中文结构严密，适合影评解析与吐槽 |
+| **🏠 本地模型 (Local)** | `llama3.2` | `qwen2.5` | 基于 Ollama / LMStudio 运行，100% 本地离线隐私保护 |
 
-## Qwen（视频语义分析）
+---
 
-### 获取 API Key
+## 🎙️ 3 大 TTS 语音合成与人声克隆引擎
 
-1. 访问 [阿里云百炼](https://bailian.console.aliyun.com/) → API Keys → 创建
-2. 选择 `qwen3.7-max` 模型
+Vynaro 提供从免费内置配音到专业人声克隆的全套解决方案：
 
-Base URL 默认 `https://dashscope.aliyuncs.com/compatible-mode/v1`，无需修改。
+| TTS 引擎 | 状态与费用 | 核心 Model / 音色 | 功能说明 |
+| :--- | :--- | :--- | :--- |
+| **Edge-TTS** | ✅ 免费内置 | `zh-CN-XiaoxiaoNeural` / `Yunxi` | 微软官方 50+ 黄金发音人，涵盖解说界常用音色 |
+| **OpenAI-TTS** | ✅ 需 API Key | `gpt-4o-mini-tts` / `tts-1-hd` | 影视级语音合成，支持富情感拟真人声 |
+| **GPT-SoVITS** | ✅ 本地 / 零样本 | Zero-shot Sovits (`127.0.0.1:9880`) | 仅需 5 秒参考音频即可复刻主播或影视角色音色 |
 
-## Edge-TTS（配音合成）
+### Edge-TTS 热门解说音色参考
 
-**免费使用，无需 API Key。**
+| 音色 ID | 呈现名称 | 适用解说风格 |
+| :--- | :--- | :--- |
+| `zh-CN-XiaoxiaoNeural` | 晓晓 | 治愈、情感内心独白、浪漫故事 |
+| `zh-CN-YunxiNeural` | 云希 | 悬疑反转、第一人称剧场、热血 |
+| `zh-CN-YunyangNeural` | 云扬 | 电影解说、严肃纪录片、正式播音 |
+| `zh-CN-XiaoyiNeural` | 小艺 | 轻松吐槽、搞笑影评、欢快短视频 |
+| `zh-CN-YunjianNeural` | 云健 | 激情叙事、快节奏爽剧 |
 
-微软官方 TTS 引擎，50+ 音色，支持中文。
+---
 
-### 推荐音色
+## 💰 API 费用与 Token 消耗估算
 
-| 音色 ID              | 名称 | 适用风格         |
-| -------------------- | ---- | ---------------- |
-| zh-CN-XiaoxiaoNeural | 晓晓 | 治愈、浪漫、怀旧 |
-| zh-CN-YunxiNeural    | 云希 | 悬疑、励志       |
-| zh-CN-YunyangNeural  | 云扬 | 纪录片、正式     |
-| zh-CN-XiaoyiNeural   | 小艺 | 幽默、轻松       |
+以推荐模型 `deepseek-v4-pro` 或 `qwen3.8-max` 为例：
 
-### 高级参数
+| 视频类型 | 估算 Token 消耗 | 预估费用 |
+| :--- | :--- | :--- |
+| **5 分钟短剧拆条解说** | ~50K Tokens | ~¥0.005 |
+| **15 分钟影视单集解说** | ~200K Tokens | ~¥0.02 |
+| **2 小时全季电影剧场** | ~600K Tokens | ~¥0.06 |
 
-| 参数 | 范围        | 说明      |
-| ---- | ----------- | --------- |
-| 语速 | 0.5x – 2.0x | 默认 1.0x |
-| 音调 | -50% – +50% | 默认 0    |
-| 音量 | -50% – +50% | 默认 0    |
+---
 
-## 音色克隆（可选）
+## 🛠️ 常见 AI 报错与排查
 
-在 **设置 → TTS 引擎** 中选择支持克隆的引擎后：
+| 错误代码 / 现象 | 可能原因 | 解决办法 |
+| :--- | :--- | :--- |
+| `401 Unauthorized` | API Key 填写错误或额度用尽 | 检查设置页 Key 复制是否包含空格，或登录平台充值 |
+| `429 Rate Limit` | 触发了服务商 QPS 频率限制 | 1 分钟后自动重试，或在设置中更换其他 Provider 备用 |
+| `GPT-SoVITS Offline` | 本地克隆服务未在 9880 端口启动 | 检查本地 GPT-SoVITS 终端是否正常运行，点击「重新检测」 |
+| `Edge-TTS Connect Error` | 网络无法连接微软 Azure 节点 | 检查本地网络连接或开启 HTTP 代理重试 |
 
-1. 准备参考音频（MP3/WAV，15–30 秒，说话清晰）
-2. 填入「参考音频路径」与「参考文本」（音频对应的中文文本）
-3. 后续配音即使用克隆音色
+---
 
-## 多服务商支持
+## 📖 相关推荐文档
 
-| 服务              | 状态    | 说明                       |
-| ----------------- | ------- | -------------------------- |
-| DeepSeek          | ✅ 推荐 | 性价比最高，中文叙事能力强 |
-| Qwen (阿里云)     | ✅ 推荐 | 视频理解首选               |
-| Kimi (月之暗面)   | ✅ 支持 | 长上下文                   |
-| OpenAI            | ✅ 支持 | 需配置 API Key             |
-| Claude            | ✅ 支持 | 需配置 API Key             |
-| Gemini            | ✅ 支持 | 长视频理解                 |
-| GLM / 豆包 / 混元 | ✅ 支持 | 国产大模型                 |
-| 本地 (Ollama)     | ✅ 支持 | 通过 Base URL 指向本地端点 |
-| Edge-TTS          | ✅ 内置 | 免费配音合成               |
-
-## 故障排查
-
-| 问题             | 排查步骤                                     |
-| ---------------- | -------------------------------------------- |
-| 401 Unauthorized | API Key 无效或已过期，检查 Key 是否正确复制  |
-| 429 Rate Limit   | 触发了 API 限流，1 分钟后重试或切换 Provider |
-| 视频分析超时     | 长视频建议分段处理，或降低抽帧频率           |
-| 配音合成失败     | 检查网络连接，Edge-TTS 需要联网              |
-
-## 相关文档
-
-- [快速开始](/guide/quick-start) — 3 步上手
-- [疑难排查](/guide/troubleshooting) — 常见问题解决
+- [快速开始](/guide/quick-start) — 3 步完成配置上手
+- [AI 工作流详解](/guide/ai-video-guide) — 7 步生产流程拆解
+- [疑难排查](/guide/troubleshooting) — 常见故障排查

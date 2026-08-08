@@ -2,8 +2,8 @@
   <div class="vynaro-model-matrix">
     <div class="matrix-header">
       <div class="matrix-kicker">多模型协同能力矩阵</div>
-      <h3 class="matrix-title">支持 11 大 LLM 独白引擎与 TTS 人声克隆</h3>
-      <p class="matrix-sub">内置各大模型 SDK 驱动与备用节点，自动校验剧情独白一致性与逻辑完播率。</p>
+      <h3 class="matrix-title">支持 11 大 LLM 独白引擎与 3 大 TTS 人声克隆</h3>
+      <p class="matrix-sub">严格对应 Vynaro 核心代码与 README 规范，自动校验剧情独白一致性与完播率。</p>
     </div>
 
     <!-- 分类 Filter Buttons -->
@@ -39,12 +39,12 @@
 
         <div class="card-specs">
           <div class="spec-item">
-            <span class="spec-lbl">响应耗时</span>
-            <span class="spec-val">{{ model.latency }}</span>
+            <span class="spec-lbl">官方默认模型</span>
+            <span class="spec-val gold">{{ model.defaultModel }}</span>
           </div>
           <div class="spec-item">
-            <span class="spec-lbl">叙事完播预估</span>
-            <span class="spec-val gold">{{ model.rating }}</span>
+            <span class="spec-lbl">响应耗时</span>
+            <span class="spec-val">{{ model.latency }}</span>
           </div>
         </div>
 
@@ -62,111 +62,155 @@ import { ref, computed } from 'vue'
 const selectedCat = ref('all')
 
 const categories = [
-  { id: 'all', name: '全部引擎 (11+)', icon: '⚡' },
-  { id: 'llm', name: 'LLM 独白脚本', icon: '🧠' },
-  { id: 'tts', name: 'TTS 与人声克隆', icon: '🎙️' },
-  { id: 'local', name: '本地开源部署', icon: '🏠' }
+  { id: 'all', name: '全部 11 大引擎 + TTS', icon: '⚡' },
+  { id: 'llm', name: 'LLM 独白脚本 (10大)', icon: '🧠' },
+  { id: 'tts', name: 'TTS 与人声克隆 (3大)', icon: '🎙️' },
+  { id: 'local', name: '本地开源引擎', icon: '🏠' }
 ]
 
 const models = [
   {
-    name: '通义千问 (Qwen 3.8 / Plus)',
-    badge: '🇨🇳 Aliyun Bailian',
+    name: '通义千问 (Qwen)',
+    badge: '🇨🇳 Aliyun DashScope',
     type: 'LLM 脚本引擎',
-    desc: '原生支持视频帧语义解析与人物情绪拟定，Hook 引子爆点抓取极佳。',
-    latency: '~1.2s',
-    rating: '98.5% 高完播率',
-    tags: ['qwen3.8-max', '短剧桥段识别', '原生结构化输出'],
+    defaultModel: 'qwen3.8-max',
+    desc: '阿里云百炼官方推荐，原生支持视频帧语义解析与人物情绪拟定，Hook 爆点抓取极佳。',
+    latency: '~1.1s',
+    tags: ['qwen3.8-max', 'qwen-plus', '短剧桥段识别'],
     cat: 'llm',
     brandColor: '#f5c842'
   },
   {
-    name: 'DeepSeek (R1 / V3 Pro)',
+    name: 'DeepSeek',
     badge: '🇨🇳 DeepSeek AI',
     type: 'LLM 深度推理',
-    desc: '深度思考推理引擎，擅长处理错综复杂的多人反转与悬疑短剧冲突。',
-    latency: '~1.8s',
-    rating: '99.1% 逻辑门禁',
-    tags: ['deepseek-r1', '反转打脸链', '高密度情节'],
+    defaultModel: 'deepseek-v4-pro',
+    desc: '深度思考推理引擎，擅长处理错综复杂的多人反转与悬疑短剧冲突逻辑链。',
+    latency: '~1.5s',
+    tags: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-r1', 'deepseek-v3'],
     cat: 'llm',
     brandColor: '#06b6d4'
   },
   {
-    name: 'OpenAI (GPT-4o / GPT-5.6)',
+    name: 'OpenAI',
     badge: '🇺🇸 OpenAI',
     type: 'LLM 旗舰模型',
+    defaultModel: 'gpt-5.6-sol',
     desc: '全球顶尖多模态模型，文笔流畅优美，角色第一人称内心独白渲染极强。',
-    latency: '~1.4s',
-    rating: '98.8% 情感表达',
-    tags: ['gpt-4o', '多语种解说', '角色人设对齐'],
+    latency: '~1.2s',
+    tags: ['gpt-5.6-sol', 'gpt-4o', 'gpt-4o-mini', '多语种解说'],
     cat: 'llm',
     brandColor: '#10b981'
   },
   {
-    name: 'Claude (Claude 3.5 Sonnet)',
+    name: 'Claude',
     badge: '🇺🇸 Anthropic',
     type: 'LLM 叙事大师',
+    defaultModel: 'claude-sonnet-5',
     desc: '极具电影质感的文风输出，无机械感，适合治愈系、怀旧与纪录片腔调。',
-    latency: '~1.5s',
-    rating: '97.9% 电影质感',
-    tags: ['claude-3.5', '高级修辞', '人称视角一致'],
+    latency: '~1.4s',
+    tags: ['claude-sonnet-5', 'claude-3-5-sonnet', '高级修辞'],
     cat: 'llm',
     brandColor: '#a78bfa'
   },
   {
-    name: 'Gemini (3.6 Flash / Pro)',
+    name: 'Gemini',
     badge: '🇺🇸 Google AI',
     type: 'LLM 极速推理',
+    defaultModel: 'gemini-3.6-flash',
     desc: '超长上下文窗口，支持长达 2 小时的全季短剧批量分析与连续集梗概。',
     latency: '~0.8s',
-    rating: '96.5% 长剧梗概',
-    tags: ['gemini-3.6-flash', '整季批量', '秒级响应'],
+    tags: ['gemini-3.6-flash', 'gemini-3.1-pro', '整季批量'],
     cat: 'llm',
     brandColor: '#3b82f6'
   },
   {
-    name: 'Kimi (月之暗面 Moonshot)',
+    name: 'Kimi (月之暗面)',
     badge: '🇨🇳 Moonshot AI',
     type: 'LLM 长文本',
+    defaultModel: 'kimi-k3',
     desc: '擅长处理百万字级别小说改编剧本与短剧背景设定集。',
-    latency: '~1.6s',
-    rating: '97.2% 设定对齐',
-    tags: ['kimi-k3', '小说改编', '人设卡片'],
+    latency: '~1.5s',
+    tags: ['kimi-k3', 'moonshot-v1', '小说改编'],
     cat: 'llm',
     brandColor: '#ec4899'
+  },
+  {
+    name: '智谱 GLM',
+    badge: '🇨🇳 Zhipu AI',
+    type: 'LLM 国产强核',
+    defaultModel: 'glm-5.2',
+    desc: '智谱清言大模型引擎，针对中文影视剧本与情感递进深度调优。',
+    latency: '~1.3s',
+    tags: ['glm-5.2', 'glm-4-plus', '中文剧本拟真'],
+    cat: 'llm',
+    brandColor: '#f97316'
+  },
+  {
+    name: '豆包 (Doubao)',
+    badge: '🇨🇳 火山引擎',
+    type: 'LLM 字节短视频',
+    defaultModel: 'doubao-seed-2-1-pro',
+    desc: '火山引擎抖音生态大模型，天然契合短视频高完播率节奏与热梗解说。',
+    latency: '~0.9s',
+    tags: ['doubao-seed-2-1-pro', 'doubao-pro-128k', '抖音爆款'],
+    cat: 'llm',
+    brandColor: '#00aeec'
+  },
+  {
+    name: '腾讯混元 (Hunyuan)',
+    badge: '🇨🇳 腾讯云',
+    type: 'LLM 腾讯生态',
+    defaultModel: 'hunyuan-pro',
+    desc: '腾讯混元大模型旗舰版，中文逻辑严密，适合影视剧情梗概与影评分析。',
+    latency: '~1.2s',
+    tags: ['hunyuan-pro', '影视解析', '结构化剧情'],
+    cat: 'llm',
+    brandColor: '#07c160'
+  },
+  {
+    name: '本地模型 (Local Engine)',
+    badge: '🏠 Ollama / LMStudio',
+    type: '本地开源推理',
+    defaultModel: 'llama3.2 / qwen2.5',
+    desc: '支持本地离线运行 Qwen2.5 / Llama3.2，保护剧本隐私与数据安全，0 费用。',
+    latency: '取决于本地 GPU',
+    tags: ['llama3.2', 'qwen2.5', '100% 离线隐私'],
+    cat: 'local',
+    brandColor: '#10b981'
   },
   {
     name: 'Edge-TTS 黄金配音',
     badge: '🎙️ Microsoft Azure',
     type: 'TTS 语音合成',
-    desc: '内置 50+ 种多语种黄金发音人，涵盖云希、云扬、晓晓等解说界热门音色。',
-    latency: '~0.5s',
-    rating: '99.5% 播音质感',
-    tags: ['50+ 音色', '语速/音调可调', '零延迟'],
+    defaultModel: 'zh-CN-XiaoxiaoNeural / Yunxi',
+    desc: '微软官方 TTS 引擎，内置 50+ 种多语种黄金发音人，免费极速无需 API Key。',
+    latency: '~0.4s',
+    tags: ['50+ 音色', '语速/音调可调', '免费极速'],
     cat: 'tts',
     brandColor: '#f5c842'
   },
   {
-    name: 'GPT-SoVITS 零样本克隆',
-    badge: '🎙️ Local / Cloud',
-    type: 'TTS 音色克隆',
-    desc: '只需要 5 秒参考音频，即可复刻任意指定主播、博主或博主角色音色。',
-    latency: '~2.5s',
-    rating: '98.2% 音色相似度',
-    tags: ['Zero-shot Clone', '5秒极速采样', '音色保真'],
+    name: 'OpenAI-TTS',
+    badge: '🎙️ OpenAI Voice',
+    type: 'TTS 影视配音',
+    defaultModel: 'gpt-4o-mini-tts / tts-1-hd',
+    desc: 'OpenAI 影视级语音合成引擎，音质极其逼真，呼吸感与情感抑扬顿挫丰富。',
+    latency: '~1.2s',
+    tags: ['gpt-4o-mini-tts', 'tts-1-hd', '影视高清配音'],
     cat: 'tts',
-    brandColor: '#8b5cf6'
+    brandColor: '#10b981'
   },
   {
-    name: 'Ollama / LMStudio 本地大模型',
-    badge: '🏠 Local GPU',
-    type: '本地开源推理',
-    desc: '支持本地离线运行 Qwen2.5 / Llama3.2，保护剧本隐私与数据安全。',
-    latency: '取决于本地 GPU',
-    rating: '100% 离线隐私',
-    tags: ['qwen2.5-local', 'llama3.2', '完全本地化'],
-    cat: 'local',
-    brandColor: '#10b981'
+    name: 'GPT-SoVITS 零样本克隆',
+    badge: '🎙️ Local Engine',
+    type: 'TTS 音色克隆',
+    defaultModel: 'Zero-shot Sovits (127.0.0.1:9880)',
+    desc: '只需要 5 秒参考音频，即可极速克隆指定主播或影视主角音色，带黄金波形探针。',
+    latency: '~2.0s',
+    tags: ['Zero-shot 5秒克隆', '黄金波形探针', '音色保真'],
+    cat: 'tts',
+    brandColor: '#8b5cf6'
   }
 ]
 
