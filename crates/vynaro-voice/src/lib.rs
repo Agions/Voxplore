@@ -511,7 +511,11 @@ impl TtsEngine for MimoTtsEngine {
                     });
                 }
             }
-            if let Some(data) = val.get("data").and_then(|v| v.get("audio")).and_then(|v| v.as_str()) {
+            if let Some(data) = val
+                .get("data")
+                .and_then(|v| v.get("audio"))
+                .and_then(|v| v.as_str())
+            {
                 if let Some(raw_audio) = decode_hex(data) {
                     let n = write_output(&req.output_path, &raw_audio).await?;
                     return Ok(TtsOutcome {

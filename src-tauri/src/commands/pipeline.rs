@@ -168,7 +168,10 @@ fn build_deps(
                 .clone()
                 .or_else(|| config.llm_base_url.clone())
                 .unwrap_or_else(|| "https://api.xiaomimimo.com/v1".into()),
-            model: config.tts_voice.clone().unwrap_or_else(|| "mimo-v2.5-tts".into()),
+            model: config
+                .tts_voice
+                .clone()
+                .unwrap_or_else(|| "mimo-v2.5-tts".into()),
             voice: config.tts_voice.clone().unwrap_or_else(|| "default".into()),
         }))),
         Some(TtsProviderKind::GptSovits) => {
