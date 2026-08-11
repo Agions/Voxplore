@@ -37,33 +37,6 @@ export function Step4VoicePanel({ onNext }: Step4VoicePanelProps) {
   const [refAudioName, setRefAudioName] = useState<string | null>(null);
   const [clonePromptText, setClonePromptText] = useState("");
 
-  // 实时波形动画
-  const [waveHeights, setWaveHeights] = useState<number[]>(
-    Array.from({ length: 48 }, (_, i) => Math.sin(i * 0.4) * 8 + 16)
-  );
-  const rafRef = useRef<number | null>(null);
-
-  const startWave = useCallback(() => {
-    const tick = () => {
-      const now = Date.now() * 0.005;
-      setWaveHeights(
-        Array.from({ length: 48 }, (_, i) =>
-          Math.sin(i * 0.4 + now + Math.sin(i * 0.15) * 0.5) * 20 + 24
-        )
-      );
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  const stopWave = useCallback(() => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    setWaveHeights(Array.from({ length: 48 }, (_, i) => Math.sin(i * 0.4) * 8 + 16));
-  }, []);
-
   // GPT-SoVITS 本地服务健康探针
   const [sovitsHealth, setSovitsHealth] = useState<"checking" | "online" | "offline">("checking");
 
@@ -86,12 +59,6 @@ export function Step4VoicePanel({ onNext }: Step4VoicePanelProps) {
       void checkSovitsHealth();
     }
   }, [selectedVoice, engine, checkSovitsHealth]);
-
-  useEffect(() => {
-    if (isPlaying) startWave();
-    else stopWave();
-    return () => stopWave();
-  }, [isPlaying, startWave, stopWave]);
 
   const voiceList = [
     { id: "zh-CN-XiaoxiaoNeural", name: "晓晓", sub: "灵动女声", icon: "👩", clone: false },

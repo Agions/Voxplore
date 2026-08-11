@@ -114,8 +114,9 @@ export function AudioWaveformVisualizer({
       // 1. 绘制柱状频域图 (Bar Frequency Visualizer)
       for (let i = 0; i < barCount; i++) {
         let val = 0;
+        const v = dataArray[i] ?? 0;
         if (hasRealData) {
-          val = (dataArray[i] / 255) * ch * 0.85;
+          val = (v / 255) * ch * 0.85;
         } else if (isPlaying) {
           const wave1 = Math.sin(i * 0.35 + animTime * 3);
           const wave2 = Math.cos(i * 0.2 + animTime * 4);
@@ -137,8 +138,11 @@ export function AudioWaveformVisualizer({
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(x, y, barWidth, barHeight, [3, 3, 0, 0]);
+        const ctxExt = ctx as unknown as CanvasRenderingContext2D & {
+          roundRect?: (x: number, y: number, w: number, h: number, radii: number[]) => void;
+        };
+        if (typeof ctxExt.roundRect === "function") {
+          ctxExt.roundRect(x, y, barWidth, barHeight, [3, 3, 0, 0]);
         } else {
           ctx.rect(x, y, barWidth, barHeight);
         }
@@ -167,8 +171,9 @@ export function AudioWaveformVisualizer({
 
       for (let i = 0; i < barCount; i++) {
         let val = 0;
+        const v = dataArray[i] ?? 0;
         if (hasRealData) {
-          val = (dataArray[i] / 255) * ch * 0.85;
+          val = (v / 255) * ch * 0.85;
         } else if (isPlaying) {
           val = Math.abs(Math.sin(i * 0.35 + animTime * 3)) * ch * 0.65 + 4;
         } else {

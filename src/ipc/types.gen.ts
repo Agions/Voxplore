@@ -340,6 +340,7 @@ export interface ScriptGenerateParams {
   style: string | null;
   emotion_density: number | null;
   word_count_target: number | null;
+  images_base64?: string[] | null;
 }
 
 // Rust 端 ScriptGenerateResult (pub struct)
