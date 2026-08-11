@@ -59,6 +59,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
         style: styleTab,
         emotion_density: emotionDensity / 100,
         word_count_target: wordCount,
+        images_base64: null,
       });
 
       setScriptContent(res.text);
