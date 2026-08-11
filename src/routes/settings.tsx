@@ -288,6 +288,17 @@ function SettingsPage() {
               })}
             </div>
           </FieldRow>
+          {ttsProvider === "mimo" && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-300 space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <span>🔑</span> 小米 MiMo 开放平台 API Key 配置说明
+              </div>
+              <p className="text-amber-200/80 leading-relaxed">
+                使用 MiMo TTS (mimo-v2.5-tts) 需要提供小米 MiMo 开放平台的专属 API 密钥。
+                请前往 <a href="https://platform.xiaomimimo.com" target="_blank" rel="noreferrer" className="underline font-semibold text-amber-200 hover:text-white">platform.xiaomimimo.com</a> 注册账号并在「API 管理」中生成 API Key，填入下方「TTS API Key」输入框中。
+              </p>
+            </div>
+          )}
           <FieldRow label="TTS API Key" hint="MiMo / OpenAI TTS 所需 API 密钥（可单独指定或继承 LLM Key）">
             <input
               type="password"
