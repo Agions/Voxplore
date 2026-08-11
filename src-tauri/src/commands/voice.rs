@@ -3,13 +3,14 @@
 use std::path::PathBuf;
 use tauri::Manager;
 use vynaro_voice::{
-    engine, EdgeTtsOptions, GptSovitsOptions, OpenAiTtsOptions, TtsEngineConfig, TtsRequest,
+    engine, EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
+    TtsRequest,
 };
 
 #[derive(serde::Deserialize)]
 pub struct VoicePreviewParams {
     pub text: String,
-    pub provider: String, // "edge" | "open-ai" | "gpt-sovits"
+    pub provider: String, // "edge" | "open-ai" | "mimo" | "gpt-sovits"
     pub voice: Option<String>,
     pub rate_percent: i32,
     pub api_key: Option<String>,
@@ -62,6 +63,17 @@ pub async fn voice_preview(
                 .unwrap_or_else(|| "https://api.openai.com".into()),
             model: params.model.unwrap_or_else(|| "tts-1".into()),
             voice: params.voice.clone().unwrap_or_else(|| "alloy".into()),
+        }),
+        "mimo" => TtsEngineConfig::Mimo(MimoTtsOptions {
+            api_key: params.api_key.unwrap_or_default(),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "https://api.minimax.chat".into()),
+            model: params.model.unwrap_or_else(|| "speech-01-hd".into()),
+            voice: params
+                .voice
+                .clone()
+                .unwrap_or_else(|| "male-qn-qingse".into()),
         }),
         "gpt-sovits" => TtsEngineConfig::GptSovits(GptSovitsOptions {
             base_url: params
@@ -117,6 +129,17 @@ pub async fn voice_synthesize(
                 .unwrap_or_else(|| "https://api.openai.com".into()),
             model: params.model.unwrap_or_else(|| "tts-1".into()),
             voice: params.voice.clone().unwrap_or_else(|| "alloy".into()),
+        }),
+        "mimo" => TtsEngineConfig::Mimo(MimoTtsOptions {
+            api_key: params.api_key.unwrap_or_default(),
+            base_url: params
+                .base_url
+                .unwrap_or_else(|| "https://api.minimax.chat".into()),
+            model: params.model.unwrap_or_else(|| "speech-01-hd".into()),
+            voice: params
+                .voice
+                .clone()
+                .unwrap_or_else(|| "male-qn-qingse".into()),
         }),
         "gpt-sovits" => TtsEngineConfig::GptSovits(GptSovitsOptions {
             base_url: params

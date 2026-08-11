@@ -41,15 +41,18 @@ Vynaro 原生支持 `README.md` 与底层核心代码指定的 11 大大语言�
 
 ---
 
-## 🎙️ 3 大 TTS 语音合成与人声克隆引擎
+## 🎙️ 4 大 TTS 语音合成与人声克隆引擎
 
-Vynaro 提供从免费内置配音到专业人声克隆的全套解决方案：
+Vynaro 提供从免费内置配音到专业人声克隆的全套解决方案，支持单独为 TTS 引擎指定 **TTS API Key** 与 **TTS Base URL**：
 
 | TTS 引擎 | 状态与费用 | 核心 Model / 音色 | 功能说明 |
 | :--- | :--- | :--- | :--- |
-| **Edge-TTS** | ✅ 免费内置 | `zh-CN-XiaoxiaoNeural` / `Yunxi` | 微软官方 50+ 黄金发音人，涵盖解说界常用音色 |
+| **Edge-TTS** | ✅ 免费内置 | `zh-CN-XiaoxiaoNeural` / `Yunxi` | 微软官方 50+ 黄金发音人，无需 API Key |
+| **MiMo (MiniMax)** | ✅ 免费开放 API | `speech-01-hd` / `male-qn-qingse` | MiniMax / MiMo 官方免费开放 API，高保真情感发音人 |
 | **OpenAI-TTS** | ✅ 需 API Key | `gpt-4o-mini-tts` / `tts-1-hd` | 影视级语音合成，支持富情感拟真人声 |
 | **GPT-SoVITS** | ✅ 本地 / 零样本 | Zero-shot Sovits (`127.0.0.1:9880`) | 仅需 5 秒参考音频即可复刻主播或影视角色音色 |
+
+> 💡 **TTS API 密钥与代理设置**：在应用 **设置 → 语音合成 (TTS)** 选项卡中，您可以填入独立的 `TTS API Key` 与 `TTS Base URL`（如指向自建代理或 MiniMax 专属 API 端点）。若留空，则自动复用 LLM 的 Key 与 Base URL 规则。
 
 ### Edge-TTS 热门解说音色参考
 

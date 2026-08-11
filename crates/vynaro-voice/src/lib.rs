@@ -405,6 +405,140 @@ impl TtsEngine for GptSovitsTtsEngine {
 }
 
 // ════════════════════════════════════════════════════════════════════════
+// 引擎 4 · MiniMax / MiMo TTS 引擎
+// ════════════════════════════════════════════════════════════════════════
+
+fn decode_hex(s: &str) -> Option<Vec<u8>> {
+    if s.len() % 2 != 0 {
+        return None;
+    }
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16).ok())
+        .collect()
+}
+
+#[derive(Debug, Clone)]
+pub struct MimoTtsOptions {
+    pub api_key: String,
+    pub base_url: String, // 默认 https://api.minimax.chat
+    pub model: String,    // 默认 speech-01-hd
+    pub voice: String,    // 默认 male-qn-qingse
+}
+
+impl Default for MimoTtsOptions {
+    fn default() -> Self {
+        Self {
+            api_key: String::new(),
+            base_url: "https://api.minimax.chat".into(),
+            model: "speech-01-hd".into(),
+            voice: "male-qn-qingse".into(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct MimoTtsEngine {
+    opts: MimoTtsOptions,
+    client: reqwest::Client,
+}
+
+impl MimoTtsEngine {
+    pub fn new(opts: MimoTtsOptions) -> Self {
+        Self {
+            opts,
+            client: reqwest::Client::new(),
+        }
+    }
+}
+
+#[async_trait]
+impl TtsEngine for MimoTtsEngine {
+    fn kind(&self) -> TtsProviderKind {
+        TtsProviderKind::Mimo
+    }
+
+    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
+        let base_url = self.opts.base_url.trim_end_matches('/');
+        let url = if base_url.contains("/v1/t2a") || base_url.contains("/v1/audio/speech") {
+            base_url.to_string()
+        } else {
+            format!("{}/v1/t2a_v2", base_url)
+        };
+        let speed = (100 + req.rate_percent).clamp(50, 150) as f64 / 100.0;
+        let voice = req.voice.clone().unwrap_or_else(|| self.opts.voice.clone());
+
+        let body = serde_json::json!({
+            "model": self.opts.model,
+            "text": req.text,
+            "stream": false,
+            "voice_setting": {
+                "voice_id": voice,
+                "speed": speed,
+                "vol": 1.0,
+                "pitch": 0
+            },
+            "audio_setting": {
+                "sample_rate": 32000,
+                "format": "mp3"
+            }
+        });
+
+        let mut req_builder = self.client.post(&url);
+        if !self.opts.api_key.is_empty() {
+            req_builder = req_builder.bearer_auth(&self.opts.api_key);
+        }
+
+        let resp = req_builder
+            .json(&body)
+            .send()
+            .await
+            .map_err(|e| tts_err(TtsProviderKind::Mimo, format!("request failed: {e}")))?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let text = resp.text().await.unwrap_or_default();
+            return Err(tts_err(
+                TtsProviderKind::Mimo,
+                format!("HTTP {status}: {}", truncate(&text, 300)),
+            ));
+        }
+
+        let bytes = resp
+            .bytes()
+            .await
+            .map_err(|e| tts_err(TtsProviderKind::Mimo, format!("read body: {e}")))?;
+
+        if let Ok(val) = serde_json::from_slice::<serde_json::Value>(&bytes) {
+            if let Some(audio_hex) = val.get("audio_file").and_then(|v| v.as_str()) {
+                if let Some(raw_audio) = decode_hex(audio_hex) {
+                    let n = write_output(&req.output_path, &raw_audio).await?;
+                    return Ok(TtsOutcome {
+                        bytes_written: n,
+                        format: "mp3",
+                    });
+                }
+            }
+            if let Some(data) = val.get("data").and_then(|v| v.get("audio")).and_then(|v| v.as_str()) {
+                if let Some(raw_audio) = decode_hex(data) {
+                    let n = write_output(&req.output_path, &raw_audio).await?;
+                    return Ok(TtsOutcome {
+                        bytes_written: n,
+                        format: "mp3",
+                    });
+                }
+            }
+        }
+
+        let n = write_output(&req.output_path, &bytes).await?;
+        Ok(TtsOutcome {
+            bytes_written: n,
+            format: "mp3",
+        })
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════
 // 工厂
 // ════════════════════════════════════════════════════════════════════════
 
@@ -414,6 +548,7 @@ pub enum TtsEngineConfig {
     Edge(EdgeTtsOptions),
     OpenAi(OpenAiTtsOptions),
     GptSovits(GptSovitsOptions),
+    Mimo(MimoTtsOptions),
 }
 
 pub fn engine(config: TtsEngineConfig) -> Box<dyn TtsEngine> {
@@ -421,6 +556,7 @@ pub fn engine(config: TtsEngineConfig) -> Box<dyn TtsEngine> {
         TtsEngineConfig::Edge(o) => Box::new(EdgeTtsEngine::new(o)),
         TtsEngineConfig::OpenAi(o) => Box::new(OpenAiTtsEngine::new(o)),
         TtsEngineConfig::GptSovits(o) => Box::new(GptSovitsTtsEngine::new(o)),
+        TtsEngineConfig::Mimo(o) => Box::new(MimoTtsEngine::new(o)),
     }
 }
 

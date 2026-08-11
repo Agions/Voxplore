@@ -422,6 +422,7 @@ export interface PipelineStatus {
 export type TtsProviderKind =
   | "edge"
   | "open-ai"
+  | "mimo"
   | "gpt-sovits";
 
 // Rust 端 HelpTopic (pub struct)
@@ -468,6 +469,8 @@ export interface ConfigSnapshot {
   llm_base_url: string | null;
   llm_model: string | null;
   tts_provider: string | null;
+  tts_api_key: string | null;
+  tts_base_url: string | null;
   tts_voice: string | null;
   tts_ref_audio_path: string | null;
   tts_prompt_text: string | null;

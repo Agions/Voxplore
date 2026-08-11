@@ -191,6 +191,17 @@ const models = [
     brandColor: '#f5c842'
   },
   {
+    name: 'MiMo (MiniMax) TTS',
+    badge: '🎙️ MiMo Open API',
+    type: 'TTS 开放语音',
+    defaultModel: 'speech-01-hd / male-qn-qingse',
+    desc: 'MiniMax / MiMo 开放 API 语音合成引擎，音质极其细腻，支持自然情感与气流沉浸。',
+    latency: '~0.6s',
+    tags: ['mimo-tts', 'speech-01-hd', '免费开放 API'],
+    cat: 'tts',
+    brandColor: '#ec4899'
+  },
+  {
     name: 'OpenAI-TTS',
     badge: '🎙️ OpenAI Voice',
     type: 'TTS 影视配音',

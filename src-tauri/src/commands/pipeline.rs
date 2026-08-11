@@ -19,7 +19,8 @@ use vynaro_script::factory;
 use vynaro_script::LlmProviderKind;
 use vynaro_voice::engine;
 use vynaro_voice::{
-    EdgeTtsOptions, GptSovitsOptions, OpenAiTtsOptions, TtsEngineConfig, TtsProviderKind,
+    EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
+    TtsProviderKind,
 };
 
 /// 5 步定义查询
@@ -143,19 +144,39 @@ fn build_deps(
                 .unwrap_or_else(|| "zh-CN-XiaoxiaoNeural".into()),
         }))),
         Some(TtsProviderKind::OpenAi) => Some(engine(TtsEngineConfig::OpenAi(OpenAiTtsOptions {
-            api_key: config.llm_api_key.clone().unwrap_or_default(),
-            base_url: config
-                .llm_base_url
+            api_key: config
+                .tts_api_key
                 .clone()
+                .or_else(|| config.llm_api_key.clone())
+                .unwrap_or_default(),
+            base_url: config
+                .tts_base_url
+                .clone()
+                .or_else(|| config.llm_base_url.clone())
                 .unwrap_or_else(|| "https://api.openai.com".into()),
             model: config.llm_model.clone().unwrap_or_else(|| "tts-1".into()),
             voice: config.tts_voice.clone().unwrap_or_else(|| "alloy".into()),
         }))),
+        Some(TtsProviderKind::Mimo) => Some(engine(TtsEngineConfig::Mimo(MimoTtsOptions {
+            api_key: config
+                .tts_api_key
+                .clone()
+                .or_else(|| config.llm_api_key.clone())
+                .unwrap_or_default(),
+            base_url: config
+                .tts_base_url
+                .clone()
+                .or_else(|| config.llm_base_url.clone())
+                .unwrap_or_else(|| "https://api.minimax.chat".into()),
+            model: config.tts_voice.clone().unwrap_or_else(|| "speech-01-hd".into()),
+            voice: config.tts_voice.clone().unwrap_or_else(|| "male-qn-qingse".into()),
+        }))),
         Some(TtsProviderKind::GptSovits) => {
             Some(engine(TtsEngineConfig::GptSovits(GptSovitsOptions {
                 base_url: config
-                    .llm_base_url
+                    .tts_base_url
                     .clone()
+                    .or_else(|| config.llm_base_url.clone())
                     .unwrap_or_else(|| "http://127.0.0.1:9880".into()),
                 ref_audio_path: config.tts_ref_audio_path.clone().unwrap_or_default(),
                 prompt_text: config.tts_prompt_text.clone().unwrap_or_default(),

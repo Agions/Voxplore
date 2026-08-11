@@ -90,6 +90,7 @@ pub enum TtsProviderKind {
     Edge,
     OpenAi,
     GptSovits,
+    Mimo,
 }
 
 // 把 VynaroError 序列化为 JSON 对象给 Tauri 前端

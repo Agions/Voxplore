@@ -39,11 +39,12 @@ const LLM_OPTIONS: Array<{
 ];
 
 const TTS_OPTIONS: Array<{
-  id: "edge" | "open-ai" | "gpt-sovits";
+  id: "edge" | "open-ai" | "mimo" | "gpt-sovits";
   label: string;
   hint: string;
 }> = [
     { id: "edge", label: "Edge TTS", hint: "微软免费 · 无需密钥" },
+    { id: "mimo", label: "MiMo (MiniMax) TTS", hint: "MiMo 开放 API · 推荐" },
     { id: "open-ai", label: "OpenAI TTS", hint: "tts-1 / alloy" },
     { id: "gpt-sovits", label: "GPT-SoVITS", hint: "本地克隆音色" },
   ];
@@ -58,6 +59,8 @@ const DEFAULT_SNAPSHOT: ConfigSnapshot = {
   llm_base_url: null,
   llm_model: null,
   tts_provider: null,
+  tts_api_key: null,
+  tts_base_url: null,
   tts_voice: null,
   tts_ref_audio_path: null,
   tts_prompt_text: null,
@@ -86,6 +89,8 @@ function SettingsPage() {
         llm_base_url: remote.llm_base_url ?? null,
         llm_model: remote.llm_model ?? null,
         tts_provider: remote.tts_provider ?? null,
+        tts_api_key: remote.tts_api_key ?? null,
+        tts_base_url: remote.tts_base_url ?? null,
         tts_voice: remote.tts_voice ?? null,
         tts_ref_audio_path: remote.tts_ref_audio_path ?? null,
         tts_prompt_text: remote.tts_prompt_text ?? null,
@@ -118,7 +123,7 @@ function SettingsPage() {
   };
 
   const ttsProvider = (local.tts_provider ?? "edge") as
-    "edge" | "open-ai" | "gpt-sovits";
+    "edge" | "open-ai" | "mimo" | "gpt-sovits";
 
   const hasApiKey = Boolean(local.llm_api_key && local.llm_api_key.trim().length > 0);
 
@@ -283,15 +288,41 @@ function SettingsPage() {
               })}
             </div>
           </FieldRow>
+          <FieldRow label="TTS API Key" hint="MiMo / OpenAI TTS 所需 API 密钥（可单独指定或继承 LLM Key）">
+            <input
+              type="password"
+              placeholder="sk-..."
+              value={local.tts_api_key ?? ""}
+              onChange={(e) => update("tts_api_key", e.target.value || null)}
+              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
+            />
+          </FieldRow>
+          <FieldRow label="TTS Base URL" hint="可选 · 自定义 TTS 代理服务或 MiMo API 端点">
+            <input
+              type="text"
+              placeholder={
+                ttsProvider === "mimo"
+                  ? "https://api.minimax.chat"
+                  : ttsProvider === "open-ai"
+                    ? "https://api.openai.com"
+                    : "https://api.openai.com"
+              }
+              value={local.tts_base_url ?? ""}
+              onChange={(e) => update("tts_base_url", e.target.value || null)}
+              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
+            />
+          </FieldRow>
           <FieldRow label="Voice / Model">
             <input
               type="text"
               placeholder={
                 ttsProvider === "edge"
                   ? "zh-CN-XiaoxiaoNeural"
-                  : ttsProvider === "open-ai"
-                    ? "alloy"
-                    : "default"
+                  : ttsProvider === "mimo"
+                    ? "male-qn-qingse"
+                    : ttsProvider === "open-ai"
+                      ? "alloy"
+                      : "default"
               }
               value={local.tts_voice ?? ""}
               onChange={(e) => update("tts_voice", e.target.value || null)}
