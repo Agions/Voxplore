@@ -162,7 +162,6 @@ function SettingsPage() {
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
           }`}
         >
-          <span>🔑</span>
           <span>{t("settings.tab_llm", locale)}</span>
           <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${hasApiKey ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
             {hasApiKey ? "Active" : "Keys"}
@@ -178,7 +177,6 @@ function SettingsPage() {
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
           }`}
         >
-          <span>🎙️</span>
           <span>{t("settings.tab_tts", locale)}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
             Online
@@ -194,7 +192,6 @@ function SettingsPage() {
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
           }`}
         >
-          <span>⚙️</span>
           <span>{t("settings.tab_ffmpeg", locale)}</span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
             Detected
@@ -210,7 +207,6 @@ function SettingsPage() {
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
           }`}
         >
-          <span>🎨</span>
           <span>{t("settings.tab_appearance", locale)}</span>
         </button>
       </div>
