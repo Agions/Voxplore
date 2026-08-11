@@ -44,7 +44,7 @@ const TTS_OPTIONS: Array<{
   hint: string;
 }> = [
     { id: "edge", label: "Edge TTS", hint: "微软免费 · 无需密钥" },
-    { id: "mimo", label: "MiMo (MiniMax) TTS", hint: "MiMo 开放 API · 推荐" },
+    { id: "mimo", label: "MiMo TTS (小米 MiMo)", hint: "mimo-v2.5-tts 限时免费 · 开放 API" },
     { id: "open-ai", label: "OpenAI TTS", hint: "tts-1 / alloy" },
     { id: "gpt-sovits", label: "GPT-SoVITS", hint: "本地克隆音色" },
   ];
@@ -302,7 +302,7 @@ function SettingsPage() {
               type="text"
               placeholder={
                 ttsProvider === "mimo"
-                  ? "https://api.minimax.chat"
+                  ? "https://api.xiaomimimo.com/v1"
                   : ttsProvider === "open-ai"
                     ? "https://api.openai.com"
                     : "https://api.openai.com"
@@ -319,7 +319,7 @@ function SettingsPage() {
                 ttsProvider === "edge"
                   ? "zh-CN-XiaoxiaoNeural"
                   : ttsProvider === "mimo"
-                    ? "male-qn-qingse"
+                    ? "mimo-v2.5-tts"
                     : ttsProvider === "open-ai"
                       ? "alloy"
                       : "default"

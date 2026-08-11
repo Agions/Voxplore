@@ -167,9 +167,9 @@ fn build_deps(
                 .tts_base_url
                 .clone()
                 .or_else(|| config.llm_base_url.clone())
-                .unwrap_or_else(|| "https://api.minimax.chat".into()),
-            model: config.tts_voice.clone().unwrap_or_else(|| "speech-01-hd".into()),
-            voice: config.tts_voice.clone().unwrap_or_else(|| "male-qn-qingse".into()),
+                .unwrap_or_else(|| "https://api.xiaomimimo.com/v1".into()),
+            model: config.tts_voice.clone().unwrap_or_else(|| "mimo-v2.5-tts".into()),
+            voice: config.tts_voice.clone().unwrap_or_else(|| "default".into()),
         }))),
         Some(TtsProviderKind::GptSovits) => {
             Some(engine(TtsEngineConfig::GptSovits(GptSovitsOptions {

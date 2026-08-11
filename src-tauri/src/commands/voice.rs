@@ -68,12 +68,9 @@ pub async fn voice_preview(
             api_key: params.api_key.unwrap_or_default(),
             base_url: params
                 .base_url
-                .unwrap_or_else(|| "https://api.minimax.chat".into()),
-            model: params.model.unwrap_or_else(|| "speech-01-hd".into()),
-            voice: params
-                .voice
-                .clone()
-                .unwrap_or_else(|| "male-qn-qingse".into()),
+                .unwrap_or_else(|| "https://api.xiaomimimo.com/v1".into()),
+            model: params.model.unwrap_or_else(|| "mimo-v2.5-tts".into()),
+            voice: params.voice.clone().unwrap_or_else(|| "default".into()),
         }),
         "gpt-sovits" => TtsEngineConfig::GptSovits(GptSovitsOptions {
             base_url: params

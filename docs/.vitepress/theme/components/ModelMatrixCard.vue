@@ -191,15 +191,15 @@ const models = [
     brandColor: '#f5c842'
   },
   {
-    name: 'MiMo (MiniMax) TTS',
-    badge: '🎙️ MiMo Open API',
+    name: 'MiMo TTS (小米 MiMo)',
+    badge: '🇨🇳 Xiaomi MiMo',
     type: 'TTS 开放语音',
-    defaultModel: 'speech-01-hd / male-qn-qingse',
-    desc: 'MiniMax / MiMo 开放 API 语音合成引擎，音质极其细腻，支持自然情感与气流沉浸。',
-    latency: '~0.6s',
-    tags: ['mimo-tts', 'speech-01-hd', '免费开放 API'],
+    defaultModel: 'mimo-v2.5-tts',
+    desc: '小米 MiMo 开放平台限时免费大模型语音合成，支持自然语气表达、情感控制与风致韵味调控。',
+    latency: '~0.5s',
+    tags: ['mimo-v2.5-tts', '小米 MiMo', '限时免费 API'],
     cat: 'tts',
-    brandColor: '#ec4899'
+    brandColor: '#ff6900'
   },
   {
     name: 'OpenAI-TTS',

@@ -48,7 +48,7 @@ Vynaro 提供从免费内置配音到专业人声克隆的全套解决方案，�
 | TTS 引擎 | 状态与费用 | 核心 Model / 音色 | 功能说明 |
 | :--- | :--- | :--- | :--- |
 | **Edge-TTS** | ✅ 免费内置 | `zh-CN-XiaoxiaoNeural` / `Yunxi` | 微软官方 50+ 黄金发音人，无需 API Key |
-| **MiMo (MiniMax)** | ✅ 免费开放 API | `speech-01-hd` / `male-qn-qingse` | MiniMax / MiMo 官方免费开放 API，高保真情感发音人 |
+| **MiMo (小米 MiMo)** | ✅ 限时免费 | `mimo-v2.5-tts` | 小米 MiMo 开放平台限时免费大模型语音，支持自然语气与情感控音 |
 | **OpenAI-TTS** | ✅ 需 API Key | `gpt-4o-mini-tts` / `tts-1-hd` | 影视级语音合成，支持富情感拟真人声 |
 | **GPT-SoVITS** | ✅ 本地 / 零样本 | Zero-shot Sovits (`127.0.0.1:9880`) | 仅需 5 秒参考音频即可复刻主播或影视角色音色 |
 

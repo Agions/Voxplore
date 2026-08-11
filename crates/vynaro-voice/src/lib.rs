@@ -421,18 +421,18 @@ fn decode_hex(s: &str) -> Option<Vec<u8>> {
 #[derive(Debug, Clone)]
 pub struct MimoTtsOptions {
     pub api_key: String,
-    pub base_url: String, // 默认 https://api.minimax.chat
-    pub model: String,    // 默认 speech-01-hd
-    pub voice: String,    // 默认 male-qn-qingse
+    pub base_url: String, // 默认 https://api.xiaomimimo.com/v1
+    pub model: String,    // 默认 mimo-v2.5-tts
+    pub voice: String,    // 默认 default
 }
 
 impl Default for MimoTtsOptions {
     fn default() -> Self {
         Self {
             api_key: String::new(),
-            base_url: "https://api.minimax.chat".into(),
-            model: "speech-01-hd".into(),
-            voice: "male-qn-qingse".into(),
+            base_url: "https://api.xiaomimimo.com/v1".into(),
+            model: "mimo-v2.5-tts".into(),
+            voice: "default".into(),
         }
     }
 }
@@ -460,28 +460,20 @@ impl TtsEngine for MimoTtsEngine {
 
     async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
         let base_url = self.opts.base_url.trim_end_matches('/');
-        let url = if base_url.contains("/v1/t2a") || base_url.contains("/v1/audio/speech") {
+        let url = if base_url.contains("/audio/speech") || base_url.contains("/t2a") {
             base_url.to_string()
         } else {
-            format!("{}/v1/t2a_v2", base_url)
+            format!("{}/audio/speech", base_url)
         };
         let speed = (100 + req.rate_percent).clamp(50, 150) as f64 / 100.0;
         let voice = req.voice.clone().unwrap_or_else(|| self.opts.voice.clone());
 
         let body = serde_json::json!({
             "model": self.opts.model,
-            "text": req.text,
-            "stream": false,
-            "voice_setting": {
-                "voice_id": voice,
-                "speed": speed,
-                "vol": 1.0,
-                "pitch": 0
-            },
-            "audio_setting": {
-                "sample_rate": 32000,
-                "format": "mp3"
-            }
+            "input": req.text,
+            "voice": voice,
+            "response_format": "mp3",
+            "speed": speed,
         });
 
         let mut req_builder = self.client.post(&url);
