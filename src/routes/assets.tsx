@@ -190,7 +190,7 @@ function AssetsPage() {
             ))}
           </div>
         ) : (
-          <EmptyState onCreate={handleCreateBlank} />
+          <EmptyState />
         )}
       </section>
 
@@ -530,10 +530,10 @@ function RecentCard({ path, index }: { path: string; index: number }) {
 
 // ── 空态 ──────────────────────────────────────────────────────────
 
-function EmptyState({ onCreate }: { onCreate: () => void }) {
+function EmptyState() {
   const locale = useSettingsStore((s) => s.locale);
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)]/40 px-6 py-12 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)]/40 px-6 py-10 text-center">
       <div className="overflow-hidden rounded-2xl border border-[var(--color-border)]">
         <img
           src="/empty-state.jpg"
@@ -544,16 +544,6 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <div className="text-base font-bold text-[var(--color-text-primary)]">
         {t("assets.no_project", locale)}
       </div>
-      <div className="text-xs text-[var(--color-text-secondary)]">
-        点击下方按钮，开始创建全新的解说工程
-      </div>
-      <button
-        type="button"
-        onClick={onCreate}
-        className="mt-2 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-6 py-2.5 text-xs font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition hover:shadow-amber-500/40 hover:brightness-105"
-      >
-        ✨ {t("assets.create_now", locale)}
-      </button>
     </div>
   );
 }

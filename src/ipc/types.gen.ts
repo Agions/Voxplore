@@ -70,7 +70,7 @@ export interface IpcContracts {
     args: void;
     result: string;
   };
-  // ─────── project · 10 个 ───────
+  // ─────── project · 6 个 ───────
   project_add_media: {
     args: {
       path: string;
@@ -423,8 +423,8 @@ export interface PipelineStatus {
 export type TtsProviderKind =
   | "edge"
   | "open-ai"
-  | "mimo"
-  | "gpt-sovits";
+  | "gpt-sovits"
+  | "mimo";
 
 // Rust 端 HelpTopic (pub struct)
 export interface HelpTopic {
@@ -475,17 +475,6 @@ export interface ConfigSnapshot {
   tts_voice: string | null;
   tts_ref_audio_path: string | null;
   tts_prompt_text: string | null;
-}
-
-// Rust 端 ProjectSnapshot (pub struct)
-export interface ProjectSnapshot {
-  id: string;
-  project_id: string;
-  version_tag: string;
-  kind: string;
-  name: string;
-  created_at: string;
-  project_json: string;
 }
 
 // Rust 端 FfmpegProbe (pub struct, rename_all = "camelCase")
@@ -734,6 +723,14 @@ export type UpdatePhase =
   | "available"
   | "downloading"
   | "ready";
+
+// Rust 端 MimoTtsOptions (pub struct)
+export interface MimoTtsOptions {
+  api_key: string;
+  base_url: string;
+  model: string;
+  voice: string;
+}
 
 /* <<< gen-ipc-types end */
 
