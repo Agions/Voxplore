@@ -240,6 +240,7 @@ impl StepExecutor for ScriptGenStep {
             max_tokens: Some(2048),
             temperature: Some(0.7),
             stream: false,
+            images_base64: vec![],
         };
 
         let resp = llm.chat(&req).await?;

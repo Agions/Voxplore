@@ -131,6 +131,49 @@ impl Ffmpeg {
         Ok(parse_scene_lines(&stderr))
     }
 
+    /// 提取单帧关键帧图片为 JPG (指定时间点 timestamp_seconds)
+    pub async fn extract_keyframe(
+        &self,
+        input: &Path,
+        timestamp_seconds: f64,
+        output: &Path,
+    ) -> VynaroResult<()> {
+        let ts = format!("{:.3}", timestamp_seconds);
+        self.run_encode(
+            &[
+                "-ss",
+                &ts,
+                "-i",
+                &input.to_string_lossy(),
+                "-vframes",
+                "1",
+                "-q:v",
+                "2",
+                &output.to_string_lossy(),
+            ],
+            None,
+        )
+        .await
+    }
+
+    /// 批量抽取镜头切片关键帧图片，返回保存的图片路径列表
+    pub async fn extract_scene_keyframes(
+        &self,
+        input: &Path,
+        cuts: &[SceneCut],
+        out_dir: &Path,
+    ) -> VynaroResult<Vec<PathBuf>> {
+        let _ = tokio::fs::create_dir_all(out_dir).await;
+        let mut paths = Vec::new();
+        for (idx, cut) in cuts.iter().enumerate() {
+            let out_file = out_dir.join(format!("frame_{:03}.jpg", idx + 1));
+            if self.extract_keyframe(input, *cut, &out_file).await.is_ok() {
+                paths.push(out_file);
+            }
+        }
+        Ok(paths)
+    }
+
     // ── 转码操作 (白名单参数) ───────────────────────────────────────────
 
     /// 抽取音轨 → wav (16k 单声道,TTS 参考音频标准格式)

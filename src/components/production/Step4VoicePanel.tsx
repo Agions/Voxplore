@@ -14,6 +14,7 @@ import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
 import { voiceIpc } from "@ipc/commands";
 import { useSettingsStore } from "@stores/settings-store";
 import { t } from "@lib/i18n";
+import { AudioWaveformVisualizer } from "./AudioWaveformVisualizer";
 
 interface Step4VoicePanelProps {
   onNext: () => void;
@@ -301,7 +302,7 @@ export function Step4VoicePanel({ onNext }: Step4VoicePanelProps) {
           {/* 实时波形播放器 */}
           <div style={{ background: "var(--color-bg)", border: "1px solid var(--color-border)", borderRadius: "12px", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "12px" }}>
             <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>实时波形预览</span>
+              <span>实时波形预览 (Web Audio Spectrum)</span>
               <span style={{ fontSize: "11px", color: isPlaying ? "var(--color-gold)" : "var(--color-text-muted)" }}>
                 {isGenerating ? "⏳ 合成中..." : isPlaying ? "▶ 播放中" : audioUrl ? "⏹ 已就绪" : "等待试听"}
               </span>
@@ -310,13 +311,8 @@ export function Step4VoicePanel({ onNext }: Step4VoicePanelProps) {
               <button type="button" onClick={togglePlay} disabled={isGenerating || (isCloneMode && !refAudioPath)} title={isCloneMode && !refAudioPath ? "请先上传参考音频" : undefined} style={{ width: 48, height: 48, borderRadius: "50%", flexShrink: 0, background: canPreview ? "linear-gradient(135deg, #F5C842 0%, #E8933A 100%)" : "var(--color-surface)", border: canPreview ? "none" : "1px solid var(--color-border)", color: canPreview ? "#1A1A1F" : "var(--color-text-muted)", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", cursor: canPreview ? "pointer" : "not-allowed", transition: "all 200ms ease", boxShadow: canPreview && isPlaying ? "0 0 24px rgba(245,200,66,0.45)" : "none" }}>
                 {isGenerating ? "⏳" : isPlaying ? "⏸" : "▶"}
               </button>
-              <div style={{ flex: 1, height: "60px", background: "var(--color-surface)", borderRadius: "8px", border: "1px solid var(--color-border)", display: "flex", alignItems: "center", justifyContent: "center", gap: "2px", padding: "0 12px", overflow: "hidden" }}>
-                {waveHeights.map((h, i) => {
-                  const isGold = i > 12 && i < 36;
-                  return (
-                    <div key={i} style={{ width: "3px", height: `${h}px`, background: isGold ? (isPlaying ? "var(--color-gold)" : "rgba(245,200,66,0.35)") : "var(--color-border)", borderRadius: "2px", boxShadow: isGold && isPlaying ? "0 0 8px rgba(245,200,66,0.7)" : "none", transition: isPlaying ? "height 60ms ease" : "height 400ms ease" }} />
-                  );
-                })}
+              <div style={{ flex: 1 }}>
+                <AudioWaveformVisualizer audioRef={audioRef} isPlaying={isPlaying} height={54} barCount={52} />
               </div>
             </div>
           </div>

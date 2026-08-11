@@ -33,7 +33,7 @@ pub use vynaro_core::error::{LlmProviderKind, VynaroError, VynaroResult};
 // ════════════════════════════════════════════════════════════════════════
 
 /// 单次 LLM 调用的输入。
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LlmRequest {
     pub system: String,
     pub user: String,
@@ -41,6 +41,9 @@ pub struct LlmRequest {
     pub max_tokens: Option<u32>,  // 默认 4096
     pub temperature: Option<f32>, // 默认 0.7
     pub stream: bool,             // 是否流式
+    /// 多模态视觉关键帧 (Base64 字符串列表, 供 GPT-5.6 / Gemini / Qwen3.8 等视觉模型分析)
+    #[serde(default)]
+    pub images_base64: Vec<String>,
 }
 
 /// LLM 响应 (一次性)。
@@ -107,11 +110,29 @@ impl LlmProvider for OpenAiCompatible {
     async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
         let start = std::time::Instant::now();
 
+        let user_content = if req.images_base64.is_empty() {
+            serde_json::json!(req.user)
+        } else {
+            let mut parts = vec![serde_json::json!({
+                "type": "text",
+                "text": req.user
+            })];
+            for b64 in &req.images_base64 {
+                parts.push(serde_json::json!({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": format!("data:image/jpeg;base64,{}", b64)
+                    }
+                }));
+            }
+            serde_json::json!(parts)
+        };
+
         let body = serde_json::json!({
             "model": req.model.clone().unwrap_or_else(|| self.default_model.to_string()),
             "messages": [
                 { "role": "system", "content": req.system },
-                { "role": "user",   "content": req.user },
+                { "role": "user",   "content": user_content },
             ],
             "max_tokens": req.max_tokens.unwrap_or(4096),
             "temperature": req.temperature.unwrap_or(0.7),
@@ -616,6 +637,7 @@ mod tests {
                 max_tokens: None,
                 temperature: None,
                 stream: false,
+                images_base64: vec![],
             })
             .await;
         assert!(r.is_err());
@@ -681,6 +703,7 @@ mod tests {
                 max_tokens: None,
                 temperature: None,
                 stream: false,
+                images_base64: vec![],
             })
             .await;
         assert!(r.is_err());

@@ -13,6 +13,8 @@ pub struct ScriptGenerateParams {
     pub style: Option<String>, // "immersive" | "critic" | "story" | "roast"
     pub emotion_density: Option<f32>,
     pub word_count_target: Option<u32>,
+    /// 可选多模态关键帧图片 Base64 数组
+    pub images_base64: Option<Vec<String>>,
 }
 
 #[derive(serde::Serialize)]
@@ -63,6 +65,7 @@ pub async fn script_generate(params: ScriptGenerateParams) -> Result<ScriptGener
         max_tokens: Some(2048),
         temperature: Some(0.7),
         stream: false,
+        images_base64: params.images_base64.unwrap_or_default(),
     };
 
     let resp = generator
