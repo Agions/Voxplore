@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    monoloop_lib::run()
+    vynaro_lib::run()
 }

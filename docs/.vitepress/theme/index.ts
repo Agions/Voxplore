@@ -1,5 +1,5 @@
 /**
- * Monoloop VitePress Theme
+ * Vynaro VitePress Theme
  * Linear / Raycast 级顶奢暗黑主题 + 自定义 Vue 高奢组件库
  */
 

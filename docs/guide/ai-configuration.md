@@ -1,11 +1,11 @@
 ---
 title: AI 配置与大模型矩阵
-description: 配置 Monoloop 支持的 11 大 LLM 解说稿生成引擎与 3 大 TTS 人声克隆服务。
+description: 配置 Vynaro 支持的 11 大 LLM 解说稿生成引擎与 3 大 TTS 人声克隆服务。
 ---
 
 # 🧠 AI 配置与大模型矩阵
 
-Monoloop 采用统一的 LLM & TTS Provider 架构。所有 API 密钥均通过应用内 **设置 → AI 服务** 进行本地加密存储，绝不上云或外传。
+Vynaro 采用统一的 LLM & TTS Provider 架构。所有 API 密钥均通过应用内 **设置 → AI 服务** 进行本地加密存储，绝不上云或外传。
 
 ---
 
@@ -24,7 +24,7 @@ Monoloop 采用统一的 LLM & TTS Provider 架构。所有 API 密钥均通过�
 
 ## 🤖 11 大主流 LLM 独白引擎支持
 
-Monoloop 原生支持 `README.md` 与底层核心代码指定的 11 大大语言模型引擎：
+Vynaro 原生支持 `README.md` 与底层核心代码指定的 11 大大语言模型引擎：
 
 | 服务商 | 官方默认模型 (Default Model) | 推荐替代模型 | 特性与适用场景 |
 | :--- | :--- | :--- | :--- |
@@ -43,7 +43,7 @@ Monoloop 原生支持 `README.md` 与底层核心代码指定的 11 大大语言
 
 ## 🎙️ 4 大 TTS 语音合成与人声克隆引擎
 
-Monoloop 提供从免费内置配音到专业人声克隆的全套解决方案，支持单独为 TTS 引擎指定 **TTS API Key** 与 **TTS Base URL**：
+Vynaro 提供从免费内置配音到专业人声克隆的全套解决方案，支持单独为 TTS 引擎指定 **TTS API Key** 与 **TTS Base URL**：
 
 | TTS 引擎 | 状态与费用 | 核心 Model / 音色 | 功能说明 |
 | :--- | :--- | :--- | :--- |
@@ -52,7 +52,7 @@ Monoloop 提供从免费内置配音到专业人声克隆的全套解决方案�
 | **OpenAI-TTS** | ✅ 需 API Key | `gpt-4o-mini-tts` / `tts-1-hd` | 影视级语音合成，支持富情感拟真人声 |
 | **GPT-SoVITS** | ✅ 本地 / 零样本 | Zero-shot Sovits (`127.0.0.1:9880`) | 仅需 5 秒参考音频即可复刻主播或影视角色音色 |
 
-> 💡 **Xiaomi MiMo API Key 配置说明**：使用 MiMo TTS (`mimo-v2.5-tts`) 前，请前往 [小米 MiMo 开放平台 (platform.xiaomimimo.com)](https://platform.xiaomimimo.com) 注册账号并在「API 管理」中生成专属 API Key。然后在 Monoloop **设置 → 语音合成 (TTS)** 中填入 `TTS API Key` 即可使用。若使用 OpenAI-TTS 或第三方代理，亦可在同处单独配置 `TTS API Key` 与 `TTS Base URL`。
+> 💡 **Xiaomi MiMo API Key 配置说明**：使用 MiMo TTS (`mimo-v2.5-tts`) 前，请前往 [小米 MiMo 开放平台 (platform.xiaomimimo.com)](https://platform.xiaomimimo.com) 注册账号并在「API 管理」中生成专属 API Key。然后在 Vynaro **设置 → 语音合成 (TTS)** 中填入 `TTS API Key` 即可使用。若使用 OpenAI-TTS 或第三方代理，亦可在同处单独配置 `TTS API Key` 与 `TTS Base URL`。
 
 ### Edge-TTS 热门解说音色参考
 

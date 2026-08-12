@@ -1,11 +1,11 @@
 /**
- * Monoloop v1.0.0 · 设置页 (M3.2 接通后端 · M4.5 Locale 切换)
+ * Vynaro v1.0.0 · 设置页 (M3.2 接通后端 · M4.5 Locale 切换)
  *
  * 真实接入 settings_get / settings_set + i18n_get_locale / i18n_set_locale
  * - LLM 11 个 Provider (与 Rust 1:1)
  * - TTS 3 个引擎 (Edge / OpenAI / GPT-SoVITS)
  * - API Key 走 ConfigSnapshot (生产环境走 keyring · 此处先内存)
- * - 语言 Locale 切换走 monoloop-i18n,emit `app:locale_changed` 全局通知
+ * - 语言 Locale 切换走 vynaro-i18n,emit `app:locale_changed` 全局通知
  */
 
 import { createFileRoute } from "@tanstack/react-router";

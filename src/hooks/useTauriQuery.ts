@@ -1,9 +1,9 @@
 /**
- * Monoloop v1.0.0 · useTauriQuery — React Query + Tauri Invoke 通用封装
+ * Vynaro v1.0.0 · useTauriQuery — React Query + Tauri Invoke 通用封装
  *
  * 自动处理:
  * - Query Key 命名空间 (避免与其它 query 冲突)
- * - 错误抛出 MonoloopError (可在 onError 中统一 toast)
+ * - 错误抛出 VynaroError (可在 onError 中统一 toast)
  * - 禁用 retry (因为 Tauri 错误不是网络抖动)
  * - 缓存 5s (frontend 频繁 query 时降级 IPC 调用)
  */
@@ -17,11 +17,11 @@ import {
 import type {
   CommandResultOf,
   IpcCommand,
-  MonoloopError,
+  VynaroError,
 } from "@ipc/types.gen";
 
 export interface UseTauriQueryOptions<C extends IpcCommand> extends Omit<
-  UseQueryOptions<CommandResultOf<C>, MonoloopError, CommandResultOf<C>>,
+  UseQueryOptions<CommandResultOf<C>, VynaroError, CommandResultOf<C>>,
   "queryKey" | "queryFn"
 > {
   command: C;
@@ -31,9 +31,9 @@ export interface UseTauriQueryOptions<C extends IpcCommand> extends Omit<
 
 export function useTauriQuery<C extends IpcCommand>(
   options: UseTauriQueryOptions<C>,
-): UseQueryResult<CommandResultOf<C>, MonoloopError> {
+): UseQueryResult<CommandResultOf<C>, VynaroError> {
   const { command, args, queryKeyPrefix, ...rest } = options;
-  return useQuery<CommandResultOf<C>, MonoloopError, CommandResultOf<C>>({
+  return useQuery<CommandResultOf<C>, VynaroError, CommandResultOf<C>>({
     queryKey: [queryKeyPrefix, command, args] as const,
     queryFn: async () => {
       try {
@@ -46,12 +46,12 @@ export function useTauriQuery<C extends IpcCommand>(
           "message" in err &&
           typeof (err as { kind: unknown }).kind === "string"
         ) {
-          throw err as MonoloopError;
+          throw err as VynaroError;
         }
         throw {
           kind: "other",
           message: err instanceof Error ? err.message : String(err),
-        } satisfies MonoloopError;
+        } satisfies VynaroError;
       }
     },
     retry: false,

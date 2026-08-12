@@ -1,13 +1,13 @@
 [package]
-name = "monoloop"
+name = "vynaro"
 version = "1.0.0"
-description = "Monoloop v1.0.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
+description = "Vynaro v1.0.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
 authors = ["Agions"]
 edition = "2021"
 rust-version = "1.85"
 
 [lib]
-name = "monoloop_lib"
+name = "vynaro_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -27,27 +27,27 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 
-# ── Monoloop 工作流 crates ──
+# ── Vynaro 工作流 crates ──
 # 基础层
-monoloop-core    = { path = "../crates/core" }
-monoloop-domain  = { path = "../crates/domain" }
+vynaro-core    = { path = "../crates/vynaro-core" }
+vynaro-domain  = { path = "../crates/vynaro-domain" }
 # Step 1 素材导入
-monoloop-intake  = { path = "../crates/intake" }
+vynaro-intake  = { path = "../crates/vynaro-intake" }
 # Step 2 智能拆条
-monoloop-detect  = { path = "../crates/detect" }
+vynaro-detect  = { path = "../crates/vynaro-detect" }
 # Step 3 脚本生成
-monoloop-script  = { path = "../crates/script" }
+vynaro-script  = { path = "../crates/vynaro-script" }
 # Step 4 TTS 配音
-monoloop-voice   = { path = "../crates/voice" }
+vynaro-voice   = { path = "../crates/vynaro-voice" }
 # Step 5 字幕合成
-monoloop-subtitle = { path = "../crates/subtitle" }
+vynaro-subtitle = { path = "../crates/vynaro-subtitle" }
 # Step 6 画面对齐
-monoloop-compose = { path = "../crates/compose" }
+vynaro-compose = { path = "../crates/vynaro-compose" }
 # Step 7 多平台导出
-monoloop-export  = { path = "../crates/export" }
+vynaro-export  = { path = "../crates/vynaro-export" }
 # 基础设施
-monoloop-storage = { path = "../crates/storage" }
-monoloop-update  = { path = "../crates/update" }
-monoloop-plugin  = { path = "../crates/plugin" }
+vynaro-storage = { path = "../crates/vynaro-storage" }
+vynaro-update  = { path = "../crates/vynaro-update" }
+vynaro-plugin  = { path = "../crates/vynaro-plugin" }
 
 # workspace lints / profiles 在根 Cargo.toml 集中定义

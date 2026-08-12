@@ -1,5 +1,5 @@
 /**
- * Monoloop v1.0.0 · 全量双语 (i18n) 字典与翻译函数
+ * Vynaro v1.0.0 · 全量双语 (i18n) 字典与翻译函数
  */
 
 export type Locale = "zh-CN" | "en-US";
@@ -16,7 +16,7 @@ export const TRANSLATIONS: Record<Locale, Record<string, string>> = {
     // 顶栏
     "topbar.help": "帮助与支持",
     "topbar.docs": "官方文档",
-    "topbar.about": "关于 Monoloop",
+    "topbar.about": "关于 Vynaro",
     "topbar.search_placeholder": "搜索全域命令与解说工程...",
     "topbar.search_title": "打开命令面板 ⌘K",
     "topbar.connected": "已连接",
@@ -33,7 +33,7 @@ export const TRANSLATIONS: Record<Locale, Record<string, string>> = {
     "action.enter": "进入制作工作台 →",
 
     // 首页 Dashboard
-    "home.welcome_title": "Monoloop 叙影 AI 视频叙事工作室",
+    "home.welcome_title": "Vynaro 叙影 AI 视频叙事工作室",
     "home.welcome_subtitle": "打造下一部爆款电影级短剧与影视解说作品 · 7 步全自动 AI 极速流水线",
     "home.recent_title": "最近视频解说工程",
     "home.see_all": "查看资产库 →",
@@ -143,7 +143,7 @@ export const TRANSLATIONS: Record<Locale, Record<string, string>> = {
     // TopBar
     "topbar.help": "Help & Support",
     "topbar.docs": "Documentation",
-    "topbar.about": "About Monoloop",
+    "topbar.about": "About Vynaro",
     "topbar.search_placeholder": "Search commands & projects...",
     "topbar.search_title": "Open Command Palette ⌘K",
     "topbar.connected": "Connected",
@@ -160,7 +160,7 @@ export const TRANSLATIONS: Record<Locale, Record<string, string>> = {
     "action.enter": "Enter Workbench →",
 
     // Home Dashboard
-    "home.welcome_title": "Monoloop AI Narrative Video Studio",
+    "home.welcome_title": "Vynaro AI Narrative Video Studio",
     "home.welcome_subtitle": "Create cinematic short drama monologues & video commentary with automated 7-step pipeline",
     "home.recent_title": "Recent Video Projects",
     "home.see_all": "View Assets Hub →",

@@ -1,9 +1,9 @@
 {
-  "name": "monoloop",
+  "name": "vynaro",
   "private": true,
   "version": "1.0.1",
   "type": "module",
-  "description": "Monoloop v1.0.1 · Tauri + React 桌面应用",
+  "description": "Vynaro v1.0.1 · Tauri + React 桌面应用",
   "scripts": {
     "gen:ipc": "node scripts/gen-ipc.mjs",
     "gen:ipc:check": "node scripts/gen-ipc.mjs --check",

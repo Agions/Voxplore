@@ -1,5 +1,5 @@
 /**
- * Monoloop v1.0.0 · 素材 hook (M3 后续完整实装)
+ * Vynaro v1.0.0 · 素材 hook (M3 后续完整实装)
  *
  * 数据源:
  * - 单一真相源 = project.media_files (从 useProjectStore.current 派生)
@@ -64,7 +64,7 @@ export interface UseAssetsReturn {
 
   /**
    * 生成首帧缩略图
-   * - 写入 ~/.cache/monoloop/thumb/<sha256>.jpg
+   * - 写入 ~/.cache/vynaro/thumb/<sha256>.jpg
    * - 返回本地路径,前端用 file:// 或 convertFileSrc 加载
    */
   thumbnail: (path: string, width?: number) => Promise<ThumbnailResult>;
@@ -95,7 +95,7 @@ export interface UseAssetsReturn {
 
   /** 异步操作状态 */
   loading: boolean;
-  /** 最近一次失败信息 (MonoloopError 或 Error) */
+  /** 最近一次失败信息 (VynaroError 或 Error) */
   error: unknown;
 }
 

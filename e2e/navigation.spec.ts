@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Monoloop 页面导航", () => {
+test.describe("Vynaro 页面导航", () => {
   test("首页可以加载并显示应用壳层", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/Monoloop/i);
+    await expect(page).toHaveTitle(/Vynaro/i);
     await expect(page.getByRole("navigation")).toBeVisible();
   });
 

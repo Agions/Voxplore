@@ -1,6 +1,6 @@
-//! Monoloop v1.0.0 · 智能字幕与 ASS/SRT/VTT 渲染 Tauri 命令
+//! Vynaro v1.0.0 · 智能字幕与 ASS/SRT/VTT 渲染 Tauri 命令
 
-use monoloop_export::{SubtitleFormat, SubtitleItem};
+use vynaro_export::{SubtitleFormat, SubtitleItem};
 
 #[derive(serde::Deserialize)]
 pub struct SubtitleGenerateParams {
@@ -63,7 +63,7 @@ pub async fn subtitle_generate(
         _ => SubtitleFormat::Srt,
     };
 
-    let content = monoloop_export::render_subtitles(&items, sub_fmt)
+    let content = vynaro_export::render_subtitles(&items, sub_fmt)
         .map_err(|e| format!("渲染字幕失败: {e}"))?;
 
     let count = items.len();

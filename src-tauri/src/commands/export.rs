@@ -1,4 +1,4 @@
-//! src-tauri 命令 · export (M4.5 · 接 monoloop-export / monoloop-video)
+//! src-tauri 命令 · export (M4.5 · 接 vynaro-export / vynaro-video)
 //!
 //! - export_plan: 按 quick/custom/silent 模式生成导出计划 (ffmpeg 参数)
 //! - export_validate_params: 校验自定义编码参数 (分辨率/fps/码率/codec×container)
@@ -9,12 +9,12 @@
 
 use std::path::PathBuf;
 
-use monoloop_domain::{ExportStrategy, ProjectSettings};
-use monoloop_export::{
+use vynaro_domain::{ExportStrategy, ProjectSettings};
+use vynaro_export::{
     render_subtitles, validate_params, ExportMode, ExportParams, ExportPlan, ExportPlanner,
     SubtitleFormat, SubtitleItem,
 };
-use monoloop_intake::{build_plans, OutputPlan, PlanOptions};
+use vynaro_intake::{build_plans, OutputPlan, PlanOptions};
 
 /// 按模式生成导出计划。custom 模式必须携带 settings。
 #[tauri::command]
@@ -77,7 +77,7 @@ pub async fn export_capcut_draft(
             .unwrap_or_else(|_| PathBuf::from("/tmp"))
     };
 
-    let draft_id = format!("monoloop_draft_{}", chrono::Utc::now().timestamp_millis());
+    let draft_id = format!("vynaro_draft_{}", chrono::Utc::now().timestamp_millis());
     let draft_folder = base_dir.join(&draft_id);
 
     tokio::fs::create_dir_all(&draft_folder)

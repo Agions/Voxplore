@@ -1,5 +1,5 @@
 /**
- * Monoloop v1.0.0 · useProject hook 单测 (renderHook)
+ * Vynaro v1.0.0 · useProject hook 单测 (renderHook)
  *
  * 测试策略:
  * - mock @ipc/commands 中的 projectIpc / pipelineIpc
@@ -65,7 +65,7 @@ const sampleProject: Project = {
 };
 
 const sampleRecord: ProjectRecord = {
-  path: "/tmp/test.monoloop.json",
+  path: "/tmp/test.vynaro.json",
   project: { ...sampleProject, name: "已加载项目" },
 };
 
@@ -129,12 +129,12 @@ describe("useProject", () => {
       });
 
       await act(async () => {
-        await result.current.open("/tmp/test.monoloop.json");
+        await result.current.open("/tmp/test.vynaro.json");
       });
 
-      expect(projectLoadMock).toHaveBeenCalledWith("/tmp/test.monoloop.json");
+      expect(projectLoadMock).toHaveBeenCalledWith("/tmp/test.vynaro.json");
       expect(storeState.setCurrentRecord).toHaveBeenCalledWith(
-        "/tmp/test.monoloop.json",
+        "/tmp/test.vynaro.json",
         sampleRecord.project,
       );
       await waitFor(() => {
@@ -232,7 +232,7 @@ describe("useProject", () => {
 
     it("正常 save → 写 updated_at 并同步 store", async () => {
       storeState.current = sampleProject;
-      storeState.currentPath = "/tmp/test.monoloop.json";
+      storeState.currentPath = "/tmp/test.vynaro.json";
       projectSaveMock.mockResolvedValueOnce(undefined);
       const { result } = renderHook(() => useProject(), {
         wrapper: makeWrapper(),
@@ -245,7 +245,7 @@ describe("useProject", () => {
       const after = Date.now();
 
       expect(projectSaveMock).toHaveBeenCalledWith(
-        "/tmp/test.monoloop.json",
+        "/tmp/test.vynaro.json",
         expect.objectContaining({ name: "示例项目" }),
       );
       // setCurrent 被调,updated_at 应在 before-after 之间
@@ -258,7 +258,7 @@ describe("useProject", () => {
 
     it("save 失败 → error 被设,抛错", async () => {
       storeState.current = sampleProject;
-      storeState.currentPath = "/tmp/test.monoloop.json";
+      storeState.currentPath = "/tmp/test.vynaro.json";
       projectSaveMock.mockRejectedValueOnce(new Error("磁盘写失败"));
       const { result } = renderHook(() => useProject(), {
         wrapper: makeWrapper(),

@@ -1,9 +1,9 @@
 /**
- * Monoloop v1.0.0 · 缩略图通用组件
+ * Vynaro v1.0.0 · 缩略图通用组件
  *
  * 设计:
  * - 调用 useAssets().thumbnail(source, width) 生成首帧 jpg
- *   (写入 ~/.cache/monoloop/thumb/<sha256>.jpg)
+ *   (写入 ~/.cache/vynaro/thumb/<sha256>.jpg)
  * - 通过 @tauri-apps/api/core convertFileSrc 把本地路径转为 <img src> 可加载 URL
  * - 占位符:加载前/失败时显示 kind 图标 + 文件名尾部
  */

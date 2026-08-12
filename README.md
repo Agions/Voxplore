@@ -2,10 +2,10 @@
 
 <div align="center">
 
-<img src="assets/logo-horizontal.png" width="640" alt="Monoloop 叙影 AI 视频解说创作工具" style="border-radius: 16px; box-shadow: 0 0 32px rgba(245,200,66,0.2);" />
+<img src="assets/logo-horizontal.png" width="640" alt="Vynaro 叙影 AI 视频解说创作工具" style="border-radius: 16px; box-shadow: 0 0 32px rgba(245,200,66,0.2);" />
 
-[![Version](https://img.shields.io/badge/Version-v1.0.0-F5C842?style=flat-square&logo=git&logoColor=1A1A20)](https://github.com/Agions/monoloop/releases) [![Tauri](https://img.shields.io/badge/Tauri-v2.0-7C3AED?style=flat-square&logo=tauri&logoColor=white)](https://tauri.app) [![Rust](https://img.shields.io/badge/Rust-1.85%2B-F97316?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org) [![React](https://img.shields.io/badge/React-19.0-06B6D4?style=flat-square&logo=react&logoColor=white)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org) [![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square&logo=open-source-initiative&logoColor=white)](LICENSE)  
-[![Pipeline](https://img.shields.io/badge/Pipeline-7--Step%20Auto-D97706?style=flat-square&logo=timeline)](https://github.com/Agions/monoloop) [![LLM](https://img.shields.io/badge/LLM-11%20Providers-F5C842?style=flat-square&logo=openai&logoColor=1A1A20)](https://github.com/Agions/monoloop) [![TTS](https://img.shields.io/badge/TTS-Zero--shot%20Clone-22C55E?style=flat-square&logo=microphone)](https://github.com/Agions/monoloop) [![Export](https://img.shields.io/badge/Export-CapCut%20Draft-EC4899?style=flat-square&logo=video)](https://github.com/Agions/monoloop)
+[![Version](https://img.shields.io/badge/Version-v1.0.0-F5C842?style=flat-square&logo=git&logoColor=1A1A20)](https://github.com/Agions/vynaro/releases) [![Tauri](https://img.shields.io/badge/Tauri-v2.0-7C3AED?style=flat-square&logo=tauri&logoColor=white)](https://tauri.app) [![Rust](https://img.shields.io/badge/Rust-1.85%2B-F97316?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org) [![React](https://img.shields.io/badge/React-19.0-06B6D4?style=flat-square&logo=react&logoColor=white)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org) [![License](https://img.shields.io/badge/License-MIT-10B981?style=flat-square&logo=open-source-initiative&logoColor=white)](LICENSE)  
+[![Pipeline](https://img.shields.io/badge/Pipeline-7--Step%20Auto-D97706?style=flat-square&logo=timeline)](https://github.com/Agions/vynaro) [![LLM](https://img.shields.io/badge/LLM-11%20Providers-F5C842?style=flat-square&logo=openai&logoColor=1A1A20)](https://github.com/Agions/vynaro) [![TTS](https://img.shields.io/badge/TTS-Zero--shot%20Clone-22C55E?style=flat-square&logo=microphone)](https://github.com/Agions/vynaro) [![Export](https://img.shields.io/badge/Export-CapCut%20Draft-EC4899?style=flat-square&logo=video)](https://github.com/Agions/vynaro)
 
 </div>
 
@@ -13,7 +13,7 @@
 
 ## 🎬 核心定位
 
-**Monoloop（叙影）** 是一款基于 **Tauri 2 + Rust + React 19** 深度研发的桌面端 AI 视频叙事与解说编辑器。
+**Vynaro（叙影）** 是一款基于 **Tauri 2 + Rust + React 19** 深度研发的桌面端 AI 视频叙事与解说编辑器。
 
 专为短剧拆条、电影解说、自媒体故事化创作设计，通过 **7 步卡片智能流水线**，自动完成影视/短剧片段的高完播率成片转化与剪映工程草稿（`.draft`）原生导出。
 
@@ -27,11 +27,11 @@
 
 | 首页 Dashboard 概览 | 素材资产管理面板 |
 | :---: | :---: |
-| <img src="assets/monoloop_dashboard_cover.png" width="460" alt="Monoloop 首页 Dashboard 界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/monoloop_assets_cover.png" width="460" alt="Monoloop 素材资产管理界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
+| <img src="assets/vynaro_dashboard_cover.png" width="460" alt="Vynaro 首页 Dashboard 界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_assets_cover.png" width="460" alt="Vynaro 素材资产管理界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
 
 | 7 步全自动解说生产工作区 | 11 大模型与 TTS 设置表单 |
 | :---: | :---: |
-| <img src="assets/monoloop_production_cover.png" width="460" alt="Monoloop 7 步解说生产工作区界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/monoloop_settings_cover.png" width="460" alt="Monoloop 模型设置表单界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
+| <img src="assets/vynaro_production_cover.png" width="460" alt="Vynaro 7 步解说生产工作区界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> | <img src="assets/vynaro_settings_cover.png" width="460" alt="Vynaro 模型设置表单界面截图" style="border-radius: 8px; border: 1px solid #27272A;" /> |
 
 </div>
 
@@ -80,20 +80,20 @@ graph LR
 ## 🏛️ 项目架构设计
 
 ```
-monoloop/
+vynaro/
 ├── src/                  # React 19 + TypeScript 前端应用程序
 ├── src-tauri/            # Tauri 2.0 桌面应用程序入口 (Rust)
 ├── crates/
-│   ├── monoloop-core       # 核心类型 (AppContext / MonoloopError)
-│   ├── monoloop-domain     # 领域模型 (Project / Timeline / MediaFile)
-│   ├── monoloop-detect     # FFmpeg 探针 / 场景切分 / 音画混流
-│   ├── monoloop-script     # 11 大 LLM 客户端与独白脚本引擎
-│   ├── monoloop-voice      # Edge-TTS / OpenAI-TTS / GPT-SoVITS
-│   ├── monoloop-subtitle   # FFmpeg silencedetect VAD 端点检测与字幕生成
-│   ├── monoloop-compose    # 7 步流水线状态机与 DAG 执行器
-│   ├── monoloop-export     # 剪映草稿 (.draft) 生成器与平台预设
-│   ├── monoloop-storage    # 本地 SQLite / JSON 存储
-│   └── monoloop-update     # 应用自动更新引擎
+│   ├── vynaro-core       # 核心类型 (AppContext / VynaroError)
+│   ├── vynaro-domain     # 领域模型 (Project / Timeline / MediaFile)
+│   ├── vynaro-detect     # FFmpeg 探针 / 场景切分 / 音画混流
+│   ├── vynaro-script     # 11 大 LLM 客户端与独白脚本引擎
+│   ├── vynaro-voice      # Edge-TTS / OpenAI-TTS / GPT-SoVITS
+│   ├── vynaro-subtitle   # FFmpeg silencedetect VAD 端点检测与字幕生成
+│   ├── vynaro-compose    # 7 步流水线状态机与 DAG 执行器
+│   ├── vynaro-export     # 剪映草稿 (.draft) 生成器与平台预设
+│   ├── vynaro-storage    # 本地 SQLite / JSON 存储
+│   └── vynaro-update     # 应用自动更新引擎
 └── Makefile              # 常用构建与测试指令
 ```
 
@@ -103,8 +103,8 @@ monoloop/
 
 ```bash
 # 1. 克隆代码仓库
-git clone https://github.com/Agions/monoloop.git
-cd monoloop
+git clone https://github.com/Agions/vynaro.git
+cd vynaro
 
 # 2. 安装前端依赖
 pnpm install

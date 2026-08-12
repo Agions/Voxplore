@@ -1,5 +1,5 @@
 /**
- * Monoloop v1.0.0 · 电影调光室左侧导航栏 (完美响应多主题切换)
+ * Vynaro v1.0.0 · 电影调光室左侧导航栏 (完美响应多主题切换)
  * 采用 useNavigate 与 useRouterState 确保点击 100% 页面即时响应与高亮
  */
 
@@ -39,7 +39,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
   return (
     <aside
       className="flex w-16 flex-col items-center justify-between border-r border-[var(--color-border)] bg-[var(--color-bg)] py-3 flex-shrink-0 z-30 select-none transition-colors duration-200"
-      aria-label="Monoloop 主导航"
+      aria-label="Vynaro 主导航"
     >
       {/* 1. 顶部 Brand Logo */}
       <div className="flex flex-col items-center space-y-4 w-full">
@@ -47,9 +47,9 @@ export function Sidebar({ currentPath }: SidebarProps) {
           type="button"
           onClick={() => void navigate({ to: "/" })}
           className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-xl shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-transform duration-300 hover:scale-105"
-          title="Monoloop 叙影 AI 视频解说"
+          title="Vynaro 叙影 AI 视频解说"
         >
-          M
+          V
           <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F5C842] opacity-75" />
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F5C842]" />

@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Monoloop 叙影 · AI 视频解说与短剧创作引擎
+title: Vynaro 叙影 · AI 视频解说与短剧创作引擎
 titleTemplate: false
 ---
 
@@ -33,7 +33,7 @@ import { withBase } from 'vitepress'
     <div class="sf-cta-actions">
       <a class="sf-cta-btn sf-cta-btn-primary" :href="withBase('/guide/quick-start')">🚀 快速开始使用</a>
       <a class="sf-cta-btn sf-cta-btn-secondary" :href="withBase('/guide/interface')">🖥️ 界面与控制说明</a>
-      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/monoloop">⭐ GitHub 仓库</a>
+      <a class="sf-cta-btn sf-cta-btn-secondary" href="https://github.com/Agions/vynaro">⭐ GitHub 仓库</a>
     </div>
   </div>
 </section>
