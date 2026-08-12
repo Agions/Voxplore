@@ -8,8 +8,8 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-vynaro-core = { path = "../vynaro-core" }
-vynaro-domain = { path = "../vynaro-domain" }
+vynaro-core = { path = "../core" }
+vynaro-domain = { path = "../domain" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

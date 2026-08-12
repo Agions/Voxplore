@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-core"
+name = "vynaro-compose"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,29 +7,32 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "服务容器 / 统一类型 / 错误 / Tracing 初始化 — 全应用基础设施"
+description = "7 步流水线状态机 + MonologueMaker"
 
 [dependencies]
-# 异步运行时
 tokio = { workspace = true }
 async-trait = { workspace = true }
-# 序列化
 serde = { workspace = true }
 serde_json = { workspace = true }
-# 错误
-thiserror = { workspace = true }
-anyhow = { workspace = true }
-# 日志
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-# 时间
 chrono = { workspace = true }
-semver = { workspace = true }
-# 路径
-dirs = { workspace = true }
+parking_lot = "0.12"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[dependencies.vynaro-core]
+path = "../core"
 
 [dependencies.vynaro-domain]
-path = "../vynaro-domain"
+path = "../domain"
+
+[dependencies.vynaro-script]
+path = "../script"
+
+[dependencies.vynaro-voice]
+path = "../voice"
+
+[dependencies.vynaro-detect]
+path = "../detect"
 
 [lints]
 workspace = true

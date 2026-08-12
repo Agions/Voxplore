@@ -10,7 +10,7 @@ homepage.workspace = true
 description = "TTS 引擎 (Edge-TTS / OpenAI-TTS / GPT-SoVITS)"
 
 [dependencies]
-vynaro-core = { path = "../vynaro-core" }
+vynaro-core = { path = "../core" }
 tokio = { workspace = true }
 async-trait = { workspace = true }
 serde = { workspace = true }

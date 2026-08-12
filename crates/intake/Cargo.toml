@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-export"
+name = "vynaro-intake"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "4 策略导出 (single/concat/batch/series)"
+description = "视频元数据提取 (probe + chapter + scene)"
 
 [lints]
 workspace = true
@@ -15,7 +15,7 @@ workspace = true
 [dependencies]
 serde = { workspace = true }
 thiserror = { workspace = true }
-vynaro-domain = { path = "../vynaro-domain" }
+vynaro-domain = { path = "../domain" }
 
 [dev-dependencies]
 serde_json = { workspace = true }

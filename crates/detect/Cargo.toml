@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-script"
+name = "vynaro-detect"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,20 +7,15 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "11 个 LLM Provider + LlmManager 故障切换"
+description = "FFmpeg 包装: 命令行调用 + 进度解析 + 探针"
 
 [dependencies]
+vynaro-core = { path = "../core" }
 tokio = { workspace = true }
-async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-reqwest = { workspace = true }
 thiserror = { workspace = true }
-tracing = { workspace = true }
-futures = { workspace = true }
-
-[dependencies.vynaro-core]
-path = "../vynaro-core"
+tracing = "0.1"
 
 [lints]
 workspace = true

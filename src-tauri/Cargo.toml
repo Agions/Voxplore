@@ -29,25 +29,25 @@ tracing = "0.1"
 
 # ── Vynaro 工作流 crates ──
 # 基础层
-vynaro-core    = { path = "../crates/vynaro-core" }
-vynaro-domain  = { path = "../crates/vynaro-domain" }
+vynaro-core    = { path = "../crates/core" }
+vynaro-domain  = { path = "../crates/domain" }
 # Step 1 素材导入
-vynaro-intake  = { path = "../crates/vynaro-intake" }
+vynaro-intake  = { path = "../crates/intake" }
 # Step 2 智能拆条
-vynaro-detect  = { path = "../crates/vynaro-detect" }
+vynaro-detect  = { path = "../crates/detect" }
 # Step 3 脚本生成
-vynaro-script  = { path = "../crates/vynaro-script" }
+vynaro-script  = { path = "../crates/script" }
 # Step 4 TTS 配音
-vynaro-voice   = { path = "../crates/vynaro-voice" }
+vynaro-voice   = { path = "../crates/voice" }
 # Step 5 字幕合成
-vynaro-subtitle = { path = "../crates/vynaro-subtitle" }
+vynaro-subtitle = { path = "../crates/subtitle" }
 # Step 6 画面对齐
-vynaro-compose = { path = "../crates/vynaro-compose" }
+vynaro-compose = { path = "../crates/compose" }
 # Step 7 多平台导出
-vynaro-export  = { path = "../crates/vynaro-export" }
+vynaro-export  = { path = "../crates/export" }
 # 基础设施
-vynaro-storage = { path = "../crates/vynaro-storage" }
-vynaro-update  = { path = "../crates/vynaro-update" }
-vynaro-plugin  = { path = "../crates/vynaro-plugin" }
+vynaro-storage = { path = "../crates/storage" }
+vynaro-update  = { path = "../crates/update" }
+vynaro-plugin  = { path = "../crates/plugin" }
 
 # workspace lints / profiles 在根 Cargo.toml 集中定义

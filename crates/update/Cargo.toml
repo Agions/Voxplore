@@ -24,5 +24,5 @@ futures = { workspace = true }
 reqwest = { workspace = true }
 sha2 = "0.10"
 hex = "0.4"
-vynaro-core = { path = "../vynaro-core" }
-vynaro-domain = { path = "../vynaro-domain" }
+vynaro-core = { path = "../core" }
+vynaro-domain = { path = "../domain" }
