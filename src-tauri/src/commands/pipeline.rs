@@ -196,7 +196,9 @@ fn build_deps(
         llm,
         tts,
         ffmpeg,
-        workdir: PathBuf::from(workdir.unwrap_or_else(|| "/tmp/vynaro-workdir".to_string())),
+        workdir: workdir
+            .map(PathBuf::from)
+            .unwrap_or_else(|| std::env::temp_dir().join("vynaro-workdir")),
     })
 }
 

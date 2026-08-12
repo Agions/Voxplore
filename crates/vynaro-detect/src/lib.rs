@@ -260,35 +260,64 @@ impl Ffmpeg {
         .await
     }
 
-    /// 配音混流: 视频 + 旁白音频 (旁白为主混,原声降低到 15%)
+    /// 配音混流: 视频 + 旁白音频 (无声视频安全兼容量,原声降低到 15%)
     pub async fn mix_narration(
         &self,
         video: &Path,
         narration: &Path,
         output: &Path,
     ) -> VynaroResult<()> {
-        self.run_encode(
-            &[
-                "-i",
-                &video.to_string_lossy(),
-                "-i",
-                &narration.to_string_lossy(),
-                "-filter_complex",
-                "[0:a]volume=0.15[a0];[1:a]volume=1.0[a1];[a0][a1]amix=inputs=2:duration=first[aout]",
-                "-map",
-                "0:v",
-                "-map",
-                "[aout]",
-                "-c:v",
-                "copy",
-                "-c:a",
-                "aac",
-                "-shortest",
-                &output.to_string_lossy(),
-            ],
-            None,
-        )
-        .await
+        let has_audio = self
+            .probe(video)
+            .await
+            .map(|p| p.audio_codec.is_some())
+            .unwrap_or(true);
+
+        if has_audio {
+            self.run_encode(
+                &[
+                    "-i",
+                    &video.to_string_lossy(),
+                    "-i",
+                    &narration.to_string_lossy(),
+                    "-filter_complex",
+                    "[0:a]volume=0.15[a0];[1:a]volume=1.0[a1];[a0][a1]amix=inputs=2:duration=first[aout]",
+                    "-map",
+                    "0:v",
+                    "-map",
+                    "[aout]",
+                    "-c:v",
+                    "copy",
+                    "-c:a",
+                    "aac",
+                    "-shortest",
+                    &output.to_string_lossy(),
+                ],
+                None,
+            )
+            .await
+        } else {
+            self.run_encode(
+                &[
+                    "-i",
+                    &video.to_string_lossy(),
+                    "-i",
+                    &narration.to_string_lossy(),
+                    "-map",
+                    "0:v",
+                    "-map",
+                    "1:a",
+                    "-c:v",
+                    "copy",
+                    "-c:a",
+                    "aac",
+                    "-shortest",
+                    &output.to_string_lossy(),
+                ],
+                None,
+            )
+            .await
+        }
     }
 
     /// 多段拼接 (concat demuxer,先写 list 文件)

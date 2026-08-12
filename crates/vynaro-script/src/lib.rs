@@ -166,17 +166,19 @@ impl LlmProvider for OpenAiCompatible {
         }
         #[derive(Deserialize)]
         struct ChoiceMessage {
-            content: String,
+            content: Option<String>,
         }
         #[derive(Deserialize)]
         struct Usage {
+            #[serde(default)]
             total_tokens: u32,
         }
         #[derive(Deserialize)]
         struct ApiResp {
-            model: String,
+            model: Option<String>,
+            #[serde(default)]
             choices: Vec<Choice>,
-            usage: Usage,
+            usage: Option<Usage>,
         }
 
         let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
@@ -188,13 +190,18 @@ impl LlmProvider for OpenAiCompatible {
             .choices
             .into_iter()
             .next()
-            .map(|c| c.message.content)
+            .and_then(|c| c.message.content)
             .unwrap_or_default();
+
+        let model = api
+            .model
+            .unwrap_or_else(|| self.default_model().to_string());
+        let tokens_used = api.usage.map(|u| u.total_tokens).unwrap_or(0);
 
         Ok(LlmResponse {
             content,
-            model: api.model,
-            tokens_used: api.usage.total_tokens,
+            model,
+            tokens_used,
             duration_ms: start.elapsed().as_millis() as u64,
         })
     }
@@ -276,15 +283,18 @@ impl LlmProvider for ClaudeProvider {
             text: Option<String>,
         }
         #[derive(Deserialize)]
-        struct ApiResp {
-            model: String,
-            content: Vec<Content>,
-            usage: ClaudeUsage,
+        struct ClaudeUsage {
+            #[serde(default)]
+            input_tokens: u32,
+            #[serde(default)]
+            output_tokens: u32,
         }
         #[derive(Deserialize)]
-        struct ClaudeUsage {
-            input_tokens: u32,
-            output_tokens: u32,
+        struct ApiResp {
+            model: Option<String>,
+            #[serde(default)]
+            content: Vec<Content>,
+            usage: Option<ClaudeUsage>,
         }
 
         let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
@@ -300,10 +310,16 @@ impl LlmProvider for ClaudeProvider {
             .collect::<Vec<_>>()
             .join("");
 
+        let model = api.model.unwrap_or_else(|| "claude-sonnet-5".into());
+        let tokens_used = api
+            .usage
+            .map(|u| u.input_tokens + u.output_tokens)
+            .unwrap_or(0);
+
         Ok(LlmResponse {
             content,
-            model: api.model,
-            tokens_used: api.usage.input_tokens + api.usage.output_tokens,
+            model,
+            tokens_used,
             duration_ms: start.elapsed().as_millis() as u64,
         })
     }
@@ -397,6 +413,7 @@ impl LlmProvider for GeminiProvider {
         }
         #[derive(Deserialize)]
         struct Content {
+            #[serde(default)]
             parts: Vec<Part>,
         }
         #[derive(Deserialize)]
@@ -405,15 +422,17 @@ impl LlmProvider for GeminiProvider {
         }
         #[derive(Deserialize)]
         struct UsageMetadata {
+            #[serde(default)]
             total_token_count: u32,
         }
         #[derive(Deserialize)]
         struct ApiResp {
+            #[serde(default)]
             candidates: Vec<Candidate>,
-            #[serde(rename = "modelVersion")]
-            model_version: String,
-            #[serde(rename = "usageMetadata")]
-            usage_metadata: UsageMetadata,
+            #[serde(rename = "modelVersion", default)]
+            model_version: Option<String>,
+            #[serde(rename = "usageMetadata", default)]
+            usage_metadata: Option<UsageMetadata>,
         }
 
         let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
@@ -435,10 +454,13 @@ impl LlmProvider for GeminiProvider {
             })
             .unwrap_or_default();
 
+        let model = api.model_version.unwrap_or_else(|| model.to_string());
+        let tokens_used = api.usage_metadata.map(|u| u.total_token_count).unwrap_or(0);
+
         Ok(LlmResponse {
             content,
-            model: api.model_version,
-            tokens_used: api.usage_metadata.total_token_count,
+            model,
+            tokens_used,
             duration_ms: start.elapsed().as_millis() as u64,
         })
     }
