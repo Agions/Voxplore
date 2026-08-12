@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Tauri Command 类型契约 (单源真相)
+ * Monoloop v1.0.0 · Tauri Command 类型契约 (单源真相)
  *
  * M3+ 由 pnpm `gen:ipc` 自动生成两段:
  *   - "gen-ipc start" 标记: IpcContracts (commands/*.rs 的 #[tauri::command] 函数)
@@ -8,7 +8,7 @@
  * 设计原则:
  * - 与 apps/desktop/src-tauri/src/commands/*.rs 1:1 对应
  * - 字段命名严格 camelCase (Rust 命令参数序列化策略)
- * - 错误统一从 VynaroError JSON 反序列化
+ * - 错误统一从 MonoloopError JSON 反序列化
  */
 
 // ────────────────────────────────────────────────────────────────────────
@@ -30,10 +30,10 @@ export type LlmProviderKind =
   | "qwen37";
 
 // ────────────────────────────────────────────────────────────────────────
-// 错误类型 (与 vynaro-core::VynaroError 手工 wire 格式 1:1)
+// 错误类型 (与 monoloop-core::MonoloopError 手工 wire 格式 1:1)
 // ────────────────────────────────────────────────────────────────────────
 
-export interface VynaroError {
+export interface MonoloopError {
   kind:
     | "io"
     | "config"
@@ -49,7 +49,7 @@ export interface VynaroError {
 }
 
 export type CommandResult<T> = T;
-export type CommandError = VynaroError | { error: VynaroError };
+export type CommandError = MonoloopError | { error: MonoloopError };
 
 /* >>> gen-ipc start */
 export interface IpcContracts {
@@ -757,7 +757,7 @@ export interface IpcEventPayloads {
   "pipeline:step_failed": {
     runId: string;
     stepId: string;
-    error: VynaroError;
+    error: MonoloopError;
   };
   "pipeline:progress": { runId: string; percent: number };
   "pipeline:log": {
@@ -774,7 +774,7 @@ export interface IpcEventPayloads {
   "updater:downloading": { version: string };
   "updater:download_progress": { percent: number };
   "updater:ready": { version: string };
-  "updater:error": { error: VynaroError };
+  "updater:error": { error: MonoloopError };
   "updater:event": UpdateState | UpdateInfo | UpdateProgress | string;
   "app:theme_changed": { theme: string };
   "app:locale_changed": { locale: string };
@@ -783,7 +783,7 @@ export interface IpcEventPayloads {
   "app:secure_key_rotated": Record<string, never>;
   "app:service_started": { name: string };
   "app:service_stopped": { name: string };
-  "app:error_reported": { error: VynaroError };
+  "app:error_reported": { error: MonoloopError };
   "app:log_flushed": { lines: number };
 }
 

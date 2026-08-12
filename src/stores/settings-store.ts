@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · settings store (Zustand)
+ * Monoloop v1.0.0 · settings store (Zustand)
  *
  * 设计:
  * - 仅持久化非敏感设置(主题/语言/默认值)
@@ -36,6 +36,6 @@ export const useSettingsStore = create<SettingsState>()(
       setTtsDefault: (provider) => set({ ttsDefaultProvider: provider }),
       setAutoSaveInterval: (sec) => set({ autoSaveIntervalSec: sec }),
     }),
-    { name: "vynaro.settings" },
+    { name: "monoloop.settings" },
   ),
 );

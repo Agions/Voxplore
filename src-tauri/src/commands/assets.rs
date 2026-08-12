@@ -7,10 +7,10 @@
 //!
 //! 所有命令通过 `AppContext.services` 解析 `AssetService` 单例。
 
+use monoloop_core::AppContext;
+use monoloop_detect::FfmpegProbe;
+use monoloop_storage::{AssetService, ScanResult, ThumbnailResult};
 use tauri::State;
-use vynaro_core::AppContext;
-use vynaro_detect::FfmpegProbe;
-use vynaro_storage::{AssetService, ScanResult, ThumbnailResult};
 
 /// 扫描目录,返回可导入素材条目列表
 #[tauri::command]

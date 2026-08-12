@@ -1,12 +1,12 @@
 /**
- * Vynaro v1.0.0 · VideoPlanPreview 组件单测
+ * Monoloop v1.0.0 · VideoPlanPreview 组件单测
  *
  * 验证:
  * - 4 个策略按钮 (single / concat / batch / series) 全部渲染
  * - 默认策略 concat → invoke("video_build_plans", ...) 被调用
  * - 切换策略 → 重新调用 invoke 带新 strategy
  * - 成功时显示 OutputPlan 卡片(name + ordered_sources)
- * - IPC 错误时显示错误提示(VynaroError)
+ * - IPC 错误时显示错误提示(MonoloopError)
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
@@ -60,14 +60,14 @@ const SAMPLE_PLANS_SERIES: OutputPlan[] = [
     ordered_sources: ["/abs/a.mp4"],
     episode_number: 1,
     episode_label: "intro",
-    series_context: "vynaro-demo",
+    series_context: "monoloop-demo",
   },
   {
     name: "EP02_body",
     ordered_sources: ["/abs/b.mp4"],
     episode_number: 2,
     episode_label: "body",
-    series_context: "vynaro-demo",
+    series_context: "monoloop-demo",
   },
 ];
 
@@ -169,7 +169,7 @@ describe("VideoPlanPreview", () => {
     // 切到 series 并填写 series_context
     fireEvent.click(screen.getByRole("button", { name: /系列/ }));
     const seriesInput = await screen.findByPlaceholderText("例如：斗罗大陆第一季");
-    fireEvent.change(seriesInput, { target: { value: "vynaro-demo" } });
+    fireEvent.change(seriesInput, { target: { value: "monoloop-demo" } });
 
     await waitFor(() => {
       expect(invokeMock).toHaveBeenCalledWith(
@@ -177,7 +177,7 @@ describe("VideoPlanPreview", () => {
         expect.objectContaining({
           strategy: "series",
           options: expect.objectContaining({
-            series_context: "vynaro-demo",
+            series_context: "monoloop-demo",
           }),
         }),
       );
@@ -186,10 +186,10 @@ describe("VideoPlanPreview", () => {
     const cards = await screen.findAllByTestId("video-plan-card");
     expect(cards).toHaveLength(2);
     expect(screen.getByText("EP01 · intro")).toBeDefined();
-    expect(screen.getAllByText("vynaro-demo").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("monoloop-demo").length).toBeGreaterThan(0);
   });
 
-  it("IPC 失败 → 显示 VynaroError 错误提示", async () => {
+  it("IPC 失败 → 显示 MonoloopError 错误提示", async () => {
     invokeMock.mockRejectedValueOnce({
       kind: "video_plan_error",
       message: "SourceCountMismatch: single 策略要求 1 个源,实际 2 个",

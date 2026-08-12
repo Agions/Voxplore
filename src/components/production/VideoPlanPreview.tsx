@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 多视频导出策略预览 (vynaro-video · video_build_plans)
+ * Monoloop v1.0.0 · 多视频导出策略预览 (monoloop-video · video_build_plans)
  *
  * 4 种策略:
  * - single  : 全部输入 → 1 个 OutputPlan (要求 1 个源)

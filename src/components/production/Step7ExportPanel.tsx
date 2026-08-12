@@ -1,6 +1,6 @@
 /**
- * Vynaro v1.0.0 · Step 7: 多平台导出与剪映草稿详情面板
- * 真实连通 exportIpc.capcutDraft (vynaro-export 剪映草稿工程结构生成器)
+ * Monoloop v1.0.0 · Step 7: 多平台导出与剪映草稿详情面板
+ * 真实连通 exportIpc.capcutDraft (monoloop-export 剪映草稿工程结构生成器)
  */
 
 import { useState } from "react";
@@ -36,7 +36,7 @@ export function Step7ExportPanel() {
     if (platformId === "jianying") {
       toast.info("正在创建剪映工程草稿结构 (.draft)...");
       try {
-        const projectName = currentProject?.project.name ?? "Vynaro_Narrative_Project";
+        const projectName = currentProject?.project.name ?? "Monoloop_Narrative_Project";
         const res = await exportIpc.capcutDraft(projectName);
         setExportProgress(100);
         toast.success(`剪映草稿工程导出成功！`, {

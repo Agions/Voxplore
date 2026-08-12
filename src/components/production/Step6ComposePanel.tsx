@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Step 6: 画面-声音智能对齐详情面板
+ * Monoloop v1.0.0 · Step 6: 画面-声音智能对齐详情面板
  */
 
 import { useState } from "react";

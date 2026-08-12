@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · formatBytes 单元测试
+ * Monoloop v1.0.0 · formatBytes 单元测试
  *
  * 验证 src/lib/format/bytes.ts 统一接口
  */

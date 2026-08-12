@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · UpdateDialog 组件单测
+ * Monoloop v1.0.0 · UpdateDialog 组件单测
  *
  * 覆盖:
  * - 5 阶段渲染: idle / checking / available / downloading / ready
@@ -117,7 +117,7 @@ describe("UpdateDialog", () => {
     expect(
       screen.getByRole("button", { name: "检查更新" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Vynaro 应用更新器/)).toBeInTheDocument();
+    expect(screen.getByText(/Monoloop 应用更新器/)).toBeInTheDocument();
     expect(screen.getByText(/当前版本 v3\.0\.0/)).toBeInTheDocument();
     expect(screen.queryByText("⟲ 重置")).not.toBeInTheDocument();
   });
@@ -222,7 +222,7 @@ describe("UpdateDialog", () => {
         sha256: null,
         fileSizeBytes: 100_000,
       },
-      downloadedPath: "/cache/vynaro-update-3.1.0.zip",
+      downloadedPath: "/cache/monoloop-update-3.1.0.zip",
     };
     render(<UpdateDialog open={true} onClose={() => {}} />, {
       wrapper: makeWrapper(),
@@ -231,7 +231,7 @@ describe("UpdateDialog", () => {
     expect(screen.getByText("重启安装")).toBeInTheDocument();
     expect(screen.getByText("✓ 安装包已下载到:")).toBeInTheDocument();
     expect(
-      screen.getByText("/cache/vynaro-update-3.1.0.zip"),
+      screen.getByText("/cache/monoloop-update-3.1.0.zip"),
     ).toBeInTheDocument();
   });
 

@@ -1,10 +1,10 @@
 /**
- * Vynaro v1.0.0 · Tauri Invoke 统一封装
+ * Monoloop v1.0.0 · Tauri Invoke 统一封装
  *
  * 设计:
  * - 唯一对 @tauri-apps/api 的强依赖点 (其它文件 import '@/ipc/client' 即可)
  * - 编译期类型保障: callIpc<C>('cmd', args) 时 args / result 自动强类型
- * - 错误统一: 异常 JSON 反序列化为 VynaroError
+ * - 错误统一: 异常 JSON 反序列化为 MonoloopError
  */
 
 import { invoke } from "@tauri-apps/api/core";
@@ -12,7 +12,7 @@ import type {
   CommandArgs,
   CommandResultOf,
   IpcCommand,
-  VynaroError,
+  MonoloopError,
 } from "./types.gen";
 
 /** 强类型 callIpc,穿透到 Rust 端 command */
@@ -27,7 +27,7 @@ export async function callIpc<C extends IpcCommand>(
       payload as Record<string, unknown>,
     );
   } catch (err) {
-    // Rust 端返回 Result<T, VynaroError> 时,Err 序列化为 { kind, message }
+    // Rust 端返回 Result<T, MonoloopError> 时,Err 序列化为 { kind, message }
     if (
       err &&
       typeof err === "object" &&
@@ -35,13 +35,13 @@ export async function callIpc<C extends IpcCommand>(
       "message" in err &&
       typeof (err as { kind: unknown }).kind === "string"
     ) {
-      throw err as VynaroError;
+      throw err as MonoloopError;
     }
-    // 兜底: 包装成 VynaroError.other
+    // 兜底: 包装成 MonoloopError.other
     throw {
       kind: "other",
       message: err instanceof Error ? err.message : String(err),
-    } satisfies VynaroError;
+    } satisfies MonoloopError;
   }
 }
 

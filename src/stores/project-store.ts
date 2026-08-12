@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · project store (Zustand)
+ * Monoloop v1.0.0 · project store (Zustand)
  *
  * 设计:
  * - current: 当前打开的项目(M3 接入 invoke project_load)

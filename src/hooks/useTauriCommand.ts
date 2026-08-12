@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · IPC command 调用 hook (低阶版)
+ * Monoloop v1.0.0 · IPC command 调用 hook (低阶版)
  *
  * 与 useTauriQuery 关系:
  * - useTauriQuery: 基于 TanStack Query 的高阶 hook(自动 cache/loading/error/retry)

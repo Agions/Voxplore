@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Step 1: 素材导入详情面板
+ * Monoloop v1.0.0 · Step 1: 素材导入详情面板
  */
 
 import { useState } from "react";

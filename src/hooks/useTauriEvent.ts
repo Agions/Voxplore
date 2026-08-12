@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · useTauriEvent — Tauri 事件订阅通用 hook
+ * Monoloop v1.0.0 · useTauriEvent — Tauri 事件订阅通用 hook
  *
  * 自动处理:
  * - listen() 返回 Promise<UnlistenFn>,用 useEffect lifecycle 配对

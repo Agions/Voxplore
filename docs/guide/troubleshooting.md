@@ -1,6 +1,6 @@
 ---
 title: 疑难排查
-description: Vynaro 启动、AI 服务、视频处理和导出的常见问题与解决方案。
+description: Monoloop 启动、AI 服务、视频处理和导出的常见问题与解决方案。
 ---
 
 # 疑难排查
@@ -14,7 +14,7 @@ description: Vynaro 启动、AI 服务、视频处理和导出的常见问题与
 **解决**：
 
 1. 打开「系统设置 → 隐私与安全性」
-2. 在底部找到被拦截的 Vynaro，点击「仍要打开」
+2. 在底部找到被拦截的 Monoloop，点击「仍要打开」
 3. 或右键应用图标 → 打开 → 在弹窗中确认
 
 ### Windows 提示 SmartScreen 拦截
@@ -35,10 +35,10 @@ description: Vynaro 启动、AI 服务、视频处理和导出的常见问题与
 
 ```bash
 # macOS
-/Applications/Vynaro.app/Contents/MacOS/Vynaro
+/Applications/Monoloop.app/Contents/MacOS/Monoloop
 
 # Windows（PowerShell）
-& "C:\Program Files\Agions\Vynaro\Vynaro.exe"
+& "C:\Program Files\Agions\Monoloop\Monoloop.exe"
 ```
 
 ### ffmpeg not found
@@ -160,7 +160,7 @@ df -h
 
 如果以上方法都无法解决问题：
 
-- [GitHub Issues](https://github.com/Agions/vynaro/issues) — 提交时请附上操作系统、应用版本与复现步骤
+- [GitHub Issues](https://github.com/Agions/monoloop/issues) — 提交时请附上操作系统、应用版本与复现步骤
 - 从终端启动应用（见上文）收集日志输出，一并粘贴到 Issue 中
 
 ## 相关文档

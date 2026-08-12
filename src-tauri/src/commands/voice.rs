@@ -1,11 +1,11 @@
-//! Vynaro v1.0.0 · TTS 试听与合成 Tauri 命令
+//! Monoloop v1.0.0 · TTS 试听与合成 Tauri 命令
 
-use std::path::PathBuf;
-use tauri::Manager;
-use vynaro_voice::{
+use monoloop_voice::{
     engine, EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
     TtsRequest,
 };
+use std::path::PathBuf;
+use tauri::Manager;
 
 #[derive(serde::Deserialize)]
 pub struct VoicePreviewParams {
@@ -27,7 +27,7 @@ pub struct VoicePreviewResult {
     pub bytes_written: u64,
 }
 
-/// 快捷试听生成: 将试听文本生成音频并存入 App 临时缓存目录 `~/.vynaro/cache/tts/`
+/// 快捷试听生成: 将试听文本生成音频并存入 App 临时缓存目录 `~/.monoloop/cache/tts/`
 #[tauri::command]
 pub async fn voice_preview(
     app_handle: tauri::AppHandle,
@@ -41,7 +41,7 @@ pub async fn voice_preview(
     let cache_dir = app_handle
         .path()
         .app_cache_dir()
-        .unwrap_or_else(|_| PathBuf::from("/tmp/vynaro/cache"));
+        .unwrap_or_else(|_| PathBuf::from("/tmp/monoloop/cache"));
     let tts_cache_dir = cache_dir.join("tts");
     tokio::fs::create_dir_all(&tts_cache_dir)
         .await

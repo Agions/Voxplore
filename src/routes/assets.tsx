@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 项目管理页 — 电影调光室主题（深黑 + 暖金）
+ * Monoloop v1.0.0 · 项目管理页 — 电影调光室主题（深黑 + 暖金）
  *
  * 1. 顶部: 项目统计看板 (项目数/媒体文件/脚本/轨道)
  * 2. 当前项目: 素材清单 + 缩略图 + 实时搜索 + 单文件/批量目录导入
@@ -443,7 +443,7 @@ function RecentCard({ path, index }: { path: string; index: number }) {
 
   const fileName = path.split("/").pop() ?? path;
   const dir = path.substring(0, path.length - fileName.length);
-  const displayTitle = projectRec?.project?.name || fileName.replace(/\.(scenefab|vynaro)\.json$/, "");
+  const displayTitle = projectRec?.project?.name || fileName.replace(/\.(scenefab|monoloop)\.json$/, "");
   const firstVideo = projectRec?.project?.media_files?.find(
     (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
   )?.path || projectRec?.project?.media_files?.[0]?.path;

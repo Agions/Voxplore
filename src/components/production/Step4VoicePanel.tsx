@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Step 4: TTS 配音与人声克隆详情面板
+ * Monoloop v1.0.0 · Step 4: TTS 配音与人声克隆详情面板
  * 修复:
  * - requestAnimationFrame 驱动实时波形动画
  * - Tauri 文件选择器真实选取参考音频 (人声克隆)
@@ -29,7 +29,7 @@ export function Step4VoicePanel({ onNext }: Step4VoicePanelProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [previewText, setPreviewText] = useState("欢迎使用 Vynaro 叙影 AI 智能解说，体验第一人称沉浸式配音效果。");
+  const [previewText, setPreviewText] = useState("欢迎使用 Monoloop 叙影 AI 智能解说，体验第一人称沉浸式配音效果。");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // 克隆音色

@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Web Audio API Canvas 级实时音频波形图
+ * Monoloop v1.0.0 · Web Audio API Canvas 级实时音频波形图
  * 
  * 特性:
  * - 结合 Web Audio API (AudioContext + AnalyserNode) 与 Canvas 2D 绘图

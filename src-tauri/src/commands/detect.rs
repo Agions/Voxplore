@@ -1,7 +1,7 @@
-//! Vynaro v1.0.0 · FFmpeg 智能拆条与镜头检测 Tauri 命令
+//! Monoloop v1.0.0 · FFmpeg 智能拆条与镜头检测 Tauri 命令
 
+use monoloop_detect::{Ffmpeg, FfmpegProbe, SceneCut};
 use std::path::Path;
-use vynaro_detect::{Ffmpeg, FfmpegProbe, SceneCut};
 
 #[derive(serde::Serialize)]
 pub struct DetectScenesResult {

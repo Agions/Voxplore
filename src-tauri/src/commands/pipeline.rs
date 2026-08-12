@@ -8,20 +8,20 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use tauri::{Emitter, State};
-use vynaro_compose::executors::PipelineDeps;
-use vynaro_compose::service::{PipelineService, PipelineStatus};
-use vynaro_compose::{Project, StepDef, STEPS};
-use vynaro_core::services::{ConfigService, ConfigSnapshot};
-use vynaro_core::AppContext;
-use vynaro_detect::Ffmpeg;
-use vynaro_script::factory;
-use vynaro_script::LlmProviderKind;
-use vynaro_voice::engine;
-use vynaro_voice::{
+use monoloop_compose::executors::PipelineDeps;
+use monoloop_compose::service::{PipelineService, PipelineStatus};
+use monoloop_compose::{Project, StepDef, STEPS};
+use monoloop_core::services::{ConfigService, ConfigSnapshot};
+use monoloop_core::AppContext;
+use monoloop_detect::Ffmpeg;
+use monoloop_script::factory;
+use monoloop_script::LlmProviderKind;
+use monoloop_voice::engine;
+use monoloop_voice::{
     EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
     TtsProviderKind,
 };
+use tauri::{Emitter, State};
 
 /// 5 步定义查询
 #[tauri::command]
@@ -198,7 +198,7 @@ fn build_deps(
         ffmpeg,
         workdir: workdir
             .map(PathBuf::from)
-            .unwrap_or_else(|| std::env::temp_dir().join("vynaro-workdir")),
+            .unwrap_or_else(|| std::env::temp_dir().join("monoloop-workdir")),
     })
 }
 

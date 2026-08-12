@@ -1,0 +1,23 @@
+[package]
+name = "monoloop-subtitle"
+description = "Monoloop Step 5 · 字幕合成：VAD端点检测·SRT/VTT/ASS·动态字幕·双语对齐"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+monoloop-core = { path = "../core" }
+monoloop-domain = { path = "../domain" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+rstest = { workspace = true }

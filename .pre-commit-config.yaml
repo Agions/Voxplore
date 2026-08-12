@@ -1,4 +1,4 @@
-# Vynaro v1.0.1 · .pre-commit-config.yaml
+# Monoloop v1.0.1 · .pre-commit-config.yaml
 # 适配 Rust + Tauri 2 + React 主线，Python hooks 保留
 # （bin/ + scripts/ 仍有 6 个工具脚本需 Python 格式化）
 # 见 https://pre-commit.com

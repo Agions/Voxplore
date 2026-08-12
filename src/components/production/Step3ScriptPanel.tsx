@@ -1,6 +1,6 @@
 /**
- * Vynaro v1.0.0 · Step 3: AI 第一人称脚本生成详情面板
- * 真实连通 vynaro-script (Qwen 3.7 / DeepSeek / GPT-4o 等 11 个 LLM 引擎)
+ * Monoloop v1.0.0 · Step 3: AI 第一人称脚本生成详情面板
+ * 真实连通 monoloop-script (Qwen 3.7 / DeepSeek / GPT-4o 等 11 个 LLM 引擎)
  */
 
 import { useState } from "react";

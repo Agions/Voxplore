@@ -1,4 +1,4 @@
-# lychee config for vynaro docs external link checker
+# lychee config for monoloop docs external link checker
 # Used by .github/workflows/docs-external-links.yml
 #
 # The workflow pre-processes markdown via sed to rewrite root-relative
@@ -20,7 +20,7 @@ accept = ["200..299", "300..399", "400..499"]
 
 # Don't check these
 exclude = [
-  "github.com/Agions/vynaro",  # self
+  "github.com/Agions/monoloop",  # self
   "internal.invalid",             # workflow sed-rewritten placeholders
   "mailto:",
   "^#",                           # pure anchor links

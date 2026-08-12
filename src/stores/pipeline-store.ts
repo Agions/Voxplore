@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · pipeline store (Zustand)
+ * Monoloop v1.0.0 · pipeline store (Zustand)
  *
  * 设计:
  * - state: idle | running | done | failed

@@ -1,6 +1,6 @@
-//! Vynaro v1.0.0 · AI 脚本生成 Tauri 命令
+//! Monoloop v1.0.0 · AI 脚本生成 Tauri 命令
 
-use vynaro_script::{factory, LlmProviderKind, LlmRequest};
+use monoloop_script::{factory, LlmProviderKind, LlmRequest};
 
 #[allow(dead_code)]
 #[derive(serde::Deserialize)]

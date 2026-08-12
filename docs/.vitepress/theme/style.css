@@ -1,5 +1,5 @@
 /**
- * Vynaro VitePress theme
+ * Monoloop VitePress theme
  * Dark obsidian cinema aesthetic: amber gold (#F5C842) + neon purple on deep obsidian surfaces.
  */
 
@@ -1161,20 +1161,20 @@ a:hover {
   }
 }
 
-/* ════════════════ Vynaro Custom UI Components ════════════════ */
-.vynaro-hero-showcase {
+/* ════════════════ Monoloop Custom UI Components ════════════════ */
+.monoloop-hero-showcase {
   margin: 32px 0 56px 0;
   display: flex;
   justify-content: center;
 }
 
-.vynaro-mockup-wrapper {
+.monoloop-mockup-wrapper {
   position: relative;
   width: 100%;
   max-width: 1120px;
 }
 
-.vynaro-mockup-badge {
+.monoloop-mockup-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1188,7 +1188,7 @@ a:hover {
   margin-bottom: 14px;
 }
 
-.vynaro-mockup-frame {
+.monoloop-mockup-frame {
   background: #12131a;
   border-radius: 14px;
   border: 1px solid rgba(245, 200, 66, 0.25);
@@ -1197,12 +1197,12 @@ a:hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.vynaro-mockup-frame:hover {
+.monoloop-mockup-frame:hover {
   border-color: rgba(245, 200, 66, 0.45);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(245, 200, 66, 0.25);
 }
 
-.vynaro-frame-header {
+.monoloop-frame-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1211,27 +1211,27 @@ a:hover {
   border-bottom: 1px solid #1f212e;
 }
 
-.vynaro-window-controls {
+.monoloop-window-controls {
   display: flex;
   gap: 8px;
 }
 
-.vynaro-window-controls .dot {
+.monoloop-window-controls .dot {
   width: 11px;
   height: 11px;
   border-radius: 50%;
 }
-.vynaro-window-controls .dot.red { background: #ef4444; }
-.vynaro-window-controls .dot.yellow { background: #f59e0b; }
-.vynaro-window-controls .dot.green { background: #10b981; }
+.monoloop-window-controls .dot.red { background: #ef4444; }
+.monoloop-window-controls .dot.yellow { background: #f59e0b; }
+.monoloop-window-controls .dot.green { background: #10b981; }
 
-.vynaro-window-title {
+.monoloop-window-title {
   font-size: 12px;
   color: #9ca3af;
   font-weight: 500;
 }
 
-.vynaro-window-tag {
+.monoloop-window-tag {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
@@ -1240,21 +1240,21 @@ a:hover {
   font-family: var(--vp-font-family-mono);
 }
 
-.vynaro-mockup-img {
+.monoloop-mockup-img {
   width: 100%;
   height: auto;
   display: block;
 }
 
 /* 7 步卡片流水线 Grid */
-.vynaro-pipeline-cards {
+.monoloop-pipeline-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 24px;
 }
 
-.vynaro-pipeline-card {
+.monoloop-pipeline-card {
   background: rgba(18, 19, 26, 0.7);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1263,24 +1263,24 @@ a:hover {
   transition: all 0.25s ease;
 }
 
-.vynaro-pipeline-card:hover {
+.monoloop-pipeline-card:hover {
   border-color: rgba(245, 200, 66, 0.4);
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(245, 200, 66, 0.1);
 }
 
-.vynaro-step-header {
+.monoloop-step-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.vynaro-step-icon {
+.monoloop-step-icon {
   font-size: 24px;
 }
 
-.vynaro-step-badge {
+.monoloop-step-badge {
   font-size: 11px;
   font-weight: 700;
   color: #f5c842;
@@ -1291,14 +1291,14 @@ a:hover {
   font-family: var(--vp-font-family-mono);
 }
 
-.vynaro-step-title {
+.monoloop-step-title {
   font-size: 16px;
   font-weight: 700;
   color: var(--vp-c-text-1);
   margin-bottom: 6px;
 }
 
-.vynaro-step-desc {
+.monoloop-step-desc {
   font-size: 13px;
   color: var(--vp-c-text-3);
   line-height: 1.5;
@@ -1306,19 +1306,19 @@ a:hover {
 }
 
 /* 2列功能视窗卡片 */
-.vynaro-grid-2 {
+.monoloop-grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
   gap: 24px;
 }
 
 @media (max-width: 768px) {
-  .vynaro-grid-2 {
+  .monoloop-grid-2 {
     grid-template-columns: 1fr;
   }
 }
 
-.vynaro-submockup-card {
+.monoloop-submockup-card {
   background: #12131a;
   border: 1px solid #242634;
   border-radius: 12px;
@@ -1327,25 +1327,25 @@ a:hover {
   transition: border-color 0.3s ease;
 }
 
-.vynaro-submockup-card:hover {
+.monoloop-submockup-card:hover {
   border-color: rgba(245, 200, 66, 0.35);
 }
 
-.vynaro-submockup-title {
+.monoloop-submockup-title {
   font-size: 15px;
   font-weight: 700;
   color: #f5c842;
   margin-bottom: 12px;
 }
 
-.vynaro-submockup-img {
+.monoloop-submockup-img {
   width: 100%;
   border-radius: 8px;
   border: 1px solid #1f212e;
   margin-bottom: 12px;
 }
 
-.vynaro-submockup-text {
+.monoloop-submockup-text {
   font-size: 13px;
   color: #9ca3af;
   line-height: 1.5;

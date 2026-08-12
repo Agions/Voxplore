@@ -1,0 +1,21 @@
+[package]
+name = "monoloop-detect"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "FFmpeg 包装: 命令行调用 + 进度解析 + 探针"
+
+[dependencies]
+monoloop-core = { path = "../core" }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = "0.1"
+
+[lints]
+workspace = true

@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 应用更新对话框 (M4 · 完整实装)
+ * Monoloop v1.0.0 · 应用更新对话框 (M4 · 完整实装)
  *
  * 设计:
  * - 调用 useUpdate hook (state + check / download / install / reset)
@@ -169,7 +169,7 @@ function Header({
             {PHASE_TITLE[phase]}
           </h2>
           <p className="text-[11px] text-[var(--color-text-secondary)]">
-            Vynaro 应用更新器 · 当前版本 v{currentVersion ?? "1.0.0"}
+            Monoloop 应用更新器 · 当前版本 v{currentVersion ?? "1.0.0"}
           </p>
         </div>
       </div>

@@ -29,10 +29,10 @@ const SIDEBAR = [
 ];
 
 export default defineConfig({
-  title: "Vynaro",
+  title: "Monoloop",
   description:
-    "Vynaro 第一人称影视/短剧解说生产文档，覆盖素材、脚本、配音、字幕、导出和发布复盘。",
-  base: "/vynaro/",
+    "Monoloop 第一人称影视/短剧解说生产文档，覆盖素材、脚本、配音、字幕、导出和发布复盘。",
+  base: "/monoloop/",
   lang: "zh-CN",
   cleanUrls: false,
   // 默认深色主题，保留手动切换。
@@ -66,7 +66,7 @@ export default defineConfig({
       {
         name: "keywords",
         content:
-          "短剧解说,第一人称解说,影视解说,AI脚本,自动配音,AI字幕,竖屏导出,Vynaro",
+          "短剧解说,第一人称解说,影视解说,AI脚本,自动配音,AI字幕,竖屏导出,Monoloop",
       },
     ],
     ["meta", { name: "author", content: "Agions" }],
@@ -78,7 +78,7 @@ export default defineConfig({
       "meta",
       {
         property: "og:title",
-        content: "Vynaro 文档中心 — 第一人称影视解说生产流程",
+        content: "Monoloop 文档中心 — 第一人称影视解说生产流程",
       },
     ],
     [
@@ -93,18 +93,18 @@ export default defineConfig({
       "meta",
       {
         property: "og:image",
-        content: "https://agions.github.io/vynaro/og-image.png",
+        content: "https://agions.github.io/monoloop/og-image.png",
       },
     ],
     [
       "meta",
-      { property: "og:url", content: "https://agions.github.io/vynaro/" },
+      { property: "og:url", content: "https://agions.github.io/monoloop/" },
     ],
-    ["meta", { property: "og:site_name", content: "Vynaro" }],
+    ["meta", { property: "og:site_name", content: "Monoloop" }],
 
     // Twitter / X
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
-    ["meta", { name: "twitter:title", content: "Vynaro 文档中心" }],
+    ["meta", { name: "twitter:title", content: "Monoloop 文档中心" }],
     [
       "meta",
       {
@@ -116,7 +116,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:image",
-        content: "https://agions.github.io/vynaro/og-image.png",
+        content: "https://agions.github.io/monoloop/og-image.png",
       },
     ],
 
@@ -147,9 +147,9 @@ export default defineConfig({
     logo: {
       dark: "/logo.svg",
       light: "/logo-light.svg",
-      alt: "Vynaro",
+      alt: "Monoloop",
     },
-    siteTitle: "Vynaro",
+    siteTitle: "Monoloop",
 
     // ── Last Updated ────────────────────────────────────────
     lastUpdated: {
@@ -220,7 +220,7 @@ export default defineConfig({
 
     // ── Footer ──────────────────────────────────────────────
     footer: {
-      message: "Vynaro 文档中心 · 面向影视/短剧第一人称解说生产",
+      message: "Monoloop 文档中心 · 面向影视/短剧第一人称解说生产",
       copyright: "Copyright © 2025-2026 Agions · 隐私优先 · 本地处理",
     },
 
@@ -238,7 +238,7 @@ export default defineConfig({
 
   // ── Sitemap ────────────────────────────────────────────────
   sitemap: {
-    hostname: "https://agions.github.io/vynaro/",
+    hostname: "https://agions.github.io/monoloop/",
     lastmodDateOnly: true,
   },
 });

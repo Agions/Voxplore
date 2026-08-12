@@ -1,21 +1,21 @@
 ---
 title: 导出发布指南
-description: Vynaro 支持的剪映工程草稿 (.draft) 导出、8 平台发布预设与 MP4 导出配置。
+description: Monoloop 支持的剪映工程草稿 (.draft) 导出、8 平台发布预设与 MP4 导出配置。
 ---
 
 # 📤 导出与发布指南
 
-Vynaro 核心优势之一是原生支持 **剪映工程草稿 (`.draft`)** 导出与 **8 大主流视频平台预设**。无论是直接导出成片还是导入剪映二次精剪，均可一键完成。
+Monoloop 核心优势之一是原生支持 **剪映工程草稿 (`.draft`)** 导出与 **8 大主流视频平台预设**。无论是直接导出成片还是导入剪映二次精剪，均可一键完成。
 
 ---
 
 ## 🎬 剪映工程草稿 (.draft) 原生导出
 
-点击 Step 7 导出视窗中的 **【导出剪映草稿】**，Vynaro 会直接构建剪映 PC 端原生的工程草稿文件夹结构：
+点击 Step 7 导出视窗中的 **【导出剪映草稿】**，Monoloop 会直接构建剪映 PC 端原生的工程草稿文件夹结构：
 
 ```text
-Vynaro_Export/
-└── Vynaro_Promo_Vertical_9x16.draft/
+Monoloop_Export/
+└── Monoloop_Promo_Vertical_9x16.draft/
     ├── draft_content.json       # 剪映原生轨道、视频/音频/字幕数据结构
     ├── draft_meta_info.json     # 剪映版本与时间轴元信息
     ├── media/                   # 切片视频片段与背景音乐

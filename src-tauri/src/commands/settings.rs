@@ -5,9 +5,9 @@
 
 use std::path::PathBuf;
 
+use monoloop_core::services::{ConfigService, ConfigSnapshot};
+use monoloop_core::AppContext;
 use tauri::{Manager, State};
-use vynaro_core::services::{ConfigService, ConfigSnapshot};
-use vynaro_core::AppContext;
 
 const CONFIG_FILE: &str = "config.json";
 

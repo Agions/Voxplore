@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Vynaro horizontal logo light">
-  <title>Vynaro 叙影 - AI 视频解说创作工具</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Monoloop horizontal logo light">
+  <title>Monoloop 叙影 - AI 视频解说创作工具</title>
   <defs>
     <linearGradient id="hzGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#D97706"/>
@@ -29,7 +29,7 @@
 
   <!-- 右侧品牌文本 -->
   <g transform="translate(160, 42)">
-    <text x="0" y="48" font-family="Inter, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1" fill="#111827">Vynaro</text>
+    <text x="0" y="48" font-family="Inter, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1" fill="#111827">Monoloop</text>
     <rect x="210" y="14" width="68" height="32" rx="8" fill="#D97706" fill-opacity="0.1" stroke="#D97706" stroke-width="1"/>
     <text x="244" y="36" font-family="'PingFang SC', sans-serif" font-size="18" font-weight="700" fill="#B45309" text-anchor="middle">叙影</text>
 

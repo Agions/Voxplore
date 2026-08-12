@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 字节数格式化 (统一接口)
+ * Monoloop v1.0.0 · 字节数格式化 (统一接口)
  *
  * 设计:
  * - 接收 number | null | undefined (兼容后端 Option<u64>)
