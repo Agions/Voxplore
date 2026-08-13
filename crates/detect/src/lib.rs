@@ -456,9 +456,14 @@ impl Ffmpeg {
         })?;
 
         if !status.success() {
-            return Err(RawExecError {
-                stderr_tail: tail_lines(&stderr_buf, 8),
-            });
+            let tail = tail_lines(&stderr_buf, 8);
+            tracing::warn!(
+                bin = %bin.display(),
+                code = ?status.code(),
+                stderr = %tail,
+                "FFmpeg process exited with error status"
+            );
+            return Err(RawExecError { stderr_tail: tail });
         }
         Ok(String::from_utf8_lossy(&stdout_buf).into_owned())
     }

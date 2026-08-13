@@ -80,7 +80,7 @@ export function AudioWaveformVisualizer({
     }
   }, [audioRef, isPlaying]);
 
-  // Canvas 渲染主循环
+  // Canvas 渲染主循环 (支持 Retina / High-DPI 屏幕清晰度缩放)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -89,10 +89,25 @@ export function AudioWaveformVisualizer({
 
     let animTime = 0;
 
+    const updateCanvasBounds = () => {
+      const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+      const rect = canvas.getBoundingClientRect();
+      const targetW = Math.floor((rect.width || 600) * dpr);
+      const targetH = Math.floor((height || 72) * dpr);
+
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      return { dpr, width: rect.width || 600, height: height || 72 };
+    };
+
     const render = () => {
       animTime += 0.04;
-      const width = canvas.width;
-      const ch = canvas.height;
+      const { dpr, width, height: ch } = updateCanvasBounds();
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, width, ch);
 
       const analyser = analyserRef.current;
@@ -186,6 +201,7 @@ export function AudioWaveformVisualizer({
       }
       ctx.stroke();
 
+      ctx.restore();
       rafRef.current = requestAnimationFrame(render);
     };
 

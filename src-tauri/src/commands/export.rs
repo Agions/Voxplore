@@ -97,12 +97,12 @@ pub async fn export_capcut_draft(
         }
     });
 
-    tokio::fs::write(
-        draft_folder.join("draft_info.json"),
-        serde_json::to_string_pretty(&info_content).unwrap(),
-    )
-    .await
-    .map_err(|e| format!("写入 draft_info.json 失败: {e}"))?;
+    let info_str = serde_json::to_string_pretty(&info_content)
+        .map_err(|e| format!("序列化 draft_info.json 失败: {e}"))?;
+
+    tokio::fs::write(draft_folder.join("draft_info.json"), info_str)
+        .await
+        .map_err(|e| format!("写入 draft_info.json 失败: {e}"))?;
 
     Ok(CapcutDraftResult {
         draft_folder: draft_folder.to_string_lossy().to_string(),
