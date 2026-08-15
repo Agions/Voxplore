@@ -162,21 +162,21 @@ gh release upload v1.0.0 -beta.1 Vynaro_2.5.0-beta.1_aarch64.dmg.sha256
 
 ```bash
 # 一次性生成（本地或 CI runner）
-cargo tauri signer generate -w ~/.tauri/scenefab.key
+cargo tauri signer generate -w ~/.tauri/vynaro.key
 # 输出:
 #   Public:  dW50cnVzdGVkIGNvbW1lbmQgLi4u (BASE64)
 #   Private: kAGQ6tpaYjJuOlm...           (BASE64, 永远不要 commit)
 
 # 每次构建
 cargo tauri signer sign --private-key $TAURI_SIGNING_PRIVATE_KEY \
-  apps/desktop/src-tauri/target/release/bundle/macos/Vynaro.app.tar.gz
+  src-tauri/target/release/bundle/macos/Vynaro.app.tar.gz
 ```
 
 GitHub Actions Secrets 配置：
 
 | Secret                               | 来源                             |
 | ------------------------------------ | -------------------------------- |
-| `TAURI_SIGNING_PRIVATE_KEY`          | `~/.tauri/scenefab.key` 完整内容 |
+| `TAURI_SIGNING_PRIVATE_KEY`          | `~/.tauri/vynaro.key` 完整内容   |
 | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | 生成时如果设置过                 |
 | `APPLE_CERTIFICATE`                  | base64 编码的 `.p12`             |
 | `APPLE_CERTIFICATE_PASSWORD`         | p12 密码                         |
@@ -206,7 +206,7 @@ GitHub Actions Secrets 配置：
 
 ### 5.2 私钥泄露应急
 
-1. 立即在 `~/.tauri/scenefab.key` 端执行 `cargo tauri signer revoke --key $OLD_KEY`
+1. 立即在 `~/.tauri/vynaro.key` 端执行 `cargo tauri signer revoke --key $OLD_KEY`
 2. 在 GitHub → Settings → Secrets → 删除 `TAURI_SIGNING_PRIVATE_KEY`
 3. 重新生成新密钥对
 4. 更新 `tauri.conf.json` 的 `plugins.updater.pubkey` 字段
