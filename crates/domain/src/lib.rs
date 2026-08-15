@@ -124,7 +124,7 @@ pub struct Clip {
     pub volume: Option<f32>, // 仅 audio 有意义
 }
 
-/// 第一人称叙述脚本的一段。
+/// 第一人称叙述脚本的一段 (含黄金前3秒爆款钩子支持)。
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ScriptSegment {
     pub id: String,
@@ -133,6 +133,10 @@ pub struct ScriptSegment {
     pub emotion: Option<String>,
     pub start_seconds: Option<f64>,
     pub end_seconds: Option<f64>,
+    #[serde(default)]
+    pub is_hook: Option<bool>,
+    #[serde(default)]
+    pub hook_style: Option<String>,
 }
 
 /// 一次导出记录。

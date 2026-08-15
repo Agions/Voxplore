@@ -156,6 +156,8 @@ impl StepExecutor for SceneSplitStep {
                 emotion: None,
                 start_seconds: Some(w[0]),
                 end_seconds: Some(w[1]),
+                is_hook: None,
+                hook_style: None,
             })
             .collect();
         Ok(())
@@ -272,6 +274,8 @@ impl StepExecutor for ScriptGenStep {
                     emotion: None,
                     start_seconds: Some(timing.map(|t| t.0).unwrap_or(0.0)),
                     end_seconds: Some(timing.map(|t| t.1).unwrap_or(60.0)),
+                    is_hook: None,
+                    hook_style: None,
                 }];
             }
         }

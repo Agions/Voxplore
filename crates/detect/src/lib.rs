@@ -174,6 +174,23 @@ impl Ffmpeg {
         Ok(paths)
     }
 
+    /// 爆款黄金前3秒：智能评估并萃取最适合作为“高潮前置”的镜头切点 (秒)
+    pub fn find_climax_scene<'a>(&self, cuts: &'a [SceneCut]) -> Option<&'a SceneCut> {
+        if cuts.is_empty() {
+            return None;
+        }
+        // 优先在剧集中后段 (30% ~ 90%) 寻找高光镜头切点
+        let len = cuts.len();
+        if len > 3 {
+            let mid_start = (len as f64 * 0.3) as usize;
+            let mid_end = (len as f64 * 0.9).min((len - 1) as f64) as usize;
+            if let Some(c) = cuts[mid_start..mid_end].first() {
+                return Some(c);
+            }
+        }
+        cuts.get(len / 2).or_else(|| cuts.first())
+    }
+
     // ── 转码操作 (白名单参数) ───────────────────────────────────────────
 
     /// 抽取音轨 → wav (16k 单声道,TTS 参考音频标准格式)

@@ -15,16 +15,21 @@ interface Step3ScriptPanelProps {
   onNext: () => void;
 }
 
+type HookStrategy = "conflict" | "paradox" | "survival" | "emotion";
+
 export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
   const locale = useSettingsStore((s) => s.locale);
   const qc = useQueryClient();
   const [provider, setProvider] = useState("qwen");
   const [styleTab, setStyleTab] = useState<"immersive" | "critic" | "story" | "roast">("immersive");
+  const [hookStrategy, setHookStrategy] = useState<HookStrategy>("conflict");
+  const [enableHook, setEnableHook] = useState(true);
   const [emotionDensity, setEmotionDensity] = useState(80);
   const [wordCount, setWordCount] = useState(800);
   const [userPrompt, setUserPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [scriptContent, setScriptContent] = useState("");
+  const [hookPreview, setHookPreview] = useState<string | null>(null);
 
   const { data: config } = useQuery({
     queryKey: ["app-config-settings"],
@@ -47,7 +52,7 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
     }
 
     setIsGenerating(true);
-    toast.info("正在使用 LLM 生成第一人称独白脚本...");
+    toast.info("正在使用 LLM 生成黄金前3秒爆款独白剧本...");
 
     try {
       const res = await scriptIpc.generate({
@@ -59,10 +64,13 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
         style: styleTab,
         emotion_density: emotionDensity / 100,
         word_count_target: wordCount,
+        hook_style: enableHook ? hookStrategy : null,
+        include_hook: enableHook,
         images_base64: null,
       });
 
       setScriptContent(res.text);
+      setHookPreview(res.hook_text ?? null);
       // 将脚本内容写入共享缓存，Step5 字幕面板可读取
       qc.setQueryData(["step3-script-content"], res.text);
       toast.success(`脚本生成成功！共 ${res.word_count} 字，预估配音时长 ${res.estimated_duration_sec} 秒`);
@@ -134,6 +142,85 @@ export function Step3ScriptPanel({ onNext }: Step3ScriptPanelProps) {
           </Link>
         </div>
       )}
+
+      {/* ✨ 黄金前 3 秒爆款钩子工坊 (Golden Hook Studio) */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(20,20,20,0.6) 100%)",
+          border: "1px solid rgba(245,200,66,0.35)",
+          borderRadius: "12px",
+          padding: "16px 20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "16px" }}>✨</span>
+            <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--color-gold)", letterSpacing: "0.5px" }}>
+              黄金前 3 秒爆款钩子工坊 (Hook & Climax Studio)
+            </span>
+            <span style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(245,200,66,0.2)", color: "var(--color-gold)", fontWeight: 600 }}>
+              爆款留存率 +300%
+            </span>
+          </div>
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "12px", color: "var(--color-text-secondary)" }}>
+            <input
+              type="checkbox"
+              checked={enableHook}
+              onChange={(e) => setEnableHook(e.target.checked)}
+              style={{ accentColor: "var(--color-gold)" }}
+            />
+            启用高潮前置与黄金钩子
+          </label>
+        </div>
+
+        {enableHook && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
+            {[
+              { id: "conflict" as HookStrategy, icon: "🔥", label: "战神冲突反转", desc: "身份揭秘/反差打脸/强权压制" },
+              { id: "paradox" as HookStrategy, icon: "⚡", label: "悬念悖论设问", desc: "反常识动机/未解之谜/逻辑违和" },
+              { id: "survival" as HookStrategy, icon: "⏳", label: "生死极限绝境", desc: "倒计时压迫/生死危机/高危对决" },
+              { id: "emotion" as HookStrategy, icon: "💔", label: "情感撕裂共鸣", desc: "社会痛点/家庭伦理/虐心抉择" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setHookStrategy(item.id)}
+                style={{
+                  background: hookStrategy === item.id ? "rgba(245,200,66,0.18)" : "var(--color-bg)",
+                  border: hookStrategy === item.id ? "1px solid #F5C842" : "1px solid var(--color-border)",
+                  borderRadius: "8px",
+                  padding: "10px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: "4px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "all 150ms ease",
+                }}
+              >
+                <div style={{ fontSize: "12px", fontWeight: 700, color: hookStrategy === item.id ? "var(--color-gold)" : "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
+                <div style={{ fontSize: "10px", color: "var(--color-text-secondary)", lineHeight: 1.3 }}>
+                  {item.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {hookPreview && (
+          <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "6px", padding: "8px 12px", fontSize: "12px", color: "var(--color-gold)", borderLeft: "3px solid #F5C842" }}>
+            <span style={{ fontWeight: 700, marginRight: "6px" }}>🎯 前置钩子文案:</span>
+            <span>{hookPreview}</span>
+          </div>
+        )}
+      </div>
 
       {/* 提示词输入区 */}
       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>

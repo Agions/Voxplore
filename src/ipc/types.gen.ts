@@ -340,12 +340,15 @@ export interface ScriptGenerateParams {
   style: string | null;
   emotion_density: number | null;
   word_count_target: number | null;
+  hook_style?: string | null;
+  include_hook?: boolean | null;
   images_base64?: string[] | null;
 }
 
 // Rust 端 ScriptGenerateResult (pub struct)
 export interface ScriptGenerateResult {
   text: string;
+  hook_text?: string | null;
   word_count: number;
   estimated_duration_sec: number;
 }
@@ -551,6 +554,8 @@ export interface ScriptSegment {
   emotion: string | null;
   start_seconds: number | null;
   end_seconds: number | null;
+  is_hook?: boolean | null;
+  hook_style?: string | null;
 }
 
 // Rust 端 ExportRecord (pub struct)
