@@ -195,7 +195,9 @@ impl Ffmpeg {
                 let weight_a = 1.0 - (pos_a - 0.75).abs() * 2.0;
                 let weight_b = 1.0 - (pos_b - 0.75).abs() * 2.0;
 
-                weight_a.partial_cmp(&weight_b).unwrap_or(std::cmp::Ordering::Equal)
+                weight_a
+                    .partial_cmp(&weight_b)
+                    .unwrap_or(std::cmp::Ordering::Equal)
             })
             .map(|(_, cut)| cut)
     }
