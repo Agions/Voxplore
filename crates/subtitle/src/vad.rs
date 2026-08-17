@@ -1,4 +1,4 @@
-//! vynaro-subtitle · vad — 语音端点检测（Voice Activity Detection）
+//! splicr-subtitle · vad — 语音端点检测（Voice Activity Detection）
 
 use crate::SubtitleError;
 

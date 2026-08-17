@@ -1,10 +1,10 @@
-//! vynaro-domain v1.0.0  · 领域模型
+//! splicr-domain v1.0.0  · 领域模型
 //!
 //! ## 责任范围
 //! 整个应用的"业务对象" — 不依赖任何基础设施 (无 IO / 无 HTTP / 无 IO error 类型)
 //!
 //! ## 核心领域模型
-//! - [`Project`]   : 顶层项目 (1 个 .vynaro 文件对应 1 个 Project)
+//! - [`Project`]   : 顶层项目 (1 个 .splicr 文件对应 1 个 Project)
 //! - [`MediaFile`] : 媒体文件 (mp4 / mov / wav / mp3)
 //! - [`Timeline`]  : 时间线 (含 tracks + clips)
 //! - [`Track`]     : 时间线轨道
@@ -23,7 +23,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-/// 顶层项目。一个 .vynaro 文件对应 1 个 Project。
+/// 顶层项目。一个 .splicr 文件对应 1 个 Project。
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Project {
     pub id: String,

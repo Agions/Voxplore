@@ -1,13 +1,13 @@
-//! vynaro-storage v1.0.0  · 素材资产管理服务
+//! splicr-storage v1.0.0  · 素材资产管理服务
 //!
 //! ## 责任范围
 //! - `assets_scan`        : 扫描目录,按 MIME 白名单返回可导入素材
 //! - `assets_metadata`    : ffprobe 抽 metadata (duration / resolution / codec / size)
-//! - `assets_thumbnail`   : ffmpeg 抽首帧 JPEG,落盘到 `~/.cache/vynaro/thumb/`
+//! - `assets_thumbnail`   : ffmpeg 抽首帧 JPEG,落盘到 `~/.cache/splicr/thumb/`
 //! - `assets_search`      : 在项目已有 media_files 中按 name/path substring 过滤
 //!
 //! ## 安全
-//! - 所有 IO 失败统一 `VynaroError::Io`
+//! - 所有 IO 失败统一 `SplicrError::Io`
 //! - 缩略图路径用 `<cache_dir>/thumb/<sha256(path)>.jpg` 防目录穿越
 //! - 扫描递归深度上限 8,文件大小上限 2 GB
 
@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use walkdir::WalkDir;
 
-use vynaro_detect::{parse_probe_json, Ffmpeg, FfmpegProbe};
+use splicr_detect::{parse_probe_json, Ffmpeg, FfmpegProbe};
 
 // ════════════════════════════════════════════════════════════════════════
 // 错误
@@ -37,8 +37,8 @@ pub enum AssetError {
     Thumbnail(String),
     #[error("IO: {0}")]
     Io(#[from] std::io::Error),
-    #[error("vynaro 错误: {0}")]
-    Core(#[from] vynaro_core::error::VynaroError),
+    #[error("splicr 错误: {0}")]
+    Core(#[from] splicr_core::error::SplicrError),
 }
 
 pub type AssetResult<T> = Result<T, AssetError>;
@@ -156,7 +156,7 @@ fn thumb_cache_dir() -> AssetResult<PathBuf> {
     let base = dirs::cache_dir()
         .or_else(dirs::data_local_dir)
         .ok_or_else(|| AssetError::Io(std::io::Error::other("无法获取 cache dir")))?;
-    let dir = base.join("vynaro").join("thumb");
+    let dir = base.join("splicr").join("thumb");
     std::fs::create_dir_all(&dir)?;
     Ok(dir)
 }

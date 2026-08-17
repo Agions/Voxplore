@@ -31,7 +31,7 @@ assignees: ""
 ## 🖥️ 环境信息 / Environment
 
 - OS: [e.g. macOS 14.0 / Windows 11 / Ubuntu 22.04]
-- Vynaro 版本 / Version: [e.g. 2.5.0]
+- splicr 版本 / Version: [e.g. 2.5.0]
 - 使用的 AI 模型 / AI Model: [e.g. Kimi K3 / DeepSeek-V4]
 
 ## 📋 错误日志 / Error Logs

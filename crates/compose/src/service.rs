@@ -1,4 +1,4 @@
-//! vynaro-pipeline · PipelineService (运行时编排门面)
+//! splicr-pipeline · PipelineService (运行时编排门面)
 //!
 //! ## 职责
 //! - 持有 [`Pipeline`] 状态机 + 当前项目 + 后台任务句柄
@@ -17,7 +17,7 @@ use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 
 use crate::executors::{default_executors, PipelineDeps};
-use crate::{Pipeline, PipelineEvent, PipelineState, Project, StepStatus, VynaroResult};
+use crate::{Pipeline, PipelineEvent, PipelineState, Project, StepStatus, SplicrResult};
 
 /// IPC 友好的状态快照。
 #[derive(Debug, Clone, Serialize)]
@@ -78,9 +78,9 @@ impl PipelineService {
     }
 
     /// 启动流水线 (后台任务)。运行中重复调用返回错误。
-    pub async fn start(&self, project: Project, deps: Arc<PipelineDeps>) -> VynaroResult<()> {
+    pub async fn start(&self, project: Project, deps: Arc<PipelineDeps>) -> SplicrResult<()> {
         if self.is_running() {
-            return Err(crate::VynaroError::Pipeline("流水线正在运行中".into()));
+            return Err(crate::SplicrError::Pipeline("流水线正在运行中".into()));
         }
 
         let pipeline = self.pipeline.clone();

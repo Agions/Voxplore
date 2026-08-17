@@ -3,8 +3,8 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use tauri::State;
-use vynaro_core::AppContext;
-use vynaro_detect::Ffmpeg;
+use splicr_core::AppContext;
+use splicr_detect::Ffmpeg;
 
 /// 返回 AppContext 中的 semver 版本 (字符串格式)
 #[tauri::command]

@@ -1,4 +1,4 @@
-//! src-tauri 命令 · help (M5.7 · 接 vynaro-help)
+//! src-tauri 命令 · help (M5.7 · 接 splicr-help)
 //!
 //! - help_topics: 全量主题列表 (可按分类过滤)
 //! - help_topic_get: 按 id 取单篇主题 (含 markdown 正文)
@@ -8,7 +8,7 @@
 //! 内置 6 篇默认主题与前端 HelpPage 卡片对应。
 
 use tauri::State;
-use vynaro_core::{HelpCategory, HelpRegistry, HelpTopic, SearchHit};
+use splicr_core::{HelpCategory, HelpRegistry, HelpTopic, SearchHit};
 
 /// 全量主题列表。category 非空时按分类过滤 (kebab-case,非法分类返回错误)。
 #[tauri::command]

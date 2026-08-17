@@ -1,18 +1,18 @@
-//! vynaro-core v1.0.0  · 服务容器 + 错误 + Tracing 全应用基础设施
+//! splicr-core v1.0.0  · 服务容器 + 错误 + Tracing 全应用基础设施
 //!
 //! ## 责任范围
 //! 提供整个应用共享的基础设施层:
 //! - [`context`]   : `AppContext` — 全局状态容器 (Tauri `State` 注入对象)
 //! - [`container`] : `ServiceContainer` — 19 个核心服务的注册与解析
-//! - [`error`]     : `VynaroError` + `VynaroResult` — 统一错误类型 (Tauri Command 返回)
+//! - [`error`]     : `SplicrError` + `SplicrResult` — 统一错误类型 (Tauri Command 返回)
 //! - [`logging`]   : `init_logging` — `tracing_subscriber` 初始化
-//! - [`domain`]    : re-export 跨模块领域原语 (delegate 给 vynaro-domain)
+//! - [`domain`]    : re-export 跨模块领域原语 (delegate 给 splicr-domain)
 //! - [`services`]  : 19 个 service 注册入口
 //!
 //! ## 核心领域模型
 //! - `AppContext` 含 `ServiceContainer` + `Version` + `started_at`
 //! - `ServiceContainer` 暴露 `Arc<Mutex<HashMap<TypeId, Box<dyn Any>>>>`
-//! - `VynaroError` 共 9 类 (`Config`/`Llm`/`Tts`/`Ffmpeg`/`Io`/`Project`/`Pipeline`/`Plugin`/`Updater`)
+//! - `SplicrError` 共 9 类 (`Config`/`Llm`/`Tts`/`Ffmpeg`/`Io`/`Project`/`Pipeline`/`Plugin`/`Updater`)
 //! - `init_logging` 读取 `RUST_LOG` 环境变量,默认 `info`
 //!
 //! ## 后续模块规划 (M3+)
@@ -31,7 +31,7 @@ pub mod services;
 
 pub use container::ServiceContainer;
 pub use context::{AppContext, AppContextBuilder};
-pub use error::{VynaroError, VynaroResult};
+pub use error::{SplicrError, SplicrResult};
 pub use help::{HelpCategory, HelpRegistry, HelpTopic, SearchHit};
 pub use i18n::{Locale, Translator};
 pub use logging::init_logging;

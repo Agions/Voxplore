@@ -1,4 +1,4 @@
-//! vynaro-core · help — 帮助文档与 FAQ 注册表
+//! splicr-core · help — 帮助文档与 FAQ 注册表
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -80,7 +80,7 @@ impl HelpRegistry {
             keywords: vec!["入门".into(), "快速开始".into(), "工作流".into(), "第一人称".into()],
             content: r#"# 第一人称 AI 影视解说快速上手全流程
 
-Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 创作系统。本指南将引导您在 3 分钟内完成首个解说视频的制作。
+splicr 是一款专为全自动第一人称短视频解说打造的桌面级 AI 创作系统。本指南将引导您在 3 分钟内完成首个解说视频的制作。
 
 ---
 
@@ -112,7 +112,7 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
 
 ### ⑦ 草稿与渲染导出 (Export)
 - 一键导出 4K 60fps 竖屏 (9:16) 或横屏 (16:9) 高清 MP4 视频。
-- 自动备份工程为 `.vynaro.json`，方便随时重修编辑。
+- 自动备份工程为 `.splicr.json`，方便随时重修编辑。
 "#.into(),
             related: vec!["guide-detect-master".into(), "guide-script-copilot".into(), "guide-tts-cloning".into()],
         });
@@ -203,7 +203,7 @@ Vynaro 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
             ],
             content: r#"# 音色克隆与 TTS 高保真情感配音指南
 
-Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样本（Zero-Shot）音色克隆模块。
+splicr 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样本（Zero-Shot）音色克隆模块。
 
 ---
 
@@ -278,7 +278,7 @@ Vynaro 搭载了基于神经网络的 24kHz 高保真语音合成引擎与零样
             ],
             content: r#"# 音画自动精准对齐与卡点混剪算法
 
-Vynaro 的自动对齐引擎能够自动将合成的语音脚本与视频镜头时间轴进行毫秒级匹配。
+splicr 的自动对齐引擎能够自动将合成的语音脚本与视频镜头时间轴进行毫秒级匹配。
 
 ---
 
@@ -322,13 +322,13 @@ Vynaro 的自动对齐引擎能够自动将合成的语音脚本与视频镜头�
         // 2. 技术参考 (Reference)
         reg.register(HelpTopic {
             id: "ref-project-schema".into(),
-            title: "📖 `.vynaro.json` 工程结构与数据契约规范".into(),
-            summary: Some("Vynaro 核心工程文件格式规范、轨道契约与本地 JSON 模式描述。".into()),
+            title: "📖 `.splicr.json` 工程结构与数据契约规范".into(),
+            summary: Some("splicr 核心工程文件格式规范、轨道契约与本地 JSON 模式描述。".into()),
             category: HelpCategory::Reference,
             keywords: vec!["工程文件".into(), "JSON".into(), "Schema".into(), "数据契约".into()],
-            content: r#"# `.vynaro.json` 工程文件规范描述
+            content: r#"# `.splicr.json` 工程文件规范描述
 
-Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存。每个解说工程对应一个独立的 `.vynaro.json` 结构。
+splicr 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存。每个解说工程对应一个独立的 `.splicr.json` 结构。
 
 ```json
 {
@@ -448,7 +448,7 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 
 2. **macOS 隐私与安全性授权**
    - 打开系统设置 -> 隐私与安全性 -> 文件和文件夹。
-   - 确保给 **Vynaro** 勾选了「文稿」与「Downloads」读取权限。
+   - 确保给 **splicr** 勾选了「文稿」与「Downloads」读取权限。
 
 3. **修复丢失的素材**
    若移动了原始视频文件的位置，可以在「媒体资产中心」点击「重新关联路径」一键批量修复。
@@ -465,14 +465,14 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
             keywords: vec!["隐私".into(), "数据安全".into(), "离线".into(), "云端".into(), "FAQ".into()],
             content: r#"# 本地离线部署与数据隐私安全 FAQ
 
-### Q1: Vynaro 会上传我的视频素材到云端服务器吗？
-**答**: 绝对不会。Vynaro 是一款 100% 本地桌面软件。您的所有视频文件、帧分析、语音音频以及生成的字幕均仅保存在您本地的电脑磁盘上。
+### Q1: splicr 会上传我的视频素材到云端服务器吗？
+**答**: 绝对不会。splicr 是一款 100% 本地桌面软件。您的所有视频文件、帧分析、语音音频以及生成的字幕均仅保存在您本地的电脑磁盘上。
 
 ### Q2: 软件可以在断网（无网络连接）的环境下使用吗？
 **答**: 可以。智能拆条、FFmpeg 剪辑、TTS 语音合成与导出渲染均支持完全离线运行。
 
 ### Q3: 应用需要用户登录或注册账号吗？
-**答**: 不需要。Vynaro 坚守无登录设计原则（No-Login Policy），打开即用，无任何个人数据收集。
+**答**: 不需要。splicr 坚守无登录设计原则（No-Login Policy），打开即用，无任何个人数据收集。
 "#.into(),
             related: vec!["faq-supported-formats".into(), "ref-project-schema".into()],
         });
@@ -489,7 +489,7 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 **答**: 推荐使用 `MP4 (H.264/AAC)` 或 `MOV` 格式。系统原生针对此格式进行了 GPU 硬解码加速优化。
 
 ### Q2: 支持 HDR 视频或 10-bit 色深素材吗？
-**答**: 支持。Vynaro 底层集成了 FFmpeg 7.0+ 引擎，在处理 HDR10 / Dolby Vision 素材时，会自动色彩映射（Color Tone-mapping）至 SDR 标准 SDR BT.709，防止导出后色彩偏灰发白。
+**答**: 支持。splicr 底层集成了 FFmpeg 7.0+ 引擎，在处理 HDR10 / Dolby Vision 素材时，会自动色彩映射（Color Tone-mapping）至 SDR 标准 SDR BT.709，防止导出后色彩偏灰发白。
 "#.into(),
             related: vec!["guide-export-preset".into(), "trouble-ffmpeg-cuda".into()],
         });
@@ -514,7 +514,7 @@ Vynaro 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 2. 定期在设置 -> 存储管理 中点击「一键清理 FFmpeg 临帧缓存」。
 
 ### Q2: 多核 CPU 资源如何全速调用？
-**答**: Vynaro 基于 Tokio 异步多线程架构，默认会自动分配所有物理 CPU 核心参与音视频并发编解码。
+**答**: splicr 基于 Tokio 异步多线程架构，默认会自动分配所有物理 CPU 核心参与音视频并发编解码。
 "#
             .into(),
             related: vec!["trouble-ffmpeg-cuda".into(), "guide-quick-start".into()],

@@ -1,26 +1,26 @@
 <template>
-  <section class="vynaro-hero-app-showcase">
+  <section class="splicr-hero-app-showcase">
     <!-- 顶部分浪 Pill Badge & Title -->
-    <div class="vynaro-showcase-header">
-      <div class="vynaro-gradient-badge">
+    <div class="splicr-showcase-header">
+      <div class="splicr-gradient-badge">
         <span class="pulse-dot"></span>
-        <span class="badge-text">Vynaro v1.0.0 · Tauri 2.0 + Rust 旗舰版桌面端</span>
+        <span class="badge-text">splicr v1.0.0 · Tauri 2.0 + Rust 旗舰版桌面端</span>
       </div>
-      <h2 class="vynaro-showcase-title">
+      <h2 class="splicr-showcase-title">
         为短剧拆条与影视解说而生的
         <span class="gold-gradient-text">全自动 AI 工厂</span>
       </h2>
-      <p class="vynaro-showcase-subtitle">
+      <p class="splicr-showcase-subtitle">
         从视频切片拆条、剧情独白生成、人声声波克隆到剪映草稿原生导出，一站式极致流畅体验。
       </p>
     </div>
 
     <!-- 交互式 Tab 选项卡 -->
-    <div class="vynaro-tab-bar">
+    <div class="splicr-tab-bar">
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"
-        class="vynaro-tab-btn"
+        class="splicr-tab-btn"
         :class="{ active: activeTab === index }"
         @click="activeTab = index"
       >
@@ -31,11 +31,11 @@
     </div>
 
     <!-- 3D 拟态 Mac 桌面视窗 -->
-    <div class="vynaro-window-box">
+    <div class="splicr-window-box">
       <!-- 窗口 Ambient 柔黄背景发光圈 -->
-      <div class="vynaro-ambient-glow"></div>
+      <div class="splicr-ambient-glow"></div>
 
-      <div class="vynaro-mac-window">
+      <div class="splicr-mac-window">
         <div class="window-bar">
           <div class="window-dots">
             <span class="dot close"></span>
@@ -43,7 +43,7 @@
             <span class="dot zoom"></span>
           </div>
           <div class="window-title">
-            <span class="app-name">Vynaro Desktop</span>
+            <span class="app-name">splicr Desktop</span>
             <span class="sep">—</span>
             <span class="current-step">{{ tabs[activeTab].tagline }}</span>
           </div>
@@ -55,7 +55,7 @@
 
         <!-- 屏幕主图展示 (支持切换与淡入动画) -->
         <div class="window-viewport" @click="openZoom">
-          <transition name="vynaro-fade" mode="out-in">
+          <transition name="splicr-fade" mode="out-in">
             <img
               :key="tabs[activeTab].img"
               :src="withBase(tabs[activeTab].img)"
@@ -77,7 +77,7 @@
     </div>
 
     <!-- 底部极简核心指标卡 -->
-    <div class="vynaro-metric-strip">
+    <div class="splicr-metric-strip">
       <div class="metric-item">
         <span class="metric-val">7 步</span>
         <span class="metric-lbl">DAG 状态机流水线</span>
@@ -101,8 +101,8 @@
 
     <!-- 大图 Lightbox 浮层 Modal -->
     <teleport to="body">
-      <div v-if="isZoomed" class="vynaro-lightbox-overlay" @click="isZoomed = false">
-        <div class="vynaro-lightbox-content" @click.stop>
+      <div v-if="isZoomed" class="splicr-lightbox-overlay" @click="isZoomed = false">
+        <div class="splicr-lightbox-content" @click.stop>
           <button class="lightbox-close" @click="isZoomed = false">✕</button>
           <img :src="withBase(tabs[activeTab].img)" :alt="tabs[activeTab].name" class="lightbox-img" />
           <div class="lightbox-caption">{{ tabs[activeTab].name }} — {{ tabs[activeTab].tagline }}</div>
@@ -163,7 +163,7 @@ function openZoom() {
 </script>
 
 <style scoped>
-.vynaro-hero-app-showcase {
+.splicr-hero-app-showcase {
   margin: 40px 0 60px 0;
   display: flex;
   flex-direction: column;
@@ -171,13 +171,13 @@ function openZoom() {
   width: 100%;
 }
 
-.vynaro-showcase-header {
+.splicr-showcase-header {
   text-align: center;
   max-width: 800px;
   margin-bottom: 32px;
 }
 
-.vynaro-gradient-badge {
+.splicr-gradient-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -212,7 +212,7 @@ function openZoom() {
   font-family: var(--vp-font-family-mono);
 }
 
-.vynaro-showcase-title {
+.splicr-showcase-title {
   font-family: 'Outfit', var(--vp-font-family-base);
   font-size: 2.6rem;
   font-weight: 800;
@@ -229,7 +229,7 @@ function openZoom() {
   filter: drop-shadow(0 0 16px rgba(245, 200, 66, 0.3));
 }
 
-.vynaro-showcase-subtitle {
+.splicr-showcase-subtitle {
   font-size: 1.05rem;
   color: var(--vp-c-text-3);
   line-height: 1.6;
@@ -237,7 +237,7 @@ function openZoom() {
 }
 
 /* Tab 选项卡 */
-.vynaro-tab-bar {
+.splicr-tab-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -250,7 +250,7 @@ function openZoom() {
   margin-bottom: 24px;
 }
 
-.vynaro-tab-btn {
+.splicr-tab-btn {
   position: relative;
   display: flex;
   align-items: center;
@@ -266,12 +266,12 @@ function openZoom() {
   transition: all 0.25s ease;
 }
 
-.vynaro-tab-btn:hover {
+.splicr-tab-btn:hover {
   color: #f5c842;
   background: rgba(245, 200, 66, 0.06);
 }
 
-.vynaro-tab-btn.active {
+.splicr-tab-btn.active {
   color: #ffffff;
   background: rgba(245, 200, 66, 0.15);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -289,13 +289,13 @@ function openZoom() {
 }
 
 /* 视窗 Mockup */
-.vynaro-window-box {
+.splicr-window-box {
   position: relative;
   width: 100%;
   max-width: 1100px;
 }
 
-.vynaro-ambient-glow {
+.splicr-ambient-glow {
   position: absolute;
   top: -20px;
   left: 5%;
@@ -307,7 +307,7 @@ function openZoom() {
   z-index: 0;
 }
 
-.vynaro-mac-window {
+.splicr-mac-window {
   position: relative;
   z-index: 1;
   background: #0d0f17;
@@ -318,7 +318,7 @@ function openZoom() {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.vynaro-mac-window:hover {
+.splicr-mac-window:hover {
   border-color: rgba(245, 200, 66, 0.5);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(245, 200, 66, 0.25);
 }
@@ -433,7 +433,7 @@ function openZoom() {
 }
 
 /* 核心指标 Strip */
-.vynaro-metric-strip {
+.splicr-metric-strip {
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -475,7 +475,7 @@ function openZoom() {
 }
 
 /* Lightbox Modal */
-.vynaro-lightbox-overlay {
+.splicr-lightbox-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -493,7 +493,7 @@ function openZoom() {
   to { opacity: 1; }
 }
 
-.vynaro-lightbox-content {
+.splicr-lightbox-content {
   position: relative;
   max-width: 92vw;
   max-height: 92vh;
@@ -541,26 +541,26 @@ function openZoom() {
 }
 
 /* Animations */
-.vynaro-fade-enter-active,
-.vynaro-fade-leave-active {
+.splicr-fade-enter-active,
+.splicr-fade-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.vynaro-fade-enter-from {
+.splicr-fade-enter-from {
   opacity: 0;
   transform: scale(0.98);
 }
 
-.vynaro-fade-leave-to {
+.splicr-fade-leave-to {
   opacity: 0;
   transform: scale(1.02);
 }
 
 @media (max-width: 768px) {
-  .vynaro-showcase-title {
+  .splicr-showcase-title {
     font-size: 1.8rem;
   }
-  .vynaro-metric-strip {
+  .splicr-metric-strip {
     flex-wrap: wrap;
     gap: 16px;
   }

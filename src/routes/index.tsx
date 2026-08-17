@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 首页 Dashboard (完美适配亮色/暗色双模式与中英文双语)
+ * splicr v1.0.0 · 首页 Dashboard (完美适配亮色/暗色双模式与中英文双语)
  */
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -151,7 +151,7 @@ function HomeProjectCard({ realPath }: { realPath: string }) {
   });
 
   const displayTitle = projectRec?.project?.name || realPath.split(/[/\\]/).pop() || realPath;
-  const cleanTitle = displayTitle.replace(/\.(scenefab|vynaro)\.json$/, "");
+  const cleanTitle = displayTitle.replace(/\.(scenefab|splicr)\.json$/, "");
   const firstVideo = projectRec?.project?.media_files?.find(
     (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
   )?.path || projectRec?.project?.media_files?.[0]?.path;

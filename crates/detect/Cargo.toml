@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-detect"
+name = "splicr-detect"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,7 +10,7 @@ homepage.workspace = true
 description = "FFmpeg 包装: 命令行调用 + 进度解析 + 探针"
 
 [dependencies]
-vynaro-core = { path = "../core" }
+splicr-core = { path = "../core" }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

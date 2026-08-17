@@ -1,4 +1,4 @@
-//! vynaro-compose · 流水线执行器矩阵
+//! splicr-compose · 流水线执行器矩阵
 //!
 //! ## 依赖注入
 //! [`PipelineDeps`] 集中持有 LLM / TTS / FFmpeg / workdir,
@@ -12,12 +12,12 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use vynaro_detect::Ffmpeg;
-use vynaro_domain::{ExportRecord, Project, ScriptSegment};
-use vynaro_script::{LlmProvider, LlmRequest};
-use vynaro_voice::{TtsEngine, TtsRequest};
+use splicr_detect::Ffmpeg;
+use splicr_domain::{ExportRecord, Project, ScriptSegment};
+use splicr_script::{LlmProvider, LlmRequest};
+use splicr_voice::{TtsEngine, TtsRequest};
 
-use crate::{StepExecutor, VynaroError, VynaroResult};
+use crate::{StepExecutor, SplicrError, SplicrResult};
 
 // ════════════════════════════════════════════════════════════════════════
 // 依赖注入
@@ -74,9 +74,9 @@ impl StepExecutor for IngestStep {
         0
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         if project.media_files.is_empty() {
-            return Err(VynaroError::Project(
+            return Err(SplicrError::Project(
                 "请先在素材页导入至少一个视频文件".into(),
             ));
         }
@@ -89,7 +89,7 @@ impl StepExecutor for IngestStep {
         // 逐个校验 + 探针补全元数据
         for mf in project.media_files.iter_mut() {
             if !mf.path.exists() {
-                return Err(VynaroError::Project(format!(
+                return Err(SplicrError::Project(format!(
                     "素材文件不存在: {}",
                     mf.path.display()
                 )));
@@ -122,7 +122,7 @@ impl StepExecutor for SceneSplitStep {
         1
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         let media = &project.media_files[0];
         let duration = if media.duration_seconds > 0.0 {
             media.duration_seconds
@@ -207,9 +207,9 @@ impl StepExecutor for ScriptGenStep {
         2
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         let llm = self.deps.llm.as_ref().ok_or_else(|| {
-            VynaroError::Config("未配置 LLM 提供商或 API 密钥,请先到设置页填写".into())
+            SplicrError::Config("未配置 LLM 提供商或 API 密钥,请先到设置页填写".into())
         })?;
 
         // 场景摘要 → prompt
@@ -298,9 +298,9 @@ impl StepExecutor for VoiceCaptionsStep {
         3
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         let tts = self.deps.tts.as_ref().ok_or_else(|| {
-            VynaroError::Config("未配置 TTS 引擎,请先到设置页选择配音引擎".into())
+            SplicrError::Config("未配置 TTS 引擎,请先到设置页选择配音引擎".into())
         })?;
 
         let total = project
@@ -352,7 +352,7 @@ impl StepExecutor for VoiceCaptionsStep {
         }
 
         // SRT 字幕落盘
-        let srt = vynaro_detect::build_srt(&srt_entries);
+        let srt = splicr_detect::build_srt(&srt_entries);
         let srt_path = self.deps.workdir.join("captions/captions.srt");
         tokio::fs::create_dir_all(self.deps.workdir.join("captions")).await?;
         tokio::fs::write(&srt_path, srt).await?;
@@ -379,7 +379,7 @@ impl StepExecutor for SubtitleStep {
         4
     }
 
-    async fn execute(&self, _project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, _project: &mut Project) -> SplicrResult<()> {
         // 字幕生成通过前端 subtitleIpc.generate 独立完成，
         // 此处仅负责流水线状态标记为 Done。
         tracing::info!("[subtitle] 字幕合成步骤标记为完成");
@@ -404,7 +404,7 @@ impl StepExecutor for ComposeStep {
         5
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         tracing::info!(
             "[compose] 正在为项目「{}」执行画面与音频智能对齐...",
             project.name
@@ -456,15 +456,15 @@ impl StepExecutor for ExportStep {
         6
     }
 
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()> {
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()> {
         let ff = self.deps.ffmpeg.as_ref().ok_or_else(|| {
-            VynaroError::Ffmpeg("ffmpeg 未安装或不在 PATH 中,无法导出成片".into())
+            SplicrError::Ffmpeg("ffmpeg 未安装或不在 PATH 中,无法导出成片".into())
         })?;
 
         let media = project
             .media_files
             .first()
-            .ok_or_else(|| VynaroError::Project("没有可导出的素材".into()))?;
+            .ok_or_else(|| SplicrError::Project("没有可导出的素材".into()))?;
 
         let export_dir = self.deps.workdir.join("export");
         tokio::fs::create_dir_all(&export_dir).await?;
@@ -522,7 +522,7 @@ impl StepExecutor for ExportStep {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use vynaro_domain::MediaFile;
+    use splicr_domain::MediaFile;
 
     fn deps(tmp: &str) -> Arc<PipelineDeps> {
         Arc::new(PipelineDeps {
@@ -536,7 +536,7 @@ mod tests {
     fn project_with_media() -> Project {
         let mut p = Project::default();
         p.media_files.push(MediaFile {
-            path: PathBuf::from("/tmp/vynaro-test-dummy.mp4"),
+            path: PathBuf::from("/tmp/splicr-test-dummy.mp4"),
             duration_seconds: 30.0,
             resolution: None,
             codec: None,
@@ -553,7 +553,7 @@ mod tests {
         };
         let mut p = Project::default();
         let r = step.execute(&mut p).await;
-        assert!(matches!(r, Err(VynaroError::Project(_))));
+        assert!(matches!(r, Err(SplicrError::Project(_))));
     }
 
     #[tokio::test]
@@ -563,7 +563,7 @@ mod tests {
         };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
-        assert!(matches!(r, Err(VynaroError::Project(_))));
+        assert!(matches!(r, Err(SplicrError::Project(_))));
     }
 
     #[tokio::test]
@@ -586,7 +586,7 @@ mod tests {
         };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
-        assert!(matches!(r, Err(VynaroError::Config(_))));
+        assert!(matches!(r, Err(SplicrError::Config(_))));
     }
 
     #[test]
@@ -609,7 +609,7 @@ mod tests {
         };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
-        assert!(matches!(r, Err(VynaroError::Config(_))));
+        assert!(matches!(r, Err(SplicrError::Config(_))));
     }
 
     #[tokio::test]
@@ -619,7 +619,7 @@ mod tests {
         };
         let mut p = project_with_media();
         let r = step.execute(&mut p).await;
-        assert!(matches!(r, Err(VynaroError::Ffmpeg(_))));
+        assert!(matches!(r, Err(SplicrError::Ffmpeg(_))));
     }
 
     #[test]

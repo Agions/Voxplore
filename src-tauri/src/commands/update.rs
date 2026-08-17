@@ -10,14 +10,14 @@
 
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_opener::OpenerExt;
-use vynaro_core::AppContext;
-use vynaro_update::{UpdateInfo, UpdateState};
+use splicr_core::AppContext;
+use splicr_update::{UpdateInfo, UpdateState};
 
 /// 查询当前更新状态快照
 #[tauri::command]
 pub async fn update_get_state(state: State<'_, AppContext>) -> Result<UpdateState, String> {
     let svc = state
-        .service::<vynaro_update::UpdateService>()
+        .service::<splicr_update::UpdateService>()
         .await
         .map_err(|e| e.to_string())?;
     Ok(svc.snapshot().await)
@@ -27,7 +27,7 @@ pub async fn update_get_state(state: State<'_, AppContext>) -> Result<UpdateStat
 #[tauri::command]
 pub async fn update_check(state: State<'_, AppContext>) -> Result<UpdateInfo, String> {
     let svc = state
-        .service::<vynaro_update::UpdateService>()
+        .service::<splicr_update::UpdateService>()
         .await
         .map_err(|e| e.to_string())?;
     svc.check().await.map_err(|e| e.to_string())
@@ -41,7 +41,7 @@ pub async fn update_download(
     state: State<'_, AppContext>,
 ) -> Result<String, String> {
     let svc = state
-        .service::<vynaro_update::UpdateService>()
+        .service::<splicr_update::UpdateService>()
         .await
         .map_err(|e| e.to_string())?;
     let path = svc.download(None).await.map_err(|e| e.to_string())?;
@@ -62,7 +62,7 @@ pub async fn update_install(
     state: State<'_, AppContext>,
 ) -> Result<UpdateInstallResult, String> {
     let svc = state
-        .service::<vynaro_update::UpdateService>()
+        .service::<splicr_update::UpdateService>()
         .await
         .map_err(|e| e.to_string())?;
     let snap = svc.snapshot().await;
@@ -96,7 +96,7 @@ pub struct UpdateInstallResult {
 #[tauri::command]
 pub async fn update_reset(state: State<'_, AppContext>) -> Result<(), String> {
     let svc = state
-        .service::<vynaro_update::UpdateService>()
+        .service::<splicr_update::UpdateService>()
         .await
         .map_err(|e| e.to_string())?;
     svc.reset().await;

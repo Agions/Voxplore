@@ -1,4 +1,4 @@
-//! vynaro-update v1.0.0  · 应用更新器 (M4 完整实装)
+//! splicr-update v1.0.0  · 应用更新器 (M4 完整实装)
 //!
 //! ## 责任范围
 //! - GitHub Releases 探测最新版本
@@ -127,7 +127,7 @@ pub enum UpdateEvent {
 /// 应用更新器服务
 ///
 /// - 当前版本从构造参数传入(由 src-tauri/Cargo.toml 的 package.version 决定)
-/// - 仓库 / tag 模板可配置(默认 `qingshanyanyu/Vynaro`)
+/// - 仓库 / tag 模板可配置(默认 `qingshanyanyu/splicr`)
 /// - 进度通过 `broadcast::Sender<UpdateEvent>` 推送,前端 listen `updater:*`
 pub struct UpdateService {
     current_version: String,
@@ -155,7 +155,7 @@ impl UpdateService {
             repo: repo.into(),
             client: reqwest::Client::builder()
                 .timeout(Duration::from_secs(30))
-                .user_agent("vynaro-updater/3.0")
+                .user_agent("splicr-updater/3.0")
                 .build()
                 .expect("reqwest client build"),
             state: tokio::sync::Mutex::new(UpdateState {
@@ -321,7 +321,7 @@ impl UpdateService {
         Ok(info)
     }
 
-    /// 下载 latest 到 `dest`(可显式传;否则落到 std::env::temp_dir()/vynaro-update-<version>)
+    /// 下载 latest 到 `dest`(可显式传;否则落到 std::env::temp_dir()/splicr-update-<version>)
     pub async fn download(&self, dest: Option<PathBuf>) -> Result<PathBuf, UpdateError> {
         let info = {
             let s = self.state.lock().await;
@@ -334,7 +334,7 @@ impl UpdateService {
             .ok_or_else(|| UpdateError::Api("release 无 binary asset".into()))?;
 
         let dest = dest.unwrap_or_else(|| {
-            std::env::temp_dir().join(format!("vynaro-update-{}.bin", info.version))
+            std::env::temp_dir().join(format!("splicr-update-{}.bin", info.version))
         });
 
         {
@@ -509,7 +509,7 @@ mod tests {
 
     #[test]
     fn phase_state_default_is_idle() {
-        let svc = UpdateService::new("1.0.0", "Agions/vynaro");
+        let svc = UpdateService::new("1.0.0", "Agions/splicr");
         let rt = tokio::runtime::Runtime::new().unwrap();
         let s = rt.block_on(svc.snapshot());
         assert_eq!(s.phase, UpdatePhase::Idle);
@@ -519,14 +519,14 @@ mod tests {
 
     #[test]
     fn subscribe_returns_receiver() {
-        let svc = UpdateService::new("1.0.0", "Agions/vynaro");
+        let svc = UpdateService::new("1.0.0", "Agions/splicr");
         let _rx = svc.subscribe();
         // 至少能拿到一个 sender,且不会因为 receiver drop 而 panic
     }
 
     #[test]
     fn reset_returns_to_idle() {
-        let svc = UpdateService::new("1.0.0", "Agions/vynaro");
+        let svc = UpdateService::new("1.0.0", "Agions/splicr");
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(svc.reset());
         let s = rt.block_on(svc.snapshot());

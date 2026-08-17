@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 应用顶栏 — 电影调光室主题
+ * splicr v1.0.0 · 应用顶栏 — 电影调光室主题
  * - Logo（钢笔+播放键图标）+ 品牌名 + 版本
  * - 项目名称选择器（居中）
  * - Tauri 连接状态 + 设置入口
@@ -15,8 +15,8 @@ import { themeIpc } from "@ipc/commands";
 import { Toaster, toast } from "sonner";
 import { useThemeStore } from "@stores/theme-store";
 
-// Vynaro Logo 图标 SVG（钢笔笔尖 + 播放三角，内联）
-function VynaroIcon({ size = 28 }: { size?: number }) {
+// splicr Logo 图标 SVG（钢笔笔尖 + 播放三角，内联）
+function SplicrIcon({ size = 28 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -24,7 +24,7 @@ function VynaroIcon({ size = 28 }: { size?: number }) {
       viewBox="0 0 32 32"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="Vynaro Logo"
+      aria-label="splicr Logo"
     >
       <defs>
         <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -103,7 +103,7 @@ export function TopBar() {
             boxShadow: "0 0 12px var(--color-gold-glow)",
           }}
         >
-          <VynaroIcon size={22} />
+          <SplicrIcon size={22} />
         </div>
         <div style={{ lineHeight: 1.2 }}>
           <div
@@ -114,7 +114,7 @@ export function TopBar() {
               letterSpacing: "0.02em",
             }}
           >
-            Vynaro
+            splicr
           </div>
           <div
             style={{

@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-update"
+name = "splicr-update"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -24,5 +24,5 @@ futures = { workspace = true }
 reqwest = { workspace = true }
 sha2 = "0.10"
 hex = "0.4"
-vynaro-core = { path = "../core" }
-vynaro-domain = { path = "../domain" }
+splicr-core = { path = "../core" }
+splicr-domain = { path = "../domain" }

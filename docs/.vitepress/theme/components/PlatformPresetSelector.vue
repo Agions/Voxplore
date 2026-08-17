@@ -1,5 +1,5 @@
 <template>
-  <div class="vynaro-platform-selector">
+  <div class="splicr-platform-selector">
     <div class="selector-header">
       <div class="selector-kicker">多平台一键出片预设</div>
       <h3 class="selector-title">8 大短视频与长视频平台发布预设</h3>
@@ -144,7 +144,7 @@ const platforms = [
 </script>
 
 <style scoped>
-.vynaro-platform-selector {
+.splicr-platform-selector {
   margin: 48px 0;
   width: 100%;
 }

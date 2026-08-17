@@ -6,8 +6,8 @@
 use std::path::PathBuf;
 
 use tauri::{Manager, State};
-use vynaro_core::services::{ConfigService, ConfigSnapshot};
-use vynaro_core::AppContext;
+use splicr_core::services::{ConfigService, ConfigSnapshot};
+use splicr_core::AppContext;
 
 const CONFIG_FILE: &str = "config.json";
 

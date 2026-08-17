@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Step 6: 画面-声音智能对齐与全景多轨生产工作台
+ * splicr v1.0.0 · Step 6: 画面-声音智能对齐与全景多轨生产工作台
  */
 
 import { useState } from "react";

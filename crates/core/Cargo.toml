@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-core"
+name = "splicr-core"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -28,7 +28,7 @@ semver = { workspace = true }
 # 路径
 dirs = { workspace = true }
 
-[dependencies.vynaro-domain]
+[dependencies.splicr-domain]
 path = "../domain"
 
 [lints]

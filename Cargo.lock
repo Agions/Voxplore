@@ -3610,6 +3610,206 @@ dependencies = [
 ]
 
 [[package]]
+name = "splicr"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "serde",
+ "serde_json",
+ "splicr-compose",
+ "splicr-core",
+ "splicr-detect",
+ "splicr-domain",
+ "splicr-export",
+ "splicr-intake",
+ "splicr-plugin",
+ "splicr-script",
+ "splicr-storage",
+ "splicr-subtitle",
+ "splicr-update",
+ "splicr-voice",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-fs",
+ "tauri-plugin-opener",
+ "tauri-plugin-shell",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-compose"
+version = "1.0.1"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "splicr-core",
+ "splicr-detect",
+ "splicr-domain",
+ "splicr-script",
+ "splicr-voice",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-core"
+version = "1.0.1"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "dirs 5.0.1",
+ "semver",
+ "serde",
+ "serde_json",
+ "splicr-domain",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "splicr-detect"
+version = "1.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "splicr-core",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-domain"
+version = "1.0.1"
+dependencies = [
+ "chrono",
+ "semver",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "splicr-export"
+version = "1.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "splicr-domain",
+ "thiserror 2.0.19",
+]
+
+[[package]]
+name = "splicr-intake"
+version = "1.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "splicr-domain",
+ "thiserror 2.0.19",
+]
+
+[[package]]
+name = "splicr-plugin"
+version = "1.0.1"
+
+[[package]]
+name = "splicr-script"
+version = "1.0.1"
+dependencies = [
+ "async-trait",
+ "futures",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "splicr-core",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-storage"
+version = "1.0.1"
+dependencies = [
+ "dirs 5.0.1",
+ "mime_guess",
+ "serde",
+ "serde_json",
+ "sha2",
+ "splicr-core",
+ "splicr-detect",
+ "splicr-domain",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+ "walkdir",
+]
+
+[[package]]
+name = "splicr-subtitle"
+version = "1.0.1"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "rstest",
+ "serde",
+ "serde_json",
+ "splicr-core",
+ "splicr-domain",
+ "thiserror 2.0.19",
+ "tokio",
+ "tokio-test",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-update"
+version = "1.0.1"
+dependencies = [
+ "anyhow",
+ "futures",
+ "hex",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "sha2",
+ "splicr-core",
+ "splicr-domain",
+ "tauri",
+ "thiserror 2.0.19",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "splicr-voice"
+version = "1.0.1"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "futures",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "splicr-core",
+ "thiserror 2.0.19",
+ "tokio",
+ "tokio-tungstenite",
+ "tracing",
+]
+
+[[package]]
 name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4760,206 +4960,6 @@ checksum = "fb067e4cbd1ff067d1df46c9194b5de0e98efd2810bbc95c5d5e5f25a3231150"
 dependencies = [
  "cc",
  "libc",
-]
-
-[[package]]
-name = "vynaro"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "chrono",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-fs",
- "tauri-plugin-opener",
- "tauri-plugin-shell",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-compose",
- "vynaro-core",
- "vynaro-detect",
- "vynaro-domain",
- "vynaro-export",
- "vynaro-intake",
- "vynaro-plugin",
- "vynaro-script",
- "vynaro-storage",
- "vynaro-subtitle",
- "vynaro-update",
- "vynaro-voice",
-]
-
-[[package]]
-name = "vynaro-compose"
-version = "1.0.1"
-dependencies = [
- "async-trait",
- "chrono",
- "parking_lot",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-core",
- "vynaro-detect",
- "vynaro-domain",
- "vynaro-script",
- "vynaro-voice",
-]
-
-[[package]]
-name = "vynaro-core"
-version = "1.0.1"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "dirs 5.0.1",
- "semver",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "vynaro-domain",
-]
-
-[[package]]
-name = "vynaro-detect"
-version = "1.0.1"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-core",
-]
-
-[[package]]
-name = "vynaro-domain"
-version = "1.0.1"
-dependencies = [
- "chrono",
- "semver",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "vynaro-export"
-version = "1.0.1"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "vynaro-domain",
-]
-
-[[package]]
-name = "vynaro-intake"
-version = "1.0.1"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "vynaro-domain",
-]
-
-[[package]]
-name = "vynaro-plugin"
-version = "1.0.1"
-
-[[package]]
-name = "vynaro-script"
-version = "1.0.1"
-dependencies = [
- "async-trait",
- "futures",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-core",
-]
-
-[[package]]
-name = "vynaro-storage"
-version = "1.0.1"
-dependencies = [
- "dirs 5.0.1",
- "mime_guess",
- "serde",
- "serde_json",
- "sha2",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-core",
- "vynaro-detect",
- "vynaro-domain",
- "walkdir",
-]
-
-[[package]]
-name = "vynaro-subtitle"
-version = "1.0.1"
-dependencies = [
- "anyhow",
- "async-trait",
- "rstest",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tokio-test",
- "tracing",
- "vynaro-core",
- "vynaro-domain",
-]
-
-[[package]]
-name = "vynaro-update"
-version = "1.0.1"
-dependencies = [
- "anyhow",
- "futures",
- "hex",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "sha2",
- "tauri",
- "thiserror 2.0.19",
- "tokio",
- "tracing",
- "vynaro-core",
- "vynaro-domain",
-]
-
-[[package]]
-name = "vynaro-voice"
-version = "1.0.1"
-dependencies = [
- "async-trait",
- "chrono",
- "futures",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "thiserror 2.0.19",
- "tokio",
- "tokio-tungstenite",
- "tracing",
- "vynaro-core",
 ]
 
 [[package]]

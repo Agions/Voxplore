@@ -9,16 +9,16 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use tauri::{Emitter, State};
-use vynaro_compose::executors::PipelineDeps;
-use vynaro_compose::service::{PipelineService, PipelineStatus};
-use vynaro_compose::{Project, StepDef, STEPS};
-use vynaro_core::services::{ConfigService, ConfigSnapshot};
-use vynaro_core::AppContext;
-use vynaro_detect::Ffmpeg;
-use vynaro_script::factory;
-use vynaro_script::LlmProviderKind;
-use vynaro_voice::engine;
-use vynaro_voice::{
+use splicr_compose::executors::PipelineDeps;
+use splicr_compose::service::{PipelineService, PipelineStatus};
+use splicr_compose::{Project, StepDef, STEPS};
+use splicr_core::services::{ConfigService, ConfigSnapshot};
+use splicr_core::AppContext;
+use splicr_detect::Ffmpeg;
+use splicr_script::factory;
+use splicr_script::LlmProviderKind;
+use splicr_voice::engine;
+use splicr_voice::{
     EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
     TtsProviderKind,
 };
@@ -198,7 +198,7 @@ fn build_deps(
         ffmpeg,
         workdir: workdir
             .map(PathBuf::from)
-            .unwrap_or_else(|| std::env::temp_dir().join("vynaro-workdir")),
+            .unwrap_or_else(|| std::env::temp_dir().join("splicr-workdir")),
     })
 }
 

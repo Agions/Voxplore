@@ -1,4 +1,4 @@
-//! vynaro-core · i18n — 后端多语言翻译工具
+//! splicr-core · i18n — 后端多语言翻译工具
 
 use std::collections::HashMap;
 use std::sync::RwLock;

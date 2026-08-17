@@ -1,4 +1,4 @@
-//! vynaro-core · Logging 初始化
+//! splicr-core · Logging 初始化
 //!
 //! 读取 `RUST_LOG` 环境变量 (默认 `info`),输出到 stderr。
 
@@ -16,7 +16,7 @@ static INIT: OnceLock<()> = OnceLock::new();
 pub fn init_logging() {
     INIT.get_or_init(|| {
         let filter = EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| EnvFilter::new("info,vynaro_core=debug"));
+            .unwrap_or_else(|_| EnvFilter::new("info,splicr_core=debug"));
 
         let layer = fmt::layer()
             .with_target(true)

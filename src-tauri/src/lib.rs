@@ -1,4 +1,4 @@
-// Vynaro v1.0.0 · Tauri 入口
+// splicr v1.0.0 · Tauri 入口
 //
 // 业务覆盖:
 //! - app: app_version / app_started_at / app_system_info
@@ -13,8 +13,8 @@
 //!   assets_search (M3 后续完整实装)
 //! - export: export_plan / export_validate_params / export_render_subtitles /
 //!   video_build_plans
-//! - help: help_topics / help_topic_get / help_search (M5.7 接 vynaro-help)
-//! - theme: i18n_get_locale / i18n_set_locale / i18n_translate (M5.6 接 vynaro-i18n)
+//! - help: help_topics / help_topic_get / help_search (M5.7 接 splicr-help)
+//! - theme: i18n_get_locale / i18n_set_locale / i18n_translate (M5.6 接 splicr-i18n)
 //
 // PipelineService + UpdateService + AssetService 在 AppContext::new() 后注册进 ServiceContainer。
 // Translator + HelpRegistry 通过 .manage() 直注,提供轻量全局状态。
@@ -25,24 +25,24 @@ mod commands;
 
 use std::sync::Arc;
 
-use vynaro_compose::service::PipelineService;
-use vynaro_core::AppContext;
-use vynaro_core::HelpRegistry;
-use vynaro_core::Translator;
-use vynaro_storage::AssetService;
-use vynaro_update::UpdateService;
+use splicr_compose::service::PipelineService;
+use splicr_core::AppContext;
+use splicr_core::HelpRegistry;
+use splicr_core::Translator;
+use splicr_storage::AssetService;
+use splicr_update::UpdateService;
 
 /// 占位命令 — 保留以便兼容 Gate 0 冒烟测试
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {name}! 你正在使用 vynaro v1.0.0")
+    format!("Hello, {name}! 你正在使用 splicr v1.0.0")
 }
 
 /// Tauri 入口（mobile 端另开 entry point）
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // 初始化 logging (OnceLock idem-potent 调度)
-    vynaro_core::init_logging();
+    splicr_core::init_logging();
 
     // 构造 AppContext + 在同步上下文中启动 runtime
     let (ctx, services_count) = tokio::runtime::Builder::new_multi_thread()
@@ -59,7 +59,7 @@ pub fn run() {
             ctx.services
                 .register(Arc::new(UpdateService::new(
                     ctx.version.to_string(),
-                    "Agions/vynaro",
+                    "Agions/splicr",
                 )))
                 .await;
             // 注入 AssetService (M3 后续完整实装)
@@ -73,7 +73,7 @@ pub fn run() {
         version = %ctx.version,
         debug = ctx.debug,
         services = services_count,
-        "Vynaro v1.0.0 starting"
+        "splicr v1.0.0 starting"
     );
 
     tauri::Builder::default()

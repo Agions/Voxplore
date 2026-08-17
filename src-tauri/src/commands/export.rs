@@ -9,12 +9,12 @@
 
 use std::path::PathBuf;
 
-use vynaro_domain::{ExportStrategy, ProjectSettings};
-use vynaro_export::{
+use splicr_domain::{ExportStrategy, ProjectSettings};
+use splicr_export::{
     render_subtitles, validate_params, ExportMode, ExportParams, ExportPlan, ExportPlanner,
     SubtitleFormat, SubtitleItem,
 };
-use vynaro_intake::{build_plans, OutputPlan, PlanOptions};
+use splicr_intake::{build_plans, OutputPlan, PlanOptions};
 
 /// 按模式生成导出计划。custom 模式必须携带 settings。
 #[tauri::command]
@@ -77,7 +77,7 @@ pub async fn export_capcut_draft(
             .unwrap_or_else(|_| PathBuf::from("/tmp"))
     };
 
-    let draft_id = format!("vynaro_draft_{}", chrono::Utc::now().timestamp_millis());
+    let draft_id = format!("splicr_draft_{}", chrono::Utc::now().timestamp_millis());
     let draft_folder = base_dir.join(&draft_id);
 
     tokio::fs::create_dir_all(&draft_folder)

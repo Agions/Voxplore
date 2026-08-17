@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 应用更新器 hook (M4 完整实装)
+ * splicr v1.0.0 · 应用更新器 hook (M4 完整实装)
  *
  * 数据源:
  * - `updateIpc.getState()` 短轮询 (downloading/checking 时 500ms,其他 60s)

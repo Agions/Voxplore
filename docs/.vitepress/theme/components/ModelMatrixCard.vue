@@ -1,9 +1,9 @@
 <template>
-  <div class="vynaro-model-matrix">
+  <div class="splicr-model-matrix">
     <div class="matrix-header">
       <div class="matrix-kicker">多模型协同能力矩阵</div>
       <h3 class="matrix-title">支持 11 大 LLM 独白引擎与 3 大 TTS 人声克隆</h3>
-      <p class="matrix-sub">严格对应 Vynaro 核心代码与 README 规范，自动校验剧情独白一致性与完播率。</p>
+      <p class="matrix-sub">严格对应 splicr 核心代码与 README 规范，自动校验剧情独白一致性与完播率。</p>
     </div>
 
     <!-- 分类 Filter Buttons -->
@@ -232,7 +232,7 @@ const filteredModels = computed(() => {
 </script>
 
 <style scoped>
-.vynaro-model-matrix {
+.splicr-model-matrix {
   margin: 48px 0;
   width: 100%;
 }

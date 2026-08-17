@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-export"
+name = "splicr-export"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -15,7 +15,7 @@ workspace = true
 [dependencies]
 serde = { workspace = true }
 thiserror = { workspace = true }
-vynaro-domain = { path = "../domain" }
+splicr-domain = { path = "../domain" }
 
 [dev-dependencies]
 serde_json = { workspace = true }

@@ -70,8 +70,8 @@ jobs:
         with:
           projectPath: .
           tagName: ${{ github.ref_name }}
-          releaseName: "vynaro ${{ github.ref_name }}"
-          releaseBody: "vynaro v1.0.0 Official Release. See CHANGELOG.md for release notes."
+          releaseName: "splicr ${{ github.ref_name }}"
+          releaseBody: "splicr v1.0.0 Official Release. See CHANGELOG.md for release notes."
           releaseDraft: false
           prerelease: false
           args: --target ${{ matrix.target }}

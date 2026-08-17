@@ -1,5 +1,5 @@
 <template>
-  <div class="vynaro-spotlight-grid">
+  <div class="splicr-spotlight-grid">
     <div class="spotlight-header">
       <div class="spotlight-kicker">核心技术亮点</div>
       <h3 class="spotlight-title">为专业短剧拆条与影视解说团队打造</h3>
@@ -85,7 +85,7 @@ function onMouseMove(e: MouseEvent, idx: number) {
 </script>
 
 <style scoped>
-.vynaro-spotlight-grid {
+.splicr-spotlight-grid {
   margin: 48px 0;
   width: 100%;
 }

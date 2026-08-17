@@ -1,5 +1,5 @@
 <template>
-  <div class="vynaro-interactive-pipeline">
+  <div class="splicr-interactive-pipeline">
     <div class="pipeline-header">
       <div class="pipeline-kicker">DAG 状态机驱动</div>
       <h3 class="pipeline-title">7 步智能全自动化生产流水线</h3>
@@ -86,7 +86,7 @@ const pipelineSteps = [
     description: '自动解析本地 4K/1080P 音视频元数据（Resolution, FPS, Video Codec, Audio Bitrate），生成毫秒级关键帧快照缩略图，并对音频轨进行标准化重采样。',
     input: 'MP4 / MOV / AVI / WebM 本地视频源',
     output: 'AppContext 元数据 JSON + 帧缩略图序列',
-    techLang: 'Rust / vynaro-detect',
+    techLang: 'Rust / splicr-detect',
     techName: 'FFmpeg Probe Inspector',
     codeSnippet: `let probe = FfmpegProbe::analyze("input_episode_01.mp4")?;
 println!("Resolution: {}x{}, FPS: {:.2}", probe.width, probe.height, probe.fps);
@@ -101,7 +101,7 @@ let thumbnails = probe.extract_keyframes(Interval::Sec(2))?;`,
     description: '基于 FFmpeg 切面探测 (select=gt(scene,0.3)) 与音频情绪峰值吸附，精准索引镜头边界，按剧情高潮与角色对峙自动切分短剧片段。',
     input: '视频流与 Keyframe Index',
     output: 'Scene Cut Timeline JSON + 情绪高光边界',
-    techLang: 'Rust / vynaro-detect',
+    techLang: 'Rust / splicr-detect',
     techName: 'Scene Boundary State Machine',
     codeSnippet: `let scene_cuts = detect_scene_boundaries(&video_path, 0.35)?;
 let emotion_peaks = audio_analyzer.detect_volume_peaks(-12.0)?;
@@ -116,7 +116,7 @@ let final_segments = merge_cut_points(scene_cuts, emotion_peaks);`,
     description: '集成通义千问 (qwen3.8-max)、DeepSeek (deepseek-v4-pro)、OpenAI (gpt-5.6-sol)、Claude (claude-sonnet-5)、Gemini (gemini-3.6-flash)、GLM-5.2、豆包 (doubao-seed-2-1-pro)、混元-pro、Kimi-k3 与本地 Ollama。基于主角第一人称视角构建 Hook 爆点与递进剧情。',
     input: '剧情理解上下文与角色人设 Pre-prompt',
     output: '第一人称独白稿 + 多模型一致性校验分',
-    techLang: 'TypeScript / vynaro-script',
+    techLang: 'TypeScript / splicr-script',
     techName: 'LLM Multi-Model Provider Engine',
     codeSnippet: `const script = await llmClient.generateScript({
   provider: 'DeepSeek',
@@ -134,7 +134,7 @@ let final_segments = merge_cut_points(scene_cuts, emotion_peaks);`,
     description: '支持 Edge-TTS 50+ 黄金音色、OpenAI-TTS (gpt-4o-mini-tts) 以及基于 GPT-SoVITS 的 5秒零样本人声克隆 (127.0.0.1:9880)。集成黄金波形与本地服务探针。',
     input: '独白文本 + 目标克隆语音采样',
     output: '48kHz 广播级 WAV 解说配音轨',
-    techLang: 'Rust / vynaro-voice',
+    techLang: 'Rust / splicr-voice',
     techName: 'Zero-shot Voice Clone Probe',
     codeSnippet: `let voice_model = SovitsCloneEngine::load_sample("character_sample.wav")?;
 let narration_wav = voice_model.synthesize(&script_text, Speed::Rate(1.1))?;
@@ -149,7 +149,7 @@ narration_wav.apply_golden_waveform_norm()?;`,
     description: '利用 FFmpeg silencedetect 探测人声自然停顿与静音区间，自动对齐配音音频与字幕时间戳，实现偏差低于 50ms 的极致声字同步。',
     input: 'narration.wav + script.txt',
     output: 'SRT / ASS / VTT 毫秒对齐字幕文件',
-    techLang: 'Rust / vynaro-subtitle',
+    techLang: 'Rust / splicr-subtitle',
     techName: 'Silencedetect VAD Timestamp Sync',
     codeSnippet: `let silences = ffmpeg::silencedetect(&audio_path, -35.0, 0.15)?;
 let subtitles = VadAligner::sync_timestamps(script_sentences, silences)?;
@@ -164,7 +164,7 @@ subtitles.export_ass("output/narration.ass")?;`,
     description: '多轨时间轴毫秒级混流，BGM 背景音乐自动降噪避让 (amix filter -6dB)，实时渲染 9:16 / 16:9 竖屏/横屏多平台成片预览。',
     input: 'Video Stream + Voice Audio + BGM + ASS Subtitle',
     output: '1080P 60fps MP4 竖屏成片',
-    techLang: 'Rust / vynaro-compose',
+    techLang: 'Rust / splicr-compose',
     techName: 'Multi-track Amix Muxer Engine',
     codeSnippet: `let mut composer = MultitrackComposer::new(Aspect::Vertical9x16);
 composer.add_video_track(&video_cuts);
@@ -180,9 +180,9 @@ composer.render_mp4("output/final_video.mp4")?;`,
     description: '原生构建剪映 PC 端工程草稿文件夹 (`.draft`)，保留轨道、媒体关系与字幕样式，方便在剪映中进行二次精细化调效果与字幕微调。',
     input: 'Composer Project Context',
     output: 'CapCut Project (.draft) + 8 平台预设',
-    techLang: 'Rust / vynaro-export',
+    techLang: 'Rust / splicr-export',
     techName: 'CapCut Native Draft Generator',
-    codeSnippet: `let draft = CapCutDraftBuilder::new("Vynaro_Project_01")
+    codeSnippet: `let draft = CapCutDraftBuilder::new("splicr_Project_01")
   .add_video_lane(segment_files)
   .add_audio_lane(voice_file)
   .add_subtitle_lane(ass_file)
@@ -194,7 +194,7 @@ draft.save_to_capcut_dir()?;`,
 </script>
 
 <style scoped>
-.vynaro-interactive-pipeline {
+.splicr-interactive-pipeline {
   margin: 48px 0;
   width: 100%;
 }

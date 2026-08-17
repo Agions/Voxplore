@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · assets store (Zustand)
+ * splicr v1.0.0 · assets store (Zustand)
  *
  * 设计:
  * - ids: 当前项目素材 id 列表

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Vynaro emblem light">
-  <title>Vynaro 叙影</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="splicr emblem light">
+  <title>splicr 叙影</title>
   <defs>
     <!-- 亮色软白底板渐变 -->
-    <linearGradient id="vynaroBgLight" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="splicrBgLight" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF"/>
       <stop offset="100%" stop-color="#F3F4F6"/>
     </linearGradient>
 
     <!-- 亮色琥珀金渐变 -->
-    <linearGradient id="vynaroGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="splicrGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#D97706"/>
       <stop offset="50%" stop-color="#B45309"/>
       <stop offset="100%" stop-color="#78350F"/>
     </linearGradient>
 
-    <linearGradient id="vynaroCoreLight" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="splicrCoreLight" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#F5C842"/>
       <stop offset="100%" stop-color="#D97706"/>
     </linearGradient>
@@ -26,7 +26,7 @@
   </defs>
 
   <!-- 底板 -->
-  <rect width="256" height="256" rx="56" ry="56" fill="url(#vynaroBgLight)"/>
+  <rect width="256" height="256" rx="56" ry="56" fill="url(#splicrBgLight)"/>
   <rect x="1.5" y="1.5" width="253" height="253" rx="54.5" ry="54.5" fill="none" stroke="#D97706" stroke-width="1.5" opacity="0.2"/>
 
   <!-- 背景饰纹 -->
@@ -36,12 +36,12 @@
 
   <!-- 核心 V 图案 -->
   <g transform="translate(128 126)">
-    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#vynaroGoldLight)"/>
-    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#vynaroGoldLight)"/>
-    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="url(#vynaroCoreLight)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M -64 -42 L -22 46 C -16 58 -4 64 8 56 L 0 42 C -8 46 -14 42 -18 32 L -48 -42 Z" fill="url(#splicrGoldLight)"/>
+    <path d="M 64 -42 L 22 46 C 16 58 4 64 -8 56 L 0 42 C 8 46 14 42 18 32 L 48 -42 Z" fill="url(#splicrGoldLight)"/>
+    <path d="M -38 -20 L 0 40 L 38 -20" fill="none" stroke="url(#splicrCoreLight)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 
     <!-- 声波柱 -->
-    <g fill="url(#vynaroGoldLight)">
+    <g fill="url(#splicrGoldLight)">
       <rect x="-24" y="-12" width="4" height="20" rx="2"/>
       <rect x="-14" y="-24" width="4" height="34" rx="2"/>
       <rect x="-4"  y="-34" width="4" height="48" rx="2"/>

@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · 全景多轨生产时间轴组件 (MultiTrackTimeline)
+ * splicr v1.0.0 · 全景多轨生产时间轴组件 (MultiTrackTimeline)
  * 
  * 特性:
  * - 5 轨全景编排 (视频切片轨、黄金前3秒高光轨、第一人称配音轨、花字字幕轨、动态闪避 BGM 轨)

@@ -1,4 +1,4 @@
-//! vynaro-pipeline v1.0.0  · 7 步第一人称叙述流水线
+//! splicr-pipeline v1.0.0  · 7 步第一人称叙述流水线
 //!
 //! ## 流水线定义 (7 步状态机)
 //! - [`STEPS`] 常量 (7 个步骤的硬编码顺序: intake ➔ detect ➔ script ➔ voice ➔ subtitle ➔ compose ➔ export)
@@ -25,8 +25,8 @@ use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::sync::broadcast;
 
-pub use vynaro_core::error::{VynaroError, VynaroResult};
-pub use vynaro_domain::{Clip, MediaFile, Project, ScriptSegment, Timeline, Track};
+pub use splicr_core::error::{SplicrError, SplicrResult};
+pub use splicr_domain::{Clip, MediaFile, Project, ScriptSegment, Timeline, Track};
 
 // ════════════════════════════════════════════════════════════════════════
 // 5 步定义
@@ -150,7 +150,7 @@ pub trait StepExecutor: Send + Sync {
     /// 步骤索引 (0..=4)
     fn step_index(&self) -> u8;
     /// 执行一步 (副作用在内部完成)
-    async fn execute(&self, project: &mut Project) -> VynaroResult<()>;
+    async fn execute(&self, project: &mut Project) -> SplicrResult<()>;
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -243,7 +243,7 @@ impl Pipeline {
         &self,
         project: &mut Project,
         executors: &[Box<dyn StepExecutor>],
-    ) -> VynaroResult<()> {
+    ) -> SplicrResult<()> {
         {
             let mut st = self.state.lock();
             if st.pipeline_state == PipelineState::Running {
@@ -266,11 +266,11 @@ impl Pipeline {
                 let _ = self.events_tx.send(PipelineEvent::PipelineFailed {
                     message: msg.clone(),
                 });
-                return Err(VynaroError::Pipeline(msg));
+                return Err(SplicrError::Pipeline(msg));
             }
 
             if exec.step_index() as usize != idx {
-                return Err(VynaroError::Pipeline(format!(
+                return Err(SplicrError::Pipeline(format!(
                     "executor index mismatch at slot {idx}: got {}",
                     exec.step_index()
                 )));
@@ -367,7 +367,7 @@ mod tests {
         fn step_index(&self) -> u8 {
             self.idx
         }
-        async fn execute(&self, _p: &mut Project) -> VynaroResult<()> {
+        async fn execute(&self, _p: &mut Project) -> SplicrResult<()> {
             Ok(())
         }
     }
@@ -382,8 +382,8 @@ mod tests {
         fn step_index(&self) -> u8 {
             self.idx
         }
-        async fn execute(&self, _p: &mut Project) -> VynaroResult<()> {
-            Err(VynaroError::Pipeline("intentional fail".into()))
+        async fn execute(&self, _p: &mut Project) -> SplicrResult<()> {
+            Err(SplicrError::Pipeline("intentional fail".into()))
         }
     }
 
@@ -425,7 +425,7 @@ mod tests {
             fn step_index(&self) -> u8 {
                 1
             }
-            async fn execute(&self, _p: &mut Project) -> VynaroResult<()> {
+            async fn execute(&self, _p: &mut Project) -> SplicrResult<()> {
                 self.p.cancel();
                 Ok(())
             }

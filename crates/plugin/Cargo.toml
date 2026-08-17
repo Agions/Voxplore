@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-plugin"
+name = "splicr-plugin"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-compose"
+name = "splicr-compose"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -19,19 +19,19 @@ parking_lot = "0.12"
 thiserror = { workspace = true }
 tracing = { workspace = true }
 
-[dependencies.vynaro-core]
+[dependencies.splicr-core]
 path = "../core"
 
-[dependencies.vynaro-domain]
+[dependencies.splicr-domain]
 path = "../domain"
 
-[dependencies.vynaro-script]
+[dependencies.splicr-script]
 path = "../script"
 
-[dependencies.vynaro-voice]
+[dependencies.splicr-voice]
 path = "../voice"
 
-[dependencies.vynaro-detect]
+[dependencies.splicr-detect]
 path = "../detect"
 
 [lints]

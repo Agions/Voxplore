@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "vynaro",
+  "productName": "splicr",
   "version": "1.0.1",
-  "identifier": "com.vynaro.app",
+  "identifier": "com.splicr.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "vynaro",
+        "title": "splicr",
         "width": 1280,
         "height": 800,
         "minWidth": 1024,
@@ -36,7 +36,7 @@
     "category": "Video",
     "copyright": "© 2026  Agions",
     "shortDescription": "AI 视频叙事生成器",
-    "longDescription": "Vynaro 是基于 AI 的第一人称视频叙事编辑器,通过 7 步流水线自动将影视素材转换为竖屏平台的完整视频。",
+    "longDescription": "splicr 是基于 AI 的第一人称视频叙事编辑器,通过 7 步流水线自动将影视素材转换为竖屏平台的完整视频。",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -45,7 +45,7 @@
       "icons/icon.ico"
     ],
     "publisher": "Agions",
-    "homepage": "https://github.com/Agions/vynaro"
+    "homepage": "https://github.com/Agions/splicr"
   },
   "plugins": {}
 }

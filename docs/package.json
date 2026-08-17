@@ -1,7 +1,7 @@
 {
-  "name": "vynaro-docs",
+  "name": "splicr-docs",
   "version": "1.0.0",
-  "description": "Vynaro documentation",
+  "description": "splicr documentation",
   "type": "module",
   "scripts": {
     "docs:build": "vitepress build",

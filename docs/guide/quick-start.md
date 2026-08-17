@@ -1,19 +1,19 @@
 ---
 title: 快速开始
-description: 3 步上手 Vynaro 桌面端，10分钟完成第一次 AI 视频解说创作。
+description: 3 步上手 splicr 桌面端，10分钟完成第一次 AI 视频解说创作。
 ---
 
 # 🚀 快速开始
 
-只要 3 步，即可完成 **Vynaro 桌面端** 的安装、大模型 API 密钥配置与环境准备，开启自动化的短剧解说与视频剪辑流程。
+只要 3 步，即可完成 **splicr 桌面端** 的安装、大模型 API 密钥配置与环境准备，开启自动化的短剧解说与视频剪辑流程。
 
-![Vynaro 主工作台预览](/assets/mockups/hero-app-main.jpg)
+![splicr 主工作台预览](/assets/mockups/hero-app-main.jpg)
 
 ---
 
 ## 📦 第一步：下载与安装桌面端
 
-从 [GitHub Releases](https://github.com/Agions/vynaro/releases) 下载适合您操作系统的预编译安装包：
+从 [GitHub Releases](https://github.com/Agions/splicr/releases) 下载适合您操作系统的预编译安装包：
 
 | 操作系统 | 安装包格式 | 安装与安装后权限说明 |
 | :--- | :--- | :--- |
@@ -27,7 +27,7 @@ description: 3 步上手 Vynaro 桌面端，10分钟完成第一次 AI 视频解
 
 ## 🗝️ 第二步：配置 LLM 与 TTS 秘钥
 
-启动 Vynaro，点击左侧导航栏的 **⚙️ 设置 (Settings) → AI 配置**，输入至少一个 AI 大模型与 TTS 服务的 API Key：
+启动 splicr，点击左侧导航栏的 **⚙️ 设置 (Settings) → AI 配置**，输入至少一个 AI 大模型与 TTS 服务的 API Key：
 
 ![AI 独白脚本生成与 API 选择](/assets/mockups/ai-script-generator.jpg)
 
@@ -46,7 +46,7 @@ description: 3 步上手 Vynaro 桌面端，10分钟完成第一次 AI 视频解
 
 ## 🎞️ 第三步：确认本地 FFmpeg 探针可用
 
-Vynaro 核心底层使用 FFmpeg 进行场景切片、情绪检测与音画混流。桌面端内置探针，也可识别系统级 FFmpeg：
+splicr 核心底层使用 FFmpeg 进行场景切片、情绪检测与音画混流。桌面端内置探针，也可识别系统级 FFmpeg：
 
 ```bash
 # 在终端中验证 FFmpeg 版本：
@@ -78,7 +78,7 @@ ffmpeg -version
 | 现象 / 报错 | 常见原因 | 解决方法 |
 | :--- | :--- | :--- |
 | **API Key 报 401 Unauthorized** | 秘钥复制不完整或包含首尾空格 | 重新从服务商控制台复制并点击「连通性测试」 |
-| **拆条提示 `FFmpeg executable missing`** | 系统 PATH 未找到 ffmpeg 可执行文件 | 按照第三步安装 FFmpeg 并重启 Vynaro |
+| **拆条提示 `FFmpeg executable missing`** | 系统 PATH 未找到 ffmpeg 可执行文件 | 按照第三步安装 FFmpeg 并重启 splicr |
 | **TTS 生成极慢或超时** | 网络波动或代理设置影响 | 在设置中开启【Edge-TTS 备用节点】或使用本地克隆 |
 
 ---

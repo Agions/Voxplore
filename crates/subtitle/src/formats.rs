@@ -1,4 +1,4 @@
-//! vynaro-subtitle · formats — 字幕格式序列化
+//! splicr-subtitle · formats — 字幕格式序列化
 
 use crate::{SubtitleError, SubtitleFormat, SubtitleTrack};
 

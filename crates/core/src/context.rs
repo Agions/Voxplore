@@ -1,4 +1,4 @@
-//! vynaro-core · AppContext
+//! splicr-core · AppContext
 //!
 //! 全应用单一状态对象,通过 `app.manage(AppContext::new())` 注入 Tauri State,
 //! 每个 Tauri Command 用 `state: State<'_, AppContext>` 即可拿到。
@@ -31,7 +31,7 @@ impl AppContext {
     /// 获取已注册的 service。语法糖,减少 boilerplate。
     pub async fn service<T: std::any::Any + Send + Sync>(
         &self,
-    ) -> Result<Arc<T>, super::VynaroError> {
+    ) -> Result<Arc<T>, super::SplicrError> {
         self.services.resolve::<T>().await
     }
 }

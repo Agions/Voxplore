@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-script"
+name = "splicr-script"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -19,7 +19,7 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 futures = { workspace = true }
 
-[dependencies.vynaro-core]
+[dependencies.splicr-core]
 path = "../core"
 
 [lints]

@@ -1,4 +1,4 @@
-# Vynaro v1.0.1 Makefile
+# splicr v1.0.1 Makefile
 # Rust + Tauri 2 + React 主线构建系统
 #
 # 使用方法:
@@ -33,7 +33,7 @@ warn    = @echo "$(YELLOW)[WARN]$(NC)  $*"
 
 # ── 默认目标：显示帮助 ─────────────────────────────────────────────
 help:
-	@echo "Vynaro v$(VERSION) Build System  ·  Rust + Tauri 2 + React"
+	@echo "splicr v$(VERSION) Build System  ·  Rust + Tauri 2 + React"
 	@echo ""
 	@echo "使用方式: make <target>"
 	@echo ""

@@ -1,4 +1,4 @@
-//! vynaro-subtitle · dynamic — 动态字幕：逐字高亮 + 情绪关键词变色
+//! splicr-subtitle · dynamic — 动态字幕：逐字高亮 + 情绪关键词变色
 
 use crate::{SubtitleEntry, SubtitleError};
 

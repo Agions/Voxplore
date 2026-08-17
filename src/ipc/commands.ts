@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · IPC Commands 类型化包装
+ * splicr v1.0.0 · IPC Commands 类型化包装
  *
  * 设计:
  * - 每个方法直接对应一个 Tauri command,compile-time 类型由 types.gen.ts 保障
@@ -164,7 +164,7 @@ export const videoIpc = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
-// help · 内置帮助主题 + 加权搜索 (3/3 · M5.7 接 vynaro-help)
+// help · 内置帮助主题 + 加权搜索 (3/3 · M5.7 接 splicr-help)
 // ─────────────────────────────────────────────────────────────────────────
 
 export const helpIpc = {
@@ -177,7 +177,7 @@ export const helpIpc = {
 } as const;
 
 // ─────────────────────────────────────────────────────────────────────────
-// theme · 后端文案 / Locale 切换 (3/3 · M5.6 接 vynaro-i18n)
+// theme · 后端文案 / Locale 切换 (3/3 · M5.6 接 splicr-i18n)
 // ─────────────────────────────────────────────────────────────────────────
 
 export const themeIpc = {

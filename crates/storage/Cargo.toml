@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-storage"
+name = "splicr-storage"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,9 +13,9 @@ description = "素材资产管理: 扫描/元数据抽取/缩略图生成/搜索
 workspace = true
 
 [dependencies]
-vynaro-core = { path = "../core" }
-vynaro-detect = { path = "../detect" }
-vynaro-domain = { path = "../domain" }
+splicr-core = { path = "../core" }
+splicr-detect = { path = "../detect" }
+splicr-domain = { path = "../domain" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

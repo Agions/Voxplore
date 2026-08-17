@@ -1,4 +1,4 @@
-//! vynaro-export v1.0.0  · 导出器 (M4.5 实装)
+//! splicr-export v1.0.0  · 导出器 (M4.5 实装)
 //!
 //! ## 责任范围
 //! 3 种导出模式的参数规划 + 字幕渲染 (与 v2.4
@@ -13,13 +13,13 @@
 //! ## 设计
 //! - 本 crate 只做**纯参数规划**:校验 + 生成 ffmpeg 参数列表,不执行进程
 //! - [`ExportPlanner::plan`] 产出 [`ExportPlan`],执行层 (src-tauri command)
-//!   将其交给 vynaro-ffmpeg
+//!   将其交给 splicr-ffmpeg
 //! - [`render_subtitles`] 纯函数渲染 SRT / ASS / VTT 三种字幕文本
 //! - codec/container 兼容性表在 [`validate_params`] 中集中维护
 //!
 //! ## 用法
 //! ```
-//! use vynaro_export::{ExportMode, ExportPlanner};
+//! use splicr_export::{ExportMode, ExportPlanner};
 //!
 //! let plan = ExportPlanner::new()
 //!     .plan(ExportMode::Quick, None)
@@ -30,7 +30,7 @@
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use vynaro_domain::ProjectSettings;
+use splicr_domain::ProjectSettings;
 
 // ════════════════════════════════════════════════════════════════════════
 // 错误类型

@@ -1,5 +1,5 @@
 [package]
-name = "vynaro-voice"
+name = "splicr-voice"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,7 +10,7 @@ homepage.workspace = true
 description = "TTS 引擎 (Edge-TTS / OpenAI-TTS / GPT-SoVITS)"
 
 [dependencies]
-vynaro-core = { path = "../core" }
+splicr-core = { path = "../core" }
 tokio = { workspace = true }
 async-trait = { workspace = true }
 serde = { workspace = true }

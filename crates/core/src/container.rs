@@ -1,4 +1,4 @@
-//! vynaro-core · ServiceContainer
+//! splicr-core · ServiceContainer
 //!
 //! 19 个核心服务的注册与解析。设计上故意不引入 DI 框架,
 //! 直接用 `Arc<dyn Any + Send + Sync>` 做 type-erased storage,
@@ -43,14 +43,14 @@ impl ServiceContainer {
     }
 
     /// 解析一个服务 (返回克隆的 Arc)。
-    /// 未注册返回 `VynaroError::Config`。
-    pub async fn resolve<T: Any + Send + Sync>(&self) -> Result<Arc<T>, super::VynaroError> {
+    /// 未注册返回 `SplicrError::Config`。
+    pub async fn resolve<T: Any + Send + Sync>(&self) -> Result<Arc<T>, super::SplicrError> {
         let id = TypeId::of::<T>();
         let map = self.services.lock().await;
         map.get(&id)
             .and_then(|s| s.clone().downcast::<T>().ok())
             .ok_or_else(|| {
-                super::VynaroError::Config(format!(
+                super::SplicrError::Config(format!(
                     "service {:?} not registered",
                     std::any::type_name::<T>()
                 ))

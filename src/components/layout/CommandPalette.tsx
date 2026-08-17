@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · ⌘K 全局命令面板 (M4)
+ * splicr v1.0.0 · ⌘K 全局命令面板 (M4)
  *
  * - 使用 cmdk 作为命令面板核心 (已在 deps)
  * - 4 个分类:
@@ -54,7 +54,7 @@ export function CommandPalette() {
     const id = toast.loading("正在检查更新...");
     try {
       const r = await fetch(
-        "https://api.github.com/repos/qingshanyanyu/Vynaro/releases/latest",
+        "https://api.github.com/repos/qingshanyanyu/splicr/releases/latest",
       );
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = (await r.json()) as { tag_name?: string };

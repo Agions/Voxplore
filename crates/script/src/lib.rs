@@ -1,4 +1,4 @@
-//! vynaro-llm v1.0.0  · LlmProvider trait + 11 provider 真实实现 + LlmManager 故障切换
+//! splicr-llm v1.0.0  · LlmProvider trait + 11 provider 真实实现 + LlmManager 故障切换
 //!
 //! ## 11 个 Provider
 //! - Qwen (Qwen3-Max / Qwen-Plus / Qwen-Turbo)        — OpenAI 兼容
@@ -25,7 +25,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-pub use vynaro_core::error::{LlmProviderKind, VynaroError, VynaroResult};
+pub use splicr_core::error::{LlmProviderKind, SplicrError, SplicrResult};
 
 // ════════════════════════════════════════════════════════════════════════
 // 输入 / 输出契约
@@ -59,7 +59,7 @@ pub struct LlmResponse {
 pub trait LlmProvider: Send + Sync {
     fn kind(&self) -> LlmProviderKind;
     fn default_model(&self) -> &'static str;
-    async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse>;
+    async fn chat(&self, req: &LlmRequest) -> SplicrResult<LlmResponse>;
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -106,7 +106,7 @@ impl LlmProvider for OpenAiCompatible {
         self.default_model
     }
 
-    async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
+    async fn chat(&self, req: &LlmRequest) -> SplicrResult<LlmResponse> {
         let start = std::time::Instant::now();
 
         let user_content = if req.images_base64.is_empty() {
@@ -145,7 +145,7 @@ impl LlmProvider for OpenAiCompatible {
             .json(&body)
             .send()
             .await
-            .map_err(|e| VynaroError::Llm {
+            .map_err(|e| SplicrError::Llm {
                 provider: self.kind,
                 message: format!("request send failed: {e}"),
             })?;
@@ -153,7 +153,7 @@ impl LlmProvider for OpenAiCompatible {
         let status = resp.status();
         if !status.is_success() {
             let body = resp.text().await.unwrap_or_default();
-            return Err(VynaroError::Llm {
+            return Err(SplicrError::Llm {
                 provider: self.kind,
                 message: format!("HTTP {status}: {body}"),
             });
@@ -180,7 +180,7 @@ impl LlmProvider for OpenAiCompatible {
             usage: Option<Usage>,
         }
 
-        let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
+        let api: ApiResp = resp.json().await.map_err(|e| SplicrError::Llm {
             provider: self.kind,
             message: format!("response json parse failed: {e}"),
         })?;
@@ -240,7 +240,7 @@ impl LlmProvider for ClaudeProvider {
         "claude-sonnet-5"
     }
 
-    async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
+    async fn chat(&self, req: &LlmRequest) -> SplicrResult<LlmResponse> {
         let start = std::time::Instant::now();
 
         let body = serde_json::json!({
@@ -261,7 +261,7 @@ impl LlmProvider for ClaudeProvider {
             .json(&body)
             .send()
             .await
-            .map_err(|e| VynaroError::Llm {
+            .map_err(|e| SplicrError::Llm {
                 provider: LlmProviderKind::Claude,
                 message: format!("request send failed: {e}"),
             })?;
@@ -269,7 +269,7 @@ impl LlmProvider for ClaudeProvider {
         let status = resp.status();
         if !status.is_success() {
             let body = resp.text().await.unwrap_or_default();
-            return Err(VynaroError::Llm {
+            return Err(SplicrError::Llm {
                 provider: LlmProviderKind::Claude,
                 message: format!("HTTP {status}: {body}"),
             });
@@ -296,7 +296,7 @@ impl LlmProvider for ClaudeProvider {
             usage: Option<ClaudeUsage>,
         }
 
-        let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
+        let api: ApiResp = resp.json().await.map_err(|e| SplicrError::Llm {
             provider: LlmProviderKind::Claude,
             message: format!("response json parse failed: {e}"),
         })?;
@@ -356,7 +356,7 @@ impl LlmProvider for GeminiProvider {
         "gemini-3.6-flash"
     }
 
-    async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
+    async fn chat(&self, req: &LlmRequest) -> SplicrResult<LlmResponse> {
         let start = std::time::Instant::now();
 
         let model = req
@@ -392,7 +392,7 @@ impl LlmProvider for GeminiProvider {
             .json(&body)
             .send()
             .await
-            .map_err(|e| VynaroError::Llm {
+            .map_err(|e| SplicrError::Llm {
                 provider: LlmProviderKind::Gemini,
                 message: format!("request send failed: {e}"),
             })?;
@@ -400,7 +400,7 @@ impl LlmProvider for GeminiProvider {
         let status = resp.status();
         if !status.is_success() {
             let body = resp.text().await.unwrap_or_default();
-            return Err(VynaroError::Llm {
+            return Err(SplicrError::Llm {
                 provider: LlmProviderKind::Gemini,
                 message: format!("HTTP {status}: {body}"),
             });
@@ -434,7 +434,7 @@ impl LlmProvider for GeminiProvider {
             usage_metadata: Option<UsageMetadata>,
         }
 
-        let api: ApiResp = resp.json().await.map_err(|e| VynaroError::Llm {
+        let api: ApiResp = resp.json().await.map_err(|e| SplicrError::Llm {
             provider: LlmProviderKind::Gemini,
             message: format!("response json parse failed: {e}"),
         })?;
@@ -606,15 +606,15 @@ impl LlmManager {
     }
 
     /// 顺序尝试所有 provider,直到有成功响应。
-    pub async fn chat(&self, req: &LlmRequest) -> VynaroResult<LlmResponse> {
+    pub async fn chat(&self, req: &LlmRequest) -> SplicrResult<LlmResponse> {
         if self.chain.is_empty() {
-            return Err(VynaroError::Llm {
+            return Err(SplicrError::Llm {
                 provider: LlmProviderKind::OpenAi, // 占位
                 message: "no LLM provider configured".into(),
             });
         }
 
-        let mut last_err: Option<VynaroError> = None;
+        let mut last_err: Option<SplicrError> = None;
         for provider in &self.chain {
             match provider.chat(req).await {
                 Ok(resp) => {
@@ -638,7 +638,7 @@ impl LlmManager {
         }
 
         Err(last_err.unwrap_or_else(|| {
-            VynaroError::Other("LlmManager: chain empty after iteration".into())
+            SplicrError::Other("LlmManager: chain empty after iteration".into())
         }))
     }
 }

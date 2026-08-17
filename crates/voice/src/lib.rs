@@ -1,4 +1,4 @@
-//! vynaro-voice v1.0.0  · TTS 配音与语音克隆引擎
+//! splicr-voice v1.0.0  · TTS 配音与语音克隆引擎
 //!
 //! ## 责任范围
 //! 3 个 TTS 引擎的统一抽象与实现:
@@ -8,7 +8,7 @@
 //!
 //! ## 设计
 //! - [`TtsEngine`] trait 是唯一出口,业务层只依赖 trait
-//! - 所有失败统一为 `VynaroError::Tts { provider, message }`
+//! - 所有失败统一为 `SplicrError::Tts { provider, message }`
 //! - 合成产物直接落盘 (`output_path`),返回写入字节数
 
 #![allow(dead_code)]
@@ -18,11 +18,11 @@ use std::path::{Path, PathBuf};
 use async_trait::async_trait;
 use futures::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::Message;
-use vynaro_core::error::{VynaroError, VynaroResult};
+use splicr_core::error::{SplicrError, SplicrResult};
 
 // 同时保留两个常用名称,方便业务侧 import 习惯
-pub use vynaro_core::error::TtsProviderKind;
-pub use vynaro_core::error::TtsProviderKind as ProviderKind;
+pub use splicr_core::error::TtsProviderKind;
+pub use splicr_core::error::TtsProviderKind as ProviderKind;
 
 // ════════════════════════════════════════════════════════════════════════
 // 请求 / 结果 / trait
@@ -53,19 +53,19 @@ pub struct TtsOutcome {
 pub trait TtsEngine: Send + Sync {
     fn kind(&self) -> TtsProviderKind;
 
-    /// 合成并落盘。失败返回 `VynaroError::Tts`。
-    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome>;
+    /// 合成并落盘。失败返回 `SplicrError::Tts`。
+    async fn synthesize(&self, req: &TtsRequest) -> SplicrResult<TtsOutcome>;
 }
 
-fn tts_err(provider: TtsProviderKind, message: impl Into<String>) -> VynaroError {
-    VynaroError::Tts {
+fn tts_err(provider: TtsProviderKind, message: impl Into<String>) -> SplicrError {
+    SplicrError::Tts {
         provider,
         message: message.into(),
     }
 }
 
 /// 落盘 helper: 自动建父目录。
-async fn write_output(path: &Path, bytes: &[u8]) -> VynaroResult<u64> {
+async fn write_output(path: &Path, bytes: &[u8]) -> SplicrResult<u64> {
     if let Some(parent) = path.parent() {
         tokio::fs::create_dir_all(parent).await?;
     }
@@ -117,7 +117,7 @@ impl TtsEngine for OpenAiTtsEngine {
         TtsProviderKind::OpenAi
     }
 
-    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
+    async fn synthesize(&self, req: &TtsRequest) -> SplicrResult<TtsOutcome> {
         let url = format!(
             "{}/v1/audio/speech",
             self.opts.base_url.trim_end_matches('/')
@@ -237,7 +237,7 @@ impl TtsEngine for EdgeTtsEngine {
         TtsProviderKind::Edge
     }
 
-    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
+    async fn synthesize(&self, req: &TtsRequest) -> SplicrResult<TtsOutcome> {
         let conn_id = random_connection_id();
         let url = format!("{EDGE_URL}?TrustedClientToken={EDGE_TOKEN}&ConnectionId={conn_id}");
 
@@ -355,7 +355,7 @@ impl TtsEngine for GptSovitsTtsEngine {
         TtsProviderKind::GptSovits
     }
 
-    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
+    async fn synthesize(&self, req: &TtsRequest) -> SplicrResult<TtsOutcome> {
         if self.opts.ref_audio_path.is_empty() {
             return Err(tts_err(
                 TtsProviderKind::GptSovits,
@@ -458,7 +458,7 @@ impl TtsEngine for MimoTtsEngine {
         TtsProviderKind::Mimo
     }
 
-    async fn synthesize(&self, req: &TtsRequest) -> VynaroResult<TtsOutcome> {
+    async fn synthesize(&self, req: &TtsRequest) -> SplicrResult<TtsOutcome> {
         let base_url = self.opts.base_url.trim_end_matches('/');
         let url = if base_url.contains("/audio/speech") || base_url.contains("/t2a") {
             base_url.to_string()
@@ -615,7 +615,7 @@ mod tests {
         let err = r.unwrap_err();
         assert!(matches!(
             err,
-            VynaroError::Tts {
+            SplicrError::Tts {
                 provider: TtsProviderKind::GptSovits,
                 ..
             }

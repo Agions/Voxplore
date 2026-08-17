@@ -1,6 +1,6 @@
 ---
 title: 安装指南
-description: 在 Windows、macOS 和 Linux 上完整安装 Vynaro v1.0.0 桌面应用（Tauri 2 + React 主线）。
+description: 在 Windows、macOS 和 Linux 上完整安装 splicr v1.0.0 桌面应用（Tauri 2 + React 主线）。
 ---
 
 # 安装指南
@@ -22,9 +22,9 @@ description: 在 Windows、macOS 和 Linux 上完整安装 Vynaro v1.0.0 桌面�
 
 ### 方式一：安装包（推荐）
 
-1. 从 [Releases](https://github.com/Agions/vynaro/releases) 下载最新 `.msi` 或 `.exe`
+1. 从 [Releases](https://github.com/Agions/splicr/releases) 下载最新 `.msi` 或 `.exe`
 2. 双击运行安装程序
-3. 安装完成后，桌面会出现 **Vynaro** 图标，从开始菜单启动
+3. 安装完成后，桌面会出现 **splicr** 图标，从开始菜单启动
 
 ### 方式二：从源码开发
 
@@ -43,8 +43,8 @@ corepack prepare pnpm@latest --activate
 #    详见 https://tauri.app/start/prerequisites/windows
 
 # 4. 克隆与启动
-git clone https://github.com/Agions/vynaro.git
-cd vynaro
+git clone https://github.com/Agions/splicr.git
+cd splicr
 pnpm install
 cd apps/desktop
 pnpm tauri:dev
@@ -54,9 +54,9 @@ pnpm tauri:dev
 
 ### 方式一：安装包（推荐）
 
-1. 从 [Releases](https://github.com/Agions/vynaro/releases) 下载最新 `.dmg`
-2. 双击挂载，将 `Vynaro.app` 拖入「应用程序」文件夹
-3. 启动台中搜索 **Vynaro** 启动
+1. 从 [Releases](https://github.com/Agions/splicr/releases) 下载最新 `.dmg`
+2. 双击挂载，将 `splicr.app` 拖入「应用程序」文件夹
+3. 启动台中搜索 **splicr** 启动
 
 ### 方式二：从源码开发
 
@@ -76,8 +76,8 @@ corepack prepare pnpm@latest --activate
 brew install ffmpeg
 
 # 5. 克隆与启动
-git clone https://github.com/Agions/vynaro.git
-cd vynaro
+git clone https://github.com/Agions/splicr.git
+cd splicr
 pnpm install
 cd apps/desktop
 pnpm tauri:dev
@@ -87,9 +87,9 @@ pnpm tauri:dev
 
 ### 方式一：安装包（推荐）
 
-1. 从 [Releases](https://github.com/Agions/vynaro/releases) 下载最新 `.deb` 或 `.AppImage`
-2. **deb**：`sudo dpkg -i vynaro_2.5.0_amd64.deb && sudo apt install -f`
-3. **AppImage**：`chmod +x Vynaro_2.5.0_amd64.AppImage && ./Vynaro_2.5.0_amd64.AppImage`
+1. 从 [Releases](https://github.com/Agions/splicr/releases) 下载最新 `.deb` 或 `.AppImage`
+2. **deb**：`sudo dpkg -i splicr_2.5.0_amd64.deb && sudo apt install -f`
+3. **AppImage**：`chmod +x splicr_2.5.0_amd64.AppImage && ./splicr_2.5.0_amd64.AppImage`
 
 ### 方式二：从源码开发
 
@@ -119,8 +119,8 @@ source "$HOME/.cargo/env"
 sudo apt install -y ffmpeg
 
 # 5. 克隆与启动
-git clone https://github.com/Agions/vynaro.git
-cd vynaro
+git clone https://github.com/Agions/splicr.git
+cd splicr
 pnpm install
 cd apps/desktop
 pnpm tauri:dev
@@ -145,7 +145,7 @@ ffmpeg -version | head -1   # 应输出 6.0+
 
 # 5. 启动应用
 cd apps/desktop && pnpm tauri:dev
-# 成功标志：弹出 Tauri 窗口 + 看到 Vynaro Home 页面
+# 成功标志：弹出 Tauri 窗口 + 看到 splicr Home 页面
 ```
 
 ## 常见问题

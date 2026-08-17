@@ -1,5 +1,5 @@
 /**
- * Vynaro v1.0.0 · Step 7: 多平台导出与剪映草稿高级装配工坊 (Export Matrix)
+ * splicr v1.0.0 · Step 7: 多平台导出与剪映草稿高级装配工坊 (Export Matrix)
  * 深度集成：防搬运去重控制台、剪映原生多轨工程 (.draft) 一键交付与硬件加速监控
  */
 

@@ -1,13 +1,13 @@
 [package]
-name = "vynaro"
+name = "splicr"
 version = "1.0.0"
-description = "Vynaro v1.0.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
+description = "splicr v1.0.0 · 叙影 — AI 影视解说桌面应用 (Tauri 2 + Rust)"
 authors = ["Agions"]
 edition = "2021"
 rust-version = "1.85"
 
 [lib]
-name = "vynaro_lib"
+name = "splicr_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -27,27 +27,27 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 
-# ── Vynaro 工作流 crates ──
+# ── splicr 工作流 crates ──
 # 基础层
-vynaro-core    = { path = "../crates/core" }
-vynaro-domain  = { path = "../crates/domain" }
+splicr-core    = { path = "../crates/core" }
+splicr-domain  = { path = "../crates/domain" }
 # Step 1 素材导入
-vynaro-intake  = { path = "../crates/intake" }
+splicr-intake  = { path = "../crates/intake" }
 # Step 2 智能拆条
-vynaro-detect  = { path = "../crates/detect" }
+splicr-detect  = { path = "../crates/detect" }
 # Step 3 脚本生成
-vynaro-script  = { path = "../crates/script" }
+splicr-script  = { path = "../crates/script" }
 # Step 4 TTS 配音
-vynaro-voice   = { path = "../crates/voice" }
+splicr-voice   = { path = "../crates/voice" }
 # Step 5 字幕合成
-vynaro-subtitle = { path = "../crates/subtitle" }
+splicr-subtitle = { path = "../crates/subtitle" }
 # Step 6 画面对齐
-vynaro-compose = { path = "../crates/compose" }
+splicr-compose = { path = "../crates/compose" }
 # Step 7 多平台导出
-vynaro-export  = { path = "../crates/export" }
+splicr-export  = { path = "../crates/export" }
 # 基础设施
-vynaro-storage = { path = "../crates/storage" }
-vynaro-update  = { path = "../crates/update" }
-vynaro-plugin  = { path = "../crates/plugin" }
+splicr-storage = { path = "../crates/storage" }
+splicr-update  = { path = "../crates/update" }
+splicr-plugin  = { path = "../crates/plugin" }
 
 # workspace lints / profiles 在根 Cargo.toml 集中定义

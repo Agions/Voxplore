@@ -1,7 +1,7 @@
 /**
- * Vynaro v1.0.0 · HelpPage · 帮助页主体组件 (M4.5)
+ * splicr v1.0.0 · HelpPage · 帮助页主体组件 (M4.5)
  *
- * 接入 vynaro-help IPC:
+ * 接入 splicr-help IPC:
  * - help_topics:分类拉取所有主题(替代旧硬编码 6 张 RESOURCES)
  * - help_topic_get:详情 modal(展示 markdown content)
  * - help_search:加权全文搜索(标题/关键词/摘要/正文)
@@ -129,7 +129,7 @@ export function HelpPage() {
         <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-[var(--color-gold)]/10 blur-3xl" />
         <div className="relative z-10 space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3.5 py-1 text-xs font-bold text-[var(--color-gold)] shadow-sm">
-            <span>💡</span> {t("help.title", locale)} · VYNARO KNOWLEDGE CENTER
+            <span>💡</span> {t("help.title", locale)} · splicr KNOWLEDGE CENTER
           </div>
           <h1 className="text-3xl font-black tracking-tight text-[var(--color-text-primary)] md:text-4xl">
             {t("help.title", locale)}与全量功能指南
@@ -278,7 +278,7 @@ export function HelpPage() {
         <SectionHeader
           kicker={locale === "en-US" ? "Knowledge Base" : "知识库"}
           title={locale === "en-US" ? "Documentation & Detailed Guides" : "全量专业文档与教程指南"}
-          subtitle={locale === "en-US" ? "Real-time docs powered by Vynaro Help Engine" : "由后端 vynaro-help 实时提供加权全文检索与主题映射"}
+          subtitle={locale === "en-US" ? "Real-time docs powered by splicr Help Engine" : "由后端 splicr-help 实时提供加权全文检索与主题映射"}
         />
 
         {/* 分类 Filter Tabs */}
@@ -369,12 +369,12 @@ export function HelpPage() {
               <span>💬</span> 遇到任何疑问或功能建议?
             </div>
             <div className="text-xs text-[var(--color-text-secondary)]">
-              提交 Issue 或参与 GitHub 社区讨论，帮助 Vynaro 第一人称 AI 叙事系统持续进化。
+              提交 Issue 或参与 GitHub 社区讨论，帮助 splicr 第一人称 AI 叙事系统持续进化。
             </div>
           </div>
           <div className="flex gap-3 shrink-0">
             <a
-              href="https://github.com/Agions/vynaro/issues"
+              href="https://github.com/Agions/splicr/issues"
               target="_blank"
               rel="noreferrer"
               className="rounded-xl border border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)] px-4 py-2 text-xs font-bold text-[var(--color-gold)] transition hover:border-[var(--color-gold)] shadow-sm"
@@ -382,7 +382,7 @@ export function HelpPage() {
               提交 Issue
             </a>
             <a
-              href="https://github.com/Agions/vynaro"
+              href="https://github.com/Agions/splicr"
               target="_blank"
               rel="noreferrer"
               className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-text-primary)] transition hover:border-[var(--color-gold)]"
