@@ -1,4 +1,4 @@
-//! src-tauri 命令 · update (M4 完整实装)
+//! src-tauri 命令 · update
 //!
 //! - update_get_state: 查询当前状态(给前端轮询 fallback 用)
 //! - update_check: 探测 GitHub Releases latest

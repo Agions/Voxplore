@@ -1,4 +1,4 @@
-//! vynaro src-tauri · Tauri 命令分组 (M4.5 · 35 个命令)
+//! vynaro src-tauri · Tauri 命令分组
 //!
 //! 业务域分 module:
 //! - [`app`]      : 应用元信息 + 系统探测 (3 个)

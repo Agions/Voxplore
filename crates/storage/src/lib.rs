@@ -1,4 +1,4 @@
-//! vynaro-assets v1.0.0  · 素材资产管理 (M3 后续完整实装)
+//! vynaro-storage v1.0.0  · 素材资产管理服务
 //!
 //! ## 责任范围
 //! - `assets_scan`        : 扫描目录,按 MIME 白名单返回可导入素材

@@ -13,15 +13,14 @@
 //! - OpenAI (GPT-4o / GPT-4-Turbo)                     — OpenAI
 //! - Qwen3.7 (实验版)                                  — OpenAI 兼容
 //!
-//! ## M3 范围
+//! ## 剧本创作引擎
 //! - 9 个 OpenAI 兼容 provider 共享 `OpenAiCompatible` 底座
 //! - Claude 与 Gemini 各自实现原生协议
 //! - 11 个 provider 全部可实际调用
 //! - `LlmProviderFactory` 按 `LlmProviderKind` 工厂创建
 //!
 //! ## 历史
-//! - M2: OpenAI 作为 PoC,其余 10 个 stub
-//! - M3: 全部 11 个真实实现
+//! - 支持 OpenAI, Qwen, DeepSeek, Claude, Gemini 等 11 家主流大模型
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -470,7 +469,7 @@ impl LlmProvider for GeminiProvider {
 // Provider 别名 (11 个工厂 constructor)
 // ════════════════════════════════════════════════════════════════════════
 
-/// OpenAI 公开别名 (M2 兼容)
+/// OpenAI 接口别名
 pub type OpenAiProvider = OpenAiCompatible;
 
 pub fn openai(api_key: impl Into<String>) -> OpenAiProvider {

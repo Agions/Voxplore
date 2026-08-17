@@ -1,4 +1,4 @@
-//! src-tauri 命令 · export (M4.5 · 接 vynaro-export / vynaro-video)
+//! src-tauri 命令 · 视频导出与剪映草稿交付
 //!
 //! - export_plan: 按 quick/custom/silent 模式生成导出计划 (ffmpeg 参数)
 //! - export_validate_params: 校验自定义编码参数 (分辨率/fps/码率/codec×container)

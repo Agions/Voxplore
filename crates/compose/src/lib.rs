@@ -4,12 +4,12 @@
 //! - [`STEPS`] 常量 (7 个步骤的硬编码顺序: intake ➔ detect ➔ script ➔ voice ➔ subtitle ➔ compose ➔ export)
 //! - [`Pipeline`] 状态机 (手动 advance 7 步 + emit event)
 //!
-//! ## M2 范围 (PoC)
+//! ## 核心领域模型 (PoC)
 //! - [`StepDef`] / [`StepStatus`] / [`PipelineState`] 类型
 //! - [`Pipeline`] 状态机 (手动 advance 5 步 + emit event)
-//! - [`MonologueMaker`] 占位 (后续 M3 接 LLM + FFmpeg)
+//! - [`ComposeService`] : 顶层流水线编排服务
 //!
-//! ## M3+ 范围
+//! ## 生产流水线
 //! - 真实 LLM 调用 + FFmpeg 调用 + ETA 估算
 //! - 状态机持久化 (崩溃后能恢复)
 //! - 多并发流水线 (同一项目同时多个 source)
@@ -162,7 +162,7 @@ pub trait StepExecutor: Send + Sync {
 /// 设计要点:
 /// - 单实例可重复 start (reset 后重新跑)
 /// - 通过 `events_tx` 发出 `PipelineEvent`,上层订阅
-/// - 注入 [`StepExecutor`] 列表 (M3 真实实现,M2 占位)
+/// - 注入 [`StepExecutor`] 列表
 pub struct Pipeline {
     state: parking_lot::Mutex<PipelineInner>,
     events_tx: broadcast::Sender<PipelineEvent>,

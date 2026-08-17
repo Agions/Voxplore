@@ -1,4 +1,4 @@
-// Vynaro v1.0.0 · Tauri 入口 (M4.5 · 35 个真实业务命令)
+// Vynaro v1.0.0 · Tauri 入口
 //
 // 业务覆盖:
 //! - app: app_version / app_started_at / app_system_info
@@ -8,11 +8,11 @@
 //!   pipeline_cancel / pipeline_reset
 //! - settings: settings_get / settings_set
 //! - update: update_get_state / update_check / update_download /
-//!   update_install / update_reset (M4 完整实装)
+//!   update_install / update_reset
 //! - assets: assets_scan / assets_metadata / assets_thumbnail /
 //!   assets_search (M3 后续完整实装)
 //! - export: export_plan / export_validate_params / export_render_subtitles /
-//!   video_build_plans (M4.5 接 vynaro-export / vynaro-video)
+//!   video_build_plans
 //! - help: help_topics / help_topic_get / help_search (M5.7 接 vynaro-help)
 //! - theme: i18n_get_locale / i18n_set_locale / i18n_translate (M5.6 接 vynaro-i18n)
 //
@@ -55,7 +55,7 @@ pub fn run() {
             ctx.services
                 .register(Arc::new(PipelineService::new()))
                 .await;
-            // 注入 UpdateService (M4 完整实装)
+            // 注入 UpdateService
             ctx.services
                 .register(Arc::new(UpdateService::new(
                     ctx.version.to_string(),
@@ -80,7 +80,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(ctx)
-        // 轻量全局状态:M4.5 接入的 3 个新命令面
+        // 轻量全局状态
         .manage(Translator::with_backend_defaults())
         .manage(HelpRegistry::with_defaults())
         .invoke_handler(tauri::generate_handler![

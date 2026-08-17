@@ -10,7 +10,7 @@ pub type VynaroResult<T> = Result<T, VynaroError>;
 
 /// 全应用统一错误。9 类变体覆盖所有业务失败路径。
 ///
-/// ## 使用指南 (M3+ 起严格执行)
+/// ## 使用指南
 /// - `Io` / `Config` 由基础设施层返回
 /// - `Project` / `Pipeline` / `Ffmpeg` 由业务编排层返回
 /// - `Llm` / `Tts` 由外部服务层返回 (含 HTTP 状态码 + 重试标记)

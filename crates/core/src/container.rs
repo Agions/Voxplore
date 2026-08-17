@@ -4,7 +4,7 @@
 //! 直接用 `Arc<dyn Any + Send + Sync>` 做 type-erased storage,
 //! 配以 `tokio::sync::Mutex` 保证 async 友好。
 //!
-//! ## M2 范围
+//! ## 核心领域模型
 //! - `register<T>` / `resolve<T>` / `try_resolve<T>`
 //! - `Arc<T>` 内部存储
 //!

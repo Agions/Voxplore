@@ -9,7 +9,7 @@
 //! - [`domain`]    : re-export 跨模块领域原语 (delegate 给 vynaro-domain)
 //! - [`services`]  : 19 个 service 注册入口
 //!
-//! ## M2 范围
+//! ## 核心领域模型
 //! - `AppContext` 含 `ServiceContainer` + `Version` + `started_at`
 //! - `ServiceContainer` 暴露 `Arc<Mutex<HashMap<TypeId, Box<dyn Any>>>>`
 //! - `VynaroError` 共 9 类 (`Config`/`Llm`/`Tts`/`Ffmpeg`/`Io`/`Project`/`Pipeline`/`Plugin`/`Updater`)

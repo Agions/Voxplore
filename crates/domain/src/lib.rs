@@ -3,7 +3,7 @@
 //! ## 责任范围
 //! 整个应用的"业务对象" — 不依赖任何基础设施 (无 IO / 无 HTTP / 无 IO error 类型)
 //!
-//! ## M2 范围
+//! ## 核心领域模型
 //! - [`Project`]   : 顶层项目 (1 个 .vynaro 文件对应 1 个 Project)
 //! - [`MediaFile`] : 媒体文件 (mp4 / mov / wav / mp3)
 //! - [`Timeline`]  : 时间线 (含 tracks + clips)
@@ -174,7 +174,7 @@ pub fn strategy_label(s: ExportStrategy) -> &'static str {
     }
 }
 
-/// 仅用作示例,后续 M3 替换为 `uuid` crate 依赖。
+/// 生成全局唯一标识符
 fn uuid_v4_like() -> String {
     use std::time::{SystemTime, UNIX_EPOCH};
     let nanos = SystemTime::now()

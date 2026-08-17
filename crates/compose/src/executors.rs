@@ -1,4 +1,4 @@
-//! vynaro-pipeline · 5 步真实执行器 (M3.2)
+//! vynaro-compose · 流水线执行器矩阵
 //!
 //! ## 依赖注入
 //! [`PipelineDeps`] 集中持有 LLM / TTS / FFmpeg / workdir,

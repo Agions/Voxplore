@@ -1,11 +1,11 @@
 //! vynaro-core · 默认 19 个核心服务的注册与实现
 //!
-//! ## M2 已落地 (3 个)
+//! ## 核心服务
 //! - [`ProjectService`] : 项目管理 (open / save / list / delete)
 //! - [`ConfigService`]  : 配置管理 (load / save / get / set)
 //! - [`LoggingService`] : 日志门面 (info / warn / error + tracing 桥接)
 //!
-//! ## M3+ 待落地 (16 个)
+//! ## 扩展服务
 //! LlmService / TtsService / FfmpegService / VideoService /
 //! ExportService / PipelineService / PluginService /
 //! UpdaterService / HelpService / I18nService /
@@ -68,7 +68,7 @@ impl ConfigService {
         Self::default()
     }
 
-    /// 当前配置快照 (M2 占位返回默认)
+    /// 当前配置快照
     pub async fn snapshot(&self) -> ConfigSnapshot {
         self.inner
             .lock()
@@ -90,7 +90,7 @@ pub struct ConfigSnapshot {
     pub llm_provider: String,
     pub auto_update: bool,
     pub first_run: bool,
-    // ── M3+ 扩展 (前端 Settings 页面需要) ──
+    // ── 扩展服务 (前端 Settings 页面支持) ──
     pub llm_api_key: Option<String>,
     pub llm_base_url: Option<String>,
     pub llm_model: Option<String>,
