@@ -179,16 +179,25 @@ impl Ffmpeg {
         if cuts.is_empty() {
             return None;
         }
-        // 优先在剧集中后段 (30% ~ 90%) 寻找高光镜头切点
-        let len = cuts.len();
-        if len > 3 {
-            let mid_start = (len as f64 * 0.3) as usize;
-            let mid_end = (len as f64 * 0.9).min((len - 1) as f64) as usize;
-            if let Some(c) = cuts[mid_start..mid_end].first() {
-                return Some(c);
-            }
+        if cuts.len() <= 2 {
+            return cuts.last();
         }
-        cuts.get(len / 2).or_else(|| cuts.first())
+
+        // 计算每个切片的“高光指数” (结合黄金叙事弧线: 65%~85% 剧集高潮区得分最高)
+        let total_cuts = cuts.len() as f64;
+        cuts.iter()
+            .enumerate()
+            .max_by(|(idx_a, _), (idx_b, _)| {
+                let pos_a = *idx_a as f64 / total_cuts;
+                let pos_b = *idx_b as f64 / total_cuts;
+
+                // 叙事弧线钟形权重 (在 75% 达到最大值)
+                let weight_a = 1.0 - (pos_a - 0.75).abs() * 2.0;
+                let weight_b = 1.0 - (pos_b - 0.75).abs() * 2.0;
+
+                weight_a.partial_cmp(&weight_b).unwrap_or(std::cmp::Ordering::Equal)
+            })
+            .map(|(_, cut)| cut)
     }
 
     // ── 转码操作 (白名单参数) ───────────────────────────────────────────

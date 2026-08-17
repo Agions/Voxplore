@@ -96,11 +96,23 @@ pub async fn script_generate(params: ScriptGenerateParams) -> Result<ScriptGener
     let word_count = text.chars().count();
     let estimated_duration_sec = (word_count as u32 / 4).max(10); // 约4字/秒
 
-    // 提取 Hook 文本（若含有 [HOOK ...] 标记）
+    // 提取 Hook 文本（优先匹配 [HOOK ...] 标记，若无则提取开头第 1 句高光设问）
     let hook_text = if let Some(pos) = text.find("[HOOK") {
         let after = &text[pos..];
         let end_pos = after.find('\n').unwrap_or(after.len());
         Some(after[..end_pos].trim().to_string())
+    } else if include_hook {
+        // 智能提取首句作为黄金前3秒文案
+        let first_sentence = text
+            .split(&['。', '！', '？', '\n'][..])
+            .next()
+            .unwrap_or("")
+            .trim();
+        if !first_sentence.is_empty() {
+            Some(format!("[HOOK 0~3s] {first_sentence}"))
+        } else {
+            None
+        }
     } else {
         None
     };
