@@ -104,6 +104,67 @@ pub async fn export_capcut_draft(
         .await
         .map_err(|e| format!("写入 draft_info.json 失败: {e}"))?;
 
+    // 生成剪映原生多轨工程 content 描述 (draft_content.json)
+    let content_data = serde_json::json!({
+        "id": draft_id,
+        "version": 250000,
+        "duration": 60000000, // 60s in microseconds
+        "fps": 30.0,
+        "materials": {
+            "videos": [],
+            "audios": [],
+            "texts": [],
+            "effects": [
+                {
+                    "type": "sweep_light",
+                    "name": "动态微扫光去重滤镜",
+                    "intensity": 0.35
+                }
+            ]
+        },
+        "tracks": [
+            {
+                "id": "track_video_main",
+                "type": "video",
+                "attribute": 0,
+                "segments": []
+            },
+            {
+                "id": "track_voice_narration",
+                "type": "audio",
+                "attribute": 0,
+                "segments": []
+            },
+            {
+                "id": "track_subtitles",
+                "type": "text",
+                "attribute": 0,
+                "segments": []
+            },
+            {
+                "id": "track_bgm_ducking",
+                "type": "audio",
+                "attribute": 1, // 背景音乐 / 动态闪避
+                "segments": []
+            }
+        ],
+        "config": {
+            "anti_deduplication": {
+                "smart_crop": true,
+                "ambient_blur": true,
+                "sweep_light": true,
+                "subtle_zoom": 1.02
+            }
+        }
+    });
+
+    let content_str = serde_json::to_string_pretty(&content_data)
+        .map_err(|e| format!("序列化 draft_content.json 失败: {e}"))?;
+
+    tokio::fs::write(draft_folder.join("draft_content.json"), content_str)
+        .await
+        .map_err(|e| format!("写入 draft_content.json 失败: {e}"))?;
+
     Ok(CapcutDraftResult {
         draft_folder: draft_folder.to_string_lossy().to_string(),
         draft_id,
