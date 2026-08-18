@@ -4,11 +4,11 @@
 
 use std::path::{Path, PathBuf};
 
-use tauri::{Manager, State};
 use splicr_core::domain::Project;
 use splicr_core::services::ProjectService;
 use splicr_core::AppContext;
 use splicr_domain::MediaFile;
+use tauri::{Manager, State};
 
 /// 列举最近项目 (M3.2 真实从 ProjectService 取)
 #[tauri::command]

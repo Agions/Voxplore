@@ -8,7 +8,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use tauri::{Emitter, State};
 use splicr_compose::executors::PipelineDeps;
 use splicr_compose::service::{PipelineService, PipelineStatus};
 use splicr_compose::{Project, StepDef, STEPS};
@@ -22,6 +21,7 @@ use splicr_voice::{
     EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
     TtsProviderKind,
 };
+use tauri::{Emitter, State};
 
 /// 5 步定义查询
 #[tauri::command]

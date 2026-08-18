@@ -8,10 +8,10 @@
 //!
 //! 所有命令通过 `AppContext.services` 解析 `UpdateService` 单例。
 
-use tauri::{AppHandle, Emitter, State};
-use tauri_plugin_opener::OpenerExt;
 use splicr_core::AppContext;
 use splicr_update::{UpdateInfo, UpdateState};
+use tauri::{AppHandle, Emitter, State};
+use tauri_plugin_opener::OpenerExt;
 
 /// 查询当前更新状态快照
 #[tauri::command]

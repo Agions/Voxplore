@@ -37,9 +37,7 @@ pub async fn agent_step(
 ) -> Result<Option<BreakpointRequest>, String> {
     let lock = state.0.read().await;
     if let Some(orch) = lock.as_ref() {
-        orch.run_step(step_idx)
-            .await
-            .map_err(|e| e.to_string())
+        orch.run_step(step_idx).await.map_err(|e| e.to_string())
     } else {
         Err("智能体调度器尚未初始化".to_string())
     }

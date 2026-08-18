@@ -1,7 +1,7 @@
 //! splicr v1.0.0 · FFmpeg 智能拆条与镜头检测 Tauri 命令
 
-use std::path::Path;
 use splicr_detect::{Ffmpeg, FfmpegProbe, SceneCut};
+use std::path::Path;
 
 #[derive(serde::Serialize)]
 pub struct DetectScenesResult {

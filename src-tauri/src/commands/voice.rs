@@ -1,11 +1,11 @@
 //! splicr v1.0.0 · TTS 试听与合成 Tauri 命令
 
-use std::path::PathBuf;
-use tauri::Manager;
 use splicr_voice::{
     engine, EdgeTtsOptions, GptSovitsOptions, MimoTtsOptions, OpenAiTtsOptions, TtsEngineConfig,
     TtsRequest,
 };
+use std::path::PathBuf;
+use tauri::Manager;
 
 #[derive(serde::Deserialize)]
 pub struct VoicePreviewParams {

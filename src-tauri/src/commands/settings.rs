@@ -5,9 +5,9 @@
 
 use std::path::PathBuf;
 
-use tauri::{Manager, State};
 use splicr_core::services::{ConfigService, ConfigSnapshot};
 use splicr_core::AppContext;
+use tauri::{Manager, State};
 
 const CONFIG_FILE: &str = "config.json";
 

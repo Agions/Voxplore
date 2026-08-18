@@ -14,20 +14,20 @@ splicr 采用 **Rust Native 多智能体协作架构**，彻底打破传统单�
 ```mermaid
 graph TD
     User["人类创作者 (Human-in-the-Loop)"] -->|输入视频素材 + 风格偏好| Director["🎬 总控导演 Agent (DirectorAgent)"]
-    
+
     subgraph MultiAgentTeam ["splicr 智能体工作群 (crates/agent)"]
         Director -->|分配拆条与关键帧分析| VisualCritic["👁️ 画面视觉分析师 (VisualCriticAgent)"]
         VisualCritic -->|输出镜头切片 + 画面情绪特征| Screenwriter["✍️ 第一人称金牌编剧 (ScreenwriterAgent)"]
-        
+
         Screenwriter -->|自反思评估: 0~3s 黄金Hook完播率评分| Screenwriter
         Screenwriter -->|输出分段第一人称台词剧本| VoiceArtist["🎙️ 声乐调音师 (VoiceArtistAgent)"]
-        
+
         VoiceArtist -->|音色选型 + 情绪克隆 + 语速控制| SoundEngineer["🎛️ 混音剪辑师 (SoundEngineerAgent)"]
         SoundEngineer -->|FFmpeg毫秒级声画吸附 + BGM智能闪避| QC["🔍 质量验收员 (QualityReviewerAgent)"]
-        
+
         QC -->|打回修正 / 评分合格| Director
     end
-    
+
     Director -->|断点审核/最终产物交付| User
     Director -->|导出| CapCut[".draft 原生剪映工程草稿"]
 ```

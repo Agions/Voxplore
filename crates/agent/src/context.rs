@@ -39,7 +39,12 @@ impl AgentContext {
         });
     }
 
-    pub fn log_action(&mut self, role: AgentRole, action: impl Into<String>, observation: impl Into<String>) {
+    pub fn log_action(
+        &mut self,
+        role: AgentRole,
+        action: impl Into<String>,
+        observation: impl Into<String>,
+    ) {
         self.messages.push(AgentMessage {
             id: uuid::Uuid::new_v4().to_string(),
             sender: role,

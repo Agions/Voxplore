@@ -45,7 +45,9 @@ impl AgentOrchestrator {
         let result = agent.execute(&mut ctx).await?;
 
         // 若非纯全自动模式且在编剧/配音节点，触发断点请求
-        if !ctx.auto_mode && (agent.role() == AgentRole::Screenwriter || agent.role() == AgentRole::VoiceArtist) {
+        if !ctx.auto_mode
+            && (agent.role() == AgentRole::Screenwriter || agent.role() == AgentRole::VoiceArtist)
+        {
             ctx.status = AgentStatus::AwaitingApproval;
             return Ok(Some(BreakpointRequest {
                 agent: agent.role(),

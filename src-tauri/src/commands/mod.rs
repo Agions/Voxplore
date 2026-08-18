@@ -11,6 +11,7 @@
 //! - [`help`]     : 内置帮助主题 + 加权搜索 (3 个, M5.7 接 splicr-help)
 //! - [`theme`]    : 后端文案 / Locale 切换 (3 个, M5.6 接 splicr-i18n)
 
+pub mod agent;
 pub mod app;
 pub mod assets;
 pub mod detect;
@@ -24,4 +25,3 @@ pub mod subtitle;
 pub mod theme;
 pub mod update;
 pub mod voice;
-pub mod agent;

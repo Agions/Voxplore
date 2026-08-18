@@ -10,8 +10,8 @@
 
 use std::collections::HashMap;
 
-use tauri::{AppHandle, Emitter, State};
 use splicr_core::Translator;
+use tauri::{AppHandle, Emitter, State};
 
 /// 当前后端文案语言 (BCP-47,如 "zh-CN")
 #[tauri::command]

@@ -17,7 +17,7 @@ use splicr_domain::{ExportRecord, Project, ScriptSegment};
 use splicr_script::{LlmProvider, LlmRequest};
 use splicr_voice::{TtsEngine, TtsRequest};
 
-use crate::{StepExecutor, SplicrError, SplicrResult};
+use crate::{SplicrError, SplicrResult, StepExecutor};
 
 // ════════════════════════════════════════════════════════════════════════
 // 依赖注入

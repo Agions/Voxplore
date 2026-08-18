@@ -29,8 +29,8 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use splicr_domain::ProjectSettings;
+use thiserror::Error;
 
 // ════════════════════════════════════════════════════════════════════════
 // 错误类型

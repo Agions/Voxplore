@@ -7,10 +7,10 @@
 //!
 //! 所有命令通过 `AppContext.services` 解析 `AssetService` 单例。
 
-use tauri::State;
 use splicr_core::AppContext;
 use splicr_detect::FfmpegProbe;
 use splicr_storage::{AssetService, ScanResult, ThumbnailResult};
+use tauri::State;
 
 /// 扫描目录,返回可导入素材条目列表
 #[tauri::command]
