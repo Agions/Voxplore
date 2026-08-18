@@ -1,10 +1,11 @@
 /**
- * splicr v1.0.1 · 三栏专业集成影视解说工作台 (全链路自动流转 + 弹窗回退防护)
+ * splicr v1.0.1 · 三栏专业集成影视解说工作台 (全链路自动流转 + 弹窗回退防护 + 真实素材上传校验)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { AudioVisualizerCanvas } from "@components/production/AudioVisualizerCanvas";
 import { MultiTrackTimeline } from "@components/production/MultiTrackTimeline";
@@ -18,6 +19,7 @@ import {
   type BreakpointRequest,
   type ProjectRecord,
 } from "@ipc/commands";
+import { useAssets } from "@hooks/useAssets";
 import { useProjectStore } from "@stores/project-store";
 import { toast } from "sonner";
 
@@ -30,6 +32,7 @@ export function ProductionCinemaStudio() {
   const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
   const storeProject = useProjectStore((s) => s.current);
   const storePath = useProjectStore((s) => s.currentPath);
+  const { importFromPaths, items: mediaItems } = useAssets();
 
   // 1. 真实数据订阅与工程加载
   const cachedRecord = qc.getQueryData<ProjectRecord>(["current-project"]);
@@ -99,6 +102,22 @@ export function ProductionCinemaStudio() {
     qc.setQueryData(["assets-current-project"], rec.project);
     setCurrentRecord(rec.path, rec.project);
     return rec;
+  };
+
+  // 单文件或多文件快速导入
+  const handleDirectImportVideo = async () => {
+    try {
+      const selected = await openDialog({
+        multiple: true,
+        filters: [{ name: "视频素材 (Video)", extensions: ["mp4", "mov", "mkv", "webm", "avi"] }],
+      });
+      if (!selected) return;
+      const paths = Array.isArray(selected) ? selected : [selected];
+      await importFromPaths(paths);
+      toast.success(`成功导入并装载 ${paths.length} 个视频文件`);
+    } catch (e) {
+      toast.error("导入视频素材失败", { description: String(e) });
+    }
   };
 
   // 3. 业务操作处理
@@ -203,20 +222,23 @@ export function ProductionCinemaStudio() {
     }
   };
 
-  const mediaPath = currentProject?.project?.media_files?.[0]?.path;
-  const mediaName = mediaPath ? (mediaPath.split(/[/\\]/).pop() ?? mediaPath) : "默认演示工程";
+  const allMedia = currentProject?.project?.media_files ?? mediaItems;
+  const hasUploadedVideo = allMedia && allMedia.length > 0;
+  const currentVideo = allMedia?.[0];
+  const mediaPath = currentVideo?.path;
+  const mediaName = mediaPath ? (mediaPath.split(/[/\\]/).pop() ?? mediaPath) : null;
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-[var(--color-bg)] select-none">
       {/* 顶部二级工具栏: 工程名称 + 快速操作 + 状态指示 */}
       <div className="flex h-12 w-full items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 px-4 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]" />
+          <span className={`flex h-2.5 w-2.5 rounded-full ${hasUploadedVideo ? "bg-emerald-500 shadow-[0_0_8px_#10B981]" : "bg-amber-500 shadow-[0_0_8px_#F59E0B]"}`} />
           <span className="font-mono text-xs font-bold text-[var(--color-text-primary)]">
-            {currentProject?.project?.name ?? "splicr 默认影视解说工程"}
+            {currentProject?.project?.name ?? "splicr 影视解说工程"}
           </span>
           <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-muted)]">
-            {mediaName}
+            {hasUploadedVideo ? `📹 已装载: ${mediaName} (${allMedia.length} 个文件)` : "⚠️ 未装载视频素材"}
           </span>
           <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
             🤖 Rust Multi-Agent 引擎就绪
@@ -226,10 +248,17 @@ export function ProductionCinemaStudio() {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={handleDirectImportVideo}
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-gold)]/50 bg-[var(--color-gold-muted)] px-3 py-1.5 text-xs font-bold text-[var(--color-gold)] transition-all hover:brightness-110"
+          >
+            <span>➕</span> 选择上传视频
+          </button>
+          <button
+            type="button"
             onClick={() => setShowImport(true)}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] transition-all hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
           >
-            <span>📁</span> 导入素材
+            <span>📁</span> 批量扫描
           </button>
           <button
             type="button"
@@ -353,32 +382,40 @@ export function ProductionCinemaStudio() {
           <div className="grid grid-cols-[1fr_260px] gap-4 h-[240px]">
             {/* 视频主画面 */}
             <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-[var(--color-border)] bg-zinc-950 shadow-lg">
-              {mediaPath ? (
+              {hasUploadedVideo && mediaPath ? (
                 <video
                   src={mediaPath}
                   className="h-full w-full object-cover"
                   controls={false}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center gap-2 text-zinc-600">
-                  <span className="text-3xl">🎬</span>
-                  <span className="text-xs font-semibold">视听中枢就绪 · 9:16 短剧竖屏模式</span>
+                <div
+                  onClick={handleDirectImportVideo}
+                  className="flex flex-col items-center justify-center gap-2 text-zinc-500 cursor-pointer p-6 hover:text-[var(--color-gold)] transition-colors text-center"
+                >
+                  <span className="text-3xl">📤</span>
+                  <span className="text-xs font-bold text-[var(--color-text-primary)]">暂未上传视频，点击快速选择视频素材</span>
+                  <span className="text-[10px] text-zinc-600">支持 MP4, MOV, MKV, WebM 格式 (9:16 短剧竖屏优先)</span>
                 </div>
               )}
-              <div className="absolute top-3 left-3 rounded-md bg-black/60 px-2 py-1 text-[10px] font-mono text-[var(--color-gold)] backdrop-blur-md">
-                1080×1920 · 9:16 短剧竖屏
-              </div>
-              <div className="absolute top-3 right-3 rounded-md bg-amber-500/20 border border-amber-500/40 px-2 py-1 text-[10px] font-bold text-[var(--color-gold)] backdrop-blur-md">
-                0~3s 黄金 Hook 视窗
-              </div>
-              {/* 居中播放控制 */}
-              <button
-                type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="absolute flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 text-xl font-bold shadow-[0_0_20px_rgba(245,200,66,0.5)] transition-transform hover:scale-110"
-              >
-                {isPlaying ? "⏸" : "▶"}
-              </button>
+              {hasUploadedVideo && (
+                <>
+                  <div className="absolute top-3 left-3 rounded-md bg-black/60 px-2 py-1 text-[10px] font-mono text-[var(--color-gold)] backdrop-blur-md">
+                    1080×1920 · 9:16 短剧竖屏
+                  </div>
+                  <div className="absolute top-3 right-3 rounded-md bg-amber-500/20 border border-amber-500/40 px-2 py-1 text-[10px] font-bold text-[var(--color-gold)] backdrop-blur-md">
+                    0~3s 黄金 Hook 视窗
+                  </div>
+                  {/* 居中播放控制 */}
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="absolute flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 text-xl font-bold shadow-[0_0_20px_rgba(245,200,66,0.5)] transition-transform hover:scale-110"
+                  >
+                    {isPlaying ? "⏸" : "▶"}
+                  </button>
+                </>
+              )}
             </div>
 
             {/* 音频频域 Canvas 频谱与控制 */}
