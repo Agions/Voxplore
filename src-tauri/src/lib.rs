@@ -83,6 +83,7 @@ pub fn run() {
         // 轻量全局状态
         .manage(Translator::with_backend_defaults())
         .manage(HelpRegistry::with_defaults())
+        .manage(commands::agent::AgentServiceState::new())
         .invoke_handler(tauri::generate_handler![
             greet,
             commands::app::app_version,
@@ -126,6 +127,9 @@ pub fn run() {
             commands::detect::detect_scenes,
             commands::subtitle::subtitle_generate,
             commands::export::export_capcut_draft,
+            commands::agent::agent_start,
+            commands::agent::agent_step,
+            commands::agent::agent_get_context,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

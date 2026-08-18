@@ -304,6 +304,11 @@ export interface IpcContracts {
 /* <<< gen-ipc end */
 
 /* >>> gen-ipc-types start */
+// Rust 端 AgentServiceState (pub struct)
+export interface AgentServiceState {
+  orchestrator: Arc<RwLock<Option<AgentOrchestrator>>>;
+}
+
 // Rust 端 SystemInfo (pub struct, rename_all = "camelCase")
 export interface AppSystemInfo {
   ffmpegAvailable: boolean;
@@ -392,6 +397,59 @@ export interface VoicePreviewResult {
   format: string;
   bytes_written: number;
 }
+
+// Rust 端 AgentContext (pub struct)
+export interface AgentContext {
+  session_id: string;
+  project: Project;
+  current_role: AgentRole;
+  status: AgentStatus;
+  messages: AgentMessage[];
+  memory: Record<string, string>;
+  auto_mode: boolean;
+}
+
+// Rust 端 AgentOrchestrator (pub struct)
+export interface AgentOrchestrator {
+  context: Arc<RwLock<AgentContext>>;
+}
+
+// Rust 端 AgentMessage (pub struct)
+export interface AgentMessage {
+  id: string;
+  sender: AgentRole;
+  receiver: AgentRole | null;
+  thought: string | null;
+  action: string | null;
+  observation: string | null;
+  timestamp: number;
+}
+
+// Rust 端 BreakpointRequest (pub struct)
+export interface BreakpointRequest {
+  agent: AgentRole;
+  step_title: string;
+  content: string;
+  options: string[];
+}
+
+// Rust 端 AgentRole (pub enum, rename_all = "snake_case")
+export type AgentRole =
+  | "director"
+  | "visual_critic"
+  | "screenwriter"
+  | "voice_artist"
+  | "sound_engineer"
+  | "quality_reviewer";
+
+// Rust 端 AgentStatus (pub enum, rename_all = "snake_case")
+export type AgentStatus =
+  | "idle"
+  | "thinking"
+  | "acting"
+  | "awaiting_approval"
+  | "completed"
+  | "failed";
 
 // Rust 端 StepDef (pub struct)
 export interface PipelineStepDef {

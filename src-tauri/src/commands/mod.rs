@@ -24,3 +24,4 @@ pub mod subtitle;
 pub mod theme;
 pub mod update;
 pub mod voice;
+pub mod agent;

@@ -49,5 +49,6 @@ splicr-export  = { path = "../crates/export" }
 splicr-storage = { path = "../crates/storage" }
 splicr-update  = { path = "../crates/update" }
 splicr-plugin  = { path = "../crates/plugin" }
+splicr-agent   = { path = "../crates/agent" }
 
 # workspace lints / profiles 在根 Cargo.toml 集中定义

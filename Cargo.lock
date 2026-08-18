@@ -3617,6 +3617,7 @@ dependencies = [
  "chrono",
  "serde",
  "serde_json",
+ "splicr-agent",
  "splicr-compose",
  "splicr-core",
  "splicr-detect",
@@ -3638,6 +3639,26 @@ dependencies = [
  "thiserror 2.0.19",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "splicr-agent"
+version = "1.0.1"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "serde",
+ "serde_json",
+ "splicr-compose",
+ "splicr-core",
+ "splicr-detect",
+ "splicr-domain",
+ "splicr-export",
+ "splicr-script",
+ "splicr-voice",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

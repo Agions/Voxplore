@@ -1,8 +1,8 @@
 /**
- * splicr v1.0.1 · 三栏专业集成影视解说工作台 (Integrated Cinema Studio)
+ * splicr v1.0.1 · 三栏专业集成影视解说工作台 (集成 Rust Native Multi-Agent 系统)
  * - 左栏: 7 步卡片生产流水线 & 场景分镜切片列表
  * - 中栏: 高清视听播放中枢、实时频域 Canvas 声波谱与 5 轨磁性多轨时间轴
- * - 右栏: AI 第一人称独白生成器、GPT-SoVITS 人声克隆与 CapCut 原生草稿导出矩阵
+ * - 右栏: Multi-Agent 智能体协同视窗 (思考流/行动流/Human-in-the-Loop 断点) + 剧本/克隆/导出控制
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -12,13 +12,14 @@ import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
 import { AudioVisualizerCanvas } from "@components/production/AudioVisualizerCanvas";
 import { MultiTrackTimeline } from "@components/production/MultiTrackTimeline";
 import {
-  pipelineIpc,
+  agentIpc,
   projectIpc,
   scriptIpc,
   settingsIpc,
+  type AgentMessage,
+  type BreakpointRequest,
   type ProjectRecord,
 } from "@ipc/commands";
-import { usePipeline } from "@hooks/usePipeline";
 import { useProjectStore } from "@stores/project-store";
 import { toast } from "sonner";
 
@@ -41,21 +42,49 @@ export function ProductionCinemaStudio() {
     return cachedRecord ?? null;
   }, [storeProject, storePath, cachedRecord]);
 
-  const { data: stepDefs } = useQuery({
-    queryKey: ["pipeline-step-defs"],
-    queryFn: pipelineIpc.stepDefs,
-  });
-  const pipeline = usePipeline(stepDefs ?? []);
-
   const { data: config } = useQuery({
     queryKey: ["app-config-settings"],
     queryFn: settingsIpc.get,
   });
 
   // 2. 状态管理
-  const [activeTab, setActiveTab] = useState<"script" | "voice" | "export">("script");
+  const [activeTab, setActiveTab] = useState<"agent" | "script" | "voice" | "export">("agent");
   const [showImport, setShowImport] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  // ── Multi-Agent 状态 ──
+  const [isAgentRunning, setIsAgentRunning] = useState(false);
+  const [agentAutoMode, setAgentAutoMode] = useState(false);
+  const [agentMessages, setAgentMessages] = useState<AgentMessage[]>([
+    {
+      id: "m1",
+      sender: "director",
+      receiver: null,
+      thought: "初始化 splicr-agent 协同上下文，检查视频源与 5 轨时间轴配置...",
+      action: "分配镜头拆条任务给 VisualCriticAgent",
+      observation: "切片分析准备就绪",
+      timestamp: Date.now() - 5000,
+    },
+    {
+      id: "m2",
+      sender: "visual_critic",
+      receiver: null,
+      thought: "多模态关键帧分析中...检测到第 1 镜头具有高能反转与情感张力",
+      action: "智能切片",
+      observation: "提取 4 个核心分镜，标注情绪峰值 (00:45)",
+      timestamp: Date.now() - 3000,
+    },
+    {
+      id: "m3",
+      sender: "screenwriter",
+      receiver: null,
+      thought: "正在撰写 0~3s 黄金 Hook 与第一人称悬疑独白...完播率自反思评分: 96/100",
+      action: "生成文案",
+      observation: "生成 650 字高潮独白，注入共享缓存",
+      timestamp: Date.now() - 1000,
+    },
+  ]);
+  const [breakpoint, setBreakpoint] = useState<BreakpointRequest | null>(null);
 
   // 场景切片状态
   const [sceneCuts] = useState<{ id: number; time: string; tag: string; emotion: string }[]>([
@@ -100,6 +129,68 @@ export function ProductionCinemaStudio() {
   }, [currentProject, qc, setCurrentRecord]);
 
   // 3. 业务操作处理
+  const handleStartMultiAgent = async (autoMode: boolean) => {
+    if (!currentProject) {
+      setShowImport(true);
+      return;
+    }
+    setIsAgentRunning(true);
+    setBreakpoint(null);
+    toast.info(`🎬 总控导演 Agent 已启动 (${autoMode ? "全自动模式" : "人机协作断点模式"})...`);
+
+    try {
+      await agentIpc.start(currentProject.project, autoMode);
+      
+      // 逐步执行 Agent 节点
+      for (let i = 0; i < 6; i++) {
+        const bp = await agentIpc.step(i);
+        const ctx = await agentIpc.getContext();
+        if (ctx) {
+          setAgentMessages(ctx.messages);
+        }
+        if (bp) {
+          setBreakpoint(bp);
+          toast.warning(`⏸️ 智能体工作流在【${bp.step_title}】暂停，等待创作者审核`);
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+
+      if (!breakpoint) {
+        toast.success("✨ 多智能体团队全链路影视制作完成！已准备好剪映草稿");
+      }
+    } catch (e) {
+      toast.error("Agent 协同提示", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setIsAgentRunning(false);
+    }
+  };
+
+  const handleApproveBreakpoint = async () => {
+    setBreakpoint(null);
+    setIsAgentRunning(true);
+    toast.success("已批准当前 Agent 产出，智能体团队继续推进下一步...");
+    try {
+      for (let i = 3; i < 6; i++) {
+        const bp = await agentIpc.step(i);
+        const ctx = await agentIpc.getContext();
+        if (ctx) {
+          setAgentMessages(ctx.messages);
+        }
+        if (bp) {
+          setBreakpoint(bp);
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      toast.success("✨ 多智能体团队全流程交付完成！");
+    } catch (e) {
+      toast.error("Agent 推进提示", { description: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setIsAgentRunning(false);
+    }
+  };
+
   const handleScriptGenerate = async () => {
     if (!userPrompt.trim()) {
       toast.error("请输入剧本核心主题或提示词");
@@ -131,22 +222,6 @@ export function ProductionCinemaStudio() {
     }
   };
 
-  const isPipelineRunning = pipeline.state === "running";
-
-  const handleRunPipeline = async () => {
-    if (!currentProject) {
-      setShowImport(true);
-      return;
-    }
-    toast.info("已启动 7 步影视解说全自动流水线...");
-    try {
-      await pipeline.start(currentProject.project);
-      toast.success("流水线执行完成！多轨时间轴已同步更新");
-    } catch (e) {
-      toast.error("流水线执行提示", { description: e instanceof Error ? e.message : String(e) });
-    }
-  };
-
   const mediaPath = currentProject?.project?.media_files?.[0]?.path;
   const mediaName = mediaPath ? (mediaPath.split(/[/\\]/).pop() ?? mediaPath) : "Episode_01_Main_1080P.mp4";
 
@@ -163,7 +238,7 @@ export function ProductionCinemaStudio() {
             {mediaName}
           </span>
           <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
-            ⚡ Apple Metal / NVENC 加速开启
+            🤖 Rust Multi-Agent 引擎活跃
           </span>
         </div>
 
@@ -177,40 +252,39 @@ export function ProductionCinemaStudio() {
           </button>
           <button
             type="button"
-            onClick={handleRunPipeline}
-            disabled={isPipelineRunning}
-            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-3.5 py-1.5 text-xs font-bold text-zinc-950 shadow-[0_0_12px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
+            onClick={() => handleStartMultiAgent(agentAutoMode)}
+            disabled={isAgentRunning}
+            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-3.5 py-1.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.35)] transition-all hover:brightness-110"
           >
-            <span>{isPipelineRunning ? "⏳" : "⚡"}</span>
-            {isPipelineRunning ? "流水线处理中..." : "一键执行 7 步流水线"}
+            <span>{isAgentRunning ? "⏳" : "🎬"}</span>
+            {isAgentRunning ? "智能体团队协同中..." : "启动 Multi-Agent 创作团队"}
           </button>
         </div>
       </div>
 
       {/* 核心三栏 Grid 主工作区 */}
-      <div className="grid flex-1 grid-cols-[280px_1fr_360px] overflow-hidden">
+      <div className="grid flex-1 grid-cols-[280px_1fr_380px] overflow-hidden">
         {/* ── 1. 左栏: 7 步流水线与分镜切片 ── */}
         <aside className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]/40 p-3.5 gap-4 overflow-y-auto">
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                生产流水线 (7-Step)
+                智能体角色矩阵 (Agent Team)
               </span>
-              <span className="text-[10px] font-mono text-[var(--color-gold)]">100% DAG</span>
+              <span className="text-[10px] font-mono text-[var(--color-gold)]">6 Agents</span>
             </div>
             <div className="flex flex-col gap-1.5">
               {[
-                { id: "s1", name: "1. 素材解析与预处理", icon: "📥", status: "done" },
-                { id: "s2", name: "2. FFmpeg 智能拆条", icon: "✂️", status: "done" },
-                { id: "s3", name: "3. AI 第一人称独白", icon: "🤖", status: "active" },
-                { id: "s4", name: "4. TTS 配音与克隆", icon: "🎙️", status: "pending" },
-                { id: "s5", name: "5. VAD 毫秒级字幕", icon: "📝", status: "pending" },
-                { id: "s6", name: "6. 多轨混音与吸附", icon: "🎬", status: "pending" },
-                { id: "s7", name: "7. 剪映草稿与导出", icon: "📤", status: "pending" },
+                { id: "a1", name: "🎬 总控导演 (Director)", desc: "全局任务规划与分发", status: isAgentRunning ? "active" : "done" },
+                { id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧与情绪感知", status: "done" },
+                { id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑独白", status: "active" },
+                { id: "a4", name: "🎙️ 声乐调音师 (VoiceArtist)", desc: "情绪配音与音色克隆", status: "pending" },
+                { id: "a5", name: "🎛️ 混音剪辑师 (SoundEngineer)", desc: "5 轨时间轴与 BGM 闪避", status: "pending" },
+                { id: "a6", name: "🔍 质量验收员 (QualityReviewer)", desc: "违禁词与对齐公差核验", status: "pending" },
               ].map((s) => (
                 <div
                   key={s.id}
-                  className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs transition-all ${
+                  className={`flex flex-col rounded-lg px-2.5 py-2 text-xs transition-all ${
                     s.status === "active"
                       ? "border border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)] text-[var(--color-gold)] font-bold shadow-sm"
                       : s.status === "done"
@@ -218,13 +292,13 @@ export function ProductionCinemaStudio() {
                         : "border border-transparent text-[var(--color-text-muted)]"
                   }`}
                 >
-                  <span className="flex items-center gap-2">
-                    <span>{s.icon}</span>
-                    <span>{s.name}</span>
-                  </span>
-                  <span className="font-mono text-[10px]">
-                    {s.status === "done" ? "✓" : s.status === "active" ? "●" : "○"}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-[11px]">{s.name}</span>
+                    <span className="font-mono text-[10px]">
+                      {s.status === "done" ? "✓" : s.status === "active" ? "●" : "○"}
+                    </span>
+                  </div>
+                  <span className="text-[9px] text-[var(--color-text-muted)] mt-0.5">{s.desc}</span>
                 </div>
               ))}
             </div>
@@ -240,7 +314,7 @@ export function ProductionCinemaStudio() {
               </span>
               <button
                 type="button"
-                onClick={() => toast.info("已重新触发关键帧切片检测")}
+                onClick={() => toast.info("VisualCriticAgent 已重新触发切片检测")}
                 className="text-[10px] text-[var(--color-gold)] hover:underline"
               >
                 🔄 重新分析
@@ -342,20 +416,21 @@ export function ProductionCinemaStudio() {
           </div>
         </main>
 
-        {/* ── 3. 右栏: AI 创作与模型控制台 ── */}
+        {/* ── 3. 右栏: Multi-Agent 智能体视窗与创作控制台 ── */}
         <aside className="flex flex-col bg-[var(--color-surface)]/60 p-3.5 gap-4 overflow-y-auto">
-          {/* 顶部分页 Tab: 独白脚本 / 人声克隆 / 原生导出 */}
-          <div className="grid grid-cols-3 gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
+          {/* 顶部分页 Tab: Agent视窗 / 独白脚本 / 人声克隆 / 原生导出 */}
+          <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
             {[
-              { id: "script", label: "AI 剧本", icon: "🤖" },
-              { id: "voice", label: "人声克隆", icon: "🎙️" },
-              { id: "export", label: "导出草稿", icon: "📤" },
+              { id: "agent", label: "Agent", icon: "🧠" },
+              { id: "script", label: "剧本", icon: "✍️" },
+              { id: "voice", label: "克隆", icon: "🎙️" },
+              { id: "export", label: "草稿", icon: "📤" },
             ].map((t) => (
               <button
                 key={t.id}
                 type="button"
-                onClick={() => setActiveTab(t.id as "script" | "voice" | "export")}
-                className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-bold transition-all ${
+                onClick={() => setActiveTab(t.id as any)}
+                className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-bold transition-all ${
                   activeTab === t.id
                     ? "bg-[var(--color-surface)] text-[var(--color-gold)] shadow-sm"
                     : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
@@ -366,6 +441,95 @@ export function ProductionCinemaStudio() {
               </button>
             ))}
           </div>
+
+          {/* Tab 0: Multi-Agent 协同视窗 (思考流 + Breakpoints) */}
+          {activeTab === "agent" && (
+            <div className="flex flex-col gap-3.5 flex-1 min-h-0">
+              {/* 人机协同模式切换 */}
+              <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5">
+                <span className="text-xs font-semibold text-[var(--color-text-secondary)]">人机协作断点 (HITL)</span>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!agentAutoMode}
+                    onChange={(e) => setAgentAutoMode(!e.target.checked)}
+                    className="accent-[var(--color-gold)]"
+                  />
+                  <span className="text-[11px] font-bold text-[var(--color-gold)]">
+                    {!agentAutoMode ? "断点审核开启" : "一键全自动"}
+                  </span>
+                </label>
+              </div>
+
+              {/* Breakpoint 审批视窗 */}
+              {breakpoint && (
+                <div className="flex flex-col gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 p-3 shadow-md animate-pulse">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[var(--color-gold)]">⏸️ 节点审批: {breakpoint.step_title}</span>
+                    <span className="text-[10px] text-amber-300">等待人类决策</span>
+                  </div>
+                  <div className="rounded-lg bg-zinc-950/80 p-2 text-xs leading-relaxed text-zinc-200 border border-zinc-800 max-h-24 overflow-y-auto">
+                    {breakpoint.content}
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleApproveBreakpoint}
+                      className="flex-1 rounded-lg bg-[var(--color-gold)] py-1.5 text-xs font-bold text-zinc-950 hover:brightness-110 shadow-sm"
+                    >
+                      ✓ 批准并继续下一步
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleStartMultiAgent(agentAutoMode)}
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-white"
+                    >
+                      重新生成
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Agent 思考流与行动记录 */}
+              <div className="flex-1 flex flex-col min-h-0 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[var(--color-text-secondary)]">Agent 思考链与行动日志</span>
+                  <span className="text-[10px] font-mono text-[var(--color-gold)]">{agentMessages.length} 条记录</span>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 max-h-[340px]">
+                  {agentMessages.map((m) => (
+                    <div key={m.id} className="flex flex-col gap-1 rounded-lg bg-[var(--color-surface)] p-2 border border-[var(--color-border)]/60 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">{m.sender}</span>
+                        <span className="font-mono text-[9px] text-[var(--color-text-muted)]">
+                          {new Date(m.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      {m.thought && (
+                        <div className="text-[11px] text-[var(--color-text-secondary)] italic">
+                          💭 {m.thought}
+                        </div>
+                      )}
+                      {m.action && (
+                        <div className="text-[11px] text-emerald-400 font-medium">
+                          ⚡ 动作: {m.action} ➔ {m.observation}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleStartMultiAgent(agentAutoMode)}
+                disabled={isAgentRunning}
+                className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
+              >
+                {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 重新运行 Multi-Agent 流水线"}
+              </button>
+            </div>
+          )}
 
           {/* Tab 1: AI 独白脚本生成 */}
           {activeTab === "script" && (
@@ -397,7 +561,7 @@ export function ProductionCinemaStudio() {
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => setScriptStyle(s.id as "immersive" | "critic" | "story" | "roast")}
+                      onClick={() => setScriptStyle(s.id as any)}
                       className={`rounded-lg border px-2 py-1.5 text-xs font-semibold transition-all ${
                         scriptStyle === s.id
                           ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] text-[var(--color-gold)]"

@@ -217,6 +217,47 @@ export const scriptIpc = {
 // 聚合 facade
 // ─────────────────────────────────────────────────────────────────────────
 
+
+// ─────────────────────────────────────────────────────────────────────────
+// agent · 多智能体协同引擎
+// ─────────────────────────────────────────────────────────────────────────
+
+export interface AgentMessage {
+  id: string;
+  sender: string;
+  receiver: string | null;
+  thought: string | null;
+  action: string | null;
+  observation: string | null;
+  timestamp: number;
+}
+
+export interface BreakpointRequest {
+  agent: string;
+  step_title: string;
+  content: string;
+  options: string[];
+}
+
+export interface AgentContext {
+  session_id: string;
+  project: Project;
+  current_role: string;
+  status: string;
+  messages: AgentMessage[];
+  memory: Record<string, string>;
+  auto_mode: boolean;
+}
+
+export const agentIpc = {
+  start: (project: Project, autoMode: boolean): Promise<AgentContext> =>
+    callIpc("agent_start", { project, autoMode }),
+  step: (stepIdx: number): Promise<BreakpointRequest | null> =>
+    callIpc("agent_step", { stepIdx }),
+  getContext: (): Promise<AgentContext | null> =>
+    callIpc("agent_get_context"),
+} as const;
+
 export const ipc = {
   app: appIpc,
   project: projectIpc,
@@ -230,6 +271,7 @@ export const ipc = {
   theme: themeIpc,
   voice: voiceIpc,
   script: scriptIpc,
+  agent: agentIpc,
 } as const;
 
 export type IpcFacade = typeof ipc;
