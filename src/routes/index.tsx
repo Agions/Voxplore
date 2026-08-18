@@ -1,78 +1,26 @@
 /**
- * splicr v1.0.0 · 首页 Dashboard (完美适配亮色/暗色双模式与中英文双语)
+ * splicr v1.0.1 · 首页 Dashboard (直通三栏专业解说工作台)
  */
 
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { BatchImportDialog } from "@components/dialogs/BatchImportDialog";
-import { ThumbnailImage } from "@components/common/ThumbnailImage";
 import { useProjectStore } from "@stores/project-store";
 import { useSettingsStore } from "@stores/settings-store";
-import { t } from "@lib/i18n";
 import { toast } from "sonner";
-import {
-  appIpc,
-  pipelineIpc,
-  projectIpc,
-} from "@ipc/commands";
+import { projectIpc } from "@ipc/commands";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
 function HomePage() {
-  return (
-    <div className="mx-auto max-w-6xl space-y-8 px-8 py-8">
-      {/* 1. 顶部 Header */}
-      <WelcomeHeader />
-
-      {/* 2. 最近视频项目卡片 */}
-      <RecentProjectsSection />
-
-      {/* 3. 7 步 AI 叙事流水线 */}
-      <PipelineSection />
-
-      {/* 4. 快捷操作栏 */}
-      <QuickActionsSection />
-
-      {/* 5. 底栏系统探针状态 */}
-      <SystemStatusStrip />
-    </div>
-  );
-}
-
-// ── 1. Welcome Header ──────────────────────────────────────────────
-
-function WelcomeHeader() {
-  const locale = useSettingsStore((s) => s.locale);
-  return (
-    <div className="space-y-1">
-      <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
-        {t("home.welcome_title", locale)}{" "}
-        <span className="bg-gradient-to-r from-[#F5C842] via-[#F9D76B] to-[#E8933A] bg-clip-text text-transparent font-normal">
-          · 电影级 AI 短剧与影视解说
-        </span>
-      </h1>
-      <p className="text-xs text-[var(--color-text-secondary)] font-medium tracking-wide">
-        {t("home.welcome_subtitle", locale)}
-      </p>
-    </div>
-  );
-}
-
-// ── 2. Recent Video Projects ───────────────────────────────────────
-
-function RecentProjectsSection() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const locale = useSettingsStore((s) => s.locale);
   const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
-
-  const { data: recentPaths } = useQuery({
-    queryKey: ["home-recent-projects"],
-    queryFn: () => projectIpc.listRecent(),
-  });
+  const [showImport, setShowImport] = useState(false);
 
   const createProject = useMutation({
     mutationFn: projectIpc.createBlank,
@@ -80,372 +28,142 @@ function RecentProjectsSection() {
       qc.setQueryData(["current-project"], rec);
       setCurrentRecord(rec.path, rec.project);
       void navigate({ to: "/production" });
-      toast.success(locale === "en-US" ? "New Narrative Project Created" : "新建解说工程已建立");
+      toast.success(locale === "en-US" ? "New Studio Project Created" : "三栏解说工作台已就绪");
     },
     onError: (e) => {
       toast.error("创建工程失败", { description: e instanceof Error ? e.message : String(e) });
     },
   });
 
-  const hasRecents = recentPaths && recentPaths.length > 0;
-
   return (
-    <section className="space-y-3">
-      {/* Header with See All */}
+    <div className="mx-auto max-w-6xl space-y-8 px-8 py-8 select-none">
+      {/* 1. Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-          {t("home.recent_title", locale)}
-        </h2>
-        {hasRecents && (
+        <div className="space-y-1">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+            splicr 叙影{" "}
+            <span className="bg-gradient-to-r from-[#F5C842] via-[#F9D76B] to-[#E8933A] bg-clip-text text-transparent font-bold">
+              · 三栏专业影视解说工作台
+            </span>
+          </h1>
+          <p className="text-xs text-[var(--color-text-secondary)] font-medium tracking-wide">
+            短剧拆条 ➔ 5轨磁性时间轴 ➔ AI独白与人声克隆 ➔ 原生剪映草稿导出
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => void navigate({ to: "/assets" })}
-            className="text-xs font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-gold)]"
+            onClick={() => setShowImport(true)}
+            className="flex items-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-xs font-semibold text-[var(--color-text-primary)] shadow-sm transition-all hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
           >
-            {t("home.see_all", locale)}
+            <span>📁</span> 批量导入素材
           </button>
-        )}
-      </div>
-
-      {!hasRecents ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] p-10 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 text-[var(--color-gold)] text-2xl mb-3">
-            🎬
-          </div>
-          <h3 className="text-sm font-bold text-[var(--color-text-primary)]">
-            {t("home.no_project", locale)}
-          </h3>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1 mb-4">
-            {t("home.no_project_sub", locale)}
-          </p>
           <button
             type="button"
             onClick={() => createProject.mutate()}
-            disabled={createProject.isPending}
-            className="btn-primary text-xs px-5 py-2.5 font-bold"
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-5 py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.35)] transition-all hover:brightness-110"
           >
-            {t("home.create_project", locale)}
+            <span>⚡</span> 进入解说工作台
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {recentPaths.slice(0, 3).map((realPath) => (
-            <HomeProjectCard key={realPath} realPath={realPath} />
+      </div>
+
+      {/* 2. 最近短剧项目卡片 */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-[var(--color-text-primary)] tracking-tight">
+            最近创作工程 (Recent Drama Projects)
+          </h2>
+          <span className="text-[10px] font-mono text-[var(--color-gold)]">4 个活跃草稿</span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            { id: "p1", name: "1. 逆袭复仇短剧 · 第1集", tag: "高能反转", time: "10分钟前", status: "Active" },
+            { id: "p2", name: "2. 都市商战谍影 · 第4集", tag: "悬疑独白", time: "2小时前", status: "Rendered" },
+            { id: "p3", name: "3. 破晓迷案解说 · 电影版", tag: "硬核解析", time: "昨天", status: "Draft" },
+            { id: "p4", name: "4. 豪门风云录 · 预告片", tag: "Hook剪辑", time: "3天前", status: "Active" },
+          ].map((item) => (
+            <div
+              key={item.id}
+              onClick={() => void navigate({ to: "/production" })}
+              className="group flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 cursor-pointer transition-all hover:border-[var(--color-gold)] hover:shadow-[0_0_20px_var(--color-gold-glow)]"
+            >
+              <div className="relative h-28 w-full overflow-hidden rounded-xl bg-zinc-950 border border-zinc-800 mb-2">
+                <img
+                  src={`https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&q=80`}
+                  alt="cover"
+                  className="h-full w-full object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"
+                />
+                <span className="absolute top-2 left-2 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[9px] text-[var(--color-gold)] backdrop-blur-md">
+                  {item.tag}
+                </span>
+                <span className="absolute bottom-2 right-2 rounded bg-emerald-500/20 border border-emerald-500/40 px-1.5 py-0.5 font-mono text-[9px] text-emerald-400">
+                  {item.status}
+                </span>
+              </div>
+              <span className="text-xs font-bold text-[var(--color-text-primary)] truncate">{item.name}</span>
+              <span className="text-[10px] text-[var(--color-text-muted)] mt-1">{item.time}</span>
+            </div>
           ))}
         </div>
-      )}
-    </section>
-  );
-}
+      </section>
 
-function HomeProjectCard({ realPath }: { realPath: string }) {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
-  const locale = useSettingsStore((s) => s.locale);
-  const setCurrentRecord = useProjectStore((s) => s.setCurrentRecord);
-
-  const { data: projectRec } = useQuery({
-    queryKey: ["home-project-card", realPath],
-    queryFn: () => projectIpc.load(realPath),
-    staleTime: 5000,
-  });
-
-  const displayTitle = projectRec?.project?.name || realPath.split(/[/\\]/).pop() || realPath;
-  const cleanTitle = displayTitle.replace(/\.(scenefab|splicr)\.json$/, "");
-  const firstVideo = projectRec?.project?.media_files?.find(
-    (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
-  )?.path || projectRec?.project?.media_files?.[0]?.path;
-
-  const handleOpenProject = async (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    try {
-      const rec = projectRec ?? (await projectIpc.load(realPath));
-      setCurrentRecord(rec.path, rec.project);
-      qc.setQueryData(["current-project"], rec);
-      qc.setQueryData(["assets-current-project"], rec.project);
-      toast.success(
-        locale === "en-US"
-          ? `Opened project ${rec.project.name}`
-          : `已打开解说工程 ${rec.project.name}`
-      );
-      void navigate({ to: "/production" });
-    } catch (err) {
-      toast.error("加载项目失败", {
-        description: err instanceof Error ? err.message : String(err),
-      });
-    }
-  };
-
-  return (
-    <div
-      onClick={handleOpenProject}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_24px_var(--color-gold-glow)] flex flex-col justify-between"
-    >
-      {/* Thumbnail Container (Default 1st Frame Video Cover) */}
-      <div className="relative mb-3.5 h-32 w-full overflow-hidden rounded-xl bg-zinc-950/80 border border-[var(--color-border)]">
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent z-10 opacity-70" />
-        {firstVideo ? (
-          <ThumbnailImage source={firstVideo} kind="video" width={360} />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-3xl opacity-40">
-            🎬
+      {/* 3. 7 步全自动流水线概览 */}
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 space-y-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-[var(--color-gold)]">⚡ 7 步全自动化解说工厂 (7-Step Auto Pipeline)</h3>
+            <p className="text-xs text-[var(--color-text-secondary)]">无需人工繁琐拼接，单屏集成流水线全链路掌控</p>
           </div>
-        )}
-      </div>
-
-      {/* Title & Metadata */}
-      <div className="mb-3 space-y-0.5">
-        <h3 className="truncate text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors">
-          {cleanTitle}
-        </h3>
-        <p className="text-[11px] text-[var(--color-text-muted)] font-mono flex items-center justify-between">
-          <span>{projectRec?.project?.media_files?.length ?? 0} 个素材</span>
-          <span>{t("home.project_file_tag", locale)}</span>
-        </p>
-      </div>
-
-      {/* Action CTA */}
-      <div className="flex items-center justify-between gap-3 border-t border-[var(--color-border)] pt-2.5">
-        <span className="text-[11px] font-semibold text-[var(--color-gold)]">
-          {t("action.enter", locale)}
-        </span>
-        <button
-          type="button"
-          onClick={handleOpenProject}
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-gold)] text-zinc-950 font-bold shadow-[0_0_10px_var(--color-gold-glow)] transition-transform duration-200 group-hover:scale-110"
-        >
-          ▶
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ── 3. 7-Step AI Narrative Pipeline Card ───────────────────────────
-
-function PipelineSection() {
-  const navigate = useNavigate();
-  const locale = useSettingsStore((s) => s.locale);
-
-  const steps = [
-    {
-      num: 1,
-      nameZh: "素材导入",
-      nameEn: "Media Intake",
-      descZh: "格式校验与分析",
-      descEn: "Format & resolution",
-      icon: "📥",
-    },
-    {
-      num: 2,
-      nameZh: "智能拆条",
-      nameEn: "Scene Cut",
-      descZh: "FFmpeg 镜头检测",
-      descEn: "Scene transitions",
-      icon: "🔍",
-    },
-    {
-      num: 3,
-      nameZh: "文案脚本",
-      nameEn: "AI Script",
-      descZh: "第一人称视角",
-      descEn: "1st-person monologue",
-      icon: "📝",
-    },
-    {
-      num: 4,
-      nameZh: "TTS 配音",
-      nameEn: "TTS Voice",
-      descZh: "零样本人声克隆",
-      descEn: "Voice cloning & synth",
-      icon: "🎙️",
-    },
-    {
-      num: 5,
-      nameZh: "字幕特效",
-      nameEn: "Subtitles",
-      descZh: "VAD 时间轴花字",
-      descEn: "VAD timeline & FX",
-      icon: "💬",
-    },
-    {
-      num: 6,
-      nameZh: "音画对齐",
-      nameEn: "Sync Align",
-      descZh: "多轨混音与高潮",
-      descEn: "Multi-track timeline",
-      icon: "🔀",
-    },
-    {
-      num: 7,
-      nameZh: "草稿导出",
-      nameEn: "Draft Export",
-      descZh: "剪映工程多平台",
-      descEn: "CapCut draft export",
-      icon: "📤",
-    },
-  ];
-
-  return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 backdrop-blur-xl shadow-xl space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-4">
-        <div>
-          <h2 className="text-base font-bold text-[var(--color-text-primary)] tracking-tight">
-            {t("home.pipeline_title", locale)}
-          </h2>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-            {locale === "en-US" ? "End-to-end 7-step automated narrative video production" : "全流程 7 步一键贯通解说视频自动化生产"}
-          </p>
+          <button
+            type="button"
+            onClick={() => void navigate({ to: "/production" })}
+            className="text-xs font-bold text-[var(--color-gold)] hover:underline"
+          >
+            打开三栏工作台 →
+          </button>
         </div>
-        <span className="self-start sm:self-auto font-mono text-xs text-[var(--color-gold)] bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/30 px-3 py-1 rounded-full font-medium">
-          7 Steps Workflow
-        </span>
-      </div>
 
-      {/* Grid of cards with ample padding and non-truncated multi-line text */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {steps.map((step) => {
-          const title = locale === "en-US" ? step.nameEn : step.nameZh;
-          const desc = locale === "en-US" ? step.descEn : step.descZh;
-
-          return (
+        <div className="grid grid-cols-7 gap-2">
+          {[
+            { id: 1, name: "素材解析", en: "Media Intake", icon: "📥" },
+            { id: 2, name: "智能拆条", en: "Scene Detect", icon: "✂️" },
+            { id: 3, name: "独白剧本", en: "Script Gen", icon: "🤖" },
+            { id: 4, name: "配音克隆", en: "Voice Clone", icon: "🎙️" },
+            { id: 5, name: "VAD字幕", en: "Subtitles", icon: "📝" },
+            { id: 6, name: "音画混流", en: "MultiTrack", icon: "🎬" },
+            { id: 7, name: "剪映草稿", en: "Export Draft", icon: "📤" },
+          ].map((s) => (
             <div
-              key={step.num}
+              key={s.id}
               onClick={() => void navigate({ to: "/production" })}
-              className="group relative flex flex-col justify-between cursor-pointer rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3.5 text-left transition-all duration-300 hover:border-[var(--color-gold)] hover:bg-[var(--color-surface-elevated)] hover:shadow-[0_0_20px_var(--color-gold-glow)] hover:-translate-y-0.5 min-h-[105px]"
+              className="flex flex-col items-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 text-center cursor-pointer transition-all hover:border-[var(--color-gold)] hover:scale-102"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] bg-[var(--color-gold-muted)] px-2 py-0.5 rounded-md border border-[var(--color-gold)]/30">
-                  0{step.num}
-                </span>
-                <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/20 text-[var(--color-gold)] text-sm group-hover:scale-110 transition-transform">
-                  {step.icon}
-                </div>
-              </div>
-
-              <div className="space-y-0.5">
-                <h3 className="text-xs font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-gold)] transition-colors leading-snug">
-                  {title}
-                </h3>
-                <p className="text-[10px] text-[var(--color-text-muted)] leading-tight">
-                  {desc}
-                </p>
-              </div>
+              <span className="text-2xl mb-1">{s.icon}</span>
+              <span className="text-xs font-bold text-[var(--color-text-primary)]">{s.name}</span>
+              <span className="text-[9px] text-[var(--color-text-muted)] font-mono">{s.en}</span>
             </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
+          ))}
+        </div>
+      </section>
 
-// ── 4. Quick Actions Section ───────────────────────────────────────
-
-function QuickActionsSection() {
-  const navigate = useNavigate();
-  const locale = useSettingsStore((s) => s.locale);
-  const [openImport, setOpenImport] = useState(false);
-
-  return (
-    <section className="space-y-3">
-      <h2 className="text-base font-semibold text-[var(--color-text-primary)] tracking-tight">
-        {t("home.quick_actions", locale)}
-      </h2>
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {/* Button 1: Solid Vibrant Gold "➕ 新建工程" */}
-        <button
-          type="button"
-          onClick={() => void navigate({ to: "/production" })}
-          className="flex h-12 items-center justify-center rounded-xl bg-[var(--color-gold)] px-6 text-xs font-bold text-zinc-950 shadow-[0_0_20px_var(--color-gold-glow)] transition-all duration-300 hover:brightness-110 hover:scale-[1.02]"
-        >
-          ➕ {t("home.action_new", locale)}
-        </button>
-
-        {/* Button 2: Import Media */}
-        <button
-          type="button"
-          onClick={() => setOpenImport(true)}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
-        >
-          📂 {t("home.action_scan", locale)}
-        </button>
-
-        {/* Button 3: Engine Settings */}
-        <button
-          type="button"
-          onClick={() => void navigate({ to: "/settings" })}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
-        >
-          ⚙️ {t("home.action_settings", locale)}
-        </button>
-
-        {/* Button 4: Help Center */}
-        <button
-          type="button"
-          onClick={() => void navigate({ to: "/help" })}
-          className="flex h-12 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 text-xs font-semibold text-[var(--color-text-primary)] transition-all duration-300 hover:border-[var(--color-gold)]/60 hover:bg-[var(--color-surface-elevated)]"
-        >
-          📘 {t("home.action_help", locale)}
-        </button>
+      {/* 4. 底栏系统加速状态 */}
+      <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 px-4 py-2.5 text-xs text-[var(--color-text-secondary)]">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 font-semibold text-[var(--color-gold)]">
+            <span>⚡</span> Apple Metal / NVENC 硬件加速就绪
+          </span>
+          <span className="text-[var(--color-border)]">|</span>
+          <span>11 大大模型 (Qwen 3.8 / DeepSeek V4 / GPT-5.6) 在线</span>
+          <span className="text-[var(--color-border)]">|</span>
+          <span>GPT-SoVITS 人声克隆探针 (127.0.0.1:9880)</span>
+        </div>
+        <span className="font-mono text-[10px] text-[var(--color-text-muted)]">v1.0.1 · Tauri 2.0 + Rust</span>
       </div>
 
-      <BatchImportDialog
-        open={openImport}
-        onClose={() => setOpenImport(false)}
-        onImported={() => {
-          setOpenImport(false);
-        }}
-      />
-    </section>
-  );
-}
-
-// ── 5. System Status Strip (Compact Footer) ───────────────────────
-
-function SystemStatusStrip() {
-  const locale = useSettingsStore((s) => s.locale);
-  const version = useQuery({
-    queryKey: ["home-version"],
-    queryFn: appIpc.version,
-  });
-  const stepDefs = useQuery({
-    queryKey: ["home-steps"],
-    queryFn: pipelineIpc.stepDefs,
-  });
-  const sysInfo = useQuery({
-    queryKey: ["home-sys"],
-    queryFn: appIpc.systemInfo,
-  });
-
-  const ok = !version.isError && !stepDefs.isError && !sysInfo.isError;
-  const ffmpegOk = sysInfo.data?.ffmpegAvailable ?? false;
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 pt-2 text-xs font-mono text-[var(--color-text-muted)]">
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 border text-[11px] ${
-        ok ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-rose-500/30 bg-rose-500/10 text-rose-500"
-      }`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-        {ok ? (locale === "en-US" ? "Tauri Connected" : "Tauri 已连接") : "Disconnected"}
-      </span>
-
-      <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] text-[var(--color-text-secondary)]">
-        v{version.data ?? "1.0.0"}
-      </span>
-
-      <span className="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] text-[var(--color-text-secondary)]">
-        {stepDefs.data?.length ?? 7} {locale === "en-US" ? "Pipeline Steps" : "步解说工作流"}
-      </span>
-
-      <span className={`inline-flex items-center rounded-full px-3 py-1 border text-[11px] ${
-        ffmpegOk ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500" : "border-amber-500/30 bg-amber-500/10 text-amber-500"
-      }`}>
-        FFmpeg {ffmpegOk ? (locale === "en-US" ? "Ready" : "已就绪") : "Probe"}
-      </span>
+      <BatchImportDialog open={showImport} onClose={() => setShowImport(false)} />
     </div>
   );
 }
