@@ -75,7 +75,7 @@ impl Agent for ScreenwriterAgent {
         ctx.log_action(
             self.role(),
             "输出剧本",
-            format!("生成 650 字高潮独白，注入上下文缓存"),
+            "生成 650 字高潮独白，注入上下文缓存",
         );
         Ok(Some(script.to_string()))
     }
