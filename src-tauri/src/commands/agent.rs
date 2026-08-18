@@ -6,15 +6,12 @@ use std::sync::Arc;
 use tauri::State;
 use tokio::sync::RwLock;
 
-pub struct AgentServiceState {
-    pub orchestrator: Arc<RwLock<Option<AgentOrchestrator>>>,
-}
+// 内部状态管理器（非 pub struct，避免 gen-ipc 抽取为前端 TS interface）
+pub struct AgentServiceState(pub Arc<RwLock<Option<AgentOrchestrator>>>);
 
 impl AgentServiceState {
     pub fn new() -> Self {
-        Self {
-            orchestrator: Arc::new(RwLock::new(None)),
-        }
+        Self(Arc::new(RwLock::new(None)))
     }
 }
 
@@ -27,7 +24,7 @@ pub async fn agent_start(
 ) -> Result<AgentContext, String> {
     let ctx = AgentContext::new(project, auto_mode);
     let orch = AgentOrchestrator::new(ctx.clone());
-    let mut lock = state.orchestrator.write().await;
+    let mut lock = state.0.write().await;
     *lock = Some(orch);
     Ok(ctx)
 }
@@ -38,7 +35,7 @@ pub async fn agent_step(
     step_idx: usize,
     state: State<'_, AgentServiceState>,
 ) -> Result<Option<BreakpointRequest>, String> {
-    let lock = state.orchestrator.read().await;
+    let lock = state.0.read().await;
     if let Some(orch) = lock.as_ref() {
         orch.run_step(step_idx)
             .await
@@ -53,7 +50,7 @@ pub async fn agent_step(
 pub async fn agent_get_context(
     state: State<'_, AgentServiceState>,
 ) -> Result<Option<AgentContext>, String> {
-    let lock = state.orchestrator.read().await;
+    let lock = state.0.read().await;
     if let Some(orch) = lock.as_ref() {
         let ctx = orch.context.read().await;
         Ok(Some(ctx.clone()))

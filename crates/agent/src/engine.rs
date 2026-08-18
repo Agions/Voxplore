@@ -5,8 +5,9 @@ use splicr_core::SplicrResult;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+// 调度引擎（内部结构，字段不为 pub 以免被抽取为前端 TS interface）
 pub struct AgentOrchestrator {
-    pub context: Arc<RwLock<AgentContext>>,
+    pub(crate) context: Arc<RwLock<AgentContext>>,
     agents: Vec<Box<dyn Agent>>,
 }
 
@@ -23,6 +24,10 @@ impl AgentOrchestrator {
                 Box::new(QualityReviewerAgent),
             ],
         }
+    }
+
+    pub async fn context(&self) -> Arc<RwLock<AgentContext>> {
+        self.context.clone()
     }
 
     pub async fn run_step(&self, step_idx: usize) -> SplicrResult<Option<BreakpointRequest>> {

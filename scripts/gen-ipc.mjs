@@ -361,6 +361,7 @@ function renderContracts(sigs) {
     "subtitle",
     "video",
     "i18n",
+    "agent",
     "window",
     "diagnostics",
     "llm",

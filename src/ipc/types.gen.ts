@@ -300,15 +300,28 @@ export interface IpcContracts {
     };
     result: string;
   };
+  // ─────── agent · 3 个 ───────
+  agent_get_context: {
+    args: void;
+    result: AgentContext | null;
+  };
+  agent_start: {
+    args: {
+      project: Project;
+      autoMode: boolean;
+    };
+    result: AgentContext;
+  };
+  agent_step: {
+    args: {
+      stepIdx: number;
+    };
+    result: BreakpointRequest | null;
+  };
 }
 /* <<< gen-ipc end */
 
 /* >>> gen-ipc-types start */
-// Rust 端 AgentServiceState (pub struct)
-export interface AgentServiceState {
-  orchestrator: Arc<RwLock<Option<AgentOrchestrator>>>;
-}
-
 // Rust 端 SystemInfo (pub struct, rename_all = "camelCase")
 export interface AppSystemInfo {
   ffmpegAvailable: boolean;
@@ -407,11 +420,6 @@ export interface AgentContext {
   messages: AgentMessage[];
   memory: Record<string, string>;
   auto_mode: boolean;
-}
-
-// Rust 端 AgentOrchestrator (pub struct)
-export interface AgentOrchestrator {
-  context: Arc<RwLock<AgentContext>>;
 }
 
 // Rust 端 AgentMessage (pub struct)

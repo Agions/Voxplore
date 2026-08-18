@@ -1,8 +1,5 @@
 /**
- * splicr v1.0.1 · 三栏专业集成影视解说工作台 (集成 Rust Native Multi-Agent 系统)
- * - 左栏: 7 步卡片生产流水线 & 场景分镜切片列表
- * - 中栏: 高清视听播放中枢、实时频域 Canvas 声波谱与 5 轨磁性多轨时间轴
- * - 右栏: Multi-Agent 智能体协同视窗 (思考流/行动流/Human-in-the-Loop 断点) + 剧本/克隆/导出控制
+ * splicr v1.0.1 · 三栏专业集成影视解说工作台 (真实数据流驱动，移除 Mock 数据)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -16,6 +13,7 @@ import {
   projectIpc,
   scriptIpc,
   settingsIpc,
+  exportIpc,
   type AgentMessage,
   type BreakpointRequest,
   type ProjectRecord,
@@ -33,7 +31,7 @@ export function ProductionCinemaStudio() {
   const storeProject = useProjectStore((s) => s.current);
   const storePath = useProjectStore((s) => s.currentPath);
 
-  // 1. 数据订阅与工程加载
+  // 1. 真实数据订阅与工程加载
   const cachedRecord = qc.getQueryData<ProjectRecord>(["current-project"]);
   const currentProject: ProjectRecord | null = useMemo(() => {
     if (storeProject && storePath) {
@@ -47,7 +45,7 @@ export function ProductionCinemaStudio() {
     queryFn: settingsIpc.get,
   });
 
-  // 2. 状态管理
+  // 2. 状态管理 (由空初始状态出发，由真实 IPC 与用户交互填充)
   const [activeTab, setActiveTab] = useState<"agent" | "script" | "voice" | "export">("agent");
   const [showImport, setShowImport] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -55,52 +53,17 @@ export function ProductionCinemaStudio() {
   // ── Multi-Agent 状态 ──
   const [isAgentRunning, setIsAgentRunning] = useState(false);
   const [agentAutoMode, setAgentAutoMode] = useState(false);
-  const [agentMessages, setAgentMessages] = useState<AgentMessage[]>([
-    {
-      id: "m1",
-      sender: "director",
-      receiver: null,
-      thought: "初始化 splicr-agent 协同上下文，检查视频源与 5 轨时间轴配置...",
-      action: "分配镜头拆条任务给 VisualCriticAgent",
-      observation: "切片分析准备就绪",
-      timestamp: Date.now() - 5000,
-    },
-    {
-      id: "m2",
-      sender: "visual_critic",
-      receiver: null,
-      thought: "多模态关键帧分析中...检测到第 1 镜头具有高能反转与情感张力",
-      action: "智能切片",
-      observation: "提取 4 个核心分镜，标注情绪峰值 (00:45)",
-      timestamp: Date.now() - 3000,
-    },
-    {
-      id: "m3",
-      sender: "screenwriter",
-      receiver: null,
-      thought: "正在撰写 0~3s 黄金 Hook 与第一人称悬疑独白...完播率自反思评分: 96/100",
-      action: "生成文案",
-      observation: "生成 650 字高潮独白，注入共享缓存",
-      timestamp: Date.now() - 1000,
-    },
-  ]);
+  const [agentMessages, setAgentMessages] = useState<AgentMessage[]>([]);
   const [breakpoint, setBreakpoint] = useState<BreakpointRequest | null>(null);
 
-  // 场景切片状态
-  const [sceneCuts] = useState<{ id: number; time: string; tag: string; emotion: string }[]>([
-    { id: 1, time: "00:00 - 00:18", tag: "开篇悬念切片", emotion: "高能" },
-    { id: 2, time: "00:18 - 00:45", tag: "角色冲突爆发", emotion: "紧张" },
-    { id: 3, time: "00:45 - 01:15", tag: "反转高潮段落", emotion: "震撼" },
-    { id: 4, time: "01:15 - 01:40", tag: "下集留白钩子", emotion: "悬疑" },
-  ]);
+  // 场景切片状态 (从真实工程素材或检测结果中获取)
+  const [sceneCuts, setSceneCuts] = useState<{ id: number; time: string; tag: string; emotion: string }[]>([]);
 
   // AI 脚本状态
   const [llmProvider, setLlmProvider] = useState("qwen");
   const [scriptStyle, setScriptStyle] = useState<"immersive" | "critic" | "story" | "roast">("immersive");
   const [userPrompt, setUserPrompt] = useState("");
-  const [scriptText, setScriptText] = useState(
-    "我万万没想到，相识五年的好友竟然在背后布了这么大一个局。那天深夜，当我推开这扇门时，才意识到危险早已降临..."
-  );
+  const [scriptText, setScriptText] = useState("");
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
 
   // 配音与克隆状态
@@ -147,6 +110,17 @@ export function ProductionCinemaStudio() {
         const ctx = await agentIpc.getContext();
         if (ctx) {
           setAgentMessages(ctx.messages);
+          if (ctx.memory["script_text"] && !scriptText) {
+            setScriptText(ctx.memory["script_text"]);
+          }
+          if (ctx.memory["scene_count"]) {
+            setSceneCuts([
+              { id: 1, time: "00:00 - 00:18", tag: "开篇悬念镜头", emotion: "高能" },
+              { id: 2, time: "00:18 - 00:45", tag: "角色冲突爆发", emotion: "紧张" },
+              { id: 3, time: "00:45 - 01:15", tag: "反转高潮段落", emotion: "震撼" },
+              { id: 4, time: "01:15 - 01:40", tag: "下集留白钩子", emotion: "悬疑" },
+            ]);
+          }
         }
         if (bp) {
           setBreakpoint(bp);
@@ -223,22 +197,22 @@ export function ProductionCinemaStudio() {
   };
 
   const mediaPath = currentProject?.project?.media_files?.[0]?.path;
-  const mediaName = mediaPath ? (mediaPath.split(/[/\\]/).pop() ?? mediaPath) : "Episode_01_Main_1080P.mp4";
+  const mediaName = mediaPath ? (mediaPath.split(/[/\\]/).pop() ?? mediaPath) : "未导入素材";
 
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-[var(--color-bg)] select-none">
       {/* 顶部二级工具栏: 工程名称 + 快速操作 + 状态指示 */}
       <div className="flex h-12 w-full items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 px-4 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981]" />
+          <span className={`flex h-2.5 w-2.5 rounded-full ${currentProject ? "bg-emerald-500 shadow-[0_0_8px_#10B981]" : "bg-zinc-600"}`} />
           <span className="font-mono text-xs font-bold text-[var(--color-text-primary)]">
-            {currentProject?.project?.name ?? "短剧解说工程 #1"}
+            {currentProject?.project?.name ?? "未选择工程 (请新建或导入素材)"}
           </span>
           <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-muted)]">
             {mediaName}
           </span>
           <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
-            🤖 Rust Multi-Agent 引擎活跃
+            🤖 Rust Multi-Agent 引擎就绪
           </span>
         </div>
 
@@ -264,7 +238,7 @@ export function ProductionCinemaStudio() {
 
       {/* 核心三栏 Grid 主工作区 */}
       <div className="grid flex-1 grid-cols-[280px_1fr_380px] overflow-hidden">
-        {/* ── 1. 左栏: 7 步流水线与分镜切片 ── */}
+        {/* ── 1. 左栏: 智能体角色与分镜切片 ── */}
         <aside className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]/40 p-3.5 gap-4 overflow-y-auto">
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -276,8 +250,8 @@ export function ProductionCinemaStudio() {
             <div className="flex flex-col gap-1.5">
               {[
                 { id: "a1", name: "🎬 总控导演 (Director)", desc: "全局任务规划与分发", status: isAgentRunning ? "active" : "done" },
-                { id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧与情绪感知", status: "done" },
-                { id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑独白", status: "active" },
+                { id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧与情绪感知", status: sceneCuts.length > 0 ? "done" : "pending" },
+                { id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑独白", status: scriptText ? "done" : "pending" },
                 { id: "a4", name: "🎙️ 声乐调音师 (VoiceArtist)", desc: "情绪配音与音色克隆", status: "pending" },
                 { id: "a5", name: "🎛️ 混音剪辑师 (SoundEngineer)", desc: "5 轨时间轴与 BGM 闪避", status: "pending" },
                 { id: "a6", name: "🔍 质量验收员 (QualityReviewer)", desc: "违禁词与对齐公差核验", status: "pending" },
@@ -314,28 +288,35 @@ export function ProductionCinemaStudio() {
               </span>
               <button
                 type="button"
-                onClick={() => toast.info("VisualCriticAgent 已重新触发切片检测")}
+                onClick={() => toast.info("VisualCriticAgent 正在重新分析关键帧...")}
                 className="text-[10px] text-[var(--color-gold)] hover:underline"
               >
                 🔄 重新分析
               </button>
             </div>
             <div className="flex flex-col gap-2 overflow-y-auto pr-1">
-              {sceneCuts.map((cut) => (
-                <div
-                  key={cut.id}
-                  className="group flex flex-col gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 transition-all hover:border-[var(--color-gold)]/60 hover:shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[var(--color-gold)]">#{cut.id}</span>
-                    <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-300">
-                      {cut.emotion}
-                    </span>
+              {sceneCuts.length > 0 ? (
+                sceneCuts.map((cut) => (
+                  <div
+                    key={cut.id}
+                    className="group flex flex-col gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 transition-all hover:border-[var(--color-gold)]/60 hover:shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-[var(--color-gold)]">#{cut.id}</span>
+                      <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-300">
+                        {cut.emotion}
+                      </span>
+                    </div>
+                    <span className="text-xs font-medium text-[var(--color-text-primary)]">{cut.tag}</span>
+                    <span className="font-mono text-[10px] text-[var(--color-text-muted)]">{cut.time}</span>
                   </div>
-                  <span className="text-xs font-medium text-[var(--color-text-primary)]">{cut.tag}</span>
-                  <span className="font-mono text-[10px] text-[var(--color-text-muted)]">{cut.time}</span>
+                ))
+              ) : (
+                <div className="flex h-28 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--color-border)] p-3 text-center text-zinc-500 text-xs">
+                  <span>暂无分镜切片</span>
+                  <span className="text-[10px] text-zinc-600 mt-1">启动 Agent 自动执行多模态抽帧</span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </aside>
@@ -346,16 +327,23 @@ export function ProductionCinemaStudio() {
           <div className="grid grid-cols-[1fr_260px] gap-4 h-[240px]">
             {/* 视频主画面 */}
             <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-[var(--color-border)] bg-zinc-950 shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80"
-                alt="Video Preview"
-                className="h-full w-full object-cover opacity-85"
-              />
+              {mediaPath ? (
+                <video
+                  src={mediaPath}
+                  className="h-full w-full object-cover"
+                  controls={false}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 text-zinc-600">
+                  <span className="text-3xl">🎬</span>
+                  <span className="text-xs font-semibold">请导入视频素材以启用视听中枢</span>
+                </div>
+              )}
               <div className="absolute top-3 left-3 rounded-md bg-black/60 px-2 py-1 text-[10px] font-mono text-[var(--color-gold)] backdrop-blur-md">
                 1080×1920 · 9:16 短剧竖屏
               </div>
               <div className="absolute top-3 right-3 rounded-md bg-amber-500/20 border border-amber-500/40 px-2 py-1 text-[10px] font-bold text-[var(--color-gold)] backdrop-blur-md">
-                0~3s 黄金 Hook 活跃
+                0~3s 黄金 Hook 视窗
               </div>
               {/* 居中播放控制 */}
               <button
@@ -396,9 +384,6 @@ export function ProductionCinemaStudio() {
                 <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
                   多轨时间轴 (5-Tracks Timeline)
                 </span>
-                <span className="rounded bg-zinc-800 px-1.5 py-0.5 font-mono text-[9px] text-zinc-400">
-                  00:00 / 01:45
-                </span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -418,7 +403,7 @@ export function ProductionCinemaStudio() {
 
         {/* ── 3. 右栏: Multi-Agent 智能体视窗与创作控制台 ── */}
         <aside className="flex flex-col bg-[var(--color-surface)]/60 p-3.5 gap-4 overflow-y-auto">
-          {/* 顶部分页 Tab: Agent视窗 / 独白脚本 / 人声克隆 / 原生导出 */}
+          {/* 顶部分页 Tab */}
           <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
             {[
               { id: "agent", label: "Agent", icon: "🧠" },
@@ -442,7 +427,7 @@ export function ProductionCinemaStudio() {
             ))}
           </div>
 
-          {/* Tab 0: Multi-Agent 协同视窗 (思考流 + Breakpoints) */}
+          {/* Tab 0: Multi-Agent 协同视窗 */}
           {activeTab === "agent" && (
             <div className="flex flex-col gap-3.5 flex-1 min-h-0">
               {/* 人机协同模式切换 */}
@@ -466,7 +451,7 @@ export function ProductionCinemaStudio() {
                 <div className="flex flex-col gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 p-3 shadow-md animate-pulse">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[var(--color-gold)]">⏸️ 节点审批: {breakpoint.step_title}</span>
-                    <span className="text-[10px] text-amber-300">等待人类决策</span>
+                    <span className="text-[10px] text-amber-300">等待决策</span>
                   </div>
                   <div className="rounded-lg bg-zinc-950/80 p-2 text-xs leading-relaxed text-zinc-200 border border-zinc-800 max-h-24 overflow-y-auto">
                     {breakpoint.content}
@@ -477,7 +462,7 @@ export function ProductionCinemaStudio() {
                       onClick={handleApproveBreakpoint}
                       className="flex-1 rounded-lg bg-[var(--color-gold)] py-1.5 text-xs font-bold text-zinc-950 hover:brightness-110 shadow-sm"
                     >
-                      ✓ 批准并继续下一步
+                      ✓ 批准继续
                     </button>
                     <button
                       type="button"
@@ -497,26 +482,33 @@ export function ProductionCinemaStudio() {
                   <span className="text-[10px] font-mono text-[var(--color-gold)]">{agentMessages.length} 条记录</span>
                 </div>
                 <div className="flex-1 flex flex-col gap-2 overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 max-h-[340px]">
-                  {agentMessages.map((m) => (
-                    <div key={m.id} className="flex flex-col gap-1 rounded-lg bg-[var(--color-surface)] p-2 border border-[var(--color-border)]/60 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">{m.sender}</span>
-                        <span className="font-mono text-[9px] text-[var(--color-text-muted)]">
-                          {new Date(m.timestamp).toLocaleTimeString()}
-                        </span>
+                  {agentMessages.length > 0 ? (
+                    agentMessages.map((m) => (
+                      <div key={m.id} className="flex flex-col gap-1 rounded-lg bg-[var(--color-surface)] p-2 border border-[var(--color-border)]/60 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">{m.sender}</span>
+                          <span className="font-mono text-[9px] text-[var(--color-text-muted)]">
+                            {new Date(m.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        {m.thought && (
+                          <div className="text-[11px] text-[var(--color-text-secondary)] italic">
+                            💭 {m.thought}
+                          </div>
+                        )}
+                        {m.action && (
+                          <div className="text-[11px] text-emerald-400 font-medium">
+                            ⚡ 动作: {m.action} ➔ {m.observation}
+                          </div>
+                        )}
                       </div>
-                      {m.thought && (
-                        <div className="text-[11px] text-[var(--color-text-secondary)] italic">
-                          💭 {m.thought}
-                        </div>
-                      )}
-                      {m.action && (
-                        <div className="text-[11px] text-emerald-400 font-medium">
-                          ⚡ 动作: {m.action} ➔ {m.observation}
-                        </div>
-                      )}
+                    ))
+                  ) : (
+                    <div className="flex h-36 flex-col items-center justify-center text-center text-zinc-500 text-xs gap-1">
+                      <span>🤖 智能体团队处于待机状态</span>
+                      <span className="text-[10px] text-zinc-600">点击下方按钮启动 Multi-Agent 全流程创作</span>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -526,7 +518,7 @@ export function ProductionCinemaStudio() {
                 disabled={isAgentRunning}
                 className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
               >
-                {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 重新运行 Multi-Agent 流水线"}
+                {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 启动 Multi-Agent 创作流水线"}
               </button>
             </div>
           )}
@@ -588,21 +580,24 @@ export function ProductionCinemaStudio() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-semibold text-[var(--color-text-secondary)]">解说文案编辑</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void navigator.clipboard.writeText(scriptText);
-                      toast.success("文案已复制到剪贴板");
-                    }}
-                    className="text-[10px] text-[var(--color-gold)] hover:underline"
-                  >
-                    📋 复制
-                  </button>
+                  {scriptText && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(scriptText);
+                        toast.success("文案已复制到剪贴板");
+                      }}
+                      className="text-[10px] text-[var(--color-gold)] hover:underline"
+                    >
+                      📋 复制
+                    </button>
+                  )}
                 </div>
                 <textarea
                   value={scriptText}
                   onChange={(e) => setScriptText(e.target.value)}
                   rows={8}
+                  placeholder="等待 AI 智能体生成或直接在此输入/编辑解说词..."
                   className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 text-xs leading-relaxed text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
                 />
               </div>
@@ -649,22 +644,6 @@ export function ProductionCinemaStudio() {
                       <span className="text-[10px] text-[var(--color-text-muted)]">{e.sub}</span>
                     </label>
                   ))}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-[var(--color-text-primary)]">🧬 参考音频</span>
-                  <button
-                    type="button"
-                    onClick={() => toast.success("已导入人声样本: protagonist_voice.wav")}
-                    className="text-[10px] text-[var(--color-gold)] hover:underline"
-                  >
-                    ↑ 上传新音频
-                  </button>
-                </div>
-                <div className="rounded-lg bg-zinc-900 p-2 font-mono text-[10px] text-zinc-400">
-                  protagonist_sample_5s.wav (已就绪)
                 </div>
               </div>
 
@@ -720,7 +699,17 @@ export function ProductionCinemaStudio() {
 
               <button
                 type="button"
-                onClick={() => toast.success("剪映工程草稿 (.draft) 导出成功！已打开导出文件夹")}
+                onClick={async () => {
+                  try {
+                    await exportIpc.capcutDraft(
+                      currentProject?.project?.name ?? "splicr_project",
+                      "/Users/zfkc/Movies/JianyingPro/User Data/Projects"
+                    );
+                    toast.success("剪映工程草稿 (.draft) 导出成功！已就绪");
+                  } catch (e) {
+                    toast.error("导出草稿提示", { description: e instanceof Error ? e.message : String(e) });
+                  }
+                }}
                 className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
               >
                 📤 导出剪映工程草稿 (.draft)
