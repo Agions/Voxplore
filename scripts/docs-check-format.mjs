@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * scene-fab docs markdown format checker
+ * splicr docs markdown format checker
  *
  * Checks:
  * 1. H1 count (should be exactly 1 per file, excluding code blocks)
