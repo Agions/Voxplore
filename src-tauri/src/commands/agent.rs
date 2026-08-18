@@ -52,7 +52,8 @@ pub async fn agent_get_context(
 ) -> Result<Option<AgentContext>, String> {
     let lock = state.0.read().await;
     if let Some(orch) = lock.as_ref() {
-        let ctx = orch.context.read().await;
+        let ctx_lock = orch.context().await;
+        let ctx = ctx_lock.read().await;
         Ok(Some(ctx.clone()))
     } else {
         Ok(None)
