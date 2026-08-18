@@ -422,7 +422,42 @@ export function ProductionCinemaStudio() {
               </div>
             </div>
             <div className="flex-1 overflow-hidden">
-              <MultiTrackTimeline isPlaying={isPlaying} onSeek={() => {}} />
+              <MultiTrackTimeline
+                isPlaying={isPlaying}
+                onSeek={() => {}}
+                videoClips={sceneCuts.map((c) => ({
+                  id: `v${c.id}`,
+                  title: c.tag,
+                  start: (c.id - 1) * 15,
+                  duration: 15,
+                  emotion: c.emotion,
+                }))}
+                hookClip={
+                  sceneCuts.length > 0
+                    ? { title: "🔥 0~3s 黄金 Hook 悬疑反转", start: 0, duration: 3.5, style: "高潮前置" }
+                    : null
+                }
+                voiceClips={
+                  scriptText
+                    ? [
+                        {
+                          id: "a1",
+                          text: scriptText.slice(0, 32) + "...",
+                          start: 0,
+                          duration: Math.max(15, scriptText.length / 4.5),
+                        },
+                      ]
+                    : []
+                }
+                subtitleClips={
+                  scriptText
+                    ? [
+                        { id: "s1", text: scriptText.slice(0, 18), start: 0, duration: 4.5 },
+                        { id: "s2", text: scriptText.slice(18, 36), start: 4.5, duration: 4.5 },
+                      ]
+                    : []
+                }
+              />
             </div>
           </div>
         </main>
