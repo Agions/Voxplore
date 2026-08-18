@@ -46,8 +46,7 @@ corepack prepare pnpm@latest --activate
 git clone https://github.com/Agions/splicr.git
 cd splicr
 pnpm install
-cd apps/desktop
-pnpm tauri:dev
+pnpm tauri dev
 ```
 
 ## macOS
@@ -79,8 +78,7 @@ brew install ffmpeg
 git clone https://github.com/Agions/splicr.git
 cd splicr
 pnpm install
-cd apps/desktop
-pnpm tauri:dev
+pnpm tauri dev
 ```
 
 ## Linux（Ubuntu 22.04+ / Debian 12+）
@@ -88,8 +86,8 @@ pnpm tauri:dev
 ### 方式一：安装包（推荐）
 
 1. 从 [Releases](https://github.com/Agions/splicr/releases) 下载最新 `.deb` 或 `.AppImage`
-2. **deb**：`sudo dpkg -i splicr_2.5.0_amd64.deb && sudo apt install -f`
-3. **AppImage**：`chmod +x splicr_2.5.0_amd64.AppImage && ./splicr_2.5.0_amd64.AppImage`
+2. **deb**：`sudo dpkg -i splicr_1.0.1_amd64.deb && sudo apt install -f`
+3. **AppImage**：`chmod +x splicr_1.0.1_amd64.AppImage && ./splicr_1.0.1_amd64.AppImage`
 
 ### 方式二：从源码开发
 
@@ -122,8 +120,7 @@ sudo apt install -y ffmpeg
 git clone https://github.com/Agions/splicr.git
 cd splicr
 pnpm install
-cd apps/desktop
-pnpm tauri:dev
+pnpm tauri dev
 ```
 
 ## 验证安装
@@ -144,7 +141,7 @@ pnpm --version        # 应输出 9.x 或更新
 ffmpeg -version | head -1   # 应输出 6.0+
 
 # 5. 启动应用
-cd apps/desktop && pnpm tauri:dev
+pnpm tauri dev
 # 成功标志：弹出 Tauri 窗口 + 看到 splicr Home 页面
 ```
 
@@ -171,7 +168,7 @@ winget install Microsoft.EdgeWebView2Runtime
 
 ### 端口 1420 / 1421 占用
 
-Tauri dev server 默认端口被占用时，编辑 `apps/desktop/vite.config.ts` 修改 `server.port` 字段。
+Tauri dev server 默认端口被占用时，编辑 `vite.config.ts` 修改 `server.port` 字段。
 
 ### 编译失败：Rust 工具链版本不足
 

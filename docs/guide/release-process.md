@@ -19,16 +19,16 @@ description: splicr v1.0.0 桌面端的 GitHub Releases 发布、签名、CI 集
 
 | 位置                                                | 用途                             |
 | --------------------------------------------------- | -------------------------------- |
-| `apps/desktop/src-tauri/Cargo.toml` 第 3 行         | 运行时 `AppContext.version` 注入 |
-| `apps/desktop/src-tauri/tauri.conf.json` 第 4 行    | Tauri 打包元数据、资源 AC        |
+| `src-tauri/Cargo.toml` 第 3 行                      | 运行时 `AppContext.version` 注入 |
+| `src-tauri/tauri.conf.json` 第 4 行                 | Tauri 打包元数据、资源 AC        |
 | `crates/*/Cargo.toml`（`version.workspace = true`） | 工作区共享                       |
 
 发布前用一行脚本同步：
 
 ```bash
-NEW_VERSION="2.5.0-beta.1"
+NEW_VERSION="1.0.1"
 sed -i '' "s/^version = \"[^\"]*\"$/version = \"$NEW_VERSION\"/" \
-  apps/desktop/src-tauri/Cargo.toml
+  src-tauri/Cargo.toml
 # tauri.conf.json 需手工 update(避免 JSON 转义问题)
 ```
 
@@ -40,7 +40,7 @@ sed -i '' "s/^version = \"[^\"]*\"$/version = \"$NEW_VERSION\"/" \
 
 ```bash
 # macOS (universal binary)
-cd apps/desktop && pnpm tauri build --target universal-apple-darwin
+pnpm tauri build --target universal-apple-darwin
 
 # Windows (msi)
 pnpm tauri build --target x86_64-pc-windows-msvc
@@ -51,13 +51,13 @@ pnpm tauri build --target x86_64-unknown-linux-gnu
 
 构建产物路径（由 `tauri.conf.json` 的 `bundle.targets="all"` 决定）：
 
-| 平台    | 路径                                                                                                 |
-| ------- | ---------------------------------------------------------------------------------------------------- |
-| macOS   | `apps/desktop/src-tauri/target/universal-apple-darwin/release/bundle/macos/splicr.app`             |
-| macOS   | `apps/desktop/src-tauri/target/universal-apple-darwin/release/bundle/dmg/splicr_*.dmg`             |
-| Windows | `apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/splicr_*.msi`             |
-| Linux   | `apps/desktop/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/splicr_*.deb`           |
-| Linux   | `apps/desktop/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/splicr_*.AppImage` |
+| 平台    | 路径                                                                                     |
+| ------- | ---------------------------------------------------------------------------------------- |
+| macOS   | `src-tauri/target/universal-apple-darwin/release/bundle/macos/splicr.app`                |
+| macOS   | `src-tauri/target/universal-apple-darwin/release/bundle/dmg/splicr_*.dmg`                |
+| Windows | `src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/splicr_*.msi`                |
+| Linux   | `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/splicr_*.deb`              |
+| Linux   | `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/splicr_*.AppImage`    |
 
 ### 2.2 CI 工作流
 
@@ -91,17 +91,17 @@ strategy:
 
 ```bash
 # 1. 推 tag
-git tag v1.0.0 -beta.1
-git push origin v1.0.0 -beta.1
+git tag v1.0.1
+git push origin v1.0.1
 
 # 2. gh CLI 创建 release + 上传 bundle
-gh release create v1.0.0 -beta.1 \
-  --title "splicr v1.0.0 -beta.1" \
+gh release create v1.0.1 \
+  --title "splicr v1.0.1" \
   --notes-file .github/RELEASE_TEMPLATE.md \
-  apps/desktop/src-tauri/target/**/bundle/**/*.dmg \
-  apps/desktop/src-tauri/target/**/bundle/**/*.msi \
-  apps/desktop/src-tauri/target/**/bundle/**/*.deb \
-  apps/desktop/src-tauri/target/**/bundle/**/*.AppImage
+  src-tauri/target/**/bundle/**/*.dmg \
+  src-tauri/target/**/bundle/**/*.msi \
+  src-tauri/target/**/bundle/**/*.deb \
+  src-tauri/target/**/bundle/**/*.AppImage
 ```
 
 release 标题必须以 `v` 开头（`splicr-update` 内部 `tag_name.trim_start_matches('v')` 已兼容，但 GitHub webhook 触发器仍要求 `v` 前缀）。
@@ -112,49 +112,47 @@ release 标题必须以 `v` 开头（`splicr-update` 内部 `tag_name.trim_start
 
 ```bash
 # 上传前生成
-shasum -a 256 splicr_2.5.0-beta.1_aarch64.dmg > splicr_2.5.0-beta.1_aarch64.dmg.sha256
-gh release upload v1.0.0 -beta.1 splicr_2.5.0-beta.1_aarch64.dmg.sha256
+shasum -a 256 splicr_1.0.1_aarch64.dmg > splicr_1.0.1_aarch64.dmg.sha256
+gh release upload v1.0.1 splicr_1.0.1_aarch64.dmg.sha256
 ```
 
 或者更优的做法 — 把 SHA-256 直接写入 `Asset.digest`（GitHub 在 web UI 自动生成），`splicr-update` 会读取：
 
 ```json
 {
-  "name": "splicr_2.5.0-beta.1_aarch64.dmg",
+  "name": "splicr_1.0.1_aarch64.dmg",
   "digest": "sha256:abc123...",
-  "browser_download_url": "https://github.com/.../splicr_2.5.0-beta.1_aarch64.dmg"
+  "browser_download_url": "https://github.com/.../splicr_1.0.1_aarch64.dmg"
 }
 ```
 
 ## 4. 应用更新器策略
 
-### 4.1 M4 阶段（当前）— `splicr-update` crate
+### 4.1 自动更新探测 — `splicr-update` crate
 
-- 探测：`https://api.github.com/repos/qingshanyanyu/splicr/releases/latest`
+- 探测：`https://api.github.com/repos/Agions/splicr/releases/latest`
 - 下载：直链 `browser_download_url`
 - 校验：读取 asset 的 `digest` 字段（`sha256:...`）
-- 安装：M4 阶段仅打开下载目录，需用户手动替换并重启
+- 安装：仅打开下载目录，需用户手动替换并重启
 
-**仓库硬编码**：`apps/desktop/src-tauri/src/lib.rs` 第 49 行
+**服务配置**：`src-tauri/src/lib.rs`
 
 ```rust
 .register(Arc::new(UpdateService::new(
     ctx.version.to_string(),
-    "qingshanyanyu/splicr",  // TODO 配置文件化
+    "Agions/splicr",
 )))
 ```
 
-> 后期应改为读取 `AppContext.services.resolve::<ConfigService>()` 的 `update_repo` 字段。
+### 4.2 `tauri-plugin-updater` 接入计划
 
-### 4.2 M5 计划 — `tauri-plugin-updater` 正式接入
-
-| 步骤 | 操作                                                                     |
-| ---- | ------------------------------------------------------------------------ |
-| ①    | 添加 `tauri-plugin-updater = "2"` 到 `apps/desktop/src-tauri/Cargo.toml` |
-| ②    | `tauri.conf.json` → `plugins.updater` 配置 endpoint + pubkey             |
-| ③    | `capabilities/default.json` 添加 `"updater:default"` 权限                |
-| ④    | `splicr-update` 内部用 `tauri::updater::Updater` 替代 `reqwest` 直链   |
-| ⑤    | 自动重启安装（替代 M4 手动下载目录）                                     |
+| 步骤 | 操作                                                               |
+| ---- | ------------------------------------------------------------------ |
+| ①    | 添加 `tauri-plugin-updater = "2"` 到 `src-tauri/Cargo.toml`        |
+| ②    | `tauri.conf.json` → `plugins.updater` 配置 endpoint + pubkey       |
+| ③    | `capabilities/default.json` 添加 `"updater:default"` 权限          |
+| ④    | `splicr-update` 内部用 `tauri::updater::Updater` 替代 `reqwest` 直链 |
+| ⑤    | 自动重启安装                                                       |
 
 ## 5. CI 签名密钥（M5 阶段启用）
 
