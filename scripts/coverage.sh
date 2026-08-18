@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SceneFab v1.0.0  · Rust + TypeScript 统一覆盖率脚本
+# splicr v1.0.1  · Rust + TypeScript 统一覆盖率脚本
 #
 # 双端测量：
 #   - Rust    : cargo tarpaulin(workspace 元数据自动加载)
-#   - 前端    : pnpm --filter @scenefab/desktop test:coverage(vitest v8)
+#   - 前端    : pnpm test:coverage(vitest v8)
 #
 # 报告输出：
 #   - target/coverage/tarpaulin-report.html
-#   - apps/desktop/coverage/index.html
-#
-# 阈值防回归（在 CI 严格生效；本地软告警）：
-#   - Rust    lines ≥ 60 %  (4 crate 存在测试：pipeline/tts/update/i18n)
-#   - Front   lines ≥ 45 %  (基线已 commit 到 vite.config.ts)
+#   - coverage/index.html
 # ==============================================================================
 
 set -euo pipefail

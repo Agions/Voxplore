@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// SceneFab v1.0.0  - gen-ipc.mjs
+// splicr v1.0.1  - gen-ipc.mjs
 //
 // 自动从 Rust 源码提取 IPC 命令签名 + 公开类型定义,生成 IpcContracts 表与
 // 领域类型 interface,前后端类型单一真相源。
@@ -12,11 +12,11 @@
 //   node scripts/gen-ipc.mjs --types        仅重新生成 types (pub struct/enum)
 //
 // 输入:
-//   - apps/desktop/src-tauri/src/commands/*.rs   (#[tauri::command] pub fn ...)
-//   - apps/desktop/src-tauri/src/commands/*.rs   (pub struct/enum,带 serde derive)
-//   - crates/*/src/**/*.rs                       (pub struct/enum,带 serde derive)
+//   - src-tauri/src/commands/*.rs   (#[tauri::command] pub fn ...)
+//   - src-tauri/src/commands/*.rs   (pub struct/enum,带 serde derive)
+//   - crates/*/src/**/*.rs          (pub struct/enum,带 serde derive)
 //
-// 输出: apps/desktop/src/ipc/types.gen.ts
+// 输出: src/ipc/types.gen.ts
 //   - 替换 /* >>> gen-ipc start */ 至 /* <<< gen-ipc end */ (IpcContracts)
 //   - 替换 /* >>> gen-ipc-types start */ 至 /* <<< gen-ipc-types end */ (types)
 //

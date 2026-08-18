@@ -443,7 +443,7 @@ function RecentCard({ path, index }: { path: string; index: number }) {
 
   const fileName = path.split("/").pop() ?? path;
   const dir = path.substring(0, path.length - fileName.length);
-  const displayTitle = projectRec?.project?.name || fileName.replace(/\.(scenefab|splicr)\.json$/, "");
+  const displayTitle = projectRec?.project?.name || fileName.replace(/\.splicr\.json$/, "").replace(/\.splicr$/, "");
   const firstVideo = projectRec?.project?.media_files?.find(
     (m) => m.path.match(/\.(mp4|mov|avi|mkv|webm)$/i)
   )?.path || projectRec?.project?.media_files?.[0]?.path;
