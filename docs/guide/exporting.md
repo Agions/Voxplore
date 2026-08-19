@@ -11,18 +11,17 @@ splicr 核心优势之一是原生支持 **剪映工程草稿 (`.draft`)** 导�
 
 ## 🎬 剪映工程草稿 (.draft) 原生导出
 
-点击 Step 7 导出视窗中的 **【导出剪映草稿】**，splicr 会直接构建剪映 PC 端原生的工程草稿文件夹结构：
+在工作台右栏【草稿】Tab 中点击 **【📤 导出剪映工程草稿 (.draft)】**，splicr 会直接构建剪映 PC 端原生的工程草稿文件夹结构：
 
 ```text
-splicr_Export/
-└── splicr_Promo_Vertical_9x16.draft/
-    ├── draft_content.json       # 剪映原生轨道、视频/音频/字幕数据结构
-    ├── draft_meta_info.json     # 剪映版本与时间轴元信息
-    ├── media/                   # 切片视频片段与背景音乐
-    │   ├── scene_01.mp4
-    │   └── bgm_cinematic.mp3
-    └── subtitles/               # VAD 毫秒级对齐字幕
-        └── narration.srt
+splicr_draft_1787102954729/
+├── draft_info.json          # 剪映版本、画布 1080x1920 (9:16) 与元信息
+├── draft_content.json       # 剪映原生 5 轨多轨编排数据结构
+├── media/                   # 切片视频片段与背景音乐
+│   ├── scene_01.mp4
+│   └── bgm_cinematic.mp3
+└── subtitles/               # VAD 毫秒级对齐字幕
+    └── narration.srt
 ```
 
 ### 使用方法
@@ -39,18 +38,16 @@ splicr_Export/
 
 ---
 
-## 🎞️ MP4 成片渲染选项
+## 🛡️ 智能防重重构矩阵
 
-如果您不需要在剪映中修改，可以直接勾选 **【渲染 1080P/4K MP4 成片】**：
-
-* **编码格式**：默认 H.264 (High Profile)，可选 H.265 (HEVC 体积减少 ~40%)。
-* **混音算法 (`amix`)**：解说人声高亮，BGM 背景音乐自动降噪 `-6dB` 避让。
-* **字幕压制**：支持硬字幕压制 (Hardsub) 或 封装软字幕轨 (Softsub)。
+* **微动态轻微变焦 (1.00x ~ 1.08x)**：对画面进行微幅缓动推拉，有效打破固定画面指纹。
+* **背景氛围动态模糊**：自动为 9:16 竖屏短剧边缘增添动态高斯模糊底衬。
+* **BGM 智能闪避混音 (-18%)**：配音响起时自动降低背景音乐音量，保持电影级听觉层级。
 
 ---
 
 ## 📖 相关推荐文档
 
 * [第一人称生产规范](/guide/narration-spec) — 导出门禁与质量验收
-* [界面与功能指南](/guide/interface) — 界面操作说明
+* [三栏集成工作台操作指南](/guide/interface) — 界面操作说明
 * [疑难排查](/guide/troubleshooting) — 导出失败快速排查

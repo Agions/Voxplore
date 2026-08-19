@@ -32,7 +32,7 @@ description: 3 步上手 splicr 桌面端，10分钟完成第一次 AI 视频解
 ![AI 独白脚本生成与 API 选择](/assets/mockups/ai-script-generator.jpg)
 
 1. **LLM 供应商**：支持通义千问 (qwen3.8-max)、DeepSeek (deepseek-v4-pro)、OpenAI (gpt-5.6-sol)、Claude (claude-sonnet-5)、Gemini (gemini-3.6-flash)、Kimi (kimi-k3)、GLM-5.2、豆包 (doubao-seed-2-1-pro)、腾讯混元 (hunyuan-pro) 与本地 Ollama 等 11 大服务商。
-2. **API Key**：粘贴您的 API 秘钥（秘钥通过 macOS Keychain / Windows Credential Manager 安全加密存储在本地）。
+2. **API Key**：粘贴您的 API 秘钥（秘钥通过系统密钥链安全加密存储在本地）。
 3. **测试连接**：点击「连通性测试」按钮，确认 API Key 响应正常。
 
 ### 常用 LLM 秘钥获取地址
@@ -63,13 +63,13 @@ ffmpeg -version
 
 ## 🎬 创作您的第一条 AI 视频解说
 
-环境准备就绪后，按照 7 步流水线开启创作：
+环境准备就绪后，进入【Agent 创作工作台】开启影视级制作：
 
-1. **📥 素材导入**：点击「新建项目」，导入一段短剧或电影视频片段 (`.mp4` / `.mov`)。
-2. **✂️ 智能拆条**：点击「扫描场景切片」，AI 将根据镜头突变与情绪峰值自动打点。
-3. **🤖 脚本生成**：选择角色语气（如【悬疑解说】或【吐槽风】），一键生成第一人称 Hook 与主体独白。
-4. **🎙️ 配音与对齐**：选择 Edge-TTS 音色或零样本克隆，自动对齐 SRT 字幕（偏差 < 50ms）。
-5. **📤 草稿导出**：点击「导出」，原生生成剪映工程草稿 (`.draft`) 或 9:16 竖屏 1080P 成片！
+1. **📥 素材装载**：点击「➕ 选择上传视频」，选取一段短剧或电影视频片段 (`.mp4` / `.mov`)。
+2. **🤖 启动 Multi-Agent 团队**：点击「启动 Multi-Agent 创作团队」，总控导演将自动调度画面分析、金牌编剧、声乐调音、混音剪辑与质量验收 6 大智能体。
+3. **⏸️ 断点审批 (HITL)**：在编剧节点审查生成的 0~3s 黄金 Hook 悬疑独白，可一键批准或打回重写。
+4. **🎙️ 声乐克隆与 5 轨对齐**：智能体自动合成 48kHz 高保真配音，并完成 5 轨磁性多轨时间轴毫秒级对齐（偏差 < 12ms）。
+5. **📤 原生草稿导出**：点击「导出剪映工程草稿」，原生生成剪映 `.draft` 工程直接打开精剪！
 
 ---
 
@@ -85,6 +85,6 @@ ffmpeg -version
 
 ## 📖 下一步推荐
 
-* 了解界面控制：查看 [界面与功能指南](/guide/interface)
-* 了解第一人称创作 SOP：查看 [第一人称生产规范](/guide/narration-spec)
-* 了解剪映草稿导出：查看 [导出与发布](/guide/exporting)
+* 了解三栏工作台：查看 [三栏集成工作台操作指南](/guide/interface)
+* 了解多智能体协同：查看 [AI 多智能体工作流详解](/guide/ai-video-guide)
+* 了解剪映草稿导出：查看 [导出与发布指南](/guide/exporting)
