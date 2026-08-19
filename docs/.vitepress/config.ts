@@ -31,7 +31,7 @@ const SIDEBAR = [
 export default defineConfig({
   title: "splicr",
   description:
-    "splicr 第一人称影视/短剧解说生产文档，覆盖素材、脚本、配音、字幕、导出和发布复盘。",
+    "splicr · Rust Native 多智能体影视解说创作引擎官方文档中心，覆盖 6 大 Agent 协同、三栏工作台、剧本自反思回路与剪映草稿交付。",
   base: "/splicr/",
   lang: "zh-CN",
   cleanUrls: false,

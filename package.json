@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.1",
   "type": "module",
-  "description": "splicr v1.0.1 · Tauri + React 桌面应用",
+  "description": "splicr v1.0.1 · Rust Native 多智能体影视解说创作桌面引擎 (Tauri 2 + Rust + React 19)",
   "scripts": {
     "gen:ipc": "node scripts/gen-ipc.mjs",
     "gen:ipc:check": "node scripts/gen-ipc.mjs --check",

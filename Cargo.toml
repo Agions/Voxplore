@@ -1,7 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    # ── Rust 业务 crates (12 个,按 7 步工作流分层) ──
+    # ── Rust 业务 crates (Multi-Agent 智能体协作体系) ──
+    # 多智能体协同引擎
+    "crates/agent",     # Director/VisualCritic/Screenwriter/VoiceArtist/SoundEngineer/QualityReviewer
     # 基础层
     "crates/core",      # 核心抽象·错误类型·事件总线·跨 crate trait
     "crates/domain",    # 业务模型·Project/Scene/Script/Clip/VoiceClone
