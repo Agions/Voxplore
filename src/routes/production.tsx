@@ -61,6 +61,8 @@ export function ProductionCinemaStudio() {
 
   // 场景切片状态
   const [sceneCuts, setSceneCuts] = useState<{ id: number; time: string; tag: string; emotion: string }[]>([]);
+  // 逐字精准对齐字幕片段 (VAD 对齐)
+  const [subtitleSegments, setSubtitleSegments] = useState<{ id: string; text: string; start: number; duration: number }[]>([]);
 
   // AI 脚本状态
   const [llmProvider, setLlmProvider] = useState("qwen");
@@ -138,6 +140,21 @@ export function ProductionCinemaStudio() {
           setAgentMessages(ctx.messages);
           if (ctx.memory["script_text"]) {
             setScriptText(ctx.memory["script_text"]);
+          }
+          if (ctx.memory["subtitles_json"]) {
+            try {
+              const subs = JSON.parse(ctx.memory["subtitles_json"]);
+              setSubtitleSegments(
+                subs.map((s: any, idx: number) => ({
+                  id: `sub_${idx + 1}`,
+                  text: s.text,
+                  start: s.start,
+                  duration: s.end - s.start,
+                }))
+              );
+            } catch {
+              // ignore
+            }
           }
           if (ctx.memory["scene_count"]) {
             setSceneCuts([
@@ -487,12 +504,14 @@ export function ProductionCinemaStudio() {
                     : []
                 }
                 subtitleClips={
-                  scriptText
-                    ? [
-                        { id: "s1", text: scriptText.slice(0, 18), start: 0, duration: 4.5 },
-                        { id: "s2", text: scriptText.slice(18, 36), start: 4.5, duration: 4.5 },
-                      ]
-                    : []
+                  subtitleSegments.length > 0
+                    ? subtitleSegments
+                    : scriptText
+                      ? [
+                          { id: "s1", text: scriptText.slice(0, 18), start: 0, duration: 4.5 },
+                          { id: "s2", text: scriptText.slice(18, 36), start: 4.5, duration: 4.5 },
+                        ]
+                      : []
                 }
               />
             </div>

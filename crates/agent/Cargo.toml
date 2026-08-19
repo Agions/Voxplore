@@ -12,6 +12,7 @@ splicr-domain = { path = "../domain" }
 splicr-detect = { path = "../detect" }
 splicr-script = { path = "../script" }
 splicr-voice = { path = "../voice" }
+splicr-subtitle = { path = "../subtitle" }
 splicr-compose = { path = "../compose" }
 splicr-export = { path = "../export" }
 

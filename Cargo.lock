@@ -3655,6 +3655,7 @@ dependencies = [
  "splicr-domain",
  "splicr-export",
  "splicr-script",
+ "splicr-subtitle",
  "splicr-voice",
  "tokio",
  "tracing",
