@@ -189,7 +189,7 @@ export function BatchImportDialog({
         <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-4">
           <div className="flex items-center space-x-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-lg shadow-[0_0_12px_rgba(245,200,66,0.3)]">
-              S
+              V
             </div>
             <div>
               <h2 className="text-base font-extrabold tracking-tight text-[var(--color-text-primary)]">

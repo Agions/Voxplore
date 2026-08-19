@@ -8,8 +8,8 @@ export const TRANSLATIONS: Record<Locale, Record<string, string>> = {
   "zh-CN": {
     // 基础导航
     "nav.home": "工作台",
-    "nav.production": "制作流水线",
-    "nav.assets": "项目管理",
+    "nav.production": "Agent 创作工作台",
+    "nav.assets": "项目资产库",
     "nav.settings": "大模型与引擎中心",
     "nav.help": "帮助中心",
 

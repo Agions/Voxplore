@@ -16,8 +16,8 @@ interface NavItem {
 }
 
 const TOP_NAV_ITEMS: NavItem[] = [
-  { to: "/",          key: "nav.home",       icon: "🏠", hint: "首页" },
-  { to: "/production",key: "nav.production", icon: "🎬", hint: "AI 工作台", badge: "Agent" },
+  { to: "/",          key: "nav.home",       icon: "🏠", hint: "工作台" },
+  { to: "/production",key: "nav.production", icon: "🎬", hint: "Agent 创作", badge: "Agent" },
   { to: "/assets",    key: "nav.assets",     icon: "📁", hint: "资产库" },
 ];
 
@@ -49,7 +49,7 @@ export function Sidebar({ currentPath }: SidebarProps) {
           className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5C842] to-[#E8933A] text-zinc-950 font-black text-xl shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-transform duration-300 hover:scale-105"
           title="splicr 叙影 AI 视频解说"
         >
-          S
+          V
           <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F5C842] opacity-75" />
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F5C842]" />
