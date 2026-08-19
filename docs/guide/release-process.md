@@ -122,7 +122,7 @@ gh release upload v1.0.1 splicr_1.0.1_aarch64.dmg.sha256
 {
   "name": "splicr_1.0.1_aarch64.dmg",
   "digest": "sha256:abc123...",
-  "browser_download_url": "https://github.com/.../splicr_1.0.1_aarch64.dmg"
+  "browser_download_url": "https://github.com/Agions/splicr/releases/download/v1.0.1/splicr_1.0.1_aarch64.dmg"
 }
 ```
 

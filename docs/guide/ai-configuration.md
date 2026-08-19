@@ -52,7 +52,7 @@ splicr 提供从免费内置配音到专业人声克隆的全套解决方案，�
 | **OpenAI-TTS** | ✅ 需 API Key | `gpt-4o-mini-tts` / `tts-1-hd` | 影视级语音合成，支持富情感拟真人声 |
 | **GPT-SoVITS** | ✅ 本地 / 零样本 | Zero-shot Sovits (`127.0.0.1:9880`) | 仅需 5 秒参考音频即可复刻主播或影视角色音色 |
 
-> 💡 **Xiaomi MiMo API Key 配置说明**：使用 MiMo TTS (`mimo-v2.5-tts`) 前，请前往 [小米 MiMo 开放平台 (platform.xiaomimimo.com)](https://platform.xiaomimimo.com) 注册账号并在「API 管理」中生成专属 API Key。然后在 splicr **设置 → 语音合成 (TTS)** 中填入 `TTS API Key` 即可使用。若使用 OpenAI-TTS 或第三方代理，亦可在同处单独配置 `TTS API Key` 与 `TTS Base URL`。
+> 💡 **Xiaomi MiMo API Key 配置说明**：使用 MiMo TTS (`mimo-v2.5-tts`) 前，请前往小米开放平台注册账号并在「语音与大模型 API 管理」中生成专属 API Key。然后在 splicr **设置 → 语音合成 (TTS)** 中填入 `TTS API Key` 即可使用。若使用 OpenAI-TTS 或第三方兼容代理，亦可在同处单独配置 `TTS API Key` 与 `TTS Base URL`。
 
 ### Edge-TTS 热门解说音色参考
 
