@@ -92,5 +92,5 @@ splicr 提供从免费内置配音到专业人声克隆的全套解决方案，�
 ## 📖 相关推荐文档
 
 - [快速开始](/guide/quick-start) — 3 步完成配置上手
-- [AI 工作流详解](/guide/ai-video-guide) — 7 步生产流程拆解
+- [AI 工作流详解](/guide/ai-video-guide) — Multi-Agent 智能体创作流拆解
 - [疑难排查](/guide/troubleshooting) — 常见故障排查

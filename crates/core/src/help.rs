@@ -75,7 +75,7 @@ impl HelpRegistry {
         reg.register(HelpTopic {
             id: "guide-quick-start".into(),
             title: "🚀 第一人称 AI 影视叙事从零上手全流程".into(),
-            summary: Some("从素材导入、镜头拆条到 AI 配音与字幕合成的全自动化 7 步通关指南。".into()),
+            summary: Some("从素材装载、6 大智能体协同到 AI 配音与字幕精准对齐的全自动化创作指南。".into()),
             category: HelpCategory::Guide,
             keywords: vec!["入门".into(), "快速开始".into(), "工作流".into(), "第一人称".into()],
             content: r#"# 第一人称 AI 影视解说快速上手全流程
@@ -84,35 +84,25 @@ splicr 是一款专为全自动第一人称短视频解说打造的桌面级 AI 
 
 ---
 
-## 核心 7 步 AI 叙事工作流
+## 核心 Multi-Agent 智能体协同创作流
 
-### ① 素材导入 (Intake)
-- **支持格式**: `.mp4`, `.mov`, `.mkv`, `.avi`, `.webm`
-- 点击顶部「📂 导入素材」或使用快捷键 `⌘+O` 批量选择文件夹。系统将自动提取视频元数据并利用 FFmpeg 实时生成高清首帧封面。
+### ① 🎬 总控导演 (DirectorAgent)
+- 全局任务拆解与管线编排，实时调度视觉、编剧、调音与剪辑各专家智能体。
 
-### ② 智能拆条 (Detect)
-- 启动智能场景切割算法（Content-Aware Scene Detection）。
-- 系统自动识别镜头转场与光影变化，将几十分钟的长视频自动拆解为干净的独立镜头片段。
+### ② 👁️ 画面视觉分析师 (VisualCriticAgent)
+- 调用 FFmpeg 探针智能分析镜头切点、情绪反转与高能段落，完成精准多模态切片。
 
-### ③ 文案脚本 (Script)
-- 选择“沉浸式第一人称叙事”或“悬疑反转解说”风格。
-- 大模型（LLM）基于视觉识别契约自动生成高吸引力的 Hook 钩子开场与第一人称心理独白。
+### ③ ✍️ 金牌编剧 (ScreenwriterAgent)
+- 结合镜头切片与自反思完播率评分机制，撰写 0~3s 黄金 Hook 与第一人称高能剧情独白。
 
-### ④ TTS 情感配音 (Voice)
-- 内置数十款 24kHz 高保真 AI 声优音色（涵盖电影质感低音、新闻播报、悬疑讲解等）。
-- 支持一键录制/上传 10 秒音频完成零样本音色克隆（Zero-Shot Voice Cloning）。
+### ④ 🎙️ 声乐调音师 (VoiceArtistAgent)
+- 智能匹配 Edge-TTS / GPT-SoVITS 深度克隆音色，合成 48kHz 高保真独白音频并挂载 A1 轨。
 
-### ⑤ 字幕特效 (Subtitle)
-- 自动生成 Whisper 级时间轴对齐字幕。
-- 提供电影级金黄渐变描边、卡拉 OK 逐字亮色与中英双语对照特效。
+### ⑤ 🎛️ 混音剪辑师 (SoundEngineerAgent)
+- 5 轨磁性多轨时间轴毫秒级对齐（音画偏差 < 8ms），自动挂载 BGM -18% 智能闪避。
 
-### ⑥ 音画精准对齐 (Compose)
-- 独家算法：静音自动裁剪与音频波形毫秒级锚点对齐。
-- 保证配音独白与画面镜头节奏 100% 严格卡点匹配。
-
-### ⑦ 草稿与渲染导出 (Export)
-- 一键导出 4K 60fps 竖屏 (9:16) 或横屏 (16:9) 高清 MP4 视频。
-- 自动备份工程为 `.splicr.json`，方便随时重修编辑。
+### ⑥ 🔍 质量验收员 (QualityReviewerAgent)
+- 严格核验字幕逐字对齐公差、多轨剪映草稿兼容性与违禁词，输出最终 `.draft` 工程。
 "#.into(),
             related: vec!["guide-detect-master".into(), "guide-script-copilot".into(), "guide-tts-cloning".into()],
         });
@@ -377,7 +367,7 @@ splicr 的工程文件采用轻量且跨平台兼容的 JSON 数据格式保存�
 ## 常用核心快捷键
 
 - `⌘ + K` / `Ctrl + K`: **呼出全局命令面板 (Command Palette)**
-- `⌘ + R` / `Ctrl + R`: **启动 7 步全自动 AI 解说流水线**
+- `⌘ + R` / `Ctrl + R`: **启动 Multi-Agent 智能体创作团队**
 - `⌘ + .` / `Ctrl + .`: **立即终止 / 取消当前正在运行的流水线**
 - `⌘ + S` / `Ctrl + S`: **保存当前解说工程到磁盘**
 - `⌘ + N` / `Ctrl + N`: **新建空白解说工程**
