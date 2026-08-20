@@ -193,6 +193,21 @@ export function ProductionCinemaStudio() {
         const ctx = await agentIpc.getContext();
         if (ctx) {
           setAgentMessages(ctx.messages);
+          if (ctx.memory["subtitles_json"]) {
+            try {
+              const subs = JSON.parse(ctx.memory["subtitles_json"]);
+              setSubtitleSegments(
+                subs.map((s: any, idx: number) => ({
+                  id: `sub_${idx + 1}`,
+                  text: s.text,
+                  start: s.start,
+                  duration: s.end - s.start,
+                }))
+              );
+            } catch {
+              // ignore
+            }
+          }
         }
         if (bp) {
           setBreakpoint(bp);

@@ -1,6 +1,8 @@
 //! Tauri 命令分组 · splicr-agent 多智能体协同服务
 
 use splicr_agent::{AgentContext, AgentOrchestrator, BreakpointRequest};
+use splicr_core::services::{ConfigService, ConfigSnapshot};
+use splicr_core::AppContext;
 use splicr_domain::Project;
 use std::sync::Arc;
 use tauri::State;
@@ -20,9 +22,27 @@ impl AgentServiceState {
 pub async fn agent_start(
     project: Project,
     auto_mode: bool,
+    app_ctx: State<'_, AppContext>,
     state: State<'_, AgentServiceState>,
 ) -> Result<AgentContext, String> {
-    let ctx = AgentContext::new(project, auto_mode);
+    let mut ctx = AgentContext::new(project, auto_mode);
+
+    // 自动装配当前设置中的 LLM 与 TTS 凭证至 Agent 上下文内存
+    if let Ok(cfg_svc) = app_ctx.service::<ConfigService>().await {
+        let snap: ConfigSnapshot = cfg_svc.snapshot().await;
+        if let Some(key) = snap.llm_api_key {
+            ctx.memory.insert("llm_api_key".to_string(), key);
+        }
+        if let Some(model) = snap.llm_model {
+            ctx.memory.insert("llm_model".to_string(), model);
+        }
+        if let Some(base_url) = snap.llm_base_url {
+            ctx.memory.insert("llm_base_url".to_string(), base_url);
+        }
+        ctx.memory
+            .insert("llm_provider".to_string(), snap.llm_provider.to_string());
+    }
+
     let orch = AgentOrchestrator::new(ctx.clone());
     let mut lock = state.0.write().await;
     *lock = Some(orch);
