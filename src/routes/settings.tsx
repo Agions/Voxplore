@@ -1,17 +1,11 @@
 /**
- * splicr v1.0.0 · 设置页 (M3.2 接通后端 · M4.5 Locale 切换)
- *
- * 真实接入 settings_get / settings_set + i18n_get_locale / i18n_set_locale
- * - LLM 11 个 Provider (与 Rust 1:1)
- * - TTS 3 个引擎 (Edge / OpenAI / GPT-SoVITS)
- * - API Key 走 ConfigSnapshot (生产环境走 keyring · 此处先内存)
- * - 语言 Locale 切换走 splicr-i18n,emit `app:locale_changed` 全局通知
+ * splicr v1.0.1 · 设置与模型引擎中心 (全模型矩阵 + API 密钥管理 + TTS 引擎配置)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { settingsIpc, themeIpc, type ConfigSnapshot } from "@ipc/commands";
+import { settingsIpc, type ConfigSnapshot } from "@ipc/commands";
 import { useSettingsStore } from "@stores/settings-store";
 import { useThemeStore, type Theme } from "@stores/theme-store";
 import { t } from "@lib/i18n";
@@ -25,17 +19,18 @@ const LLM_OPTIONS: Array<{
   id: string;
   label: string;
   hint: string;
+  provider: string;
 }> = [
-  { id: "qwen", label: "通义千问 Qwen", hint: "qwen3.8-max 阿里旗舰" },
-  { id: "deepseek", label: "DeepSeek", hint: "deepseek-v4-pro / flash" },
-  { id: "open-ai", label: "OpenAI", hint: "gpt-5.6-sol (Sol / Terra)" },
-  { id: "claude", label: "Claude", hint: "claude-sonnet-5 / fable-5" },
-  { id: "gemini", label: "Gemini", hint: "gemini-3.6-flash / 3.1-pro" },
-  { id: "kimi", label: "Kimi · Moonshot", hint: "kimi-k3 月之暗面 2026 旗舰" },
-  { id: "glm5", label: "智谱 GLM", hint: "glm-5.2 智谱清言 2026 旗舰" },
-  { id: "doubao", label: "豆包 Doubao", hint: "doubao-seed-2-1-pro 字节火山" },
-  { id: "hunyuan", label: "混元 Hunyuan", hint: "hunyuan-pro 腾讯" },
-  { id: "local", label: "本地 (Ollama)", hint: "llama3.2 自部署" },
+  { id: "qwen", label: "通义千问 Qwen", hint: "qwen3.8-max 阿里旗舰", provider: "Aliyun DashScope" },
+  { id: "deepseek", label: "DeepSeek", hint: "deepseek-v4-pro / r1", provider: "DeepSeek Official" },
+  { id: "open-ai", label: "OpenAI", hint: "gpt-5.6-sol / 4o", provider: "OpenAI Official" },
+  { id: "claude", label: "Claude", hint: "claude-sonnet-5 / 3.5", provider: "Anthropic" },
+  { id: "gemini", label: "Gemini", hint: "gemini-3.6-flash / 3.1", provider: "Google DeepMind" },
+  { id: "kimi", label: "Kimi · Moonshot", hint: "kimi-k3 月之暗面", provider: "Moonshot AI" },
+  { id: "glm5", label: "智谱 GLM", hint: "glm-5.2 智谱清言", provider: "Zhipu AI" },
+  { id: "doubao", label: "豆包 Doubao", hint: "doubao-seed-2-1-pro", provider: "ByteDance Volcengine" },
+  { id: "hunyuan", label: "混元 Hunyuan", hint: "hunyuan-pro 腾讯", provider: "Tencent Cloud" },
+  { id: "local", label: "本地 (Ollama)", hint: "llama3.2 / qwen2.5", provider: "127.0.0.1:11434" },
 ];
 
 const TTS_OPTIONS: Array<{
@@ -43,11 +38,11 @@ const TTS_OPTIONS: Array<{
   label: string;
   hint: string;
 }> = [
-    { id: "edge", label: "Edge TTS", hint: "微软免费 · 无需密钥" },
-    { id: "mimo", label: "MiMo TTS (小米 MiMo)", hint: "mimo-v2.5-tts 限时免费 · 开放 API" },
-    { id: "open-ai", label: "OpenAI TTS", hint: "tts-1 / alloy" },
-    { id: "gpt-sovits", label: "GPT-SoVITS", hint: "本地克隆音色" },
-  ];
+  { id: "edge", label: "Edge TTS", hint: "微软免费 · 无需密钥 · 50+ 官方声优" },
+  { id: "mimo", label: "MiMo TTS (小米 MiMo)", hint: "mimo-v2.5-tts 限时免费 · 开放 API" },
+  { id: "open-ai", label: "OpenAI TTS", hint: "tts-1-hd / alloy / onyx 影视级配音" },
+  { id: "gpt-sovits", label: "GPT-SoVITS", hint: "本地零样本声音克隆 (127.0.0.1:9880)" },
+];
 
 const DEFAULT_SNAPSHOT: ConfigSnapshot = {
   theme: "dark",
@@ -58,7 +53,7 @@ const DEFAULT_SNAPSHOT: ConfigSnapshot = {
   llm_api_key: null,
   llm_base_url: null,
   llm_model: null,
-  tts_provider: null,
+  tts_provider: "edge",
   tts_api_key: null,
   tts_base_url: null,
   tts_voice: null,
@@ -68,429 +63,250 @@ const DEFAULT_SNAPSHOT: ConfigSnapshot = {
 
 function SettingsPage() {
   const qc = useQueryClient();
-  const setLocale = useSettingsStore((s) => s.setLocale);
+  const locale = useSettingsStore((s) => s.locale);
+  const currentTheme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
 
-  const { data: remote, isLoading } = useQuery({
+  const [activeNav, setActiveNav] = useState<"llm" | "tts" | "theme">("llm");
+  const [form, setForm] = useState<ConfigSnapshot>(DEFAULT_SNAPSHOT);
+
+  const { data: snapshot, isLoading } = useQuery({
     queryKey: ["settings-snapshot"],
-    queryFn: settingsIpc.get,
+    queryFn: () => settingsIpc.get(),
   });
 
-  const [local, setLocal] = useState<ConfigSnapshot>(DEFAULT_SNAPSHOT);
-  const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<"llm" | "tts" | "ffmpeg" | "appearance">("llm");
-
   useEffect(() => {
-    if (remote) {
-      setLocal({
-        ...DEFAULT_SNAPSHOT,
-        ...remote,
-        llm_api_key: remote.llm_api_key ?? null,
-        llm_base_url: remote.llm_base_url ?? null,
-        llm_model: remote.llm_model ?? null,
-        tts_provider: remote.tts_provider ?? null,
-        tts_api_key: remote.tts_api_key ?? null,
-        tts_base_url: remote.tts_base_url ?? null,
-        tts_voice: remote.tts_voice ?? null,
-        tts_ref_audio_path: remote.tts_ref_audio_path ?? null,
-        tts_prompt_text: remote.tts_prompt_text ?? null,
-      });
-      if (remote.theme) {
-        setTheme(remote.theme as Theme);
-      }
+    if (snapshot) {
+      setForm(snapshot);
     }
-  }, [remote, setTheme]);
+  }, [snapshot]);
 
-  const save = useMutation({
+  const saveMutation = useMutation({
     mutationFn: (snap: ConfigSnapshot) => settingsIpc.set(snap),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["settings-snapshot"] });
-      setTheme(local.theme as Theme);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-      toast.success("设置保存成功");
+      void qc.invalidateQueries({ queryKey: ["settings-snapshot"] });
+      void qc.invalidateQueries({ queryKey: ["app-config-settings"] });
+      toast.success(t("settings.saved", locale) || "设置保存成功");
+    },
+    onError: (e) => {
+      toast.error(t("settings.save_failed", locale) || "保存失败", {
+        description: e instanceof Error ? e.message : String(e),
+      });
     },
   });
 
-  const update = <K extends keyof ConfigSnapshot>(
-    key: K,
-    val: ConfigSnapshot[K],
-  ) => {
-    setLocal((prev) => ({ ...prev, [key]: val }));
-    if (key === "theme" && typeof val === "string") {
-      setTheme(val as Theme);
-    }
+  const handleSave = () => {
+    saveMutation.mutate(form);
   };
 
-  const ttsProvider = (local.tts_provider ?? "edge") as
-    "edge" | "open-ai" | "mimo" | "gpt-sovits";
-
-  const hasApiKey = Boolean(local.llm_api_key && local.llm_api_key.trim().length > 0);
-
-  const locale = useSettingsStore((s) => s.locale);
-
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-8 py-8">
-      {/* Header */}
-      <header className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(245,200,66,0.3)] bg-[rgba(245,200,66,0.1)] px-3 py-0.5 text-xs font-semibold text-[var(--color-gold)]">
-            <span>⚙️</span> LLM & Engine Hub
+    <div className="mx-auto max-w-5xl space-y-7 px-8 py-8 select-none font-sans">
+      {/* 1. Header */}
+      <header className="flex items-center justify-between border-b border-[var(--color-border)] pb-5">
+        <div>
+          <div className="text-[10px] font-mono font-bold tracking-[0.2em] text-[var(--color-gold)] uppercase">
+            SYSTEM & MODEL ENGINE PREFERENCES
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
+          <h1 className="text-2xl font-black text-[var(--color-text-primary)]">
             {t("settings.title", locale)}
           </h1>
-          <p className="text-xs text-[var(--color-text-secondary)]">
-            {isLoading ? "Loading..." : t("settings.subtitle", locale)}
+          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+            配置 11 大大模型 API 密钥、Edge-TTS / GPT-SoVITS 声音克隆与全局渲染预设
           </p>
         </div>
-        {saved && (
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-1 text-xs font-medium text-emerald-400 animate-fade-in">
-            {t("settings.saved", locale)}
-          </span>
-        )}
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saveMutation.isPending || isLoading}
+          className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-5 py-2 text-xs font-black text-zinc-950 shadow-md transition-all hover:scale-105 hover:brightness-110 disabled:opacity-50"
+        >
+          <span>💾</span>
+          <span>{saveMutation.isPending ? "保存中..." : t("settings.save", locale) || "保存设置"}</span>
+        </button>
       </header>
 
-      {/* Tabs Row */}
-      <div className="flex items-center space-x-2 border-b border-[var(--color-border)] pb-2 overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => setActiveTab("llm")}
-          className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-            activeTab === "llm"
-              ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)]"
-              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-          }`}
-        >
-          <span>{t("settings.tab_llm", locale)}</span>
-          <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${hasApiKey ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
-            {hasApiKey ? "Active" : "Keys"}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("tts")}
-          className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-            activeTab === "tts"
-              ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)]"
-              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-          }`}
-        >
-          <span>{t("settings.tab_tts", locale)}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-            Online
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("ffmpeg")}
-          className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-            activeTab === "ffmpeg"
-              ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)]"
-              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-          }`}
-        >
-          <span>{t("settings.tab_ffmpeg", locale)}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-            Detected
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("appearance")}
-          className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-            activeTab === "appearance"
-              ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-[0_0_12px_var(--color-gold-glow)]"
-              : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
-          }`}
-        >
-          <span>{t("settings.tab_appearance", locale)}</span>
-        </button>
-      </div>
-
-      {/* Tab 1: LLM */}
-      {activeTab === "llm" && (
-        <Section title="🤖 大语言模型 (LLM Providers)" subtitle="控制 11 大主流 LLM 的 API 密钥与官方模型配置">
-          <FieldRow label="LLM 厂商 (Provider)">
-            <select
-              value={local.llm_provider}
-              onChange={(e) => update("llm_provider", e.target.value)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
+      {/* 2. 左右双栏布局 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* 左侧导航栏 */}
+        <aside className="space-y-1.5">
+          {[
+            { id: "llm" as const, label: "大模型矩阵 (LLM)", icon: "🧠" },
+            { id: "tts" as const, label: "配音与克隆 (TTS)", icon: "🎙️" },
+            { id: "theme" as const, label: "通用偏好与主题", icon: "🎨" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setActiveNav(item.id)}
+              className={`flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all text-left ${
+                activeNav === item.id
+                  ? "bg-[var(--color-gold-muted)] border border-[var(--color-gold)]/40 text-[var(--color-gold)] shadow-sm"
+                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-elevated)] hover:text-[var(--color-text-primary)]"
+              }`}
             >
-              {LLM_OPTIONS.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label} — {opt.hint}
-                </option>
-              ))}
-            </select>
-          </FieldRow>
-          <FieldRow label="API Key">
-            <input
-              type="password"
-              placeholder="sk-..."
-              value={local.llm_api_key ?? ""}
-              onChange={(e) => update("llm_api_key", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-          <FieldRow label="Base URL" hint="可选 · 自定义代理或 Ollama 本地端点">
-            <input
-              type="text"
-              placeholder="https://api.openai.com/v1"
-              value={local.llm_base_url ?? ""}
-              onChange={(e) => update("llm_base_url", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-          <FieldRow label="Model Identifier" hint="留空则自动调取官方 GA 推荐模型">
-            <input
-              type="text"
-              placeholder=""
-              value={local.llm_model ?? ""}
-              onChange={(e) => update("llm_model", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-        </Section>
-      )}
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </aside>
 
-      {/* Tab 2: TTS */}
-      {activeTab === "tts" && (
-        <Section title="🎙️ 语音合成引擎 (TTS Engine)" subtitle="第一人称独白叙述的配音与 GPT-SoVITS 人声克隆设置">
-          <FieldRow label="TTS 引擎">
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-              {TTS_OPTIONS.map((opt) => {
-                const active = ttsProvider === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => update("tts_provider", opt.id)}
-                    className={`rounded-xl border p-3.5 text-left transition ${
-                      active
-                        ? "border-[var(--color-gold)] bg-[rgba(245,200,66,0.1)] text-[var(--color-gold)] shadow-[0_0_12px_rgba(245,200,66,0.15)]"
-                        : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-gold)]/40"
-                    }`}
-                  >
-                    <div className={`text-sm font-semibold ${active ? "text-[var(--color-gold)]" : "text-[var(--color-text-primary)]"}`}>
-                      {opt.label}
-                    </div>
-                    <div className="text-[11px] opacity-75">{opt.hint}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </FieldRow>
-          {ttsProvider === "mimo" && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-300 space-y-1">
-              <div className="font-bold flex items-center gap-1.5">
-                <span>🔑</span> 小米 MiMo 开放平台 API Key 配置说明
+        {/* 右侧设置主面板 */}
+        <main className="md:col-span-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/90 p-6 space-y-6 shadow-sm backdrop-blur-sm">
+          {activeNav === "llm" && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">默认 AI 解说大模型</h3>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                  Multi-Agent 编剧将优先调度此模型生成黄金 Hook 与反转独白
+                </p>
               </div>
-              <p className="text-amber-200/80 leading-relaxed">
-                使用 MiMo TTS (mimo-v2.5-tts) 需要提供小米 MiMo 开放平台的专属 API 密钥。
-                请前往 <a href="https://platform.xiaomimimo.com" target="_blank" rel="noreferrer" className="underline font-semibold text-amber-200 hover:text-white">platform.xiaomimimo.com</a> 注册账号并在「API 管理」中生成 API Key，填入下方「TTS API Key」输入框中。
-              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {LLM_OPTIONS.map((opt) => {
+                  const selected = form.llm_provider === opt.id;
+                  return (
+                    <div
+                      key={opt.id}
+                      onClick={() => setForm({ ...form, llm_provider: opt.id })}
+                      className={`flex flex-col justify-between rounded-xl border p-3 cursor-pointer transition-all ${
+                        selected
+                          ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] shadow-sm"
+                          : "border-[var(--color-border)] bg-[var(--color-bg)]/80 hover:border-zinc-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-bold ${selected ? "text-[var(--color-gold)]" : "text-zinc-200"}`}>
+                          {opt.label}
+                        </span>
+                        {selected && <span className="text-[10px] text-[var(--color-gold)] font-mono">✓ 默认</span>}
+                      </div>
+                      <p className="text-[10px] text-zinc-500 mt-1">{opt.hint}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="space-y-3 pt-2 border-t border-[var(--color-border)]">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+                    API Key (密钥凭证)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="sk-..."
+                    value={form.llm_api_key ?? ""}
+                    onChange={(e) => setForm({ ...form, llm_api_key: e.target.value || null })}
+                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-xs font-mono text-zinc-200 outline-none focus:border-[var(--color-gold)]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+                      自定义模型代号 (Model Override)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="默认官方预设"
+                      value={form.llm_model ?? ""}
+                      onChange={(e) => setForm({ ...form, llm_model: e.target.value || null })}
+                      className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-xs font-mono text-zinc-200 outline-none focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+                      自定义 Base URL (代理端点)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://api.openai.com/v1"
+                      value={form.llm_base_url ?? ""}
+                      onChange={(e) => setForm({ ...form, llm_base_url: e.target.value || null })}
+                      className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-xs font-mono text-zinc-200 outline-none focus:border-[var(--color-gold)]"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-          <FieldRow label="TTS API Key" hint="MiMo / OpenAI TTS 所需 API 密钥（可单独指定或继承 LLM Key）">
-            <input
-              type="password"
-              placeholder="sk-..."
-              value={local.tts_api_key ?? ""}
-              onChange={(e) => update("tts_api_key", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-          <FieldRow label="TTS Base URL" hint="可选 · 自定义 TTS 代理服务或 MiMo API 端点">
-            <input
-              type="text"
-              placeholder={
-                ttsProvider === "mimo"
-                  ? "https://api.xiaomimimo.com/v1"
-                  : ttsProvider === "open-ai"
-                    ? "https://api.openai.com"
-                    : "https://api.openai.com"
-              }
-              value={local.tts_base_url ?? ""}
-              onChange={(e) => update("tts_base_url", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-          <FieldRow label="Voice / Model">
-            <input
-              type="text"
-              placeholder={
-                ttsProvider === "edge"
-                  ? "zh-CN-XiaoxiaoNeural"
-                  : ttsProvider === "mimo"
-                    ? "mimo-v2.5-tts"
-                    : ttsProvider === "open-ai"
-                      ? "alloy"
-                      : "default"
-              }
-              value={local.tts_voice ?? ""}
-              onChange={(e) => update("tts_voice", e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            />
-          </FieldRow>
-          {ttsProvider === "gpt-sovits" && (
-            <>
-              <FieldRow label="参考音频路径">
-                <input
-                  type="text"
-                  placeholder="/path/to/reference.wav"
-                  value={local.tts_ref_audio_path ?? ""}
-                  onChange={(e) =>
-                    update("tts_ref_audio_path", e.target.value || null)
-                  }
-                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-                />
-              </FieldRow>
-              <FieldRow label="参考文本">
-                <input
-                  type="text"
-                  placeholder="参考音频对应的中文文本"
-                  value={local.tts_prompt_text ?? ""}
-                  onChange={(e) =>
-                    update("tts_prompt_text", e.target.value || null)
-                  }
-                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-                />
-              </FieldRow>
-            </>
-          )}
-        </Section>
-      )}
 
-      {/* Tab 3: FFmpeg */}
-      {activeTab === "ffmpeg" && (
-        <Section title="🎞️ FFmpeg 与硬件环境 (FFmpeg & System Path)" subtitle="检测本地视频拆条、音视频混流与 VAD 字幕对齐环境">
-          <FieldRow label="FFmpeg 路径" hint="支持系统全局环境变量与绝对路径">
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                placeholder="ffmpeg (系统默认)"
-                value="ffmpeg (已自动探针识别)"
-                readOnly
-                className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none"
-              />
-              <span className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-400">
-                ✓ 在线 (OK)
-              </span>
+          {activeNav === "tts" && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">默认语音合成引擎 (TTS Engine)</h3>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                  生成 48kHz 沉浸解说配音音频，并支持零样本音色克隆
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {TTS_OPTIONS.map((opt) => {
+                  const selected = form.tts_provider === opt.id;
+                  return (
+                    <div
+                      key={opt.id}
+                      onClick={() => setForm({ ...form, tts_provider: opt.id })}
+                      className={`flex flex-col justify-between rounded-xl border p-3 cursor-pointer transition-all ${
+                        selected
+                          ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] shadow-sm"
+                          : "border-[var(--color-border)] bg-[var(--color-bg)]/80 hover:border-zinc-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs font-bold ${selected ? "text-[var(--color-gold)]" : "text-zinc-200"}`}>
+                          {opt.label}
+                        </span>
+                        {selected && <span className="text-[10px] text-[var(--color-gold)] font-mono">✓ 默认</span>}
+                      </div>
+                      <p className="text-[10px] text-zinc-500 mt-1">{opt.hint}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </FieldRow>
-        </Section>
-      )}
+          )}
 
-      {/* Tab 4: Appearance */}
-      {activeTab === "appearance" && (
-        <Section title="🎨 外观与语言 (Appearance & Language)" subtitle="设置 UI 主题、双语模式与系统启动行为">
-          <FieldRow label="界面语言 (Language)" hint="实时切换 UI 与后端双语模式">
-            <select
-              value={local.language}
-              onChange={async (e) => {
-                const val = e.target.value;
-                update("language", val);
-                setLocale(val);
-                try {
-                  await themeIpc.setLocale(val);
-                  toast.success(val === "en-US" ? "Language updated to English" : "已切换为 简体中文");
-                } catch {
-                  toast.success(`已切换语言为 ${val}`);
-                }
-              }}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            >
-              <option value="zh-CN">🇨🇳 简体中文 (Simplified Chinese)</option>
-              <option value="en-US">🇺🇸 English (US)</option>
-            </select>
-          </FieldRow>
+          {activeNav === "theme" && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--color-text-primary)]">外观与界面主题</h3>
+                <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                  沉浸式电影调光暗黑模式与双模适配
+                </p>
+              </div>
 
-          <FieldRow label="主题 (Theme)">
-            <select
-              value={local.theme}
-              onChange={(e) => update("theme", e.target.value)}
-              className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3.5 py-2.5 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-gold)]"
-            >
-              <option value="dark">电影调光室 (Cinematic Darkroom)</option>
-              <option value="light">亮色 (Light)</option>
-              <option value="system">跟随系统 (System)</option>
-            </select>
-          </FieldRow>
-
-          <FieldRow label="自动更新" hint="启动时检查新版本">
-            <label className="flex items-center gap-2.5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={local.auto_update}
-                onChange={(e) => update("auto_update", e.target.checked)}
-                className="h-4 w-4 rounded border-[var(--color-border)] bg-[var(--color-bg)] accent-[#F5C842]"
-              />
-              <span className="text-sm text-[var(--color-text-primary)]">环境启动时自动检查新版本</span>
-            </label>
-          </FieldRow>
-        </Section>
-      )}
-
-      {/* Save */}
-      <div className="flex items-center justify-end gap-3 border-t border-[var(--color-border)] pt-6">
-        <button
-          type="button"
-          onClick={() => save.mutate(local)}
-          disabled={save.isPending}
-          className="btn-primary"
-          style={{ padding: "10px 28px", fontSize: "14px", fontWeight: 700 }}
-        >
-          {save.isPending ? "保存中..." : "💾 保存设置"}
-        </button>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "dark" as Theme, label: "暗夜调光 (Dark)", icon: "🌙" },
+                  { id: "light" as Theme, label: "明亮模式 (Light)", icon: "☀️" },
+                  { id: "system" as Theme, label: "跟随系统 (System)", icon: "💻" },
+                ].map((th) => {
+                  const active = currentTheme === th.id;
+                  return (
+                    <button
+                      key={th.id}
+                      type="button"
+                      onClick={() => {
+                        setTheme(th.id);
+                        setForm({ ...form, theme: th.id });
+                      }}
+                      className={`flex flex-col items-center justify-center rounded-xl border p-4 transition-all ${
+                        active
+                          ? "border-[var(--color-gold)] bg-[var(--color-gold-muted)] text-[var(--color-gold)] shadow-sm font-bold"
+                          : "border-[var(--color-border)] bg-[var(--color-bg)]/80 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <span className="text-2xl mb-1.5">{th.icon}</span>
+                      <span className="text-xs">{th.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </main>
       </div>
-    </div>
-  );
-}
-
-// ── Section / FieldRow ──────────────────────────────────────────────
-
-function Section({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
-      <div className="mb-5 space-y-1">
-        <h2 className="text-base font-bold text-[var(--color-gold)]">{title}</h2>
-        {subtitle && <p className="text-xs text-[var(--color-text-secondary)]">{subtitle}</p>}
-      </div>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
-}
-
-function FieldRow({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-[200px_1fr] md:items-start">
-      <div className="space-y-0.5">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-          {label}
-        </label>
-        {hint && <p className="text-[10px] text-[var(--color-text-muted)]">{hint}</p>}
-      </div>
-      <div>{children}</div>
     </div>
   );
 }
