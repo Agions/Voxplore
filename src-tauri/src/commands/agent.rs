@@ -1,11 +1,11 @@
 //! Tauri 命令分组 · splicr-agent 多智能体协同服务
 
-use splicr_agent::{AgentContext, AgentOrchestrator, BreakpointRequest};
+use splicr_agent::{AgentContext, AgentEventPayload, AgentOrchestrator, BreakpointRequest};
 use splicr_core::services::{ConfigService, ConfigSnapshot};
 use splicr_core::AppContext;
 use splicr_domain::Project;
 use std::sync::Arc;
-use tauri::State;
+use tauri::{Emitter, State};
 use tokio::sync::RwLock;
 
 // 内部状态管理器（非 pub struct，避免 gen-ipc 抽取为前端 TS interface）
@@ -20,6 +20,7 @@ impl AgentServiceState {
 /// 启动多智能体团队协同
 #[tauri::command]
 pub async fn agent_start(
+    app_handle: tauri::AppHandle,
     project: Project,
     auto_mode: bool,
     app_ctx: State<'_, AppContext>,
@@ -43,7 +44,12 @@ pub async fn agent_start(
             .insert("llm_provider".to_string(), snap.llm_provider.to_string());
     }
 
-    let orch = AgentOrchestrator::new(ctx.clone());
+    let handle_clone = app_handle.clone();
+    let emitter = Arc::new(move |payload: AgentEventPayload| {
+        let _ = handle_clone.emit("agent://event", payload);
+    });
+
+    let orch = AgentOrchestrator::new(ctx.clone()).with_emitter(emitter);
     let mut lock = state.0.write().await;
     *lock = Some(orch);
     Ok(ctx)

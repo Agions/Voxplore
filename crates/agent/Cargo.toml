@@ -23,3 +23,4 @@ tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.10", features = ["v4", "serde"] }
+base64 = "0.22"

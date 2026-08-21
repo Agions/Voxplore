@@ -459,6 +459,16 @@ export type AgentStatus =
   | "completed"
   | "failed";
 
+// Rust 端 AgentEventPayload (pub enum, rename_all = "snake_case")
+export type AgentEventPayload =
+  | "step_started"
+  | "thought_stream"
+  | "action_executed"
+  | "breakpoint_required"
+  | "step_completed"
+  | "workflow_completed"
+  | "error";
+
 // Rust 端 StepDef (pub struct)
 export interface PipelineStepDef {
   id: string;

@@ -40,3 +40,37 @@ pub struct BreakpointRequest {
     pub content: String,
     pub options: Vec<String>,
 }
+
+/// 实时事件总线载荷 (Tauri Event: `agent://event`)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data", rename_all = "snake_case")]
+pub enum AgentEventPayload {
+    StepStarted {
+        step_idx: usize,
+        role: AgentRole,
+        name: String,
+    },
+    ThoughtStream {
+        role: AgentRole,
+        content: String,
+    },
+    ActionExecuted {
+        role: AgentRole,
+        action: String,
+        observation: String,
+    },
+    BreakpointRequired(BreakpointRequest),
+    StepCompleted {
+        step_idx: usize,
+        role: AgentRole,
+        summary: String,
+    },
+    WorkflowCompleted {
+        total_steps: usize,
+        duration_ms: u64,
+    },
+    Error {
+        role: Option<AgentRole>,
+        message: String,
+    },
+}

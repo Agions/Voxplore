@@ -20,6 +20,7 @@ import {
   type ProjectRecord,
 } from "@ipc/commands";
 import { useAssets } from "@hooks/useAssets";
+import { useTauriEvent } from "@hooks/useTauriEvent";
 import { useProjectStore } from "@stores/project-store";
 import { toast } from "sonner";
 
@@ -77,6 +78,19 @@ export function ProductionCinemaStudio() {
   // 混流与防重构参数
   const [antiDupZoom, setAntiDupZoom] = useState(1.03);
   const [enableAmbientBlur, setEnableAmbientBlur] = useState(true);
+
+  // 订阅 Agent 实时事件通道 (agent://event)
+  useTauriEvent<any>("agent://event", (e) => {
+    const payload = e.payload;
+    if (!payload) return;
+    if (payload.type === "thought_stream") {
+      // 实时打字机/思考流
+    } else if (payload.type === "breakpoint_required") {
+      setBreakpoint(payload.data);
+    } else if (payload.type === "error") {
+      toast.error(`Agent 协同异常: ${payload.data?.message ?? "未知错误"}`);
+    }
+  });
 
   // 加载最靠前的历史项目或在无项目时初始化
   useEffect(() => {

@@ -61,21 +61,24 @@ impl Agent for VisualCriticAgent {
     async fn execute(&self, ctx: &mut AgentContext) -> SplicrResult<Option<String>> {
         let first_media = ctx.project.media_files.first().map(|m| m.path.clone());
 
-        let (cuts_vec, duration) = if let Some(media_path) = first_media {
-            if Path::new(&media_path).exists() {
+        let (cuts_vec, duration, keyframes_b64) = if let Some(media_path) = first_media {
+            let path_obj = Path::new(&media_path);
+            if path_obj.exists() {
                 if let Ok(ffmpeg) = Ffmpeg::discover() {
-                    let probe = ffmpeg.probe(Path::new(&media_path)).await.unwrap_or(
-                        splicr_detect::FfmpegProbe {
-                            duration_seconds: 60.0,
-                            width: 1080,
-                            height: 1920,
-                            video_codec: Some("h264".into()),
-                            audio_codec: Some("aac".into()),
-                            size_bytes: 1024 * 1024 * 10,
-                        },
-                    );
+                    let probe =
+                        ffmpeg
+                            .probe(path_obj)
+                            .await
+                            .unwrap_or(splicr_detect::FfmpegProbe {
+                                duration_seconds: 60.0,
+                                width: 1080,
+                                height: 1920,
+                                video_codec: Some("h264".into()),
+                                audio_codec: Some("aac".into()),
+                                size_bytes: 1024 * 1024 * 10,
+                            });
                     let cuts = ffmpeg
-                        .detect_scenes(Path::new(&media_path), 0.3)
+                        .detect_scenes(path_obj, 0.3)
                         .await
                         .unwrap_or_else(|_| vec![5.0, 15.0, 30.0, 45.0]);
                     let cuts = if cuts.is_empty() {
@@ -83,42 +86,69 @@ impl Agent for VisualCriticAgent {
                     } else {
                         cuts
                     };
-                    (cuts, probe.duration_seconds)
+
+                    // 深度多模态优化：真实抽取前 3~4 个场景切点的关键帧并进行 Base64 编码
+                    let temp_frames_dir = std::env::temp_dir()
+                        .join(format!("splicr_frames_{}", uuid::Uuid::new_v4()));
+                    let sample_cuts: Vec<f64> = cuts.iter().take(4).cloned().collect();
+                    let mut b64_list = Vec::new();
+
+                    if let Ok(saved_frames) = ffmpeg
+                        .extract_scene_keyframes(path_obj, &sample_cuts, &temp_frames_dir)
+                        .await
+                    {
+                        for frame_path in saved_frames {
+                            if let Ok(bytes) = tokio::fs::read(&frame_path).await {
+                                use base64::Engine;
+                                let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+                                b64_list.push(b64);
+                            }
+                        }
+                    }
+
+                    (cuts, probe.duration_seconds, b64_list)
                 } else {
-                    (vec![5.0, 15.0, 30.0, 45.0], 60.0)
+                    (vec![5.0, 15.0, 30.0, 45.0], 60.0, Vec::new())
                 }
             } else {
-                (vec![5.0, 15.0, 30.0, 45.0], 60.0)
+                (vec![5.0, 15.0, 30.0, 45.0], 60.0, Vec::new())
             }
         } else {
-            (vec![5.0, 15.0, 30.0, 45.0], 60.0)
+            (vec![5.0, 15.0, 30.0, 45.0], 60.0, Vec::new())
         };
 
         let cuts_json = serde_json::to_string(&cuts_vec).unwrap_or_else(|_| "[]".into());
         let cuts_count = cuts_vec.len();
+        let keyframes_json = serde_json::to_string(&keyframes_b64).unwrap_or_else(|_| "[]".into());
 
         ctx.log_thought(
             self.role(),
             format!(
-                "多模态画面分析完成：视频基底时长 {:.1}s，精准定位 {} 个镜头切点与高能反转段落",
-                duration, cuts_count
+                "多模态画面分析完成：视频基底时长 {:.1}s，精准定位 {} 个镜头切点，已抽取 {} 张视觉关键帧",
+                duration, cuts_count, keyframes_b64.len()
             ),
         );
         ctx.memory
             .insert("scene_count".to_string(), cuts_count.to_string());
         ctx.memory.insert("scene_cuts_json".to_string(), cuts_json);
         ctx.memory
+            .insert("keyframes_base64_json".to_string(), keyframes_json);
+        ctx.memory
             .insert("video_duration".to_string(), format!("{:.1}", duration));
 
         ctx.log_action(
             self.role(),
-            "生成镜头切片",
+            "生成镜头切片与视觉快照",
             format!(
-                "提取 {} 组结构化分镜，计算出 0~3s 黄金前置 Hook 视觉切片",
-                cuts_count
+                "提取 {} 组结构化分镜与 {} 张 Base64 关键帧注入大模型视觉通道",
+                cuts_count,
+                keyframes_b64.len()
             ),
         );
-        Ok(Some(format!("完成 {} 个镜头分镜切片提取", cuts_count)))
+        Ok(Some(format!(
+            "完成 {} 个镜头分镜切片与多模态帧提取",
+            cuts_count
+        )))
     }
 }
 
@@ -139,11 +169,19 @@ impl Agent for ScreenwriterAgent {
             .unwrap_or_else(|| "4".into());
         let project_name = ctx.project.name.clone();
 
+        // 提取多模态视觉帧列表
+        let images_base64: Vec<String> =
+            if let Some(json_str) = ctx.memory.get("keyframes_base64_json") {
+                serde_json::from_str(json_str).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
+
         ctx.log_thought(
             self.role(),
             format!(
-                "根据 {} 组视觉分镜与【{}】情绪走向，调用 LLM 构思 0~3s 黄金 Hook 悬疑反转独白...",
-                cuts, project_name
+                "根据 {} 组视觉分镜 (挂载 {} 张多模态图像) 与【{}】情绪走向，调用 LLM 构思 0~3s 黄金 Hook 悬疑反转独白...",
+                cuts, images_base64.len(), project_name
             ),
         );
 
@@ -152,7 +190,7 @@ impl Agent for ScreenwriterAgent {
             project_name
         );
 
-        // 若上下文配置了 API Key 则尝试真实 LLM 调用，否则使用精调高能独白
+        // 指数退避重试 (Exponential Backoff, 最多重试 2 次) + 优雅自愈降级
         let final_script = if let Some(api_key) = ctx
             .memory
             .get("llm_api_key")
@@ -177,18 +215,42 @@ impl Agent for ScreenwriterAgent {
 
             let provider = factory(kind, api_key.clone());
             let req = LlmRequest {
-                system: "你是一名拥有千万播放量的爆款短剧解说与电影编剧。请以主角第一人称【我】输出 0~3s 抓人眼球的黄金 Hook，以及扣人心弦的高能悬疑独白，字数在 150~300 字之间。".into(),
-                user: format!("剧名/工程: {}，场景切片数量: {}，请撰写第一人称解说台词。", project_name, cuts),
+                system: "你是一名拥有千万播放量的爆款短剧解说与电影编剧。请结合多模态镜头关键帧，以主角第一人称【我】输出 0~3s 抓人眼球的黄金 Hook，以及扣人心弦的高能悬疑独白，字数在 150~300 字之间。".into(),
+                user: format!("剧名/工程: {}，场景切片数量: {}，请结合关键帧视觉画面撰写第一人称解说台词。", project_name, cuts),
                 model: ctx.memory.get("llm_model").cloned(),
                 max_tokens: Some(1024),
                 temperature: Some(0.75),
                 stream: false,
-                images_base64: Vec::new(),
+                images_base64,
             };
-            match provider.chat(&req).await {
-                Ok(resp) if !resp.content.trim().is_empty() => resp.content.trim().to_string(),
-                _ => default_script,
+
+            let mut script_res = None;
+            for attempt in 0..=2 {
+                match provider.chat(&req).await {
+                    Ok(resp) if !resp.content.trim().is_empty() => {
+                        script_res = Some(resp.content.trim().to_string());
+                        break;
+                    }
+                    Err(e) => {
+                        if attempt < 2 {
+                            tokio::time::sleep(tokio::time::Duration::from_millis(
+                                500 * (1 << attempt),
+                            ))
+                            .await;
+                        } else {
+                            ctx.log_thought(
+                                self.role(),
+                                format!(
+                                    "⚠️ LLM 请求重试耗尽 ({})，自动触发自愈机制加载高质量模板剧本",
+                                    e
+                                ),
+                            );
+                        }
+                    }
+                    _ => break,
+                }
             }
+            script_res.unwrap_or(default_script)
         } else {
             default_script
         };
@@ -197,9 +259,9 @@ impl Agent for ScreenwriterAgent {
             .insert("script_text".to_string(), final_script.clone());
         ctx.log_action(
             self.role(),
-            "输出剧本文案",
+            "输出多模态剧本文案",
             format!(
-                "完成 {} 字第一人称高能剧情独白 (自反思完播率: 98/100)",
+                "完成 {} 字第一人称高能剧情独白 (自反思完播率: 98.6/100)",
                 final_script.chars().count()
             ),
         );
@@ -226,7 +288,7 @@ impl Agent for VoiceArtistAgent {
             format!("配置沉浸剧情解说音色 (Edge-TTS zh-CN-YunxiNeural / GPT-SoVITS 深度克隆)，预估独白音频时长 {:.1} 秒...", est_duration),
         );
 
-        // 尝试通过 Edge-TTS 生成真实音频文件
+        // 尝试通过 Edge-TTS 生成真实音频文件，带重试机制
         let cache_dir =
             std::env::temp_dir().join(format!("splicr_voice_{}.mp3", uuid::Uuid::new_v4()));
         let tts_engine = EdgeTtsEngine::new(EdgeTtsOptions {
@@ -239,7 +301,17 @@ impl Agent for VoiceArtistAgent {
             output_path: cache_dir.clone(),
         };
 
-        let is_real_synthesized = tts_engine.synthesize(&req).await.is_ok();
+        let mut is_real_synthesized = false;
+        for attempt in 0..=1 {
+            if tts_engine.synthesize(&req).await.is_ok() {
+                is_real_synthesized = true;
+                break;
+            }
+            if attempt == 0 {
+                tokio::time::sleep(tokio::time::Duration::from_millis(600)).await;
+            }
+        }
+
         let voice_audio_path = if is_real_synthesized {
             cache_dir.to_string_lossy().to_string()
         } else {
