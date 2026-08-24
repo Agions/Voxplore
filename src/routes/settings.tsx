@@ -1,12 +1,17 @@
 /**
- * splicr v1.0.1 · 设置与模型引擎中心 (电影级调色台设计系统重构)
+ * splicr v1.0.1 · 设置与模型引擎中心 (全模型矩阵统一最新代际)
  * 
- * 视觉提升:
- * - 左右双栏统一卡片容器 (Studio Rack & Canvas)
- * - 品牌专有色与精美微光 Badge
- * - 沉浸式 LLM Provider 矩阵与快捷状态指示
- * - TTS 语音引擎与参数联动配置
- * - 外观主题与语言自适应切换
+ * 全量最新模型定义:
+ * - 通义千问: qwen3.8-max (阿里旗舰)
+ * - DeepSeek: deepseek-v4-pro (推理增强)
+ * - OpenAI: gpt-5.6-sol (顶级叙事旗舰)
+ * - Claude: claude-sonnet-5 (文学电影质感)
+ * - Gemini: gemini-3.6-flash (百万多模态帧)
+ * - Kimi: kimi-k3 (长文反转)
+ * - 智谱 GLM: glm-5.2 (清言旗舰)
+ * - 豆包 Doubao: doubao-seed-2-1-pro (短剧完播率)
+ * - 腾讯混元: hunyuan-pro (多模态解析)
+ * - 本地开源: llama3.2 / qwen2.5 (127.0.0.1:11434)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -33,16 +38,16 @@ interface LlmMeta {
 }
 
 const LLM_OPTIONS: LlmMeta[] = [
-  { id: "qwen", name: "通义千问 Qwen", badge: "阿里官方", desc: "qwen3.8-max · 卓越中文与多模态解析", icon: "🌐", defaultModel: "qwen3.8-max", color: "from-blue-500/20 to-indigo-500/10" },
-  { id: "deepseek", name: "DeepSeek", badge: "高性价比", desc: "deepseek-v4-pro / r1 · 强逻辑推理", icon: "⚡", defaultModel: "deepseek-chat", color: "from-sky-500/20 to-blue-500/10" },
-  { id: "open-ai", name: "OpenAI", badge: "国际旗舰", desc: "gpt-5.6-sol / gpt-4o · 顶级编剧叙事", icon: "🟢", defaultModel: "gpt-4o", color: "from-emerald-500/20 to-teal-500/10" },
-  { id: "claude", name: "Claude", badge: "文学叙事", desc: "claude-sonnet-5 / 3.5 · 细腻情感独白", icon: "🟣", defaultModel: "claude-3-5-sonnet", color: "from-purple-500/20 to-violet-500/10" },
-  { id: "gemini", name: "Gemini", badge: "超长上下文", desc: "gemini-3.6-flash · 百万级视觉帧记忆", icon: "🔷", defaultModel: "gemini-1.5-flash", color: "from-cyan-500/20 to-blue-500/10" },
-  { id: "kimi", name: "Kimi · 月之暗面", badge: "长文精析", desc: "kimi-k3 · 剧情反转与线索梳理", icon: "🌙", defaultModel: "moonshot-v1-8k", color: "from-amber-500/20 to-orange-500/10" },
-  { id: "glm5", name: "智谱 GLM", badge: "清华开源", desc: "glm-5.2 · 智谱清言大模型矩阵", icon: "🔮", defaultModel: "glm-4", color: "from-indigo-500/20 to-purple-500/10" },
-  { id: "doubao", name: "豆包 Doubao", badge: "字节跳动", desc: "doubao-seed-2-1-pro · 短剧爆款语感", icon: "📦", defaultModel: "doubao-pro-32k", color: "from-rose-500/20 to-pink-500/10" },
-  { id: "hunyuan", name: "混元 Hunyuan", badge: "腾讯旗舰", desc: "hunyuan-pro · 腾讯多模态大模型", icon: "🐧", defaultModel: "hunyuan-pro", color: "from-blue-600/20 to-cyan-500/10" },
-  { id: "local", name: "本地 Ollama", badge: "私有离线", desc: "llama3.2 / qwen2.5 (127.0.0.1:11434)", icon: "💻", defaultModel: "qwen2.5:7b", color: "from-zinc-500/20 to-zinc-600/10" },
+  { id: "qwen", name: "通义千问 Qwen", badge: "阿里旗舰", desc: "qwen3.8-max · 原生多模态与爆点 Hook 解析", icon: "🌐", defaultModel: "qwen3.8-max", color: "from-blue-500/20 to-indigo-500/10" },
+  { id: "deepseek", name: "DeepSeek", badge: "强逻辑推理", desc: "deepseek-v4-pro · 复杂剧情冲突与反转逻辑链", icon: "⚡", defaultModel: "deepseek-v4-pro", color: "from-sky-500/20 to-blue-500/10" },
+  { id: "open-ai", name: "OpenAI", badge: "国际旗舰", desc: "gpt-5.6-sol · 电影级第一人称独白叙事", icon: "🟢", defaultModel: "gpt-5.6-sol", color: "from-emerald-500/20 to-teal-500/10" },
+  { id: "claude", name: "Claude", badge: "文学大师", desc: "claude-sonnet-5 · 细腻情感修辞与深度影评", icon: "🟣", defaultModel: "claude-sonnet-5", color: "from-purple-500/20 to-violet-500/10" },
+  { id: "gemini", name: "Gemini", badge: "百万帧感知", desc: "gemini-3.6-flash · 超长上下文全季连续梗概", icon: "🔷", defaultModel: "gemini-3.6-flash", color: "from-cyan-500/20 to-blue-500/10" },
+  { id: "kimi", name: "Kimi · 月之暗面", badge: "长剧拆条", desc: "kimi-k3 · 百万字原著改编与背景设定集", icon: "🌙", defaultModel: "kimi-k3", color: "from-amber-500/20 to-orange-500/10" },
+  { id: "glm5", name: "智谱 GLM", badge: "清华开源", desc: "glm-5.2 · 中文影视剧本与情感递进深度调优", icon: "🔮", defaultModel: "glm-5.2", color: "from-indigo-500/20 to-purple-500/10" },
+  { id: "doubao", name: "豆包 Doubao", badge: "字节短剧", desc: "doubao-seed-2-1-pro · 抖音快手高完播率解说", icon: "📦", defaultModel: "doubao-seed-2-1-pro", color: "from-rose-500/20 to-pink-500/10" },
+  { id: "hunyuan", name: "混元 Hunyuan", badge: "腾讯旗舰", desc: "hunyuan-pro · 腾讯多模态结构化剧情生成", icon: "🐧", defaultModel: "hunyuan-pro", color: "from-blue-600/20 to-cyan-500/10" },
+  { id: "local", name: "本地 Ollama", badge: "私有离线", desc: "llama3.2 / qwen2.5 (127.0.0.1:11434)", icon: "💻", defaultModel: "llama3.2", color: "from-zinc-500/20 to-zinc-600/10" },
 ];
 
 const TTS_OPTIONS: Array<{
@@ -132,7 +137,7 @@ function SettingsPage() {
               {t("settings.title", locale)}
             </h1>
             <p className="text-xs text-[var(--color-text-secondary)]">
-              统一调度 11 大主流 LLM 大模型、48kHz 影视配音引擎与本地渲染配置
+              统一调度 11 大最新主流 LLM 大模型矩阵、48kHz 影视配音引擎与本地渲染配置
             </p>
           </div>
 
@@ -193,7 +198,7 @@ function SettingsPage() {
                     </p>
                   </div>
                   <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2.5 py-1 font-mono text-[10px] text-[var(--color-gold)] font-bold">
-                    当前选用: {currentLlm?.name}
+                    当前选用: {currentLlm?.name} ({currentLlm?.defaultModel})
                   </span>
                 </div>
 
