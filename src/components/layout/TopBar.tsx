@@ -124,7 +124,7 @@ export function TopBar() {
               textTransform: "uppercase",
             }}
           >
-            叙影 · v{version ?? "2.5.0"}
+            叙影 · v{version ?? "1.0.1"}
           </div>
         </div>
       </div>

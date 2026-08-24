@@ -87,7 +87,7 @@ pub async fn export_capcut_draft(
     let info_content = serde_json::json!({
         "draft_id": draft_id,
         "draft_name": project_name,
-        "draft_type": "jianyying",
+        "draft_type": "jianying",
         "version": "2.5.0",
         "fps": 30,
         "canvas_config": {
