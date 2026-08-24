@@ -1,5 +1,11 @@
 /**
- * splicr v1.0.1 · 三栏专业集成影视解说工作台 (自适应多模态全自动流水线 + 实时自愈与无缝交付)
+ * splicr v1.0.1 · 三栏专业影视级 NLE 智能体创作工作台
+ * 
+ * 视觉与交互重构:
+ * - 电影级调色监看台 (Hero Cinema Viewport): 9:16 / 16:9 画幅自适应浮动 + 悬浮极简控制器 + 内嵌式频谱
+ * - 智能体角色中枢 (Agent Control Rack): 胶囊徽章 + 进度指示 + 实时微交互
+ * - 全景 5 轨磁性时间轴 (MultiTrack Timeline)
+ * - 终端式 Agent 思考流与断点决策区 (HITL Cockpit)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -53,6 +59,7 @@ export function ProductionCinemaStudio() {
   const [activeTab, setActiveTab] = useState<"agent" | "script" | "voice" | "export">("agent");
   const [showImport, setShowImport] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
 
   // ── Multi-Agent 状态 ──
   const [isAgentRunning, setIsAgentRunning] = useState(false);
@@ -207,7 +214,6 @@ export function ProductionCinemaStudio() {
       const paths = Array.isArray(selected) ? selected : [selected];
       await importFromPaths(paths);
       toast.success(`成功导入并装载 ${paths.length} 个视频文件，正自动激活 Agent 创作流水线...`);
-      // 导入完成后立即自动触发全模态创作流转
       setTimeout(() => {
         void handleStartMultiAgent(agentAutoMode);
       }, 500);
@@ -261,17 +267,22 @@ export function ProductionCinemaStudio() {
   return (
     <div className="flex h-full w-full flex-col overflow-hidden bg-[var(--color-bg)] select-none font-sans">
       {/* 顶部二级工具栏: 工程名称 + 快速操作 + 状态指示 */}
-      <div className="flex h-12 w-full items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 px-4 backdrop-blur-md">
+      <header className="flex h-12 w-full items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 backdrop-blur-md z-20">
         <div className="flex items-center gap-3">
-          <span className={`flex h-2.5 w-2.5 rounded-full ${hasUploadedVideo ? "bg-emerald-500 shadow-[0_0_8px_#10B981]" : "bg-amber-500 shadow-[0_0_8px_#F59E0B]"}`} />
-          <span className="font-mono text-xs font-bold text-[var(--color-text-primary)]">
-            {currentProject?.project?.name ?? "splicr 影视解说工程"}
-          </span>
-          <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-muted)]">
+          <div className="flex items-center gap-2">
+            <span className={`flex h-2.5 w-2.5 rounded-full ${hasUploadedVideo ? "bg-emerald-500 shadow-[0_0_8px_#10B981]" : "bg-amber-500 shadow-[0_0_8px_#F59E0B]"}`} />
+            <span className="font-mono text-xs font-bold text-[var(--color-text-primary)]">
+              {currentProject?.project?.name ?? "splicr 影视解说工程"}
+            </span>
+          </div>
+
+          <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-secondary)]">
             {hasUploadedVideo ? `📹 已装载: ${mediaName} (${allMedia.length} 个文件)` : "⚠️ 未装载视频素材"}
           </span>
-          <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
-            🤖 Rust Multi-Agent 自适应流水线就绪
+
+          <span className="flex items-center gap-1 rounded-md border border-[var(--color-gold)]/30 bg-[var(--color-gold-muted)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-gold)] animate-ping" />
+            <span>Multi-Agent 智能体协作流水线</span>
           </span>
         </div>
 
@@ -279,57 +290,70 @@ export function ProductionCinemaStudio() {
           <button
             type="button"
             onClick={handleDirectImportVideo}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-gold)]/50 bg-[var(--color-gold-muted)] px-3 py-1.5 text-xs font-bold text-[var(--color-gold)] transition-all hover:brightness-110"
+            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#F5C842] to-[#E8933A] px-3.5 py-1.5 text-xs font-bold text-zinc-950 shadow-[0_0_12px_rgba(245,200,66,0.25)] transition-all hover:brightness-110 active:scale-95"
           >
             <span>➕</span> 导入视频并自动生成
           </button>
           <button
             type="button"
             onClick={() => setShowImport(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-gold)]/40 transition-colors"
           >
             <span>📁</span> 批量扫描
           </button>
         </div>
-      </div>
+      </header>
 
       {/* 核心三栏 Grid 主工作区 */}
-      <div className="grid flex-1 grid-cols-[280px_1fr_380px] overflow-hidden">
-        {/* ── 1. 左栏: 智能体角色与分镜切片 ── */}
-        <aside className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]/40 p-3.5 gap-4 overflow-y-auto">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+      <div className="grid flex-1 grid-cols-[260px_1fr_340px] overflow-hidden">
+        {/* ── 1. 左栏: 智能体角色机架与分镜切片 ── */}
+        <aside className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] p-3 gap-3.5 overflow-y-auto">
+          {/* Agent 角色机架 */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
                 智能体角色矩阵 (Agent Team)
               </span>
-              <span className="text-[10px] font-mono text-[var(--color-gold)]">6 Agents</span>
+              <span className="rounded bg-[var(--color-gold-muted)] px-1.5 py-0.2 font-mono text-[9px] font-bold text-[var(--color-gold)]">
+                6 Agents
+              </span>
             </div>
-            <div className="flex flex-col gap-1.5">
+
+            <div className="flex flex-col gap-1">
               {[
-                { idx: 0, id: "a1", name: "🎬 总控导演 (Director)", desc: "全局任务规划与自适应流水线分发" },
-                { idx: 1, id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧抽取与情绪感知" },
-                { idx: 2, id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑第一人称独白" },
-                { idx: 3, id: "a4", name: "🎙️ 声乐调音师 (VoiceArtist)", desc: "48kHz 情感配音与音色克隆" },
-                { idx: 4, id: "a5", name: "🎛️ 混音剪辑师 (SoundEngineer)", desc: "5 轨时间轴与 BGM 智能闪避" },
-                { idx: 5, id: "a6", name: "🔍 质量验收员 (QualityReviewer)", desc: "违禁词与对齐公差核验" },
+                { idx: 0, id: "a1", name: "🎬 总控导演", role: "Director", desc: "全局编排与任务分发" },
+                { idx: 1, id: "a2", name: "👁️ 视觉分析师", role: "VisualCritic", desc: "关键帧多模态切片与感知" },
+                { idx: 2, id: "a3", name: "✍️ 金牌编剧", role: "Screenwriter", desc: "0~3s Hook 与悬疑独白" },
+                { idx: 3, id: "a4", name: "🎙️ 声乐调音师", role: "VoiceArtist", desc: "情绪配音与音色克隆" },
+                { idx: 4, id: "a5", name: "🎛️ 混音剪辑师", role: "SoundEngineer", desc: "5 轨时间轴与 BGM 闪避" },
+                { idx: 5, id: "a6", name: "🔍 质量验收员", role: "QualityReviewer", desc: "违禁词与对齐公差核验" },
               ].map((s) => {
                 const isStepActive = isAgentRunning && currentStepIndex === s.idx;
                 const isStepDone = currentStepIndex > s.idx;
                 return (
                   <div
                     key={s.id}
-                    className={`flex flex-col rounded-lg px-2.5 py-2 text-xs transition-all ${
+                    className={`flex flex-col rounded-lg px-2.5 py-1.5 text-xs transition-all border ${
                       isStepActive
-                        ? "border border-[var(--color-gold)]/60 bg-[var(--color-gold-muted)] text-[var(--color-gold)] font-bold shadow-sm"
+                        ? "border-[var(--color-gold)]/60 bg-[var(--color-gold-muted)] text-[var(--color-gold)] font-bold shadow-sm"
                         : isStepDone
-                          ? "border border-transparent bg-[var(--color-bg)]/80 text-[var(--color-text-primary)]"
-                          : "border border-transparent text-[var(--color-text-muted)]"
+                          ? "border-[var(--color-border)] bg-[var(--color-bg)]/60 text-[var(--color-text-primary)]"
+                          : "border-transparent text-[var(--color-text-muted)] hover:bg-[var(--color-surface-elevated)]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[11px]">{s.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-[11px]">{s.name}</span>
+                        <span className="font-mono text-[9px] text-[var(--color-text-muted)]">({s.role})</span>
+                      </div>
                       <span className="font-mono text-[10px]">
-                        {isStepDone ? "✓" : isStepActive ? "●" : "○"}
+                        {isStepDone ? (
+                          <span className="text-emerald-400 font-bold">✓</span>
+                        ) : isStepActive ? (
+                          <span className="text-[var(--color-gold)] animate-pulse">●</span>
+                        ) : (
+                          "○"
+                        )}
                       </span>
                     </div>
                     <span className="text-[9px] text-[var(--color-text-muted)] mt-0.5">{s.desc}</span>
@@ -343,9 +367,9 @@ export function ProductionCinemaStudio() {
 
           {/* 场景切片列表 */}
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                镜头切片 ({sceneCuts.length})
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                分镜镜头切片 ({sceneCuts.length})
               </span>
               <button
                 type="button"
@@ -363,21 +387,21 @@ export function ProductionCinemaStudio() {
                 🔄 重新分析
               </button>
             </div>
-            <div className="flex flex-col gap-2 overflow-y-auto pr-1">
+            <div className="flex flex-col gap-1.5 overflow-y-auto pr-0.5">
               {sceneCuts.length > 0 ? (
                 sceneCuts.map((cut) => (
                   <div
                     key={cut.id}
-                    className="group flex flex-col gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 transition-all hover:border-[var(--color-gold)]/60 hover:shadow-sm"
+                    className="group flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-2 transition-all hover:border-[var(--color-gold)]/60"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-[var(--color-gold)]">#{cut.id}</span>
-                      <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] font-semibold text-zinc-300">
+                      <span className="font-mono text-[11px] font-bold text-[var(--color-gold)]">#{cut.id}</span>
+                      <span className="rounded bg-[var(--color-surface-elevated)] border border-[var(--color-border)] px-1.5 py-0.2 text-[8px] font-semibold text-[var(--color-text-secondary)]">
                         {cut.emotion}
                       </span>
                     </div>
-                    <span className="text-xs font-medium text-[var(--color-text-primary)]">{cut.tag}</span>
-                    <span className="font-mono text-[10px] text-[var(--color-text-muted)]">{cut.time}</span>
+                    <span className="text-[11px] font-medium text-[var(--color-text-primary)]">{cut.tag}</span>
+                    <span className="font-mono text-[9px] text-[var(--color-text-muted)]">{cut.time}</span>
                   </div>
                 ))
               ) : (
@@ -391,22 +415,22 @@ export function ProductionCinemaStudio() {
                     ]);
                     toast.success("已提取当前素材的 4 组关键分镜切片");
                   }}
-                  className="flex h-28 flex-col items-center justify-center rounded-xl border border-dashed border-[var(--color-border)] p-3 text-center text-zinc-500 text-xs cursor-pointer hover:border-[var(--color-gold)] transition-colors"
+                  className="flex h-24 flex-col items-center justify-center rounded-lg border border-dashed border-[var(--color-border)] p-2 text-center text-[var(--color-text-muted)] text-[11px] cursor-pointer hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors"
                 >
                   <span>点击提取分镜切片</span>
-                  <span className="text-[10px] text-zinc-600 mt-1">或启动 Agent 自动执行多模态抽帧</span>
+                  <span className="text-[9px] opacity-70 mt-0.5">或导入视频自动多模态抽帧</span>
                 </div>
               )}
             </div>
           </div>
         </aside>
 
-        {/* ── 2. 中栏: 视听播放中枢与 5 轨磁性时间轴 ── */}
-        <main className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-bg)] p-4 gap-4 overflow-y-auto">
-          {/* 上半部分: 视频播放器 + 实时音频频域 Canvas */}
-          <div className="grid grid-cols-[1fr_260px] gap-4 h-[240px]">
-            {/* 视频主画面 */}
-            <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-[var(--color-border)] bg-zinc-950 shadow-lg">
+        {/* ── 2. 中栏: 影视视听监看台与 5 轨磁性时间轴 ── */}
+        <main className="flex flex-col border-r border-[var(--color-border)] bg-[var(--color-bg)] p-3 gap-3 overflow-y-auto">
+          {/* 上半部分: 居中专业视听监看台 (Hero Cinema Monitor) */}
+          <div className="relative flex flex-col items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-md min-h-[260px] max-h-[300px]">
+            {/* 视频主画幅 (9:16 短剧居中自适应) */}
+            <div className="relative flex h-[210px] w-[118px] sm:w-[130px] items-center justify-center overflow-hidden rounded-xl bg-zinc-950 shadow-2xl border border-black/40">
               {hasUploadedVideo && mediaPath ? (
                 <video
                   src={mediaPath}
@@ -416,74 +440,87 @@ export function ProductionCinemaStudio() {
               ) : (
                 <div
                   onClick={handleDirectImportVideo}
-                  className="flex flex-col items-center justify-center gap-2 text-zinc-500 cursor-pointer p-6 hover:text-[var(--color-gold)] transition-colors text-center"
+                  className="flex flex-col items-center justify-center gap-1 text-[var(--color-text-muted)] cursor-pointer p-2 hover:text-[var(--color-gold)] transition-colors text-center"
                 >
-                  <span className="text-3xl">📤</span>
-                  <span className="text-xs font-bold text-[var(--color-text-primary)]">暂未上传视频，点击快速选择视频素材</span>
-                  <span className="text-[10px] text-zinc-600">支持 MP4, MOV, MKV, WebM 格式 (9:16 短剧竖屏优先)</span>
+                  <span className="text-2xl">📤</span>
+                  <span className="text-[10px] font-bold text-[var(--color-text-primary)]">选择视频素材</span>
+                  <span className="text-[8px] opacity-60">9:16 短剧竖屏优先</span>
                 </div>
               )}
+
               {hasUploadedVideo && (
-                <>
-                  <div className="absolute top-3 left-3 rounded-md bg-black/60 px-2 py-1 text-[10px] font-mono text-[var(--color-gold)] backdrop-blur-md">
-                    1080×1920 · 9:16 短剧竖屏
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="absolute inset-0 m-auto flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
-                  >
-                    {isPlaying ? "⏸" : "▶"}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="absolute inset-0 m-auto flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md transition-transform hover:scale-110 active:scale-95"
+                >
+                  {isPlaying ? "⏸" : "▶"}
+                </button>
               )}
             </div>
 
-            {/* 音频频域响应视窗 */}
-            <div className="flex flex-col rounded-2xl border border-[var(--color-border)] bg-zinc-950 p-3 shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                  频域响应 (Frequency)
+            {/* 监看器左上角与右上角状态徽章 */}
+            <div className="absolute top-3 left-4 flex items-center gap-2">
+              <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/90 px-2 py-0.5 font-mono text-[10px] font-bold text-[var(--color-gold)] backdrop-blur-md">
+                1080×1920 · 9:16
+              </span>
+              <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/90 px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-secondary)] backdrop-blur-md">
+                48kHz · 24bit
+              </span>
+            </div>
+
+            {/* 监看器右侧频域嵌入条 */}
+            <div className="absolute top-3 right-4 flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/80 px-2.5 py-1">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                实时频谱
+              </span>
+              <div className="h-4 w-28 overflow-hidden rounded bg-black/40">
+                <AudioVisualizerCanvas isPlaying={isPlaying} height={16} />
+              </div>
+            </div>
+
+            {/* 监看台底栏播放器控制带 */}
+            <div className="mt-2 flex w-full items-center justify-between px-2 pt-1 border-t border-[var(--color-border)]/50">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-3 text-xs font-bold text-[var(--color-text-primary)] hover:border-[var(--color-gold)] transition-colors"
+                >
+                  <span>{isPlaying ? "⏸ 暂停" : "▶ 播放"}</span>
+                </button>
+                <span className="font-mono text-[11px] text-[var(--color-text-secondary)]">
+                  {isPlaying ? "实时监看中..." : "待命"}
                 </span>
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               </div>
-              <div className="flex-1 w-full overflow-hidden rounded-lg bg-zinc-900/50">
-                <AudioVisualizerCanvas isPlaying={isPlaying} />
-              </div>
-              <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-zinc-500">
-                <span>48kHz · 24bit</span>
-                <span>BGM 闪避 -18dB</span>
+
+              <div className="flex items-center gap-2 text-[10px] font-mono text-[var(--color-text-muted)]">
+                <span>BGM 闪避 (-18dB)</span>
+                <span>•</span>
+                <span>VAD 逐字吸附 (&lt;8ms)</span>
               </div>
             </div>
           </div>
 
           {/* 下半部分: 全景多轨时间轴 */}
-          <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/30 p-3 shadow-inner">
-            <div className="flex items-center justify-between mb-2">
+          <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2.5 shadow-sm">
+            <div className="flex items-center justify-between mb-1.5 px-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
                   全景磁性多轨时间轴
                 </span>
-                <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-gold)]">
+                <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2 py-0.5 font-mono text-[9px] text-[var(--color-gold)]">
                   5 Tracks (V1 / Hook / A1 / Text / BGM)
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-xs font-semibold text-zinc-300 hover:text-white"
-                >
-                  {isPlaying ? "暂停" : "播放"}
-                </button>
-              </div>
             </div>
 
-            <div className="flex-1 min-h-[220px]">
+            <div className="flex-1 min-h-[200px]">
               <MultiTrackTimeline
                 durationSeconds={60}
-                currentTime={0}
+                currentTime={currentTime}
                 isPlaying={isPlaying}
+                onSeek={(t) => setCurrentTime(t)}
                 videoClips={
                   sceneCuts.length > 0
                     ? sceneCuts.map((c) => ({
@@ -527,8 +564,8 @@ export function ProductionCinemaStudio() {
           </div>
         </main>
 
-        {/* ── 3. 右栏: Multi-Agent 智能体视窗与创作控制台 ── */}
-        <aside className="flex flex-col bg-[var(--color-surface)]/60 p-3.5 gap-4 overflow-y-auto">
+        {/* ── 3. 右栏: Multi-Agent 控制台与创作工坊 ── */}
+        <aside className="flex flex-col bg-[var(--color-surface)] p-3.5 gap-3.5 overflow-y-auto">
           {/* 顶部分页 Tab */}
           <div className="grid grid-cols-4 gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-1">
             {[
@@ -543,7 +580,7 @@ export function ProductionCinemaStudio() {
                 onClick={() => setActiveTab(t.id as any)}
                 className={`flex items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-bold transition-all ${
                   activeTab === t.id
-                    ? "bg-[var(--color-surface)] text-[var(--color-gold)] shadow-sm"
+                    ? "bg-[var(--color-surface)] text-[var(--color-gold)] shadow-sm border border-[var(--color-border)]"
                     : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
                 }`}
               >
@@ -555,7 +592,7 @@ export function ProductionCinemaStudio() {
 
           {/* Tab 0: Multi-Agent 协同视窗 */}
           {activeTab === "agent" && (
-            <div className="flex flex-col gap-3.5 flex-1 min-h-0">
+            <div className="flex flex-col gap-3 flex-1 min-h-0">
               {/* 人机协同模式切换 */}
               <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5">
                 <span className="text-xs font-semibold text-[var(--color-text-secondary)]">人机协作断点 (HITL)</span>
@@ -564,7 +601,7 @@ export function ProductionCinemaStudio() {
                     type="checkbox"
                     checked={!agentAutoMode}
                     onChange={(e) => setAgentAutoMode(!e.target.checked)}
-                    className="accent-[var(--color-gold)]"
+                    className="accent-[var(--color-gold)] cursor-pointer"
                   />
                   <span className="text-[11px] font-bold text-[var(--color-gold)]">
                     {!agentAutoMode ? "断点审核开启" : "自适应全自动"}
@@ -579,7 +616,7 @@ export function ProductionCinemaStudio() {
                     <span className="text-xs font-bold text-[var(--color-gold)]">⏸️ 节点审批: {breakpoint.step_title}</span>
                     <span className="text-[10px] text-amber-300">等待决策</span>
                   </div>
-                  <div className="rounded-lg bg-zinc-950/80 p-2 text-xs leading-relaxed text-zinc-200 border border-zinc-800 max-h-24 overflow-y-auto">
+                  <div className="rounded-lg bg-[var(--color-surface)] p-2 text-xs leading-relaxed text-[var(--color-text-primary)] border border-[var(--color-border)] max-h-24 overflow-y-auto">
                     {breakpoint.content}
                   </div>
                   <div className="flex gap-2 mt-1">
@@ -593,7 +630,7 @@ export function ProductionCinemaStudio() {
                     <button
                       type="button"
                       onClick={() => handleStartMultiAgent(agentAutoMode)}
-                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-white"
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                     >
                       重新生成
                     </button>
@@ -607,10 +644,10 @@ export function ProductionCinemaStudio() {
                   <span className="text-xs font-semibold text-[var(--color-text-secondary)]">Agent 思考链与行动日志</span>
                   <span className="text-[10px] font-mono text-[var(--color-gold)]">{agentMessages.length} 条记录</span>
                 </div>
-                <div className="flex-1 flex flex-col gap-2 overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 max-h-[340px]">
+                <div className="flex-1 flex flex-col gap-2 overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 max-h-[300px]">
                   {agentMessages.length > 0 ? (
                     agentMessages.map((m) => (
-                      <div key={m.id} className="flex flex-col gap-1 rounded-lg bg-[var(--color-surface)] p-2 border border-[var(--color-border)]/60 text-xs">
+                      <div key={m.id} className="flex flex-col gap-1 rounded-lg bg-[var(--color-surface)] p-2 border border-[var(--color-border)] text-xs">
                         <div className="flex items-center justify-between">
                           <span className="font-mono text-[10px] font-bold text-[var(--color-gold)] uppercase">{m.sender}</span>
                           <span className="font-mono text-[9px] text-[var(--color-text-muted)]">
@@ -630,9 +667,9 @@ export function ProductionCinemaStudio() {
                       </div>
                     ))
                   ) : (
-                    <div className="flex h-36 flex-col items-center justify-center text-center text-zinc-500 text-xs gap-1">
+                    <div className="flex h-32 flex-col items-center justify-center text-center text-[var(--color-text-muted)] text-xs gap-1">
                       <span>🤖 智能体团队处于待机状态</span>
-                      <span className="text-[10px] text-zinc-600">导入素材或点击下方按钮启动自适应流水线</span>
+                      <span className="text-[10px]">导入素材或点击下方按钮启动自适应流水线</span>
                     </div>
                   )}
                 </div>
@@ -642,7 +679,7 @@ export function ProductionCinemaStudio() {
                 type="button"
                 onClick={() => handleStartMultiAgent(agentAutoMode)}
                 disabled={isAgentRunning}
-                className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
+                className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110 active:scale-95"
               >
                 {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 启动 Multi-Agent 自适应流水线"}
               </button>
@@ -651,7 +688,7 @@ export function ProductionCinemaStudio() {
 
           {/* Tab 1: AI 独白脚本生成 */}
           {activeTab === "script" && (
-            <div className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-[var(--color-text-secondary)]">大模型选择</label>
                 <select
@@ -741,12 +778,12 @@ export function ProductionCinemaStudio() {
 
           {/* Tab 2: 人声克隆与 TTS */}
           {activeTab === "voice" && (
-            <div className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-[var(--color-text-secondary)]">TTS 引擎</label>
                 <div className="flex flex-col gap-1.5">
                   {[
-                    { id: "edge", label: "Edge-TTS", sub: "微软免费 · 无需密钥" },
+                    { id: "edge", label: "Edge-TTS", sub: "微软免费 · 48kHz 无需密钥" },
                     { id: "gpt-sovits", label: "GPT-SoVITS", sub: "零样本克隆 · 127.0.0.1:9880" },
                   ].map((e) => (
                     <label
@@ -788,7 +825,7 @@ export function ProductionCinemaStudio() {
 
           {/* Tab 3: 原生剪映草稿与防重构导出 */}
           {activeTab === "export" && (
-            <div className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-3">
               <div className="rounded-xl border border-[var(--color-gold)]/40 bg-[var(--color-gold-muted)] p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-gold)]">
                   <span>✂️</span>
