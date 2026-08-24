@@ -1,5 +1,5 @@
 /**
- * splicr v1.0.1 · 三栏专业集成影视解说工作台 (流畅断点续传 + 零受阻全自动流转 + 真实素材双向同步)
+ * splicr v1.0.1 · 三栏专业集成影视解说工作台 (自适应多模态全自动流水线 + 实时自愈与无缝交付)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -56,7 +56,7 @@ export function ProductionCinemaStudio() {
 
   // ── Multi-Agent 状态 ──
   const [isAgentRunning, setIsAgentRunning] = useState(false);
-  const [agentAutoMode, setAgentAutoMode] = useState(false);
+  const [agentAutoMode, setAgentAutoMode] = useState(true);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
   const [agentMessages, setAgentMessages] = useState<AgentMessage[]>([]);
   const [breakpoint, setBreakpoint] = useState<BreakpointRequest | null>(null);
@@ -92,6 +92,7 @@ export function ProductionCinemaStudio() {
     } else if (payload.type === "workflow_completed") {
       setIsAgentRunning(false);
       setCurrentStepIndex(6);
+      setActiveTab("export");
     } else if (payload.type === "error") {
       setIsAgentRunning(false);
       toast.error(`Agent 协同异常: ${payload.data?.message ?? "未知错误"}`);
@@ -126,23 +127,7 @@ export function ProductionCinemaStudio() {
     return rec;
   };
 
-  // 单文件或多文件快速导入
-  const handleDirectImportVideo = async () => {
-    try {
-      const selected = await openDialog({
-        multiple: true,
-        filters: [{ name: "视频素材 (Video)", extensions: ["mp4", "mov", "mkv", "webm", "avi"] }],
-      });
-      if (!selected) return;
-      const paths = Array.isArray(selected) ? selected : [selected];
-      await importFromPaths(paths);
-      toast.success(`成功导入并装载 ${paths.length} 个视频文件`);
-    } catch (e) {
-      toast.error("导入视频素材失败", { description: String(e) });
-    }
-  };
-
-  // 3. 核心流转调度 (支持从任意 step 开始执行，杜绝流程受阻)
+  // 3. 核心流转调度 (自适应多模态全自动流水线)
   const executeAgentSteps = async (startIdx: number) => {
     setIsAgentRunning(true);
     setBreakpoint(null);
@@ -191,7 +176,8 @@ export function ProductionCinemaStudio() {
       }
 
       setCurrentStepIndex(6);
-      toast.success("✨ 多智能体团队全链路影视制作完成！已准备好剪映草稿");
+      setActiveTab("export");
+      toast.success("✨ 多智能体团队全链路影视制作完成！已自动切换至剪映草稿交付");
     } catch (e) {
       toast.error("Agent 协同提示", { description: e instanceof Error ? e.message : String(e) });
     } finally {
@@ -202,11 +188,31 @@ export function ProductionCinemaStudio() {
   const handleStartMultiAgent = async (autoMode: boolean) => {
     try {
       const activeProj = await ensureActiveProject();
-      toast.info(`🎬 总控导演 Agent 已启动 (${autoMode ? "全自动模式" : "人机协作断点模式"})...`);
+      toast.info(`🎬 总控导演 Agent 已启动 (${autoMode ? "自适应全自动流水线" : "人机协作断点模式"})...`);
       await agentIpc.start(activeProj.project, autoMode);
       await executeAgentSteps(0);
     } catch (e) {
       toast.error("启动失败", { description: String(e) });
+    }
+  };
+
+  // 单文件或多文件快速导入 ➔ 导入成功后自动启动自适应流水线
+  const handleDirectImportVideo = async () => {
+    try {
+      const selected = await openDialog({
+        multiple: true,
+        filters: [{ name: "视频素材 (Video)", extensions: ["mp4", "mov", "mkv", "webm", "avi"] }],
+      });
+      if (!selected) return;
+      const paths = Array.isArray(selected) ? selected : [selected];
+      await importFromPaths(paths);
+      toast.success(`成功导入并装载 ${paths.length} 个视频文件，正自动激活 Agent 创作流水线...`);
+      // 导入完成后立即自动触发全模态创作流转
+      setTimeout(() => {
+        void handleStartMultiAgent(agentAutoMode);
+      }, 500);
+    } catch (e) {
+      toast.error("导入视频素材失败", { description: String(e) });
     }
   };
 
@@ -265,7 +271,7 @@ export function ProductionCinemaStudio() {
             {hasUploadedVideo ? `📹 已装载: ${mediaName} (${allMedia.length} 个文件)` : "⚠️ 未装载视频素材"}
           </span>
           <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-gold)]">
-            🤖 Rust Multi-Agent 引擎就绪
+            🤖 Rust Multi-Agent 自适应流水线就绪
           </span>
         </div>
 
@@ -275,7 +281,7 @@ export function ProductionCinemaStudio() {
             onClick={handleDirectImportVideo}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--color-gold)]/50 bg-[var(--color-gold-muted)] px-3 py-1.5 text-xs font-bold text-[var(--color-gold)] transition-all hover:brightness-110"
           >
-            <span>➕</span> 选择上传视频
+            <span>➕</span> 导入视频并自动生成
           </button>
           <button
             type="button"
@@ -300,11 +306,11 @@ export function ProductionCinemaStudio() {
             </div>
             <div className="flex flex-col gap-1.5">
               {[
-                { idx: 0, id: "a1", name: "🎬 总控导演 (Director)", desc: "全局任务规划与分发" },
-                { idx: 1, id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧与情绪感知" },
-                { idx: 2, id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑独白" },
-                { idx: 3, id: "a4", name: "🎙️ 声乐调音师 (VoiceArtist)", desc: "情绪配音与音色克隆" },
-                { idx: 4, id: "a5", name: "🎛️ 混音剪辑师 (SoundEngineer)", desc: "5 轨时间轴与 BGM 闪避" },
+                { idx: 0, id: "a1", name: "🎬 总控导演 (Director)", desc: "全局任务规划与自适应流水线分发" },
+                { idx: 1, id: "a2", name: "👁️ 视觉分析师 (VisualCritic)", desc: "多模态关键帧抽取与情绪感知" },
+                { idx: 2, id: "a3", name: "✍️ 金牌编剧 (Screenwriter)", desc: "0~3s Hook 与悬疑第一人称独白" },
+                { idx: 3, id: "a4", name: "🎙️ 声乐调音师 (VoiceArtist)", desc: "48kHz 情感配音与音色克隆" },
+                { idx: 4, id: "a5", name: "🎛️ 混音剪辑师 (SoundEngineer)", desc: "5 轨时间轴与 BGM 智能闪避" },
                 { idx: 5, id: "a6", name: "🔍 质量验收员 (QualityReviewer)", desc: "违禁词与对齐公差核验" },
               ].map((s) => {
                 const isStepActive = isAgentRunning && currentStepIndex === s.idx;
@@ -561,7 +567,7 @@ export function ProductionCinemaStudio() {
                     className="accent-[var(--color-gold)]"
                   />
                   <span className="text-[11px] font-bold text-[var(--color-gold)]">
-                    {!agentAutoMode ? "断点审核开启" : "一键全自动"}
+                    {!agentAutoMode ? "断点审核开启" : "自适应全自动"}
                   </span>
                 </label>
               </div>
@@ -626,7 +632,7 @@ export function ProductionCinemaStudio() {
                   ) : (
                     <div className="flex h-36 flex-col items-center justify-center text-center text-zinc-500 text-xs gap-1">
                       <span>🤖 智能体团队处于待机状态</span>
-                      <span className="text-[10px] text-zinc-600">点击下方按钮启动 Multi-Agent 全流程创作</span>
+                      <span className="text-[10px] text-zinc-600">导入素材或点击下方按钮启动自适应流水线</span>
                     </div>
                   )}
                 </div>
@@ -638,7 +644,7 @@ export function ProductionCinemaStudio() {
                 disabled={isAgentRunning}
                 className="w-full rounded-xl bg-gradient-to-r from-[#F5C842] to-[#E8933A] py-2.5 text-xs font-bold text-zinc-950 shadow-[0_0_16px_rgba(245,200,66,0.3)] transition-all hover:brightness-110"
               >
-                {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 启动 Multi-Agent 创作流水线"}
+                {isAgentRunning ? "🤖 智能体接力中..." : "⚡ 启动 Multi-Agent 自适应流水线"}
               </button>
             </div>
           )}
