@@ -1,17 +1,5 @@
 /**
- * splicr v1.0.1 · 设置与模型引擎中心 (全模型矩阵统一最新代际)
- * 
- * 全量最新模型定义:
- * - 通义千问: qwen3.8-max (阿里旗舰)
- * - DeepSeek: deepseek-v4-pro (推理增强)
- * - OpenAI: gpt-5.6-sol (顶级叙事旗舰)
- * - Claude: claude-sonnet-5 (文学电影质感)
- * - Gemini: gemini-3.6-flash (百万多模态帧)
- * - Kimi: kimi-k3 (长文反转)
- * - 智谱 GLM: glm-5.2 (清言旗舰)
- * - 豆包 Doubao: doubao-seed-2-1-pro (短剧完播率)
- * - 腾讯混元: hunyuan-pro (多模态解析)
- * - 本地开源: llama3.2 / qwen2.5 (127.0.0.1:11434)
+ * splicr v1.0.1 · 设置与模型引擎中心 (深度优化 LLM 与 TTS 全厂商 API 密钥与专属参数配置)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -50,17 +38,22 @@ const LLM_OPTIONS: LlmMeta[] = [
   { id: "local", name: "本地 Ollama", badge: "私有离线", desc: "llama3.2 / qwen2.5 (127.0.0.1:11434)", icon: "💻", defaultModel: "llama3.2", color: "from-zinc-500/20 to-zinc-600/10" },
 ];
 
-const TTS_OPTIONS: Array<{
-  id: "edge" | "open-ai" | "mimo" | "gpt-sovits";
+interface TtsMeta {
+  id: "edge" | "mimo" | "open-ai" | "gpt-sovits";
   label: string;
   tag: string;
   hint: string;
   icon: string;
-}> = [
-  { id: "edge", label: "Edge TTS", tag: "免费免Key", hint: "微软官方 · 48kHz 高清采样 · 50+ 电影声优", icon: "🎙️" },
-  { id: "gpt-sovits", label: "GPT-SoVITS", tag: "零样本克隆", hint: "本地部署 127.0.0.1:9880 · 5 秒音频克隆音色", icon: "🧬" },
-  { id: "mimo", label: "MiMo TTS (小米)", tag: "开放平台", hint: "mimo-v2.5-tts 限时免费 · 细腻自然声线", icon: "📱" },
-  { id: "open-ai", label: "OpenAI TTS", tag: "影视级原声", hint: "tts-1-hd / alloy / onyx 电影级情绪声线", icon: "💎" },
+  needApiKey: boolean;
+  defaultBaseUrl?: string;
+  defaultModel?: string;
+}
+
+const TTS_OPTIONS: TtsMeta[] = [
+  { id: "edge", label: "Edge TTS", tag: "免费免Key", hint: "微软官方 · 48kHz 高清采样 · 50+ 电影声优", icon: "🎙️", needApiKey: false },
+  { id: "mimo", label: "MiMo TTS (小米)", tag: "小米开放平台", hint: "mimo-v2.5-tts · 情感细腻自然人声 (需填写小米开放平台 API Key)", icon: "📱", needApiKey: true, defaultBaseUrl: "https://api.mimo.xiaomi.com/v1", defaultModel: "mimo-v2.5-tts" },
+  { id: "open-ai", label: "OpenAI TTS", tag: "影视级原声", hint: "tts-1-hd / alloy / onyx 电影级情绪声线 (需填写 OpenAI API Key)", icon: "💎", needApiKey: true, defaultBaseUrl: "https://api.openai.com/v1", defaultModel: "tts-1-hd" },
+  { id: "gpt-sovits", label: "GPT-SoVITS", tag: "零样本克隆", hint: "本地部署 127.0.0.1:9880 · 5 秒参考音频克隆音色", icon: "🧬", needApiKey: false, defaultBaseUrl: "http://127.0.0.1:9880" },
 ];
 
 const DEFAULT_SNAPSHOT: ConfigSnapshot = {
@@ -120,6 +113,7 @@ function SettingsPage() {
   };
 
   const currentLlm = LLM_OPTIONS.find((o) => o.id === form.llm_provider) || LLM_OPTIONS[0];
+  const currentTts = TTS_OPTIONS.find((o) => o.id === form.tts_provider) || TTS_OPTIONS[0];
 
   return (
     <div className="h-full w-full overflow-y-auto bg-[var(--color-bg)] p-6 md:p-8 select-none font-sans">
@@ -158,7 +152,7 @@ function SettingsPage() {
           <aside className="flex md:flex-col gap-1.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-sm">
             {[
               { id: "llm" as const, label: "大模型矩阵", sub: "10+ Providers", icon: "🧠" },
-              { id: "tts" as const, label: "配音与克隆", sub: "Edge / SoVITS", icon: "🎙️" },
+              { id: "tts" as const, label: "配音与克隆", sub: "Edge / MiMo / SoVITS", icon: "🎙️" },
               { id: "theme" as const, label: "偏好与外观", sub: "Theme & Lang", icon: "🎨" },
             ].map((item) => {
               const active = activeNav === item.id;
@@ -305,15 +299,21 @@ function SettingsPage() {
             {/* ── Tab 2: TTS 语音合成与克隆 ── */}
             {activeNav === "tts" && (
               <div className="space-y-6">
-                <div className="border-b border-[var(--color-border)] pb-3">
-                  <h3 className="text-sm font-bold text-[var(--color-text-primary)]">
-                    默认语音合成引擎 (TTS Engine)
-                  </h3>
-                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                    生成 48kHz 沉浸解说配音音频，并支持零样本音色克隆
-                  </p>
+                <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--color-text-primary)]">
+                      默认语音合成引擎 (TTS Engine)
+                    </h3>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                      生成 48kHz 沉浸解说配音音频，并支持零样本音色克隆
+                    </p>
+                  </div>
+                  <span className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-2.5 py-1 font-mono text-[10px] text-[var(--color-gold)] font-bold">
+                    当前选用: {currentTts?.label}
+                  </span>
                 </div>
 
+                {/* 4 大 TTS 引擎卡片网格 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {TTS_OPTIONS.map((opt) => {
                     const isSelected = form.tts_provider === opt.id;
@@ -342,7 +342,7 @@ function SettingsPage() {
 
                           {isSelected && (
                             <span className="rounded-full bg-[var(--color-gold)] px-2 py-0.5 text-[9px] font-black text-zinc-950 shadow-sm">
-                              ✓ 默认
+                              ✓ 已激活
                             </span>
                           )}
                         </div>
@@ -352,6 +352,99 @@ function SettingsPage() {
                       </div>
                     );
                   })}
+                </div>
+
+                {/* TTS 专属凭证与参数配置卡片 (为 Xiaomi MiMo / OpenAI / GPT-SoVITS 专属提供 API Key 与 Base URL) */}
+                <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-elevated)]/40 p-4 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-gold)]">
+                    <span>🎙️</span>
+                    <span>{currentTts?.label} · 专属参数与凭证配置</span>
+                  </div>
+
+                  {currentTts?.needApiKey && (
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[var(--color-text-secondary)]">
+                        {currentTts.label} API Key (密钥凭证)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder={`请输入 ${currentTts.label} 的 API Key...`}
+                        value={form.tts_api_key ?? ""}
+                        onChange={(e) => setForm({ ...form, tts_api_key: e.target.value || null })}
+                        className="w-full font-mono text-xs"
+                      />
+                      <p className="text-[10px] text-[var(--color-text-muted)]">
+                        {currentTts.id === "mimo"
+                          ? "前往小米开放平台 (MiMo Voice API) 控制台获取专属 API Key"
+                          : "前往 OpenAI 开发者平台获取专属 API Key"}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[var(--color-text-secondary)]">
+                        TTS 服务端点 (Base URL)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={currentTts?.defaultBaseUrl ?? "https://api.openai.com/v1"}
+                        value={form.tts_base_url ?? ""}
+                        onChange={(e) => setForm({ ...form, tts_base_url: e.target.value || null })}
+                        className="w-full font-mono text-xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-[var(--color-text-secondary)]">
+                        默认发音人代号 (Voice / Speaker)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={
+                          currentTts?.id === "edge"
+                            ? "zh-CN-XiaoxiaoNeural"
+                            : currentTts?.id === "mimo"
+                              ? "mimo_female_cinematic"
+                              : currentTts?.id === "open-ai"
+                                ? "alloy / onyx"
+                                : "default"
+                        }
+                        value={form.tts_voice ?? ""}
+                        onChange={(e) => setForm({ ...form, tts_voice: e.target.value || null })}
+                        className="w-full font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {currentTts?.id === "gpt-sovits" && (
+                    <div className="space-y-3 pt-2 border-t border-[var(--color-border)]">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[var(--color-text-secondary)]">
+                          参考音频路径 (Ref Audio File)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="/path/to/reference_sample.wav"
+                          value={form.tts_ref_audio_path ?? ""}
+                          onChange={(e) => setForm({ ...form, tts_ref_audio_path: e.target.value || null })}
+                          className="w-full font-mono text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold text-[var(--color-text-secondary)]">
+                          参考音频文本 (Prompt Text)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="输入 5 秒参考音频中对应的文字内容..."
+                          value={form.tts_prompt_text ?? ""}
+                          onChange={(e) => setForm({ ...form, tts_prompt_text: e.target.value || null })}
+                          className="w-full font-mono text-xs"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
