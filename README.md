@@ -126,6 +126,9 @@ cargo test --all
 pnpm test
 ```
 
+> **💡 macOS 安装提示**：若打开下载的安装包时提示 `“已损坏，无法打开”`，系 macOS Gatekeeper 安全机制对未签名文件的隔离标记，请在终端执行：  
+> `sudo xattr -rd com.apple.quarantine /Applications/splicr.app`（若为旧版本：`sudo xattr -rd com.apple.quarantine /Applications/vynaro.app`）即可正常启动。
+
 ---
 
 ## 📜 许可证

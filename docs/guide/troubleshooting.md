@@ -7,6 +7,21 @@ description: splicr 启动、AI 服务、视频处理和导出的常见问题与
 
 ## 启动问题
 
+### macOS 提示"应用已损坏，无法打开。您应该将它移到废纸篓" (Gatekeeper 拦截)
+
+**现象**：从 GitHub 下载 `.dmg` 或 `.app` 后打开，macOS 弹窗提示 `“splicr.app”已损坏，无法打开。您应该将它移到废纸篓。`
+
+**原因**：macOS Gatekeeper 安全机制对未签名或自签名开源软件会自动标记 `com.apple.quarantine` 隔离扩展属性。
+
+**解决**：
+打开终端（Terminal），执行以下命令移除隔离属性即可立即正常打开：
+
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/splicr.app
+```
+
+> 若之前下载的是旧版命名应用，可执行：`sudo xattr -rd com.apple.quarantine /Applications/vynaro.app`
+
 ### macOS 提示"无法验证开发者"
 
 **现象**：首次打开应用被系统拦截。

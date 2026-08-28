@@ -57,6 +57,14 @@ pnpm tauri dev
 2. 双击挂载，将 `splicr.app` 拖入「应用程序」文件夹
 3. 启动台中搜索 **splicr** 启动
 
+::: tip macOS 提示“已损坏，无法打开”解决办法
+若打开时提示 `“splicr.app”已损坏，无法打开。您应该将它移到废纸篓。`，系 macOS Gatekeeper 安全机制对未签名文件的隔离标记。  
+请在终端中执行以下命令解除隔离：
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/splicr.app
+```
+:::
+
 ### 方式二：从源码开发
 
 ```bash
