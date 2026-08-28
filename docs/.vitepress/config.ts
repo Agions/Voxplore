@@ -19,6 +19,7 @@ const SIDEBAR = [
       { text: "第一人称生产规范", link: "/guide/narration-spec" },
       { text: "AI 工作流详解", link: "/guide/ai-video-guide" },
       { text: "导出发布", link: "/guide/exporting" },
+      { text: "架构与命名规范", link: "/guide/architecture-spec" },
     ],
   },
   {
